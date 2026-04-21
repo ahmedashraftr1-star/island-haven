@@ -1,5 +1,6 @@
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
+import { Marquee } from "@/components/landing/Marquee";
 import { Impact } from "@/components/landing/Impact";
 import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
@@ -20,6 +21,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <Marquee />
         <Impact />
         <About />
         <Audience />
