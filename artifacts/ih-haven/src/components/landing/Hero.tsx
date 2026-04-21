@@ -53,14 +53,18 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/0 to-transparent" />
       </motion.div>
 
-      {/* Mobile bg */}
+      {/* Mobile bg — anchored to top 45%, hard cream below for type contrast */}
       <div className="absolute inset-0 z-0 lg:hidden">
-        <img
-          src="/photos/IMG_8357.jpg"
-          alt=""
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-background/85" />
+        <div className="absolute top-0 inset-x-0 h-[45%]">
+          <img
+            src="/photos/IMG_8357.jpg"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-foreground/40 mix-blend-multiply" />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-background" />
+        </div>
+        <div className="absolute bottom-0 inset-x-0 h-[55%] bg-background" />
       </div>
 
       {/* Vertical hairline */}
@@ -88,13 +92,13 @@ export function Hero() {
         <div className="h-16 w-px bg-foreground/20" />
       </div>
 
-      <div className="container relative z-10 mx-auto px-6 lg:px-10 max-w-7xl flex-1 flex flex-col justify-center py-12">
+      <div className="container relative z-10 mx-auto px-6 lg:px-10 max-w-7xl flex-1 flex flex-col justify-end lg:justify-center pb-6 pt-24 lg:py-12">
         {/* Top meta bar */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05 }}
-          className="flex items-center justify-between text-[10px] font-bold tracking-[0.4em] uppercase text-foreground/70 mb-12 lg:mb-16"
+          className="hidden lg:flex items-center justify-between text-[10px] font-bold tracking-[0.4em] uppercase text-foreground/70 mb-12 lg:mb-16"
         >
           <span className="flex items-center gap-2">
             <MapPin className="w-3 h-3" />
@@ -114,16 +118,16 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15, duration: 0.4 }}
-              className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-5"
+              className="text-[9px] lg:text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-3 lg:mb-5"
             >
               — مساحة · مجتمع · مستقبل
             </motion.div>
 
             <h1
-              className="font-extrabold text-foreground leading-[1.1] tracking-tight"
+              className="font-extrabold text-foreground leading-[1.05] lg:leading-[1.1] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
-                fontSize: "clamp(3.25rem, 9.5vw, 9.5rem)",
+                fontSize: "clamp(2.75rem, 9.5vw, 9.5rem)",
               }}
             >
               <div className="overflow-hidden">
@@ -166,16 +170,16 @@ export function Hero() {
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               transition={{ delay: 0.9, duration: 0.7 }}
-              className="mt-8 flex items-center gap-5 origin-right"
+              className="mt-6 lg:mt-8 flex items-center gap-4 lg:gap-5 origin-right"
             >
-              <div className="h-px flex-1 bg-foreground/25 max-w-[80px]" />
+              <div className="h-px flex-1 bg-foreground/25 max-w-[60px] lg:max-w-[80px]" />
               <span
-                className="text-xl md:text-2xl font-bold text-foreground tracking-tight"
+                className="text-lg md:text-2xl font-bold text-foreground tracking-tight"
                 style={{ fontFamily: "Cairo, sans-serif" }}
               >
                 Island Haven
               </span>
-              <div className="h-px flex-1 bg-foreground/25 max-w-[80px]" />
+              <div className="h-px flex-1 bg-foreground/25 max-w-[60px] lg:max-w-[80px]" />
             </motion.div>
           </div>
         </motion.div>
@@ -185,10 +189,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 1.0 }}
-          className="grid grid-cols-12 gap-6 lg:gap-10 mt-10 lg:mt-16"
+          className="grid grid-cols-12 gap-4 lg:gap-10 mt-8 lg:mt-16"
         >
-          <div className="col-span-12 lg:col-span-5">
-            <p className="text-base md:text-lg text-foreground/85 leading-relaxed font-light max-w-md">
+          <div className="col-span-12 lg:col-span-5 order-2 lg:order-1">
+            <p className="text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-light max-w-md">
               مجتمع مهنيّ في قلب غزّة يحتضن المستقلّين والخريجين وطلبة الجامعات.
               <span className="font-bold text-foreground"> ٣٩ مقعداً</span>،
               <span className="font-bold text-foreground"> ٨٠ منتسباً</span>،
@@ -196,14 +200,14 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="col-span-12 lg:col-span-7 flex flex-wrap gap-3 lg:justify-end items-center">
+          <div className="col-span-12 lg:col-span-7 order-1 lg:order-2 flex flex-col sm:flex-row flex-wrap gap-3 lg:justify-end items-stretch sm:items-center">
             <MagneticButton
               href="https://forms.gle/5r7dEeidxjg46m399"
               target="_blank"
               rel="noopener noreferrer"
-              className="group"
+              className="group w-full sm:w-auto"
             >
-              <span className="inline-flex items-center justify-center h-14 px-8 bg-foreground text-background font-bold text-sm tracking-[0.2em] uppercase hover:bg-primary transition-colors">
+              <span className="inline-flex w-full sm:w-auto items-center justify-center h-12 lg:h-14 px-6 lg:px-8 bg-foreground text-background font-bold text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-primary transition-colors">
                 سجّل للانتساب
                 <ArrowLeft className="mr-3 h-4 w-4 rtl:rotate-180" />
               </span>
@@ -212,14 +216,15 @@ export function Hero() {
               href="https://docs.google.com/forms/d/e/1FAIpQLSfniqnKG8t7m4fmXtPum8RZpXDYIDDj5AvfAoSA4JvKKbh5kg/viewform"
               target="_blank"
               rel="noopener noreferrer"
+              className="w-full sm:w-auto"
             >
-              <span className="inline-flex items-center justify-center h-14 px-8 border border-foreground text-foreground font-bold text-sm tracking-[0.2em] uppercase hover:bg-foreground hover:text-background transition-colors">
+              <span className="inline-flex w-full sm:w-auto items-center justify-center h-12 lg:h-14 px-6 lg:px-8 border border-foreground text-foreground font-bold text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-foreground hover:text-background transition-colors">
                 مقعد ضيف
               </span>
             </MagneticButton>
             <a
               href="#story"
-              className="inline-flex items-center justify-center h-14 px-2 text-foreground font-medium text-sm tracking-[0.15em] uppercase underline-offset-8 hover:underline"
+              className="hidden sm:inline-flex items-center justify-center h-12 lg:h-14 px-2 text-foreground font-medium text-xs lg:text-sm tracking-[0.15em] uppercase underline-offset-8 hover:underline"
             >
               اقرأ قصّتنا ←
             </a>
@@ -227,12 +232,12 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator (desktop only — mobile would push CTAs offscreen) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.8 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3"
+        className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-3"
       >
         <span className="text-[9px] tracking-[0.5em] uppercase text-foreground/60 font-bold">
           Scroll

@@ -51,13 +51,14 @@ export function SpotlightReveal() {
             [ N°11 — البيان ]
           </div>
           <div
-            className="font-bold text-background/85 leading-tight"
+            className="font-bold text-background/90 leading-tight"
             style={{
               fontFamily: "Reem Kufi, sans-serif",
               fontSize: "clamp(1.25rem, 2.4vw, 2rem)",
             }}
           >
-            مرّر مؤشّرك على النصّ — ليُضاء.
+            أربعة بياناتٍ نقف خلفها.
+            <span className="hidden md:inline text-background/55 font-light"> — مرّر مؤشّرك ليُضاء أحدها.</span>
           </div>
         </div>
         <div className="text-[10px] tracking-[0.4em] uppercase text-background/40 font-bold">
@@ -65,76 +66,90 @@ export function SpotlightReveal() {
         </div>
       </div>
 
-      {/* the manifesto, dim base + bright revealed */}
+      {/* the manifesto — readable at rest, intensified on cursor */}
       <div className="container mx-auto px-6 lg:px-10 max-w-6xl relative">
-        {/* dim base */}
+        {/* base layer: numbered statements always visible at calm 55% opacity */}
         <div
-          aria-hidden
-          className="select-none"
+          className="select-none relative z-[1]"
           style={{
             fontFamily: "Cairo, sans-serif",
-            fontWeight: 900,
-            lineHeight: 1.05,
-            fontSize: "clamp(2rem, 6vw, 5.5rem)",
-            color: "rgba(255,255,255,0.10)",
+            fontWeight: 800,
+            lineHeight: 1.15,
+            fontSize: "clamp(1.5rem, 4.2vw, 3.75rem)",
+            color: "rgba(255,255,255,0.55)",
           }}
         >
           {lines.map((l, i) => (
-            <div key={i} className="mb-3">
-              {l}
+            <div
+              key={i}
+              className="grid grid-cols-[auto_1fr] gap-x-6 lg:gap-x-10 items-baseline mb-6 lg:mb-8 border-t border-background/10 pt-5 lg:pt-7"
+            >
+              <span
+                className="text-[10px] tracking-[0.4em] font-bold text-primary/80 pt-3"
+                style={{ fontFamily: "system-ui, sans-serif" }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>{renderHighlighted(l)}</div>
             </div>
           ))}
         </div>
 
-        {/* bright spotlight reveal */}
+        {/* spotlight overlay — intensifies the same text under cursor (desktop only) */}
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none px-6 lg:px-10"
+          className="absolute inset-0 pointer-events-none hidden md:block"
           style={{
-            WebkitMaskImage: active ? mask : "radial-gradient(circle 0px at 50% 50%, black, transparent)",
-            maskImage: active ? mask : "radial-gradient(circle 0px at 50% 50%, black, transparent)",
-            transition: "all 0.15s ease",
+            WebkitMaskImage: active
+              ? mask
+              : "radial-gradient(circle 0px at 50% 50%, black, transparent)",
+            maskImage: active
+              ? mask
+              : "radial-gradient(circle 0px at 50% 50%, black, transparent)",
+            transition: "all 0.18s ease",
           }}
         >
           <div
             className="select-none"
             style={{
               fontFamily: "Cairo, sans-serif",
-              fontWeight: 900,
-              lineHeight: 1.05,
-              fontSize: "clamp(2rem, 6vw, 5.5rem)",
+              fontWeight: 800,
+              lineHeight: 1.15,
+              fontSize: "clamp(1.5rem, 4.2vw, 3.75rem)",
               color: "rgb(255,255,255)",
             }}
           >
             {lines.map((l, i) => (
-              <div key={i} className="mb-3">
-                {l.split("لا تنتظر").length > 1 ||
-                l.split("لا تُمنح").length > 1 ||
-                l.split("ألف نافذة").length > 1 ||
-                l.split("غزّة").length > 1
-                  ? renderHighlighted(l)
-                  : l}
+              <div
+                key={i}
+                className="grid grid-cols-[auto_1fr] gap-x-6 lg:gap-x-10 items-baseline mb-6 lg:mb-8 border-t border-transparent pt-5 lg:pt-7"
+              >
+                <span
+                  className="text-[10px] tracking-[0.4em] font-bold text-primary pt-3"
+                  style={{ fontFamily: "system-ui, sans-serif" }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>{renderHighlighted(l)}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* cursor inner glow */}
+        {/* cursor focus glow */}
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute rounded-full"
-          animate={{
-            opacity: active ? 1 : 0,
-          }}
+          className="pointer-events-none absolute rounded-full hidden md:block"
+          animate={{ opacity: active ? 1 : 0 }}
           style={{
             left: `${pos.x}%`,
             top: `${pos.y}%`,
             translateX: "-50%",
             translateY: "-50%",
-            width: size * 0.12,
-            height: size * 0.12,
+            width: size * 0.14,
+            height: size * 0.14,
             background:
-              "radial-gradient(circle, rgba(199,87,67,0.6) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(199,87,67,0.55) 0%, transparent 70%)",
           }}
         />
       </div>

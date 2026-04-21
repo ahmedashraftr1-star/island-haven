@@ -40,8 +40,11 @@ export function MagneticButton({
     y.set(0);
   };
 
+  const isFullWidth = /\bw-full\b/.test(className);
+  const stretch = isFullWidth ? "flex w-full" : "inline-flex";
+
   const inner = (
-    <motion.span style={{ x: sx, y: sy }} className="inline-flex">
+    <motion.span style={{ x: sx, y: sy }} className={stretch}>
       {children}
     </motion.span>
   );
@@ -52,14 +55,14 @@ export function MagneticButton({
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       data-magnetic
-      className={"inline-flex " + className}
+      className={stretch + " " + className}
     >
       {href ? (
-        <a href={href} target={target} rel={rel} onClick={onClick} className="inline-flex">
+        <a href={href} target={target} rel={rel} onClick={onClick} className={stretch}>
           {inner}
         </a>
       ) : (
-        <button onClick={onClick} className="inline-flex">
+        <button onClick={onClick} className={stretch}>
           {inner}
         </button>
       )}
