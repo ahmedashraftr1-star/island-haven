@@ -151,16 +151,11 @@ export function CommunityWall() {
                 >
                   <motion.span
                     animate={{
-                      scale:
-                        hover === i ? 1.6 : hover === null ? [1, 1.08, 1] : 0.9,
-                      opacity: hover === null || hover === i ? 1 : 0.35,
+                      scale: hover === i ? 1.7 : hover === null ? 1 : 0.85,
+                      opacity:
+                        hover === null ? 1 : hover === i ? 1 : 0.3,
                     }}
-                    transition={{
-                      duration: hover === null ? 3 : 0.3,
-                      repeat: hover === null ? Infinity : 0,
-                      delay: hover === null ? (i % 12) * 0.08 : 0,
-                      ease: "easeInOut",
-                    }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
                     className={`absolute inset-0 rounded-full ${colorOf(m.type)}`}
                   />
                 </motion.button>

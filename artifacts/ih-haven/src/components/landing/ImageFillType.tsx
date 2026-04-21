@@ -10,7 +10,7 @@ const photos = [
   "/photos/IMG_8313.jpg",
 ];
 
-const words = ["غزّة", "الحلم", "المعرفة", "المستقبل"];
+const words = ["غزّة", "الحُلم", "المعرفة", "المستقبل"];
 
 export function ImageFillType() {
   const [photoIdx, setPhotoIdx] = useState(0);
@@ -20,20 +20,14 @@ export function ImageFillType() {
     target: ref,
     offset: ["start end", "end start"],
   });
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.25]);
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["8%", "-8%"]);
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setPhotoIdx((i) => (i + 1) % photos.length);
-    }, 2400);
+    const t = setInterval(() => setPhotoIdx((i) => (i + 1) % photos.length), 2400);
     return () => clearInterval(t);
   }, []);
-
   useEffect(() => {
-    const t = setInterval(() => {
-      setWordIdx((i) => (i + 1) % words.length);
-    }, 4800);
+    const t = setInterval(() => setWordIdx((i) => (i + 1) % words.length), 4800);
     return () => clearInterval(t);
   }, []);
 
@@ -42,8 +36,8 @@ export function ImageFillType() {
       ref={ref}
       className="relative bg-background py-24 lg:py-32 overflow-hidden"
     >
-      {/* meta header */}
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl mb-12 flex items-end justify-between gap-6 flex-wrap">
+      {/* meta */}
+      <div className="container mx-auto px-6 lg:px-10 max-w-7xl mb-12 lg:mb-16 flex items-end justify-between gap-6 flex-wrap">
         <div className="max-w-xl">
           <div className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-3">
             [ N°02 — لأجل من؟ ]
@@ -55,7 +49,9 @@ export function ImageFillType() {
               fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
             }}
           >
-            مساحة بُنيت من القلب،<br />لقلبٍ آخر.
+            مساحة بُنيت من القلب،
+            <br />
+            لقلبٍ آخر.
           </h2>
         </div>
         <div className="text-xs text-muted-foreground tracking-[0.3em] uppercase font-medium max-w-xs leading-relaxed">
@@ -63,89 +59,77 @@ export function ImageFillType() {
         </div>
       </div>
 
-      {/* the giant word */}
-      <div className="relative w-full" style={{ height: "min(78vw, 70vh)" }}>
-        {/* photos behind for clip */}
-        <div className="absolute inset-0 overflow-hidden">
-          {photos.map((p, i) => (
-            <motion.div
-              key={p}
-              className="absolute inset-0"
-              animate={{ opacity: i === photoIdx ? 1 : 0 }}
-              transition={{ duration: 1.4, ease: "easeInOut" }}
-            >
-              <motion.img
-                src={p}
-                alt=""
-                style={{ scale: bgScale, y: bgY }}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </motion.div>
-          ))}
-          <div className="absolute inset-0 bg-foreground/20" />
-        </div>
+      {/* the giant word — letters filled with photos */}
+      <div
+        className="relative w-full flex items-center justify-center select-none"
+        style={{ height: "min(80vw, 72vh)" }}
+      >
+        {/* outline ghost layer */}
+        <h2
+          aria-hidden
+          className="absolute inset-0 flex items-center justify-center text-transparent pointer-events-none"
+          style={{
+            fontFamily: "Cairo, sans-serif",
+            fontSize: "clamp(7rem, 30vw, 26rem)",
+            fontWeight: 900,
+            lineHeight: 0.85,
+            WebkitTextStroke: "1px rgba(33,29,28,0.10)",
+          }}
+        >
+          {words[wordIdx]}
+        </h2>
 
-        {/* the word — duplicated layers, one as image-clipped */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* outline */}
-          <h2
-            aria-hidden
-            className="absolute inset-0 flex items-center justify-center text-transparent select-none pointer-events-none"
+        {/* photo-filled word */}
+        {photos.map((p, i) => (
+          <motion.h2
+            key={p}
+            className="absolute inset-0 flex items-center justify-center text-center"
+            animate={{ opacity: i === photoIdx ? 1 : 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
             style={{
               fontFamily: "Cairo, sans-serif",
-              fontSize: "clamp(8rem, 32vw, 28rem)",
+              fontSize: "clamp(7rem, 30vw, 26rem)",
               fontWeight: 900,
               lineHeight: 0.85,
-              WebkitTextStroke: "1px rgba(255,255,255,0.25)",
-            }}
-          >
-            {words[wordIdx]}
-          </h2>
-
-          {/* solid background — clip the word area to background */}
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-background"
-            style={{
-              WebkitMaskImage: "radial-gradient(ellipse 70% 70% at center, transparent 0%, transparent 50%, black 75%)",
-              maskImage: "radial-gradient(ellipse 70% 70% at center, transparent 0%, transparent 50%, black 75%)",
-            }}
-          />
-
-          {/* the actual word — solid background-color for cutout look */}
-          <h2
-            className="relative font-black select-none"
-            style={{
-              fontFamily: "Cairo, sans-serif",
-              fontSize: "clamp(8rem, 32vw, 28rem)",
-              fontWeight: 900,
-              lineHeight: 0.85,
-              color: "transparent",
-              WebkitTextStroke: "0",
-              backgroundImage: `url(${photos[photoIdx]})`,
+              backgroundImage: `url(${p})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              transition: "background-image 1.4s ease",
+              color: "transparent",
             }}
-            key={`fill-${photoIdx}-${wordIdx}`}
           >
             {words[wordIdx]}
-          </h2>
-        </div>
+          </motion.h2>
+        ))}
 
         {/* corner labels */}
-        <div className="absolute bottom-6 right-6 lg:right-10 z-10 text-[10px] tracking-[0.4em] uppercase font-bold text-background/80">
+        <div className="absolute bottom-4 right-6 lg:right-10 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
           {String(wordIdx + 1).padStart(2, "0")} / {String(words.length).padStart(2, "0")}
         </div>
-        <div className="absolute bottom-6 left-6 lg:left-10 z-10 text-[10px] tracking-[0.4em] uppercase font-bold text-background/80">
+        <div className="absolute bottom-4 left-6 lg:left-10 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
           A Living Portrait
         </div>
+
+        {/* faint scrolling photo strip behind for depth */}
+        <motion.div
+          aria-hidden
+          style={{ y: bgY }}
+          className="absolute inset-x-0 -bottom-8 h-24 opacity-[0.08] flex gap-2 overflow-hidden pointer-events-none"
+        >
+          {photos.concat(photos).map((p, i) => (
+            <img
+              key={i}
+              src={p}
+              alt=""
+              className="h-full w-40 object-cover flex-shrink-0"
+            />
+          ))}
+        </motion.div>
       </div>
 
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl mt-12 flex items-end justify-end">
+      <div className="container mx-auto px-6 lg:px-10 max-w-7xl mt-12 lg:mt-16 flex items-end justify-end">
         <p
           className="text-foreground italic text-lg lg:text-xl max-w-md text-right leading-relaxed"
           style={{ fontFamily: "Amiri, serif" }}

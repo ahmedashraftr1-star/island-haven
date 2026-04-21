@@ -7,7 +7,7 @@ const EASE = [0.65, 0, 0.35, 1] as const;
 const wordIn = (delay: number) => ({
   initial: { y: "110%", opacity: 0 },
   animate: { y: 0, opacity: 1 },
-  transition: { duration: 1.0, delay, ease: EASE },
+  transition: { duration: 0.7, delay, ease: EASE },
 });
 
 export function Hero() {
@@ -93,7 +93,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
           className="flex items-center justify-between text-[10px] font-bold tracking-[0.4em] uppercase text-foreground/70 mb-12 lg:mb-16"
         >
           <span className="flex items-center gap-2">
@@ -113,7 +113,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
+              transition={{ delay: 0.15, duration: 0.4 }}
               className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-5"
             >
               — مساحة · مجتمع · مستقبل
@@ -127,11 +127,11 @@ export function Hero() {
               }}
             >
               <div className="overflow-hidden">
-                <motion.div {...wordIn(0.5)}>مساحة</motion.div>
+                <motion.div {...wordIn(0.2)}>مساحة</motion.div>
               </div>
               <div className="overflow-hidden">
                 <motion.div
-                  {...wordIn(0.7)}
+                  {...wordIn(0.35)}
                   className="text-primary italic relative inline-block"
                 >
                   <motion.span
@@ -149,12 +149,12 @@ export function Hero() {
                     aria-hidden
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ delay: 1.6, duration: 0.8, ease: "easeInOut" }}
+                    transition={{ delay: 1.0, duration: 0.7, ease: "easeInOut" }}
                     className="absolute right-0 left-0 -bottom-2 h-[6px] bg-primary origin-right"
                   />
                 </motion.div>{" "}
                 <motion.span
-                  {...wordIn(0.9)}
+                  {...wordIn(0.5)}
                   className="inline-block text-foreground/95"
                 >
                   لأحلامك.
@@ -165,7 +165,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ delay: 1.4, duration: 0.8 }}
+              transition={{ delay: 0.9, duration: 0.7 }}
               className="mt-8 flex items-center gap-5 origin-right"
             >
               <div className="h-px flex-1 bg-foreground/25 max-w-[80px]" />
@@ -184,7 +184,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.5 }}
+          transition={{ duration: 0.7, delay: 1.0 }}
           className="grid grid-cols-12 gap-6 lg:gap-10 mt-10 lg:mt-16"
         >
           <div className="col-span-12 lg:col-span-5">
@@ -231,7 +231,7 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 0.8 }}
+        transition={{ delay: 1.4, duration: 0.8 }}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3"
       >
         <span className="text-[9px] tracking-[0.5em] uppercase text-foreground/60 font-bold">

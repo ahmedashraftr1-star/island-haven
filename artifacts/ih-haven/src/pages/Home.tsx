@@ -2,6 +2,7 @@ import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Intro } from "@/components/landing/Intro";
 import { CustomCursor } from "@/components/landing/CustomCursor";
+import { CursorImageTrail } from "@/components/landing/CursorImageTrail";
 import { Grain } from "@/components/landing/Grain";
 import { Hero } from "@/components/landing/Hero";
 import { Marquee } from "@/components/landing/Marquee";
@@ -27,6 +28,7 @@ export default function Home() {
     <div className="min-h-screen bg-background font-sans">
       <Intro />
       <Grain />
+      <CursorImageTrail />
       <CustomCursor />
       <ScrollProgress />
       <Header />
