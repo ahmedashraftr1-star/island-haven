@@ -3,15 +3,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import Home from "@/pages/Home";
+import Apply from "@/pages/Apply";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
-
-import Home from "@/pages/Home";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/apply" component={Apply} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

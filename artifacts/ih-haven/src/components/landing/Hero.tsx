@@ -202,10 +202,9 @@ export function Hero() {
 
           <div className="col-span-12 lg:col-span-7 order-1 lg:order-2 flex flex-col sm:flex-row flex-wrap gap-3 lg:justify-end items-stretch sm:items-center">
             <MagneticButton
-              href="https://forms.gle/5r7dEeidxjg46m399"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`${import.meta.env.BASE_URL}apply`}
               className="group w-full sm:w-auto"
+              data-testid="cta-apply"
             >
               <span className="inline-flex w-full sm:w-auto items-center justify-center h-12 lg:h-14 px-6 lg:px-8 bg-foreground text-background font-bold text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-primary transition-colors">
                 سجّل للانتساب
@@ -213,9 +212,7 @@ export function Hero() {
               </span>
             </MagneticButton>
             <MagneticButton
-              href="https://docs.google.com/forms/d/e/1FAIpQLSfniqnKG8t7m4fmXtPum8RZpXDYIDDj5AvfAoSA4JvKKbh5kg/viewform"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`${import.meta.env.BASE_URL}apply?type=guest`}
               className="w-full sm:w-auto"
             >
               <span className="inline-flex w-full sm:w-auto items-center justify-center h-12 lg:h-14 px-6 lg:px-8 border border-foreground text-foreground font-bold text-xs lg:text-sm tracking-[0.2em] uppercase hover:bg-foreground hover:text-background transition-colors">

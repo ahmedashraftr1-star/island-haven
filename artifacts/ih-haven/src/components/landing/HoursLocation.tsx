@@ -15,7 +15,7 @@ const channels = [
     ar: "نموذج التسجيل",
     en: "Apply",
     desc: "للانتساب إلى المجتمع — راجع معايير القبول قبل التقديم.",
-    href: "https://forms.gle/5r7dEeidxjg46m399",
+    href: "/apply",
     handle: "افتح النموذج",
   },
   {

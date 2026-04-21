@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
 import { EditorialHeader, HairlineRow } from "./EditorialHeader";
+import { useContentSection } from "@/hooks/use-content";
 
 export function About() {
+  const aboutContent = useContentSection("about", {
+    headline: "",
+    body: "",
+  });
   return (
     <section id="about" className="relative bg-background py-24 lg:py-32 overflow-hidden">
       <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
@@ -17,12 +22,16 @@ export function About() {
             </>
           }
           sub={
-            <>
-              في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
-              وُلد <span className="text-foreground font-medium">Island Haven</span>{" "}
-              كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن طاقته،
-              ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
-            </>
+            aboutContent.body ? (
+              <>{aboutContent.body}</>
+            ) : (
+              <>
+                في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
+                وُلد <span className="text-foreground font-medium">Island Haven</span>{" "}
+                كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن طاقته،
+                ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
+              </>
+            )
           }
         />
 

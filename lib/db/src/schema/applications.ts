@@ -5,7 +5,6 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const applicationsTable = pgTable("applications", {
@@ -22,13 +21,13 @@ export const applicationsTable = pgTable("applications", {
     .notNull(),
 });
 
-export const insertApplicationSchema = createInsertSchema(applicationsTable, {
+export const insertApplicationSchema = z.object({
   fullName: z.string().trim().min(2, "الاسم قصير جداً").max(120),
   email: z.string().trim().email("بريد غير صحيح").max(160),
   phone: z.string().trim().min(6, "رقم قصير").max(40),
   category: z.enum(["freelancer", "graduate", "student", "other"]),
   bio: z.string().trim().min(10, "اكتب نبذة قصيرة").max(2000),
-}).omit({ id: true, createdAt: true, status: true, notes: true });
+});
 
 export type Application = typeof applicationsTable.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;

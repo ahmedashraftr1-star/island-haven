@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { usePageView } from "@/hooks/use-tracking";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Intro } from "@/components/landing/Intro";
@@ -25,6 +26,7 @@ import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
 
 export default function Home() {
+  usePageView("/");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const y = params.get("y");
