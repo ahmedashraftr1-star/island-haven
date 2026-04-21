@@ -46,7 +46,7 @@ export function Hero() {
       >
         <img
           src="/photos/IMG_8357.jpg"
-          alt=""
+          alt="منتسبو آيلاند هيفن أثناء العمل في المساحة المشتركة في غزّة"
           className="w-[110%] h-[110%] -translate-x-[5%] -translate-y-[5%] object-cover grayscale-[15%] contrast-[1.05]"
         />
         <div className="absolute inset-0 bg-foreground/35 mix-blend-multiply" />
@@ -58,7 +58,7 @@ export function Hero() {
         <div className="absolute top-0 inset-x-0 h-[45%]">
           <img
             src="/photos/IMG_8357.jpg"
-            alt=""
+            alt="منتسبو آيلاند هيفن أثناء العمل في المساحة المشتركة في غزّة"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-foreground/40 mix-blend-multiply" />

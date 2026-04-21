@@ -34,7 +34,7 @@ export function Programs() {
           <div className="col-span-12 lg:col-span-5 relative">
             <img
               src="/photos/IMG_8352.jpg"
-              alt=""
+              alt="جلسة عمل لمنتسبي آيلاند هيفن خلال فعالية صُنع في آيلاند هيفن"
               className="w-full aspect-[4/5] object-cover grayscale-[10%]"
             />
             <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] tracking-[0.3em] uppercase font-bold px-3 py-2">

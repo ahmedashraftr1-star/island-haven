@@ -107,7 +107,7 @@ export function Story() {
             <div className="relative">
               <img
                 src="/photos/IMG_8358.jpg"
-                alt=""
+                alt="منظر داخليّ من آيلاند هيفن يوضح بيئة العمل الهادئة"
                 className="w-full aspect-[3/4] object-cover grayscale-[10%]"
               />
               <div className="absolute -bottom-4 left-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">

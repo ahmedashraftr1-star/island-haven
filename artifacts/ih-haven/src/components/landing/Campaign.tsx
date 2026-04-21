@@ -2,14 +2,32 @@ import { motion } from "framer-motion";
 import { EditorialHeader } from "./EditorialHeader";
 import { MagneticButton } from "./MagneticButton";
 
-const goal = 30000;
-const remaining = 28800;
-const raised = goal - remaining;
-const pct = Math.round((raised / goal) * 100);
-
-function fmtUSD(n: number) {
-  return "$" + n.toLocaleString("en-US");
-}
+const tiers = [
+  {
+    no: "I",
+    ar: "أسبوع كهرباء",
+    en: "A week of power",
+    note: "تشغيل المكاتب والإنترنت لأسبوع كامل في المساحة.",
+  },
+  {
+    no: "II",
+    ar: "شهر إنترنت",
+    en: "A month of bandwidth",
+    note: "اتّصال ثابت يصل المنتسبين بالعالم وفرص العمل.",
+  },
+  {
+    no: "III",
+    ar: "مقعد لمنتسب",
+    en: "A seat for a member",
+    note: "كرسي ومكتب جديد يحتضن طاقة شابّة لشهور قادمة.",
+  },
+  {
+    no: "IV",
+    ar: "ركن في الفرع",
+    en: "A corner in the new branch",
+    note: "مساحة كاملة باسمك تُفتح أمام جيلٍ جديد من غزّة.",
+  },
+];
 
 export function Campaign() {
   return (
@@ -39,7 +57,7 @@ export function Campaign() {
           >
             <img
               src="/photos/IMG_8300.jpg"
-              alt=""
+              alt="مساحة آيلاند هيفن المخصّصة للعمل المهنيّ في غزّة"
               className="w-full aspect-[4/5] object-cover grayscale-[10%]"
             />
             <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] tracking-[0.3em] uppercase font-bold px-3 py-2">
@@ -53,7 +71,7 @@ export function Campaign() {
           <div className="col-span-12 lg:col-span-7">
             {/* Headline tag */}
             <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-5">
-              مشاريع التمكين · ٢٧ مارس ٢٠٢٦ · غير مكتمل
+              الفرع الجديد · حملة مفتوحة · غزّة
             </div>
 
             <h3
@@ -70,53 +88,62 @@ export function Campaign() {
 
             <p className="text-base lg:text-lg text-foreground/75 font-light leading-relaxed mb-10 max-w-xl">
               مع تزايد الإقبال على المجتمع، أصبح التوسّع ضرورةً حقيقيّة لا رفاهية.
-              مساهمتك تُترجَم مباشرةً إلى مكاتب، إنترنت، كهرباء، وفرص لمنتسبين جُدد.
+              لسنا نطلب رقماً، بل نفتح الباب لأن تصير جزءاً من المكان —
+              بأيّ قدر تستطيع. كلّ مساهمة تُترجَم مباشرةً إلى أثرٍ ملموس.
             </p>
 
-            {/* Progress block — editorial */}
-            <div className="border-t border-foreground/15 border-b border-foreground/15 py-7">
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div>
-                  <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-2">
-                    Raised · جُمع
-                  </div>
-                  <div
-                    className="font-extrabold text-foreground leading-none"
-                    style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3.5vw, 3rem)" }}
-                    dir="ltr"
-                  >
-                    {fmtUSD(raised)}
-                  </div>
+            {/* What your contribution unlocks — editorial tiers */}
+            <div className="border-t border-foreground/15">
+              <div className="flex items-baseline justify-between py-5">
+                <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold">
+                  ماذا تُحدِث مساهمتك
                 </div>
-                <div className="text-right">
-                  <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-2">
-                    Goal · الهدف
-                  </div>
-                  <div
-                    className="font-extrabold text-foreground/45 leading-none"
-                    style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3.5vw, 3rem)" }}
-                    dir="ltr"
-                  >
-                    {fmtUSD(goal)}
-                  </div>
+                <div
+                  dir="ltr"
+                  className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold"
+                >
+                  Impact ledger
                 </div>
               </div>
 
-              <div className="h-px bg-foreground/15 relative overflow-hidden">
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: pct / 100 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.6, ease: "easeOut" }}
-                  className="absolute inset-0 bg-primary origin-right h-[2px] -mt-px"
-                />
-              </div>
-
-              <div className="mt-5 flex items-baseline justify-between text-[11px] tracking-[0.3em] uppercase font-bold">
-                <span className="text-primary">{pct}٪ Funded</span>
-                <span className="text-foreground/55" dir="ltr">
-                  {fmtUSD(remaining)} remaining
-                </span>
+              <div className="border-t border-foreground/15">
+                {tiers.map((t, i) => (
+                  <motion.div
+                    key={t.no}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.6, delay: i * 0.08 }}
+                    className="grid grid-cols-12 gap-4 items-baseline py-5 border-b border-foreground/12"
+                  >
+                    <div
+                      dir="ltr"
+                      className="col-span-2 sm:col-span-1 text-[11px] tracking-[0.3em] font-bold text-primary"
+                    >
+                      {t.no}
+                    </div>
+                    <div className="col-span-10 sm:col-span-4">
+                      <div
+                        className="font-bold text-foreground"
+                        style={{
+                          fontFamily: "Cairo, sans-serif",
+                          fontSize: "clamp(1.05rem, 1.6vw, 1.4rem)",
+                        }}
+                      >
+                        {t.ar}
+                      </div>
+                      <div
+                        dir="ltr"
+                        className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-1"
+                      >
+                        {t.en}
+                      </div>
+                    </div>
+                    <p className="col-span-12 sm:col-span-7 text-sm lg:text-base text-foreground/70 font-light leading-relaxed">
+                      {t.note}
+                    </p>
+                  </motion.div>
+                ))}
               </div>
             </div>
 

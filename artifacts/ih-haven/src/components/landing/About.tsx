@@ -38,7 +38,7 @@ export function About() {
             <div className="relative">
               <img
                 src="/photos/IMG_8347.jpg"
-                alt=""
+                alt="ركن من مكاتب آيلاند هيفن المفتوحة للمستقلّين والخرّيجين والطلبة"
                 className="w-full aspect-[4/5] object-cover grayscale-[10%]"
               />
               <div className="absolute -bottom-4 right-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
