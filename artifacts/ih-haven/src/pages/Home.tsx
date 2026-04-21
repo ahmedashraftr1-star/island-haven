@@ -15,7 +15,7 @@ import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
 import { Reveal } from "@/components/landing/Reveal";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
-import { MeshGradient } from "@/components/landing/MeshGradient";
+import { Features } from "@/components/landing/Features";
 
 export default function Home() {
   usePageView("/");
@@ -31,13 +31,12 @@ export default function Home() {
   }, []);
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
-      <MeshGradient />
-      <div className="noise-overlay" />
       <SmoothScroll />
       <ScrollProgress />
       <Header />
       <main className="relative z-10">
         <Hero />
+        <Features />
         <NumbersArt />
         <Reveal as="section"><About /></Reveal>
         <Reveal as="section"><Audience /></Reveal>
