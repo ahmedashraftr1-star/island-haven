@@ -6,7 +6,6 @@ const links = [
   { href: "#audience", label: "الفئات" },
   { href: "#offerings", label: "ما نقدّم" },
   { href: "#programs", label: "الفعاليّات" },
-  { href: "#campaign", label: "الفرع الجديد" },
   { href: "#visit", label: "تواصل" },
 ];
 
@@ -23,52 +22,66 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-background/90 backdrop-blur-md border-b border-foreground/12 py-3"
-          : "bg-transparent py-5"
+      className={`fixed top-4 inset-x-4 lg:inset-x-6 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        scrolled ? "top-3" : "top-5"
       }`}
     >
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl flex items-center justify-between gap-6">
-        {/* Logo lockup — editorial, no rounded chrome */}
+      <div
+        className={`glass-strong mx-auto max-w-[1500px] flex items-center justify-between gap-6 rounded-2xl px-4 lg:px-6 transition-all duration-500 ${
+          scrolled ? "py-2" : "py-3"
+        }`}
+      >
+        {/* Logo */}
         <a href="#" className="flex items-center gap-3 group shrink-0">
-          <img
-            src="/logo.png"
-            alt="Island Haven"
-            className="w-11 h-11 object-contain"
-          />
-          <div className="leading-tight hidden sm:block">
+          <div className="relative">
             <div
-              className="font-bold text-foreground text-[15px] tracking-tight"
-            >
+              aria-hidden
+              className="absolute -inset-1 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background:
+                  "conic-gradient(from 0deg, hsl(var(--violet)), hsl(var(--magenta)), hsl(var(--cyan)), hsl(var(--violet)))",
+              }}
+            />
+            <img
+              src="/logo.png"
+              alt="Island Haven"
+              className="relative w-10 h-10 object-contain rounded-full bg-background p-1"
+            />
+          </div>
+          <div className="leading-tight hidden sm:block">
+            <div className="font-medium text-foreground text-[14px] tracking-tight">
               Island Haven
             </div>
-            <div className="text-[10px] text-foreground/55 font-bold tracking-[0.3em] uppercase">
-              آيلاند هيفن · غزّة
+            <div className="text-[9px] text-foreground/55 tracking-[0.3em] uppercase font-mono">
+              Gaza · 2026
             </div>
           </div>
         </a>
 
-        {/* Editorial nav: small caps, hairline hover underline */}
-        <nav className="hidden lg:flex items-center gap-7">
+        {/* Nav */}
+        <nav className="hidden lg:flex items-center gap-1 px-2 py-1 rounded-full">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="group relative text-[13px] font-bold text-foreground/75 hover:text-foreground transition-colors py-1"
+              className="relative px-4 py-1.5 text-[13px] font-medium text-foreground/70 hover:text-foreground transition-colors rounded-full hover:bg-white/5"
             >
-              <span>{l.label}</span>
-              <span className="absolute -bottom-0.5 right-0 left-0 h-px bg-primary scale-x-0 group-hover:scale-x-100 origin-right transition-transform duration-300" />
+              {l.label}
             </a>
           ))}
         </nav>
 
-        {/* CTA — hairline, no shadow, editorial */}
+        {/* CTA */}
         <a
           href="https://nas2nas.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden lg:inline-flex items-center gap-2 h-10 px-5 border border-foreground bg-foreground text-background text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
+          className="hidden lg:inline-flex items-center gap-2 h-9 px-5 rounded-full text-[12px] tracking-[0.15em] uppercase font-medium text-white font-mono transition-all duration-500 hover:scale-[1.04]"
+          style={{
+            background:
+              "linear-gradient(100deg, hsl(var(--violet)) 0%, hsl(var(--magenta)) 60%, hsl(var(--cyan)) 100%)",
+            boxShadow: "0 0 20px -3px hsl(var(--violet) / 0.55)",
+          }}
         >
           <span>تبرّع الآن</span>
           <span aria-hidden>→</span>
@@ -77,7 +90,7 @@ export function Header() {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className="lg:hidden w-10 h-10 border border-foreground/15 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
+          className="lg:hidden w-9 h-9 rounded-full glass flex items-center justify-center text-foreground"
           aria-label="القائمة"
         >
           {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -85,17 +98,17 @@ export function Header() {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-foreground/12 bg-background/97 backdrop-blur-md">
-          <nav className="container mx-auto px-6 py-4 flex flex-col">
+        <div className="lg:hidden mt-2 glass-strong rounded-2xl overflow-hidden">
+          <nav className="px-4 py-3 flex flex-col">
             {links.map((l, i) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="flex items-baseline justify-between gap-3 py-3 border-b border-foreground/10 text-[15px] font-bold text-foreground hover:text-primary transition-colors"
+                className="flex items-baseline justify-between gap-3 py-3 border-b border-white/5 text-[15px] font-medium text-foreground hover:text-primary transition-colors"
               >
                 <span>{l.label}</span>
-                <span className="text-[10px] tracking-[0.3em] uppercase text-foreground/40 font-bold">
+                <span className="text-[10px] tracking-[0.3em] uppercase text-foreground/40 font-mono">
                   {String(i + 1).padStart(2, "0")}
                 </span>
               </a>
@@ -104,7 +117,11 @@ export function Header() {
               href="https://nas2nas.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center justify-between gap-2 h-12 px-5 bg-foreground text-background text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-primary transition-colors"
+              className="mt-4 inline-flex items-center justify-center gap-2 h-11 rounded-full text-[12px] tracking-[0.15em] uppercase font-medium text-white font-mono"
+              style={{
+                background:
+                  "linear-gradient(100deg, hsl(var(--violet)) 0%, hsl(var(--magenta)) 60%, hsl(var(--cyan)) 100%)",
+              }}
             >
               <span>تبرّع الآن</span>
               <span aria-hidden>→</span>
