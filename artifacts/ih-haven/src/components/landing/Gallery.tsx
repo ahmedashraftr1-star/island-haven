@@ -1,57 +1,115 @@
-import { motion } from "framer-motion";
-import { EditorialHeader } from "./EditorialHeader";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 
 const photos = [
-  { src: "/photos/IMG_8357.jpg", h: "tall", caption: "Morning · صباح في المساحة" },
-  { src: "/photos/IMG_8300.jpg", h: "tall", caption: "Wall · جدار آيلاند هيفن" },
-  { src: "/photos/IMG_8347.jpg", h: "short", caption: "Focus · تركيز على التصميم" },
-  { src: "/photos/IMG_8313.jpg", h: "short", caption: "Co-working · ركن العمل المشترك" },
-  { src: "/photos/IMG_8352.jpg", h: "tall", caption: "Workshop · ورشة عمل" },
-  { src: "/photos/IMG_8344.jpg", h: "short", caption: "Quiet · زاوية هادئة" },
-  { src: "/photos/IMG_8358.jpg", h: "short", caption: "Network · تشبيك ولقاءات" },
-  { src: "/photos/IMG_8346.jpg", h: "tall", caption: "Session · جلسة عمل" },
+  { src: "/photos/IMG_8357.jpg", caption: "Morning · صباح في المساحة" },
+  { src: "/photos/IMG_8300.jpg", caption: "Wall · جدار آيلاند هيفن" },
+  { src: "/photos/IMG_8347.jpg", caption: "Focus · تركيز على التصميم" },
+  { src: "/photos/IMG_8313.jpg", caption: "Co-working · ركن العمل المشترك" },
+  { src: "/photos/IMG_8352.jpg", caption: "Workshop · ورشة عمل" },
+  { src: "/photos/IMG_8344.jpg", caption: "Quiet · زاوية هادئة" },
+  { src: "/photos/IMG_8358.jpg", caption: "Network · تشبيك ولقاءات" },
+  { src: "/photos/IMG_8346.jpg", caption: "Session · جلسة عمل" },
 ];
 
+/**
+ * Horizontal-pinned photo essay. The section pins to the viewport while
+ * the user scrolls vertically; the strip translates horizontally. Used by
+ * Apple, Stripe, Linear for product galleries.
+ */
 export function Gallery() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+  // RTL: move to the right (positive X) as user scrolls
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-58%"]);
+
   return (
-    <section id="gallery" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
-        <EditorialHeader
-          no="10"
-          label="من داخل المساحة"
-          meta={<>Photo<br />essay</>}
-          title={
-            <>
+    <section className="relative bg-background">
+      {/* Header — sits above the pinned strip */}
+      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px] pt-32 lg:pt-44 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+          className="grid grid-cols-12 gap-6 lg:gap-12 items-end"
+        >
+          <div className="col-span-12 lg:col-span-7">
+            <div className="text-[10px] tracking-[0.45em] uppercase text-primary font-mono mb-5">
+              N°05 — من داخل المساحة
+            </div>
+            <h2
+              className="font-bold text-foreground"
+              style={{
+                fontSize: "clamp(2.25rem, 6vw, 5.5rem)",
+                lineHeight: 1.04,
+                letterSpacing: "-0.015em",
+              }}
+            >
               هكذا تبدو
               <br />
-              <span className="text-primary italic">أيّامنا.</span>
-            </>
-          }
-          sub="صور حقيقيّة من قلب آيلاند هيفن — مكاتب نُحبّها، فناجين قهوة، شاشات تُضيء وجوهاً متفائلة، ولوحات على الجدار تُذكّرنا بالسبب."
-        />
+              <span className="text-primary">أيّامنا.</span>
+            </h2>
+          </div>
+          <p className="col-span-12 lg:col-span-4 lg:col-start-9 text-base lg:text-lg text-foreground/70 font-light leading-relaxed">
+            صورٌ حقيقيّة من قلب آيلاند هيفن — مكاتب، فناجين قهوة، وجوهٌ متفائلة، وجدارٌ يُذكّرنا بالسبب.
+          </p>
+        </motion.div>
+      </div>
 
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-3 [column-fill:_balance]">
+      {/* Pinned horizontal strip — height controls how long the pin lasts */}
+      <div ref={ref} className="relative h-[280vh] lg:h-[320vh] hidden md:block">
+        <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+          <motion.div
+            style={{ x }}
+            className="flex gap-6 lg:gap-10 px-6 lg:px-12 will-change-transform"
+          >
+            {photos.map((p, i) => (
+              <figure key={p.src} className="relative shrink-0 w-[70vw] md:w-[55vw] lg:w-[42vw]">
+                <div className="relative overflow-hidden">
+                  <img
+                    src={p.src}
+                    alt={p.caption}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    className="w-full h-[68vh] object-cover grayscale-[8%]"
+                  />
+                  <div className="absolute top-4 right-4 text-[10px] tracking-[0.4em] uppercase font-mono text-background/90 bg-foreground/40 backdrop-blur-sm px-3 py-1.5">
+                    {String(i + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
+                  </div>
+                </div>
+                <figcaption className="mt-4 flex items-baseline justify-between text-[10px] tracking-[0.4em] uppercase font-mono text-foreground/55">
+                  <span>{p.caption}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Mobile: stacked grid (no horizontal scroll on touch) */}
+      <div className="md:hidden container mx-auto px-6 max-w-[1500px] pb-20">
+        <div className="grid grid-cols-2 gap-3">
           {photos.map((p, i) => (
             <motion.figure
               key={p.src}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.6, delay: (i % 4) * 0.08 }}
-              className="mb-3 break-inside-avoid relative group overflow-hidden"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: DURATION.md, delay: (i % 4) * 0.06, ease: EASE_OUT_EXPO }}
             >
               <img
                 src={p.src}
                 alt={p.caption}
                 loading="lazy"
-                className={`w-full ${
-                  p.h === "tall" ? "aspect-[3/4]" : "aspect-[4/3]"
-                } object-cover grayscale-[10%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700`}
+                className="w-full aspect-[3/4] object-cover"
               />
-              <div className="mt-2 flex items-baseline justify-between text-[10px] tracking-[0.3em] uppercase font-bold text-foreground/55">
-                <span>{p.caption}</span>
-                <span>{String(i + 1).padStart(2, "0")}</span>
-              </div>
+              <figcaption className="mt-2 text-[9px] tracking-[0.3em] uppercase font-mono text-foreground/55">
+                {p.caption}
+              </figcaption>
             </motion.figure>
           ))}
         </div>

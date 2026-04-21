@@ -1,21 +1,19 @@
-import { motion } from "framer-motion";
-import { EditorialHeader } from "./EditorialHeader";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 
 const voices = [
   {
-    no: "I",
     quote:
       "في واقعٍ تتكاثر فيه التحدّيات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
     source: "من الملف التعريفي للمجتمع",
   },
   {
-    no: "II",
     quote:
       "نعم هو مكانٌ للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.",
     source: "رؤية Island Haven",
   },
   {
-    no: "III",
     quote:
       "محاولة جادّة لبناء شيءٍ مستدامٍ في مكانٍ يفتقر إلى الاستقرار، واستثمار حقيقيّ في الإنسان قبل أيّ شيء آخر.",
     source: "كلمة فريق التأسيس",
@@ -23,49 +21,93 @@ const voices = [
 ];
 
 export function Voices() {
-  return (
-    <section className="relative bg-foreground text-background py-24 lg:py-32">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
-        <EditorialHeader
-          no="14"
-          label="بكلماتنا"
-          dark
-          meta={<>In our<br />own words</>}
-          title={
-            <>
-              هكذا <span className="text-primary italic">نُعرّف</span> أنفسنا.
-            </>
-          }
-          sub="مقتطفات من الملفّ التعريفيّ الرسميّ لـ Island Haven، تعكس روح المكان قبل تفاصيله."
-        />
+  const [idx, setIdx] = useState(0);
 
-        <div className="border-t border-background/15">
-          {voices.map((v, i) => (
-            <motion.figure
-              key={i}
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % voices.length), 6500);
+    return () => clearInterval(t);
+  }, []);
+
+  const v = voices[idx];
+
+  return (
+    <section className="relative bg-foreground text-background overflow-hidden">
+      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px] py-32 lg:py-44 min-h-[80vh] flex flex-col justify-center">
+        {/* Editorial header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+          className="flex items-baseline justify-between mb-16 lg:mb-24"
+        >
+          <div className="text-[10px] tracking-[0.45em] uppercase text-primary font-mono">
+            N°06 — بكلماتنا
+          </div>
+          <div className="hidden md:block text-[10px] tracking-[0.45em] uppercase text-background/40 font-mono">
+            In our own words
+          </div>
+        </motion.div>
+
+        {/* Massive single-quote rotator */}
+        <div className="relative min-h-[40vh] lg:min-h-[50vh]">
+          <AnimatePresence mode="wait">
+            <motion.blockquote
+              key={idx}
               initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-              className="grid grid-cols-12 gap-4 lg:gap-10 items-start py-12 lg:py-16 border-b border-background/15"
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+              className="text-background"
+              style={{
+                fontSize: "clamp(1.75rem, 4.2vw, 4rem)",
+                lineHeight: 1.18,
+                letterSpacing: "-0.01em",
+                fontWeight: 400,
+              }}
             >
-              <div className="col-span-2 lg:col-span-1 text-2xl lg:text-3xl font-bold text-primary tracking-wider">
-                {v.no}
-              </div>
-              <blockquote
-                className="col-span-10 lg:col-span-8 text-background leading-snug"
-                style={{
-                  fontSize: "clamp(1.4rem, 2.6vw, 2.25rem)",
-                  fontStyle: "italic",
-                }}
+              <span className="text-primary opacity-60">«</span>
+              {v.quote}
+              <span className="text-primary opacity-60">»</span>
+
+              <motion.figcaption
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: DURATION.md, delay: 0.4 }}
+                className="block mt-10 text-[10px] tracking-[0.45em] uppercase text-background/55 font-mono"
               >
-                «{v.quote}»
-              </blockquote>
-              <figcaption className="col-span-12 lg:col-span-3 lg:text-right text-[10px] tracking-[0.4em] uppercase text-background/60 font-bold lg:pt-3">
                 — {v.source}
-              </figcaption>
-            </motion.figure>
-          ))}
+              </motion.figcaption>
+            </motion.blockquote>
+          </AnimatePresence>
+        </div>
+
+        {/* Indicator row */}
+        <div className="mt-16 lg:mt-20 flex items-center gap-6">
+          <div className="text-[10px] tracking-[0.45em] uppercase text-background/40 font-mono tabular-nums">
+            {String(idx + 1).padStart(2, "0")} / {String(voices.length).padStart(2, "0")}
+          </div>
+          <div className="flex-1 h-px bg-background/15 relative overflow-hidden">
+            <motion.div
+              key={idx}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 6.5, ease: "linear" }}
+              className="absolute inset-0 bg-primary origin-right"
+            />
+          </div>
+          <div className="flex gap-2">
+            {voices.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                aria-label={`اقتباس ${i + 1}`}
+                className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                  i === idx ? "bg-primary w-6" : "bg-background/25 hover:bg-background/50"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

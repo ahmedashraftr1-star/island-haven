@@ -14,6 +14,7 @@ import { HoursLocation } from "@/components/landing/HoursLocation";
 import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
 import { Reveal } from "@/components/landing/Reveal";
+import { SmoothScroll } from "@/components/landing/SmoothScroll";
 
 export default function Home() {
   usePageView("/");
@@ -29,17 +30,18 @@ export default function Home() {
   }, []);
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
+      <SmoothScroll />
       <ScrollProgress />
       <Header />
       <main>
         <Hero />
+        <NumbersArt />
         <Reveal as="section"><About /></Reveal>
-        <Reveal as="section"><NumbersArt /></Reveal>
         <Reveal as="section"><Audience /></Reveal>
         <Reveal as="section"><Programs /></Reveal>
-        <Reveal as="section"><Gallery /></Reveal>
+        <Gallery />
+        <Voices />
         <Reveal as="section"><Story /></Reveal>
-        <Reveal as="section"><Voices /></Reveal>
         <Reveal as="section"><HoursLocation /></Reveal>
         <Reveal as="section"><Support /></Reveal>
       </main>
