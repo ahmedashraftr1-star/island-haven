@@ -151,4 +151,14 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
+  @media (hover: hover) and (pointer: fine) {
+    html.cursor-none-root,
+    html.cursor-none-root * {
+      cursor: none !important;
+    }
+  }
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
 }
