@@ -32,7 +32,6 @@ export function Story() {
             </div>
             <p
               className="text-2xl lg:text-3xl text-foreground leading-snug font-medium mb-10"
-              style={{ fontFamily: "Reem Kufi, sans-serif" }}
             >
               وُلد <span className="text-primary">Island Haven</span> من إيمانٍ بأنّ
               الاستثمار الحقيقيّ هو في الإنسان قبل أيّ شيء آخر.
@@ -53,7 +52,6 @@ export function Story() {
 
             <p
               className="mt-12 text-2xl lg:text-3xl text-foreground italic leading-snug border-r-2 border-primary pr-8 py-2"
-              style={{ fontFamily: "Amiri, serif" }}
             >
               «Island Haven ليس مجرّد مساحةِ عمل. هو محاولة لإثبات أنّ المعرفة
               والخبرة والتعاون قادرةٌ على بناء مستقبل، حتى في أصعب الظروف.»
@@ -66,7 +64,7 @@ export function Story() {
               </div>
               <h3
                 className="font-bold text-foreground leading-tight"
-                style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.5rem, 2.4vw, 2rem)" }}
+                style={{ fontSize: "clamp(1.5rem, 2.4vw, 2rem)" }}
               >
                 فريق «من الناس إلى الناس»
               </h3>
@@ -124,7 +122,7 @@ export function Story() {
                 <div key={s.l} className="bg-background p-5">
                   <div
                     className="font-extrabold text-foreground leading-none"
-                    style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.5rem, 2.6vw, 2.25rem)" }}
+                    style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.25rem)" }}
                   >
                     {s.v}
                   </div>

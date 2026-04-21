@@ -24,7 +24,6 @@ function Strip({ reverse = false }: { reverse?: boolean }) {
             <div key={`${copy}-${i}`} className="flex items-center gap-12 shrink-0">
               <span
                 className="text-5xl md:text-7xl font-extrabold tracking-tight"
-                style={{ fontFamily: "Cairo, sans-serif" }}
               >
                 {w}
               </span>

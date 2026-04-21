@@ -53,7 +53,6 @@ export function SpotlightReveal() {
           <div
             className="font-bold text-background/90 leading-tight"
             style={{
-              fontFamily: "Reem Kufi, sans-serif",
               fontSize: "clamp(1.25rem, 2.4vw, 2rem)",
             }}
           >
@@ -72,7 +71,6 @@ export function SpotlightReveal() {
         <div
           className="select-none relative z-[1]"
           style={{
-            fontFamily: "Cairo, sans-serif",
             fontWeight: 800,
             lineHeight: 1.15,
             fontSize: "clamp(1.5rem, 4.2vw, 3.75rem)",
@@ -86,7 +84,6 @@ export function SpotlightReveal() {
             >
               <span
                 className="text-[10px] tracking-[0.4em] font-bold text-primary/80 pt-3"
-                style={{ fontFamily: "system-ui, sans-serif" }}
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -112,7 +109,6 @@ export function SpotlightReveal() {
           <div
             className="select-none"
             style={{
-              fontFamily: "Cairo, sans-serif",
               fontWeight: 800,
               lineHeight: 1.15,
               fontSize: "clamp(1.5rem, 4.2vw, 3.75rem)",
@@ -126,7 +122,6 @@ export function SpotlightReveal() {
               >
                 <span
                   className="text-[10px] tracking-[0.4em] font-bold text-primary pt-3"
-                  style={{ fontFamily: "system-ui, sans-serif" }}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>

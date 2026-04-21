@@ -55,7 +55,6 @@ export function Voices() {
               <blockquote
                 className="col-span-10 lg:col-span-8 text-background leading-snug"
                 style={{
-                  fontFamily: "Amiri, serif",
                   fontSize: "clamp(1.4rem, 2.6vw, 2.25rem)",
                   fontStyle: "italic",
                 }}

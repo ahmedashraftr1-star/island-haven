@@ -113,7 +113,6 @@ export function Scrollytelling() {
                     <h3
                       className="font-extrabold leading-[1.05] tracking-tight text-background mb-8"
                       style={{
-                        fontFamily: "Cairo, sans-serif",
                         fontSize: "clamp(5rem, 18vw, 18rem)",
                       }}
                     >

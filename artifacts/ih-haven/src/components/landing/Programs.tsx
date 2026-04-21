@@ -48,7 +48,6 @@ export function Programs() {
             <h3
               className="font-extrabold text-foreground leading-[1.12]"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.25rem, 5vw, 4.5rem)",
               }}
             >
@@ -82,7 +81,7 @@ export function Programs() {
                   >
                     <div
                       className="font-bold text-foreground"
-                      style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.1rem, 1.6vw, 1.5rem)" }}
+                      style={{ fontSize: "clamp(1.1rem, 1.6vw, 1.5rem)" }}
                     >
                       {p}
                     </div>
@@ -117,7 +116,7 @@ export function Programs() {
             <div className="col-span-10 lg:col-span-4">
               <h3
                 className="font-bold text-foreground leading-tight"
-                style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
+                style={{ fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
               >
                 ورش تدريبيّة دوريّة
               </h3>
@@ -137,7 +136,7 @@ export function Programs() {
             <div className="col-span-10 lg:col-span-4">
               <h3
                 className="font-bold text-foreground leading-tight"
-                style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
+                style={{ fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
               >
                 جلسات تشبيك ولقاءات مهنيّة
               </h3>

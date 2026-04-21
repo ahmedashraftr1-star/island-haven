@@ -31,7 +31,6 @@ export function Footer() {
             <h2
               className="font-extrabold text-foreground leading-[1.1] tracking-tight"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.75rem, 8vw, 7.5rem)",
               }}
             >
@@ -58,7 +57,6 @@ export function Footer() {
             </div>
             <div
               className="text-2xl font-bold text-foreground mb-2"
-              style={{ fontFamily: "Cairo, sans-serif" }}
             >
               Island Haven
             </div>
@@ -115,7 +113,6 @@ export function Footer() {
             </div>
             <div
               className="text-2xl font-bold text-foreground mb-2"
-              style={{ fontFamily: "Cairo, sans-serif" }}
             >
               من الناس إلى الناس
             </div>

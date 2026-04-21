@@ -33,7 +33,6 @@ export function SectionLabel({
       <h2
         className="font-extrabold text-foreground leading-[1.1] tracking-tight"
         style={{
-          fontFamily: "Cairo, sans-serif",
           fontSize: "clamp(2rem, 5vw, 4.5rem)",
         }}
       >

@@ -40,7 +40,6 @@ export function Header() {
           <div className="leading-tight hidden sm:block">
             <div
               className="font-bold text-foreground text-[15px] tracking-tight"
-              style={{ fontFamily: "Cairo, sans-serif" }}
             >
               Island Haven
             </div>

@@ -55,7 +55,6 @@ export function Support() {
             <h2
               className="font-extrabold text-background leading-[1.12] tracking-tight"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.5rem, 7vw, 6rem)",
               }}
             >
@@ -100,7 +99,6 @@ export function Support() {
                 <h3
                   className="font-extrabold text-background group-hover:text-primary-foreground leading-none"
                   style={{
-                    fontFamily: "Cairo, sans-serif",
                     fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
                   }}
                 >

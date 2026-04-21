@@ -98,7 +98,6 @@ export function CommunityWall() {
             <h2
               className="font-extrabold text-foreground leading-[1.1] tracking-tight"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2rem, 5vw, 4.5rem)",
               }}
             >
@@ -173,7 +172,6 @@ export function CommunityWall() {
               </div>
               <div
                 className="text-2xl lg:text-3xl font-bold text-foreground"
-                style={{ fontFamily: "Cairo, sans-serif" }}
               >
                 {active ? active.label : "آيلاند هيفن — مجتمع متجدّد"}
               </div>

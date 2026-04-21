@@ -22,7 +22,6 @@ export function EditorialHeader({ no, label, title, sub, alignRight, meta, dark 
         <h2
           className={`font-extrabold ${text} leading-[1.12] tracking-tight`}
           style={{
-            fontFamily: "Cairo, sans-serif",
             fontSize: "clamp(2rem, 5.5vw, 5rem)",
           }}
         >
@@ -75,7 +74,6 @@ export function HairlineRow({
         <h3
           className={`font-bold leading-tight ${dark ? "text-background" : "text-foreground"}`}
           style={{
-            fontFamily: "Cairo, sans-serif",
             fontSize: "clamp(1.25rem, 1.8vw, 1.75rem)",
           }}
         >

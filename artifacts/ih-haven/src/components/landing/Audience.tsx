@@ -72,7 +72,6 @@ export function Audience() {
               <div
                 className="font-extrabold text-foreground leading-none"
                 style={{
-                  fontFamily: "Cairo, sans-serif",
                   fontSize: "clamp(3rem, 6vw, 5rem)",
                 }}
               >
@@ -106,7 +105,6 @@ export function Audience() {
                 <h3
                   className="font-bold text-foreground leading-tight"
                   style={{
-                    fontFamily: "Cairo, sans-serif",
                     fontSize: "clamp(1.5rem, 2.4vw, 2.25rem)",
                   }}
                 >
@@ -118,7 +116,7 @@ export function Audience() {
                 <div className="mt-5 flex items-baseline gap-2">
                   <span
                     className="text-primary font-extrabold"
-                    style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
+                    style={{ fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
                   >
                     {seg.pct}
                   </span>

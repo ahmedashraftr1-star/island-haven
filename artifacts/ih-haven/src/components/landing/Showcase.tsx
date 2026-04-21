@@ -123,7 +123,6 @@ export function Showcase() {
                   </div>
                   <div
                     className="text-2xl font-extrabold text-foreground/85 leading-none"
-                    style={{ fontFamily: "Cairo, sans-serif" }}
                   >
                     {p.n}
                   </div>
@@ -143,7 +142,6 @@ export function Showcase() {
                   <h3
                     className="font-bold text-foreground leading-tight mb-3"
                     style={{
-                      fontFamily: "Cairo, sans-serif",
                       fontSize: "clamp(1.5rem, 2vw, 2rem)",
                     }}
                   >

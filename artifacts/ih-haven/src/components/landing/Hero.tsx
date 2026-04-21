@@ -126,7 +126,6 @@ export function Hero() {
             <h1
               className="font-extrabold text-foreground leading-[1.05] lg:leading-[1.1] tracking-tight"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.75rem, 9.5vw, 9.5rem)",
               }}
             >
@@ -175,7 +174,6 @@ export function Hero() {
               <div className="h-px flex-1 bg-foreground/25 max-w-[60px] lg:max-w-[80px]" />
               <span
                 className="text-lg md:text-2xl font-bold text-foreground tracking-tight"
-                style={{ fontFamily: "Cairo, sans-serif" }}
               >
                 Island Haven
               </span>

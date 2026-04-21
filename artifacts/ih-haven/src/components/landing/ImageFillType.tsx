@@ -45,7 +45,6 @@ export function ImageFillType() {
           <h2
             className="font-bold text-foreground leading-[1.1]"
             style={{
-              fontFamily: "Reem Kufi, sans-serif",
               fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
             }}
           >
@@ -69,7 +68,6 @@ export function ImageFillType() {
           aria-hidden
           className="absolute inset-0 flex items-center justify-center text-transparent pointer-events-none"
           style={{
-            fontFamily: "Cairo, sans-serif",
             fontSize: "clamp(7rem, 30vw, 26rem)",
             fontWeight: 900,
             lineHeight: 0.85,
@@ -87,7 +85,6 @@ export function ImageFillType() {
             animate={{ opacity: i === photoIdx ? 1 : 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
             style={{
-              fontFamily: "Cairo, sans-serif",
               fontSize: "clamp(7rem, 30vw, 26rem)",
               fontWeight: 900,
               lineHeight: 0.85,
@@ -132,7 +129,6 @@ export function ImageFillType() {
       <div className="container mx-auto px-6 lg:px-10 max-w-7xl mt-12 lg:mt-16 flex items-end justify-end">
         <p
           className="text-foreground italic text-lg lg:text-xl max-w-md text-right leading-relaxed"
-          style={{ fontFamily: "Amiri, serif" }}
         >
           «نُؤمن أنّ المعرفة، والخبرة، والتعاون قادرة على بناء مستقبل — حتى في أصعب الظروف.»
         </p>

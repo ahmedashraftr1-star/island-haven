@@ -77,7 +77,6 @@ export function Campaign() {
             <h3
               className="font-extrabold text-foreground leading-[1.12] mb-7"
               style={{
-                fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2rem, 4.4vw, 3.75rem)",
               }}
             >
@@ -126,7 +125,6 @@ export function Campaign() {
                       <div
                         className="font-bold text-foreground"
                         style={{
-                          fontFamily: "Cairo, sans-serif",
                           fontSize: "clamp(1.05rem, 1.6vw, 1.4rem)",
                         }}
                       >

@@ -56,7 +56,6 @@ export function About() {
             </div>
             <p
               className="mt-8 text-foreground italic text-lg leading-relaxed"
-              style={{ fontFamily: "Amiri, serif" }}
             >
               «نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.»
             </p>

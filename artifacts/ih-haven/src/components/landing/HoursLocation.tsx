@@ -90,7 +90,6 @@ export function HoursLocation() {
                 <h3
                   className="font-bold leading-tight"
                   style={{
-                    fontFamily: "Cairo, sans-serif",
                     fontSize: "clamp(1.4rem, 2vw, 1.875rem)",
                   }}
                 >
