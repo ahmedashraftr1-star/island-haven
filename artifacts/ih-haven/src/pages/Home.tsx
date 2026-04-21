@@ -8,11 +8,13 @@ import { Marquee } from "@/components/landing/Marquee";
 import { NumbersArt } from "@/components/landing/NumbersArt";
 import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
+import { ImageFillType } from "@/components/landing/ImageFillType";
 import { Scrollytelling } from "@/components/landing/Scrollytelling";
+import { CommunityWall } from "@/components/landing/CommunityWall";
 import { Showcase } from "@/components/landing/Showcase";
 import { Programs } from "@/components/landing/Programs";
 import { Gallery } from "@/components/landing/Gallery";
-import { Manifesto } from "@/components/landing/Manifesto";
+import { SpotlightReveal } from "@/components/landing/SpotlightReveal";
 import { Story } from "@/components/landing/Story";
 import { Campaign } from "@/components/landing/Campaign";
 import { Voices } from "@/components/landing/Voices";
@@ -31,14 +33,16 @@ export default function Home() {
       <main>
         <Hero />
         <Marquee />
+        <ImageFillType />
         <NumbersArt />
         <About />
         <Scrollytelling />
+        <CommunityWall />
         <Audience />
         <Showcase />
         <Programs />
         <Gallery />
-        <Manifesto />
+        <SpotlightReveal />
         <Story />
         <Campaign />
         <Voices />
