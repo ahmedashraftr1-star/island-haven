@@ -90,7 +90,7 @@ export function Programs() {
             <div className="lg:col-span-5">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden">
                 <img
-                  src="/images/reading.png"
+                  src="/photos/IMG_8352.jpg"
                   alt="مساحة عمل في Island Haven"
                   className="w-full h-full object-cover"
                 />

@@ -33,7 +33,7 @@ export function About() {
           >
             <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/images/tea-notebook.png"
+                src="/photos/IMG_8347.jpg"
                 alt="دفتر مفتوح وكوب شاي على طاولة عمل"
                 className="w-full h-full object-cover"
               />

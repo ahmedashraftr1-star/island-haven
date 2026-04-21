@@ -5,6 +5,7 @@ import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
 import { Offerings } from "@/components/landing/Offerings";
 import { Programs } from "@/components/landing/Programs";
+import { Gallery } from "@/components/landing/Gallery";
 import { Manifesto } from "@/components/landing/Manifesto";
 import { Story } from "@/components/landing/Story";
 import { Campaign } from "@/components/landing/Campaign";
@@ -24,6 +25,7 @@ export default function Home() {
         <Audience />
         <Offerings />
         <Programs />
+        <Gallery />
         <Manifesto />
         <Story />
         <Campaign />

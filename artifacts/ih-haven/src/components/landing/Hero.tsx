@@ -6,11 +6,12 @@ export function Hero() {
     <section className="relative min-h-[88vh] flex items-center pt-32 pb-20 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/workspace.png"
+          src="/photos/IMG_8357.jpg"
           alt="مساحة Island Haven"
-          className="w-full h-full object-cover opacity-30 dark:opacity-15"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/75 to-background"></div>
+        <div className="absolute inset-0 bg-gradient-to-l from-background/60 via-background/30 to-transparent"></div>
       </div>
 
       <div className="container relative z-10 mx-auto px-6 lg:px-8 max-w-6xl">

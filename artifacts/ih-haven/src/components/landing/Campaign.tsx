@@ -27,7 +27,7 @@ export function Campaign() {
           <div className="grid grid-cols-1 lg:grid-cols-12">
             <div className="lg:col-span-5 relative min-h-[300px] lg:min-h-full">
               <img
-                src="/images/sky.png"
+                src="/photos/IMG_8300.jpg"
                 alt="فرع جديد قادم"
                 className="absolute inset-0 w-full h-full object-cover"
               />

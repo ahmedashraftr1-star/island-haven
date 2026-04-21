@@ -84,7 +84,7 @@ export function Story() {
           >
             <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-xl">
               <img
-                src="/images/reading.png"
+                src="/photos/IMG_8358.jpg"
                 alt="منتسب يعمل بهدوء داخل المساحة"
                 className="w-full h-full object-cover"
               />

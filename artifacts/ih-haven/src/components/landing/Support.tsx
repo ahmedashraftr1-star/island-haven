@@ -35,7 +35,7 @@ export function Support() {
   return (
     <section id="support" className="py-28 bg-primary text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 opacity-15 mix-blend-overlay">
-        <img src="/images/sky.png" alt="" className="w-full h-full object-cover" />
+        <img src="/photos/IMG_8341.jpg" alt="" className="w-full h-full object-cover" />
       </div>
 
       <div className="container relative z-10 mx-auto px-6 lg:px-8 max-w-6xl">

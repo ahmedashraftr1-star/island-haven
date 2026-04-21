@@ -31,9 +31,11 @@ export function Header() {
     >
       <div className="container mx-auto px-6 lg:px-8 max-w-6xl flex items-center justify-between">
         <a href="#" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-sm group-hover:shadow-md transition-shadow">
-            IH
-          </div>
+          <img
+            src="/logo-dark.png"
+            alt="Island Haven"
+            className="w-11 h-11 object-contain group-hover:scale-105 transition-transform"
+          />
           <div className="leading-tight">
             <div className="font-bold text-foreground text-base">Island Haven</div>
             <div className="text-[11px] text-muted-foreground font-light">آيلاند هيفن · غزّة</div>
