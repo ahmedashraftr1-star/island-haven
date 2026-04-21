@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "ih_haven"
+version = "1.0.0"
+id = "artifacts/ih-haven"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24847
+
+[services.development]
+run = "pnpm --filter @workspace/ih-haven run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ih-haven", "run", "build" ]
+publicDir = "artifacts/ih-haven/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24847"
+BASE_PATH = "/"

@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "27aUa0DBraIUO2LRLi3Ll"
+uri = "file://artifacts/ih-haven/public/images/workspace.png"
+type = "image"
+title = "Warm simple workspace interior"
+
+[[generated]]
+id = "fkkQ1IcTr5eZJ8FHL_Ujh"
+uri = "file://artifacts/ih-haven/public/images/tea-notebook.png"
+type = "image"
+title = "Hands on notebook with tea"
+
+[[generated]]
+id = "g5OhIamlTKM05sP4xG8tR"
+uri = "file://artifacts/ih-haven/public/images/reading.png"
+type = "image"
+title = "Young person reading by plants"
+
+[[generated]]
+id = "qKZLzehHSj9Lt0cqy8ngk"
+uri = "file://artifacts/ih-haven/public/images/sky.png"
+type = "image"
+title = "Hopeful sky at golden hour"
