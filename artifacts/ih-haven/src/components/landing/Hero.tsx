@@ -3,7 +3,7 @@ import { ArrowLeft, MapPin } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[78vh] flex items-center pt-28 pb-20 overflow-hidden">
+    <section className="relative min-h-[88vh] flex items-center pt-32 pb-20 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img
           src="/images/workspace.png"

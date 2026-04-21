@@ -1,9 +1,13 @@
+import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
+import { Impact } from "@/components/landing/Impact";
 import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
 import { Offerings } from "@/components/landing/Offerings";
 import { Programs } from "@/components/landing/Programs";
+import { Manifesto } from "@/components/landing/Manifesto";
 import { Story } from "@/components/landing/Story";
+import { Campaign } from "@/components/landing/Campaign";
 import { Voices } from "@/components/landing/Voices";
 import { HoursLocation } from "@/components/landing/HoursLocation";
 import { Support } from "@/components/landing/Support";
@@ -12,13 +16,17 @@ import { Footer } from "@/components/landing/Footer";
 export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans selection:bg-primary selection:text-primary-foreground">
+      <Header />
       <main>
         <Hero />
+        <Impact />
         <About />
         <Audience />
         <Offerings />
         <Programs />
+        <Manifesto />
         <Story />
+        <Campaign />
         <Voices />
         <HoursLocation />
         <Support />
