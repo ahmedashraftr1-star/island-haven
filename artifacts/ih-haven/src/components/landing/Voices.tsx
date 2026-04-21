@@ -4,21 +4,18 @@ import { Quote } from "lucide-react";
 const voices = [
   {
     quote:
-      "لم أكن أتخيّل أن مكاناً صغيراً مثل هذا يستطيع أن يعيد لي إيقاع حياتي. أكتب هنا، أدرس، أقابل أصدقاء جدداً. صار مكاني الثاني.",
-    name: "محمد",
-    role: "طالب هندسة",
+      "في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
+    source: "من الملف التعريفي للمجتمع",
   },
   {
     quote:
-      "كنت على وشك أن أفقد عملي لأنني لم أملك مكاناً هادئاً للاجتماعات. هنا أستطيع أن أعقد اجتماعاتي بكرامة، والإنترنت لم يخذلني مرّة.",
-    name: "ريم",
-    role: "مصمّمة مستقلّة",
+      "نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.",
+    source: "رؤية Island Haven",
   },
   {
     quote:
-      "أحبّ أن أتي قبل ساعة من بدء العمل. أجلس بجانب النافذة، أشرب شاياً، وأقرأ كتاباً. هذه الساعة تستحق كل أيامي.",
-    name: "أحمد",
-    role: "مدرّس لغة عربية",
+      "محاولة جادّة لبناء شيء مستدام في مكان يفتقر إلى الاستقرار، واستثمار حقيقي في الإنسان قبل أيّ شيء آخر.",
+    source: "كلمة فريق التأسيس",
   },
 ];
 
@@ -28,14 +25,14 @@ export function Voices() {
       <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
         <div className="max-w-2xl mb-14">
           <span className="inline-block text-sm font-medium text-primary tracking-wide mb-4">
-            أصوات من المكان
+            بكلماتنا
           </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground leading-tight">
-            ما يقوله رواد ih_haven
+            هكذا نُعرّف أنفسنا
           </h2>
           <p className="text-base md:text-lg text-muted-foreground font-light leading-relaxed">
-            هذه شهادات من طلاب ومستقلّين ومدرّسين يأتون إلينا أسبوعياً.
-            تركنا لهم الكلمات كما هي.
+            مقتطفات من الملفّ التعريفيّ الرسميّ لـ Island Haven،
+            تعكس روح المكان قبل تفاصيله.
           </p>
         </div>
 
@@ -54,8 +51,7 @@ export function Voices() {
                 {v.quote}
               </blockquote>
               <figcaption className="mt-6 pt-5 border-t border-border">
-                <div className="text-sm font-bold text-foreground">{v.name}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{v.role}</div>
+                <div className="text-xs text-muted-foreground">{v.source}</div>
               </figcaption>
             </motion.figure>
           ))}

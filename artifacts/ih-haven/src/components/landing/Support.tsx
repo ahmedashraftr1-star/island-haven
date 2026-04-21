@@ -1,31 +1,31 @@
 import { motion } from "framer-motion";
-import { Heart, Share2, Map, ArrowLeft } from "lucide-react";
+import { Heart, Share2, UserPlus, ArrowLeft } from "lucide-react";
 
 const ways = [
   {
     icon: <Heart className="w-6 h-6" />,
     title: "تبرّع",
-    sub: "كل مساهمة تُبقي الأبواب مفتوحة",
-    body: "تكفّل بفاتورة الإنترنت لشهر، أو بعشرة كراسٍ جديدة، أو بإفطار شهري لأعضاء المجتمع. التبرّع مباشر وآمن عبر مبادرة من الناس إلى الناس.",
+    sub: "كلّ مساهمة تُبقي الأبواب مفتوحة",
+    body: "Island Haven مساحة مجّانيّة بالكامل، وتكاليف تشغيلها — من إنترنت وكهرباء وصيانة — يغطّيها داعمون مثلك. التبرّع مباشر وآمن عبر مبادرة من الناس إلى الناس.",
     cta: "تبرّع عبر nas2nas.org",
     href: "https://nas2nas.org",
     primary: true,
   },
   {
-    icon: <Share2 className="w-6 h-6" />,
-    title: "شارك القصة",
-    sub: "الانتشار يحمينا أكثر من الصمت",
-    body: "أرسل صفحتنا أو حسابنا على إنستغرام لأشخاص قد يهتمّون. كلّما عرف الناس عن المكان، زادت فرصته في البقاء.",
-    cta: "تابعنا وشاركنا",
-    href: "https://www.instagram.com/ih_haven",
+    icon: <UserPlus className="w-6 h-6" />,
+    title: "انضمّ كمنتسب",
+    sub: "إن كنت في غزّة وتنطبق عليك المعايير",
+    body: "إذا كنت مستقلاً أو خرّيجاً أو طالباً في سنة التخرج، سجّل في نموذج الانتساب لتنضمّ إلى المجتمع. أو احجز مقعد ضيف لتجرّب المساحة أوّلاً.",
+    cta: "افتح نموذج التسجيل",
+    href: "https://forms.gle/5r7dEeidxjg46m399",
     primary: false,
   },
   {
-    icon: <Map className="w-6 h-6" />,
-    title: "زرنا في غزة",
-    sub: "الباب مفتوح",
-    body: "إن كنت في غزة، تعالَ — اعمل، اشرب شاياً، تعرّف على المكان. لا تحتاج إلى موعد، ولا إلى أن تثبت لأحد شيئاً.",
-    cta: "راسلنا للحصول على العنوان",
+    icon: <Share2 className="w-6 h-6" />,
+    title: "شارك القصة",
+    sub: "الانتشار يحمينا أكثر من الصمت",
+    body: "تابعنا على وسائل التواصل، وأرسل صفحاتنا لكلّ من قد يهمّه الأمر — منتسبين محتملين، داعمين، أو إعلام يبحث عن قصص مختلفة من غزّة.",
+    cta: "تابعنا على إنستغرام",
     href: "https://www.instagram.com/ih_haven",
     primary: false,
   },
@@ -47,15 +47,15 @@ export function Support() {
           className="max-w-3xl mb-14"
         >
           <span className="inline-block text-sm font-medium text-primary-foreground/80 tracking-wide mb-4">
-            كيف تدعمنا
+            كيف تكون جزءاً من القصّة
           </span>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             استمرار هذا المكان<br />
             <span className="opacity-90">يعتمد على التكافل.</span>
           </h2>
           <p className="text-lg md:text-xl text-primary-foreground/85 font-light leading-relaxed max-w-2xl">
-            ih_haven مساحة مجانية بالكامل. ما يجعلها قائمة هو دعم أناس مثلك،
-            من داخل غزة وخارجها. هذه ثلاث طرق ملموسة لتكون جزءاً من قصتها.
+            Island Haven ليس مشروعاً ربحيّاً، ولا مكاناً يكتفي بنفسه. هو مجتمع
+            يُبنى يوميّاً بأيدي داعميه ومنتسبيه. هذه ثلاث طرق ملموسة لتشاركنا القصّة.
           </p>
         </motion.div>
 

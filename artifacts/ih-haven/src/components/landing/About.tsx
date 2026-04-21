@@ -1,17 +1,21 @@
 import { motion } from "framer-motion";
+import { Eye, Target, HeartHandshake } from "lucide-react";
 
 const pillars = [
   {
-    title: "الكرامة قبل كل شيء",
-    body: "أن تجد كرسياً يحترم ظهرك، وطاولة تحترم وقتك، وضوءاً يحترم عينيك. هذه ليست رفاهية — هذه الحدّ الأدنى من الإنسانية.",
+    icon: <Eye className="w-5 h-5" />,
+    title: "رؤيتنا",
+    body: "أن نُسهم في بناء مجتمع مهني قادر، يمتلك الأدوات والمهارات التي تمكّنه من الاندماج الفعّال في سوق العمل، وبناء مستقبل مستدام قائم على المعرفة والخبرة والتعاون.",
   },
   {
-    title: "هدوء كافٍ للتفكير",
-    body: "في الخارج ضجيج كثير. هنا غرفة واحدة جدرانها سميكة، نوافذها عالية، وقاعدتها بسيطة: لا أحد يرفع صوته، الجميع يعمل.",
+    icon: <Target className="w-5 h-5" />,
+    title: "رسالتنا",
+    body: "تمكين الطلاب والخريجين والمستقلّين عبر توفير مجتمع داعم، ومساحة عمل آمنة، وبرامج تدريب عملية، وفرص تشبيك حقيقية، تُقارب الواقع وتستجيب لحاجاته.",
   },
   {
-    title: "مجتمع لا يطلب شيئاً",
-    body: "تأتي وحدك، تجلس بجانب أناس آخرين، تتبادلون النظرات والابتسامات. لا اشتراك، لا استمارات، لا أسئلة.",
+    icon: <HeartHandshake className="w-5 h-5" />,
+    title: "لماذا مجتمع؟",
+    body: "لأن العمل الفردي في بيئات غير مستقرّة يُرهق أكثر مما يُنتج. ولأن الكثير من الطاقات الشابّة لديها الرغبة والقدرة، لكنها تفتقد المكان والدعم والتوجيه.",
   },
 ];
 
@@ -36,9 +40,10 @@ export function About() {
               <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-2xl"></div>
               <div className="absolute bottom-4 right-4 left-4 bg-background/85 backdrop-blur-sm rounded-xl p-4 border border-border">
                 <p className="text-sm text-foreground leading-relaxed">
-                  &ldquo;أول مرة أستطيع فيها أن أكمل كتابة فصل كامل من رسالتي منذ أشهر. هنا فقط استطعت أن أسمع نفسي مرة أخرى.&rdquo;
+                  &ldquo;Island Haven ليس مجرّد مساحة عمل، بل مجتمع مهنيّ حيّ، يقوم على
+                  الشراكة وتبادل الخبرات وبناء المسارات المهنية خطوةً خطوة.&rdquo;
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">— طالبة دراسات عليا، أحد روّاد المكان</p>
+                <p className="text-xs text-muted-foreground mt-2">— من الملف التعريفي الرسمي</p>
               </div>
             </div>
           </motion.div>
@@ -54,20 +59,20 @@ export function About() {
               من نحن
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-tight">
-              مكان لالتقاط الأنفاس،<br />
-              <span className="text-primary">والعودة إلى العمل.</span>
+              مساحة نجاة مهنيّة،<br />
+              <span className="text-primary">قبل أن تكون مكاناً للعمل.</span>
             </h2>
 
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed font-light">
               <p>
-                <span className="font-medium text-foreground">ih_haven</span> ليست مقهى، وليست مكتباً تجارياً.
-                هي غرفة واحدة بسيطة في غزة، فتحناها لكل من فقد جدرانه، أو فقد قدرته على التركيز،
-                أو ببساطة احتاج إلى ساعتين من الهدوء كي يتذكر أنه قادر على الإنجاز.
+                في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
+                وُلد مجتمع <span className="font-medium text-foreground">Island Haven</span>
+                {" "}كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن
+                طاقته، ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
               </p>
               <p>
-                ندير المكان بالحدّ الأدنى الممكن: مكاتب من الخشب البسيط، كراسي مستقيمة الظهر،
-                نباتات قليلة على حافة النافذة، وضوء طبيعي يدخل من أعلى. الإنترنت ثابت،
-                المولّد يعمل عند انقطاع الكهرباء، والشاي ساخن دائماً.
+                نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء
+                الثقة بالنفس وبالطريق. مساحة احترافية بروحٍ إنسانية هادئة.
               </p>
             </div>
 
@@ -79,10 +84,15 @@ export function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="border-r-2 border-primary/40 pr-5"
+                  className="flex gap-4 border-r-2 border-primary/40 pr-5"
                 >
-                  <h3 className="text-lg font-bold text-foreground mb-1">{p.title}</h3>
-                  <p className="text-muted-foreground font-light leading-relaxed">{p.body}</p>
+                  <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    {p.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-foreground mb-1">{p.title}</h3>
+                    <p className="text-muted-foreground font-light leading-relaxed">{p.body}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
