@@ -1,62 +1,55 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import {
-  Wifi,
-  Zap,
-  Armchair,
-  Users,
-  GraduationCap,
-  Network,
-} from "lucide-react";
+import { EditorialHeader } from "./EditorialHeader";
 
-const cards = [
+const pillars = [
   {
     n: "01",
-    icon: Armchair,
+    label: "Workspace",
     title: "مساحة عمل مهنيّة",
-    description:
-      "بيئة هادئة وحديثة بتصميم عمليّ، مكاتب مريحة وكراسٍ مناسبة لساعات طويلة من العمل أو الدراسة المركّزة.",
+    body: "بيئة هادئة وحديثة بتصميم عمليّ، مكاتب مريحة وكراسٍ مناسبة لساعات طويلة من العمل أو الدراسة المركّزة دون إرهاق.",
     photo: "/photos/IMG_8357.jpg",
+    spec: "39 مقعداً · مكاتب فرديّة وجماعيّة",
   },
   {
     n: "02",
-    icon: Wifi,
+    label: "Connectivity",
     title: "إنترنت مستقرّ",
-    description:
-      "بنية أساسيّة داعمة لاجتماعات مرئيّة، رفع ملفات، وتواصل مع العملاء دون انقطاع.",
+    body: "بنية أساسيّة داعمة للاجتماعات المرئيّة، رفع الملفّات الكبيرة، والتواصل المتواصل مع العملاء دون انقطاع.",
     photo: "/photos/IMG_8347.jpg",
+    spec: "اتّصال احتياطيّ · سرعة عالية",
   },
   {
     n: "03",
-    icon: Zap,
+    label: "Power",
     title: "كهرباء لا تنقطع",
-    description:
-      "مصادر طاقة احتياطيّة تضمن استمرار العمل خلال ساعات انقطاع الشبكة، مع منافذ شحن في كلّ مكتب.",
+    body: "مصادر طاقة احتياطيّة تضمن استمرار العمل خلال ساعات انقطاع الشبكة، مع منافذ شحن خاصّة في كلّ مكتب.",
     photo: "/photos/IMG_8300.jpg",
+    spec: "طاقة بديلة · على مدار اليوم",
   },
   {
     n: "04",
-    icon: GraduationCap,
+    label: "Training",
     title: "ورش تدريبيّة تطبيقيّة",
-    description:
-      "برامج عمليّة مرتبطة بسوق العمل، تُقدَّم للمنتسبين وغير المنتسبين، تربط المعرفة بالتطبيق.",
+    body: "برامج عمليّة مرتبطة بسوق العمل، تُقدَّم للمنتسبين وغير المنتسبين، تربط المعرفة الأكاديميّة بالتطبيق المهنيّ.",
     photo: "/photos/IMG_8352.jpg",
+    spec: "مفتوحة للمجتمع · مجّاناً",
   },
   {
     n: "05",
-    icon: Users,
+    label: "Community",
     title: "بيئة تشاركيّة",
-    description:
-      "مساحة لتبادل الخبرات بين المستقلّين والخريجين والطلبة — يتعلّم بعضهم من بعض كلّ يوم.",
+    body: "مساحة لتبادل الخبرات بين المستقلّين والخريجين والطلبة — يتعلّم بعضهم من بعض في كلّ يومٍ من أيّام الأسبوع.",
     photo: "/photos/IMG_8358.jpg",
+    spec: "80 منتسباً · ثلاث فئات",
   },
   {
     n: "06",
-    icon: Network,
+    label: "Network",
     title: "فرص تشبيك حقيقيّة",
-    description:
-      "علاقات مهنيّة تتجاوز جدران المكان: مشاريع مشتركة، توصيات، فرص عمل، وامتدادات إلى ما بعد المساحة.",
+    body: "علاقات مهنيّة تتجاوز جدران المكان: مشاريع مشتركة، توصيات مهنيّة، فرص عمل، وامتدادات إلى ما بعد المساحة.",
     photo: "/photos/IMG_8344.jpg",
+    spec: "حلقات شهريّة · عابرة للقطاعات",
   },
 ];
 
@@ -67,8 +60,8 @@ export function Showcase() {
     offset: ["start start", "end end"],
   });
 
-  const cardWidth = 520;
-  const totalWidth = cards.length * (cardWidth + 24);
+  const cardWidth = 560;
+  const totalWidth = pillars.length * (cardWidth + 32);
   const x = useTransform(
     scrollYProgress,
     [0, 1],
@@ -80,90 +73,92 @@ export function Showcase() {
       id="offerings"
       ref={containerRef}
       className="relative bg-background"
-      style={{ height: `${cards.length * 80}vh` }}
+      style={{ height: `${pillars.length * 80}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
-        {/* Header strip */}
-        <div className="container mx-auto px-6 lg:px-10 max-w-7xl pt-28 pb-8 flex items-end justify-between gap-6 flex-wrap">
-          <div>
-            <div className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-3">
-              [ N°04 — ما نُقدّمه ]
-            </div>
-            <h2
-              className="font-black text-foreground leading-[1.05] tracking-tight max-w-2xl"
-              style={{
-                fontFamily: "Cairo, sans-serif",
-                fontSize: "clamp(1.75rem, 4vw, 3.5rem)",
-              }}
-            >
-              ستّة أعمدة تصنع التجربة.
-            </h2>
-          </div>
-          <div className="text-xs text-muted-foreground tracking-[0.2em] uppercase font-medium">
-            ↓ مرّر للأسفل لاستعراض الأعمدة
-          </div>
+        {/* Editorial header */}
+        <div className="container mx-auto px-6 lg:px-10 max-w-7xl pt-24 pb-6">
+          <EditorialHeader
+            no="08"
+            label="Pillars · ما نُقدّم"
+            title={
+              <>
+                ستّة أعمدة تصنع <span className="text-primary italic">التجربة</span>.
+              </>
+            }
+            meta={<span>Horizontal Index · ٠٦ pillars</span>}
+          />
         </div>
 
-        {/* Horizontal track */}
-        <div className="flex-1 flex items-center overflow-hidden">
-          <motion.div
-            style={{ x }}
-            className="flex gap-6 px-6 lg:px-10 will-change-transform"
-            dir="ltr"
-          >
-            {cards.map((c, i) => {
-              const Icon = c.icon;
-              return (
-                <article
-                  key={i}
-                  className="relative shrink-0 w-[85vw] sm:w-[480px] lg:w-[520px] aspect-[3/4] rounded-3xl overflow-hidden border border-foreground/10 bg-card group"
-                >
-                  <img
-                    src={c.photo}
-                    alt={c.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/95 via-foreground/40 to-transparent" />
-                  <div className="absolute top-6 right-6 left-6 flex items-start justify-between text-background" dir="rtl">
-                    <div className="text-[10px] tracking-[0.3em] uppercase font-bold opacity-80">
-                      عمود
-                    </div>
-                    <div
-                      className="text-3xl font-black tracking-tight"
-                      style={{ fontFamily: "Cairo, sans-serif" }}
-                    >
-                      {c.n}
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-0 right-0 left-0 p-8 lg:p-10 text-background" dir="rtl">
-                    <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center mb-5 shadow-lg">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <h3
-                      className="text-2xl lg:text-3xl font-bold mb-3 leading-tight"
-                      style={{ fontFamily: "Cairo, sans-serif" }}
-                    >
-                      {c.title}
-                    </h3>
-                    <p className="text-sm lg:text-base text-background/85 font-light leading-relaxed max-w-md">
-                      {c.description}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
-          </motion.div>
-        </div>
-
-        {/* Bottom progress */}
-        <div className="container mx-auto px-6 lg:px-10 max-w-7xl pb-8 pt-6">
-          <div className="h-[3px] bg-foreground/10 rounded-full overflow-hidden">
+        {/* Hairline progress + scroll cue */}
+        <div className="container mx-auto px-6 lg:px-10 max-w-7xl pb-6 flex items-center justify-between gap-6">
+          <div className="flex-1 h-px bg-foreground/15 relative overflow-hidden">
             <motion.div
-              className="h-full bg-primary origin-left"
+              className="absolute inset-y-0 right-0 origin-right h-px bg-foreground"
               style={{ scaleX: scrollYProgress }}
             />
           </div>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/55 font-bold whitespace-nowrap">
+            ↓ مرّر للأسفل
+          </div>
+        </div>
+
+        {/* Horizontal track — editorial plates, no rounded cards, no icon chips */}
+        <div className="flex-1 flex items-stretch overflow-hidden pb-10">
+          <motion.div
+            style={{ x }}
+            className="flex gap-8 px-6 lg:px-10 will-change-transform"
+            dir="ltr"
+          >
+            {pillars.map((p, i) => (
+              <article
+                key={i}
+                className="relative shrink-0 w-[88vw] sm:w-[480px] lg:w-[560px] flex flex-col border border-foreground/15 bg-background"
+                dir="rtl"
+              >
+                {/* Top meta strip */}
+                <div className="flex items-center justify-between px-6 lg:px-8 py-4 border-b border-foreground/12">
+                  <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/55 font-bold">
+                    [ Pillar {p.n} — {p.label} ]
+                  </div>
+                  <div
+                    className="text-2xl font-black text-foreground/85 leading-none"
+                    style={{ fontFamily: "Cairo, sans-serif" }}
+                  >
+                    {p.n}
+                  </div>
+                </div>
+
+                {/* Photo plate */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-foreground/5">
+                  <img
+                    src={p.photo}
+                    alt={p.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                </div>
+
+                {/* Caption */}
+                <div className="px-6 lg:px-8 py-7 flex-1 flex flex-col">
+                  <h3
+                    className="font-bold text-foreground leading-tight mb-3"
+                    style={{
+                      fontFamily: "Cairo, sans-serif",
+                      fontSize: "clamp(1.5rem, 2vw, 2rem)",
+                    }}
+                  >
+                    {p.title}
+                  </h3>
+                  <p className="text-[15px] text-foreground/70 font-light leading-relaxed mb-6">
+                    {p.body}
+                  </p>
+                  <div className="mt-auto pt-4 border-t border-foreground/10 text-[10px] tracking-[0.35em] uppercase text-foreground/55 font-bold">
+                    {p.spec}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>

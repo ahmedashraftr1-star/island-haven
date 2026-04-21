@@ -1,103 +1,121 @@
 import { motion } from "framer-motion";
-import { MapPin, Instagram, Linkedin, Facebook, Link2, FileText, ArrowLeft } from "lucide-react";
+import { EditorialHeader } from "./EditorialHeader";
 
-const links = [
+const channels = [
   {
-    icon: <Link2 className="w-5 h-5" />,
-    title: "Linktree الرسمي",
-    description: "كل روابطنا في مكان واحد، يشمل رابط الانتساب ومقعد الضيف.",
+    no: "01",
+    ar: "Linktree الرسمي",
+    en: "All links",
+    desc: "كلّ روابطنا في مكان واحد، يشمل رابط الانتساب ومقعد الضيف.",
     href: "https://linktr.ee/ih_haven",
-    cta: "linktr.ee/ih_haven",
+    handle: "linktr.ee/ih_haven",
   },
   {
-    icon: <FileText className="w-5 h-5" />,
-    title: "نموذج التسجيل",
-    description: "للانتساب إلى المجتمع — راجع معايير القبول قبل التقديم.",
+    no: "02",
+    ar: "نموذج التسجيل",
+    en: "Apply",
+    desc: "للانتساب إلى المجتمع — راجع معايير القبول قبل التقديم.",
     href: "https://forms.gle/5r7dEeidxjg46m399",
-    cta: "افتح نموذج التسجيل",
+    handle: "افتح النموذج",
   },
   {
-    icon: <Instagram className="w-5 h-5" />,
-    title: "إنستغرام",
-    description: "آخر الأخبار، الورش، الفعاليّات، وصور من داخل المساحة.",
+    no: "03",
+    ar: "إنستغرام",
+    en: "Instagram",
+    desc: "آخر الأخبار، الورش، الفعاليّات، وصور من داخل المساحة.",
     href: "https://www.instagram.com/ih_haven",
-    cta: "‎@ih_haven",
+    handle: "@ih_haven",
   },
   {
-    icon: <Linkedin className="w-5 h-5" />,
-    title: "لينكدإن",
-    description: "الجانب المهنيّ من Island Haven — للشركات والشركاء والداعمين.",
+    no: "04",
+    ar: "لينكدإن",
+    en: "LinkedIn",
+    desc: "الجانب المهنيّ من Island Haven — للشركات والشركاء والداعمين.",
     href: "https://www.linkedin.com/company/ih-haven",
-    cta: "Island Haven on LinkedIn",
+    handle: "Island Haven",
   },
   {
-    icon: <Facebook className="w-5 h-5" />,
-    title: "فيسبوك",
-    description: "متابعة الأنشطة وقصص المنتسبين عبر صفحتنا الرسمية.",
+    no: "05",
+    ar: "فيسبوك",
+    en: "Facebook",
+    desc: "متابعة الأنشطة وقصص المنتسبين عبر صفحتنا الرسميّة.",
     href: "https://www.facebook.com/islandhaven101",
-    cta: "facebook.com/islandhaven101",
+    handle: "islandhaven101",
   },
   {
-    icon: <MapPin className="w-5 h-5" />,
-    title: "زرنا في غزّة",
-    description: "العنوان التفصيليّ يُرسَل عبر الرسائل الخاصّة لضمان السلامة.",
+    no: "06",
+    ar: "زرنا في غزّة",
+    en: "Visit",
+    desc: "العنوان التفصيليّ يُرسَل عبر الرسائل الخاصّة لضمان السلامة.",
     href: "https://www.instagram.com/ih_haven",
-    cta: "راسلنا للحصول على العنوان",
+    handle: "راسلنا للعنوان",
   },
 ];
 
 export function HoursLocation() {
   return (
-    <section id="visit" className="py-24 bg-background">
-      <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div className="max-w-2xl mb-12">
-          <span className="inline-block text-sm font-medium text-primary tracking-wide mb-4">
-            تواصل معنا
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground leading-tight">
-            كلّ الأبواب مفتوحة
-          </h2>
-          <p className="text-base md:text-lg text-muted-foreground font-light leading-relaxed">
-            تابعنا، سجّل للانتساب، أو احجز مقعد ضيف لتجرّب المساحة قبل أن تقرّر.
-            نحن متواجدون على كلّ المنصّات الرئيسيّة.
-          </p>
-        </div>
+    <section id="visit" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10">
+      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+        <EditorialHeader
+          no="15"
+          label="كل الأبواب مفتوحة"
+          meta={<>Reach<br />us</>}
+          title={
+            <>
+              تابعنا، سجّل،
+              <br />
+              أو <span className="text-primary italic">زرنا.</span>
+            </>
+          }
+          sub="نحن متواجدون على كلّ المنصّات الرئيسيّة. اختر القناة التي تناسبك واختبر المساحة قبل أن تقرّر."
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {links.map((l, i) => (
+        <div className="border-t border-foreground/12">
+          {channels.map((c) => (
             <motion.a
-              key={i}
-              href={l.href}
+              key={c.no}
+              href={c.href}
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="group p-7 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-md transition-all flex flex-col"
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5 }}
+              className="group grid grid-cols-12 gap-4 lg:gap-10 items-baseline py-7 lg:py-9 border-b border-foreground/12 hover:bg-foreground hover:text-background transition-colors"
             >
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                {l.icon}
+              <div className="col-span-2 lg:col-span-1 text-[11px] tracking-[0.3em] font-bold text-foreground/45 group-hover:text-background/45">
+                {c.no}
               </div>
-              <h3 className="text-lg font-bold mb-2 text-foreground">{l.title}</h3>
-              <p className="text-sm text-muted-foreground font-light leading-relaxed mb-5 flex-1">
-                {l.description}
+              <div className="col-span-10 lg:col-span-3">
+                <h3
+                  className="font-bold leading-tight"
+                  style={{
+                    fontFamily: "Cairo, sans-serif",
+                    fontSize: "clamp(1.4rem, 2vw, 1.875rem)",
+                  }}
+                >
+                  {c.ar}
+                </h3>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 group-hover:text-background/45 mt-2">
+                  {c.en}
+                </div>
+              </div>
+              <p className="col-span-12 lg:col-span-5 text-foreground/75 group-hover:text-background/85 font-light leading-relaxed text-[15px]">
+                {c.desc}
               </p>
-              <span className="inline-flex items-center gap-2 text-primary font-medium text-sm">
-                {l.cta}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 group-hover:-translate-x-1 transition-transform" />
-              </span>
+              <div className="col-span-12 lg:col-span-3 lg:text-right text-[11px] tracking-[0.25em] uppercase font-bold text-primary group-hover:text-primary flex items-center lg:justify-end gap-2">
+                {c.handle}
+                <span className="inline-block transition-transform group-hover:-translate-x-2 rtl:group-hover:translate-x-2">
+                  →
+                </span>
+              </div>
             </motion.a>
           ))}
         </div>
 
-        <div className="mt-10 p-6 rounded-2xl border border-dashed border-border bg-secondary/10">
-          <p className="text-sm text-muted-foreground font-light leading-relaxed">
-            <span className="font-medium text-foreground">ملاحظة:</span> ساعات العمل
-            وضوابط استخدام المكان متوفّرة عند تأكيد الانتساب. للاطّلاع على الضوابط
-            الكاملة، يُرجى التواصل عبر إحدى قنواتنا.
-          </p>
-        </div>
+        <p className="mt-10 text-[11px] tracking-[0.3em] uppercase font-bold text-foreground/45 max-w-2xl">
+          ساعات العمل وضوابط استخدام المكان متوفّرة عند تأكيد الانتساب — راسلنا لأيّ تفاصيل.
+        </p>
       </div>
     </section>
   );

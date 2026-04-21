@@ -1,101 +1,85 @@
 import { motion } from "framer-motion";
-import { Eye, Target, HeartHandshake } from "lucide-react";
-
-const pillars = [
-  {
-    icon: <Eye className="w-5 h-5" />,
-    title: "رؤيتنا",
-    body: "أن نُسهم في بناء مجتمع مهني قادر، يمتلك الأدوات والمهارات التي تمكّنه من الاندماج الفعّال في سوق العمل، وبناء مستقبل مستدام قائم على المعرفة والخبرة والتعاون.",
-  },
-  {
-    icon: <Target className="w-5 h-5" />,
-    title: "رسالتنا",
-    body: "تمكين الطلاب والخريجين والمستقلّين عبر توفير مجتمع داعم، ومساحة عمل آمنة، وبرامج تدريب عملية، وفرص تشبيك حقيقية، تُقارب الواقع وتستجيب لحاجاته.",
-  },
-  {
-    icon: <HeartHandshake className="w-5 h-5" />,
-    title: "لماذا مجتمع؟",
-    body: "لأن العمل الفردي في بيئات غير مستقرّة يُرهق أكثر مما يُنتج. ولأن الكثير من الطاقات الشابّة لديها الرغبة والقدرة، لكنها تفتقد المكان والدعم والتوجيه.",
-  },
-];
+import { EditorialHeader, HairlineRow } from "./EditorialHeader";
 
 export function About() {
   return (
-    <section id="about" className="py-24 bg-background">
-      <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+    <section id="about" className="relative bg-background py-24 lg:py-32 overflow-hidden">
+      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+        <EditorialHeader
+          no="04"
+          label="من نحن"
+          meta={<>About<br />Island Haven</>}
+          title={
+            <>
+              مساحة <span className="text-primary italic">نجاة</span> مهنيّة،
+              <br />
+              قبل أن تكون مكاناً للعمل.
+            </>
+          }
+          sub={
+            <>
+              في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
+              وُلد <span className="text-foreground font-medium">Island Haven</span>{" "}
+              كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن طاقته،
+              ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
+            </>
+          }
+        />
+
+        <div className="grid grid-cols-12 gap-6 lg:gap-10">
+          {/* Photo */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
-            className="order-2 lg:order-1 lg:sticky lg:top-24"
+            transition={{ duration: 0.9 }}
+            className="col-span-12 lg:col-span-5"
           >
-            <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative">
               <img
                 src="/photos/IMG_8347.jpg"
-                alt="دفتر مفتوح وكوب شاي على طاولة عمل"
-                className="w-full h-full object-cover"
+                alt=""
+                className="w-full aspect-[4/5] object-cover grayscale-[10%]"
               />
-              <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-2xl"></div>
-              <div className="absolute bottom-4 right-4 left-4 bg-background/85 backdrop-blur-sm rounded-xl p-4 border border-border">
-                <p className="text-sm text-foreground leading-relaxed">
-                  &ldquo;Island Haven ليس مجرّد مساحة عمل، بل مجتمع مهنيّ حيّ، يقوم على
-                  الشراكة وتبادل الخبرات وبناء المسارات المهنية خطوةً خطوة.&rdquo;
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">— من الملف التعريفي الرسمي</p>
+              <div className="absolute -bottom-4 right-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
+                Plate · 04A
               </div>
             </div>
+            <p
+              className="mt-8 text-foreground italic text-lg leading-relaxed"
+              style={{ fontFamily: "Amiri, serif" }}
+            >
+              «نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.»
+            </p>
           </motion.div>
 
+          {/* Three pillars in tabular hairline rows */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
-            className="order-1 lg:order-2"
+            transition={{ duration: 0.9, delay: 0.15 }}
+            className="col-span-12 lg:col-span-7"
           >
-            <span className="inline-block text-sm font-medium text-primary tracking-wide mb-4">
-              من نحن
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-tight">
-              مساحة نجاة مهنيّة،<br />
-              <span className="text-primary">قبل أن تكون مكاناً للعمل.</span>
-            </h2>
-
-            <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed font-light">
-              <p>
-                في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
-                وُلد مجتمع <span className="font-medium text-foreground">Island Haven</span>
-                {" "}كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن
-                طاقته، ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
-              </p>
-              <p>
-                نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء
-                الثقة بالنفس وبالطريق. مساحة احترافية بروحٍ إنسانية هادئة.
-              </p>
-            </div>
-
-            <div className="mt-10 space-y-5">
-              {pillars.map((p, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="flex gap-4 border-r-2 border-primary/40 pr-5"
-                >
-                  <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    {p.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-foreground mb-1">{p.title}</h3>
-                    <p className="text-muted-foreground font-light leading-relaxed">{p.body}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <HairlineRow
+              no="01"
+              ar="رؤيتنا"
+              en="Vision"
+              body="أن نُسهم في بناء مجتمع مهنيّ قادر، يمتلك الأدوات والمهارات التي تمكّنه من الاندماج الفعّال في سوق العمل، وبناء مستقبل مستدام قائم على المعرفة والخبرة والتعاون."
+            />
+            <HairlineRow
+              no="02"
+              ar="رسالتنا"
+              en="Mission"
+              body="تمكين الطلاب والخريجين والمستقلّين عبر توفير مجتمع داعم، ومساحة عمل آمنة، وبرامج تدريب عمليّة، وفرص تشبيك حقيقيّة، تُقارب الواقع وتستجيب لحاجاته."
+            />
+            <HairlineRow
+              no="03"
+              ar="لماذا مجتمع؟"
+              en="Why community?"
+              body="لأنّ العمل الفرديّ في بيئات غير مستقرّة يُرهق أكثر مما يُنتج. ولأنّ الكثير من الطاقات الشابّة لديها الرغبة والقدرة، لكنها تفتقد المكان والدعم والتوجيه."
+            />
+            <div className="border-t border-foreground/12" />
           </motion.div>
         </div>
       </div>

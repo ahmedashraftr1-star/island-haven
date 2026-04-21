@@ -48,7 +48,7 @@ export function SpotlightReveal() {
       <div className="container mx-auto px-6 lg:px-10 max-w-7xl mb-16 lg:mb-24 flex items-end justify-between gap-6 flex-wrap relative z-10">
         <div>
           <div className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-3">
-            [ N°06 — البيان ]
+            [ N°11 — البيان ]
           </div>
           <div
             className="font-bold text-background/85 leading-tight"
@@ -142,7 +142,7 @@ export function SpotlightReveal() {
       {/* signature */}
       <div className="container mx-auto px-6 lg:px-10 max-w-6xl mt-20 lg:mt-32 flex items-center justify-between text-[11px] tracking-[0.3em] uppercase font-bold text-background/60 relative z-10">
         <span>— Island Haven Manifesto · 2024</span>
-        <span className="hidden md:inline">N°06 · 04 statements</span>
+        <span className="hidden md:inline">N°11 · 04 statements</span>
       </div>
     </section>
   );

@@ -93,7 +93,7 @@ export function CommunityWall() {
         <div className="grid grid-cols-12 gap-6 mb-16 items-end">
           <div className="col-span-12 lg:col-span-7">
             <div className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-4">
-              [ N°07 — حائط الـ٨٠ ]
+              [ N°06 — حائط الـ٨٠ ]
             </div>
             <h2
               className="font-black text-foreground leading-[0.95] tracking-tight"

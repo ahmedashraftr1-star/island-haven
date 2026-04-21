@@ -1,99 +1,138 @@
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { EditorialHeader } from "./EditorialHeader";
 
 export function Story() {
   return (
-    <section id="story" className="py-24 bg-background overflow-hidden relative">
-      <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <section id="story" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10 overflow-hidden">
+      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+        <EditorialHeader
+          no="12"
+          label="قصّتنا"
+          meta={<>The story<br />we live</>}
+          title={
+            <>
+              محاولة <span className="text-primary italic">جادّة</span> لبناء شيءٍ
+              <br />
+              مستدام في مكانٍ يفتقر إلى الاستقرار.
+            </>
+          }
+        />
+
+        <div className="grid grid-cols-12 gap-6 lg:gap-12 items-start">
+          {/* Editorial body */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
-            className="lg:col-span-7 relative z-10"
+            transition={{ duration: 0.9 }}
+            className="col-span-12 lg:col-span-7 lg:col-start-1"
           >
-            <span className="inline-block text-sm font-medium text-primary tracking-wide mb-4">
-              قصّتنا
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-tight">
-              محاولة جادّة لبناء شيء مستدام<br />
-              <span className="text-primary">في مكان يفتقر إلى الاستقرار.</span>
-            </h2>
+            <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-6">
+              Chapter I · المنشأ
+            </div>
+            <p
+              className="text-2xl lg:text-3xl text-foreground leading-snug font-medium mb-10"
+              style={{ fontFamily: "Reem Kufi, sans-serif" }}
+            >
+              وُلد <span className="text-primary">Island Haven</span> من إيمانٍ بأنّ
+              الاستثمار الحقيقيّ هو في الإنسان قبل أيّ شيء آخر.
+            </p>
 
-            <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed font-light">
+            <div className="space-y-6 text-base lg:text-lg text-foreground/75 font-light leading-relaxed">
               <p>
-                وُلد <span className="font-medium text-foreground">Island Haven</span> من
-                إيمان بأنّ الاستثمار الحقيقي هو في الإنسان قبل أيّ شيء آخر. في غزّة،
-                فقد كثيرون مساحاتهم الشخصيّة، وأدواتهم، وبيئة العمل التي اعتادوها —
-                لكنّ الطاقة بقيت، والرغبة في البناء لم تنطفئ.
+                في غزّة، فقد كثيرون مساحاتهم الشخصيّة، وأدواتهم، وبيئة العمل التي
+                اعتادوها — لكنّ الطاقة بقيت، والرغبة في البناء لم تنطفئ.
               </p>
               <p>
-                جمعنا في غرفة واحدة ما تبقّى من إمكانات: مكاتب، إنترنت، كهرباء، وفوق
-                ذلك كلّه — مجتمع. صار المكان مساحة نجاة مهنيّة لطلاب الجامعات،
-                والخريجين الباحثين عن مسار، والمستقلّين الذين يحتاجون إلى بيئة عمل
-                تليق بهم.
-              </p>
-              <p className="text-foreground/90 font-normal border-r-2 border-primary pr-5 italic">
-                Island Haven ليس مجرّد مساحة عمل. هو محاولة لإثبات أنّ المعرفة
-                والخبرة والتعاون قادرة على بناء مستقبل، حتى في أصعب الظروف.
+                جمعنا في غرفةٍ واحدةٍ ما تبقّى من إمكانات: مكاتب، إنترنت، كهرباء،
+                وفوق ذلك كلّه — مجتمع. صار المكان مساحة نجاةٍ مهنيّةٍ لطلاب
+                الجامعات، والخرّيجين الباحثين عن مسار، والمستقلّين الذين يحتاجون
+                إلى بيئة عملٍ تليق بهم.
               </p>
             </div>
 
-            <div className="mt-10 p-6 md:p-8 rounded-2xl border border-border bg-card">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2 font-medium">
-                برنامج تنمويّ تابع لـ
+            <p
+              className="mt-12 text-2xl lg:text-3xl text-foreground italic leading-snug border-r-2 border-primary pr-8 py-2"
+              style={{ fontFamily: "Amiri, serif" }}
+            >
+              «Island Haven ليس مجرّد مساحةِ عمل. هو محاولة لإثبات أنّ المعرفة
+              والخبرة والتعاون قادرةٌ على بناء مستقبل، حتى في أصعب الظروف.»
+            </p>
+
+            {/* Programme credit */}
+            <div className="mt-16 pt-8 border-t border-foreground/15">
+              <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-3">
+                Programme of · برنامج تنمويّ تابع لـ
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-foreground mb-3">
-                فريق "من الناس إلى الناس"
+              <h3
+                className="font-bold text-foreground leading-tight"
+                style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.5rem, 2.4vw, 2rem)" }}
+              >
+                فريق «من الناس إلى الناس»
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground font-light leading-relaxed mb-5">
-                مبادرة تطوّعيّة تعمل من داخل غزّة وخارجها على إيصال الدعم المباشر إلى
-                المشاريع المجتمعيّة الصغيرة. هي من احتضنت Island Haven، وتُسهم في
-                إبقاء أبوابه مفتوحة للجميع مجاناً.
+              <p className="mt-3 text-foreground/70 font-light leading-relaxed max-w-xl">
+                مبادرة تطوّعيّة تعمل من داخل غزّة وخارجها على إيصال الدعم المباشر
+                إلى المشاريع المجتمعيّة الصغيرة. هي من احتضنت Island Haven وتُسهم
+                في إبقاء أبوابه مفتوحة للجميع مجاناً.
               </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-sm">
                 <a
                   href="https://nastonas.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                  className="text-foreground hover:text-primary transition-colors font-bold tracking-wide underline-offset-4 hover:underline"
                 >
-                  nastonas.org
-                  <ExternalLink className="w-4 h-4" />
+                  nastonas.org →
                 </a>
                 <a
                   href="https://nas2nas.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                  className="text-foreground hover:text-primary transition-colors font-bold tracking-wide underline-offset-4 hover:underline"
                 >
-                  nas2nas.org — للتبرّع
-                  <ExternalLink className="w-4 h-4" />
+                  nas2nas.org · للتبرّع →
                 </a>
               </div>
             </div>
           </motion.div>
 
+          {/* Photo column */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 1 }}
-            className="lg:col-span-5 relative"
+            transition={{ duration: 0.9, delay: 0.1 }}
+            className="col-span-12 lg:col-span-5 lg:sticky lg:top-24"
           >
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative">
               <img
                 src="/photos/IMG_8358.jpg"
-                alt="منتسب يعمل بهدوء داخل المساحة"
-                className="w-full h-full object-cover"
+                alt=""
+                className="w-full aspect-[3/4] object-cover grayscale-[10%]"
               />
-            </div>
-            <div className="absolute -bottom-6 -right-6 hidden md:block bg-primary text-primary-foreground rounded-2xl p-5 shadow-xl max-w-[240px]">
-              <div className="text-2xl font-bold mb-1 leading-tight">مساحة تتّسع<br />لأحلامك.</div>
-              <div className="text-xs text-primary-foreground/85 font-light mt-2">
-                — الشعار الرسمي لـ Island Haven
+              <div className="absolute -bottom-4 left-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
+                Plate · 12A
               </div>
+            </div>
+
+            <div className="mt-10 grid grid-cols-3 gap-px bg-foreground/12">
+              {[
+                { v: "2024", l: "Founded" },
+                { v: "39", l: "Seats" },
+                { v: "100%", l: "Free" },
+              ].map((s) => (
+                <div key={s.l} className="bg-background p-5">
+                  <div
+                    className="font-black text-foreground leading-none"
+                    style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.5rem, 2.6vw, 2.25rem)" }}
+                  >
+                    {s.v}
+                  </div>
+                  <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/55 mt-2 font-bold">
+                    {s.l}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
