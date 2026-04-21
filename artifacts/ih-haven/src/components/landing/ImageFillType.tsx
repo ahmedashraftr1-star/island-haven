@@ -43,7 +43,7 @@ export function ImageFillType() {
             [ N°02 — لأجل من؟ ]
           </div>
           <h2
-            className="font-bold text-foreground leading-[1.05]"
+            className="font-bold text-foreground leading-[1.1]"
             style={{
               fontFamily: "Reem Kufi, sans-serif",
               fontSize: "clamp(1.5rem, 3vw, 2.5rem)",

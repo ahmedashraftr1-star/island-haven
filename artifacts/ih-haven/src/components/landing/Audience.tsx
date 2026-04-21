@@ -70,7 +70,7 @@ export function Audience() {
               }`}
             >
               <div
-                className="font-black text-foreground leading-none"
+                className="font-extrabold text-foreground leading-none"
                 style={{
                   fontFamily: "Cairo, sans-serif",
                   fontSize: "clamp(3rem, 6vw, 5rem)",
@@ -117,7 +117,7 @@ export function Audience() {
                 </div>
                 <div className="mt-5 flex items-baseline gap-2">
                   <span
-                    className="text-primary font-black"
+                    className="text-primary font-extrabold"
                     style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
                   >
                     {seg.pct}

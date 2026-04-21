@@ -57,7 +57,7 @@ export function Campaign() {
             </div>
 
             <h3
-              className="font-black text-foreground leading-[0.92] mb-7"
+              className="font-extrabold text-foreground leading-[1.12] mb-7"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2rem, 4.4vw, 3.75rem)",
@@ -81,7 +81,7 @@ export function Campaign() {
                     Raised · جُمع
                   </div>
                   <div
-                    className="font-black text-foreground leading-none"
+                    className="font-extrabold text-foreground leading-none"
                     style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3.5vw, 3rem)" }}
                     dir="ltr"
                   >
@@ -93,7 +93,7 @@ export function Campaign() {
                     Goal · الهدف
                   </div>
                   <div
-                    className="font-black text-foreground/45 leading-none"
+                    className="font-extrabold text-foreground/45 leading-none"
                     style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(2rem, 3.5vw, 3rem)" }}
                     dir="ltr"
                   >

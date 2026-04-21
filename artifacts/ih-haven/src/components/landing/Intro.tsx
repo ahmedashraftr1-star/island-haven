@@ -56,7 +56,7 @@ export function Intro() {
 
             {/* big arabic mark, word by word */}
             <div
-              className="font-black text-background leading-[0.85] tracking-tight overflow-hidden"
+              className="font-extrabold text-background leading-[1.05] tracking-tight overflow-hidden"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(3rem, 9vw, 9rem)",

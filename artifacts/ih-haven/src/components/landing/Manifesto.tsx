@@ -42,7 +42,7 @@ export function Manifesto() {
             className="col-span-12 md:col-span-9"
           >
             <h2
-              className="font-black text-background leading-[0.95] tracking-tight"
+              className="font-extrabold text-background leading-[1.1] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.5rem, 7vw, 7rem)",

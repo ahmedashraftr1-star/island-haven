@@ -20,7 +20,7 @@ export function EditorialHeader({ no, label, title, sub, alignRight, meta, dark 
           [ N°{no} — {label} ]
         </div>
         <h2
-          className={`font-black ${text} leading-[0.92] tracking-tight`}
+          className={`font-extrabold ${text} leading-[1.12] tracking-tight`}
           style={{
             fontFamily: "Cairo, sans-serif",
             fontSize: "clamp(2rem, 5.5vw, 5rem)",

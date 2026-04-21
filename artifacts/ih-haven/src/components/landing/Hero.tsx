@@ -75,7 +75,7 @@ export function Hero() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
-          className="text-[120px] leading-none font-black"
+          className="text-[120px] leading-none font-extrabold"
         >
           ✦
         </motion.div>
@@ -120,10 +120,10 @@ export function Hero() {
             </motion.div>
 
             <h1
-              className="font-black text-foreground leading-[0.86] tracking-tight"
+              className="font-extrabold text-foreground leading-[1.1] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
-                fontSize: "clamp(3.5rem, 12vw, 12rem)",
+                fontSize: "clamp(3.25rem, 9.5vw, 9.5rem)",
               }}
             >
               <div className="overflow-hidden">

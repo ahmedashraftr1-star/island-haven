@@ -123,7 +123,7 @@ export function Story() {
               ].map((s) => (
                 <div key={s.l} className="bg-background p-5">
                   <div
-                    className="font-black text-foreground leading-none"
+                    className="font-extrabold text-foreground leading-none"
                     style={{ fontFamily: "Cairo, sans-serif", fontSize: "clamp(1.5rem, 2.6vw, 2.25rem)" }}
                   >
                     {s.v}

@@ -55,7 +55,7 @@ export function NumbersArt() {
               [ N°03 — بالأرقام ]
             </div>
             <h2
-              className="font-black text-foreground leading-[1.05] tracking-tight"
+              className="font-extrabold text-foreground leading-[1.1] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2rem, 5vw, 4rem)",
@@ -91,7 +91,7 @@ export function NumbersArt() {
               </div>
 
               <div
-                className="font-black leading-[0.85] tracking-tight mb-4"
+                className="font-extrabold leading-[1.05] tracking-tight mb-4"
                 style={{
                   fontFamily: "Cairo, sans-serif",
                   fontSize: "clamp(5rem, 12vw, 11rem)",

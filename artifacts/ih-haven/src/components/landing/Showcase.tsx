@@ -122,7 +122,7 @@ export function Showcase() {
                     [ Pillar {p.n} — {p.label} ]
                   </div>
                   <div
-                    className="text-2xl font-black text-foreground/85 leading-none"
+                    className="text-2xl font-extrabold text-foreground/85 leading-none"
                     style={{ fontFamily: "Cairo, sans-serif" }}
                   >
                     {p.n}

@@ -29,10 +29,10 @@ export function Footer() {
               [ N°17 — Colophon ]
             </div>
             <h2
-              className="font-black text-foreground leading-[0.86] tracking-tight"
+              className="font-extrabold text-foreground leading-[1.1] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
-                fontSize: "clamp(3rem, 11vw, 11rem)",
+                fontSize: "clamp(2.75rem, 8vw, 7.5rem)",
               }}
             >
               مساحة <span className="text-primary italic">تتّسع</span>

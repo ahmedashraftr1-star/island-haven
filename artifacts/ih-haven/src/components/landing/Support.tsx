@@ -53,7 +53,7 @@ export function Support() {
               [ N°16 — كيف تكون جزءاً من القصّة ]
             </div>
             <h2
-              className="font-black text-background leading-[0.92] tracking-tight"
+              className="font-extrabold text-background leading-[1.12] tracking-tight"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.5rem, 7vw, 6rem)",
@@ -98,7 +98,7 @@ export function Support() {
               </div>
               <div className="col-span-10 lg:col-span-4">
                 <h3
-                  className="font-black text-background group-hover:text-primary-foreground leading-none"
+                  className="font-extrabold text-background group-hover:text-primary-foreground leading-none"
                   style={{
                     fontFamily: "Cairo, sans-serif",
                     fontSize: "clamp(2.5rem, 5vw, 4.5rem)",

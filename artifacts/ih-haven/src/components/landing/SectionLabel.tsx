@@ -31,7 +31,7 @@ export function SectionLabel({
         <div className="h-px w-12 bg-primary/40" />
       </div>
       <h2
-        className="font-black text-foreground leading-[1.05] tracking-tight"
+        className="font-extrabold text-foreground leading-[1.1] tracking-tight"
         style={{
           fontFamily: "Cairo, sans-serif",
           fontSize: "clamp(2rem, 5vw, 4.5rem)",

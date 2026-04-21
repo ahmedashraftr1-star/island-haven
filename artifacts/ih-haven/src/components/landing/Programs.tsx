@@ -46,7 +46,7 @@ export function Programs() {
               Feature N°09A
             </div>
             <h3
-              className="font-black text-foreground leading-[0.92]"
+              className="font-extrabold text-foreground leading-[1.12]"
               style={{
                 fontFamily: "Cairo, sans-serif",
                 fontSize: "clamp(2.25rem, 5vw, 4.5rem)",
