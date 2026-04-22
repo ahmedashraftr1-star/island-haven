@@ -1,18 +1,19 @@
 import { motion } from "framer-motion";
-import { MagneticButton } from "./MagneticButton";
+import { Heart, UserPlus, Share2, ArrowLeft } from "lucide-react";
 
 const ways = [
   {
-    no: "01",
+    icon: Heart,
     ar: "تبرّع",
     en: "Donate",
     sub: "كلّ مساهمة تُبقي الأبواب مفتوحة",
     body: "Island Haven مساحة مجّانيّة بالكامل، وتكاليف تشغيلها — من إنترنت وكهرباء وصيانة — يغطّيها داعمون مثلك. التبرّع مباشر وآمن عبر مبادرة من الناس إلى الناس.",
     cta: "تبرّع الآن",
     href: "https://nas2nas.org",
+    primary: true,
   },
   {
-    no: "02",
+    icon: UserPlus,
     ar: "انضمّ",
     en: "Join",
     sub: "إن كنت في غزّة وتنطبق عليك المعايير",
@@ -21,7 +22,7 @@ const ways = [
     href: "/apply",
   },
   {
-    no: "03",
+    icon: Share2,
     ar: "شارك القصّة",
     en: "Share",
     sub: "الانتشار يحمينا أكثر من الصمت",
@@ -35,110 +36,119 @@ export function Support() {
   return (
     <section
       id="support"
-      className="relative bg-foreground text-background py-28 lg:py-36 overflow-hidden"
+      className="relative bg-background py-24 lg:py-32 overflow-hidden"
     >
-      <div className="absolute inset-0 opacity-[0.07]">
-        <img
-          src="/photos/IMG_8341.jpg"
-          alt=""
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="container relative mx-auto px-6 lg:px-10 max-w-7xl">
-        {/* Manifesto-style headline */}
-        <div className="grid grid-cols-12 gap-6 lg:gap-10 mb-16 lg:mb-24">
-          <div className="col-span-12 lg:col-span-9">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-primary font-bold mb-5">
-              [ N°16 — كيف تكون جزءاً من القصّة ]
-            </div>
-            <h2
-              className="font-extrabold text-background leading-[1.12] tracking-tight"
-              style={{
-                fontSize: "clamp(2.5rem, 7vw, 6rem)",
-              }}
-            >
-              استمرار هذا المكان
-              <br />
-              <span className="text-primary italic">يعتمد على التكافل.</span>
-            </h2>
-            <p className="mt-8 text-lg lg:text-xl text-background/75 font-light leading-relaxed max-w-2xl">
-              Island Haven ليس مشروعاً ربحيّاً، ولا مكاناً يكتفي بنفسه. هو مجتمع
-              يُبنى يوميّاً بأيدي داعميه ومنتسبيه. هذه ثلاث طرق ملموسة لتشاركنا القصّة.
-            </p>
+      <div className="container relative mx-auto px-6 lg:px-10 max-w-[1500px]">
+        {/* Headline */}
+        <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            كن جزءاً من القصّة
           </div>
-          <div className="col-span-12 lg:col-span-3 hidden lg:flex justify-end items-end">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-background/50 font-bold text-right">
-              Three ways
-              <br />
-              to keep us alive
-            </div>
-          </div>
+          <h2
+            className="font-bold text-foreground"
+            style={{
+              fontSize: "clamp(2.25rem, 5.2vw, 4.25rem)",
+              lineHeight: 1.06,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            استمرار هذا المكان
+            <br />
+            <span className="text-accent-gradient">يعتمد على التكافل.</span>
+          </h2>
+          <p className="mt-6 text-base lg:text-lg text-foreground/65 leading-relaxed">
+            Island Haven ليس مشروعاً ربحيّاً. هو مجتمع يُبنى يوميّاً بأيدي
+            داعميه ومنتسبيه. هذه ثلاث طرق ملموسة لتشاركنا القصّة.
+          </p>
         </div>
 
-        {/* 3-column editorial table */}
-        <div className="border-t border-background/20">
-          {ways.map((w, i) => (
-            <motion.a
-              key={w.no}
-              href={w.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-              className="group grid grid-cols-12 gap-4 lg:gap-10 items-start py-10 lg:py-14 border-b border-background/20 hover:bg-primary transition-colors"
-            >
-              <div className="col-span-2 lg:col-span-1">
-                <div className="text-[11px] tracking-[0.3em] font-bold text-background/55 group-hover:text-primary-foreground/80">
-                  {w.no}
+        {/* 3-column cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+          {ways.map((w, i) => {
+            const Icon = w.icon;
+            const isPrimary = w.primary;
+            return (
+              <motion.a
+                key={w.ar}
+                href={w.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.7, delay: i * 0.08 }}
+                className={`group relative rounded-2xl p-8 lg:p-10 transition-all duration-500 hover:-translate-y-1 ${
+                  isPrimary
+                    ? "bg-primary text-primary-foreground shadow-soft-hover hover:shadow-[0_20px_60px_hsl(232_70%_30%/0.25)]"
+                    : "bg-white border border-border shadow-soft hover:shadow-soft-hover hover:border-primary/25"
+                }`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
+                    isPrimary
+                      ? "bg-white/15 text-primary-foreground"
+                      : "tile-soft"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={2.2} />
                 </div>
-              </div>
-              <div className="col-span-10 lg:col-span-4">
+                <div
+                  className={`text-[11px] tracking-[0.15em] uppercase font-semibold mb-2 ${
+                    isPrimary ? "text-primary-foreground/75" : "text-primary"
+                  }`}
+                >
+                  {w.en}
+                </div>
                 <h3
-                  className="font-extrabold text-background group-hover:text-primary-foreground leading-none"
-                  style={{
-                    fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
-                  }}
+                  className={`font-bold mb-3 text-2xl lg:text-3xl ${
+                    isPrimary ? "text-primary-foreground" : "text-foreground"
+                  }`}
+                  style={{ letterSpacing: "-0.02em" }}
                 >
                   {w.ar}
                 </h3>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-primary group-hover:text-primary-foreground mt-3 font-bold">
-                  {w.en}
-                </div>
-                <div className="mt-4 text-sm text-background/65 group-hover:text-primary-foreground/85 font-light italic">
+                <p
+                  className={`text-[14px] mb-3 italic ${
+                    isPrimary ? "text-primary-foreground/85" : "text-foreground/55"
+                  }`}
+                >
                   {w.sub}
-                </div>
-              </div>
-              <div className="col-span-12 lg:col-span-5">
-                <p className="text-base lg:text-lg text-background/80 group-hover:text-primary-foreground/90 font-light leading-relaxed">
+                </p>
+                <p
+                  className={`text-[15px] leading-relaxed mb-7 ${
+                    isPrimary ? "text-primary-foreground/90" : "text-foreground/70"
+                  }`}
+                >
                   {w.body}
                 </p>
-              </div>
-              <div className="col-span-12 lg:col-span-2 lg:text-right text-[11px] tracking-[0.3em] uppercase font-bold text-primary group-hover:text-primary-foreground flex items-center lg:justify-end gap-2 lg:pt-3">
-                {w.cta}
-                <span className="inline-block transition-transform group-hover:-translate-x-2 rtl:group-hover:translate-x-2">
-                  →
-                </span>
-              </div>
-            </motion.a>
-          ))}
+                <div
+                  className={`inline-flex items-center gap-2 font-semibold text-[14px] group-hover:gap-3 transition-all ${
+                    isPrimary ? "text-primary-foreground" : "text-primary"
+                  }`}
+                >
+                  {w.cta}
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                </div>
+              </motion.a>
+            );
+          })}
         </div>
 
-        {/* Big donate magnet at end */}
-        <div className="mt-16 lg:mt-20 flex flex-col items-start gap-5">
-          <MagneticButton
+        {/* Big donate magnet */}
+        <div className="mt-14 lg:mt-16 flex flex-col items-center text-center gap-4">
+          <a
             href="https://nas2nas.org"
             target="_blank"
             rel="noopener noreferrer"
+            className="group inline-flex items-center justify-center gap-3 h-14 lg:h-16 px-10 lg:px-12 rounded-full bg-primary text-primary-foreground font-bold text-[15px] hover:bg-primary/90 transition-all duration-300 shadow-soft-hover hover:scale-[1.02]"
           >
-            <span className="inline-flex items-center justify-center h-16 px-12 bg-primary text-primary-foreground font-bold text-sm tracking-[0.3em] uppercase hover:bg-background hover:text-foreground transition-colors">
-              تبرّع الآن — Nas to Nas
-            </span>
-          </MagneticButton>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-background/50 font-bold">
-            Secure · مباشر وآمن · 100% to operations
+            <Heart className="w-4 h-4" />
+            تبرّع الآن — Nas to Nas
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1" />
+          </a>
+          <p className="text-[12px] text-foreground/50 font-medium">
+            تبرّع مباشر وآمن · ١٠٠٪ يصل إلى تشغيل المساحة
           </p>
         </div>
       </div>

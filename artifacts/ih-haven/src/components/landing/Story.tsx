@@ -1,17 +1,17 @@
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 
 export function Story() {
   return (
-    <section id="story" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10 overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+    <section id="story" className="relative bg-background py-24 lg:py-32">
+      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
-          no="12"
           label="قصّتنا"
-          meta={<>The story<br />we live</>}
           title={
             <>
-              محاولة <span className="text-primary italic">جادّة</span> لبناء شيءٍ
+              محاولة <span className="text-accent-gradient">جادّة</span> لبناء
+              شيءٍ
               <br />
               مستدام في مكانٍ يفتقر إلى الاستقرار.
             </>
@@ -19,28 +19,26 @@ export function Story() {
         />
 
         <div className="grid grid-cols-12 gap-6 lg:gap-12 items-start">
-          {/* Editorial body */}
+          {/* Body */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9 }}
-            className="col-span-12 lg:col-span-7 lg:col-start-1"
+            transition={{ duration: 0.8 }}
+            className="col-span-12 lg:col-span-7"
           >
-            <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-6">
-              Chapter I · المنشأ
+            <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-5">
+              الفصل الأوّل · المنشأ
             </div>
-            <p
-              className="text-2xl lg:text-3xl text-foreground leading-snug font-medium mb-10"
-            >
-              وُلد <span className="text-primary">Island Haven</span> من إيمانٍ بأنّ
-              الاستثمار الحقيقيّ هو في الإنسان قبل أيّ شيء آخر.
+            <p className="text-2xl lg:text-3xl text-foreground leading-snug font-semibold mb-8" style={{ letterSpacing: "-0.015em" }}>
+              وُلد <span className="text-primary">Island Haven</span> من إيمانٍ
+              بأنّ الاستثمار الحقيقيّ هو في الإنسان قبل أيّ شيء آخر.
             </p>
 
-            <div className="space-y-6 text-base lg:text-lg text-foreground/75 font-light leading-relaxed">
+            <div className="space-y-5 text-base lg:text-lg text-foreground/75 leading-relaxed">
               <p>
-                في غزّة، فقد كثيرون مساحاتهم الشخصيّة، وأدواتهم، وبيئة العمل التي
-                اعتادوها — لكنّ الطاقة بقيت، والرغبة في البناء لم تنطفئ.
+                في غزّة، فقد كثيرون مساحاتهم الشخصيّة، وأدواتهم، وبيئة العمل
+                التي اعتادوها — لكنّ الطاقة بقيت، والرغبة في البناء لم تنطفئ.
               </p>
               <p>
                 جمعنا في غرفةٍ واحدةٍ ما تبقّى من إمكانات: مكاتب، إنترنت، كهرباء،
@@ -50,45 +48,45 @@ export function Story() {
               </p>
             </div>
 
-            <p
-              className="mt-12 text-2xl lg:text-3xl text-foreground italic leading-snug border-r-2 border-primary pr-8 py-2"
-            >
-              «Island Haven ليس مجرّد مساحةِ عمل. هو محاولة لإثبات أنّ المعرفة
-              والخبرة والتعاون قادرةٌ على بناء مستقبل، حتى في أصعب الظروف.»
-            </p>
+            <div className="mt-10 bg-primary-soft border border-primary/15 rounded-2xl p-7 lg:p-8 relative">
+              <p className="text-xl lg:text-2xl text-foreground leading-snug font-medium" style={{ letterSpacing: "-0.01em" }}>
+                «Island Haven ليس مجرّد مساحةِ عمل. هو محاولة لإثبات أنّ
+                المعرفة والخبرة والتعاون قادرةٌ على بناء مستقبل، حتى في أصعب
+                الظروف.»
+              </p>
+            </div>
 
             {/* Programme credit */}
-            <div className="mt-16 pt-8 border-t border-foreground/15">
-              <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-3">
-                Programme of · برنامج تنمويّ تابع لـ
+            <div className="mt-12 pt-8 border-t border-border">
+              <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/50 font-semibold mb-3">
+                برنامج تنمويّ تابع لـ
               </div>
-              <h3
-                className="font-bold text-foreground leading-tight"
-                style={{ fontSize: "clamp(1.5rem, 2.4vw, 2rem)" }}
-              >
+              <h3 className="font-bold text-foreground text-2xl mb-3">
                 فريق «من الناس إلى الناس»
               </h3>
-              <p className="mt-3 text-foreground/70 font-light leading-relaxed max-w-xl">
-                مبادرة تطوّعيّة تعمل من داخل غزّة وخارجها على إيصال الدعم المباشر
-                إلى المشاريع المجتمعيّة الصغيرة. هي من احتضنت Island Haven وتُسهم
-                في إبقاء أبوابه مفتوحة للجميع مجاناً.
+              <p className="text-foreground/70 leading-relaxed max-w-xl mb-5">
+                مبادرة تطوّعيّة تعمل من داخل غزّة وخارجها على إيصال الدعم
+                المباشر إلى المشاريع المجتمعيّة الصغيرة. هي من احتضنت Island
+                Haven وتُسهم في إبقاء أبوابه مفتوحة للجميع مجاناً.
               </p>
-              <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-sm">
+              <div className="flex flex-wrap gap-3">
                 <a
                   href="https://nastonas.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-foreground hover:text-primary transition-colors font-bold tracking-wide underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-white border border-border text-foreground text-[13px] font-semibold hover:border-primary/40 hover:text-primary transition-colors"
                 >
-                  nastonas.org →
+                  nastonas.org
+                  <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
                 <a
                   href="https://nas2nas.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-foreground hover:text-primary transition-colors font-bold tracking-wide underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
                 >
-                  nas2nas.org · للتبرّع →
+                  nas2nas.org · للتبرّع
+                  <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
               </div>
             </div>
@@ -96,37 +94,34 @@ export function Story() {
 
           {/* Photo column */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, delay: 0.1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="col-span-12 lg:col-span-5 lg:sticky lg:top-24"
           >
-            <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-soft">
               <img
                 src="/photos/IMG_8358.jpg"
                 alt="منظر داخليّ من آيلاند هيفن يوضح بيئة العمل الهادئة"
-                className="w-full aspect-[3/4] object-cover grayscale-[10%]"
+                className="w-full aspect-[3/4] object-cover"
               />
-              <div className="absolute -bottom-4 left-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
-                Plate · 12A
-              </div>
             </div>
 
-            <div className="mt-10 grid grid-cols-3 gap-px bg-foreground/12">
+            <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { v: "2024", l: "Founded" },
-                { v: "39", l: "Seats" },
-                { v: "100%", l: "Free" },
+                { v: "2024", l: "تأسّس" },
+                { v: "39", l: "مقعد" },
+                { v: "100%", l: "مجّانيّ" },
               ].map((s) => (
-                <div key={s.l} className="bg-background p-5">
+                <div key={s.l} className="bg-white border border-border rounded-xl p-4 shadow-soft">
                   <div
-                    className="font-extrabold text-foreground leading-none"
-                    style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.25rem)" }}
+                    className="font-bold text-foreground leading-none tabular-nums"
+                    style={{ fontSize: "clamp(1.25rem, 2vw, 1.75rem)" }}
                   >
                     {s.v}
                   </div>
-                  <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/55 mt-2 font-bold">
+                  <div className="text-[12px] text-foreground/55 mt-1.5 font-medium">
                     {s.l}
                   </div>
                 </div>

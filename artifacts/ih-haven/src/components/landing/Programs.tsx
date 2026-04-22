@@ -1,23 +1,21 @@
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
-import { MagneticButton } from "./MagneticButton";
 
 const pillars = ["مواقع", "أدوات", "تطويرات", "تحسينات"];
 const pillarsEn = ["Sites", "Tools", "Upgrades", "Improvements"];
 
 export function Programs() {
   return (
-    <section id="programs" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+    <section id="programs" className="relative bg-muted/40 py-24 lg:py-32 border-y border-border">
+      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
-          no="09"
-          label="ما يحدث هنا"
-          meta={<>Programs<br />& events</>}
+          label="الفعاليّات والبرامج"
           title={
             <>
               المكان يتنفّس بأهله،
               <br />
-              <span className="text-primary italic">لا بجدرانه.</span>
+              <span className="text-accent-gradient">لا بجدرانه.</span>
             </>
           }
           sub="إلى جانب المساحة المفتوحة يوميّاً، يُنظَّم Island Haven ورشاً تدريبيّة تطبيقيّة ومبادرات داخليّة، بعضها يقوده الفريق، وبعضها يقوده المنتسبون أنفسهم."
@@ -28,127 +26,107 @@ export function Programs() {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.9 }}
-          className="grid grid-cols-12 gap-6 lg:gap-10 mb-16 lg:mb-20"
+          transition={{ duration: 0.8 }}
+          className="bg-white border border-border rounded-3xl shadow-soft overflow-hidden mb-6 lg:mb-7"
         >
-          <div className="col-span-12 lg:col-span-5 relative">
-            <img
-              src="/photos/IMG_8352.jpg"
-              alt="جلسة عمل لمنتسبي آيلاند هيفن خلال فعالية صُنع في آيلاند هيفن"
-              className="w-full aspect-[4/5] object-cover grayscale-[10%]"
-            />
-            <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] tracking-[0.3em] uppercase font-bold px-3 py-2">
-              فعالية قادمة · Upcoming
-            </div>
-          </div>
-          <div className="col-span-12 lg:col-span-7">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-4">
-              Feature N°09A
-            </div>
-            <h3
-              className="font-extrabold text-foreground leading-[1.12]"
-              style={{
-                fontSize: "clamp(2.25rem, 5vw, 4.5rem)",
-              }}
-            >
-              صُنع في
-              <br />
-              <span className="text-primary italic">آيلاند هيفن.</span>
-            </h3>
-            <div
-              dir="ltr"
-              className="mt-3 text-sm tracking-[0.3em] uppercase text-foreground/55 font-bold"
-            >
-              Made in Island Haven
-            </div>
-            <p className="mt-7 text-base lg:text-lg text-foreground/75 font-light leading-relaxed max-w-xl">
-              فعاليّة جديدة نطلقها قريباً، نفتح فيها الباب أمام منتسبي المجتمع لاقتراح
-              ما يريدون أن يصنعوه داخل المساحة. كلّ فكرة تُبنى من أصحابها، وتُنفَّذ معهم —
-              لأنّ المكان يصير أجمل حين يصنعه أهله.
-            </p>
-
-            <div className="mt-10">
-              <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-4">
-                نرحّب باقتراحاتكم في
+          <div className="grid grid-cols-12 gap-0 items-stretch">
+            <div className="col-span-12 lg:col-span-5 relative">
+              <img
+                src="/photos/IMG_8352.jpg"
+                alt="جلسة عمل لمنتسبي آيلاند هيفن خلال فعالية صُنع في آيلاند هيفن"
+                className="w-full h-full min-h-[320px] lg:min-h-[480px] object-cover"
+              />
+              <div className="absolute top-5 right-5 inline-flex items-center gap-2 h-8 px-3 rounded-full bg-white text-primary text-[11px] font-bold tracking-wide shadow-soft">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                فعاليّة قادمة
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 border-t border-foreground/12">
-                {pillars.map((p, i) => (
-                  <div
-                    key={p}
-                    className={`py-5 ${
-                      i < pillars.length - 1 ? "sm:border-l border-foreground/12" : ""
-                    } border-b sm:border-b-0`}
-                  >
+            </div>
+            <div className="col-span-12 lg:col-span-7 p-8 lg:p-12">
+              <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-4">
+                Made in Island Haven
+              </div>
+              <h3
+                className="font-bold text-foreground leading-tight"
+                style={{
+                  fontSize: "clamp(2rem, 4vw, 3.25rem)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                صُنع في آيلاند هيفن.
+              </h3>
+              <p className="mt-5 text-base lg:text-lg text-foreground/70 leading-relaxed max-w-xl">
+                فعاليّة جديدة نطلقها قريباً، نفتح فيها الباب أمام منتسبي المجتمع لاقتراح
+                ما يريدون أن يصنعوه داخل المساحة. كلّ فكرة تُبنى من أصحابها، وتُنفَّذ معهم —
+                لأنّ المكان يصير أجمل حين يصنعه أهله.
+              </p>
+
+              <div className="mt-8">
+                <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-3">
+                  نرحّب باقتراحاتكم في
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {pillars.map((p, i) => (
                     <div
-                      className="font-bold text-foreground"
-                      style={{ fontSize: "clamp(1.1rem, 1.6vw, 1.5rem)" }}
+                      key={p}
+                      className="bg-muted/60 rounded-xl px-4 py-3"
                     >
-                      {p}
+                      <div className="font-bold text-foreground text-[15px]">
+                        {p}
+                      </div>
+                      <div className="text-[10px] tracking-wide text-foreground/45 mt-0.5">
+                        {pillarsEn[i]}
+                      </div>
                     </div>
-                    <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-1">
-                      {pillarsEn[i]}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-10">
-              <MagneticButton
+              <a
                 href="https://www.instagram.com/ih_haven"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] hover:bg-primary/90 transition-all duration-300 shadow-soft hover:shadow-soft-hover hover:scale-[1.02]"
               >
-                <span className="inline-flex items-center justify-center h-12 px-7 border border-foreground text-foreground font-bold text-xs tracking-[0.25em] uppercase hover:bg-foreground hover:text-background transition-colors">
-                  شاركنا فكرتك
-                </span>
-              </MagneticButton>
+                شاركنا فكرتك
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+              </a>
             </div>
           </div>
         </motion.article>
 
-        {/* Two secondary programs as hairline rows */}
-        <div className="border-t border-foreground/12">
-          <div className="grid grid-cols-12 gap-4 lg:gap-10 items-baseline py-9 lg:py-11 border-b border-foreground/12">
-            <div className="col-span-2 lg:col-span-1 text-[11px] tracking-[0.3em] font-bold text-foreground/45">
-              09B
-            </div>
-            <div className="col-span-10 lg:col-span-4">
-              <h3
-                className="font-bold text-foreground leading-tight"
-                style={{ fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
-              >
-                ورش تدريبيّة دوريّة
-              </h3>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-2">
-                Weekly workshops
+        {/* Two secondary programs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
+          {[
+            {
+              ar: "ورش تدريبيّة دوريّة",
+              en: "Weekly workshops",
+              body: "برامج عمليّة في مهارات سوق العمل، يقدّمها الفريق ومتطوّعون من المجتمع، مفتوحة للمنتسبين وغير المنتسبين على حدّ سواء.",
+            },
+            {
+              ar: "جلسات تشبيك ولقاءات مهنيّة",
+              en: "Networking nights",
+              body: "لقاءات شهريّة تجمع المستقلّين والخرّيجين والطلبة لتبادل الخبرات، وعرض مشاريع، وفتح أبواب التعاون بين أعضاء المجتمع.",
+            },
+          ].map((c, i) => (
+            <motion.div
+              key={c.ar}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.7, delay: i * 0.08 }}
+              className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-3">
+                {c.en}
               </div>
-            </div>
-            <p className="col-span-12 lg:col-span-7 text-foreground/75 font-light leading-relaxed">
-              برامج عمليّة في مهارات سوق العمل، يقدّمها الفريق ومتطوّعون من المجتمع،
-              مفتوحة للمنتسبين وغير المنتسبين على حدّ سواء.
-            </p>
-          </div>
-          <div className="grid grid-cols-12 gap-4 lg:gap-10 items-baseline py-9 lg:py-11 border-b border-foreground/12">
-            <div className="col-span-2 lg:col-span-1 text-[11px] tracking-[0.3em] font-bold text-foreground/45">
-              09C
-            </div>
-            <div className="col-span-10 lg:col-span-4">
-              <h3
-                className="font-bold text-foreground leading-tight"
-                style={{ fontSize: "clamp(1.4rem, 2.2vw, 2rem)" }}
-              >
-                جلسات تشبيك ولقاءات مهنيّة
+              <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-3">
+                {c.ar}
               </h3>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-2">
-                Networking nights
-              </div>
-            </div>
-            <p className="col-span-12 lg:col-span-7 text-foreground/75 font-light leading-relaxed">
-              لقاءات شهريّة تجمع المستقلّين والخريجين والطلبة لتبادل الخبرات،
-              وعرض مشاريع، وفتح أبواب التعاون بين أعضاء المجتمع.
-            </p>
-          </div>
+              <p className="text-[15px] text-foreground/65 leading-relaxed">
+                {c.body}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

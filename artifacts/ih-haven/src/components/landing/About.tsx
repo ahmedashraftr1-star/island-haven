@@ -3,20 +3,15 @@ import { EditorialHeader, HairlineRow } from "./EditorialHeader";
 import { useContentSection } from "@/hooks/use-content";
 
 export function About() {
-  const aboutContent = useContentSection("about", {
-    headline: "",
-    body: "",
-  });
+  const aboutContent = useContentSection("about", { headline: "", body: "" });
   return (
-    <section id="about" className="relative bg-background py-24 lg:py-32 overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+    <section id="about" className="relative bg-background py-24 lg:py-32">
+      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
-          no="04"
           label="من نحن"
-          meta={<>About<br />Island Haven</>}
           title={
             <>
-              مساحة <span className="text-primary italic">نجاة</span> مهنيّة،
+              مساحة <span className="text-accent-gradient">نجاة</span> مهنيّة،
               <br />
               قبل أن تكون مكاناً للعمل.
             </>
@@ -35,38 +30,34 @@ export function About() {
           }
         />
 
-        <div className="grid grid-cols-12 gap-6 lg:gap-10">
+        <div className="grid grid-cols-12 gap-6 lg:gap-12">
           {/* Photo */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9 }}
+            transition={{ duration: 0.8 }}
             className="col-span-12 lg:col-span-5"
           >
-            <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-soft">
               <img
                 src="/photos/IMG_8347.jpg"
                 alt="ركن من مكاتب آيلاند هيفن المفتوحة للمستقلّين والخرّيجين والطلبة"
-                className="w-full aspect-[4/5] object-cover grayscale-[10%]"
+                className="w-full aspect-[4/5] object-cover"
               />
-              <div className="absolute -bottom-4 right-4 text-[10px] tracking-[0.4em] uppercase font-bold text-foreground/50">
-                Plate · 04A
-              </div>
             </div>
-            <p
-              className="mt-8 text-foreground italic text-lg leading-relaxed"
-            >
-              «نعم هو مكان للعمل، لكنه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.»
+            <p className="mt-7 text-foreground/85 text-lg leading-relaxed">
+              «نعم هو مكان للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم،
+              ولبناء الثقة بالنفس وبالطريق.»
             </p>
           </motion.div>
 
-          {/* Three pillars in tabular hairline rows */}
+          {/* Three pillars */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, delay: 0.15 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="col-span-12 lg:col-span-7"
           >
             <HairlineRow
@@ -79,15 +70,15 @@ export function About() {
               no="02"
               ar="رسالتنا"
               en="Mission"
-              body="تمكين الطلاب والخريجين والمستقلّين عبر توفير مجتمع داعم، ومساحة عمل آمنة، وبرامج تدريب عمليّة، وفرص تشبيك حقيقيّة، تُقارب الواقع وتستجيب لحاجاته."
+              body="تمكين الطلاب والخرّيجين والمستقلّين عبر توفير مجتمع داعم، ومساحة عمل آمنة، وبرامج تدريب عمليّة، وفرص تشبيك حقيقيّة، تُقارب الواقع وتستجيب لحاجاته."
             />
             <HairlineRow
               no="03"
               ar="لماذا مجتمع؟"
               en="Why community?"
-              body="لأنّ العمل الفرديّ في بيئات غير مستقرّة يُرهق أكثر مما يُنتج. ولأنّ الكثير من الطاقات الشابّة لديها الرغبة والقدرة، لكنها تفتقد المكان والدعم والتوجيه."
+              body="لأنّ العمل الفرديّ في بيئات غير مستقرّة يُرهق أكثر ممّا يُنتج. ولأنّ الكثير من الطاقات الشابّة لديها الرغبة والقدرة، لكنّها تفتقد المكان والدعم والتوجيه."
             />
-            <div className="border-t border-foreground/12" />
+            <div className="border-t border-border" />
           </motion.div>
         </div>
       </div>

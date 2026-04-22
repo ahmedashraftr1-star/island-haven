@@ -44,102 +44,91 @@ const stats = [
 
 export function Audience() {
   return (
-    <section id="audience" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10">
-      <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
+    <section id="audience" className="relative bg-background py-24 lg:py-32">
+      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
-          no="07"
           label="الفئات والمعايير"
-          meta={<>Who fits<br />in here?</>}
           title={
             <>
-              مَن يجد <span className="text-primary italic">مكانه</span> هنا؟
+              مَن يجد <span className="text-accent-gradient">مكانه</span> هنا؟
             </>
           }
           sub="نوزّع المقاعد على ثلاث فئات رئيسيّة بنسب واضحة، ونعتمد نظام حضور موزّعاً على أيّام وفترات مختلفة، ليستفيد العدد الأكبر دون الإخلال بجودة التجربة."
         />
 
-        {/* Tabular stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-y border-foreground/12 mb-16">
+        {/* Stats — clean white card row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-16">
           {stats.map((s, i) => (
             <div
               key={i}
-              className={`p-7 lg:p-9 ${
-                i < stats.length - 1 ? "md:border-l border-foreground/12" : ""
-              } border-b md:border-b-0 ${
-                i < stats.length - 1 ? "border-foreground/12" : ""
-              }`}
+              className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft"
             >
               <div
-                className="font-extrabold text-foreground leading-none"
-                style={{
-                  fontSize: "clamp(3rem, 6vw, 5rem)",
-                }}
+                className="font-bold text-foreground leading-none tabular-nums"
+                style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)", letterSpacing: "-0.03em" }}
               >
                 {s.value}
               </div>
-              <div className="mt-4 text-[10px] tracking-[0.4em] uppercase text-primary font-bold">
+              <div className="mt-4 text-[11px] tracking-[0.15em] uppercase text-primary font-bold">
                 {s.label}
               </div>
-              <div className="mt-1 text-sm text-foreground/65 font-light">
+              <div className="mt-1 text-sm text-foreground/65">
                 {s.ar}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Three segments — editorial table */}
-        <div>
+        {/* Segments */}
+        <div className="bg-white border border-border rounded-2xl shadow-soft overflow-hidden">
           {segments.map((seg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-              className="grid grid-cols-12 gap-4 lg:gap-10 items-baseline py-9 lg:py-12 border-t border-foreground/12"
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: i * 0.06 }}
+              className={`grid grid-cols-12 gap-4 lg:gap-10 items-baseline p-7 lg:p-10 ${
+                i > 0 ? "border-t border-border" : ""
+              }`}
             >
-              <div className="col-span-2 lg:col-span-1 text-[11px] tracking-[0.3em] font-bold text-foreground/45">
+              <div className="col-span-2 lg:col-span-1 text-[12px] font-mono font-medium text-foreground/40 tabular-nums">
                 {seg.no}
               </div>
               <div className="col-span-10 lg:col-span-3">
-                <h3
-                  className="font-bold text-foreground leading-tight"
-                  style={{
-                    fontSize: "clamp(1.5rem, 2.4vw, 2.25rem)",
-                  }}
-                >
+                <h3 className="font-bold text-foreground text-xl lg:text-2xl leading-tight">
                   {seg.ar}
                 </h3>
-                <div className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-2">
+                <div className="text-[11px] tracking-[0.1em] text-foreground/45 mt-1.5 font-medium">
                   {seg.en}
                 </div>
-                <div className="mt-5 flex items-baseline gap-2">
+                <div className="mt-5 flex items-baseline gap-1.5">
                   <span
-                    className="text-primary font-extrabold"
-                    style={{ fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
+                    className="text-primary font-bold tabular-nums"
+                    style={{ fontSize: "clamp(1.75rem, 2.6vw, 2.25rem)", letterSpacing: "-0.02em" }}
                   >
                     {seg.pct}
                   </span>
-                  <span className="text-primary font-bold text-sm tracking-wider">٪</span>
+                  <span className="text-primary font-bold text-lg">٪</span>
                 </div>
-                <div className="mt-4 h-px w-24 bg-foreground/15 relative overflow-hidden">
-                  <motion.span
+                <div className="mt-3 h-1.5 w-32 bg-muted rounded-full overflow-hidden">
+                  <motion.div
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: seg.pct / 100 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1.2, delay: 0.3 + i * 0.1, ease: "easeOut" }}
-                    className="absolute inset-0 bg-primary origin-right"
+                    transition={{ duration: 1.1, delay: 0.25 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full bg-primary origin-right rounded-full"
                   />
                 </div>
               </div>
               <div className="col-span-12 lg:col-span-8">
-                <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-4">
+                <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-4">
                   معايير القبول · Admission criteria
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-2.5">
                   {seg.criteria.map((c, j) => (
-                    <li key={j} className="flex gap-4 items-baseline text-foreground/80 leading-relaxed font-light">
-                      <span className="text-primary text-xs font-bold tracking-wider shrink-0 w-6">
+                    <li key={j} className="flex gap-3 items-baseline text-foreground/75 leading-relaxed">
+                      <span className="text-primary text-sm font-bold tabular-nums shrink-0 w-5">
                         {String(j + 1).padStart(2, "0")}
                       </span>
                       <span>{c}</span>
@@ -149,7 +138,6 @@ export function Audience() {
               </div>
             </motion.div>
           ))}
-          <div className="border-t border-foreground/12" />
         </div>
       </div>
     </section>

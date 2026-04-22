@@ -16,6 +16,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Reveal } from "@/components/landing/Reveal";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
+import { LiveNow } from "@/components/landing/LiveNow";
 
 export default function Home() {
   usePageView("/");
@@ -36,6 +37,7 @@ export default function Home() {
       <Header />
       <main className="relative z-10">
         <Hero />
+        <LiveNow />
         <Features />
         <NumbersArt />
         <Reveal as="section"><About /></Reveal>
