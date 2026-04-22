@@ -12,7 +12,6 @@ import { Voices } from "@/components/landing/Voices";
 import { HoursLocation } from "@/components/landing/HoursLocation";
 import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
-import { Reveal } from "@/components/landing/Reveal";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
@@ -45,16 +44,16 @@ export default function Home() {
         <Hero />
         <LiveNow />
         <WordWindow />
-        <Reveal as="section"><About /></Reveal>
+        <About />
         <Features />
         <Scrollytelling />
-        <Reveal as="section"><Audience /></Reveal>
-        <Reveal as="section"><Programs /></Reveal>
+        <Audience />
+        <Programs />
         <Gallery />
         <Voices />
-        <Reveal as="section"><Story /></Reveal>
-        <Reveal as="section"><HoursLocation /></Reveal>
-        <Reveal as="section"><Support /></Reveal>
+        <Story />
+        <HoursLocation />
+        <Support />
       </main>
       <Footer />
       <FloatingLivePill />
