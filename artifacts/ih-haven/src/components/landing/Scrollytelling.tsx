@@ -26,7 +26,7 @@ type Scene = {
 
 const SCENES: Scene[] = [
   {
-    hour: "٠٧:٤٥",
+    hour: "٠٩:٠٠",
     kicker: "Opening",
     title: "البابُ يُفتح،\nوأوّل ضوءٍ يدخل.",
     body: "صباحٌ غزّيٌّ يبدأ بصوت المفتاح، ورائحة قهوة تُحضَّر لمن سيأتي. كرسيّك بانتظارك، والإنترنت لا ينقطع.",
@@ -34,7 +34,7 @@ const SCENES: Scene[] = [
     tone: "from-amber-500/15",
   },
   {
-    hour: "٠٩:٢٠",
+    hour: "١٠:١٥",
     kicker: "Deep Work",
     title: "تركيزٌ بلا\nمقاطعات.",
     body: "سمّاعات، شاشة، وإضاءة طبيعيّة. هنا لا يطرق أحدٌ بابك، ولا يقطع الكهرباء عملك. الوقت لك، استثمره كاملاً.",
@@ -42,7 +42,7 @@ const SCENES: Scene[] = [
     tone: "from-primary/20",
   },
   {
-    hour: "١١:٠٠",
+    hour: "١١:٣٠",
     kicker: "Collide",
     title: "ثلاثُ أفكار،\nطاولةٌ واحدة.",
     body: "تجلس بجانب مستقلٍّ يعمل لشركةٍ في برلين، وخرّيجة بدأت أوّل عقد، وطالبٍ يُتقن التصميم. شبكتُك تبدأ من فنجان قهوة.",
@@ -50,7 +50,7 @@ const SCENES: Scene[] = [
     tone: "from-rose-500/15",
   },
   {
-    hour: "١٣:٣٠",
+    hour: "١٣:٠٠",
     kicker: "Pause",
     title: "القهوة على حسابنا،\nوالحديثُ على حساب الجميع.",
     body: "استراحةٌ تتحوّل لورشة عصفٍ ذهنيّ، أو حوارٍ هادئ، أو ضحكةٍ تُذهب تعب الصباح. لا أحد يأكل وحده هنا.",
@@ -58,7 +58,7 @@ const SCENES: Scene[] = [
     tone: "from-emerald-500/15",
   },
   {
-    hour: "١٦:١٠",
+    hour: "١٥:٠٠",
     kicker: "Workshop",
     title: "عشرون مقعداً،\nسؤالٌ يُغيّر مساراً.",
     body: "ورشة تدريبيّة جديدة في الأسبوع. ضيفٌ من السوق، وقصّةٌ من قلب التجربة. تخرج وفي يدك مهارة، وفي رأسك قرار.",
@@ -66,7 +66,7 @@ const SCENES: Scene[] = [
     tone: "from-primary/25",
   },
   {
-    hour: "١٦:٤٥",
+    hour: "١٦:٥٠",
     kicker: "Closing",
     title: "البابُ يُغلق،\nوالرّوابطُ تبقى.",
     body: "تخرج وفي جيبك بطاقةُ تعارفٍ جديدة، وفرصةٌ كانت بالأمس بعيدة. آيلاند هيفن لا ينتهي عند الباب — يبدأ منه.",
@@ -153,7 +153,7 @@ export function Scrollytelling() {
               <div className="mt-6 flex items-center gap-4 text-[11px] tracking-[0.18em] uppercase text-white/45 font-semibold">
                 <span>06 Scenes</span>
                 <span className="w-6 h-[1px] bg-white/20" />
-                <span>09 — 19h</span>
+                <span>09 — 17h</span>
               </div>
             </div>
           </div>
