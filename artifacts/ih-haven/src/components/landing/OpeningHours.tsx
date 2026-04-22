@@ -1,8 +1,8 @@
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-const OPEN_HOUR = 9; // 09:00
-const CLOSE_HOUR = 18; // 18:00 — "السّاعة ٦"
+const OPEN_HOUR = 8; // 08:00
+const CLOSE_HOUR = 17; // 17:00 — "السّاعة ٥ مساءً"
 
 const DAYS = [
   { ar: "أحد", en: "Sun", idx: 0 },
@@ -15,14 +15,12 @@ const DAYS = [
 ];
 
 /**
- * OpeningHours — a cinematic, world-class hours moment.
+ * OpeningHours — Apple liquid-glass treatment.
  *
- * A 24-hour SVG clock dial. The 9→18 open arc is traced on scroll-in
- * (stroke-dashoffset). A live indicator orbits the dial showing the
- * current Gaza time. A massive "09 → 18" headline anchors the moment.
- * Below: a weekly strip with today highlighted and Friday marked closed.
- *
- * Apple keynote energy applied to the most utilitarian piece of NGO copy.
+ * A single, world-class moment that turns "ساعات العمل" into a piece
+ * of design. Layered translucent glass on a dark indigo canvas, with
+ * a 24-hour SVG dial tracing the open arc (08→17). Live Gaza time
+ * orbits the dial. Compact, premium, never sprawling.
  */
 export function OpeningHours() {
   const ref = useRef<HTMLDivElement>(null);
@@ -42,7 +40,7 @@ export function OpeningHours() {
       const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
       const h = parseInt(get("hour"), 10) || 0;
       const m = parseInt(get("minute"), 10) || 0;
-      const wk = get("weekday"); // "Mon", "Tue", ...
+      const wk = get("weekday");
       const map: Record<string, number> = {
         Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
       };
@@ -60,7 +58,6 @@ export function OpeningHours() {
     return () => clearInterval(id);
   }, []);
 
-  // Live time math (Gaza-local)
   const hours = gazaTime.h;
   const minutes = gazaTime.m;
   const totalMinutes = hours * 60 + minutes;
@@ -69,10 +66,10 @@ export function OpeningHours() {
   const inHours =
     !isFriday && totalMinutes >= OPEN_HOUR * 60 && totalMinutes < CLOSE_HOUR * 60;
   const liveStatus = isFriday
-    ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-foreground/30" }
+    ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-white/30" }
     : inHours
-    ? { ar: "مفتوح الآن", en: "Open now", color: "bg-emerald-500" }
-    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", color: "bg-amber-500" };
+    ? { ar: "مفتوح الآن", en: "Open now", color: "bg-emerald-400" }
+    : { ar: "مغلق الآن — يفتح ٨ صباحاً", en: "Opens 8am", color: "bg-amber-400" };
 
   // SVG geometry
   const SIZE = 420;
@@ -83,13 +80,11 @@ export function OpeningHours() {
   const R_ARC = 160;
   const STROKE = 22;
 
-  // Convert hour (0-24) to angle (degrees). 0h = 12 o'clock = -90°
   const hourToAngle = (h: number) => (h / 24) * 360 - 90;
   const polar = (angleDeg: number, r: number) => {
     const rad = (angleDeg * Math.PI) / 180;
     return { x: CX + Math.cos(rad) * r, y: CY + Math.sin(rad) * r };
   };
-  // Arc path from open to close
   const startA = hourToAngle(OPEN_HOUR);
   const endA = hourToAngle(CLOSE_HOUR);
   const start = polar(startA, R_ARC);
@@ -97,11 +92,9 @@ export function OpeningHours() {
   const largeArc = endA - startA > 180 ? 1 : 0;
   const arcPath = `M ${start.x} ${start.y} A ${R_ARC} ${R_ARC} 0 ${largeArc} 1 ${end.x} ${end.y}`;
 
-  // Live time pointer (24h)
   const liveAngle = hourToAngle(hours + minutes / 60);
   const liveDot = polar(liveAngle, R_ARC);
 
-  // Tick marks (24)
   const ticks = Array.from({ length: 24 }, (_, i) => i);
 
   return (
@@ -111,324 +104,408 @@ export function OpeningHours() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-12%" }}
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-      className="mb-12 lg:mb-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-[#0A0E1A] text-white rounded-3xl p-7 lg:p-12 shadow-soft-hover overflow-hidden relative"
+      className="mb-12 lg:mb-14 relative rounded-[28px] overflow-hidden"
+      style={{
+        boxShadow:
+          "0 30px 80px -20px rgba(10,14,26,0.45), 0 8px 24px -8px rgba(10,14,26,0.25)",
+      }}
     >
-      {/* Subtle indigo halo for depth */}
+      {/* ─── LAYER 1 · deep indigo canvas ───────────────────────── */}
+      <div className="absolute inset-0 bg-[#0A0E1A]" aria-hidden />
+
+      {/* ─── LAYER 2 · photographic underlay (depth) ────────────── */}
+      <div aria-hidden className="absolute inset-0 opacity-[0.16] pointer-events-none">
+        <img
+          src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* ─── LAYER 3 · dual indigo nebulas for liquid glow ──────── */}
       <div
         aria-hidden
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] pointer-events-none"
+        className="absolute -top-32 -left-24 w-[520px] h-[520px] pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
-          filter: "blur(70px)",
+            "radial-gradient(circle, hsl(232 100% 65% / 0.32) 0%, transparent 65%)",
+          filter: "blur(80px)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute -bottom-32 -right-24 w-[520px] h-[520px] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, hsl(195 100% 60% / 0.18) 0%, transparent 65%)",
+          filter: "blur(80px)",
         }}
       />
 
-      {/* LEFT: Headline + week strip */}
-      <div className="relative lg:col-span-7 order-2 lg:order-1">
-        <div className="flex items-center gap-3 mb-7">
-          <span className="h-[1px] w-10 bg-white/40" />
-          <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
-            Opening hours · ساعات العمل
-          </span>
-        </div>
+      {/* ─── LAYER 4 · glass refraction surface ─────────────────── */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 35%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.04) 100%)",
+        }}
+      />
 
-        {/* MASSIVE hour-to-hour display */}
-        <div
-          dir="ltr"
-          className="font-bold text-white tabular-nums leading-none flex items-baseline gap-3 lg:gap-5 mb-7"
-          style={{
-            fontSize: "clamp(4.5rem, 10vw, 9rem)",
-            letterSpacing: "-0.045em",
-          }}
-        >
-          <motion.span
-            initial={{ y: "100%", opacity: 0 }}
-            animate={inView ? { y: 0, opacity: 1 } : {}}
-            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            className="block"
+      {/* ─── LAYER 5 · top inner highlight (Apple glass spec) ──── */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+        }}
+      />
+
+      {/* ─── CONTENT ─────────────────────────────────────────────── */}
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center text-white p-7 lg:p-12">
+        {/* LEFT — editorial content */}
+        <div className="relative lg:col-span-7 order-2 lg:order-1">
+          <div className="flex items-center gap-3 mb-7">
+            <span className="h-[1px] w-10 bg-white/40" />
+            <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
+              Opening hours · ساعات العمل
+            </span>
+          </div>
+
+          {/* Massive 08 → 17 display */}
+          <div
+            dir="ltr"
+            className="font-bold text-white tabular-nums leading-none flex items-baseline gap-3 lg:gap-5 mb-7"
+            style={{
+              fontSize: "clamp(4.5rem, 10vw, 9rem)",
+              letterSpacing: "-0.045em",
+            }}
           >
-            09
-          </motion.span>
-          <motion.span
-            initial={{ scaleX: 0 }}
-            animate={inView ? { scaleX: 1 } : {}}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-            className="origin-left inline-block w-12 lg:w-20 h-[6px] lg:h-[10px] bg-white/85 rounded-full -translate-y-[0.42em]"
-            aria-hidden
-          />
-          <motion.span
-            initial={{ y: "100%", opacity: 0 }}
-            animate={inView ? { y: 0, opacity: 1 } : {}}
-            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
-            className="block"
-          >
-            18
-          </motion.span>
-        </div>
-
-        <h3
-          className="font-bold text-white leading-[1.1] tracking-tight mb-4"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
-        >
-          العمل في المساحة
-          <br />
-          من <span className="text-accent-gradient">٩ صباحاً</span> حتّى{" "}
-          <span className="text-accent-gradient">٦ مساءً.</span>
-        </h3>
-
-        <p className="text-[15px] lg:text-[17px] text-white/70 leading-relaxed max-w-md mb-9">
-          تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا
-          انقطاع — والقهوة دائماً جاهزة.
-        </p>
-
-        {/* Live status pill */}
-        <div className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[13px] font-semibold mb-9">
-          <span className={`w-2 h-2 rounded-full ${liveStatus.color} ${inHours ? "animate-pulse" : ""}`} />
-          <span>{liveStatus.ar}</span>
-          <span className="text-white/40 tabular-nums">
-            · {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} غزّة
-          </span>
-        </div>
-
-        {/* Weekly strip */}
-        <div className="flex flex-wrap gap-1.5 lg:gap-2 max-w-md">
-          {DAYS.map((d) => {
-            const isToday = d.idx === dayOfWeek;
-            return (
-              <div
-                key={d.en}
-                className={`flex-1 min-w-[68px] flex flex-col items-center justify-center px-1 py-3 rounded-xl border transition-all ${
-                  isToday
-                    ? "bg-white text-[#0A0E1A] border-white shadow-[0_8px_30px_-10px_rgba(255,255,255,0.4)]"
-                    : d.closed
-                    ? "bg-white/5 text-white/30 border-white/10 line-through decoration-white/30"
-                    : "bg-white/[0.04] text-white/70 border-white/10"
-                }`}
-              >
-                <div className="text-[10px] tracking-[0.16em] uppercase font-semibold opacity-65">
-                  {d.en}
-                </div>
-                <div className="text-[15px] font-bold mt-0.5">{d.ar}</div>
-                <div className="text-[10px] mt-1.5 tabular-nums opacity-75">
-                  {d.closed ? "—" : "9–18"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Live status announced to assistive tech without being visually duplicated */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {liveStatus.ar} — الساعة {String(hours).padStart(2, "0")}:
-        {String(minutes).padStart(2, "0")} بتوقيت غزّة.
-      </div>
-
-      {/* RIGHT: SVG 24-hour clock with traced arc */}
-      <div className="relative lg:col-span-5 order-1 lg:order-2 flex items-center justify-center">
-        <div className="relative w-full max-w-[420px] aspect-square">
-          <svg
-            viewBox={`0 0 ${SIZE} ${SIZE}`}
-            className="w-full h-full"
-            role="img"
-            aria-labelledby="oh-title oh-desc"
-          >
-            <title id="oh-title">ساعة آيلاند هيفن — ٢٤ ساعة</title>
-            <desc id="oh-desc">
-              ساعة دائريّة بأربعٍ وعشرين قسماً، يُظهر فيها قوسٌ ملوّن ساعات
-              العمل من التاسعة صباحاً حتّى السادسة مساءً، ومؤشّر متحرّك
-              يعكس الوقت الحالي بتوقيت غزّة.
-            </desc>
-            <defs>
-              <linearGradient id="oh-arc" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="hsl(232 100% 70%)" />
-                <stop offset="100%" stopColor="hsl(232 100% 55%)" />
-              </linearGradient>
-              <radialGradient id="oh-glow" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%" stopColor="hsl(232 100% 65%)" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="hsl(232 100% 65%)" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-
-            {/* Glow */}
-            <circle cx={CX} cy={CY} r={R_ARC + 30} fill="url(#oh-glow)" />
-
-            {/* Outer ring */}
-            <circle
-              cx={CX}
-              cy={CY}
-              r={R_TICK_OUTER + 6}
-              fill="none"
-              stroke="rgba(255,255,255,0.06)"
-              strokeWidth="1"
+            <motion.span
+              initial={{ y: "100%", opacity: 0 }}
+              animate={inView ? { y: 0, opacity: 1 } : {}}
+              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              className="block"
+            >
+              08
+            </motion.span>
+            <motion.span
+              initial={{ scaleX: 0 }}
+              animate={inView ? { scaleX: 1 } : {}}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+              className="origin-left inline-block w-12 lg:w-20 h-[6px] lg:h-[10px] bg-white/85 rounded-full -translate-y-[0.42em]"
+              aria-hidden
             />
+            <motion.span
+              initial={{ y: "100%", opacity: 0 }}
+              animate={inView ? { y: 0, opacity: 1 } : {}}
+              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
+              className="block"
+            >
+              17
+            </motion.span>
+          </div>
 
-            {/* 24 ticks */}
-            {ticks.map((t) => {
-              const a = hourToAngle(t);
-              const major = t % 6 === 0;
-              const r1 = major ? R_TICK_INNER - 6 : R_TICK_INNER + 4;
-              const r2 = R_TICK_OUTER;
-              const p1 = polar(a, r1);
-              const p2 = polar(a, r2);
+          <h3
+            className="font-bold text-white leading-[1.1] tracking-tight mb-4"
+            style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
+          >
+            العمل في المساحة
+            <br />
+            من <span className="text-accent-gradient">٨ صباحاً</span> حتّى{" "}
+            <span className="text-accent-gradient">٥ مساءً.</span>
+          </h3>
+
+          <p className="text-[15px] lg:text-[17px] text-white/70 leading-relaxed max-w-md mb-9">
+            تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا
+            انقطاع — والقهوة دائماً جاهزة.
+          </p>
+
+          {/* Live status — true Apple glass pill */}
+          <div
+            className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full text-[13px] font-semibold mb-9 relative overflow-hidden"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px -4px rgba(0,0,0,0.3)",
+            }}
+          >
+            <span className={`w-2 h-2 rounded-full ${liveStatus.color} ${inHours ? "animate-pulse" : ""}`} />
+            <span>{liveStatus.ar}</span>
+            <span className="text-white/45 tabular-nums font-mono">
+              · {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} غزّة
+            </span>
+          </div>
+
+          {/* Weekly strip — glass tiles */}
+          <div className="flex flex-wrap gap-1.5 lg:gap-2 max-w-md">
+            {DAYS.map((d) => {
+              const isToday = d.idx === dayOfWeek;
               return (
+                <div
+                  key={d.en}
+                  className={`flex-1 min-w-[68px] flex flex-col items-center justify-center px-1 py-3 rounded-xl transition-all relative overflow-hidden ${
+                    isToday
+                      ? "bg-white text-[#0A0E1A] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.5)]"
+                      : d.closed
+                      ? "text-white/35 line-through decoration-white/30"
+                      : "text-white/75"
+                  }`}
+                  style={
+                    isToday
+                      ? undefined
+                      : {
+                          background: "rgba(255,255,255,0.04)",
+                          backdropFilter: "blur(12px)",
+                          WebkitBackdropFilter: "blur(12px)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                        }
+                  }
+                >
+                  <div className="text-[10px] tracking-[0.16em] uppercase font-semibold opacity-65">
+                    {d.en}
+                  </div>
+                  <div className="text-[15px] font-bold mt-0.5">{d.ar}</div>
+                  <div className="text-[10px] mt-1.5 tabular-nums opacity-75 font-mono">
+                    {d.closed ? "—" : "8–17"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* SR-only live region */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {liveStatus.ar} — الساعة {String(hours).padStart(2, "0")}:
+          {String(minutes).padStart(2, "0")} بتوقيت غزّة.
+        </div>
+
+        {/* RIGHT — 24h dial inside its own glass disc */}
+        <div className="relative lg:col-span-5 order-1 lg:order-2 flex items-center justify-center">
+          {/* Glass disc backdrop for the dial */}
+          <div
+            aria-hidden
+            className="absolute inset-0 m-auto w-[92%] aspect-square rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 60%, transparent)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)",
+            }}
+          />
+
+          <div className="relative w-full max-w-[420px] aspect-square">
+            <svg
+              viewBox={`0 0 ${SIZE} ${SIZE}`}
+              className="w-full h-full"
+              role="img"
+              aria-labelledby="oh-title oh-desc"
+            >
+              <title id="oh-title">ساعة آيلاند هيفن — ٢٤ ساعة</title>
+              <desc id="oh-desc">
+                ساعة دائريّة بأربعٍ وعشرين قسماً، يُظهر فيها قوسٌ ملوّن ساعات
+                العمل من الثامنة صباحاً حتّى الخامسة مساءً، ومؤشّر متحرّك
+                يعكس الوقت الحالي بتوقيت غزّة.
+              </desc>
+              <defs>
+                <linearGradient id="oh-arc" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="hsl(232 100% 75%)" />
+                  <stop offset="100%" stopColor="hsl(232 100% 55%)" />
+                </linearGradient>
+                <radialGradient id="oh-glow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0%" stopColor="hsl(232 100% 65%)" stopOpacity="0.45" />
+                  <stop offset="100%" stopColor="hsl(232 100% 65%)" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              <circle cx={CX} cy={CY} r={R_ARC + 30} fill="url(#oh-glow)" />
+
+              <circle
+                cx={CX}
+                cy={CY}
+                r={R_TICK_OUTER + 6}
+                fill="none"
+                stroke="rgba(255,255,255,0.06)"
+                strokeWidth="1"
+              />
+
+              {ticks.map((t) => {
+                const a = hourToAngle(t);
+                const major = t % 6 === 0;
+                const r1 = major ? R_TICK_INNER - 6 : R_TICK_INNER + 4;
+                const r2 = R_TICK_OUTER;
+                const p1 = polar(a, r1);
+                const p2 = polar(a, r2);
+                return (
+                  <line
+                    key={t}
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
+                    stroke="rgba(255,255,255,0.32)"
+                    strokeWidth={major ? 2 : 1}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+
+              {[
+                { h: 0, label: "00" },
+                { h: 6, label: "06" },
+                { h: 12, label: "12" },
+                { h: 18, label: "18" },
+              ].map(({ h, label }) => {
+                const a = hourToAngle(h);
+                const p = polar(a, R_TICK_INNER - 22);
+                return (
+                  <text
+                    key={h}
+                    x={p.x}
+                    y={p.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="rgba(255,255,255,0.55)"
+                    fontSize="13"
+                    fontWeight="700"
+                    fontFamily="ui-monospace, monospace"
+                    letterSpacing="2"
+                  >
+                    {label}
+                  </text>
+                );
+              })}
+
+              <circle
+                cx={CX}
+                cy={CY}
+                r={R_ARC}
+                fill="none"
+                stroke="rgba(255,255,255,0.07)"
+                strokeWidth={STROKE}
+              />
+
+              <motion.path
+                d={arcPath}
+                fill="none"
+                stroke="url(#oh-arc)"
+                strokeWidth={STROKE}
+                strokeLinecap="round"
+                initial={{ pathLength: 0 }}
+                animate={inView ? { pathLength: 1 } : {}}
+                transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+              />
+
+              <motion.g
+                initial={{ scale: 0, opacity: 0 }}
+                animate={inView ? { scale: 1, opacity: 1 } : {}}
+                transition={{ duration: 0.5, delay: 0.45 }}
+                style={{ transformOrigin: `${start.x}px ${start.y}px` }}
+              >
+                <circle cx={start.x} cy={start.y} r="9" fill="white" />
+                <circle cx={start.x} cy={start.y} r="4" fill="hsl(232 100% 55%)" />
+              </motion.g>
+
+              <motion.g
+                initial={{ scale: 0, opacity: 0 }}
+                animate={inView ? { scale: 1, opacity: 1 } : {}}
+                transition={{ duration: 0.5, delay: 1.85 }}
+                style={{ transformOrigin: `${end.x}px ${end.y}px` }}
+              >
+                <circle cx={end.x} cy={end.y} r="9" fill="white" />
+                <circle cx={end.x} cy={end.y} r="4" fill="hsl(232 100% 55%)" />
+              </motion.g>
+
+              <motion.g
+                initial={{ opacity: 0 }}
+                animate={inView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.6, delay: 2.1 }}
+              >
                 <line
-                  key={t}
-                  x1={p1.x}
-                  y1={p1.y}
-                  x2={p2.x}
-                  y2={p2.y}
-                  stroke="rgba(255,255,255,0.32)"
-                  strokeWidth={major ? 2 : 1}
+                  x1={CX}
+                  y1={CY}
+                  x2={liveDot.x}
+                  y2={liveDot.y}
+                  stroke={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.25)"}
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
-              );
-            })}
-
-            {/* Hour labels at 0, 6, 12, 18 */}
-            {[
-              { h: 0, label: "00" },
-              { h: 6, label: "06" },
-              { h: 12, label: "12" },
-              { h: 18, label: "18" },
-            ].map(({ h, label }) => {
-              const a = hourToAngle(h);
-              const p = polar(a, R_TICK_INNER - 22);
-              return (
-                <text
-                  key={h}
-                  x={p.x}
-                  y={p.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="rgba(255,255,255,0.55)"
-                  fontSize="13"
-                  fontWeight="700"
-                  fontFamily="ui-monospace, monospace"
-                  letterSpacing="2"
-                >
-                  {label}
-                </text>
-              );
-            })}
-
-            {/* Background ring for the arc */}
-            <circle
-              cx={CX}
-              cy={CY}
-              r={R_ARC}
-              fill="none"
-              stroke="rgba(255,255,255,0.07)"
-              strokeWidth={STROKE}
-            />
-
-            {/* Open arc — traced on scroll-in */}
-            <motion.path
-              d={arcPath}
-              fill="none"
-              stroke="url(#oh-arc)"
-              strokeWidth={STROKE}
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={inView ? { pathLength: 1 } : {}}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-            />
-
-            {/* OPEN endpoint */}
-            <motion.g
-              initial={{ scale: 0, opacity: 0 }}
-              animate={inView ? { scale: 1, opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: 0.45 }}
-              style={{ transformOrigin: `${start.x}px ${start.y}px` }}
-            >
-              <circle cx={start.x} cy={start.y} r="9" fill="white" />
-              <circle cx={start.x} cy={start.y} r="4" fill="hsl(232 100% 55%)" />
-            </motion.g>
-
-            {/* CLOSE endpoint */}
-            <motion.g
-              initial={{ scale: 0, opacity: 0 }}
-              animate={inView ? { scale: 1, opacity: 1 } : {}}
-              transition={{ duration: 0.5, delay: 1.85 }}
-              style={{ transformOrigin: `${end.x}px ${end.y}px` }}
-            >
-              <circle cx={end.x} cy={end.y} r="9" fill="white" />
-              <circle cx={end.x} cy={end.y} r="4" fill="hsl(232 100% 55%)" />
-            </motion.g>
-
-            {/* Live time pointer — orbits */}
-            <motion.g
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 2.1 }}
-            >
-              <line
-                x1={CX}
-                y1={CY}
-                x2={liveDot.x}
-                y2={liveDot.y}
-                stroke={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.25)"}
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <circle
-                cx={liveDot.x}
-                cy={liveDot.y}
-                r="6"
-                fill={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.45)"}
-              />
-              {inHours && (
                 <circle
                   cx={liveDot.x}
                   cy={liveDot.y}
-                  r="14"
-                  fill="hsl(160 84% 50%)"
-                  fillOpacity="0.18"
-                >
-                  <animate
-                    attributeName="r"
-                    values="6;18;6"
-                    dur="2.5s"
-                    repeatCount="indefinite"
-                  />
-                  <animate
-                    attributeName="fill-opacity"
-                    values="0.4;0;0.4"
-                    dur="2.5s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              )}
-            </motion.g>
+                  r="6"
+                  fill={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.45)"}
+                />
+                {inHours && (
+                  <circle
+                    cx={liveDot.x}
+                    cy={liveDot.y}
+                    r="14"
+                    fill="hsl(160 84% 50%)"
+                    fillOpacity="0.18"
+                  >
+                    <animate
+                      attributeName="r"
+                      values="6;18;6"
+                      dur="2.5s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="fill-opacity"
+                      values="0.4;0;0.4"
+                      dur="2.5s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                )}
+              </motion.g>
 
-            {/* Centre — current time text */}
-            <text
-              x={CX}
-              y={CY - 8}
-              textAnchor="middle"
-              fill="rgba(255,255,255,0.55)"
-              fontSize="10"
-              letterSpacing="3"
-              fontWeight="700"
-            >
-              GAZA · NOW
-            </text>
-            <text
-              x={CX}
-              y={CY + 22}
-              textAnchor="middle"
-              fill="white"
-              fontSize="42"
-              fontWeight="700"
-              fontFamily="ui-monospace, monospace"
-              letterSpacing="-1"
-            >
-              {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")}
-            </text>
-          </svg>
+              <text
+                x={CX}
+                y={CY - 8}
+                textAnchor="middle"
+                fill="rgba(255,255,255,0.55)"
+                fontSize="10"
+                letterSpacing="3"
+                fontWeight="700"
+              >
+                GAZA · NOW
+              </text>
+              <text
+                x={CX}
+                y={CY + 22}
+                textAnchor="middle"
+                fill="white"
+                fontSize="42"
+                fontWeight="700"
+                fontFamily="ui-monospace, monospace"
+                letterSpacing="-1"
+              >
+                {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")}
+              </text>
+            </svg>
+          </div>
         </div>
       </div>
+
+      {/* ─── LAYER 6 · bottom inner shadow (glass spec) ────────── */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-px pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(0,0,0,0.4), transparent)",
+        }}
+      />
     </motion.div>
   );
 }
