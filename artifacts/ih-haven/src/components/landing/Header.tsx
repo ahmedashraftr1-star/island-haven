@@ -45,10 +45,18 @@ export function Header() {
             </div>
           </div>
           <div className="leading-tight">
-            <div className="font-bold text-foreground text-[16px] lg:text-[17px] tracking-tight">
+            <div
+              className={`font-bold text-[16px] lg:text-[17px] tracking-tight transition-colors duration-300 ${
+                scrolled ? "text-foreground" : "text-white"
+              }`}
+            >
               Island Haven
             </div>
-            <div className="text-[11px] text-foreground/60 font-medium tracking-wide">
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors duration-300 ${
+                scrolled ? "text-foreground/60" : "text-white/70"
+              }`}
+            >
               آيلاند هيفن · غزّة
             </div>
           </div>
@@ -60,7 +68,11 @@ export function Header() {
             <a
               key={l.href}
               href={l.href}
-              className="relative px-4 py-2 text-[14px] font-medium text-foreground/70 hover:text-foreground transition-colors rounded-full hover:bg-foreground/[0.04]"
+              className={`relative px-4 py-2 text-[14px] font-medium transition-colors rounded-full ${
+                scrolled
+                  ? "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
+                  : "text-white/85 hover:text-white hover:bg-white/10"
+              }`}
             >
               {l.label}
             </a>
@@ -70,7 +82,11 @@ export function Header() {
         {/* CTA */}
         <a
           href={`${import.meta.env.BASE_URL}apply`}
-          className="hidden lg:inline-flex items-center gap-2 h-10 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-all duration-300 shadow-soft hover:scale-[1.03]"
+          className={`hidden lg:inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
+            scrolled
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "bg-white text-[#0A0E1A] hover:bg-white/90"
+          }`}
         >
           <span>انتسب الآن</span>
           <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -79,7 +95,11 @@ export function Header() {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className="lg:hidden w-10 h-10 rounded-full border border-border bg-white flex items-center justify-center text-foreground"
+          className={`lg:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+            scrolled
+              ? "border border-border bg-white text-foreground"
+              : "border border-white/25 bg-white/10 backdrop-blur-md text-white"
+          }`}
           aria-label="القائمة"
         >
           {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
