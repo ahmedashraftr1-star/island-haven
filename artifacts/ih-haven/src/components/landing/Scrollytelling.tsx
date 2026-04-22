@@ -372,7 +372,7 @@ export function Scrollytelling() {
                         <motion.span
                           animate={{
                             backgroundColor: isActive
-                              ? "hsl(232 70% 52%)"
+                              ? "hsl(354 70% 52%)"
                               : "rgba(255,255,255,0.08)",
                             color: isActive ? "white" : "rgba(255,255,255,0.55)",
                           }}

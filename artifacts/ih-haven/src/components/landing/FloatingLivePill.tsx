@@ -56,7 +56,7 @@ export function FloatingLivePill() {
           exit={{ opacity: 0, y: 16, scale: 0.94 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-5 left-5 z-30 group flex items-center gap-2.5 h-11 pl-2 pr-4 rounded-full bg-white border border-border shadow-soft-hover hover:shadow-[0_20px_60px_hsl(232_70%_30%/0.18)] hover:-translate-y-0.5 transition-all duration-300"
+          className="fixed bottom-5 left-5 z-30 group flex items-center gap-2.5 h-11 pl-2 pr-4 rounded-full bg-white border border-border shadow-soft-hover hover:shadow-[0_20px_60px_hsl(354_70%_30%/0.18)] hover:-translate-y-0.5 transition-all duration-300"
           aria-label="عرض حالة المساحة الآن"
         >
           <span className="relative inline-flex w-7 h-7 rounded-full bg-primary-soft items-center justify-center">

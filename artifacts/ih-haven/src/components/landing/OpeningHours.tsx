@@ -128,7 +128,7 @@ export function OpeningHours() {
         className="absolute -top-32 -left-24 w-[520px] h-[520px] pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, hsl(232 100% 65% / 0.32) 0%, transparent 65%)",
+            "radial-gradient(circle, hsl(354 100% 65% / 0.32) 0%, transparent 65%)",
           filter: "blur(80px)",
         }}
       />
@@ -318,12 +318,12 @@ export function OpeningHours() {
               </desc>
               <defs>
                 <linearGradient id="oh-arc" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="hsl(232 100% 75%)" />
-                  <stop offset="100%" stopColor="hsl(232 100% 55%)" />
+                  <stop offset="0%" stopColor="hsl(354 100% 75%)" />
+                  <stop offset="100%" stopColor="hsl(354 100% 55%)" />
                 </linearGradient>
                 <radialGradient id="oh-glow" cx="0.5" cy="0.5" r="0.5">
-                  <stop offset="0%" stopColor="hsl(232 100% 65%)" stopOpacity="0.45" />
-                  <stop offset="100%" stopColor="hsl(232 100% 65%)" stopOpacity="0" />
+                  <stop offset="0%" stopColor="hsl(354 100% 65%)" stopOpacity="0.45" />
+                  <stop offset="100%" stopColor="hsl(354 100% 65%)" stopOpacity="0" />
                 </radialGradient>
               </defs>
 
@@ -412,7 +412,7 @@ export function OpeningHours() {
                 style={{ transformOrigin: `${start.x}px ${start.y}px` }}
               >
                 <circle cx={start.x} cy={start.y} r="9" fill="white" />
-                <circle cx={start.x} cy={start.y} r="4" fill="hsl(232 100% 55%)" />
+                <circle cx={start.x} cy={start.y} r="4" fill="hsl(354 100% 55%)" />
               </motion.g>
 
               <motion.g
@@ -422,7 +422,7 @@ export function OpeningHours() {
                 style={{ transformOrigin: `${end.x}px ${end.y}px` }}
               >
                 <circle cx={end.x} cy={end.y} r="9" fill="white" />
-                <circle cx={end.x} cy={end.y} r="4" fill="hsl(232 100% 55%)" />
+                <circle cx={end.x} cy={end.y} r="4" fill="hsl(354 100% 55%)" />
               </motion.g>
 
               <motion.g

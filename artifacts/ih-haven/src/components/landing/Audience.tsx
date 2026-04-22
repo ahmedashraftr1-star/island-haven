@@ -78,7 +78,7 @@ export function Audience() {
                 style={{
                   width: `${s.pct}%`,
                   background:
-                    i === 0 ? "hsl(232 70% 52%)" : i === 1 ? "hsl(232 70% 62%)" : "hsl(232 60% 78%)",
+                    i === 0 ? "hsl(354 70% 52%)" : i === 1 ? "hsl(354 70% 62%)" : "hsl(354 60% 78%)",
                   transformOrigin: "right",
                 }}
                 className={i > 0 ? "border-r-2 border-background" : ""}

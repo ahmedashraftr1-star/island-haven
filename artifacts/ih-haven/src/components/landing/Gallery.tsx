@@ -92,7 +92,7 @@ export function Gallery() {
         aria-hidden
         className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[60vh] pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.16) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse at center, hsl(354 100% 70% / 0.16) 0%, transparent 65%)",
           filter: "blur(70px)",
         }}
       />
@@ -358,7 +358,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
         aria-hidden
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse at center, hsl(354 100% 70% / 0.18) 0%, transparent 65%)",
           filter: "blur(60px)",
         }}
       />

@@ -51,7 +51,7 @@ export function Support() {
         className="absolute bottom-0 right-0 w-[60vw] h-[60vh] pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at center, hsl(232 100% 65% / 0.22) 0%, transparent 65%)",
+            "radial-gradient(ellipse at center, hsl(354 100% 65% / 0.22) 0%, transparent 65%)",
           filter: "blur(80px)",
         }}
       />
@@ -103,7 +103,7 @@ export function Support() {
               className="absolute -top-20 -left-20 w-[280px] h-[280px] rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle, hsl(232 100% 65% / 0.18) 0%, transparent 70%)",
+                  "radial-gradient(circle, hsl(354 100% 65% / 0.18) 0%, transparent 70%)",
                 filter: "blur(40px)",
               }}
             />

@@ -123,10 +123,10 @@ export function NumbersArt() {
                 style={{
                   background:
                     i === 0
-                      ? "hsl(232 70% 52%)"
+                      ? "hsl(354 70% 52%)"
                       : i === 1
-                      ? "hsl(232 70% 62%)"
-                      : "hsl(232 70% 75%)",
+                      ? "hsl(354 70% 62%)"
+                      : "hsl(354 70% 75%)",
                 }}
               >
                 <div className="text-xs lg:text-sm font-bold text-white whitespace-nowrap tabular-nums">
@@ -143,10 +143,10 @@ export function NumbersArt() {
                   style={{
                     background:
                       i === 0
-                        ? "hsl(232 70% 52%)"
+                        ? "hsl(354 70% 52%)"
                         : i === 1
-                        ? "hsl(232 70% 62%)"
-                        : "hsl(232 70% 75%)",
+                        ? "hsl(354 70% 62%)"
+                        : "hsl(354 70% 75%)",
                   }}
                 />
                 {b.ar} · {b.label}

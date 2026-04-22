@@ -44,7 +44,7 @@ export function Features() {
         aria-hidden
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[40vh] pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.05) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse at center, hsl(354 100% 70% / 0.05) 0%, transparent 60%)",
           filter: "blur(60px)",
         }}
       />

@@ -60,7 +60,7 @@ export function Voices() {
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
+            "radial-gradient(ellipse at center, hsl(354 100% 70% / 0.18) 0%, transparent 65%)",
           filter: "blur(60px)",
         }}
       />

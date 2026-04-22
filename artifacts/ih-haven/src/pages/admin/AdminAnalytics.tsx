@@ -84,32 +84,32 @@ export default function AdminAnalytics() {
               <AreaChart data={analytics.byDay} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                 <defs>
                   <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(232 70% 52%)" stopOpacity={0.32} />
-                    <stop offset="100%" stopColor="hsl(232 70% 52%)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(354 70% 52%)" stopOpacity={0.32} />
+                    <stop offset="100%" stopColor="hsl(354 70% 52%)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis
                   dataKey="day"
-                  tick={{ fontSize: 11, fill: "hsl(232 8% 50%)" }}
+                  tick={{ fontSize: 11, fill: "hsl(354 8% 50%)" }}
                   tickLine={false}
-                  axisLine={{ stroke: "hsl(232 12% 90%)" }}
+                  axisLine={{ stroke: "hsl(354 12% 90%)" }}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "hsl(232 8% 50%)" }}
+                  tick={{ fontSize: 11, fill: "hsl(354 8% 50%)" }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Tooltip
                   contentStyle={{
                     borderRadius: 12,
-                    border: "1px solid hsl(232 12% 90%)",
+                    border: "1px solid hsl(354 12% 90%)",
                     fontSize: 12,
                   }}
                 />
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="hsl(232 70% 52%)"
+                  stroke="hsl(354 70% 52%)"
                   strokeWidth={2.5}
                   fill="url(#ag)"
                 />

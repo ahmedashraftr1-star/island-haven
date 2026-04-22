@@ -69,7 +69,7 @@ export default function AdminLogin() {
         className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, hsl(232 70% 52% / 0.32) 0%, transparent 65%)",
+            "radial-gradient(circle, hsl(354 70% 52% / 0.32) 0%, transparent 65%)",
           filter: "blur(80px)",
         }}
       />
@@ -146,9 +146,9 @@ export default function AdminLogin() {
               className="relative w-12 h-12 rounded-2xl flex items-center justify-center"
               style={{
                 background:
-                  "linear-gradient(135deg, hsl(232 70% 58%), hsl(232 70% 42%))",
+                  "linear-gradient(135deg, hsl(354 70% 58%), hsl(354 70% 42%))",
                 boxShadow:
-                  "inset 0 1px 0 rgba(255,255,255,0.3), 0 8px 22px -6px hsl(232 70% 40% / 0.7)",
+                  "inset 0 1px 0 rgba(255,255,255,0.3), 0 8px 22px -6px hsl(354 70% 40% / 0.7)",
               }}
             >
               <Shield className="w-5 h-5 text-white" strokeWidth={2.4} />
@@ -202,9 +202,9 @@ export default function AdminLogin() {
                     "inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05)",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "hsl(232 70% 60% / 0.6)";
+                  e.currentTarget.style.borderColor = "hsl(354 70% 60% / 0.6)";
                   e.currentTarget.style.boxShadow =
-                    "inset 0 1px 0 rgba(0,0,0,0.4), 0 0 0 4px hsl(232 70% 50% / 0.18)";
+                    "inset 0 1px 0 rgba(0,0,0,0.4), 0 0 0 4px hsl(354 70% 50% / 0.18)";
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
@@ -239,9 +239,9 @@ export default function AdminLogin() {
             className="mt-7 w-full h-12 rounded-xl text-[14px] font-semibold text-white transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background:
-                "linear-gradient(135deg, hsl(232 70% 58%), hsl(232 70% 46%))",
+                "linear-gradient(135deg, hsl(354 70% 58%), hsl(354 70% 46%))",
               boxShadow:
-                "0 12px 30px -8px hsl(232 70% 40% / 0.7), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.2)",
+                "0 12px 30px -8px hsl(354 70% 40% / 0.7), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.2)",
             }}
           >
             <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />

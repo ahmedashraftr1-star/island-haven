@@ -146,7 +146,7 @@ export function Hero() {
           className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[55vh]"
           style={{
             background:
-              "radial-gradient(ellipse at center, hsl(232 100% 65% / 0.28) 0%, transparent 65%)",
+              "radial-gradient(ellipse at center, hsl(354 100% 65% / 0.28) 0%, transparent 65%)",
             filter: "blur(60px)",
           }}
         />

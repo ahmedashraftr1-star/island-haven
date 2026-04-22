@@ -20,7 +20,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         aria-label="خريطة قطاع غزّة"
       >
         {/* Sea ripple background — three soft horizontal lines */}
-        <g stroke="hsl(232 70% 75%)" strokeWidth="1" strokeLinecap="round" opacity="0.35">
+        <g stroke="hsl(354 70% 75%)" strokeWidth="1" strokeLinecap="round" opacity="0.35">
           <motion.path
             d="M 30 70 Q 80 64 130 70 T 230 70 T 300 68"
             initial={{ pathLength: 0 }}
@@ -46,9 +46,9 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
 
         {/* Compass rose, top-right */}
         <g transform="translate(280, 40)" opacity="0.55">
-          <circle cx="0" cy="0" r="14" stroke="hsl(232 30% 60%)" strokeWidth="0.8" fill="none" />
-          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(232 30% 60%)" strokeWidth="0.8" />
-          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(232 30% 50%)" fontWeight="600">N</text>
+          <circle cx="0" cy="0" r="14" stroke="hsl(354 30% 60%)" strokeWidth="0.8" fill="none" />
+          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(354 30% 60%)" strokeWidth="0.8" />
+          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(354 30% 50%)" fontWeight="600">N</text>
         </g>
 
         {/* Gaza Strip silhouette — stylised, coastal, NE→SW.
@@ -74,8 +74,8 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             L 198 140
             Z
           "
-          fill="hsl(232 70% 96%)"
-          stroke="hsl(232 70% 52%)"
+          fill="hsl(354 70% 96%)"
+          stroke="hsl(354 70% 52%)"
           strokeWidth="1.5"
           strokeLinejoin="round"
           initial={{ pathLength: 0, fillOpacity: 0 }}
@@ -88,7 +88,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         />
 
         {/* Inner texture — subtle parallel hatching for the strip */}
-        <g stroke="hsl(232 70% 52%)" strokeWidth="0.6" opacity="0.18">
+        <g stroke="hsl(354 70% 52%)" strokeWidth="0.6" opacity="0.18">
           <motion.path
             d="M 100 220 L 140 200 M 130 230 L 170 210 M 160 240 L 200 220 M 190 224 L 230 204"
             initial={{ pathLength: 0 }}
@@ -104,7 +104,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           y="266"
           textAnchor="middle"
           fontSize="11"
-          fill="hsl(232 30% 35%)"
+          fill="hsl(354 30% 35%)"
           fontWeight="700"
           letterSpacing="0.5"
           initial={{ opacity: 0 }}
@@ -119,7 +119,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         <g transform="translate(138, 200)">
           <motion.circle
             r="6"
-            fill="hsl(232 70% 52%)"
+            fill="hsl(354 70% 52%)"
             opacity="0.4"
             initial={{ scale: 0 }}
             whileInView={{ scale: [0, 5, 5] }}
@@ -129,7 +129,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           />
           <motion.circle
             r="6"
-            fill="hsl(232 70% 52%)"
+            fill="hsl(354 70% 52%)"
             opacity="0.6"
             initial={{ scale: 0 }}
             whileInView={{ scale: [0, 3.2, 3.2] }}
@@ -139,7 +139,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           />
           <motion.circle
             r="5.5"
-            fill="hsl(232 70% 52%)"
+            fill="hsl(354 70% 52%)"
             stroke="white"
             strokeWidth="2"
             initial={{ scale: 0 }}
@@ -151,7 +151,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             x="14"
             y="4"
             fontSize="10.5"
-            fill="hsl(232 70% 30%)"
+            fill="hsl(354 70% 30%)"
             fontWeight="700"
             initial={{ opacity: 0, x: 8 }}
             whileInView={{ opacity: 1, x: 14 }}

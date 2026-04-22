@@ -101,7 +101,7 @@ export function SideRail() {
               className="absolute inset-0 pointer-events-none opacity-60"
               style={{
                 background:
-                  "radial-gradient(120% 80% at 100% 0%, hsl(232 70% 52% / 0.18), transparent 60%), radial-gradient(120% 80% at 0% 100%, hsl(232 70% 62% / 0.10), transparent 60%)",
+                  "radial-gradient(120% 80% at 100% 0%, hsl(354 70% 52% / 0.18), transparent 60%), radial-gradient(120% 80% at 0% 100%, hsl(354 70% 62% / 0.10), transparent 60%)",
               }}
             />
 
@@ -115,8 +115,8 @@ export function SideRail() {
                   className="w-full h-full"
                   style={{
                     background:
-                      "linear-gradient(to bottom, hsl(232 70% 62%) 0%, hsl(232 70% 52%) 100%)",
-                    boxShadow: "0 0 12px hsl(232 70% 60% / 0.6)",
+                      "linear-gradient(to bottom, hsl(354 70% 62%) 0%, hsl(354 70% 52%) 100%)",
+                    boxShadow: "0 0 12px hsl(354 70% 60% / 0.6)",
                   }}
                 />
               </motion.div>
@@ -194,7 +194,7 @@ export function SideRail() {
                             className="absolute inset-0 rounded-full"
                             style={{
                               background:
-                                "radial-gradient(circle, hsl(232 70% 62% / 0.45) 0%, transparent 70%)",
+                                "radial-gradient(circle, hsl(354 70% 62% / 0.45) 0%, transparent 70%)",
                             }}
                             transition={{ type: "spring", stiffness: 360, damping: 28 }}
                           />
@@ -205,9 +205,9 @@ export function SideRail() {
                             layoutId="rail-active"
                             className="absolute w-2 h-2 rounded-full"
                             style={{
-                              background: "hsl(232 70% 62%)",
+                              background: "hsl(354 70% 62%)",
                               boxShadow:
-                                "0 0 0 3px rgba(255,255,255,0.18), 0 0 14px hsl(232 70% 60% / 0.8)",
+                                "0 0 0 3px rgba(255,255,255,0.18), 0 0 14px hsl(354 70% 60% / 0.8)",
                             }}
                             transition={{ type: "spring", stiffness: 380, damping: 30 }}
                           />
@@ -247,9 +247,9 @@ export function SideRail() {
                   className="text-[11px] font-semibold text-white px-3 py-1.5 rounded-full transition-all hover:scale-[1.04]"
                   style={{
                     background:
-                      "linear-gradient(135deg, hsl(232 70% 58%), hsl(232 70% 48%))",
+                      "linear-gradient(135deg, hsl(354 70% 58%), hsl(354 70% 48%))",
                     boxShadow:
-                      "0 6px 16px -4px hsl(232 70% 40% / 0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
+                      "0 6px 16px -4px hsl(354 70% 40% / 0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
                   }}
                 >
                   انتسب

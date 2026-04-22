@@ -55,7 +55,7 @@ export function WordWindow() {
           <div
             className="w-full h-full"
             style={{
-              background: "radial-gradient(ellipse at center, hsl(232 100% 65% / 0.32) 0%, transparent 65%)",
+              background: "radial-gradient(ellipse at center, hsl(354 100% 65% / 0.32) 0%, transparent 65%)",
               filter: "blur(60px)",
             }}
           />
@@ -115,7 +115,7 @@ export function WordWindow() {
                   }}
                 />
               ))}
-              <rect width={VB_W} height={VB_H} fill="hsl(232 70% 52%)" opacity="0.12" />
+              <rect width={VB_W} height={VB_H} fill="hsl(354 70% 52%)" opacity="0.12" />
             </g>
           </svg>
         </motion.div>
