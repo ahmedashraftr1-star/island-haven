@@ -5,7 +5,7 @@ import { imageUrl, useContentSection } from "@/hooks/use-content";
 const SECONDARY_ICONS = [UserPlus, Share2];
 
 const FALLBACK = {
-  image: "/photos/IMG_8358.jpg",
+  image: "/photos/IMG_8358.webp",
   eyebrow: "Stand with us · كن معنا",
   headlineA: "استمرار هذا المكان",
   headlineB: "يعتمد على",
@@ -36,7 +36,7 @@ export function Support() {
       className="relative bg-[#0A0E1A] text-white py-28 lg:py-40 overflow-hidden"
     >
       <div aria-hidden className="absolute inset-0 opacity-[0.22] pointer-events-none">
-        <img src={imageUrl(c.image)} alt="" className="w-full h-full object-cover" />
+        <img src={imageUrl(c.image)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{

@@ -4,7 +4,7 @@ import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 
 const FALLBACK = {
-  image: "/photos/IMG_8347.jpg",
+  image: "/photos/IMG_8347.webp",
   v1Quote:
     "في واقعٍ تتكاثر فيه التحدّيات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
   v1Source: "من الملف التعريفي للمجتمع",
@@ -45,7 +45,7 @@ export function Voices() {
   return (
     <section className="relative bg-[#0A0E1A] text-white py-28 lg:py-40 overflow-hidden">
       <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
-        <img src={imageUrl(c.image)} alt="" className="w-full h-full object-cover" />
+        <img src={imageUrl(c.image)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{

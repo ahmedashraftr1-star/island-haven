@@ -24,12 +24,12 @@ const FALLBACK = {
   stat2Label: "منتسب",
   stat3Value: "١٠٠٪",
   stat3Label: "مجّانيّ",
-  image1: "/photos/IMG_8357.jpg",
-  image2: "/photos/IMG_8347.jpg",
-  image3: "/photos/IMG_8358.jpg",
-  image4: "/photos/IMG_8341.jpg",
-  image5: "/photos/IMG_8352.jpg",
-  image6: "/photos/IMG_8300.jpg",
+  image1: "/photos/IMG_8357.webp",
+  image2: "/photos/IMG_8347.webp",
+  image3: "/photos/IMG_8358.webp",
+  image4: "/photos/IMG_8341.webp",
+  image5: "/photos/IMG_8352.webp",
+  image6: "/photos/IMG_8300.webp",
 };
 
 function KineticLine({
@@ -130,7 +130,9 @@ export function Hero() {
               scale: { duration: 7, ease: "linear" },
             }}
             className="absolute inset-0 w-full h-full object-cover"
-            loading={i < 2 ? "eager" : "lazy"}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+            {...(i === 0 ? { fetchPriority: "high" as any } : {})}
           />
         ))}
       </motion.div>

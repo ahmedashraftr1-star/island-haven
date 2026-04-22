@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
 const photos = [
-  "/photos/IMG_8344.jpg",
-  "/photos/IMG_8347.jpg",
-  "/photos/IMG_8352.jpg",
-  "/photos/IMG_8358.jpg",
-  "/photos/IMG_8300.jpg",
-  "/photos/IMG_8313.jpg",
-  "/photos/IMG_8341.jpg",
-  "/photos/IMG_8349.jpg",
-  "/photos/IMG_8353.jpg",
-  "/photos/IMG_8356.jpg",
+  "/photos/IMG_8344.webp",
+  "/photos/IMG_8347.webp",
+  "/photos/IMG_8352.webp",
+  "/photos/IMG_8358.webp",
+  "/photos/IMG_8300.webp",
+  "/photos/IMG_8313.webp",
+  "/photos/IMG_8341.webp",
+  "/photos/IMG_8349.webp",
+  "/photos/IMG_8353.webp",
+  "/photos/IMG_8356.webp",
 ];
 
 const MIN_DIST = 110; // px between drops

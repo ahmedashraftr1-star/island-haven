@@ -56,7 +56,7 @@ export function Campaign() {
             className="col-span-12 lg:col-span-5 relative"
           >
             <img
-              src={`${import.meta.env.BASE_URL}photos/IMG_8300.jpg`}
+              src={`${import.meta.env.BASE_URL}photos/IMG_8300.webp`}
               alt="مساحة آيلاند هيفن المخصّصة للعمل المهنيّ في غزّة"
               className="w-full aspect-[4/5] object-cover grayscale-[10%]"
             />

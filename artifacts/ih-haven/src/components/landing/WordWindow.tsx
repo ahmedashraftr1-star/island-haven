@@ -8,9 +8,9 @@ const FALLBACK = {
   captionA: "في قلب غزّة، فتحنا باباً واحداً —",
   captionB: "ليبقى مفتوحاً.",
   captionEn: "Inside, the work continues",
-  image1: "/photos/IMG_8358.jpg",
-  image2: "/photos/IMG_8347.jpg",
-  image3: "/photos/IMG_8344.jpg",
+  image1: "/photos/IMG_8358.webp",
+  image2: "/photos/IMG_8347.webp",
+  image3: "/photos/IMG_8344.webp",
 };
 
 export function WordWindow() {

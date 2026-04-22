@@ -2,12 +2,12 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 const photos = [
-  "/photos/IMG_8344.jpg",
-  "/photos/IMG_8347.jpg",
-  "/photos/IMG_8352.jpg",
-  "/photos/IMG_8358.jpg",
-  "/photos/IMG_8300.jpg",
-  "/photos/IMG_8313.jpg",
+  "/photos/IMG_8344.webp",
+  "/photos/IMG_8347.webp",
+  "/photos/IMG_8352.webp",
+  "/photos/IMG_8358.webp",
+  "/photos/IMG_8300.webp",
+  "/photos/IMG_8313.webp",
 ];
 
 const words = ["غزّة", "الحُلم", "المعرفة", "المستقبل"];

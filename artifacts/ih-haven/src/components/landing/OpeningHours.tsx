@@ -116,7 +116,7 @@ export function OpeningHours() {
       {/* ─── LAYER 2 · photographic underlay (depth) ────────────── */}
       <div aria-hidden className="absolute inset-0 opacity-[0.16] pointer-events-none">
         <img
-          src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
+          src={`${import.meta.env.BASE_URL}photos/IMG_8347.webp`}
           alt=""
           className="w-full h-full object-cover"
         />

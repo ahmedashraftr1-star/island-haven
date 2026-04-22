@@ -8,7 +8,7 @@ const FALLBACK = {
   titleA: "المكان يتنفّس بأهله،",
   titleAccent: "لا بجدرانه.",
   sub: "إلى جانب المساحة المفتوحة يوميّاً، يُنظَّم Island Haven ورشاً تدريبيّة تطبيقيّة ومبادرات داخليّة، بعضها يقوده الفريق، وبعضها يقوده المنتسبون أنفسهم.",
-  featureImage: "/photos/IMG_8352.jpg",
+  featureImage: "/photos/IMG_8352.webp",
   featureBadge: "فعاليّة قادمة",
   featureEyebrow: "Made in Island Haven",
   featureTitle: "صُنع في آيلاند هيفن.",

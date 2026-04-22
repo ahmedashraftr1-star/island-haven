@@ -13,7 +13,7 @@ const FALLBACK = {
   p1: "",
   p2: "",
   quote: "",
-  image: "/photos/IMG_8358.jpg",
+  image: "/photos/IMG_8358.webp",
   creditEyebrow: "برنامج تنمويّ تابع لـ",
   creditTitle: "فريق «من الناس إلى الناس»",
   creditBody: "",

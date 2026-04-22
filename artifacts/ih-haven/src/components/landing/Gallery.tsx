@@ -8,24 +8,24 @@ const FALLBACK = {
   titleA: "صورٌ من قلب",
   titleAccent: "المساحة.",
   sub: "كلّ صورة هنا التُقطت داخل آيلاند هيفن — وجوه، تركيز، تفاصيل، وحياة يوميّة في مكان نُحبّه.",
-  p01: "/photos/IMG_8357.jpg", c01: "صباحٌ في المساحة",
-  p02: "/photos/IMG_8300.jpg", c02: "الجدار الذي يحمل اسمنا",
-  p03: "/photos/IMG_8347.jpg", c03: "تركيزٌ عميق على التصميم",
-  p04: "/photos/IMG_8313.jpg", c04: "ركن العمل المشترك",
-  p05: "/photos/IMG_8352.jpg", c05: "ورشةٌ نتعلّم فيها معاً",
-  p06: "/photos/IMG_8344.jpg", c06: "زاوية هادئة للتفكير",
-  p07: "/photos/IMG_8358.jpg", c07: "تشبيكٌ بين الأرواح",
-  p08: "/photos/IMG_8346.jpg", c08: "جلسة عملٍ مفتوحة",
-  p09: "/photos/IMG_8341.jpg", c09: "حواراتٌ تُولد منها فرص",
-  p10: "/photos/IMG_8345.jpg", c10: "في انتظار البدء",
-  p11: "/photos/IMG_8349.jpg", c11: "أيدٍ تبني الغد",
-  p12: "/photos/IMG_8353.jpg", c12: "مساحةٌ تتّسع للتجربة",
-  p13: "/photos/IMG_8356.jpg", c13: "ضحكاتٌ بين الأقران",
-  p14: "/photos/IMG_8303.jpg", c14: "تفاصيل مكاننا",
-  p15: "/photos/IMG_8304.jpg", c15: "أمسيةٌ في الهيفن",
-  p16: "/photos/IMG_8307.jpg", c16: "حضورٌ مهنيّ",
-  p17: "/photos/IMG_8308.jpg", c17: "تركيزٌ جماعيّ",
-  p18: "/photos/IMG_8314.jpg", c18: "وجوهٌ نفخر بها",
+  p01: "/photos/IMG_8357.webp", c01: "صباحٌ في المساحة",
+  p02: "/photos/IMG_8300.webp", c02: "الجدار الذي يحمل اسمنا",
+  p03: "/photos/IMG_8347.webp", c03: "تركيزٌ عميق على التصميم",
+  p04: "/photos/IMG_8313.webp", c04: "ركن العمل المشترك",
+  p05: "/photos/IMG_8352.webp", c05: "ورشةٌ نتعلّم فيها معاً",
+  p06: "/photos/IMG_8344.webp", c06: "زاوية هادئة للتفكير",
+  p07: "/photos/IMG_8358.webp", c07: "تشبيكٌ بين الأرواح",
+  p08: "/photos/IMG_8346.webp", c08: "جلسة عملٍ مفتوحة",
+  p09: "/photos/IMG_8341.webp", c09: "حواراتٌ تُولد منها فرص",
+  p10: "/photos/IMG_8345.webp", c10: "في انتظار البدء",
+  p11: "/photos/IMG_8349.webp", c11: "أيدٍ تبني الغد",
+  p12: "/photos/IMG_8353.webp", c12: "مساحةٌ تتّسع للتجربة",
+  p13: "/photos/IMG_8356.webp", c13: "ضحكاتٌ بين الأقران",
+  p14: "/photos/IMG_8303.webp", c14: "تفاصيل مكاننا",
+  p15: "/photos/IMG_8304.webp", c15: "أمسيةٌ في الهيفن",
+  p16: "/photos/IMG_8307.webp", c16: "حضورٌ مهنيّ",
+  p17: "/photos/IMG_8308.webp", c17: "تركيزٌ جماعيّ",
+  p18: "/photos/IMG_8314.webp", c18: "وجوهٌ نفخر بها",
 };
 
 export function Gallery() {
@@ -78,7 +78,7 @@ export function Gallery() {
       aria-label="معرض صور آيلاند هيفن"
     >
       <div aria-hidden className="absolute inset-0 opacity-[0.10] pointer-events-none">
-        <img src={imageUrl(c.p04)} alt="" className="w-full h-full object-cover" />
+        <img src={imageUrl(c.p04)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{
@@ -237,7 +237,7 @@ export function Gallery() {
                     : "w-9 h-12 lg:w-11 lg:h-14 opacity-50 hover:opacity-90"
                 }`}
               >
-                <img src={p.src} alt="" className="w-full h-full object-cover" />
+                <img src={p.src} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -264,6 +264,7 @@ export function Gallery() {
                 src={p.src}
                 alt={p.caption}
                 loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.06]"
               />
               {p.showCap && (
@@ -344,6 +345,8 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
           src={v.src}
           key={`bg-${idx}`}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-opacity duration-1000"
         />
         <div

@@ -56,7 +56,7 @@ export default function AdminLogin() {
         aria-hidden
         className="absolute inset-0 opacity-[0.12] pointer-events-none"
         style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}photos/IMG_8347.jpg)`,
+          backgroundImage: `url(${import.meta.env.BASE_URL}photos/IMG_8347.webp)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "blur(8px) saturate(0.7)",
