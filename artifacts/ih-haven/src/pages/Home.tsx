@@ -18,6 +18,7 @@ import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
 import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
 import { Scrollytelling } from "@/components/landing/Scrollytelling";
+import { WordWindow } from "@/components/landing/WordWindow";
 
 export default function Home() {
   usePageView("/");
@@ -27,7 +28,11 @@ export default function Home() {
     if (y) {
       const n = parseInt(y, 10);
       if (!Number.isNaN(n)) {
-        setTimeout(() => window.scrollTo({ top: n, behavior: "auto" }), 250);
+        // Repeated scroll catches lenis' smooth-scroll engine resync.
+        const tries = [250, 500, 900, 1400];
+        tries.forEach((t) =>
+          setTimeout(() => window.scrollTo({ top: n, behavior: "auto" }), t),
+        );
       }
     }
   }, []);
@@ -39,6 +44,7 @@ export default function Home() {
       <main className="relative z-10">
         <Hero />
         <LiveNow />
+        <WordWindow />
         <Reveal as="section"><About /></Reveal>
         <Features />
         <Scrollytelling />
