@@ -1,42 +1,55 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Camera, ArrowLeft, MapPin } from "lucide-react";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 
-const BASE = import.meta.env.BASE_URL;
+const FALLBACK = {
+  eyebrow: "Picture Essay · معرض الصور",
+  titleA: "صورٌ من قلب",
+  titleAccent: "المساحة.",
+  sub: "كلّ صورة هنا التُقطت داخل آيلاند هيفن — وجوه، تركيز، تفاصيل، وحياة يوميّة في مكان نُحبّه.",
+  p01: "/photos/IMG_8357.jpg", c01: "صباحٌ في المساحة",
+  p02: "/photos/IMG_8300.jpg", c02: "الجدار الذي يحمل اسمنا",
+  p03: "/photos/IMG_8347.jpg", c03: "تركيزٌ عميق على التصميم",
+  p04: "/photos/IMG_8313.jpg", c04: "ركن العمل المشترك",
+  p05: "/photos/IMG_8352.jpg", c05: "ورشةٌ نتعلّم فيها معاً",
+  p06: "/photos/IMG_8344.jpg", c06: "زاوية هادئة للتفكير",
+  p07: "/photos/IMG_8358.jpg", c07: "تشبيكٌ بين الأرواح",
+  p08: "/photos/IMG_8346.jpg", c08: "جلسة عملٍ مفتوحة",
+  p09: "/photos/IMG_8341.jpg", c09: "حواراتٌ تُولد منها فرص",
+  p10: "/photos/IMG_8345.jpg", c10: "في انتظار البدء",
+  p11: "/photos/IMG_8349.jpg", c11: "أيدٍ تبني الغد",
+  p12: "/photos/IMG_8353.jpg", c12: "مساحةٌ تتّسع للتجربة",
+  p13: "/photos/IMG_8356.jpg", c13: "ضحكاتٌ بين الأقران",
+  p14: "/photos/IMG_8303.jpg", c14: "تفاصيل مكاننا",
+  p15: "/photos/IMG_8304.jpg", c15: "أمسيةٌ في الهيفن",
+  p16: "/photos/IMG_8307.jpg", c16: "حضورٌ مهنيّ",
+  p17: "/photos/IMG_8308.jpg", c17: "تركيزٌ جماعيّ",
+  p18: "/photos/IMG_8314.jpg", c18: "وجوهٌ نفخر بها",
+};
 
-const ALL = [
-  { src: `${BASE}photos/IMG_8357.jpg`, caption: "صباحٌ في المساحة" },
-  { src: `${BASE}photos/IMG_8300.jpg`, caption: "الجدار الذي يحمل اسمنا" },
-  { src: `${BASE}photos/IMG_8347.jpg`, caption: "تركيزٌ عميق على التصميم" },
-  { src: `${BASE}photos/IMG_8313.jpg`, caption: "ركن العمل المشترك" },
-  { src: `${BASE}photos/IMG_8352.jpg`, caption: "ورشةٌ نتعلّم فيها معاً" },
-  { src: `${BASE}photos/IMG_8344.jpg`, caption: "زاوية هادئة للتفكير" },
-  { src: `${BASE}photos/IMG_8358.jpg`, caption: "تشبيكٌ بين الأرواح" },
-  { src: `${BASE}photos/IMG_8346.jpg`, caption: "جلسة عملٍ مفتوحة" },
-  { src: `${BASE}photos/IMG_8341.jpg`, caption: "حواراتٌ تُولد منها فرص" },
-  { src: `${BASE}photos/IMG_8345.jpg`, caption: "في انتظار البدء" },
-  { src: `${BASE}photos/IMG_8349.jpg`, caption: "أيدٍ تبني الغد" },
-  { src: `${BASE}photos/IMG_8353.jpg`, caption: "مساحةٌ تتّسع للتجربة" },
-  { src: `${BASE}photos/IMG_8356.jpg`, caption: "ضحكاتٌ بين الأقران" },
-  { src: `${BASE}photos/IMG_8303.jpg`, caption: "تفاصيل مكاننا" },
-  { src: `${BASE}photos/IMG_8304.jpg`, caption: "أمسيةٌ في الهيفن" },
-  { src: `${BASE}photos/IMG_8307.jpg`, caption: "حضورٌ مهنيّ" },
-  { src: `${BASE}photos/IMG_8308.jpg`, caption: "تركيزٌ جماعيّ" },
-  { src: `${BASE}photos/IMG_8314.jpg`, caption: "وجوهٌ نفخر بها" },
-];
-
-/**
- * Gallery — picture essay rendered in the same editorial luxury language
- * as the Voices section: deep ink-black canvas, indigo nebula glow, dim
- * photographic underlay for texture, massive serif-weight Arabic display
- * type, frame counters, and ALL-CAPS tracked editorial labels.
- *
- * The cinematic hero auto-advances through 6 curated frames; the user can
- * also click any thumb in the rail to cut to it. Below, a 12-col print-
- * spread mosaic and a contra-rotating film strip extend the essay.
- */
 export function Gallery() {
-  // Curated hero rotation — 6 most cinematic frames.
+  const c = useContentSection("gallery", FALLBACK);
+  const ALL = [
+    { src: imageUrl(c.p01), caption: c.c01 },
+    { src: imageUrl(c.p02), caption: c.c02 },
+    { src: imageUrl(c.p03), caption: c.c03 },
+    { src: imageUrl(c.p04), caption: c.c04 },
+    { src: imageUrl(c.p05), caption: c.c05 },
+    { src: imageUrl(c.p06), caption: c.c06 },
+    { src: imageUrl(c.p07), caption: c.c07 },
+    { src: imageUrl(c.p08), caption: c.c08 },
+    { src: imageUrl(c.p09), caption: c.c09 },
+    { src: imageUrl(c.p10), caption: c.c10 },
+    { src: imageUrl(c.p11), caption: c.c11 },
+    { src: imageUrl(c.p12), caption: c.c12 },
+    { src: imageUrl(c.p13), caption: c.c13 },
+    { src: imageUrl(c.p14), caption: c.c14 },
+    { src: imageUrl(c.p15), caption: c.c15 },
+    { src: imageUrl(c.p16), caption: c.c16 },
+    { src: imageUrl(c.p17), caption: c.c17 },
+    { src: imageUrl(c.p18), caption: c.c18 },
+  ];
   const HERO = [ALL[0], ALL[6], ALL[4], ALL[1], ALL[8], ALL[15]];
   const [idx, setIdx] = useState(0);
 
@@ -46,14 +59,12 @@ export function Gallery() {
   }, [HERO.length]);
 
   const v = HERO[idx];
-
-  // Mosaic — print-spread asymmetry.
   const mosaic = [
     { ...ALL[2], col: "col-span-7", aspect: "aspect-[4/3]", showCap: true, num: "07" },
     { ...ALL[10], col: "col-span-5", aspect: "aspect-[3/4]", showCap: true, num: "08" },
-    { ...ALL[3], col: "col-span-4", aspect: "aspect-[1/1]", num: "09" },
-    { ...ALL[5], col: "col-span-4", aspect: "aspect-[1/1]", num: "10" },
-    { ...ALL[7], col: "col-span-4", aspect: "aspect-[1/1]", num: "11" },
+    { ...ALL[3], col: "col-span-4", aspect: "aspect-[1/1]", num: "09", showCap: false },
+    { ...ALL[5], col: "col-span-4", aspect: "aspect-[1/1]", num: "10", showCap: false },
+    { ...ALL[7], col: "col-span-4", aspect: "aspect-[1/1]", num: "11", showCap: false },
     { ...ALL[11], col: "col-span-5", aspect: "aspect-[3/4]", showCap: true, num: "12" },
     { ...ALL[12], col: "col-span-7", aspect: "aspect-[4/3]", showCap: true, num: "13" },
   ];
@@ -66,13 +77,8 @@ export function Gallery() {
       className="relative bg-[#0A0E1A] text-white overflow-hidden"
       aria-label="معرض صور آيلاند هيفن"
     >
-      {/* Photographic underlay — extremely dim for texture only */}
       <div aria-hidden className="absolute inset-0 opacity-[0.10] pointer-events-none">
-        <img
-          src={`${BASE}photos/IMG_8313.jpg`}
-          alt=""
-          className="w-full h-full object-cover"
-        />
+        <img src={imageUrl(c.p04)} alt="" className="w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{
@@ -82,27 +88,22 @@ export function Gallery() {
         />
       </div>
 
-      {/* Indigo nebula glow */}
       <div
         aria-hidden
         className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[60vh] pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.16) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.16) 0%, transparent 65%)",
           filter: "blur(70px)",
         }}
       />
 
       <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px] pt-28 lg:pt-40 pb-20 lg:pb-28">
-        {/* ============================================================
-            EDITORIAL EYEBROW — matches Voices grammar exactly
-            ============================================================ */}
         <div className="flex items-center justify-between gap-6 mb-12 lg:mb-16">
           <div className="flex items-center gap-3">
             <span className="h-[1px] w-10 bg-white/40" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold inline-flex items-center gap-2">
               <Camera className="w-3 h-3" strokeWidth={2.5} />
-              Picture Essay · معرض الصور
+              {c.eyebrow}
             </span>
           </div>
           <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
@@ -110,30 +111,21 @@ export function Gallery() {
           </div>
         </div>
 
-        {/* ============================================================
-            EDITORIAL HEADLINE — luxury display type
-            ============================================================ */}
         <div className="grid grid-cols-12 gap-6 lg:gap-12 items-end mb-14 lg:mb-20">
           <div className="col-span-12 lg:col-span-8">
             <h2
               className="font-bold text-white"
-              style={{
-                fontSize: "clamp(2.75rem, 7.4vw, 6.5rem)",
-                lineHeight: 0.96,
-                letterSpacing: "-0.04em",
-                fontWeight: 600,
-              }}
+              style={{ fontSize: "clamp(2.75rem, 7.4vw, 6.5rem)", lineHeight: 0.96, letterSpacing: "-0.04em", fontWeight: 600 }}
             >
-              هكذا تبدأ
+              {c.titleA}
               <br />
-              <span className="italic font-light text-white/95">أيّامنا.</span>
+              <span className="italic font-light text-white/95">{c.titleAccent}</span>
             </h2>
           </div>
           <div className="col-span-12 lg:col-span-4">
             <div className="border-t border-white/15 pt-6">
               <p className="text-base lg:text-lg text-white/65 leading-relaxed mb-5">
-                مكاتب صباحيّة، فناجين قهوة دافئة، وجدارٌ يحمل اسماً يُذكّرنا
-                بالسبب. كلّ صورة هنا حقيقيّة — لا فبركة، لا ستوك.
+                {c.sub}
               </p>
               <div className="flex items-center gap-4 text-[11px] tracking-[0.18em] uppercase text-white/45 font-semibold">
                 <span className="inline-flex items-center gap-1.5">
@@ -147,23 +139,16 @@ export function Gallery() {
           </div>
         </div>
 
-        {/* ============================================================
-            CINEMATIC HERO — auto-rotating 6 frames + giant carved title
-            Mirrors Voices' AnimatePresence quote treatment.
-            ============================================================ */}
         <div className="relative rounded-3xl overflow-hidden bg-black shadow-soft-hover mb-7 lg:mb-9">
           <div className="relative aspect-[16/10] lg:aspect-[21/9]">
             {HERO.map((p, i) => (
               <motion.img
-                key={p.src}
+                key={p.src + i}
                 src={p.src}
                 alt={p.caption}
                 loading={i === 0 ? "eager" : "lazy"}
                 initial={false}
-                animate={{
-                  opacity: i === idx ? 1 : 0,
-                  scale: i === idx ? 1 : 1.05,
-                }}
+                animate={{ opacity: i === idx ? 1 : 0, scale: i === idx ? 1 : 1.05 }}
                 transition={{
                   opacity: { duration: 1.0, ease: [0.16, 1, 0.3, 1] },
                   scale: { duration: 6.5, ease: [0.16, 1, 0.3, 1] },
@@ -172,12 +157,9 @@ export function Gallery() {
               />
             ))}
 
-            {/* Top vignette */}
             <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/55 via-black/15 to-transparent pointer-events-none" />
-            {/* Bottom vignette */}
             <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
 
-            {/* Giant ghosted quotation glyph — Voices motif */}
             <div
               aria-hidden
               className="absolute -top-10 lg:-top-20 right-2 lg:right-8 text-white/[0.08] font-bold leading-none select-none pointer-events-none"
@@ -186,7 +168,6 @@ export function Gallery() {
               "
             </div>
 
-            {/* Top — Frame ID + live badge */}
             <div className="absolute top-5 lg:top-8 left-5 lg:left-10 right-5 lg:right-10 flex items-start justify-between text-white">
               <div className="text-[11px] tracking-[0.22em] uppercase font-semibold opacity-85">
                 Frame · {String(idx + 1).padStart(4, "0")} / 0018
@@ -197,7 +178,6 @@ export function Gallery() {
               </div>
             </div>
 
-            {/* Bottom — gigantic editorial caption */}
             <div className="absolute bottom-6 lg:bottom-12 right-6 lg:right-12 left-6 lg:left-12 text-white">
               <div className="flex items-end justify-between gap-6 flex-wrap">
                 <motion.div
@@ -212,11 +192,7 @@ export function Gallery() {
                   </div>
                   <div
                     className="font-bold leading-[0.95]"
-                    style={{
-                      fontSize: "clamp(2rem, 5.6vw, 4.75rem)",
-                      letterSpacing: "-0.038em",
-                      fontWeight: 600,
-                    }}
+                    style={{ fontSize: "clamp(2rem, 5.6vw, 4.75rem)", letterSpacing: "-0.038em", fontWeight: 600 }}
                   >
                     {v.caption}
                   </div>
@@ -238,9 +214,6 @@ export function Gallery() {
           </div>
         </div>
 
-        {/* ============================================================
-            HERO RAIL — clickable thumbs + progress bar (Voices grammar)
-            ============================================================ */}
         <div className="flex items-center gap-5 lg:gap-7 mb-20 lg:mb-28">
           <div className="flex-1 h-px bg-white/10 relative overflow-hidden">
             <motion.div
@@ -255,7 +228,7 @@ export function Gallery() {
           <div ref={stripRef} className="flex gap-2 lg:gap-2.5">
             {HERO.map((p, i) => (
               <button
-                key={p.src}
+                key={p.src + i}
                 onClick={() => setIdx(i)}
                 aria-label={`عرض المشهد ${i + 1}: ${p.caption}`}
                 className={`relative shrink-0 rounded-md overflow-hidden transition-all duration-500 ${
@@ -270,9 +243,6 @@ export function Gallery() {
           </div>
         </div>
 
-        {/* ============================================================
-            EDITORIAL MOSAIC — print-spread on the same dark canvas
-            ============================================================ */}
         <div className="flex items-center gap-3 mb-7 lg:mb-9">
           <span className="h-[1px] w-10 bg-white/40" />
           <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
@@ -287,11 +257,7 @@ export function Gallery() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                duration: 0.7,
-                delay: (i % 3) * 0.07,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+              transition={{ duration: 0.7, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
               className={`relative overflow-hidden rounded-2xl shadow-soft hover:shadow-soft-hover transition-all duration-700 group bg-black ${p.col} ${p.aspect}`}
             >
               <img
@@ -329,7 +295,6 @@ export function Gallery() {
           ))}
         </div>
 
-        {/* Instagram CTA — Voices-style understated */}
         <div className="mt-10 lg:mt-14 flex items-center justify-between gap-6 flex-wrap pt-6 border-t border-white/10">
           <div className="text-[12px] tracking-[0.18em] uppercase text-white/55 font-semibold">
             ١٨ لقطة · كلّها حقيقيّة · مُلتقطة في غزّة
@@ -346,45 +311,34 @@ export function Gallery() {
         </div>
       </div>
 
-      {/* ============================================================
-          CLOSING SCENE — single Voices-grammar cinematic rotation
-          (replaces the busy marquee with the same calm luxury system)
-          ============================================================ */}
-      <ClosingScene />
+      <ClosingScene
+        frames={[
+          { src: imageUrl(c.p17), caption: c.c17, en: "A shared focus" },
+          { src: imageUrl(c.p18), caption: c.c18, en: "Faces we are proud of" },
+          { src: imageUrl(c.p15), caption: c.c15, en: "An evening at the Haven" },
+          { src: imageUrl(c.p10), caption: c.c10, en: "Awaiting the spark" },
+          { src: imageUrl(c.p14), caption: c.c14, en: "The fine grain of place" },
+        ]}
+      />
     </section>
   );
 }
 
-/**
- * ClosingScene — speaks the exact Voices grammar:
- *   eyebrow + counter, dim photo backdrop, indigo glow, one massive
- *   editorial caption that auto-advances, plus the same progress-bar
- *   and dot navigation. Acts as the picture essay's epilogue.
- */
-function ClosingScene() {
-  const FRAMES = [
-    { src: `${BASE}photos/IMG_8308.jpg`, caption: "تركيزٌ جماعيّ", en: "A shared focus" },
-    { src: `${BASE}photos/IMG_8314.jpg`, caption: "وجوهٌ نفخر بها", en: "Faces we are proud of" },
-    { src: `${BASE}photos/IMG_8304.jpg`, caption: "أمسيةٌ في الهيفن", en: "An evening at the Haven" },
-    { src: `${BASE}photos/IMG_8345.jpg`, caption: "في انتظار البدء", en: "Awaiting the spark" },
-    { src: `${BASE}photos/IMG_8303.jpg`, caption: "تفاصيل مكاننا", en: "The fine grain of place" },
-  ];
+type Frame = { src: string; caption: string; en: string };
 
+function ClosingScene({ frames }: { frames: Frame[] }) {
   const [idx, setIdx] = useState(0);
-
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % FRAMES.length), 7500);
+    const t = setInterval(() => setIdx((i) => (i + 1) % frames.length), 7500);
     return () => clearInterval(t);
-  }, [FRAMES.length]);
-
-  const v = FRAMES[idx];
+  }, [frames.length]);
+  const v = frames[idx];
 
   return (
     <section
       className="relative bg-[#0A0E1A] text-white py-24 lg:py-36 overflow-hidden border-t border-white/[0.06]"
       aria-label="خاتمة المعرض"
     >
-      {/* Photographic underlay */}
       <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
         <img
           src={v.src}
@@ -395,25 +349,21 @@ function ClosingScene() {
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(180deg, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.55) 50%, rgba(10,14,26,0.95) 100%)",
+            background: "linear-gradient(180deg, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.55) 50%, rgba(10,14,26,0.95) 100%)",
           }}
         />
       </div>
 
-      {/* Indigo nebula glow */}
       <div
         aria-hidden
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
           filter: "blur(60px)",
         }}
       />
 
       <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px]">
-        {/* Editorial eyebrow + counter — Voices grammar */}
         <div className="flex items-center justify-between gap-6 mb-12 lg:mb-16">
           <div className="flex items-center gap-3">
             <span className="h-[1px] w-10 bg-white/40" />
@@ -422,14 +372,11 @@ function ClosingScene() {
             </span>
           </div>
           <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
-            {String(idx + 1).padStart(2, "0")} /{" "}
-            {String(FRAMES.length).padStart(2, "0")}
+            {String(idx + 1).padStart(2, "0")} / {String(frames.length).padStart(2, "0")}
           </div>
         </div>
 
-        {/* MASSIVE caption — same display weight as Voices quote */}
         <div className="relative min-h-[260px] lg:min-h-[380px]">
-          {/* Giant ghosted glyph */}
           <div
             aria-hidden
             className="absolute -top-8 lg:-top-16 right-0 lg:right-2 text-white/[0.06] font-bold leading-none select-none pointer-events-none"
@@ -447,12 +394,7 @@ function ClosingScene() {
           >
             <div
               className="font-bold"
-              style={{
-                fontSize: "clamp(1.75rem, 4.6vw, 4rem)",
-                lineHeight: 1.18,
-                letterSpacing: "-0.022em",
-                fontWeight: 600,
-              }}
+              style={{ fontSize: "clamp(1.75rem, 4.6vw, 4rem)", lineHeight: 1.18, letterSpacing: "-0.022em", fontWeight: 600 }}
             >
               {v.caption}
             </div>
@@ -469,7 +411,6 @@ function ClosingScene() {
           </motion.figure>
         </div>
 
-        {/* Progress + dot navigation — exact Voices clone */}
         <div className="mt-16 lg:mt-20 flex items-center gap-6">
           <div className="flex-1 h-px bg-white/10 relative overflow-hidden">
             <motion.div
@@ -482,7 +423,7 @@ function ClosingScene() {
             />
           </div>
           <div className="flex gap-2">
-            {FRAMES.map((_, i) => (
+            {frames.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setIdx(i)}

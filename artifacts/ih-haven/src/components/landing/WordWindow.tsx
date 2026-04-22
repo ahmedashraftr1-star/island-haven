@@ -1,58 +1,41 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 
-const BASE = import.meta.env.BASE_URL;
+const FALLBACK = {
+  eyebrow: "A window · نافذة",
+  word: "هنا.",
+  captionA: "في قلب غزّة، فتحنا باباً واحداً —",
+  captionB: "ليبقى مفتوحاً.",
+  captionEn: "Inside, the work continues",
+  image1: "/photos/IMG_8358.jpg",
+  image2: "/photos/IMG_8347.jpg",
+  image3: "/photos/IMG_8344.jpg",
+};
 
-const PHOTOS = [
-  `${BASE}photos/IMG_8358.jpg`,
-  `${BASE}photos/IMG_8347.jpg`,
-  `${BASE}photos/IMG_8344.jpg`,
-];
-
-/**
- * WordWindow — page's signature moment.
- *
- * The Arabic word "هنا." (HERE.) is carved out of a live photograph
- * of the haven. As you scroll, the word breathes — scaling, with the
- * photo crossfading inside the letterforms. A pinned 240vh stage gives
- * the moment dramatic time on screen.
- *
- * Technique: SVG `<mask>` with a giant text glyph + `<image>` clipped
- * to that mask. Rock solid in every browser, no `background-clip` quirks.
- */
 export function WordWindow() {
+  const c = useContentSection("wordwindow", FALLBACK);
+  const PHOTOS = [c.image1, c.image2, c.image3].filter(Boolean).map(imageUrl);
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const [photoIdx, setPhotoIdx] = useState(0);
   const maskId = useId();
 
   useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(
-      () => setPhotoIdx((i) => (i + 1) % PHOTOS.length),
-      4500,
-    );
+    if (reduce || PHOTOS.length < 2) return;
+    const id = setInterval(() => setPhotoIdx((i) => (i + 1) % PHOTOS.length), 4500);
     return () => clearInterval(id);
-  }, [reduce]);
+  }, [reduce, PHOTOS.length]);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const scale = useTransform(scrollYProgress, [0, 1], [0.92, reduce ? 0.92 : 1.18]);
   const wordOpacity = useTransform(scrollYProgress, [0, 0.82, 1], [1, 1, 0]);
-  const labelOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.08, 0.85, 1],
-    [0, 1, 1, 0],
-  );
+  const labelOpacity = useTransform(scrollYProgress, [0, 0.08, 0.85, 1], [0, 1, 1, 0]);
   const captionY = useTransform(scrollYProgress, [0.1, 0.45], [16, 0]);
   const captionOpacity = useTransform(scrollYProgress, [0.1, 0.45], [0, 1]);
   const haloScale = useTransform(scrollYProgress, [0, 1], [1, 1.6]);
   const seamOpacity = useTransform(scrollYProgress, [0.78, 1], [0, 1]);
 
-  // SVG canvas dimensions — viewBox is the design space.
   const VB_W = 1600;
   const VB_H = 800;
 
@@ -64,7 +47,6 @@ export function WordWindow() {
       aria-label="نافذة على المساحة"
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col items-center justify-center bg-[#0A0E1A]">
-        {/* Indigo halo behind the word */}
         <motion.div
           aria-hidden
           style={{ scale: haloScale }}
@@ -73,26 +55,23 @@ export function WordWindow() {
           <div
             className="w-full h-full"
             style={{
-              background:
-                "radial-gradient(ellipse at center, hsl(232 100% 65% / 0.32) 0%, transparent 65%)",
+              background: "radial-gradient(ellipse at center, hsl(232 100% 65% / 0.32) 0%, transparent 65%)",
               filter: "blur(60px)",
             }}
           />
         </motion.div>
 
-        {/* Top label */}
         <motion.div
           style={{ opacity: labelOpacity }}
           className="absolute top-10 lg:top-14 inset-x-0 flex items-center justify-center gap-3 z-10"
         >
           <span className="h-[1px] w-10 bg-white/40" />
           <span className="text-[11px] tracking-[0.24em] uppercase text-white/65 font-semibold">
-            A window · نافذة
+            {c.eyebrow}
           </span>
           <span className="h-[1px] w-10 bg-white/40" />
         </motion.div>
 
-        {/* THE CARVED WORD — SVG mask, photo crossfade inside */}
         <motion.div
           dir="rtl"
           style={{ scale, opacity: wordOpacity }}
@@ -117,16 +96,15 @@ export function WordWindow() {
                   fontFamily="'IBM Plex Sans Arabic', system-ui, sans-serif"
                   letterSpacing="-30"
                 >
-                  هنا.
+                  {c.word}
                 </text>
               </mask>
             </defs>
 
-            {/* Stack all photos inside the mask, crossfade opacity */}
             <g mask={`url(#${maskId})`}>
               {PHOTOS.map((src, i) => (
                 <image
-                  key={src}
+                  key={src + i}
                   href={src}
                   width={VB_W}
                   height={VB_H}
@@ -137,39 +115,27 @@ export function WordWindow() {
                   }}
                 />
               ))}
-              {/* Subtle indigo wash on top of the photo for cinematic warmth */}
-              <rect
-                width={VB_W}
-                height={VB_H}
-                fill="hsl(232 70% 52%)"
-                opacity="0.12"
-              />
+              <rect width={VB_W} height={VB_H} fill="hsl(232 70% 52%)" opacity="0.12" />
             </g>
           </svg>
         </motion.div>
 
-        {/* Caption beneath the word */}
         <motion.div
           style={{ opacity: captionOpacity, y: captionY }}
           className="absolute bottom-16 lg:bottom-24 inset-x-0 text-center px-6 z-10"
         >
           <p
             className="text-white font-semibold mx-auto max-w-[680px]"
-            style={{
-              fontSize: "clamp(1.125rem, 1.8vw, 1.625rem)",
-              letterSpacing: "-0.012em",
-              lineHeight: 1.35,
-            }}
+            style={{ fontSize: "clamp(1.125rem, 1.8vw, 1.625rem)", letterSpacing: "-0.012em", lineHeight: 1.35 }}
           >
-            في قلب غزّة، فتحنا باباً واحداً —{" "}
-            <span className="text-white/65">ليبقى مفتوحاً.</span>
+            {c.captionA}{" "}
+            <span className="text-white/65">{c.captionB}</span>
           </p>
           <p className="mt-3 text-[11px] tracking-[0.22em] uppercase text-white/45 font-semibold">
-            Inside, the work continues
+            {c.captionEn}
           </p>
         </motion.div>
 
-        {/* Photo indicator dots */}
         <motion.div
           style={{ opacity: labelOpacity }}
           className="absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10"
@@ -184,7 +150,6 @@ export function WordWindow() {
           ))}
         </motion.div>
 
-        {/* Film grain — ties to Hero atmosphere */}
         <div
           aria-hidden
           className="absolute inset-0 opacity-[0.06] mix-blend-overlay pointer-events-none"
@@ -194,7 +159,6 @@ export function WordWindow() {
           }}
         />
 
-        {/* Bottom seam — fades to white toward end so the cut to next section is liquid */}
         <motion.div
           aria-hidden
           style={{ opacity: seamOpacity }}
@@ -202,9 +166,7 @@ export function WordWindow() {
         >
           <div
             className="w-full h-full"
-            style={{
-              background: "linear-gradient(180deg, transparent 0%, #ffffff 100%)",
-            }}
+            style={{ background: "linear-gradient(180deg, transparent 0%, #ffffff 100%)" }}
           />
         </motion.div>
       </div>

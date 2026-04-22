@@ -4,6 +4,8 @@ import adminRouter from "./admin";
 import applicationsRouter from "./applications";
 import contentRouter from "./content";
 import analyticsRouter from "./analytics";
+import uploadRouter from "./upload";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -12,5 +14,7 @@ router.use(adminRouter);
 router.use(applicationsRouter);
 router.use(contentRouter);
 router.use(analyticsRouter);
+router.use(uploadRouter);
+router.use(storageRouter);
 
 export default router;

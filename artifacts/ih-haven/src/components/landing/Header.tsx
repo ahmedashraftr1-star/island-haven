@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
 import { Menu, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 
-const links = [
-  { href: "#about", label: "من نحن", group: "المساحة" },
-  { href: "#audience", label: "الفئات", group: "المجتمع" },
-  { href: "#offerings", label: "ما نقدّم", group: "التجربة" },
-  { href: "#programs", label: "الفعاليّات", group: "المجتمع" },
-  { href: "#visit", label: "تواصل", group: "الزيارة" },
-];
+const FALLBACK = {
+  logo: "/logo.png",
+  brand: "Island Haven",
+  tagline: "آيلاند هيفن · غزّة",
+  nav1Label: "من نحن", nav1Href: "#about", nav1Group: "المساحة",
+  nav2Label: "الفئات", nav2Href: "#audience", nav2Group: "المجتمع",
+  nav3Label: "ما نقدّم", nav3Href: "#offerings", nav3Group: "التجربة",
+  nav4Label: "الفعاليّات", nav4Href: "#programs", nav4Group: "المجتمع",
+  nav5Label: "تواصل", nav5Href: "#visit", nav5Group: "الزيارة",
+  ctaLabel: "انتسب الآن",
+  ctaHref: "/apply",
+};
 
 export function Header() {
+  const c = useContentSection("header", FALLBACK);
+  const links = [
+    { href: c.nav1Href, label: c.nav1Label, group: c.nav1Group },
+    { href: c.nav2Href, label: c.nav2Label, group: c.nav2Group },
+    { href: c.nav3Href, label: c.nav3Label, group: c.nav3Group },
+    { href: c.nav4Href, label: c.nav4Label, group: c.nav4Group },
+    { href: c.nav5Href, label: c.nav5Label, group: c.nav5Group },
+  ].filter((l) => l.label && l.href);
+
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
@@ -22,12 +37,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Scrollspy: track which section is currently in viewport
   useEffect(() => {
-    const ids = links.map((l) => l.href.slice(1));
+    const ids = links
+      .map((l) => (l.href.startsWith("#") ? l.href.slice(1) : ""))
+      .filter(Boolean);
     const observer = new IntersectionObserver(
       (entries) => {
-        // Pick the entry closest to the top of the viewport that's intersecting
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -40,7 +55,12 @@ export function Header() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [c.nav1Href, c.nav2Href, c.nav3Href, c.nav4Href, c.nav5Href]);
+
+  const ctaHref = c.ctaHref.startsWith("http") || c.ctaHref.startsWith("#")
+    ? c.ctaHref
+    : `${import.meta.env.BASE_URL}${c.ctaHref.replace(/^\//, "")}`;
 
   return (
     <header
@@ -51,7 +71,6 @@ export function Header() {
       }`}
     >
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px] flex items-center justify-between gap-6">
-        {/* Logo */}
         <a href="#" className="flex items-center gap-3 group shrink-0">
           <div className="relative">
             <div
@@ -60,8 +79,8 @@ export function Header() {
             />
             <div className="relative w-12 h-12 lg:w-13 lg:h-13 rounded-2xl bg-[#0A0E1A] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
               <img
-                src={`${import.meta.env.BASE_URL}logo.png`}
-                alt="Island Haven"
+                src={imageUrl(c.logo)}
+                alt={c.brand}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -72,19 +91,18 @@ export function Header() {
                 scrolled ? "text-foreground" : "text-white"
               }`}
             >
-              Island Haven
+              {c.brand}
             </div>
             <div
               className={`text-[11px] font-medium tracking-wide transition-colors duration-300 ${
                 scrolled ? "text-foreground/60" : "text-white/70"
               }`}
             >
-              آيلاند هيفن · غزّة
+              {c.tagline}
             </div>
           </div>
         </a>
 
-        {/* Nav with scrollspy + active pill */}
         <nav className="hidden lg:flex items-center gap-1 relative">
           {links.map((l) => {
             const isActive = active === l.href;
@@ -125,20 +143,18 @@ export function Header() {
           })}
         </nav>
 
-        {/* CTA */}
         <a
-          href={`${import.meta.env.BASE_URL}apply`}
+          href={ctaHref}
           className={`hidden lg:inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
             scrolled
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
               : "bg-white text-[#0A0E1A] hover:bg-white/90"
           }`}
         >
-          <span>انتسب الآن</span>
+          <span>{c.ctaLabel}</span>
           <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
         </a>
 
-        {/* Mobile toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
           className={`lg:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -181,10 +197,10 @@ export function Header() {
                 );
               })}
               <a
-                href={`${import.meta.env.BASE_URL}apply`}
+                href={ctaHref}
                 className="mt-4 inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground text-[14px] font-semibold"
               >
-                <span>انتسب الآن</span>
+                <span>{c.ctaLabel}</span>
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </a>
             </nav>

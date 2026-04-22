@@ -1,62 +1,45 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
+import { useContentSection } from "@/hooks/use-content";
 
-/**
- * "الآن في الهيفن" — a signature, never-done-before strip that makes
- * the haven feel alive and present, not abstract. It pulses gently,
- * showing the live state of the workspace right now in Gaza time.
- *
- * The values are derived deterministically from the visitor's local
- * Gaza time (Asia/Gaza), so every visitor sees a real-feeling state
- * without any backend. Honest defaults outside business hours.
- */
+const FALLBACK = {
+  label: "الآن في الهيفن",
+  placeLabel: "غزّة",
+  workingLabel: "يعمل الآن",
+  workshopLabel: "ورشة جارية",
+  coffeeLabel: "قهوة قيد التحضير ☕︎",
+  closedLabel: "المساحة مغلقة الآن · نفتح أبوابنا من السبت إلى الخميس، ٩ صباحاً – ٥ مساءً",
+  liveBadge: "بثّ مباشر من قلب غزّة",
+};
 
 function gazaNow() {
-  // Use Asia/Gaza time of day to derive a believable live snapshot.
   const fmt = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Gaza",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    weekday: "short",
+    hour: "2-digit", minute: "2-digit", hour12: false, weekday: "short",
   });
   const parts = fmt.formatToParts(new Date());
   const hour = parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10);
   const minute = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
   const weekday = parts.find((p) => p.type === "weekday")?.value || "Mon";
   const isFriday = weekday === "Fri";
-
-  // Window: open Sat–Thu, 09:00–17:00 Gaza
   const open = !isFriday && hour >= 9 && hour < 17;
   if (!open) {
-    return {
-      open: false,
-      working: 0,
-      workshop: false,
-      coffees: 0,
-      time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-    };
+    return { open: false, working: 0, workshop: false, coffees: 0,
+      time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` };
   }
-
-  // Believable curve: peak 10–13, lighter early/late
   const base =
     hour < 11 ? 14 + (hour - 9) * 3 : hour < 14 ? 22 + (hour - 11) * 2 : 28 - (hour - 14) * 4;
   const jitter = (minute % 7) - 3;
   const working = Math.max(8, Math.min(34, base + jitter));
   const workshop = (hour === 11 || hour === 15) && minute < 50;
   const coffees = Math.floor(working / 4) + (minute % 5 === 0 ? 1 : 0);
-
-  return {
-    open: true,
-    working,
-    workshop,
-    coffees,
-    time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-  };
+  return { open: true, working, workshop, coffees,
+    time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` };
 }
 
 export function LiveNow() {
+  const c = useContentSection("livenow", FALLBACK);
   const [state, setState] = useState(() => gazaNow());
 
   useEffect(() => {
@@ -75,17 +58,13 @@ export function LiveNow() {
                 animate={state.open ? { scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] } : { opacity: 0.6 }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
               />
-              <span
-                className={`relative inline-flex w-2.5 h-2.5 rounded-full ${
-                  state.open ? "bg-emerald-500" : "bg-foreground/40"
-                }`}
-              />
+              <span className={`relative inline-flex w-2.5 h-2.5 rounded-full ${state.open ? "bg-emerald-500" : "bg-foreground/40"}`} />
             </span>
             <div className="text-[11px] tracking-[0.15em] uppercase font-semibold text-foreground/55">
-              الآن في الهيفن
+              {c.label}
             </div>
             <div className="text-[11px] tracking-[0.05em] font-mono text-foreground/45 tabular-nums">
-              {state.time} · غزّة
+              {state.time} · {c.placeLabel}
             </div>
           </div>
 
@@ -96,12 +75,12 @@ export function LiveNow() {
                   <span className="text-2xl font-bold text-foreground tabular-nums" style={{ letterSpacing: "-0.02em" }}>
                     {state.working}
                   </span>
-                  <span className="text-foreground/65">يعمل الآن</span>
+                  <span className="text-foreground/65">{c.workingLabel}</span>
                 </div>
                 {state.workshop && (
                   <div className="flex items-baseline gap-2">
                     <span className="text-foreground/65">·</span>
-                    <span className="text-primary font-semibold">ورشة جارية</span>
+                    <span className="text-primary font-semibold">{c.workshopLabel}</span>
                   </div>
                 )}
                 <div className="flex items-baseline gap-2">
@@ -109,19 +88,17 @@ export function LiveNow() {
                   <span className="text-2xl font-bold text-foreground tabular-nums" style={{ letterSpacing: "-0.02em" }}>
                     {state.coffees}
                   </span>
-                  <span className="text-foreground/65">قهوة قيد التحضير ☕︎</span>
+                  <span className="text-foreground/65">{c.coffeeLabel}</span>
                 </div>
               </>
             ) : (
-              <div className="text-foreground/65">
-                المساحة مغلقة الآن · نفتح أبوابنا من السبت إلى الخميس، ٩ صباحاً – ٥ مساءً
-              </div>
+              <div className="text-foreground/65">{c.closedLabel}</div>
             )}
           </div>
 
           <div className="hidden md:flex items-center gap-2 text-[13px] text-foreground/55">
             <MapPin className="w-3.5 h-3.5" />
-            بثّ مباشر من قلب غزّة
+            {c.liveBadge}
           </div>
         </div>
       </div>

@@ -1,47 +1,51 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 
-const voices = [
-  {
-    quote:
-      "في واقعٍ تتكاثر فيه التحدّيات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
-    source: "من الملف التعريفي للمجتمع",
-    en: "Founding profile",
-  },
-  {
-    quote:
-      "نعم هو مكانٌ للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.",
-    source: "رؤية Island Haven",
-    en: "Vision",
-  },
-  {
-    quote:
-      "محاولة جادّة لبناء شيءٍ مستدامٍ في مكانٍ يفتقر إلى الاستقرار، واستثمار حقيقيّ في الإنسان قبل أيّ شيء آخر.",
-    source: "كلمة فريق التأسيس",
-    en: "From the founding team",
-  },
-];
+const FALLBACK = {
+  image: "/photos/IMG_8347.jpg",
+  v1Quote:
+    "في واقعٍ تتكاثر فيه التحدّيات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
+  v1Source: "من الملف التعريفي للمجتمع",
+  v1En: "Founding profile",
+  v2Quote:
+    "نعم هو مكانٌ للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.",
+  v2Source: "رؤية Island Haven",
+  v2En: "Vision",
+  v3Quote:
+    "محاولة جادّة لبناء شيءٍ مستدامٍ في مكانٍ يفتقر إلى الاستقرار، واستثمار حقيقيّ في الإنسان قبل أيّ شيء آخر.",
+  v3Source: "كلمة فريق التأسيس",
+  v3En: "From the founding team",
+};
 
 export function Voices() {
+  const c = useContentSection("voices", FALLBACK);
+  const voices = useMemo(
+    () =>
+      [
+        { quote: c.v1Quote, source: c.v1Source, en: c.v1En },
+        { quote: c.v2Quote, source: c.v2Source, en: c.v2En },
+        { quote: c.v3Quote, source: c.v3Source, en: c.v3En },
+      ].filter((v) => v.quote && v.quote.trim().length > 0),
+    [c.v1Quote, c.v1Source, c.v1En, c.v2Quote, c.v2Source, c.v2En, c.v3Quote, c.v3Source, c.v3En],
+  );
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
+    if (voices.length < 2) return;
     const t = setInterval(() => setIdx((i) => (i + 1) % voices.length), 7500);
     return () => clearInterval(t);
-  }, []);
+  }, [voices.length]);
 
-  const v = voices[idx];
+  if (voices.length === 0) return null;
+  const safe = Math.min(idx, voices.length - 1);
+  const v = voices[safe];
 
   return (
     <section className="relative bg-[#0A0E1A] text-white py-28 lg:py-40 overflow-hidden">
-      {/* Photo backdrop, very dim — gives texture, not story */}
       <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
-        <img
-          src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
-          alt=""
-          className="w-full h-full object-cover"
-        />
+        <img src={imageUrl(c.image)} alt="" className="w-full h-full object-cover" />
         <div
           className="absolute inset-0"
           style={{
@@ -51,7 +55,6 @@ export function Voices() {
         />
       </div>
 
-      {/* Indigo glow */}
       <div
         aria-hidden
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
@@ -63,7 +66,6 @@ export function Voices() {
       />
 
       <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px]">
-        {/* Editorial eyebrow */}
         <div className="flex items-center justify-between gap-6 mb-14 lg:mb-20">
           <div className="flex items-center gap-3">
             <span className="h-[1px] w-10 bg-white/40" />
@@ -72,13 +74,11 @@ export function Voices() {
             </span>
           </div>
           <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
-            {String(idx + 1).padStart(2, "0")} / {String(voices.length).padStart(2, "0")}
+            {String(safe + 1).padStart(2, "0")} / {String(voices.length).padStart(2, "0")}
           </div>
         </div>
 
-        {/* MASSIVE quote */}
         <div className="relative min-h-[280px] lg:min-h-[420px]">
-          {/* Giant quotation glyph */}
           <div
             aria-hidden
             className="absolute -top-8 lg:-top-16 right-0 lg:right-2 text-white/[0.06] font-bold leading-none select-none pointer-events-none"
@@ -89,7 +89,7 @@ export function Voices() {
 
           <AnimatePresence mode="wait">
             <motion.blockquote
-              key={idx}
+              key={safe}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
@@ -116,11 +116,10 @@ export function Voices() {
           </AnimatePresence>
         </div>
 
-        {/* Progress + dots */}
         <div className="mt-16 lg:mt-20 flex items-center gap-6">
           <div className="flex-1 h-px bg-white/10 relative overflow-hidden">
             <motion.div
-              key={idx}
+              key={safe}
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 7.5, ease: "linear" }}
@@ -134,7 +133,7 @@ export function Voices() {
                 onClick={() => setIdx(i)}
                 aria-label={`اقتباس ${i + 1}`}
                 className={`h-2 rounded-full transition-all duration-500 ${
-                  i === idx ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
+                  i === safe ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
                 }`}
               />
             ))}

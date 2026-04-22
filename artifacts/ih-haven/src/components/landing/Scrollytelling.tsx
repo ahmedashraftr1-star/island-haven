@@ -1,7 +1,33 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 
-const BASE = import.meta.env.BASE_URL;
+const FALLBACK = {
+  s1Hour: "٠٩:٠٠", s1Kicker: "Opening",
+  s1Title: "البابُ يُفتح،\nوأوّل ضوءٍ يدخل.",
+  s1Body: "صباحٌ غزّيٌّ يبدأ بصوت المفتاح، ورائحة قهوة تُحضَّر لمن سيأتي. كرسيّك بانتظارك، والإنترنت لا ينقطع.",
+  s1Image: "/photos/IMG_8357.jpg",
+  s2Hour: "١٠:١٥", s2Kicker: "Deep Work",
+  s2Title: "تركيزٌ بلا\nمقاطعات.",
+  s2Body: "سمّاعات، شاشة، وإضاءة طبيعيّة. هنا لا يطرق أحدٌ بابك، ولا يقطع الكهرباء عملك. الوقت لك، استثمره كاملاً.",
+  s2Image: "/photos/IMG_8347.jpg",
+  s3Hour: "١١:٣٠", s3Kicker: "Collide",
+  s3Title: "ثلاثُ أفكار،\nطاولةٌ واحدة.",
+  s3Body: "تجلس بجانب مستقلٍّ يعمل لشركةٍ في برلين، وخرّيجة بدأت أوّل عقد، وطالبٍ يُتقن التصميم. شبكتُك تبدأ من فنجان قهوة.",
+  s3Image: "/photos/IMG_8341.jpg",
+  s4Hour: "١٣:٠٠", s4Kicker: "Pause",
+  s4Title: "القهوة على حسابنا،\nوالحديثُ على حساب الجميع.",
+  s4Body: "استراحةٌ تتحوّل لورشة عصفٍ ذهنيّ، أو حوارٍ هادئ، أو ضحكةٍ تُذهب تعب الصباح. لا أحد يأكل وحده هنا.",
+  s4Image: "/photos/IMG_8358.jpg",
+  s5Hour: "١٥:٠٠", s5Kicker: "Workshop",
+  s5Title: "عشرون مقعداً،\nسؤالٌ يُغيّر مساراً.",
+  s5Body: "ورشة تدريبيّة جديدة في الأسبوع. ضيفٌ من السوق، وقصّةٌ من قلب التجربة. تخرج وفي يدك مهارة، وفي رأسك قرار.",
+  s5Image: "/photos/IMG_8352.jpg",
+  s6Hour: "١٦:٥٠", s6Kicker: "Closing",
+  s6Title: "البابُ يُغلق،\nوالرّوابطُ تبقى.",
+  s6Body: "تخرج وفي جيبك بطاقةُ تعارفٍ جديدة، وفرصةٌ كانت بالأمس بعيدة. آيلاند هيفن لا ينتهي عند الباب — يبدأ منه.",
+  s6Image: "/photos/IMG_8300.jpg",
+};
 
 /**
  * Cinematic scrollytelling — a day at Island Haven.
@@ -24,58 +50,25 @@ type Scene = {
   tone: string; // ambient indigo/warm/cool tint
 };
 
-const SCENES: Scene[] = [
-  {
-    hour: "٠٩:٠٠",
-    kicker: "Opening",
-    title: "البابُ يُفتح،\nوأوّل ضوءٍ يدخل.",
-    body: "صباحٌ غزّيٌّ يبدأ بصوت المفتاح، ورائحة قهوة تُحضَّر لمن سيأتي. كرسيّك بانتظارك، والإنترنت لا ينقطع.",
-    img: `${BASE}photos/IMG_8357.jpg`,
-    tone: "from-amber-500/15",
-  },
-  {
-    hour: "١٠:١٥",
-    kicker: "Deep Work",
-    title: "تركيزٌ بلا\nمقاطعات.",
-    body: "سمّاعات، شاشة، وإضاءة طبيعيّة. هنا لا يطرق أحدٌ بابك، ولا يقطع الكهرباء عملك. الوقت لك، استثمره كاملاً.",
-    img: `${BASE}photos/IMG_8347.jpg`,
-    tone: "from-primary/20",
-  },
-  {
-    hour: "١١:٣٠",
-    kicker: "Collide",
-    title: "ثلاثُ أفكار،\nطاولةٌ واحدة.",
-    body: "تجلس بجانب مستقلٍّ يعمل لشركةٍ في برلين، وخرّيجة بدأت أوّل عقد، وطالبٍ يُتقن التصميم. شبكتُك تبدأ من فنجان قهوة.",
-    img: `${BASE}photos/IMG_8341.jpg`,
-    tone: "from-rose-500/15",
-  },
-  {
-    hour: "١٣:٠٠",
-    kicker: "Pause",
-    title: "القهوة على حسابنا،\nوالحديثُ على حساب الجميع.",
-    body: "استراحةٌ تتحوّل لورشة عصفٍ ذهنيّ، أو حوارٍ هادئ، أو ضحكةٍ تُذهب تعب الصباح. لا أحد يأكل وحده هنا.",
-    img: `${BASE}photos/IMG_8358.jpg`,
-    tone: "from-emerald-500/15",
-  },
-  {
-    hour: "١٥:٠٠",
-    kicker: "Workshop",
-    title: "عشرون مقعداً،\nسؤالٌ يُغيّر مساراً.",
-    body: "ورشة تدريبيّة جديدة في الأسبوع. ضيفٌ من السوق، وقصّةٌ من قلب التجربة. تخرج وفي يدك مهارة، وفي رأسك قرار.",
-    img: `${BASE}photos/IMG_8352.jpg`,
-    tone: "from-primary/25",
-  },
-  {
-    hour: "١٦:٥٠",
-    kicker: "Closing",
-    title: "البابُ يُغلق،\nوالرّوابطُ تبقى.",
-    body: "تخرج وفي جيبك بطاقةُ تعارفٍ جديدة، وفرصةٌ كانت بالأمس بعيدة. آيلاند هيفن لا ينتهي عند الباب — يبدأ منه.",
-    img: `${BASE}photos/IMG_8300.jpg`,
-    tone: "from-violet-500/20",
-  },
+const TONES = [
+  "from-amber-500/15",
+  "from-primary/20",
+  "from-rose-500/15",
+  "from-emerald-500/15",
+  "from-primary/25",
+  "from-violet-500/20",
 ];
 
 export function Scrollytelling() {
+  const c = useContentSection("scrollytelling", FALLBACK);
+  const SCENES: Scene[] = [
+    { hour: c.s1Hour, kicker: c.s1Kicker, title: c.s1Title, body: c.s1Body, img: imageUrl(c.s1Image), tone: TONES[0] },
+    { hour: c.s2Hour, kicker: c.s2Kicker, title: c.s2Title, body: c.s2Body, img: imageUrl(c.s2Image), tone: TONES[1] },
+    { hour: c.s3Hour, kicker: c.s3Kicker, title: c.s3Title, body: c.s3Body, img: imageUrl(c.s3Image), tone: TONES[2] },
+    { hour: c.s4Hour, kicker: c.s4Kicker, title: c.s4Title, body: c.s4Body, img: imageUrl(c.s4Image), tone: TONES[3] },
+    { hour: c.s5Hour, kicker: c.s5Kicker, title: c.s5Title, body: c.s5Body, img: imageUrl(c.s5Image), tone: TONES[4] },
+    { hour: c.s6Hour, kicker: c.s6Kicker, title: c.s6Title, body: c.s6Body, img: imageUrl(c.s6Image), tone: TONES[5] },
+  ];
   const ref = useRef<HTMLDivElement>(null);
   const sceneRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);

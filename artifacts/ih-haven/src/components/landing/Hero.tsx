@@ -1,22 +1,37 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Phone, ArrowDown } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { HavenMark } from "./HavenMark";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 
-const BASE = import.meta.env.BASE_URL;
+const FALLBACK = {
+  eyebrow: "Island Haven · Gaza · Free Workspace",
+  title1: "مساحةٌ تتّسع لأحلامك،",
+  title2: "في قلب غزّة.",
+  subtitle:
+    "بيتٌ مهنيّ يحتضن المستقلّين والخرّيجين وطلبة الجامعات. مكتبٌ، إنترنت، وقهوة — مجّاناً وبكلّ راحة.",
+  ctaPrimary: "سجّل للانتساب — مجّاناً",
+  ctaPrimaryHref: "/apply",
+  ctaSecondary: "تحدّث معنا",
+  ctaSecondaryHref: "https://wa.me/970599000000",
+  topRight: "Season · 2026 · open",
+  estLabel: "Est · 2024",
+  placeLabel: "فلسطين · Gaza",
+  stat1Value: "٣٩",
+  stat1Label: "مقعد",
+  stat2Value: "٨٠+",
+  stat2Label: "منتسب",
+  stat3Value: "١٠٠٪",
+  stat3Label: "مجّانيّ",
+  image1: "/photos/IMG_8357.jpg",
+  image2: "/photos/IMG_8347.jpg",
+  image3: "/photos/IMG_8358.jpg",
+  image4: "/photos/IMG_8341.jpg",
+  image5: "/photos/IMG_8352.jpg",
+  image6: "/photos/IMG_8300.jpg",
+};
 
-/* Six rotating hero stills — the place breathes. */
-const STILLS = [
-  `${BASE}photos/IMG_8357.jpg`,
-  `${BASE}photos/IMG_8347.jpg`,
-  `${BASE}photos/IMG_8358.jpg`,
-  `${BASE}photos/IMG_8341.jpg`,
-  `${BASE}photos/IMG_8352.jpg`,
-  `${BASE}photos/IMG_8300.jpg`,
-];
-
-/* Single-line slide reveal — clean, cinematic, never fights itself. */
 function KineticLine({
   text,
   delay = 0,
@@ -32,11 +47,7 @@ function KineticLine({
         className={`block ${accent ? "text-accent-gradient" : ""}`}
         initial={{ y: "108%" }}
         animate={{ y: 0 }}
-        transition={{
-          duration: 1.2,
-          delay,
-          ease: [0.19, 1, 0.22, 1],
-        }}
+        transition={{ duration: 1.2, delay, ease: [0.19, 1, 0.22, 1] }}
       >
         {text}
       </motion.span>
@@ -45,21 +56,26 @@ function KineticLine({
 }
 
 export function Hero() {
+  const c = useContentSection("hero", FALLBACK);
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   const [now, setNow] = useState<string>("");
 
-  // Slowly rotate background stills — never static.
-  useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(() => {
-      setStillIdx((i) => (i + 1) % STILLS.length);
-    }, 5500);
-    return () => clearInterval(id);
-  }, [reduce]);
+  const stills = useMemo(
+    () =>
+      [c.image1, c.image2, c.image3, c.image4, c.image5, c.image6]
+        .map(imageUrl)
+        .filter(Boolean),
+    [c.image1, c.image2, c.image3, c.image4, c.image5, c.image6],
+  );
 
-  // Live Gaza time (UTC+2/+3, follow user clock — Gaza & most users in same TZ).
+  useEffect(() => {
+    if (reduce || stills.length < 2) return;
+    const id = setInterval(() => setStillIdx((i) => (i + 1) % stills.length), 5500);
+    return () => clearInterval(id);
+  }, [reduce, stills.length]);
+
   useEffect(() => {
     function tick() {
       const d = new Date();
@@ -81,21 +97,26 @@ export function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-25%"]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.3]);
 
+  const stats = [
+    { v: c.stat1Value, l: c.stat1Label },
+    { v: c.stat2Value, l: c.stat2Label },
+    { v: c.stat3Value, l: c.stat3Label },
+  ].filter((s) => s.v || s.l);
+
   return (
     <section
       id="hero"
       ref={ref}
       className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#0A0E1A] text-white"
     >
-      {/* Cinematic still stage — Ken Burns + crossfade */}
       <motion.div
         style={{ y: photoY, scale: photoScale }}
         className="absolute inset-0 will-change-transform"
         aria-hidden
       >
-        {STILLS.map((src, i) => (
+        {stills.map((src, i) => (
           <motion.img
-            key={src}
+            key={`${src}-${i}`}
             src={src}
             alt=""
             initial={false}
@@ -113,13 +134,7 @@ export function Hero() {
         ))}
       </motion.div>
 
-      {/* Dark cinematic gradient — Apple-keynote depth */}
-      <motion.div
-        style={{ opacity: overlayOpacity }}
-        aria-hidden
-        className="absolute inset-0 z-[1]"
-      >
-        {/* Vertical: dark top → mid breathe → dark bottom */}
+      <motion.div style={{ opacity: overlayOpacity }} aria-hidden className="absolute inset-0 z-[1]">
         <div
           className="absolute inset-0"
           style={{
@@ -127,7 +142,6 @@ export function Hero() {
               "linear-gradient(180deg, rgba(10,14,26,0.55) 0%, rgba(10,14,26,0.18) 30%, rgba(10,14,26,0.45) 65%, rgba(10,14,26,0.92) 100%)",
           }}
         />
-        {/* Indigo glow halo behind headline */}
         <div
           className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[55vh]"
           style={{
@@ -136,7 +150,6 @@ export function Hero() {
             filter: "blur(60px)",
           }}
         />
-        {/* Subtle film grain via SVG noise */}
         <div
           className="absolute inset-0 opacity-[0.07] mix-blend-overlay pointer-events-none"
           style={{
@@ -146,7 +159,6 @@ export function Hero() {
         />
       </motion.div>
 
-      {/* TOP UI BAR — live signal */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -158,19 +170,19 @@ export function Hero() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             On Air · غزّة · {now}
           </div>
-          <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.16em] uppercase font-semibold text-white/85">
-            Season · 2026 · open
-          </div>
+          {c.topRight && (
+            <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.16em] uppercase font-semibold text-white/85">
+              {c.topRight}
+            </div>
+          )}
         </div>
       </motion.div>
 
-      {/* CONTENT */}
       <motion.div
         style={{ y: textY }}
         className="relative z-10 h-full flex items-center will-change-transform"
       >
         <div className="container mx-auto max-w-[1500px] px-6 lg:px-12 w-full">
-          {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -179,11 +191,10 @@ export function Hero() {
           >
             <span className="h-[1px] w-10 bg-white/40" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
-              Island Haven · Gaza · Free Workspace
+              {c.eyebrow}
             </span>
           </motion.div>
 
-          {/* MASSIVE kinetic headline */}
           <h1
             className="font-bold text-white"
             style={{
@@ -192,22 +203,19 @@ export function Hero() {
               letterSpacing: "-0.035em",
             }}
           >
-            <KineticLine text="مساحةٌ تتّسع لأحلامك،" delay={0.45} />
-            <KineticLine text="في قلب غزّة." delay={0.62} accent />
+            <KineticLine text={c.title1} delay={0.45} />
+            <KineticLine text={c.title2} delay={0.62} accent />
           </h1>
 
-          {/* Sub */}
           <motion.p
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.25, duration: 0.9, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 max-w-2xl text-base lg:text-xl text-white/80 font-normal leading-relaxed"
+            className="mt-7 lg:mt-9 max-w-2xl text-base lg:text-xl text-white/80 font-normal leading-relaxed whitespace-pre-line"
           >
-            بيتٌ مهنيّ يحتضن المستقلّين والخرّيجين وطلبة الجامعات.
-            مكتبٌ، إنترنت، وقهوة — مجّاناً وبكلّ راحة.
+            {c.subtitle}
           </motion.p>
 
-          {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -215,27 +223,28 @@ export function Hero() {
             className="mt-9 lg:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
             <a
-              href={`${BASE}apply`}
+              href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
               className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-8 rounded-full bg-white text-[#0A0E1A] font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(255,255,255,0.4)]"
             >
-              <span className="relative z-10">سجّل للانتساب — مجّاناً</span>
+              <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
             </a>
-            <a
-              href="https://wa.me/970599000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] hover:bg-white/15 transition-all duration-500"
-            >
-              <Phone className="h-4 w-4" />
-              تحدّث معنا
-            </a>
+            {c.ctaSecondary && (
+              <a
+                href={c.ctaSecondaryHref || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] hover:bg-white/15 transition-all duration-500"
+              >
+                <Phone className="h-4 w-4" />
+                {c.ctaSecondary}
+              </a>
+            )}
           </motion.div>
         </div>
       </motion.div>
 
-      {/* BOTTOM RAIL — stats + brand */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -244,28 +253,20 @@ export function Hero() {
       >
         <div className="max-w-[1500px] mx-auto">
           <div className="flex items-end justify-between gap-6 flex-wrap">
-            {/* HavenMark + place */}
             <div className="flex items-end gap-3">
               <HavenMark size={56} className="text-white" delay={1.6} />
               <div className="pb-1.5 leading-tight">
                 <div className="text-[10px] tracking-[0.2em] uppercase text-white/55 font-semibold">
-                  Est · 2024
+                  {c.estLabel}
                 </div>
-                <div className="text-[12px] text-white/80 font-medium">
-                  فلسطين · Gaza
-                </div>
+                <div className="text-[12px] text-white/80 font-medium">{c.placeLabel}</div>
               </div>
             </div>
 
-            {/* Stats — newspaper-style with dividers */}
             <div className="flex items-stretch gap-0">
-              {[
-                { v: "٣٩", l: "مقعد" },
-                { v: "٨٠+", l: "منتسب" },
-                { v: "١٠٠٪", l: "مجّانيّ" },
-              ].map((s, i) => (
+              {stats.map((s, i) => (
                 <div
-                  key={s.l}
+                  key={`${s.l}-${i}`}
                   className={`px-5 lg:px-7 ${i > 0 ? "border-r border-white/15" : ""}`}
                 >
                   <div className="text-2xl lg:text-3xl font-bold text-white tabular-nums leading-none">
@@ -278,15 +279,12 @@ export function Hero() {
               ))}
             </div>
 
-            {/* Scroll cue */}
             <motion.div
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:flex flex-col items-center gap-2 text-white/65"
             >
-              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">
-                Scroll
-              </span>
+              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">Scroll</span>
               <ArrowDown className="w-4 h-4" />
             </motion.div>
           </div>
