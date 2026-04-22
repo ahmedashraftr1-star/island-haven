@@ -347,101 +347,153 @@ export function Gallery() {
       </div>
 
       {/* ============================================================
-          KINETIC FILM STRIP — twin contra-rotating rows on dark
+          CLOSING SCENE — single Voices-grammar cinematic rotation
+          (replaces the busy marquee with the same calm luxury system)
           ============================================================ */}
-      <div className="relative pb-24 lg:pb-32">
-        <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px] mb-8 lg:mb-10">
-          <div className="flex items-end justify-between gap-6 flex-wrap">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[1px] w-10 bg-white/40" />
-                <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold inline-flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Strip · شريط حيّ
-                </span>
-              </div>
-              <h3
-                className="font-bold text-white"
-                style={{
-                  fontSize: "clamp(1.75rem, 3.6vw, 2.75rem)",
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.025em",
-                }}
-              >
-                المكان <span className="italic font-light text-white/85">يتنفّس بأهله.</span>
-              </h3>
-            </div>
-            <p className="max-w-md text-[14px] lg:text-[15px] text-white/60 leading-relaxed border-r-2 border-white/20 pr-4">
-              صفّان لا يتوقّفان — ١٨ لحظة من حياة آيلاند هيفن، تمرّ هنا
-              كما تمرّ عندنا كلّ يوم.
-            </p>
+      <ClosingScene />
+    </section>
+  );
+}
+
+/**
+ * ClosingScene — speaks the exact Voices grammar:
+ *   eyebrow + counter, dim photo backdrop, indigo glow, one massive
+ *   editorial caption that auto-advances, plus the same progress-bar
+ *   and dot navigation. Acts as the picture essay's epilogue.
+ */
+function ClosingScene() {
+  const FRAMES = [
+    { src: `${BASE}photos/IMG_8308.jpg`, caption: "تركيزٌ جماعيّ", en: "A shared focus" },
+    { src: `${BASE}photos/IMG_8314.jpg`, caption: "وجوهٌ نفخر بها", en: "Faces we are proud of" },
+    { src: `${BASE}photos/IMG_8304.jpg`, caption: "أمسيةٌ في الهيفن", en: "An evening at the Haven" },
+    { src: `${BASE}photos/IMG_8345.jpg`, caption: "في انتظار البدء", en: "Awaiting the spark" },
+    { src: `${BASE}photos/IMG_8303.jpg`, caption: "تفاصيل مكاننا", en: "The fine grain of place" },
+  ];
+
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % FRAMES.length), 7500);
+    return () => clearInterval(t);
+  }, [FRAMES.length]);
+
+  const v = FRAMES[idx];
+
+  return (
+    <section
+      className="relative bg-[#0A0E1A] text-white py-24 lg:py-36 overflow-hidden border-t border-white/[0.06]"
+      aria-label="خاتمة المعرض"
+    >
+      {/* Photographic underlay */}
+      <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
+        <img
+          src={v.src}
+          key={`bg-${idx}`}
+          alt=""
+          className="w-full h-full object-cover transition-opacity duration-1000"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.55) 50%, rgba(10,14,26,0.95) 100%)",
+          }}
+        />
+      </div>
+
+      {/* Indigo nebula glow */}
+      <div
+        aria-hidden
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
+          filter: "blur(60px)",
+        }}
+      />
+
+      <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px]">
+        {/* Editorial eyebrow + counter — Voices grammar */}
+        <div className="flex items-center justify-between gap-6 mb-12 lg:mb-16">
+          <div className="flex items-center gap-3">
+            <span className="h-[1px] w-10 bg-white/40" />
+            <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
+              Closing Scene · خاتمة المعرض
+            </span>
+          </div>
+          <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
+            {String(idx + 1).padStart(2, "0")} /{" "}
+            {String(FRAMES.length).padStart(2, "0")}
           </div>
         </div>
 
-        <div className="relative space-y-4 lg:space-y-5">
-          <div className="absolute inset-y-0 right-0 w-24 lg:w-48 bg-gradient-to-l from-[#0A0E1A] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 left-0 w-24 lg:w-48 bg-gradient-to-r from-[#0A0E1A] to-transparent z-10 pointer-events-none" />
-
-          {/* Row A — leftward */}
-          <div className="overflow-hidden">
-            <div
-              className="flex gap-4 lg:gap-5 ih-marquee-a will-change-transform"
-              style={{ width: "max-content" }}
-            >
-              {[...ALL.slice(0, 9), ...ALL.slice(0, 9)].map((p, i) => (
-                <figure
-                  key={`a-${p.src}-${i}`}
-                  className="shrink-0 w-[220px] lg:w-[300px] aspect-[4/5] rounded-2xl overflow-hidden shadow-soft relative group bg-black"
-                >
-                  <img
-                    src={p.src}
-                    alt={p.caption}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <figcaption className="absolute bottom-3 right-3 left-3 text-white text-[12px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    {p.caption}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+        {/* MASSIVE caption — same display weight as Voices quote */}
+        <div className="relative min-h-[260px] lg:min-h-[380px]">
+          {/* Giant ghosted glyph */}
+          <div
+            aria-hidden
+            className="absolute -top-8 lg:-top-16 right-0 lg:right-2 text-white/[0.06] font-bold leading-none select-none pointer-events-none"
+            style={{ fontSize: "clamp(12rem, 22vw, 24rem)" }}
+          >
+            "
           </div>
 
-          {/* Row B — rightward, slower, smaller */}
-          <div className="overflow-hidden">
+          <motion.figure
+            key={idx}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="relative text-white max-w-[1300px]"
+          >
             <div
-              className="flex gap-4 lg:gap-5 ih-marquee-b will-change-transform"
-              style={{ width: "max-content" }}
+              className="font-bold"
+              style={{
+                fontSize: "clamp(1.75rem, 4.6vw, 4rem)",
+                lineHeight: 1.18,
+                letterSpacing: "-0.022em",
+                fontWeight: 600,
+              }}
             >
-              {[...ALL.slice(9), ...ALL.slice(9)].map((p, i) => (
-                <figure
-                  key={`b-${p.src}-${i}`}
-                  className="shrink-0 w-[180px] lg:w-[240px] aspect-[5/4] rounded-2xl overflow-hidden shadow-soft relative group bg-black"
-                >
-                  <img
-                    src={p.src}
-                    alt={p.caption}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                </figure>
-              ))}
+              {v.caption}
             </div>
-          </div>
+
+            <motion.figcaption
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="block mt-10 lg:mt-14 text-[13px] tracking-[0.16em] uppercase text-white/55 font-semibold"
+            >
+              — مُلتقطة في آيلاند هيفن ·{" "}
+              <span className="text-white/35">{v.en}</span>
+            </motion.figcaption>
+          </motion.figure>
         </div>
 
-        <style>{`
-          @keyframes ih-marquee-a { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-          @keyframes ih-marquee-b { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-          .ih-marquee-a { animation: ih-marquee-a 70s linear infinite; }
-          .ih-marquee-b { animation: ih-marquee-b 90s linear infinite; }
-          .ih-marquee-a:hover, .ih-marquee-b:hover { animation-play-state: paused; }
-          @media (prefers-reduced-motion: reduce) {
-            .ih-marquee-a, .ih-marquee-b { animation: none; }
-          }
-        `}</style>
+        {/* Progress + dot navigation — exact Voices clone */}
+        <div className="mt-16 lg:mt-20 flex items-center gap-6">
+          <div className="flex-1 h-px bg-white/10 relative overflow-hidden">
+            <motion.div
+              key={idx}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 7.5, ease: "linear" }}
+              className="absolute inset-0 bg-white origin-right"
+              style={{ transformOrigin: "right" }}
+            />
+          </div>
+          <div className="flex gap-2">
+            {FRAMES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                aria-label={`عرض المشهد ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  i === idx ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
