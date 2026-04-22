@@ -75,15 +75,16 @@ export default function AdminContent() {
   });
 
   if (isLoading || !data)
-    return <div className="text-center py-12 text-gray-500">جارِ التحميل...</div>;
+    return <div className="text-center py-16 text-foreground/45 text-sm">جارِ التحميل...</div>;
 
   const sections = Object.keys(data.defaults);
 
   return (
-    <div className="space-y-6">
-      <p className="text-sm text-gray-600">
-        يمكنك تعديل النصوص الأساسية لصفحة الهبوط. كل قسم يُحفظ بشكل مستقل.
-      </p>
+    <div className="space-y-5">
+      <div className="bg-primary-soft border border-primary/15 rounded-2xl px-5 py-4 text-[13px] text-foreground/75">
+        يمكنك تعديل النصوص الأساسيّة لصفحة الهبوط. كلّ قسم يُحفظ بشكل مستقلّ.
+        التغييرات تظهر للزوّار فوراً.
+      </div>
 
       {sections.map((sectionKey) => {
         const fields = Object.keys(data.defaults[sectionKey] ?? {});
@@ -91,18 +92,27 @@ export default function AdminContent() {
         return (
           <div
             key={sectionKey}
-            className="bg-white rounded-2xl p-6 border border-gray-100"
+            className="bg-white rounded-2xl p-6 lg:p-7 border border-border shadow-soft"
             data-testid={`section-${sectionKey}`}
           >
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <h3 className="text-lg font-bold">
-                {SECTION_LABELS[sectionKey] ?? sectionKey}
-              </h3>
+            <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-[15px] font-bold text-foreground">
+                  {SECTION_LABELS[sectionKey] ?? sectionKey}
+                </h3>
+                {isOverridden && (
+                  <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-semibold">
+                    <span className="w-1 h-1 rounded-full bg-amber-500" />
+                    معدّل
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2">
                 {isOverridden && (
                   <Button
                     variant="ghost"
                     size="sm"
+                    className="h-9 rounded-lg text-foreground/65 hover:text-foreground"
                     onClick={() => {
                       if (confirm("استعادة النص الأصلي؟"))
                         resetMut.mutate(sectionKey);
@@ -113,7 +123,7 @@ export default function AdminContent() {
                 )}
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-black/90"
+                  className="h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 px-5 font-semibold"
                   onClick={() =>
                     saveMut.mutate({
                       key: sectionKey,

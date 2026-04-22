@@ -36,7 +36,7 @@ export function Hero() {
         aria-hidden
       >
         <img
-          src="/photos/IMG_8357.jpg"
+          src={`${import.meta.env.BASE_URL}photos/IMG_8357.jpg`}
           alt=""
           className="w-full h-full object-cover object-center"
         />

@@ -2,15 +2,16 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 
+const BASE = import.meta.env.BASE_URL;
 const photos = [
-  { src: "/photos/IMG_8357.jpg", caption: "صباح في المساحة" },
-  { src: "/photos/IMG_8300.jpg", caption: "جدار آيلاند هيفن" },
-  { src: "/photos/IMG_8347.jpg", caption: "تركيز على التصميم" },
-  { src: "/photos/IMG_8313.jpg", caption: "ركن العمل المشترك" },
-  { src: "/photos/IMG_8352.jpg", caption: "ورشة عمل" },
-  { src: "/photos/IMG_8344.jpg", caption: "زاوية هادئة" },
-  { src: "/photos/IMG_8358.jpg", caption: "تشبيك ولقاءات" },
-  { src: "/photos/IMG_8346.jpg", caption: "جلسة عمل" },
+  { src: `${BASE}photos/IMG_8357.jpg`, caption: "صباح في المساحة" },
+  { src: `${BASE}photos/IMG_8300.jpg`, caption: "جدار آيلاند هيفن" },
+  { src: `${BASE}photos/IMG_8347.jpg`, caption: "تركيز على التصميم" },
+  { src: `${BASE}photos/IMG_8313.jpg`, caption: "ركن العمل المشترك" },
+  { src: `${BASE}photos/IMG_8352.jpg`, caption: "ورشة عمل" },
+  { src: `${BASE}photos/IMG_8344.jpg`, caption: "زاوية هادئة" },
+  { src: `${BASE}photos/IMG_8358.jpg`, caption: "تشبيك ولقاءات" },
+  { src: `${BASE}photos/IMG_8346.jpg`, caption: "جلسة عمل" },
 ];
 
 /** Horizontal-pinned photo essay with clean light captions. */

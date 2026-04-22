@@ -32,7 +32,7 @@ export function Programs() {
           <div className="grid grid-cols-12 gap-0 items-stretch">
             <div className="col-span-12 lg:col-span-5 relative">
               <img
-                src="/photos/IMG_8352.jpg"
+                src={`${import.meta.env.BASE_URL}photos/IMG_8352.jpg`}
                 alt="جلسة عمل لمنتسبي آيلاند هيفن خلال فعالية صُنع في آيلاند هيفن"
                 className="w-full h-full min-h-[320px] lg:min-h-[480px] object-cover"
               />

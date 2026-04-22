@@ -1,17 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  LayoutDashboard,
+  Inbox,
+  FileText,
+  BarChart3,
+  LogOut,
+  ArrowLeft,
+} from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
+import AdminOverview from "./AdminOverview";
+import { HavenMark } from "@/components/landing/HavenMark";
+
+type Tab = "overview" | "applications" | "content" | "analytics";
+
+const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
+  { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
+  { id: "applications", label: "الطلبات", Icon: Inbox },
+  { id: "content", label: "تحرير المحتوى", Icon: FileText },
+  { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
+];
 
 export default function AdminDashboard() {
-  const [, setLocation] = useLocation();
-  const [tab, setTab] = useState("applications");
+  const [tab, setTab] = useState<Tab>("overview");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-me"],
@@ -25,8 +40,8 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f6f1e7]">
-        <div className="text-gray-500">...</div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground/45 text-sm">جارِ التحميل...</div>
       </div>
     );
   }
@@ -35,59 +50,124 @@ export default function AdminDashboard() {
 
   async function logout() {
     await api("/admin/logout", { method: "POST" });
-    setLocation("/admin");
     window.location.reload();
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#f6f1e7]">
-      <header className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">لوحة الإدارة</h1>
-            <p className="text-xs text-gray-500">آيلاند هيفن</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/" asChild>
-              <Button variant="ghost" size="sm">
-                ← الموقع
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={logout}
-              data-testid="button-logout"
-            >
-              خروج
-            </Button>
+    <div dir="rtl" className="min-h-screen bg-muted/40 flex">
+      {/* Sidebar */}
+      <aside className="hidden lg:flex w-[240px] shrink-0 border-l border-border bg-white flex-col h-screen sticky top-0">
+        <div className="px-6 pt-7 pb-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <HavenMark size={36} className="text-primary" delay={0} />
+            <div className="leading-tight">
+              <div className="text-[14px] font-bold text-foreground tracking-tight">
+                Island Haven
+              </div>
+              <div className="text-[10.5px] text-foreground/55 font-medium">
+                لوحة الإدارة
+              </div>
+            </div>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-          <TabsList className="bg-white">
-            <TabsTrigger value="applications" data-testid="tab-applications">
-              الطلبات
-            </TabsTrigger>
-            <TabsTrigger value="content" data-testid="tab-content">
-              تحرير المحتوى
-            </TabsTrigger>
-            <TabsTrigger value="analytics" data-testid="tab-analytics">
-              الإحصائيات
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="applications">
-            <AdminApplications />
-          </TabsContent>
-          <TabsContent value="content">
-            <AdminContent />
-          </TabsContent>
-          <TabsContent value="analytics">
-            <AdminAnalytics />
-          </TabsContent>
-        </Tabs>
+        <nav className="flex-1 px-3 py-5 space-y-1">
+          {TABS.map(({ id, label, Icon }) => {
+            const active = tab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                data-testid={`tab-${id}`}
+                className={`w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13.5px] font-medium transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground shadow-soft"
+                    : "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground"
+                }`}
+              >
+                <Icon className="w-4 h-4" strokeWidth={2.2} />
+                {label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="px-3 pb-5 space-y-1 border-t border-border pt-4">
+          <a
+            href={import.meta.env.BASE_URL}
+            className="flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground transition-all"
+          >
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={2.2} />
+            العودة إلى الموقع
+          </a>
+          <button
+            onClick={logout}
+            data-testid="button-logout"
+            className="w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition-all"
+          >
+            <LogOut className="w-4 h-4" strokeWidth={2.2} />
+            تسجيل الخروج
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-30 bg-white/90 backdrop-blur-xl border-b border-border">
+        <div className="px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <HavenMark size={28} className="text-primary" delay={0} />
+            <div className="text-[13px] font-bold text-foreground">
+              لوحة الإدارة
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="text-[12px] text-rose-600 font-semibold"
+          >
+            خروج
+          </button>
+        </div>
+        <div className="overflow-x-auto px-3 pb-2 flex gap-1">
+          {TABS.map(({ id, label, Icon }) => {
+            const active = tab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={`shrink-0 flex items-center gap-2 px-3.5 h-9 rounded-full text-[12.5px] font-medium transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-foreground/70"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" strokeWidth={2.2} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content */}
+      <main className="flex-1 min-w-0 pt-[110px] lg:pt-0">
+        <header className="hidden lg:flex items-center justify-between px-8 lg:px-10 h-16 border-b border-border bg-white/70 backdrop-blur-xl sticky top-0 z-20">
+          <div>
+            <h1 className="text-[18px] font-bold text-foreground tracking-tight">
+              {TABS.find((t) => t.id === tab)?.label}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 text-[12px] text-foreground/55">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            متّصل بالخادم
+          </div>
+        </header>
+
+        <div className="p-5 lg:p-8 max-w-[1400px] mx-auto">
+          {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
+          {tab === "applications" && <AdminApplications />}
+          {tab === "content" && <AdminContent />}
+          {tab === "analytics" && <AdminAnalytics />}
+        </div>
       </main>
     </div>
   );

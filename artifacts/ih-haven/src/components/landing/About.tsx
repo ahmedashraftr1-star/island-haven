@@ -41,7 +41,7 @@ export function About() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-soft">
               <img
-                src="/photos/IMG_8347.jpg"
+                src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
                 alt="ركن من مكاتب آيلاند هيفن المفتوحة للمستقلّين والخرّيجين والطلبة"
                 className="w-full aspect-[4/5] object-cover"
               />

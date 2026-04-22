@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
 } from "recharts";
+import { Eye, Activity, FileText, Inbox } from "lucide-react";
 
 type Analytics = {
   total: number;
@@ -33,7 +33,11 @@ export default function AdminAnalytics() {
   });
 
   if (isLoading || !analytics)
-    return <div className="text-center py-12 text-gray-500">جارِ التحميل...</div>;
+    return (
+      <div className="text-center py-16 text-foreground/45 text-sm">
+        جارِ التحميل...
+      </div>
+    );
 
   const STATUS_LABELS: Record<string, string> = {
     new: "جديد",
@@ -42,81 +46,134 @@ export default function AdminAnalytics() {
     rejected: "مرفوض",
   };
 
+  const STATUS_DOTS: Record<string, string> = {
+    new: "bg-primary",
+    reviewing: "bg-amber-500",
+    accepted: "bg-emerald-500",
+    rejected: "bg-rose-500",
+  };
+
+  const totalApps = appStats?.byStatus.reduce((s, r) => s + r.count, 0) ?? 0;
+  const newApps = appStats?.byStatus.find((r) => r.status === "new")?.count ?? 0;
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="إجمالي الزيارات" value={analytics.total} />
-        <Stat label="آخر 24 ساعة" value={analytics.last24h} />
-        <Stat
-          label="إجمالي الطلبات"
-          value={
-            appStats?.byStatus.reduce((s, r) => s + r.count, 0) ?? 0
-          }
-        />
-        <Stat
-          label="طلبات جديدة"
-          value={
-            appStats?.byStatus.find((r) => r.status === "new")?.count ?? 0
-          }
-        />
+    <div className="space-y-5 lg:space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <Stat label="إجمالي الزيارات" value={analytics.total} Icon={Eye} />
+        <Stat label="آخر ٢٤ ساعة" value={analytics.last24h} Icon={Activity} />
+        <Stat label="إجمالي الطلبات" value={totalApps} Icon={FileText} />
+        <Stat label="طلبات جديدة" value={newApps} Icon={Inbox} highlight />
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
-        <h3 className="text-lg font-bold mb-4">الزيارات خلال آخر 30 يوماً</h3>
+      <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-[15px] font-bold text-foreground">
+              الزيارات خلال آخر ٣٠ يوماً
+            </h3>
+            <p className="text-[12px] text-foreground/55 mt-0.5">يتحدّث كل ٣٠ ث</p>
+          </div>
+        </div>
         {analytics.byDay.length === 0 ? (
-          <div className="text-gray-500 text-sm py-12 text-center">
+          <div className="text-foreground/45 text-[13px] py-16 text-center">
             لا توجد بيانات بعد.
           </div>
         ) : (
-          <div className="h-64">
+          <div className="h-72" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics.byDay}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="#000" />
-              </BarChart>
+              <AreaChart data={analytics.byDay} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(232 70% 52%)" stopOpacity={0.32} />
+                    <stop offset="100%" stopColor="hsl(232 70% 52%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 11, fill: "hsl(232 8% 50%)" }}
+                  tickLine={false}
+                  axisLine={{ stroke: "hsl(232 12% 90%)" }}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "hsl(232 8% 50%)" }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "1px solid hsl(232 12% 90%)",
+                    fontSize: 12,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="count"
+                  stroke="hsl(232 70% 52%)"
+                  strokeWidth={2.5}
+                  fill="url(#ag)"
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
-          <h3 className="text-lg font-bold mb-4">الصفحات الأكثر زيارة</h3>
+      <div className="grid lg:grid-cols-2 gap-4 lg:gap-6">
+        <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+          <h3 className="text-[15px] font-bold text-foreground mb-4">
+            الصفحات الأكثر زيارة
+          </h3>
           {analytics.byPath.length === 0 ? (
-            <div className="text-gray-500 text-sm">لا توجد بيانات.</div>
+            <div className="text-foreground/45 text-[13px]">لا توجد بيانات.</div>
           ) : (
-            <ul className="space-y-2 text-sm">
-              {analytics.byPath.map((row) => (
-                <li
-                  key={row.path}
-                  className="flex justify-between border-b last:border-0 pb-2"
-                >
-                  <span dir="ltr" className="font-mono text-xs">
-                    {row.path}
-                  </span>
-                  <span className="font-bold">{row.count}</span>
-                </li>
-              ))}
+            <ul className="space-y-2.5">
+              {analytics.byPath.slice(0, 10).map((row) => {
+                const max = analytics.byPath[0].count || 1;
+                const pct = (row.count / max) * 100;
+                return (
+                  <li key={row.path} className="space-y-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <span dir="ltr" className="font-mono text-[12px] text-foreground/75 truncate">
+                        {row.path}
+                      </span>
+                      <span className="font-bold text-foreground tabular-nums text-[13px]">
+                        {row.count}
+                      </span>
+                    </div>
+                    <div className="h-1 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary"
+                        style={{ width: `${pct}%`, transition: "width 0.6s ease" }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
-          <h3 className="text-lg font-bold mb-4">الطلبات حسب الحالة</h3>
+        <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+          <h3 className="text-[15px] font-bold text-foreground mb-4">
+            الطلبات حسب الحالة
+          </h3>
           {!appStats || appStats.byStatus.length === 0 ? (
-            <div className="text-gray-500 text-sm">لا توجد بيانات.</div>
+            <div className="text-foreground/45 text-[13px]">لا توجد بيانات.</div>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-3">
               {appStats.byStatus.map((row) => (
                 <li
                   key={row.status}
-                  className="flex justify-between border-b last:border-0 pb-2"
+                  className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0"
                 >
-                  <span>{STATUS_LABELS[row.status] ?? row.status}</span>
-                  <span className="font-bold">{row.count}</span>
+                  <span className="flex items-center gap-2.5 text-[13.5px] text-foreground/80 font-medium">
+                    <span className={`w-2 h-2 rounded-full ${STATUS_DOTS[row.status]}`} />
+                    {STATUS_LABELS[row.status] ?? row.status}
+                  </span>
+                  <span className="font-bold text-foreground tabular-nums">
+                    {row.count}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -127,11 +184,46 @@ export default function AdminAnalytics() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({
+  label,
+  value,
+  Icon,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  Icon: typeof Eye;
+  highlight?: boolean;
+}) {
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100">
-      <div className="text-xs text-gray-500 mb-1">{label}</div>
-      <div className="text-3xl font-bold">{value}</div>
+    <div
+      className={`rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${
+        highlight
+          ? "bg-primary text-primary-foreground border-primary shadow-soft-hover"
+          : "bg-white border-border shadow-soft hover:shadow-soft-hover"
+      }`}
+    >
+      <div
+        className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3.5 ${
+          highlight ? "bg-white/15 text-white" : "bg-primary-soft text-primary"
+        }`}
+      >
+        <Icon className="w-4.5 h-4.5" strokeWidth={2.2} />
+      </div>
+      <div
+        className={`text-[12px] font-medium mb-1 ${
+          highlight ? "text-white/80" : "text-foreground/55"
+        }`}
+      >
+        {label}
+      </div>
+      <div
+        className={`text-3xl font-bold tabular-nums tracking-tight ${
+          highlight ? "text-white" : "text-foreground"
+        }`}
+      >
+        {value.toLocaleString("ar-EG")}
+      </div>
     </div>
   );
 }

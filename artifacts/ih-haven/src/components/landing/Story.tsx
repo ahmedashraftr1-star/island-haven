@@ -102,7 +102,7 @@ export function Story() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-soft">
               <img
-                src="/photos/IMG_8358.jpg"
+                src={`${import.meta.env.BASE_URL}photos/IMG_8358.jpg`}
                 alt="منظر داخليّ من آيلاند هيفن يوضح بيئة العمل الهادئة"
                 className="w-full aspect-[3/4] object-cover"
               />
