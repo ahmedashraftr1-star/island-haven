@@ -21,10 +21,10 @@ function gazaLive() {
   const minute = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
   const weekday = parts.find((p) => p.type === "weekday")?.value || "Mon";
   const isFriday = weekday === "Fri";
-  const open = !isFriday && hour >= 8 && hour < 17;
+  const open = !isFriday && hour >= 9 && hour < 17;
   if (!open) return { open, working: 0, time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` };
   const base =
-    hour < 10 ? 16 + hour - 8 : hour < 14 ? 26 + (hour - 10) : 28 - (hour - 14) * 3;
+    hour < 11 ? 14 + (hour - 9) * 3 : hour < 14 ? 22 + (hour - 11) * 2 : 28 - (hour - 14) * 4;
   const jitter = (minute % 7) - 3;
   const working = Math.max(8, Math.min(34, base + jitter));
   return { open, working, time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` };

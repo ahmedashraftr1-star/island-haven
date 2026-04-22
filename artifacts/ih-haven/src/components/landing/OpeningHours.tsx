@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-const OPEN_HOUR = 8; // 08:00
+const OPEN_HOUR = 9; // 09:00
 const CLOSE_HOUR = 17; // 17:00 — "السّاعة ٥ مساءً"
 
 const DAYS = [
@@ -19,7 +19,7 @@ const DAYS = [
  *
  * A single, world-class moment that turns "ساعات العمل" into a piece
  * of design. Layered translucent glass on a dark indigo canvas, with
- * a 24-hour SVG dial tracing the open arc (08→17). Live Gaza time
+ * a 24-hour SVG dial tracing the open arc (09→17). Live Gaza time
  * orbits the dial. Compact, premium, never sprawling.
  */
 export function OpeningHours() {
@@ -69,7 +69,7 @@ export function OpeningHours() {
     ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-white/30" }
     : inHours
     ? { ar: "مفتوح الآن", en: "Open now", color: "bg-emerald-400" }
-    : { ar: "مغلق الآن — يفتح ٨ صباحاً", en: "Opens 8am", color: "bg-amber-400" };
+    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", color: "bg-amber-400" };
 
   // SVG geometry
   const SIZE = 420;
@@ -173,7 +173,7 @@ export function OpeningHours() {
             </span>
           </div>
 
-          {/* Massive 08 → 17 display */}
+          {/* Massive 09 → 17 display */}
           <div
             dir="ltr"
             className="font-bold text-white tabular-nums leading-none flex items-baseline gap-3 lg:gap-5 mb-7"
@@ -188,7 +188,7 @@ export function OpeningHours() {
               transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="block"
             >
-              08
+              09
             </motion.span>
             <motion.span
               initial={{ scaleX: 0 }}
@@ -213,7 +213,7 @@ export function OpeningHours() {
           >
             العمل في المساحة
             <br />
-            من <span className="text-accent-gradient">٨ صباحاً</span> حتّى{" "}
+            من <span className="text-accent-gradient">٩ صباحاً</span> حتّى{" "}
             <span className="text-accent-gradient">٥ مساءً.</span>
           </h3>
 
@@ -272,7 +272,7 @@ export function OpeningHours() {
                   </div>
                   <div className="text-[15px] font-bold mt-0.5">{d.ar}</div>
                   <div className="text-[10px] mt-1.5 tabular-nums opacity-75 font-mono">
-                    {d.closed ? "—" : "8–17"}
+                    {d.closed ? "—" : "9–17"}
                   </div>
                 </div>
               );

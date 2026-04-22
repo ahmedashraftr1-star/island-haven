@@ -27,8 +27,8 @@ function gazaNow() {
   const weekday = parts.find((p) => p.type === "weekday")?.value || "Mon";
   const isFriday = weekday === "Fri";
 
-  // Window: open Sat–Thu, 08:00–17:00 Gaza
-  const open = !isFriday && hour >= 8 && hour < 17;
+  // Window: open Sat–Thu, 09:00–17:00 Gaza
+  const open = !isFriday && hour >= 9 && hour < 17;
   if (!open) {
     return {
       open: false,
@@ -41,7 +41,7 @@ function gazaNow() {
 
   // Believable curve: peak 10–13, lighter early/late
   const base =
-    hour < 10 ? 16 + hour - 8 : hour < 14 ? 26 + (hour - 10) : 28 - (hour - 14) * 3;
+    hour < 11 ? 14 + (hour - 9) * 3 : hour < 14 ? 22 + (hour - 11) * 2 : 28 - (hour - 14) * 4;
   const jitter = (minute % 7) - 3;
   const working = Math.max(8, Math.min(34, base + jitter));
   const workshop = (hour === 11 || hour === 15) && minute < 50;
@@ -114,7 +114,7 @@ export function LiveNow() {
               </>
             ) : (
               <div className="text-foreground/65">
-                المساحة مغلقة الآن · نفتح أبوابنا من السبت إلى الخميس، ٨ صباحاً – ٥ مساءً
+                المساحة مغلقة الآن · نفتح أبوابنا من السبت إلى الخميس، ٩ صباحاً – ٥ مساءً
               </div>
             )}
           </div>
