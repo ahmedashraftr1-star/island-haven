@@ -12,29 +12,40 @@ type Props = {
 };
 
 /**
- * Clean section header — Galata's quiet confidence.
- * Soft indigo eyebrow pill, bold display headline, calm sub.
+ * Editorial section header — magazine confidence.
+ * Hairline + uppercase eyebrow, oversized display headline,
+ * generous calm sub paragraph.
  */
 export function EditorialHeader({ label, title, sub, align = "start" }: Props) {
   const isCenter = align === "center";
   return (
-    <div className={`mb-14 lg:mb-20 ${isCenter ? "text-center max-w-3xl mx-auto" : "max-w-3xl"}`}>
-      <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-6`}>
-        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-        {label}
+    <div
+      className={`mb-16 lg:mb-24 ${
+        isCenter ? "text-center max-w-3xl mx-auto" : "max-w-[1100px]"
+      }`}
+    >
+      <div
+        className={`flex items-center gap-3 mb-7 ${
+          isCenter ? "justify-center" : ""
+        }`}
+      >
+        <span className="h-[1px] w-10 bg-primary/40" />
+        <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-semibold">
+          {label}
+        </span>
       </div>
       <h2
         className="font-bold text-foreground"
         style={{
-          fontSize: "clamp(2rem, 5vw, 4.25rem)",
-          lineHeight: 1.06,
-          letterSpacing: "-0.02em",
+          fontSize: "clamp(2.25rem, 5.8vw, 5rem)",
+          lineHeight: 1.0,
+          letterSpacing: "-0.03em",
         }}
       >
         {title}
       </h2>
       {sub && (
-        <p className="mt-6 text-base lg:text-lg text-foreground/65 font-normal leading-relaxed">
+        <p className="mt-7 lg:mt-8 text-base lg:text-xl text-foreground/65 font-normal leading-relaxed max-w-2xl">
           {sub}
         </p>
       )}
@@ -55,19 +66,19 @@ export function HairlineRow({
   dark?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-12 gap-4 lg:gap-8 items-baseline py-8 lg:py-10 border-t border-border">
+    <div className="grid grid-cols-12 gap-4 lg:gap-8 items-baseline py-9 lg:py-11 border-t border-foreground/10">
       <div className="col-span-2 lg:col-span-1 text-[11px] tracking-[0.1em] font-mono font-medium text-foreground/40 tabular-nums">
         {no}
       </div>
       <div className="col-span-10 lg:col-span-3">
-        <h3 className="font-bold leading-tight text-foreground text-xl lg:text-2xl">
+        <h3 className="font-bold leading-tight text-foreground text-xl lg:text-[26px] tracking-tight">
           {ar}
         </h3>
-        <div className="text-[11px] tracking-[0.1em] mt-1.5 text-foreground/45 font-medium">
+        <div className="text-[11px] tracking-[0.16em] uppercase mt-2 text-primary font-semibold">
           {en}
         </div>
       </div>
-      <div className="col-span-12 lg:col-span-8 text-[15px] lg:text-base leading-relaxed text-foreground/70">
+      <div className="col-span-12 lg:col-span-8 text-[15px] lg:text-[17px] leading-relaxed text-foreground/70">
         {body}
       </div>
     </div>

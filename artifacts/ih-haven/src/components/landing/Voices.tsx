@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Quote } from "lucide-react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 
 const voices = [
@@ -8,16 +7,19 @@ const voices = [
     quote:
       "في واقعٍ تتكاثر فيه التحدّيات وتضيق فيه المساحات الآمنة للتعلّم والعمل، وُلد Island Haven كفكرة بسيطة في جوهرها، عميقة في أثرها.",
     source: "من الملف التعريفي للمجتمع",
+    en: "Founding profile",
   },
   {
     quote:
       "نعم هو مكانٌ للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم، ولبناء الثقة بالنفس وبالطريق.",
     source: "رؤية Island Haven",
+    en: "Vision",
   },
   {
     quote:
       "محاولة جادّة لبناء شيءٍ مستدامٍ في مكانٍ يفتقر إلى الاستقرار، واستثمار حقيقيّ في الإنسان قبل أيّ شيء آخر.",
     source: "كلمة فريق التأسيس",
+    en: "From the founding team",
   },
 ];
 
@@ -25,88 +27,117 @@ export function Voices() {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % voices.length), 6500);
+    const t = setInterval(() => setIdx((i) => (i + 1) % voices.length), 7500);
     return () => clearInterval(t);
   }, []);
 
   const v = voices[idx];
 
   return (
-    <section className="relative bg-background py-24 lg:py-32">
-      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
-        <div className="bg-gradient-to-br from-primary-soft via-primary-soft to-white border border-primary/20 rounded-3xl p-10 lg:p-20 shadow-soft relative overflow-hidden">
-          {/* subtle indigo halo */}
+    <section className="relative bg-[#0A0E1A] text-white py-28 lg:py-40 overflow-hidden">
+      {/* Photo backdrop, very dim — gives texture, not story */}
+      <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
+        <img
+          src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.55) 50%, rgba(10,14,26,0.95) 100%)",
+          }}
+        />
+      </div>
+
+      {/* Indigo glow */}
+      <div
+        aria-hidden
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, hsl(232 100% 70% / 0.18) 0%, transparent 65%)",
+          filter: "blur(60px)",
+        }}
+      />
+
+      <div className="container relative mx-auto px-6 lg:px-12 max-w-[1500px]">
+        {/* Editorial eyebrow */}
+        <div className="flex items-center justify-between gap-6 mb-14 lg:mb-20">
+          <div className="flex items-center gap-3">
+            <span className="h-[1px] w-10 bg-white/40" />
+            <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
+              Voices · بكلماتنا
+            </span>
+          </div>
+          <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
+            {String(idx + 1).padStart(2, "0")} / {String(voices.length).padStart(2, "0")}
+          </div>
+        </div>
+
+        {/* MASSIVE quote */}
+        <div className="relative min-h-[280px] lg:min-h-[420px]">
+          {/* Giant quotation glyph */}
           <div
             aria-hidden
-            className="absolute -top-20 -right-20 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle, hsl(232 100% 70% / 0.18) 0%, transparent 60%)",
-              filter: "blur(40px)",
-            }}
-          />
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-primary text-[11px] tracking-[0.15em] uppercase font-semibold mb-10 shadow-soft border border-border">
-              <Quote className="w-3 h-3" />
-              بكلماتنا
-            </div>
+            className="absolute -top-8 lg:-top-16 right-0 lg:right-2 text-white/[0.06] font-bold leading-none select-none pointer-events-none"
+            style={{ fontSize: "clamp(12rem, 22vw, 24rem)" }}
+          >
+            "
+          </div>
 
-            <div className="relative min-h-[200px] lg:min-h-[260px]">
-              <AnimatePresence mode="wait">
-                <motion.blockquote
-                  key={idx}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
-                  className="text-foreground"
-                  style={{
-                    fontSize: "clamp(1.5rem, 3.4vw, 3rem)",
-                    lineHeight: 1.25,
-                    letterSpacing: "-0.015em",
-                    fontWeight: 600,
-                  }}
-                >
-                  «{v.quote}»
+          <AnimatePresence mode="wait">
+            <motion.blockquote
+              key={idx}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+              className="relative text-white max-w-[1300px]"
+              style={{
+                fontSize: "clamp(1.75rem, 4.6vw, 4rem)",
+                lineHeight: 1.18,
+                letterSpacing: "-0.022em",
+                fontWeight: 600,
+              }}
+            >
+              {v.quote}
 
-                  <motion.figcaption
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: DURATION.md, delay: 0.3 }}
-                    className="block mt-8 text-[13px] text-foreground/60 font-medium"
-                  >
-                    — {v.source}
-                  </motion.figcaption>
-                </motion.blockquote>
-              </AnimatePresence>
-            </div>
+              <motion.figcaption
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: DURATION.md, delay: 0.35 }}
+                className="block mt-10 lg:mt-14 text-[13px] tracking-[0.16em] uppercase text-white/55 font-semibold"
+              >
+                — {v.source} · <span className="text-white/35">{v.en}</span>
+              </motion.figcaption>
+            </motion.blockquote>
+          </AnimatePresence>
+        </div>
 
-            <div className="mt-12 flex items-center gap-5">
-              <div className="text-[12px] text-foreground/50 font-mono tabular-nums">
-                {String(idx + 1).padStart(2, "0")} / {String(voices.length).padStart(2, "0")}
-              </div>
-              <div className="flex-1 h-px bg-foreground/10 relative overflow-hidden">
-                <motion.div
-                  key={idx}
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 6.5, ease: "linear" }}
-                  className="absolute inset-0 bg-primary origin-right"
-                />
-              </div>
-              <div className="flex gap-1.5">
-                {voices.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIdx(i)}
-                    aria-label={`اقتباس ${i + 1}`}
-                    className={`h-2 rounded-full transition-all duration-500 ${
-                      i === idx ? "bg-primary w-6" : "bg-foreground/20 hover:bg-foreground/40 w-2"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* Progress + dots */}
+        <div className="mt-16 lg:mt-20 flex items-center gap-6">
+          <div className="flex-1 h-px bg-white/10 relative overflow-hidden">
+            <motion.div
+              key={idx}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 7.5, ease: "linear" }}
+              className="absolute inset-0 bg-white origin-right"
+            />
+          </div>
+          <div className="flex gap-2">
+            {voices.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                aria-label={`اقتباس ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  i === idx ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
+                }`}
+              />
+            ))}
           </div>
         </div>
       </div>
