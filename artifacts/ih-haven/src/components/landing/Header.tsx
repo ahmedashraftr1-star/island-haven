@@ -36,7 +36,7 @@ export function Header() {
               aria-hidden
               className="absolute -inset-1 rounded-2xl bg-primary/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             />
-            <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white border border-border shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
+            <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-[#0A0E1A] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
               <img
                 src={`${import.meta.env.BASE_URL}logo.png`}
                 alt="Island Haven"
