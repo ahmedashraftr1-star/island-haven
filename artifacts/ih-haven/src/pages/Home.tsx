@@ -17,6 +17,7 @@ import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
 import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
 import { SideRail } from "@/components/landing/SideRail";
+import { AdminShortcut } from "@/components/landing/AdminShortcut";
 import { Scrollytelling } from "@/components/landing/Scrollytelling";
 import { WordWindow } from "@/components/landing/WordWindow";
 
@@ -59,6 +60,7 @@ export default function Home() {
       <Footer />
       <FloatingLivePill />
       <SideRail />
+      <AdminShortcut />
     </div>
   );
 }
