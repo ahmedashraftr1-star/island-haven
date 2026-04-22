@@ -30,17 +30,25 @@ export function Header() {
     >
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px] flex items-center justify-between gap-6">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2.5 group shrink-0">
-          <img
-            src={`${import.meta.env.BASE_URL}logo.png`}
-            alt="Island Haven"
-            className="w-9 h-9 object-contain"
-          />
+        <a href="#" className="flex items-center gap-3 group shrink-0">
+          <div className="relative">
+            <div
+              aria-hidden
+              className="absolute -inset-1 rounded-2xl bg-primary/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+            <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white border border-border shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="Island Haven"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
           <div className="leading-tight">
-            <div className="font-bold text-foreground text-[15px] tracking-tight">
+            <div className="font-bold text-foreground text-[16px] lg:text-[17px] tracking-tight">
               Island Haven
             </div>
-            <div className="text-[10px] text-foreground/55 font-medium tracking-wide">
+            <div className="text-[11px] text-foreground/60 font-medium tracking-wide">
               آيلاند هيفن · غزّة
             </div>
           </div>
