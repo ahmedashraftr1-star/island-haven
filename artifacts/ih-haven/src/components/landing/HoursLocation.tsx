@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Instagram, Linkedin, Facebook, Link as LinkIcon, FileText, MapPin, ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 import { GazaPulseMap } from "./GazaPulseMap";
+import { OpeningHours } from "./OpeningHours";
 
 const channels = [
   {
@@ -69,6 +70,10 @@ export function HoursLocation() {
           }
           sub="نحن متواجدون على كلّ المنصّات الرئيسيّة. اختر القناة التي تناسبك واختبر المساحة قبل أن تقرّر."
         />
+
+        {/* Opening hours — cinematic 24-hour dial with the 9-18 arc traced.
+            The most utilitarian piece of NGO copy turned into a moment. */}
+        <OpeningHours />
 
         {/* Where we are — hand-drawn Gaza coast with pulsing pin.
             A small love letter to the city. Never been done on a Gaza NGO site. */}
@@ -144,8 +149,8 @@ export function HoursLocation() {
         </div>
 
         <p className="mt-10 text-[13px] text-foreground/55 max-w-2xl">
-          ساعات العمل وضوابط استخدام المكان متوفّرة عند تأكيد الانتساب — راسلنا
-          لأيّ تفاصيل.
+          ضوابط استخدام المكان والتفاصيل الكاملة تُرسَل عند تأكيد الانتساب —
+          راسلنا لأيّ سؤال.
         </p>
       </div>
     </section>

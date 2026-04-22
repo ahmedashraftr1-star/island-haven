@@ -21,35 +21,59 @@ export function About() {
               <>{aboutContent.body}</>
             ) : (
               <>
-                في واقعٍ تتكاثر فيه التحديات وتضيق فيه المساحات الآمنة للتعلّم والعمل،
-                وُلد <span className="text-foreground font-medium">Island Haven</span>{" "}
-                كفكرة بسيطة في جوهرها، عميقة في أثرها: أن يجد الإنسان مكاناً يحتضن طاقته،
-                ويحترم وقته، ويؤمن بقدرته على النمو، مهما كانت الظروف.
+                مبادرة من{" "}
+                <span className="text-foreground font-medium">«من الناس إلى الناس»</span>،
+                نوفّر مساحة عمل مجهّزة بالكهرباء والإنترنت، مفتوحة مجّاناً للمبدعين
+                والمستقلّين والباحثين عن العلم والعمل في غزّة.
               </>
             )
           }
         />
 
-        <div className="grid grid-cols-12 gap-6 lg:gap-12">
-          {/* Photo */}
+        <div className="grid grid-cols-12 gap-6 lg:gap-14">
+          {/* Photo — refined editorial frame with caption */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="col-span-12 lg:col-span-5"
           >
-            <div className="relative rounded-2xl overflow-hidden shadow-soft">
-              <img
-                src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
-                alt="ركن من مكاتب آيلاند هيفن المفتوحة للمستقلّين والخرّيجين والطلبة"
-                className="w-full aspect-[4/5] object-cover"
-              />
-            </div>
-            <p className="mt-7 text-foreground/85 text-lg leading-relaxed">
-              «نعم هو مكان للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم،
-              ولبناء الثقة بالنفس وبالطريق.»
-            </p>
+            <figure className="group relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-soft-hover">
+                <img
+                  src={`${import.meta.env.BASE_URL}photos/IMG_8347.jpg`}
+                  alt="ركن من مكاتب آيلاند هيفن المفتوحة للمستقلّين والخرّيجين والطلبة"
+                  className="w-full aspect-[4/5] object-cover transition-transform duration-[2200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                  loading="lazy"
+                />
+                {/* Cinematic bottom gradient + on-photo caption */}
+                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 inset-x-0 p-6 lg:p-7 text-white">
+                  <div className="text-[10px] tracking-[0.22em] uppercase font-semibold opacity-75 mb-2">
+                    Inside the Haven · من داخل المساحة
+                  </div>
+                  <div className="text-[15px] lg:text-base leading-snug font-medium max-w-sm">
+                    ركنٌ من مكاتب آيلاند هيفن المفتوحة
+                    <br className="hidden sm:block" />
+                    للمستقلّين والخرّيجين والطلبة.
+                  </div>
+                </div>
+                {/* Top corner mark */}
+                <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-[10px] tracking-[0.18em] uppercase font-semibold text-white">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Open · مفتوح
+                </div>
+              </div>
+              {/* Pull-quote sitting beside the frame */}
+              <figcaption className="mt-7 pr-5 border-r-2 border-primary/40 text-foreground/85 text-lg leading-relaxed">
+                «نعم هو مكان للعمل، لكنّه قبل ذلك مساحة للالتقاء، وللتعلّم،
+                ولبناء الثقة بالنفس وبالطريق.»
+                <span className="block mt-3 text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold">
+                  — رؤية المؤسّسين
+                </span>
+              </figcaption>
+            </figure>
           </motion.div>
 
           {/* Three pillars */}

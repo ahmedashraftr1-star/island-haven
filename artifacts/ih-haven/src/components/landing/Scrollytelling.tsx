@@ -108,32 +108,42 @@ export function Scrollytelling() {
       className="relative bg-background"
       aria-label="جولة في يومٍ من آيلاند هيفن"
     >
-      {/* Editorial intro */}
-      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px] pt-24 lg:pt-32 pb-12 lg:pb-16">
-        <div className="grid grid-cols-12 gap-6 lg:gap-12 items-end">
-          <div className="col-span-12 lg:col-span-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              يومٌ في الهيفن
-            </div>
+      {/* Editorial intro — calm two-row layout, no overlap, lots of air */}
+      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px] pt-24 lg:pt-36 pb-14 lg:pb-20">
+        <div className="flex items-center gap-3 mb-8">
+          <span className="h-[1px] w-10 bg-primary/40" />
+          <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-semibold">
+            A Day Inside · يومٌ في الهيفن
+          </span>
+        </div>
+        <div className="grid grid-cols-12 gap-6 lg:gap-16">
+          <div className="col-span-12 lg:col-span-8">
             <h2
               className="font-bold text-foreground"
               style={{
-                fontSize: "clamp(2.5rem, 6vw, 5.25rem)",
-                lineHeight: 1.02,
-                letterSpacing: "-0.025em",
+                fontSize: "clamp(2.5rem, 6.4vw, 5.5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.03em",
               }}
             >
-              من الباب إلى الباب،
+              من الباب
               <br />
+              إلى الباب،{" "}
               <span className="text-accent-gradient">قصّةٌ تُروى بالساعة.</span>
             </h2>
           </div>
-          <div className="col-span-12 lg:col-span-4 lg:col-start-9">
-            <p className="text-base lg:text-lg text-foreground/65 leading-relaxed">
-              مرّر بإصبعك للأسفل، وعِش يوماً كاملاً معنا — ستّ لحظات
-              حقيقيّة من داخل المساحة، تُحكى بضوءٍ وصورة.
-            </p>
+          <div className="col-span-12 lg:col-span-4 lg:pt-6">
+            <div className="border-t border-foreground/10 pt-7 lg:pt-8">
+              <p className="text-base lg:text-lg text-foreground/65 leading-relaxed">
+                مرّر بإصبعك للأسفل، وعِش يوماً كاملاً معنا — ستّ لحظات
+                حقيقيّة من داخل المساحة، تُحكى بضوءٍ وصورة.
+              </p>
+              <div className="mt-6 flex items-center gap-4 text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold">
+                <span>06 Scenes</span>
+                <span className="w-6 h-[1px] bg-foreground/20" />
+                <span>09 — 19h</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
