@@ -16,6 +16,7 @@ import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
 import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
+import { SideRail } from "@/components/landing/SideRail";
 import { Scrollytelling } from "@/components/landing/Scrollytelling";
 import { WordWindow } from "@/components/landing/WordWindow";
 
@@ -57,6 +58,7 @@ export default function Home() {
       </main>
       <Footer />
       <FloatingLivePill />
+      <SideRail />
     </div>
   );
 }

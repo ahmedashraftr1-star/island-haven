@@ -83,6 +83,7 @@ export function Hero() {
 
   return (
     <section
+      id="hero"
       ref={ref}
       className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#0A0E1A] text-white"
     >
