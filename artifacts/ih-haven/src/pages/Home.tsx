@@ -17,6 +17,7 @@ import { Reveal } from "@/components/landing/Reveal";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
+import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
 
 export default function Home() {
   usePageView("/");
@@ -50,6 +51,7 @@ export default function Home() {
         <Reveal as="section"><Support /></Reveal>
       </main>
       <Footer />
+      <FloatingLivePill />
     </div>
   );
 }

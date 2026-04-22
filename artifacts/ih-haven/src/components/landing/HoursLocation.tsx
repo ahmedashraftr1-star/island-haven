@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Instagram, Linkedin, Facebook, Link as LinkIcon, FileText, MapPin, ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
+import { GazaPulseMap } from "./GazaPulseMap";
 
 const channels = [
   {
@@ -68,6 +69,43 @@ export function HoursLocation() {
           }
           sub="نحن متواجدون على كلّ المنصّات الرئيسيّة. اختر القناة التي تناسبك واختبر المساحة قبل أن تقرّر."
         />
+
+        {/* Where we are — hand-drawn Gaza coast with pulsing pin.
+            A small love letter to the city. Never been done on a Gaza NGO site. */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-12 lg:mb-14 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center bg-white border border-border rounded-3xl p-6 lg:p-10 shadow-soft overflow-hidden"
+        >
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <GazaPulseMap className="w-full max-w-[480px] mx-auto aspect-square" />
+          </div>
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="text-[11px] tracking-[0.14em] uppercase text-foreground/45 font-semibold mb-3">
+              Where we are · أين نحن
+            </div>
+            <h3 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight leading-[1.15] mb-4">
+              في قلب غزّة،<br/>
+              على ضفّة المتوسّط.
+            </h3>
+            <p className="text-[15px] text-foreground/65 leading-relaxed mb-6">
+              المساحة في موقع آمن ومركزيّ نُرسله عبر الرسائل الخاصّة بعد تأكيد
+              الانتساب. النقطة النابضة على الخريطة تدلّ على الحيّ تقريباً —
+              لا الإحداثيّات الدقيقة.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <div className="flex items-center gap-2 text-[13px] text-foreground/70">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                مفتوح الآن للزوّار بموعد مسبق
+              </div>
+              <div className="text-[13px] text-foreground/55">
+                ٣١.٥٠° ش · ٣٤.٤٧° شرق
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {channels.map((c, i) => {

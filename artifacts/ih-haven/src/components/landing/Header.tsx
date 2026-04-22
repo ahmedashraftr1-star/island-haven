@@ -32,7 +32,7 @@ export function Header() {
         {/* Logo */}
         <a href="#" className="flex items-center gap-2.5 group shrink-0">
           <img
-            src="/logo.png"
+            src={`${import.meta.env.BASE_URL}logo.png`}
             alt="Island Haven"
             className="w-9 h-9 object-contain"
           />

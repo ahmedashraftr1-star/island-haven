@@ -56,7 +56,7 @@ export function Footer() {
           {/* About */}
           <div className="col-span-12 lg:col-span-5">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src="/logo.png" alt="" className="w-8 h-8 object-contain" />
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="w-8 h-8 object-contain" />
               <div className="text-xl font-bold text-foreground">Island Haven</div>
             </div>
             <p className="text-foreground/65 leading-relaxed text-[15px] mb-6 max-w-md">
