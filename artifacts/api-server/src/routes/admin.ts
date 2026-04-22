@@ -13,6 +13,10 @@ const router: IRouter = Router();
 router.post("/admin/login", (req, res) => {
   const password = String(req.body?.password ?? "");
   if (!checkPassword(password)) {
+    const expectedLen = (process.env.ADMIN_PASSWORD ?? "").length;
+    console.log(
+      `[admin/login] FAIL received_len=${password.length} expected_len=${expectedLen} expected_set=${expectedLen >= 8}`,
+    );
     res.status(401).json({ ok: false, error: "كلمة السرّ غير صحيحة" });
     return;
   }
