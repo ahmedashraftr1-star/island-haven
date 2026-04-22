@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, Phone, ArrowDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
@@ -92,10 +92,11 @@ export function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const photoY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "10%"]);
-  const photoScale = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.08]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "-25%"]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.3]);
+  const smooth = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.4, restDelta: 0.001 });
+  const photoY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "10%"]);
+  const photoScale = useTransform(smooth, [0, 1], [1, reduce ? 1 : 1.08]);
+  const textY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "-25%"]);
+  const overlayOpacity = useTransform(smooth, [0, 1], [1, reduce ? 1 : 1.3]);
 
   const stats = [
     { v: c.stat1Value, l: c.stat1Label },

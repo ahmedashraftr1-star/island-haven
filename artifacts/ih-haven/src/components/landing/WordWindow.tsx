@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
 
@@ -28,13 +28,14 @@ export function WordWindow() {
   }, [reduce, PHOTOS.length]);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const scale = useTransform(scrollYProgress, [0, 1], [0.92, reduce ? 0.92 : 1.18]);
-  const wordOpacity = useTransform(scrollYProgress, [0, 0.82, 1], [1, 1, 0]);
-  const labelOpacity = useTransform(scrollYProgress, [0, 0.08, 0.85, 1], [0, 1, 1, 0]);
-  const captionY = useTransform(scrollYProgress, [0.1, 0.45], [16, 0]);
-  const captionOpacity = useTransform(scrollYProgress, [0.1, 0.45], [0, 1]);
-  const haloScale = useTransform(scrollYProgress, [0, 1], [1, 1.6]);
-  const seamOpacity = useTransform(scrollYProgress, [0.78, 1], [0, 1]);
+  const smooth = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.4, restDelta: 0.001 });
+  const scale = useTransform(smooth, [0, 1], [0.92, reduce ? 0.92 : 1.18]);
+  const wordOpacity = useTransform(smooth, [0, 0.82, 1], [1, 1, 0]);
+  const labelOpacity = useTransform(smooth, [0, 0.08, 0.85, 1], [0, 1, 1, 0]);
+  const captionY = useTransform(smooth, [0.1, 0.45], [16, 0]);
+  const captionOpacity = useTransform(smooth, [0.1, 0.45], [0, 1]);
+  const haloScale = useTransform(smooth, [0, 1], [1, 1.6]);
+  const seamOpacity = useTransform(smooth, [0.78, 1], [0, 1]);
 
   const VB_W = 1600;
   const VB_H = 800;

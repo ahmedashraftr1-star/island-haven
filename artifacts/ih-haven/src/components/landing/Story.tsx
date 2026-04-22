@@ -18,7 +18,7 @@ const FALLBACK = {
   creditTitle: "فريق «من الناس إلى الناس»",
   creditBody: "",
   creditLink1: "https://nastonas.org",
-  creditLink2: "https://nas2nas.org",
+  creditLink2: "https://nastonas.org/generalDonations/4/0",
   stat1V: "2024", stat1L: "تأسّس",
   stat2V: "39", stat2L: "مقعد",
   stat3V: "100%", stat3L: "مجّانيّ",

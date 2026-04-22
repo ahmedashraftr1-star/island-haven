@@ -25,7 +25,7 @@ const CONTACT_FALLBACK = {
   facebook: "https://www.facebook.com/islandhaven101",
   linktree: "https://linktr.ee/ih_haven",
   nastonas: "https://nastonas.org",
-  nas2nas: "https://nas2nas.org",
+  nas2nas: "https://nastonas.org/generalDonations/4/0",
   email: "",
   phone: "",
   whatsapp: "",

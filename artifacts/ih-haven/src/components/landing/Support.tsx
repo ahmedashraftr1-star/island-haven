@@ -17,8 +17,8 @@ const FALLBACK = {
   donateTitleB: "الأبواب مفتوحة.",
   donateBody: "تكاليف تشغيل المساحة — من إنترنت وكهرباء وصيانة — يغطّيها داعمون مثلك.",
   donateCta: "تبرّع الآن",
-  donateHref: "https://nas2nas.org",
-  donateNote: "nas2nas.org",
+  donateHref: "https://nastonas.org/generalDonations/4/0",
+  donateNote: "nastonas.org",
   sec1Ar: "انضمّ للمجتمع", sec1En: "Apply", sec1Body: "", sec1Cta: "افتح النموذج", sec1Href: "/apply",
   sec2Ar: "شارك القصّة", sec2En: "Share", sec2Body: "", sec2Cta: "تابعنا", sec2Href: "https://www.instagram.com/ih_haven",
 };
