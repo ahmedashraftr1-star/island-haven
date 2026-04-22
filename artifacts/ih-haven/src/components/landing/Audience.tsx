@@ -36,12 +36,6 @@ const segments = [
   },
 ];
 
-const stats = [
-  { value: "٣٩", label: "Seats", ar: "مقعداً في الوقت الواحد" },
-  { value: "٨٠", label: "Members", ar: "منتسباً يستفيدون أسبوعيّاً" },
-  { value: "٤٠/٦٠", label: "Gender mix", ar: "تمثيل منصف للإناث والذكور" },
-];
-
 export function Audience() {
   return (
     <section id="audience" className="relative bg-background py-24 lg:py-32">
@@ -55,29 +49,6 @@ export function Audience() {
           }
           sub="نوزّع المقاعد على ثلاث فئات رئيسيّة بنسب واضحة، ونعتمد نظام حضور موزّعاً على أيّام وفترات مختلفة، ليستفيد العدد الأكبر دون الإخلال بجودة التجربة."
         />
-
-        {/* Stats — clean white card row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-16">
-          {stats.map((s, i) => (
-            <div
-              key={i}
-              className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft"
-            >
-              <div
-                className="font-bold text-foreground leading-none tabular-nums"
-                style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)", letterSpacing: "-0.03em" }}
-              >
-                {s.value}
-              </div>
-              <div className="mt-4 text-[11px] tracking-[0.15em] uppercase text-primary font-bold">
-                {s.label}
-              </div>
-              <div className="mt-1 text-sm text-foreground/65">
-                {s.ar}
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Segments */}
         <div className="bg-white border border-border rounded-2xl shadow-soft overflow-hidden">

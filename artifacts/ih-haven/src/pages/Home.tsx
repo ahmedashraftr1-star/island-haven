@@ -3,7 +3,6 @@ import { usePageView } from "@/hooks/use-tracking";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
-import { NumbersArt } from "@/components/landing/NumbersArt";
 import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
 import { Programs } from "@/components/landing/Programs";
@@ -18,6 +17,7 @@ import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
 import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
+import { Scrollytelling } from "@/components/landing/Scrollytelling";
 
 export default function Home() {
   usePageView("/");
@@ -39,9 +39,9 @@ export default function Home() {
       <main className="relative z-10">
         <Hero />
         <LiveNow />
-        <Features />
-        <NumbersArt />
         <Reveal as="section"><About /></Reveal>
+        <Features />
+        <Scrollytelling />
         <Reveal as="section"><Audience /></Reveal>
         <Reveal as="section"><Programs /></Reveal>
         <Gallery />
