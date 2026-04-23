@@ -22,12 +22,24 @@ import { logger } from "../lib/logger";
 // of letting drizzle bubble up as a generic 500 on registration races.
 const PG_UNIQUE_VIOLATION = "23505";
 function isUniqueViolation(err: unknown): boolean {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code: unknown }).code === PG_UNIQUE_VIOLATION
-  );
+  // Drizzle re-throws as DrizzleQueryError and stashes the original pg error
+  // on `.cause`. Walk a couple of levels just in case.
+  let cur: unknown = err;
+  for (let i = 0; i < 4 && cur; i++) {
+    if (
+      typeof cur === "object" &&
+      cur !== null &&
+      "code" in cur &&
+      (cur as { code: unknown }).code === PG_UNIQUE_VIOLATION
+    ) {
+      return true;
+    }
+    cur =
+      typeof cur === "object" && cur !== null && "cause" in cur
+        ? (cur as { cause: unknown }).cause
+        : null;
+  }
+  return false;
 }
 
 const router: IRouter = Router();
