@@ -265,7 +265,7 @@ export default function Book() {
 
               <div className="mt-8 flex items-center justify-between gap-3">
                 <button
-                  onClick={() => setStep((s) => Math.max(0, (s - 1) as Step))}
+                  onClick={() => setStep((s) => Math.max(0, s - 1) as Step)}
                   disabled={step === 0}
                   className="h-11 px-5 rounded-full text-[13px] font-medium text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-2"
                   data-testid="button-back"
@@ -276,7 +276,7 @@ export default function Book() {
                 {step < 2 ? (
                   <button
                     onClick={() =>
-                      setStep((s) => Math.min(2, (s + 1) as Step))
+                      setStep((s) => Math.min(2, s + 1) as Step)
                     }
                     disabled={
                       (step === 0 && !canStep1) ||
