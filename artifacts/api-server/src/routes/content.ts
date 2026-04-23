@@ -492,8 +492,8 @@ export const CONTENT_SCHEMA: SectionDef[] = [
       url("nastonas", "موقع من الناس إلى الناس", "https://nastonas.org"),
       url("nas2nas", "رابط التبرّع", "https://nas2nas.org"),
       txt("email", "البريد الإلكتروني", "hello@islandhaven.ps"),
-      txt("phone", "الهاتف", ""),
-      url("whatsapp", "واتساب", "https://wa.me/970599000000"),
+      txt("phone", "الهاتف", "+972 56-753-6815"),
+      url("whatsapp", "واتساب", "https://wa.me/972567536815"),
     ],
   },
 ];

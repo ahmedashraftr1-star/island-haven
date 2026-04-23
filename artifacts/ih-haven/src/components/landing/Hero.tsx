@@ -14,7 +14,7 @@ const FALLBACK = {
   ctaPrimary: "سجّل للانتساب — مجّاناً",
   ctaPrimaryHref: "/apply",
   ctaSecondary: "تحدّث معنا",
-  ctaSecondaryHref: "https://wa.me/970599000000",
+  ctaSecondaryHref: "https://wa.me/972567536815",
   topRight: "Season · 2026 · open",
   estLabel: "Est · 2024",
   placeLabel: "فلسطين · Gaza",
