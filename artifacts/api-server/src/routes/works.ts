@@ -1,0 +1,247 @@
+import { Router, type IRouter, type Request } from "express";
+import { and, desc, eq } from "drizzle-orm";
+import {
+  db,
+  worksTable,
+  usersTable,
+  upsertWorkSchema,
+  USER_ROLES,
+  type UserRole,
+} from "@workspace/db";
+import { optionalUser, requireUser, type UserSession } from "../lib/auth";
+import { logger } from "../lib/logger";
+
+const router: IRouter = Router();
+
+// ─── Public gallery ─────────────────────────────────────────────────────────
+
+router.get("/works", async (req, res) => {
+  try {
+    const role = String(req.query.role ?? "");
+    const filterByRole = USER_ROLES.includes(role as UserRole)
+      ? (role as UserRole)
+      : null;
+    const rows = await db
+      .select({
+        work: worksTable,
+        author: {
+          id: usersTable.id,
+          fullName: usersTable.fullName,
+          role: usersTable.role,
+          avatarUrl: usersTable.avatarUrl,
+        },
+      })
+      .from(worksTable)
+      .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+      .where(filterByRole ? eq(usersTable.role, filterByRole) : undefined)
+      .orderBy(desc(worksTable.createdAt));
+    res.json({ works: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /works failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Mine ───────────────────────────────────────────────────────────────────
+
+router.get("/works/mine", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const rows = await db
+      .select()
+      .from(worksTable)
+      .where(eq(worksTable.userId, session.userId))
+      .orderBy(desc(worksTable.createdAt));
+    res.json({ works: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /works/mine failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Public detail ──────────────────────────────────────────────────────────
+
+router.get("/works/:id", optionalUser, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [row] = await db
+      .select({
+        work: worksTable,
+        author: {
+          id: usersTable.id,
+          fullName: usersTable.fullName,
+          role: usersTable.role,
+          avatarUrl: usersTable.avatarUrl,
+          bio: usersTable.bio,
+          portfolioUrl: usersTable.portfolioUrl,
+          phone: usersTable.phone,
+        },
+      })
+      .from(worksTable)
+      .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+      .where(eq(worksTable.id, id))
+      .limit(1);
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    const isOwner = session?.userId === row.author.id;
+    // Phone is contact info — only expose to authenticated members
+    // to prevent scraping by anonymous visitors.
+    const author = session
+      ? row.author
+      : { ...row.author, phone: null as unknown as string };
+    res.json({ work: row.work, author, isOwner });
+  } catch (err) {
+    logger.error({ err }, "GET /works/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Create / update / delete (owner) ───────────────────────────────────────
+
+router.post("/works", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const parsed = upsertWorkSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "بيانات غير صحيحة",
+        details: parsed.error.issues.map((i) => ({
+          field: i.path.join("."),
+          message: i.message,
+        })),
+      });
+      return;
+    }
+    const d = parsed.data;
+    const [row] = await db
+      .insert(worksTable)
+      .values({
+        userId: session.userId,
+        title: d.title,
+        summary: d.summary,
+        description: d.description,
+        coverUrl: d.coverUrl ?? null,
+        link: d.link,
+        tags: d.tags,
+      })
+      .returning();
+    res.json({ work: row });
+  } catch (err) {
+    logger.error({ err }, "POST /works failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.patch("/works/:id", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const parsed = upsertWorkSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "بيانات غير صحيحة",
+        details: parsed.error.issues.map((i) => ({
+          field: i.path.join("."),
+          message: i.message,
+        })),
+      });
+      return;
+    }
+    const d = parsed.data;
+    const update: Record<string, unknown> = { updatedAt: new Date() };
+    if (d.title !== undefined) update.title = d.title;
+    if (d.summary !== undefined) update.summary = d.summary;
+    if (d.description !== undefined) update.description = d.description;
+    if (d.coverUrl !== undefined) update.coverUrl = d.coverUrl;
+    if (d.link !== undefined) update.link = d.link;
+    if (d.tags !== undefined) update.tags = d.tags;
+    const [row] = await db
+      .update(worksTable)
+      .set(update)
+      .where(and(eq(worksTable.id, id), eq(worksTable.userId, session.userId)))
+      .returning();
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    res.json({ work: row });
+  } catch (err) {
+    logger.error({ err }, "PATCH /works/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.delete("/works/:id", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    await db
+      .delete(worksTable)
+      .where(and(eq(worksTable.id, id), eq(worksTable.userId, session.userId)));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /works/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Public profile (used by /u/:id and to render author cards) ─────────────
+
+router.get("/users/:id", optionalUser, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [u] = await db
+      .select({
+        id: usersTable.id,
+        fullName: usersTable.fullName,
+        role: usersTable.role,
+        avatarUrl: usersTable.avatarUrl,
+        bio: usersTable.bio,
+        skills: usersTable.skills,
+        portfolioUrl: usersTable.portfolioUrl,
+        phone: usersTable.phone,
+        createdAt: usersTable.createdAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
+    if (!u) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const works = await db
+      .select()
+      .from(worksTable)
+      .where(eq(worksTable.userId, id))
+      .orderBy(desc(worksTable.createdAt));
+    // Phone is contact info — only expose to authenticated members
+    // to prevent anonymous scraping by ID enumeration.
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    const user = session ? u : { ...u, phone: null as unknown as string };
+    res.json({ user, works });
+  } catch (err) {
+    logger.error({ err }, "GET /users/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+export default router;

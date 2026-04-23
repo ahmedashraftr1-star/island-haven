@@ -137,6 +137,21 @@ export function requireUser(
   next();
 }
 
+// Soft variant — never blocks; just attaches the session if a valid cookie
+// is present so handlers can show personalized state on otherwise-public
+// endpoints (e.g. "isEnrolled" on a public course detail).
+export function optionalUser(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
+  const session = readUserSession(req);
+  if (session) {
+    (req as Request & { userSession: UserSession }).userSession = session;
+  }
+  next();
+}
+
 // ─── Password helpers ───────────────────────────────────────────────────────
 
 export function checkPassword(password: string): boolean {

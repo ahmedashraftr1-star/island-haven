@@ -8,6 +8,11 @@ import analyticsRouter from "./analytics";
 import uploadRouter from "./upload";
 import storageRouter from "./storage";
 import authRouter from "./auth";
+import coursesRouter from "./courses";
+import worksRouter from "./works";
+import dailyRouter from "./daily";
+import statsRouter from "./stats";
+import userUploadRouter from "./userUpload";
 
 const router: IRouter = Router();
 
@@ -20,5 +25,10 @@ router.use(analyticsRouter);
 router.use(uploadRouter);
 router.use(storageRouter);
 router.use(authRouter);
+router.use(coursesRouter);
+router.use(worksRouter);
+router.use(dailyRouter);
+router.use(statsRouter);
+router.use(userUploadRouter);
 
 export default router;

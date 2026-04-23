@@ -7,16 +7,26 @@ import {
   LogOut,
   PenLine,
   Phone,
+  Plus,
   Sparkles,
   User as UserIcon,
   Wrench,
   Globe,
+  GraduationCap,
+  Briefcase,
 } from "lucide-react";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth, ROLE_LABELS } from "@/lib/auth";
 import { api, ApiError } from "@/lib/api";
 import type { AuthUser } from "@/lib/auth";
+import {
+  COURSE_STATUS_LABELS,
+  COURSE_TYPE_LABELS,
+  formatArabicDateTime,
+  type CourseStatus,
+  type CourseType,
+} from "@/lib/labels";
 
 export default function Profile() {
   const { user, loading, logout, setUser } = useAuth();
@@ -426,8 +436,202 @@ function ProfileInner({
               </InfoCard>
             </div>
           )}
+
+          {!editing && <ActivitySections userId={user.id} />}
         </div>
       </main>
+    </div>
+  );
+}
+
+interface MyEnrollment {
+  course: {
+    id: number;
+    type: CourseType;
+    title: string;
+    startsAt: string | null;
+    status: CourseStatus;
+  };
+  enrollment: { status: string; createdAt: string };
+}
+
+interface MyWork {
+  id: number;
+  title: string;
+  summary: string;
+  coverUrl: string | null;
+  createdAt: string;
+}
+
+function ActivitySections({ userId }: { userId: number }) {
+  const [tab, setTab] = useState<"courses" | "works">("courses");
+  const [enrollments, setEnrollments] = useState<MyEnrollment[] | null>(null);
+  const [works, setWorks] = useState<MyWork[] | null>(null);
+
+  useEffect(() => {
+    api<{ enrollments: MyEnrollment[] }>("/courses/me/enrollments")
+      .then((r) => setEnrollments(r.enrollments))
+      .catch(() => setEnrollments([]));
+    api<{ works: MyWork[] }>("/works/mine")
+      .then((r) => setWorks(r.works))
+      .catch(() => setWorks([]));
+  }, [userId]);
+
+  return (
+    <section className="mt-10">
+      <div className="flex items-center gap-1 rounded-full p-1 bg-white/[0.04] border border-white/10 mb-5 w-fit">
+        <button
+          onClick={() => setTab("courses")}
+          className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors flex items-center gap-1.5 ${
+            tab === "courses"
+              ? "bg-primary/20 text-white border border-primary/40"
+              : "text-white/65 hover:text-white"
+          }`}
+          data-testid="tab-my-courses"
+        >
+          <GraduationCap className="w-3.5 h-3.5" />
+          كورساتي
+          {enrollments && (
+            <span className="text-[10.5px] text-white/55 tabular-nums">
+              {enrollments.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab("works")}
+          className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors flex items-center gap-1.5 ${
+            tab === "works"
+              ? "bg-primary/20 text-white border border-primary/40"
+              : "text-white/65 hover:text-white"
+          }`}
+          data-testid="tab-my-works"
+        >
+          <Briefcase className="w-3.5 h-3.5" />
+          أعمالي
+          {works && (
+            <span className="text-[10.5px] text-white/55 tabular-nums">
+              {works.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {tab === "courses" ? (
+        <CoursesList rows={enrollments} />
+      ) : (
+        <WorksList rows={works} />
+      )}
+    </section>
+  );
+}
+
+function CoursesList({ rows }: { rows: MyEnrollment[] | null }) {
+  if (rows === null) {
+    return (
+      <div className="h-32 rounded-2xl bg-white/[0.035] border border-white/10 animate-pulse" />
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-8 text-center text-white/55 text-[13.5px]">
+        لم تنضمّ إلى أيّ كورس أو ورشة بعد.{" "}
+        <Link href="/courses" className="text-primary hover:underline">
+          استعرض المتاح
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2.5">
+      {rows.map((r) => (
+        <Link
+          key={r.course.id}
+          href={`/courses/${r.course.id}`}
+          className="block group"
+          data-testid={`my-course-${r.course.id}`}
+        >
+          <div className="rounded-2xl bg-white/[0.04] border border-white/10 hover:border-primary/40 hover:bg-white/[0.06] p-4 transition-colors flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
+                  {COURSE_TYPE_LABELS[r.course.type]}
+                </span>
+                <span className="text-[10.5px] text-white/45 tracking-wide">
+                  {r.enrollment.status === "confirmed" ? "مؤكَّد" : "بانتظار التأكيد"}
+                </span>
+              </div>
+              <div className="text-white font-semibold text-[14.5px] truncate">
+                {r.course.title}
+              </div>
+              <div className="text-white/45 text-[12px] mt-0.5">
+                {r.course.startsAt
+                  ? formatArabicDateTime(r.course.startsAt)
+                  : COURSE_STATUS_LABELS[r.course.status]}
+              </div>
+            </div>
+            <ArrowLeft className="w-4 h-4 text-white/45 group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function WorksList({ rows }: { rows: MyWork[] | null }) {
+  if (rows === null) {
+    return (
+      <div className="h-32 rounded-2xl bg-white/[0.035] border border-white/10 animate-pulse" />
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <Link
+        href="/works/new"
+        className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] hover:bg-primary/5 hover:border-primary/40 hover:text-white text-white/55 py-4 text-[13px] font-semibold transition-colors"
+        data-testid="link-add-work"
+      >
+        <Plus className="w-4 h-4" />
+        أضف عملًا جديدًا
+      </Link>
+      {rows.length === 0 ? (
+        <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-8 text-center text-white/55 text-[13.5px]">
+          لم تنشر أيّ عمل بعد.
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {rows.map((w) => (
+            <Link
+              key={w.id}
+              href={`/works/${w.id}`}
+              className="group rounded-2xl bg-white/[0.04] border border-white/10 hover:border-primary/40 hover:bg-white/[0.06] overflow-hidden transition-colors"
+              data-testid={`my-work-${w.id}`}
+            >
+              {w.coverUrl ? (
+                <div className="aspect-[16/9] overflow-hidden bg-black/30">
+                  <img
+                    src={w.coverUrl}
+                    alt={w.title}
+                    className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[16/9] bg-gradient-to-br from-primary/20 to-transparent" />
+              )}
+              <div className="p-4">
+                <div className="text-white font-semibold text-[14px] truncate">
+                  {w.title}
+                </div>
+                {w.summary && (
+                  <div className="text-white/55 text-[12px] mt-0.5 line-clamp-2">
+                    {w.summary}
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

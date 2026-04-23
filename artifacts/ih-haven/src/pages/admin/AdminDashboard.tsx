@@ -7,6 +7,8 @@ import {
   FileText,
   BarChart3,
   CalendarCheck,
+  GraduationCap,
+  Newspaper,
   LogOut,
   ArrowLeft,
 } from "lucide-react";
@@ -16,14 +18,25 @@ import AdminBookings from "./AdminBookings";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
+import AdminCourses from "./AdminCourses";
+import AdminDaily from "./AdminDaily";
 import { HavenMark } from "@/components/landing/HavenMark";
 
-type Tab = "overview" | "bookings" | "applications" | "content" | "analytics";
+type Tab =
+  | "overview"
+  | "bookings"
+  | "applications"
+  | "courses"
+  | "daily"
+  | "content"
+  | "analytics";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
   { id: "applications", label: "الطلبات", Icon: Inbox },
+  { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap },
+  { id: "daily", label: "اليوميّات", Icon: Newspaper },
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
 ];
@@ -169,6 +182,8 @@ export default function AdminDashboard() {
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "applications" && <AdminApplications />}
+          {tab === "courses" && <AdminCourses />}
+          {tab === "daily" && <AdminDaily />}
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
         </div>

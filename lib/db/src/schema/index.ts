@@ -3,3 +3,7 @@ export * from "./applications";
 export * from "./pageViews";
 export * from "./bookings";
 export * from "./users";
+export * from "./courses";
+export * from "./enrollments";
+export * from "./works";
+export * from "./dailyPosts";

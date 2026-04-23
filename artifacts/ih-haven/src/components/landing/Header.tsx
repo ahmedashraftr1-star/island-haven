@@ -10,8 +10,8 @@ const FALLBACK = {
   nav1Label: "من نحن", nav1Href: "#about", nav1Group: "المساحة",
   nav2Label: "الفئات", nav2Href: "#audience", nav2Group: "المجتمع",
   nav3Label: "ما نقدّم", nav3Href: "#offerings", nav3Group: "التجربة",
-  nav4Label: "الفعاليّات", nav4Href: "#programs", nav4Group: "المجتمع",
-  nav5Label: "تواصل", nav5Href: "#visit", nav5Group: "الزيارة",
+  nav4Label: "الكورسات", nav4Href: "/courses", nav4Group: "تعلّم",
+  nav5Label: "أعمال المجتمع", nav5Href: "/works", nav5Group: "المعرض",
   ctaLabel: "انتسب الآن",
   ctaHref: "/apply",
 };
@@ -58,9 +58,11 @@ export function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [c.nav1Href, c.nav2Href, c.nav3Href, c.nav4Href, c.nav5Href]);
 
-  const ctaHref = c.ctaHref.startsWith("http") || c.ctaHref.startsWith("#")
-    ? c.ctaHref
-    : `${import.meta.env.BASE_URL}${c.ctaHref.replace(/^\//, "")}`;
+  const linkHref = (h: string) =>
+    h.startsWith("http") || h.startsWith("#")
+      ? h
+      : `${import.meta.env.BASE_URL}${h.replace(/^\//, "")}`;
+  const ctaHref = linkHref(c.ctaHref);
 
   return (
     <header
@@ -109,7 +111,7 @@ export function Header() {
             return (
               <a
                 key={l.href}
-                href={l.href}
+                href={linkHref(l.href)}
                 className={`relative px-4 py-2 text-[14px] font-medium transition-colors rounded-full ${
                   scrolled
                     ? isActive
@@ -195,7 +197,7 @@ export function Header() {
                 return (
                   <a
                     key={l.href}
-                    href={l.href}
+                    href={linkHref(l.href)}
                     onClick={() => setOpen(false)}
                     className={`py-3 border-b border-border text-[15px] font-medium transition-colors flex items-center justify-between ${
                       isActive ? "text-primary" : "text-foreground hover:text-primary"

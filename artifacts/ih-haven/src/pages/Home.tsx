@@ -15,6 +15,7 @@ import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { Features } from "@/components/landing/Features";
 import { LiveNow } from "@/components/landing/LiveNow";
+import { StatsBand } from "@/components/landing/StatsBand";
 import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
 import { SideRail } from "@/components/landing/SideRail";
 import { AdminShortcut } from "@/components/landing/AdminShortcut";
@@ -48,6 +49,7 @@ export default function Home() {
         <WordWindow />
         <About />
         <Features />
+        <StatsBand />
         <Scrollytelling />
         <Audience />
         <Programs />
