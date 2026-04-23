@@ -7,6 +7,7 @@ import contentRouter from "./content";
 import analyticsRouter from "./analytics";
 import uploadRouter from "./upload";
 import storageRouter from "./storage";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(contentRouter);
 router.use(analyticsRouter);
 router.use(uploadRouter);
 router.use(storageRouter);
+router.use(authRouter);
 
 export default router;

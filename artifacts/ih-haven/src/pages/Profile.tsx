@@ -1,0 +1,552 @@
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "wouter";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  LogOut,
+  PenLine,
+  Phone,
+  Sparkles,
+  User as UserIcon,
+  Wrench,
+  Globe,
+} from "lucide-react";
+import { AuthBackgroundAura } from "@/components/auth/AuthShell";
+import { HavenMark } from "@/components/landing/HavenMark";
+import { useAuth, ROLE_LABELS } from "@/lib/auth";
+import { api, ApiError } from "@/lib/api";
+import type { AuthUser } from "@/lib/auth";
+
+export default function Profile() {
+  const { user, loading, logout, setUser } = useAuth();
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    document.title = "ملفّي الشخصيّ — آيلاند هيفن";
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) navigate("/login");
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div
+        dir="rtl"
+        className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center"
+      >
+        <AuthBackgroundAura />
+        <div className="relative z-10 flex items-center gap-3 text-white/55">
+          <span className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-primary animate-spin" />
+          جارٍ التحميل…
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ProfileInner user={user} setUser={setUser} logout={logout} />
+  );
+}
+
+function ProfileInner({
+  user,
+  setUser,
+  logout,
+}: {
+  user: AuthUser;
+  setUser: (u: AuthUser | null) => void;
+  logout: () => Promise<void>;
+}) {
+  const [, navigate] = useLocation();
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({
+    fullName: user.fullName,
+    bio: user.bio || "",
+    phone: user.phone || "",
+    skills: user.skills || "",
+    portfolioUrl: user.portfolioUrl || "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [issues, setIssues] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const errRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setForm({
+      fullName: user.fullName,
+      bio: user.bio || "",
+      phone: user.phone || "",
+      skills: user.skills || "",
+      portfolioUrl: user.portfolioUrl || "",
+    });
+  }, [user]);
+
+  async function onSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+    setError(null);
+    setIssues({});
+    setSubmitting(true);
+    try {
+      const r = await api<{ user: AuthUser }>("/auth/me", {
+        method: "PATCH",
+        body: JSON.stringify(form),
+      });
+      setUser(r.user);
+      setEditing(false);
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 2400);
+    } catch (e) {
+      if (e instanceof ApiError && e.data && typeof e.data === "object") {
+        const d = e.data as {
+          error?: string;
+          issues?: Array<{ path: string; message: string }>;
+        };
+        setError(d.error || "تعذّر الحفظ");
+        if (Array.isArray(d.issues)) {
+          const m: Record<string, string> = {};
+          for (const i of d.issues) m[i.path] = i.message;
+          setIssues(m);
+        }
+      } else {
+        setError("تعذّر الاتّصال بالخادم");
+      }
+      setTimeout(() => errRef.current?.focus(), 50);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const initials = user.fullName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join("");
+
+  const skillList = (user.skills || "")
+    .split(/[,،]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return (
+    <div
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
+      style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
+    >
+      <AuthBackgroundAura />
+
+      <header className="relative z-20 px-5 sm:px-8 lg:px-14 pt-6 sm:pt-8">
+        <div className="mx-auto max-w-3xl flex items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+            الرئيسيّة
+          </Link>
+          <div className="flex items-center gap-2.5">
+            <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
+            <div className="leading-tight text-right">
+              <div className="text-[13px] font-bold tracking-tight">Island Haven</div>
+              <div className="text-[10px] text-white/45 tracking-[0.16em] uppercase">آيلاند هيفن</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-12 pb-16">
+        <div className="mx-auto max-w-3xl">
+          {/* Identity card */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="relative rounded-[28px] p-6 sm:p-8 bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden mb-6"
+          >
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none opacity-60"
+              style={{
+                background:
+                  "radial-gradient(80% 40% at 50% 0%, rgba(220,38,55,0.18) 0%, transparent 60%)",
+              }}
+            />
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-7 text-center sm:text-right">
+              <div className="relative shrink-0">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)]">
+                  {initials || <UserIcon className="w-10 h-10" />}
+                </div>
+                <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#0A0E1A] border border-primary/40 text-primary text-[9.5px] tracking-[0.18em] uppercase font-bold">
+                  {ROLE_LABELS[user.role]}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-1.5">
+                  ملفّي الشخصيّ
+                </div>
+                <h1
+                  className="font-bold text-white leading-tight mb-1.5"
+                  style={{ fontSize: "clamp(1.7rem, 4.5vw, 2.2rem)" }}
+                >
+                  {user.fullName}
+                </h1>
+                <div className="text-white/55 text-[13px] truncate" dir="ltr">
+                  {user.email}
+                </div>
+              </div>
+              <div className="flex sm:flex-col gap-2 shrink-0">
+                {!editing && (
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md text-white font-semibold text-[12.5px] hover:bg-white/[0.1] transition-colors"
+                    data-testid="button-edit"
+                  >
+                    <PenLine className="w-3.5 h-3.5" />
+                    تعديل
+                  </button>
+                )}
+                <button
+                  onClick={async () => {
+                    await logout();
+                    navigate("/");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-white/65 font-semibold text-[12.5px] hover:bg-red-500/15 hover:text-red-200 hover:border-red-500/30 transition-colors"
+                  data-testid="button-logout"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  خروج
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          <AnimatePresence>
+            {savedFlash && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mb-5 rounded-2xl px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-[13px] flex items-center gap-2"
+                role="status"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                تمّ حفظ التغييرات
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Body */}
+          {editing ? (
+            <motion.form
+              onSubmit={onSave}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              noValidate
+              className="relative rounded-[28px] p-6 sm:p-8 bg-white/[0.045] border border-white/10 backdrop-blur-2xl space-y-5"
+            >
+              <SectionHeader index="01" title="معلوماتي" sub="Identity" />
+              <EditField
+                id="fullName"
+                label="الاسم الكامل"
+                hint="Full name"
+                icon={UserIcon}
+                value={form.fullName}
+                onChange={(v) => setForm((s) => ({ ...s, fullName: v }))}
+                error={issues.fullName}
+              />
+              <EditField
+                id="phone"
+                label="رقم الواتساب"
+                hint="WhatsApp"
+                icon={Phone}
+                value={form.phone}
+                onChange={(v) => setForm((s) => ({ ...s, phone: v }))}
+                placeholder="+970 …"
+                ltr
+                error={issues.phone}
+              />
+
+              <div className="pt-2">
+                <SectionHeader index="02" title="عملي" sub="Work" />
+              </div>
+              <EditField
+                id="skills"
+                label="مهاراتك"
+                hint="Skills"
+                icon={Wrench}
+                value={form.skills}
+                onChange={(v) => setForm((s) => ({ ...s, skills: v }))}
+                placeholder="مثال: تصميم واجهات، React، تسويق رقميّ"
+                error={issues.skills}
+              />
+              <EditField
+                id="portfolioUrl"
+                label="رابط أعمالك"
+                hint="Portfolio URL"
+                icon={Globe}
+                value={form.portfolioUrl}
+                onChange={(v) => setForm((s) => ({ ...s, portfolioUrl: v }))}
+                placeholder="https://…"
+                ltr
+                error={issues.portfolioUrl}
+              />
+
+              <div className="pt-2">
+                <SectionHeader index="03" title="نبذتك" sub="About" />
+                <FieldShell
+                  id="bio"
+                  label="نبذة قصيرة عنك"
+                  hint="Bio"
+                  icon={Sparkles}
+                  error={issues.bio}
+                >
+                  <textarea
+                    id="bio"
+                    rows={5}
+                    maxLength={2000}
+                    value={form.bio}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, bio: e.target.value }))
+                    }
+                    placeholder="ماذا تعمل؟ ما الذي تنوي تحقيقه؟"
+                    className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                    data-testid="input-bio"
+                  />
+                  <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">
+                    {form.bio.length}/2000
+                  </div>
+                </FieldShell>
+              </div>
+
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    ref={errRef}
+                    tabIndex={-1}
+                    role="alert"
+                    aria-live="assertive"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-200 text-[13px]"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="flex flex-wrap gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 min-w-[160px] py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-45"
+                  data-testid="button-save"
+                >
+                  {submitting ? "جارٍ الحفظ…" : "حفظ التغييرات"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(false);
+                    setError(null);
+                    setIssues({});
+                  }}
+                  className="px-6 py-3.5 rounded-2xl bg-white/[0.05] border border-white/10 text-white/75 font-semibold text-[14px] hover:bg-white/[0.08] transition-colors"
+                  data-testid="button-cancel"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </motion.form>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <InfoCard label="نبذة" hint="About" icon={Sparkles}>
+                {user.bio ? (
+                  <p className="text-white/80 text-[14px] leading-[1.9] whitespace-pre-wrap">
+                    {user.bio}
+                  </p>
+                ) : (
+                  <Empty msg="لم تُضِف نبذة بعد." />
+                )}
+              </InfoCard>
+
+              <InfoCard label="مهاراتك" hint="Skills" icon={Wrench}>
+                {skillList.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {skillList.map((s) => (
+                      <span
+                        key={s}
+                        className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-[12px] font-semibold"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <Empty msg="لا توجد مهارات بعد." />
+                )}
+              </InfoCard>
+
+              <InfoCard label="رقم الواتساب" hint="WhatsApp" icon={Phone}>
+                {user.phone ? (
+                  <a
+                    href={`https://wa.me/${user.phone.replace(/[^\d]/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    dir="ltr"
+                    className="text-white text-[14px] font-semibold hover:text-primary transition-colors"
+                  >
+                    {user.phone}
+                  </a>
+                ) : (
+                  <Empty msg="لم يُضَف بعد." />
+                )}
+              </InfoCard>
+
+              <InfoCard label="رابط أعمالك" hint="Portfolio" icon={Globe}>
+                {user.portfolioUrl ? (
+                  <a
+                    href={user.portfolioUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    dir="ltr"
+                    className="text-white text-[14px] font-semibold break-all hover:text-primary transition-colors"
+                  >
+                    {user.portfolioUrl}
+                  </a>
+                ) : (
+                  <Empty msg="لم يُضَف بعد." />
+                )}
+              </InfoCard>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function SectionHeader({ index, title, sub }: { index: string; title: string; sub: string }) {
+  return (
+    <div className="flex items-baseline gap-3 mb-1">
+      <div className="text-[10.5px] tracking-[0.22em] text-primary font-bold">{index}</div>
+      <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+      <div className="text-[11px] tracking-[0.18em] uppercase text-white/50 font-semibold">
+        {title} <span className="text-white/30">· {sub}</span>
+      </div>
+    </div>
+  );
+}
+
+function FieldShell({
+  id,
+  label,
+  hint,
+  icon: Icon,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  icon: React.ElementType;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]"
+      >
+        <span className="text-white/75 font-semibold">{label}</span>
+        <span className="inline-flex items-center gap-1.5 text-white/35">
+          <Icon className="w-3 h-3" />
+          <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
+        </span>
+      </label>
+      <div
+        className={`rounded-2xl px-4 py-3 bg-white/[0.04] border backdrop-blur-md transition-colors focus-within:bg-white/[0.06] ${
+          error
+            ? "border-red-500/45 focus-within:border-red-500/65"
+            : "border-white/10 focus-within:border-primary/45"
+        }`}
+      >
+        {children}
+      </div>
+      {error && <div className="text-[11.5px] text-red-300 mt-1.5 px-1">{error}</div>}
+    </div>
+  );
+}
+
+function EditField({
+  id,
+  label,
+  hint,
+  icon,
+  value,
+  onChange,
+  placeholder,
+  error,
+  ltr = false,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  icon: React.ElementType;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  error?: string;
+  ltr?: boolean;
+}) {
+  return (
+    <FieldShell id={id} label={label} hint={hint} icon={icon} error={error}>
+      <input
+        id={id}
+        name={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        dir={ltr ? "ltr" : "auto"}
+        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] outline-none px-1 py-0.5"
+        data-testid={`input-${id}`}
+      />
+    </FieldShell>
+  );
+}
+
+function InfoCard({
+  label,
+  hint,
+  icon: Icon,
+  children,
+}: {
+  label: string;
+  hint: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative rounded-3xl p-5 bg-white/[0.045] border border-white/10 backdrop-blur-2xl">
+      <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
+        <span className="text-white/75 font-semibold">{label}</span>
+        <span className="inline-flex items-center gap-1.5 text-white/35">
+          <Icon className="w-3 h-3" />
+          <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
+        </span>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function Empty({ msg }: { msg: string }) {
+  return <p className="text-white/35 text-[13px] italic">{msg}</p>;
+}
