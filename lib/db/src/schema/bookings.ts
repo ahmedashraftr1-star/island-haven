@@ -26,9 +26,27 @@ export const bookingsTable = pgTable("bookings", {
     .notNull(),
 });
 
+// Reject any HTML brackets / control chars to keep stored data clean
+// (React escapes on render, but we also export to admin lists / future emails).
+const safeText = (min: number, max: number, msg: string) =>
+  z
+    .string()
+    .trim()
+    .min(min, msg)
+    .max(max)
+    .regex(/^[^<>]*$/u, "رموز غير مسموح بها");
+
 export const insertBookingSchema = z.object({
-  fullName: z.string().trim().min(2, "الاسم قصير جدًّا").max(120),
-  phone: z.string().trim().min(6, "رقم الهاتف قصير").max(40),
+  fullName: safeText(2, 120, "الاسم قصير جدًّا").regex(
+    /^[\p{L}\p{M}\s'’\-\.]+$/u,
+    "أحرف غير صحيحة في الاسم",
+  ),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "رقم الهاتف قصير")
+    .max(40)
+    .regex(/^[\d\s+()\-]+$/u, "رقم الهاتف يحتوي رموزًا غير صحيحة"),
   email: z
     .string()
     .trim()
@@ -40,15 +58,29 @@ export const insertBookingSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "تاريخ غير صحيح")
     .refine((d) => {
-      const day = new Date(d + "T00:00:00");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return day >= today;
-    }, "التاريخ يجب أن يكون اليوم أو لاحقًا"),
+      // Today-or-later check anchored to Asia/Gaza local calendar day,
+      // independent of server timezone. We compute "today in Gaza" as a
+      // YYYY-MM-DD string and compare lexicographically.
+      const todayGaza = new Date().toLocaleDateString("en-CA", {
+        timeZone: "Asia/Gaza",
+      }); // en-CA → "YYYY-MM-DD"
+      return d >= todayGaza;
+    }, "التاريخ يجب أن يكون اليوم أو لاحقًا")
+    .refine((d) => {
+      // Asia/Gaza is closed on Fridays. We derive day-of-week from the
+      // calendar date using a fixed reference (UTC noon) so that the result
+      // is the SAME regardless of the server's timezone.
+      const day = new Date(d + "T12:00:00Z").getUTCDay();
+      return day !== 5;
+    }, "المساحة مغلقة يوم الجمعة — اختَر يومًا آخر")
+    .refine((d) => {
+      const day = new Date(d + "T12:00:00Z").getTime();
+      return day - Date.now() < 1000 * 60 * 60 * 24 * 180;
+    }, "التاريخ بعيد جدًّا"),
   timeSlot: z.enum(["morning", "midday", "afternoon", "fullday"]),
   purpose: z.enum(["work", "study", "meeting", "event", "tour", "other"]),
   attendees: z.coerce.number().int().min(1).max(8).default(1),
-  notes: z.string().trim().max(1000).default(""),
+  notes: safeText(0, 1000, "").default(""),
 });
 
 export type Booking = typeof bookingsTable.$inferSelect;

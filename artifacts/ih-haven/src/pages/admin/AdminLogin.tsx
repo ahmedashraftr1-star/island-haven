@@ -183,6 +183,17 @@ export default function AdminLogin() {
               <KeyRound className="w-3.5 h-3.5 text-white/35" />
             </div>
             <div className="relative">
+              {/* Hidden username for password manager / a11y compliance */}
+              <input
+                type="text"
+                name="username"
+                value="admin"
+                autoComplete="username"
+                readOnly
+                aria-hidden="true"
+                tabIndex={-1}
+                className="sr-only"
+              />
               <input
                 ref={inputRef}
                 id="password"

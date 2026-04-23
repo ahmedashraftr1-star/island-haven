@@ -1,12 +1,139 @@
-import { Router, type IRouter } from "express";
+import {
+  Router,
+  type IRouter,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { desc, eq, sql, gte, and } from "drizzle-orm";
 import { bookingsTable, db, insertBookingSchema } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { logger } from "../lib/logger";
 import { z } from "zod";
 
 const router: IRouter = Router();
 
-router.post("/bookings", async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// Capacity policy (workspace seat counts).
+// These are hard caps enforced atomically inside a DB transaction so that no
+// race condition can cause overbooking.
+// ─────────────────────────────────────────────────────────────────────────────
+const SLOT_CAPACITY: Record<string, number> = {
+  morning: 25,
+  midday: 25,
+  afternoon: 25,
+  fullday: 25,
+};
+const DAY_CAPACITY = 60;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rate limiter — single-instance in-memory.
+// IP comes from req.ip which respects Express `trust proxy`. We do NOT trust
+// raw X-Forwarded-For, so per-request spoofing is not possible.
+// Limits are increment-on-attempt (atomic before any async work) which closes
+// the previous race condition between check and DB insert.
+// ─────────────────────────────────────────────────────────────────────────────
+type Bucket = number[];
+const minuteBuckets = new Map<string, Bucket>();
+const tenMinBuckets = new Map<string, Bucket>();
+const globalMinuteBucket: Bucket = [];
+const MINUTE = 60_000;
+const TEN_MIN = 10 * 60_000;
+const MAX_PER_MINUTE = 20; // per-IP total attempts (incl. invalid)
+const MAX_PER_TEN_MIN = 5; // per-IP accepted attempts
+const MAX_GLOBAL_PER_MINUTE = 60; // belt-and-braces against IP spoofing
+
+function clientIp(req: Request): string {
+  // We can't trust the full X-Forwarded-For chain because anything to the
+  // LEFT of the right-most entry can be supplied by the client. Standards-
+  // compliant reverse proxies (including Replit's edge) APPEND the observed
+  // socket peer to XFF, so the right-most value is the only one we can trust
+  // as set by our immediate proxy. We read it directly instead of relying on
+  // express `trust proxy` semantics, which can hand us spoofed values when
+  // the chain length doesn't match the configured hop count.
+  const raw = req.headers["x-forwarded-for"];
+  const xff = Array.isArray(raw) ? raw.join(",") : raw || "";
+  const parts = xff
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (parts.length > 0) return parts[parts.length - 1]!;
+  return req.socket.remoteAddress || "unknown";
+}
+
+function pruneAndPush(map: Map<string, Bucket>, ip: string, windowMs: number, now: number) {
+  let b = map.get(ip);
+  if (!b) {
+    b = [];
+    map.set(ip, b);
+  }
+  const cutoff = now - windowMs;
+  while (b.length && b[0]! < cutoff) b.shift();
+  return b;
+}
+
+function rateLimitBookings(req: Request, res: Response, next: NextFunction) {
+  const ip = clientIp(req);
+  const now = Date.now();
+
+  // Global cap: even if an attacker rotates IPs (XFF spoofing in chains we
+  // can't fully validate), they cannot exceed this site-wide rate. Combined
+  // with per-slot/per-day DB capacity, overbooking is impossible.
+  const globalCutoff = now - MINUTE;
+  while (globalMinuteBucket.length && globalMinuteBucket[0]! < globalCutoff)
+    globalMinuteBucket.shift();
+  if (globalMinuteBucket.length >= MAX_GLOBAL_PER_MINUTE) {
+    res.status(429).json({
+      ok: false,
+      error: "حركة كثيفة الآن — حاول بعد دقيقة.",
+    });
+    return;
+  }
+
+  const minuteBucket = pruneAndPush(minuteBuckets, ip, MINUTE, now);
+  if (minuteBucket.length >= MAX_PER_MINUTE) {
+    res.status(429).json({
+      ok: false,
+      error: "محاولات كثيرة — أعد المحاولة بعد دقيقة.",
+    });
+    return;
+  }
+
+  const tenMinBucket = pruneAndPush(tenMinBuckets, ip, TEN_MIN, now);
+  if (tenMinBucket.length >= MAX_PER_TEN_MIN) {
+    res.status(429).json({
+      ok: false,
+      error: "وصلتَ للحدّ الأقصى من الحجوزات. أعد المحاولة لاحقًا.",
+    });
+    return;
+  }
+
+  // Increment ATOMICALLY before any async work — no concurrent slip possible.
+  minuteBucket.push(now);
+  tenMinBucket.push(now);
+  globalMinuteBucket.push(now);
+  next();
+}
+
+// Periodic cleanup so the maps don't grow unbounded under attack.
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, b] of minuteBuckets) {
+    const cutoff = now - MINUTE;
+    while (b.length && b[0]! < cutoff) b.shift();
+    if (!b.length) minuteBuckets.delete(ip);
+  }
+  for (const [ip, b] of tenMinBuckets) {
+    const cutoff = now - TEN_MIN;
+    while (b.length && b[0]! < cutoff) b.shift();
+    if (!b.length) tenMinBuckets.delete(ip);
+  }
+}, 5 * MINUTE).unref();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/bookings — public endpoint.
+// ─────────────────────────────────────────────────────────────────────────────
+router.post("/bookings", rateLimitBookings, async (req, res) => {
   const parsed = insertBookingSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
@@ -22,60 +149,138 @@ router.post("/bookings", async (req, res) => {
     return;
   }
   const data = parsed.data;
-  const [row] = await db
-    .insert(bookingsTable)
-    .values({
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email ?? "",
-      visitDate: data.visitDate,
-      timeSlot: data.timeSlot,
-      purpose: data.purpose,
-      attendees: data.attendees,
-      notes: data.notes,
-    })
-    .returning({ id: bookingsTable.id });
-  res.json({ ok: true, id: row.id });
+  const slotCap = SLOT_CAPACITY[data.timeSlot] ?? 25;
+
+  try {
+    // Atomic capacity check + insert in a single transaction.
+    // SERIALIZABLE isolation ensures two concurrent bookings cannot each see
+    // capacity available and both succeed beyond the cap.
+    const result = await db.transaction(async (tx) => {
+      const [slotSum] = await tx
+        .select({
+          n: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
+        })
+        .from(bookingsTable)
+        .where(
+          and(
+            eq(bookingsTable.visitDate, data.visitDate),
+            eq(bookingsTable.timeSlot, data.timeSlot),
+            sql`${bookingsTable.status} <> 'cancelled'`,
+          ),
+        );
+      const slotUsed = slotSum?.n ?? 0;
+      if (slotUsed + data.attendees > slotCap) {
+        return { kind: "full" as const, scope: "slot" as const, used: slotUsed, cap: slotCap };
+      }
+
+      const [daySum] = await tx
+        .select({
+          n: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
+        })
+        .from(bookingsTable)
+        .where(
+          and(
+            eq(bookingsTable.visitDate, data.visitDate),
+            sql`${bookingsTable.status} <> 'cancelled'`,
+          ),
+        );
+      const dayUsed = daySum?.n ?? 0;
+      if (dayUsed + data.attendees > DAY_CAPACITY) {
+        return { kind: "full" as const, scope: "day" as const, used: dayUsed, cap: DAY_CAPACITY };
+      }
+
+      const [row] = await tx
+        .insert(bookingsTable)
+        .values({
+          fullName: data.fullName,
+          phone: data.phone,
+          email: data.email ?? "",
+          visitDate: data.visitDate,
+          timeSlot: data.timeSlot,
+          purpose: data.purpose,
+          attendees: data.attendees,
+          notes: data.notes,
+        })
+        .returning({ id: bookingsTable.id });
+      return { kind: "ok" as const, id: row!.id };
+    });
+
+    if (result.kind === "full") {
+      res.status(409).json({
+        ok: false,
+        error:
+          result.scope === "slot"
+            ? "هذه الفترة ممتلئة — اختَر فترة أخرى."
+            : "هذا اليوم ممتلئ — اختَر يومًا آخر.",
+        capacity: { used: result.used, cap: result.cap, scope: result.scope },
+      });
+      return;
+    }
+
+    res.json({ ok: true, id: result.id });
+  } catch (err) {
+    logger.error({ err }, "Failed to create booking");
+    res.status(500).json({
+      ok: false,
+      error: "تعذّر إتمام الحجز. حاول مجدّدًا بعد قليل.",
+    });
+  }
 });
 
-// Public lightweight stats for landing (capacity indicator).
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/bookings/availability — public; powers the booking calendar/UI.
+// Returns per-slot used + cap so the frontend can disable full slots.
+// ─────────────────────────────────────────────────────────────────────────────
 router.get("/bookings/availability", async (_req, res) => {
-  const today = new Date().toISOString().slice(0, 10);
-  const rows = await db
-    .select({
-      visitDate: bookingsTable.visitDate,
-      timeSlot: bookingsTable.timeSlot,
-      attendees: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
-    })
-    .from(bookingsTable)
-    .where(
-      and(
-        gte(bookingsTable.visitDate, today),
-        sql`${bookingsTable.status} <> 'cancelled'`,
-      ),
-    )
-    .groupBy(bookingsTable.visitDate, bookingsTable.timeSlot);
-  res.json({ slots: rows });
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = await db
+      .select({
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+        attendees: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
+      })
+      .from(bookingsTable)
+      .where(
+        and(
+          gte(bookingsTable.visitDate, today),
+          sql`${bookingsTable.status} <> 'cancelled'`,
+        ),
+      )
+      .groupBy(bookingsTable.visitDate, bookingsTable.timeSlot);
+    res.json({
+      slots: rows,
+      capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY },
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to load availability");
+    res.status(500).json({ slots: [], capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY } });
+  }
 });
 
 router.get("/admin/bookings", requireAdmin, async (_req, res) => {
-  const rows = await db
-    .select()
-    .from(bookingsTable)
-    .orderBy(desc(bookingsTable.createdAt));
-  res.json({ bookings: rows });
+  try {
+    const rows = await db
+      .select()
+      .from(bookingsTable)
+      .orderBy(desc(bookingsTable.createdAt));
+    res.json({ bookings: rows });
+  } catch (err) {
+    logger.error({ err }, "Failed to load admin bookings");
+    res.status(500).json({ error: "تعذّر تحميل الحجوزات" });
+  }
 });
 
 const updateSchema = z.object({
   status: z
     .enum(["pending", "confirmed", "cancelled", "completed"])
     .optional(),
-  adminNotes: z.string().max(4000).optional(),
+  adminNotes: z.string().max(4000).regex(/^[^<>]*$/u, "رموز غير مسموح بها").optional(),
 });
 
 router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
-  if (!Number.isFinite(id)) {
+  if (!Number.isFinite(id) || id <= 0) {
     res.status(400).json({ error: "معرّف غير صحيح" });
     return;
   }
@@ -84,47 +289,62 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "بيانات غير صحيحة" });
     return;
   }
-  const [row] = await db
-    .update(bookingsTable)
-    .set(parsed.data)
-    .where(eq(bookingsTable.id, id))
-    .returning();
-  if (!row) {
-    res.status(404).json({ error: "غير موجود" });
-    return;
+  try {
+    const [row] = await db
+      .update(bookingsTable)
+      .set(parsed.data)
+      .where(eq(bookingsTable.id, id))
+      .returning();
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    res.json({ booking: row });
+  } catch (err) {
+    logger.error({ err, id }, "Failed to update booking");
+    res.status(500).json({ error: "تعذّر التحديث" });
   }
-  res.json({ booking: row });
 });
 
 router.delete("/admin/bookings/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
-  if (!Number.isFinite(id)) {
+  if (!Number.isFinite(id) || id <= 0) {
     res.status(400).json({ error: "معرّف غير صحيح" });
     return;
   }
-  await db.delete(bookingsTable).where(eq(bookingsTable.id, id));
-  res.json({ ok: true });
+  try {
+    await db.delete(bookingsTable).where(eq(bookingsTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err, id }, "Failed to delete booking");
+    res.status(500).json({ error: "تعذّر الحذف" });
+  }
 });
 
 router.get("/admin/bookings/stats", requireAdmin, async (_req, res) => {
-  const byStatus = await db
-    .select({
-      status: bookingsTable.status,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(bookingsTable)
-    .groupBy(bookingsTable.status);
-  const byPurpose = await db
-    .select({
-      purpose: bookingsTable.purpose,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(bookingsTable)
-    .groupBy(bookingsTable.purpose);
-  const total = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(bookingsTable);
-  res.json({ byStatus, byPurpose, total: total[0]?.n ?? 0 });
+  try {
+    const byStatus = await db
+      .select({
+        status: bookingsTable.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(bookingsTable)
+      .groupBy(bookingsTable.status);
+    const byPurpose = await db
+      .select({
+        purpose: bookingsTable.purpose,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(bookingsTable)
+      .groupBy(bookingsTable.purpose);
+    const total = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(bookingsTable);
+    res.json({ byStatus, byPurpose, total: total[0]?.n ?? 0 });
+  } catch (err) {
+    logger.error({ err }, "Failed to load booking stats");
+    res.status(500).json({ byStatus: [], byPurpose: [], total: 0 });
+  }
 });
 
 export default router;

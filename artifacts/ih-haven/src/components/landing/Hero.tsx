@@ -201,7 +201,7 @@ export function Hero() {
           <h1
             className="font-bold text-white"
             style={{
-              fontSize: "clamp(2.75rem, 7.2vw, 7.5rem)",
+              fontSize: "clamp(2.1rem, 7.2vw, 7.5rem)",
               lineHeight: 1.02,
               letterSpacing: "-0.035em",
             }}

@@ -7,6 +7,12 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// We are deployed behind Replit's reverse proxy. Trust exactly ONE hop so
+// that req.ip uses the immediate proxy's X-Forwarded-For value rather than
+// any client-supplied chain. This is the foundation for trustworthy rate
+// limiting on the public booking endpoint.
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,

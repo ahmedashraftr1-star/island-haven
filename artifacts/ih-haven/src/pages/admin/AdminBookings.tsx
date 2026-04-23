@@ -268,6 +268,9 @@ export default function AdminBookings() {
                           ملاحظات داخليّة
                         </div>
                         <Textarea
+                          // key forces remount when server data changes so the
+                          // displayed value never goes stale after refetch.
+                          key={`notes-${b.id}-${b.adminNotes ?? ""}`}
                           defaultValue={b.adminNotes ?? ""}
                           rows={2}
                           placeholder="ملاحظات لا يراها الزائر..."
