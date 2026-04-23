@@ -10,6 +10,7 @@ import { bookingsTable, db, insertBookingSchema } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
+import { getFlag } from "./adminExtra";
 
 const router: IRouter = Router();
 
@@ -134,6 +135,10 @@ setInterval(() => {
 // POST /api/bookings — public endpoint.
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/bookings", rateLimitBookings, async (req, res) => {
+  if (!(await getFlag("bookings_enabled"))) {
+    res.status(403).json({ ok: false, error: "الحجوزات مغلقة مؤقّتًا" });
+    return;
+  }
   const parsed = insertBookingSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
@@ -303,6 +308,56 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
   } catch (err) {
     logger.error({ err, id }, "Failed to update booking");
     res.status(500).json({ error: "تعذّر التحديث" });
+  }
+});
+
+// Admin manual create — bypasses public rate limits & date/Friday rules.
+const adminCreateSchema = z.object({
+  fullName: z.string().trim().min(2).max(120).regex(/^[^<>]*$/u),
+  phone: z.string().trim().min(3).max(40),
+  email: z.string().trim().max(160).optional().or(z.literal("")),
+  visitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "تاريخ غير صحيح"),
+  timeSlot: z.enum(["morning", "midday", "afternoon", "fullday"]),
+  purpose: z.enum(["work", "study", "meeting", "event", "tour", "other"]),
+  attendees: z.coerce.number().int().min(1).max(20).default(1),
+  notes: z.string().trim().max(2000).regex(/^[^<>]*$/u).default(""),
+  status: z.enum(["pending", "confirmed", "cancelled", "completed"]).default("confirmed"),
+  adminNotes: z.string().trim().max(4000).regex(/^[^<>]*$/u).default(""),
+});
+
+router.post("/admin/bookings", requireAdmin, async (req, res) => {
+  const parsed = adminCreateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "بيانات غير صحيحة",
+      issues: parsed.error.issues.map((i) => ({
+        path: i.path.join("."),
+        message: i.message,
+      })),
+    });
+    return;
+  }
+  try {
+    const d = parsed.data;
+    const [row] = await db
+      .insert(bookingsTable)
+      .values({
+        fullName: d.fullName,
+        phone: d.phone,
+        email: d.email ?? "",
+        visitDate: d.visitDate,
+        timeSlot: d.timeSlot,
+        purpose: d.purpose,
+        attendees: d.attendees,
+        notes: d.notes,
+        status: d.status,
+        adminNotes: d.adminNotes,
+      })
+      .returning();
+    res.json({ booking: row });
+  } catch (err) {
+    logger.error({ err }, "admin create booking failed");
+    res.status(500).json({ error: "تعذّر الإنشاء" });
   }
 });
 

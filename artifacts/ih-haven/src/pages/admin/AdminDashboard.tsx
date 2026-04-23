@@ -11,6 +11,9 @@ import {
   Newspaper,
   LogOut,
   ArrowLeft,
+  Users,
+  Briefcase,
+  Settings,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -20,25 +23,34 @@ import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
 import AdminCourses from "./AdminCourses";
 import AdminDaily from "./AdminDaily";
+import AdminUsers from "./AdminUsers";
+import AdminWorks from "./AdminWorks";
+import AdminSettings from "./AdminSettings";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
   | "overview"
   | "bookings"
   | "applications"
+  | "users"
+  | "works"
   | "courses"
   | "daily"
   | "content"
-  | "analytics";
+  | "analytics"
+  | "settings";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
   { id: "applications", label: "الطلبات", Icon: Inbox },
+  { id: "users", label: "المستخدمون", Icon: Users },
+  { id: "works", label: "الأعمال", Icon: Briefcase },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap },
   { id: "daily", label: "اليوميّات", Icon: Newspaper },
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
+  { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
 
 export default function AdminDashboard() {
@@ -182,10 +194,13 @@ export default function AdminDashboard() {
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "applications" && <AdminApplications />}
+          {tab === "users" && <AdminUsers />}
+          {tab === "works" && <AdminWorks />}
           {tab === "courses" && <AdminCourses />}
           {tab === "daily" && <AdminDaily />}
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
+          {tab === "settings" && <AdminSettings />}
         </div>
       </main>
     </div>

@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { optionalUser, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { getFlag } from "./adminExtra";
 
 const router: IRouter = Router();
 
@@ -33,7 +34,17 @@ router.get("/works", async (req, res) => {
       })
       .from(worksTable)
       .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
-      .where(filterByRole ? eq(usersTable.role, filterByRole) : undefined)
+      .where(
+        and(
+          filterByRole ? eq(usersTable.role, filterByRole) : undefined,
+          // Hide moderation-hidden works and banned users from the public.
+          eq(usersTable.status, "active"),
+          // status visible/featured only — drop hidden.
+          // eq returns boolean expression; we wrap in raw via and().
+          // works.status DEFAULT 'visible' so existing rows are visible.
+          eq(worksTable.status, "visible") as never,
+        ),
+      )
       .orderBy(desc(worksTable.createdAt));
     res.json({ works: rows });
   } catch (err) {

@@ -10,6 +10,9 @@ import {
 import { z } from "zod";
 import { usersTable } from "./users";
 
+export const WORK_STATUSES = ["visible", "hidden", "featured"] as const;
+export type WorkStatus = (typeof WORK_STATUSES)[number];
+
 export const worksTable = pgTable(
   "works",
   {
@@ -23,6 +26,10 @@ export const worksTable = pgTable(
     coverUrl: text("cover_url"),
     link: text("link").default("").notNull(),
     tags: varchar("tags", { length: 400 }).default("").notNull(), // comma-separated
+    status: varchar("status", { length: 16 })
+      .default("visible")
+      .notNull()
+      .$type<WorkStatus>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

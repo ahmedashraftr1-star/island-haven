@@ -1,0 +1,192 @@
+import { useEffect, useState } from "react";
+import { api, ApiError } from "@/lib/api";
+import { AlertTriangle, Database } from "lucide-react";
+
+interface Setting {
+  key: string;
+  label: string;
+  value: boolean;
+}
+
+export default function AdminSettings() {
+  const [items, setItems] = useState<Setting[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [pruneDays, setPruneDays] = useState("90");
+  const [pruneMsg, setPruneMsg] = useState<string | null>(null);
+  const [totals, setTotals] = useState<{ users: number; works: number; courses: number; enrollments: number } | null>(null);
+
+  async function reload() {
+    try {
+      const r = await api<{ settings: Setting[] }>("/admin/settings");
+      setItems(r.settings);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+    }
+    try {
+      const t = await api<typeof totals>("/admin/totals");
+      setTotals(t);
+    } catch {
+      // non-critical
+    }
+  }
+
+  useEffect(() => {
+    void reload();
+  }, []);
+
+  async function toggle(s: Setting) {
+    setBusyKey(s.key);
+    setError(null);
+    try {
+      await api(`/admin/settings/${s.key}`, {
+        method: "PUT",
+        body: JSON.stringify({ value: !s.value }),
+      });
+      setItems((cur) =>
+        cur ? cur.map((x) => (x.key === s.key ? { ...x, value: !s.value } : x)) : cur,
+      );
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+    } finally {
+      setBusyKey(null);
+    }
+  }
+
+  async function prune() {
+    setPruneMsg(null);
+    setError(null);
+    const n = Number(pruneDays);
+    if (!Number.isInteger(n) || n < 1) {
+      setError("أدخل عدد أيّام صحيحًا");
+      return;
+    }
+    if (!window.confirm(`حذف كل سجلّات الزيارات الأقدم من ${n} يومًا؟ لا يمكن التراجع.`)) return;
+    try {
+      const r = await api<{ deleted: number }>("/admin/analytics/page-views", {
+        method: "DELETE",
+        body: JSON.stringify({ beforeDays: n }),
+      });
+      setPruneMsg(`تم حذف ${r.deleted} سجلًّا.`);
+      void reload();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر الحذف");
+    }
+  }
+
+  return (
+    <div className="space-y-6 max-w-3xl">
+      <div>
+        <h2 className="text-[20px] font-bold text-foreground">إعدادات الموقع</h2>
+        <p className="text-[13px] text-foreground/55 mt-1">
+          مفاتيح تتحكّم بسلوك الموقع للزوّار — وأدوات صيانة قاعدة البيانات.
+        </p>
+      </div>
+
+      {error && (
+        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          {error}
+        </div>
+      )}
+
+      <section className="rounded-2xl bg-white border border-border divide-y divide-border">
+        {items === null ? (
+          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+        ) : (
+          items.map((s) => (
+            <div
+              key={s.key}
+              className="px-5 py-4 flex items-center justify-between gap-4"
+            >
+              <div className="min-w-0">
+                <div className="text-[14px] font-semibold text-foreground">
+                  {s.label}
+                </div>
+                <div className="text-[12px] text-foreground/55 mt-0.5" dir="ltr">
+                  {s.key}
+                </div>
+              </div>
+              <button
+                onClick={() => toggle(s)}
+                disabled={busyKey === s.key}
+                data-testid={`toggle-${s.key}`}
+                className={`relative w-12 h-7 rounded-full transition-colors disabled:opacity-50 ${
+                  s.value ? "bg-primary" : "bg-foreground/15"
+                }`}
+                aria-pressed={s.value}
+              >
+                <span
+                  className={`absolute top-0.5 ${
+                    s.value ? "right-0.5" : "right-[1.4rem]"
+                  } w-6 h-6 rounded-full bg-white shadow transition-all`}
+                />
+              </button>
+            </div>
+          ))
+        )}
+      </section>
+
+      {totals && (
+        <section className="rounded-2xl bg-white border border-border p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Database className="w-4 h-4 text-foreground/55" />
+            <h3 className="text-[14px] font-bold text-foreground">إحصاءات قاعدة البيانات</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { l: "مستخدمون", v: totals.users },
+              { l: "أعمال", v: totals.works },
+              { l: "كورسات", v: totals.courses },
+              { l: "تسجيلات", v: totals.enrollments },
+            ].map((x) => (
+              <div key={x.l} className="rounded-xl bg-muted/40 px-4 py-3 text-center">
+                <div className="text-[11px] text-foreground/55 font-semibold mb-1">
+                  {x.l}
+                </div>
+                <div className="text-[20px] font-bold text-foreground tabular-nums">
+                  {x.v.toLocaleString("ar-EG")}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-2xl bg-white border border-rose-200 p-5">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[14px] font-bold text-foreground">منطقة الخطر</h3>
+            <p className="text-[12.5px] text-foreground/65 mt-1 leading-relaxed">
+              حذف سجلّات تتبّع زيارات الصفحات القديمة من قاعدة البيانات. يفيد عند تضخّم الجدول.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <label className="text-[12.5px] text-foreground/65 font-semibold">
+                احذف الأقدم من
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={3650}
+                value={pruneDays}
+                onChange={(e) => setPruneDays(e.target.value)}
+                className="w-24 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none tabular-nums text-center"
+              />
+              <span className="text-[12.5px] text-foreground/65">يومًا</span>
+              <button
+                onClick={prune}
+                className="h-10 px-4 rounded-xl bg-rose-600 text-white text-[13px] font-semibold hover:bg-rose-700 transition-colors"
+                data-testid="button-prune-page-views"
+              >
+                حذف
+              </button>
+            </div>
+            {pruneMsg && (
+              <div className="text-[12.5px] text-emerald-700 mt-3">{pruneMsg}</div>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

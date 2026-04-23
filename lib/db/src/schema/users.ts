@@ -11,6 +11,9 @@ import { z } from "zod";
 export const USER_ROLES = ["freelancer", "graduate", "student", "other"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const USER_STATUSES = ["active", "banned"] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];
+
 export const usersTable = pgTable(
   "users",
   {
@@ -24,6 +27,10 @@ export const usersTable = pgTable(
     phone: varchar("phone", { length: 40 }).default("").notNull(),
     skills: text("skills").default("").notNull(), // comma-separated
     portfolioUrl: text("portfolio_url").default("").notNull(),
+    status: varchar("status", { length: 16 })
+      .default("active")
+      .notNull()
+      .$type<UserStatus>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

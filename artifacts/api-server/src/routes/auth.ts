@@ -17,6 +17,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { getFlag } from "./adminExtra";
 
 // Postgres unique-violation SQLSTATE — used to surface a friendly 409 instead
 // of letting drizzle bubble up as a generic 500 on registration races.
@@ -92,6 +93,10 @@ router.post("/auth/register", async (req, res) => {
       res.status(429).json({ error: "محاولات كثيرة، حاول لاحقًا" });
       return;
     }
+    if (!(await getFlag("registration_enabled"))) {
+      res.status(403).json({ error: "التسجيل مغلق مؤقّتًا" });
+      return;
+    }
     const parsed = registerUserSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -159,6 +164,10 @@ router.post("/auth/login", async (req, res) => {
       : (await bcrypt.compare(password, dummy), false);
     if (!user || !ok) {
       res.status(401).json({ error: "بريد أو كلمة سرّ خاطئة" });
+      return;
+    }
+    if (user.status === "banned") {
+      res.status(403).json({ error: "هذا الحساب مُعلَّق" });
       return;
     }
     const token = makeUserSessionToken(user.id);
