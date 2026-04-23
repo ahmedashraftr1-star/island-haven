@@ -6,20 +6,23 @@ import {
   Inbox,
   FileText,
   BarChart3,
+  CalendarCheck,
   LogOut,
   ArrowLeft,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
+import AdminBookings from "./AdminBookings";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
 import { HavenMark } from "@/components/landing/HavenMark";
 
-type Tab = "overview" | "applications" | "content" | "analytics";
+type Tab = "overview" | "bookings" | "applications" | "content" | "analytics";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
+  { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
   { id: "applications", label: "الطلبات", Icon: Inbox },
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
@@ -164,6 +167,7 @@ export default function AdminDashboard() {
 
         <div className="p-5 lg:p-8 max-w-[1400px] mx-auto">
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
+          {tab === "bookings" && <AdminBookings />}
           {tab === "applications" && <AdminApplications />}
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}

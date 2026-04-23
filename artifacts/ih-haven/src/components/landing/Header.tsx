@@ -143,17 +143,29 @@ export function Header() {
           })}
         </nav>
 
-        <a
-          href={ctaHref}
-          className={`hidden lg:inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
-            scrolled
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-white text-[#0A0E1A] hover:bg-white/90"
-          }`}
-        >
-          <span>{c.ctaLabel}</span>
-          <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-        </a>
+        <div className="hidden lg:flex items-center gap-2">
+          <a
+            href={`${import.meta.env.BASE_URL}book`}
+            className={`inline-flex items-center gap-2 h-10 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 hover:scale-[1.03] ${
+              scrolled
+                ? "bg-primary-soft text-primary hover:bg-primary/15"
+                : "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15"
+            }`}
+          >
+            احجز مقعد
+          </a>
+          <a
+            href={ctaHref}
+            className={`inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
+              scrolled
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-white text-[#0A0E1A] hover:bg-white/90"
+            }`}
+          >
+            <span>{c.ctaLabel}</span>
+            <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+          </a>
+        </div>
 
         <button
           onClick={() => setOpen((v) => !v)}
@@ -196,13 +208,23 @@ export function Header() {
                   </a>
                 );
               })}
-              <a
-                href={ctaHref}
-                className="mt-4 inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground text-[14px] font-semibold"
-              >
-                <span>{c.ctaLabel}</span>
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
-              </a>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <a
+                  href={`${import.meta.env.BASE_URL}book`}
+                  onClick={() => setOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary-soft text-primary text-[14px] font-semibold"
+                >
+                  احجز مقعد
+                </a>
+                <a
+                  href={ctaHref}
+                  onClick={() => setOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground text-[14px] font-semibold"
+                >
+                  <span>{c.ctaLabel}</span>
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                </a>
+              </div>
             </nav>
           </motion.div>
         )}

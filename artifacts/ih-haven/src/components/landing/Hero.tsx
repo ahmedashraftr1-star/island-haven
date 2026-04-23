@@ -233,6 +233,14 @@ export function Hero() {
               <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
             </a>
+            <a
+              href={`${import.meta.env.BASE_URL}book`}
+              data-testid="cta-book"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(220,68,84,0.45)]"
+            >
+              <span className="relative z-10">احجز مقعدك</span>
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
+            </a>
             {c.ctaSecondary && (
               <a
                 href={c.ctaSecondaryHref || "#"}
