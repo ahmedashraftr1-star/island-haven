@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "27aUa0DBraIUO2LRLi3Ll"
@@ -24,3 +23,9 @@ id = "qKZLzehHSj9Lt0cqy8ngk"
 uri = "file://artifacts/ih-haven/public/images/sky.png"
 type = "image"
 title = "Hopeful sky at golden hour"
+
+[[outputs]]
+id = "i1NaQ3jMOjXCvcLz8sB3j"
+uri = "file://exports/island-haven-source.tar.gz"
+type = "unspecified"
+title = "Island Haven — كل كود المشروع (مضغوط)"
