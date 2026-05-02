@@ -93,8 +93,17 @@ export function NumbersBand() {
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-10 lg:mb-12">
           <div className="lg:col-span-7">
-            <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold mb-3">
-              {c.eyebrow}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold">
+                {c.eyebrow}
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-wider">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                </span>
+                LIVE
+              </span>
             </div>
             <h2
               className="font-bold text-foreground tracking-tight leading-[1.08]"
