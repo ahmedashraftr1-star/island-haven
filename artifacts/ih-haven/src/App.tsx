@@ -1,5 +1,6 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
@@ -25,6 +26,39 @@ import PublicProfile from "@/pages/PublicProfile";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
+
+const ROUTE_TITLES: Record<string, string> = {
+  "/": "Island Haven · مساحة تتّسع لأحلامك",
+  "/apply": "انتسب — Island Haven",
+  "/book": "احجز مقعد — Island Haven",
+  "/login": "تسجيل الدخول — Island Haven",
+  "/register": "حساب جديد — Island Haven",
+  "/profile": "ملفّي — Island Haven",
+  "/members": "منتسبو المساحة — Island Haven",
+  "/numbers": "مُجتمعنا بالأرقام — Island Haven",
+  "/gallery": "معرض الصّور — Island Haven",
+  "/about": "من نحن — Island Haven",
+  "/courses": "البرنامج التَّدريبيّ — Island Haven",
+  "/works": "أعمال المنتسبين — Island Haven",
+  "/events": "فعاليّات آيلاند — Island Haven",
+  "/admin": "لوحة التّحكم — Island Haven",
+};
+
+function RouteEffects() {
+  const [loc] = useLocation();
+  useEffect(() => {
+    const exact = ROUTE_TITLES[loc];
+    if (exact) {
+      document.title = exact;
+    } else {
+      const seg = loc.split("/").filter(Boolean)[0] ?? "";
+      const base = ROUTE_TITLES[`/${seg}`];
+      document.title = base ?? "Island Haven · آيلاند هيفن";
+    }
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [loc]);
+  return null;
+}
 
 function Router() {
   return (
@@ -62,7 +96,10 @@ function App() {
       <AuthProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
+            <RouteEffects />
+            <main id="main-content" tabIndex={-1}>
+              <Router />
+            </main>
           </WouterRouter>
           <Toaster />
         </TooltipProvider>

@@ -3,21 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Island Haven — مساحة تتّسع لأحلامك · غزّة</title>
-    <meta name="description" content="Island Haven (آيلاند هيفن) — مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة، تابع لفريق من الناس إلى الناس. للمستقلّين والخريجين وطلبة الجامعات." />
-    <meta property="og:title" content="Island Haven — مساحة تتّسع لأحلامك" />
-    <meta property="og:description" content="مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة، يحتضن المستقلّين والخريجين والطلبة." />
+    <meta name="theme-color" content="#0A0E1A" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>Island Haven · آيلاند هيفن — مساحة تتّسع لأحلامك في غزّة</title>
+    <meta name="description" content="Island Haven (آيلاند هيفن) — مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة، تابع لفريق من الناس إلى الناس. يحتضن المستقلّين والخرّيجين وطلبة الجامعات." />
+    <meta name="keywords" content="Island Haven, آيلاند هيفن, غزّة, مساحة عمل, مستقلّين, خرّيجين, طلبة, مجتمع مهنيّ, Gaza, coworking, freelancers" />
+    <meta name="author" content="Island Haven · من الناس إلى الناس" />
+    <link rel="canonical" href="https://island-haven.replit.app/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Island Haven" />
+    <meta property="og:title" content="Island Haven · آيلاند هيفن — مساحة تتّسع لأحلامك" />
+    <meta property="og:description" content="مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة، يحتضن المستقلّين والخرّيجين والطلبة." />
     <meta property="og:locale" content="ar_AR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="https://island-haven.replit.app/" />
     <meta property="og:image" content="/opengraph.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Island Haven — Gaza Free Workspace" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Island Haven · آيلاند هيفن" />
+    <meta name="twitter:description" content="مساحة تتّسع لأحلامك — مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة." />
+    <meta name="twitter:image" content="/opengraph.jpg" />
+    <meta name="twitter:image:alt" content="Island Haven — Gaza Free Workspace" />
+
+    <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon-base.png" />
     <link rel="apple-touch-icon" href="/favicon-base.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Performance: hero preload, font preconnect -->
     <link rel="preload" as="image" href="%BASE_URL%photos/IMG_8357.webp" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Structured data: Organization + LocalBusiness -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://island-haven.replit.app/#organization",
+          "name": "Island Haven",
+          "alternateName": "آيلاند هيفن",
+          "url": "https://island-haven.replit.app/",
+          "logo": "https://island-haven.replit.app/logo.png",
+          "description": "مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة، تابع لفريق من الناس إلى الناس.",
+          "parentOrganization": {
+            "@type": "Organization",
+            "name": "من الناس إلى الناس"
+          },
+          "areaServed": {
+            "@type": "Place",
+            "name": "غزّة · فلسطين"
+          },
+          "knowsLanguage": ["ar", "en"]
+        },
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://island-haven.replit.app/#workspace",
+          "name": "Island Haven · آيلاند هيفن",
+          "image": "https://island-haven.replit.app/opengraph.jpg",
+          "priceRange": "Free",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Gaza",
+            "addressRegion": "Gaza Strip",
+            "addressCountry": "PS"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 31.50,
+            "longitude": 34.47
+          },
+          "url": "https://island-haven.replit.app/"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://island-haven.replit.app/#website",
+          "url": "https://island-haven.replit.app/",
+          "name": "Island Haven",
+          "inLanguage": "ar",
+          "publisher": { "@id": "https://island-haven.replit.app/#organization" }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
+    <a href="#main-content" class="skip-to-content">تخطّى إلى المحتوى</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

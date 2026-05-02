@@ -1,0 +1,24 @@
+{
+  "name": "Island Haven · آيلاند هيفن",
+  "short_name": "Island Haven",
+  "description": "مجتمع مهنيّ ومساحة عمل مجانيّة في غزّة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0E1A",
+  "theme_color": "#0A0E1A",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/favicon-base.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
