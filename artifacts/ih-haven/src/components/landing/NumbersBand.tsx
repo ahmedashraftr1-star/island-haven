@@ -4,6 +4,24 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { ArrowLeft, Users, Briefcase, GraduationCap, CalendarCheck } from "lucide-react";
 import { api } from "@/lib/api";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "مُجتمعنا بالأرقام · By the numbers",
+  titleA: "ليست شعارات.",
+  titleAccent: "أرقام حقيقيّة",
+  titleB: "من قاعدة بياناتنا.",
+  sub: "كلّ رقم تراه هنا يعكس حالة المساحة الآن — يتحدّث تلقائيًّا مع كلّ منتسب جديد، كلّ عمل، وكلّ مقعد محجوز.",
+  ctaLabel: "عرض المزيد",
+  tile1Label: "منتسب",
+  tile1En: "Members",
+  tile2Label: "عمل منشور",
+  tile2En: "Works",
+  tile3Label: "تسجيل في برامج",
+  tile3En: "Enrollments",
+  tile4Label: "مقعد استضفناه",
+  tile4En: "Seats hosted",
+};
 
 interface Numbers {
   members: number;
@@ -52,6 +70,7 @@ function CountUp({ value }: { value: number }) {
  */
 export function NumbersBand() {
   const [n, setN] = useState<Numbers | null>(null);
+  const c = useContentSection("numbersBand", FALLBACK);
 
   useEffect(() => {
     api<{ numbers: Numbers }>("/numbers")
@@ -60,10 +79,10 @@ export function NumbersBand() {
   }, []);
 
   const tiles = [
-    { value: n?.members ?? 0, label: "منتسب", en: "Members", icon: Users },
-    { value: n?.works ?? 0, label: "عمل منشور", en: "Works", icon: Briefcase },
-    { value: n?.enrollments ?? 0, label: "تسجيل في برامج", en: "Enrollments", icon: GraduationCap },
-    { value: n?.seatsHosted ?? 0, label: "مقعد استضفناه", en: "Seats hosted", icon: CalendarCheck },
+    { value: n?.members ?? 0, label: c.tile1Label, en: c.tile1En, icon: Users },
+    { value: n?.works ?? 0, label: c.tile2Label, en: c.tile2En, icon: Briefcase },
+    { value: n?.enrollments ?? 0, label: c.tile3Label, en: c.tile3En, icon: GraduationCap },
+    { value: n?.seatsHosted ?? 0, label: c.tile4Label, en: c.tile4En, icon: CalendarCheck },
   ];
 
   return (
@@ -75,27 +94,27 @@ export function NumbersBand() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-10 lg:mb-12">
           <div className="lg:col-span-7">
             <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold mb-3">
-              مُجتمعنا بالأرقام · By the numbers
+              {c.eyebrow}
             </div>
             <h2
               className="font-bold text-foreground tracking-tight leading-[1.08]"
               style={{ fontSize: "clamp(1.95rem, 4.4vw, 3.1rem)" }}
             >
-              ليست شعارات.
+              {c.titleA}
               <br />
-              <span className="text-accent-gradient">أرقام حقيقيّة</span> من قاعدة بياناتنا.
+              <span className="text-accent-gradient">{c.titleAccent}</span> {c.titleB}
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-end">
             <p className="text-[15px] text-foreground/65 leading-relaxed mb-5 max-w-md lg:ms-auto">
-              كلّ رقم تراه هنا يعكس حالة المساحة الآن — يتحدّث تلقائيًّا مع كلّ منتسب جديد، كلّ عمل، وكلّ مقعد محجوز.
+              {c.sub}
             </p>
             <Link
               href="/numbers"
               className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
               data-testid="link-numbers-more"
             >
-              عرض المزيد
+              {c.ctaLabel}
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             </Link>
           </div>

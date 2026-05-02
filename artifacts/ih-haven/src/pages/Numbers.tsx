@@ -13,6 +13,31 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "By the numbers",
+  title: "مُجتمعنا بالأرقام",
+  subtitle:
+    "لا شيء هنا مكتوب يدويًّا. كلّ رقم يُحسب الآن من قاعدة بياناتنا — يتغيّر تلقائيًّا مع كلّ منتسب جديد، كلّ عمل، وكلّ مقعد محجوز.",
+  group1Title: "المجتمع",
+  group1En: "Community",
+  group2Title: "الإنتاج",
+  group2En: "Output",
+  group3Title: "الاستضافة",
+  group3En: "Hospitality",
+  tMembers: "إجمالي المنتسبين",
+  tFreelancers: "مُستقلّون",
+  tGraduates: "خرّيجون",
+  tStudents: "طلّاب",
+  tWorks: "عمل منشور في المعرض",
+  tCourses: "برنامج تدريبيّ",
+  tEnrollments: "تسجيل في برامج",
+  tBookings: "حجز نشط",
+  tSeats: "مقعد استضفناه",
+  tApplications: "طلب انتساب",
+  tEvents: "منشور · فعاليّة",
+};
 
 interface Numbers {
   members: number;
@@ -58,6 +83,7 @@ function CountUp({ value }: { value: number }) {
 export default function Numbers() {
   const [n, setN] = useState<Numbers | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const c = useContentSection("pageNumbers", FALLBACK);
 
   useEffect(() => {
     document.title = "مُجتمعنا بالأرقام — آيلاند هيفن";
@@ -71,91 +97,33 @@ export default function Numbers() {
 
   return (
     <PageShell
-      eyebrow="By the numbers"
-      title="مُجتمعنا بالأرقام"
-      subtitle="لا شيء هنا مكتوب يدويًّا. كلّ رقم يُحسب الآن من قاعدة بياناتنا — يتغيّر تلقائيًّا مع كلّ منتسب جديد، كلّ عمل، وكلّ مقعد محجوز."
+      eyebrow={c.eyebrow}
+      title={c.title}
+      subtitle={c.subtitle}
     >
       {error && (
         <GlassCard className="p-6 text-center text-red-200 mb-8">{error}</GlassCard>
       )}
 
       <div className="space-y-10">
-        <Group title="المجتمع" en="Community">
-          <Tile
-            icon={Users}
-            value={n?.members}
-            label="إجمالي المنتسبين"
-            en="Active members"
-            big
-          />
-          <Tile
-            icon={Briefcase}
-            value={n?.freelancers}
-            label="مُستقلّون"
-            en="Freelancers"
-          />
-          <Tile
-            icon={GraduationCap}
-            value={n?.graduates}
-            label="خرّيجون"
-            en="Graduates"
-          />
-          <Tile
-            icon={Sparkles}
-            value={n?.students}
-            label="طلّاب"
-            en="Students"
-          />
+        <Group title={c.group1Title} en={c.group1En}>
+          <Tile icon={Users} value={n?.members} label={c.tMembers} en="Active members" big />
+          <Tile icon={Briefcase} value={n?.freelancers} label={c.tFreelancers} en="Freelancers" />
+          <Tile icon={GraduationCap} value={n?.graduates} label={c.tGraduates} en="Graduates" />
+          <Tile icon={Sparkles} value={n?.students} label={c.tStudents} en="Students" />
         </Group>
 
-        <Group title="الإنتاج" en="Output">
-          <Tile
-            icon={Briefcase}
-            value={n?.works}
-            label="عمل منشور في المعرض"
-            en="Published works"
-            big
-          />
-          <Tile
-            icon={BookOpen}
-            value={n?.courses}
-            label="برنامج تدريبيّ"
-            en="Programs"
-          />
-          <Tile
-            icon={GraduationCap}
-            value={n?.enrollments}
-            label="تسجيل في برامج"
-            en="Enrollments"
-          />
+        <Group title={c.group2Title} en={c.group2En}>
+          <Tile icon={Briefcase} value={n?.works} label={c.tWorks} en="Published works" big />
+          <Tile icon={BookOpen} value={n?.courses} label={c.tCourses} en="Programs" />
+          <Tile icon={GraduationCap} value={n?.enrollments} label={c.tEnrollments} en="Enrollments" />
         </Group>
 
-        <Group title="الاستضافة" en="Hospitality">
-          <Tile
-            icon={CalendarCheck}
-            value={n?.bookings}
-            label="حجز نشط"
-            en="Bookings"
-          />
-          <Tile
-            icon={Users}
-            value={n?.seatsHosted}
-            label="مقعد استضفناه"
-            en="Seats hosted"
-            big
-          />
-          <Tile
-            icon={Inbox}
-            value={n?.applications}
-            label="طلب انتساب"
-            en="Applications"
-          />
-          <Tile
-            icon={TrendingUp}
-            value={n?.events}
-            label="منشور · فعاليّة"
-            en="Posts & events"
-          />
+        <Group title={c.group3Title} en={c.group3En}>
+          <Tile icon={CalendarCheck} value={n?.bookings} label={c.tBookings} en="Bookings" />
+          <Tile icon={Users} value={n?.seatsHosted} label={c.tSeats} en="Seats hosted" big />
+          <Tile icon={Inbox} value={n?.applications} label={c.tApplications} en="Applications" />
+          <Tile icon={TrendingUp} value={n?.events} label={c.tEvents} en="Posts & events" />
         </Group>
       </div>
     </PageShell>

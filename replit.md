@@ -67,7 +67,7 @@ readable on white sections.
 
 Three tabs:
 1. **الطلبات (Applications)** — list, filter by status, expand to read bio + add internal notes, change status, delete.
-2. **تحرير المحتوى (Content)** — edit hero / about / cta / contact sections; saved overrides applied on top of the in-code defaults; per-section "استعادة الأصلي" reset.
+2. **تحرير المحتوى (Content)** — edit ALL site copy via a generic admin UI driven by `CONTENT_SCHEMA` in `artifacts/api-server/src/routes/content.ts`. Sections covered: `hero`, `about`, `cta`, `contact`, `newsSlider`, `numbersBand`, `pageMembers`, `pageNumbers`, `pageGallery`, `pageEvents`, `applyForm` (~45 fields). Saved overrides applied on top of in-code defaults; per-section "استعادة الأصلي" reset. Frontend pages consume content via `useContentSection<T>(key, FALLBACK)` helper, which always returns `{ ...FALLBACK, ...override }` so missing keys never break the UI.
 3. **الإحصائيات (Analytics)** — total + 24h page views, applications counts, daily traffic chart (recharts), top paths, status breakdown.
 
 Auth = HMAC-signed cookie (`ih_admin`), 7-day TTL, `httpOnly`, `sameSite=lax`, `secure` in production. Password from `ADMIN_PASSWORD` secret. HMAC key: `SESSION_SECRET` (falls back to `ADMIN_PASSWORD`).

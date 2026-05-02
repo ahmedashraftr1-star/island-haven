@@ -19,6 +19,22 @@ import {
   formatArabicDate,
   type DailyType,
 } from "@/lib/labels";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "Events · ما يحدث",
+  title: "فعاليّات آيلاند",
+  subtitle:
+    "جدولُ فعاليّاتنا، أخبارنا، ونصائحنا الأسبوعيّة — كلّ ما يحدث في المساحة في مكانٍ واحد.",
+  filterAll: "الكلّ",
+  filterNews: "أخبار",
+  filterTip: "نصائح",
+  filterStory: "قصص",
+  filterQuote: "اقتباسات",
+  emptyTitle: "لا توجد فعاليّات بعد",
+  emptyHint: "ستظهر فعاليّاتنا القادمة هنا — تابعنا قريبًا.",
+  detailsLabel: "التفاصيل",
+};
 
 interface Post {
   id: number;
@@ -29,18 +45,19 @@ interface Post {
   publishedAt: string;
 }
 
-const FILTERS: Array<{ key: "" | DailyType; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "news", label: "أخبار" },
-  { key: "tip", label: "نصائح" },
-  { key: "story", label: "قصص" },
-  { key: "quote", label: "اقتباسات" },
-];
-
 export default function Events() {
   const [filter, setFilter] = useState<"" | DailyType>("");
   const [rows, setRows] = useState<Post[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const c = useContentSection("pageEvents", FALLBACK);
+
+  const FILTERS: Array<{ key: "" | DailyType; label: string }> = [
+    { key: "", label: c.filterAll },
+    { key: "news", label: c.filterNews },
+    { key: "tip", label: c.filterTip },
+    { key: "story", label: c.filterStory },
+    { key: "quote", label: c.filterQuote },
+  ];
 
   useEffect(() => {
     document.title = "فعاليّات آيلاند — آيلاند هيفن";
@@ -64,9 +81,9 @@ export default function Events() {
   return (
     <PageShell
       active="events"
-      eyebrow="Events · ما يحدث"
-      title="فعاليّات آيلاند"
-      subtitle="جدولُ فعاليّاتنا، أخبارنا، ونصائحنا الأسبوعيّة — كلّ ما يحدث في المساحة في مكانٍ واحد."
+      eyebrow={c.eyebrow}
+      title={c.title}
+      subtitle={c.subtitle}
     >
       <div className="flex items-center gap-2 mb-8 flex-wrap">
         {FILTERS.map((f) => (
@@ -97,10 +114,7 @@ export default function Events() {
           ))}
         </div>
       ) : rows && rows.length === 0 ? (
-        <EmptyState
-          title="لا توجد فعاليّات بعد"
-          hint="ستظهر فعاليّاتنا القادمة هنا — تابعنا قريبًا."
-        />
+        <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
       ) : (
         <div className="space-y-5">
           {rows?.map((p, i) => (
@@ -110,7 +124,7 @@ export default function Events() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: i * 0.04 }}
             >
-              <EventCard post={p} />
+              <EventCard post={p} detailsLabel={c.detailsLabel} />
             </motion.div>
           ))}
         </div>
@@ -119,7 +133,7 @@ export default function Events() {
   );
 }
 
-function EventCard({ post }: { post: Post }) {
+function EventCard({ post, detailsLabel }: { post: Post; detailsLabel: string }) {
   return (
     <Link
       href={`/events/${post.id}`}
@@ -160,7 +174,7 @@ function EventCard({ post }: { post: Post }) {
               </p>
             )}
             <div className="mt-3 flex items-center gap-2 text-[12.5px] text-white/55 group-hover:text-primary font-semibold transition-colors">
-              <span>التفاصيل</span>
+              <span>{detailsLabel}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             </div>
           </div>

@@ -18,6 +18,23 @@ import {
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "من نحن",
+  title: "منتسبو المساحة",
+  subtitle:
+    "مُجتمعٌ من المستقلّين، الخرّيجين، والطّلّاب يصنعون أعمالهم من قلب غزّة. تعرّف عليهم — واطّلع على أعمالهم.",
+  searchPlaceholder: "ابحث بالاسم، التّخصّص، أو المهارة…",
+  filterAll: "الكلّ",
+  filterFreelancer: "مُستقلّون",
+  filterGraduate: "خرّيجون",
+  filterStudent: "طلّاب",
+  filterOther: "أعضاء",
+  worksLabel: "عمل",
+  emptyTitle: "لا توجد نتائج",
+  emptyHint: "جرّب فلترًا آخر أو كلمة بحث مختلفة.",
+};
 
 interface Member {
   id: number;
@@ -35,19 +52,20 @@ interface Member {
   createdAt: string;
 }
 
-const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "freelancer", label: "مُستقلّون" },
-  { key: "graduate", label: "خرّيجون" },
-  { key: "student", label: "طلّاب" },
-  { key: "other", label: "أعضاء" },
-];
-
 export default function Members() {
   const [role, setRole] = useState<"" | UserRole>("");
   const [q, setQ] = useState("");
   const [rows, setRows] = useState<Member[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const c = useContentSection("pageMembers", FALLBACK);
+
+  const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
+    { key: "", label: c.filterAll },
+    { key: "freelancer", label: c.filterFreelancer },
+    { key: "graduate", label: c.filterGraduate },
+    { key: "student", label: c.filterStudent },
+    { key: "other", label: c.filterOther },
+  ];
 
   useEffect(() => {
     document.title = "منتسبو المساحة — آيلاند هيفن";
@@ -82,9 +100,9 @@ export default function Members() {
   return (
     <PageShell
       active="members"
-      eyebrow="من نحن"
-      title="منتسبو المساحة"
-      subtitle="مُجتمعٌ من المستقلّين، الخرّيجين، والطّلّاب يصنعون أعمالهم من قلب غزّة. تعرّف عليهم — واطّلع على أعمالهم."
+      eyebrow={c.eyebrow}
+      title={c.title}
+      subtitle={c.subtitle}
     >
       <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-8 items-center">
         <div className="relative">
@@ -92,7 +110,7 @@ export default function Members() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="ابحث بالاسم، التّخصّص، أو المهارة…"
+            placeholder={c.searchPlaceholder}
             className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
             data-testid="input-search-members"
           />
@@ -138,10 +156,7 @@ export default function Members() {
           ))}
         </div>
       ) : rows && rows.length === 0 ? (
-        <EmptyState
-          title="لا يوجد منتسبون مطابقون"
-          hint="جرّب فلترًا مختلفًا أو امسح البحث."
-        />
+        <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {rows?.map((m, i) => (
@@ -152,7 +167,7 @@ export default function Members() {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.45, delay: Math.min(i, 6) * 0.04 }}
             >
-              <MemberCard m={m} />
+              <MemberCard m={m} worksLabel={c.worksLabel} />
             </motion.div>
           ))}
         </div>
@@ -161,7 +176,7 @@ export default function Members() {
   );
 }
 
-function MemberCard({ m }: { m: Member }) {
+function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
   const initials = m.fullName.split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
   const skills = splitTags(m.skills).slice(0, 5);
 
@@ -227,7 +242,7 @@ function MemberCard({ m }: { m: Member }) {
             <span className="font-semibold tabular-nums">
               {m.worksCount.toLocaleString("ar-EG")}
             </span>
-            <span className="text-white/45">عمل</span>
+            <span className="text-white/45">{worksLabel}</span>
           </div>
           <div className="flex items-center gap-2">
             {m.linkedinUrl && (

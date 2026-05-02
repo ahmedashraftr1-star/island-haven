@@ -16,42 +16,65 @@ import {
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { useContentSection } from "@/hooks/use-content";
 
 type CategoryId = "freelancer" | "graduate" | "student" | "other";
 
-const CATEGORIES: Array<{
-  id: CategoryId;
-  label: string;
-  sub: string;
-  Icon: typeof Briefcase;
-}> = [
-  {
-    id: "freelancer",
-    label: "مستقلّ",
-    sub: "Freelancer",
-    Icon: Briefcase,
-  },
-  {
-    id: "graduate",
-    label: "خرّيج جامعي",
-    sub: "Graduate",
-    Icon: GraduationCap,
-  },
-  {
-    id: "student",
-    label: "طالب جامعي",
-    sub: "Student",
-    Icon: BookOpen,
-  },
-  {
-    id: "other",
-    label: "غير ذلك",
-    sub: "Other",
-    Icon: Sparkle,
-  },
-];
+const FALLBACK = {
+  backLabel: "العودة",
+  brandLatin: "Island Haven",
+  brandArabic: "آيلاند هيفن",
+  eyebrow: "طلب انتساب · مجّاناً",
+  titleLead: "انضمّ إلى",
+  titleAccent: "آيلاند هيفن",
+  subtitle:
+    "مساحة عمل مجّانيّة تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل معك على واتساب خلال أيّام.",
+  sec1Title: "مَن أنت",
+  sec1Sub: "Identity",
+  fullNameLabel: "الاسم الكامل",
+  fullNameHint: "Full name",
+  fullNamePlaceholder: "مثال: ياسمين الغزّاوي",
+  emailLabel: "البريد الإلكتروني",
+  emailHint: "Email",
+  emailPlaceholder: "name@example.com",
+  phoneLabel: "رقم الواتساب",
+  phoneHint: "WhatsApp",
+  phonePlaceholder: "+970 …",
+  sec2Title: "ما تصنيفك",
+  sec2Sub: "Category",
+  cat1Label: "مستقلّ",
+  cat1Sub: "Freelancer",
+  cat2Label: "خرّيج جامعي",
+  cat2Sub: "Graduate",
+  cat3Label: "طالب جامعي",
+  cat3Sub: "Student",
+  cat4Label: "غير ذلك",
+  cat4Sub: "Other",
+  sec3Title: "حدّثنا عنك",
+  sec3Sub: "About you",
+  bioLabel: "نبذة ومجال عملك",
+  bioHint: "Bio",
+  bioPlaceholder: "ماذا تعمل أو تدرس؟ ما الذي تنوي تحقيقه في آيلاند هيفن؟",
+  submitLabel: "أرسل طلب الانتساب",
+  submitLoading: "جارٍ الإرسال…",
+  consentLine: "بإرسالك الطلب، توافق على أن نتواصل معك بشأنه فقط.",
+  trustLabel: "بدعمٍ من",
+  trustBrand: "من الناس إلى الناس",
+  errFallback: "تعذّر إرسال الطلب",
+  errNetwork: "تعذّر الاتّصال بالخادم. حاول مجدّدًا بعد قليل.",
+  successEyebrow: "وصل طلبك",
+  successThanksLead: "شكرًا لك يا",
+  successFallbackName: "صديقنا",
+  successBody:
+    "استلمنا طلبك بأمان. سنراجعه ونتواصل معك على واتساب خلال أيّام.\nمرحبًا بك في عائلة آيلاند هيفن.",
+  successRefLabel: "رقم الطلب",
+  successCta: "العودة للرئيسيّة",
+  docTitle: "انضمّ إلى آيلاند هيفن",
+};
+type ApplyContent = typeof FALLBACK;
 
 export default function Apply() {
+  const c = useContentSection("applyForm", FALLBACK);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -65,9 +88,21 @@ export default function Apply() {
   const [issues, setIssues] = useState<Record<string, string>>({});
   const errorRef = useRef<HTMLDivElement | null>(null);
 
+  const CATEGORIES: Array<{
+    id: CategoryId;
+    label: string;
+    sub: string;
+    Icon: typeof Briefcase;
+  }> = [
+    { id: "freelancer", label: c.cat1Label, sub: c.cat1Sub, Icon: Briefcase },
+    { id: "graduate", label: c.cat2Label, sub: c.cat2Sub, Icon: GraduationCap },
+    { id: "student", label: c.cat3Label, sub: c.cat3Sub, Icon: BookOpen },
+    { id: "other", label: c.cat4Label, sub: c.cat4Sub, Icon: Sparkle },
+  ];
+
   useEffect(() => {
-    document.title = "انضمّ إلى آيلاند هيفن";
-  }, []);
+    document.title = c.docTitle;
+  }, [c.docTitle]);
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -97,7 +132,7 @@ export default function Apply() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || "تعذّر إرسال الطلب");
+        setError(d.error || c.errFallback);
         if (Array.isArray(d.issues)) {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;
@@ -110,7 +145,7 @@ export default function Apply() {
           }
         }
       } else {
-        setError("تعذّر الاتّصال بالخادم. حاول مجدّدًا بعد قليل.");
+        setError(c.errNetwork);
       }
       // Move focus to the error region
       setTimeout(() => errorRef.current?.focus(), 50);
@@ -119,7 +154,7 @@ export default function Apply() {
     }
   }
 
-  if (done) return <SuccessScreen id={done.id} firstName={form.fullName.trim().split(" ")[0]} />;
+  if (done) return <SuccessScreen id={done.id} firstName={form.fullName.trim().split(" ")[0]} c={c} />;
 
   return (
     <div
@@ -137,13 +172,13 @@ export default function Apply() {
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-            العودة
+            {c.backLabel}
           </Link>
           <div className="flex items-center gap-2.5">
             <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
             <div className="leading-tight text-right">
-              <div className="text-[13px] font-bold tracking-tight">Island Haven</div>
-              <div className="text-[10px] text-white/45 tracking-[0.16em] uppercase">آيلاند هيفن</div>
+              <div className="text-[13px] font-bold tracking-tight">{c.brandLatin}</div>
+              <div className="text-[10px] text-white/45 tracking-[0.16em] uppercase">{c.brandArabic}</div>
             </div>
           </div>
         </div>
@@ -161,7 +196,7 @@ export default function Apply() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 backdrop-blur-md mb-5">
               <Sparkles className="w-3 h-3 text-primary" />
               <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-                طلب انتساب · مجّاناً
+                {c.eyebrow}
               </span>
             </div>
             <h1
@@ -171,12 +206,11 @@ export default function Apply() {
                 letterSpacing: "-0.03em",
               }}
             >
-              انضمّ إلى{" "}
-              <span className="text-accent-gradient">آيلاند هيفن</span>
+              {c.titleLead}{" "}
+              <span className="text-accent-gradient">{c.titleAccent}</span>
             </h1>
             <p className="text-white/55 text-[14px] sm:text-[15.5px] leading-[1.85] mt-5 max-w-lg mx-auto">
-              مساحة عمل مجّانيّة تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل
-              معك على واتساب خلال أيّام.
+              {c.subtitle}
             </p>
           </motion.div>
 
@@ -200,43 +234,43 @@ export default function Apply() {
               />
               <div className="relative space-y-6">
                 {/* Section: identity */}
-                <SectionHeader index="01" title="مَن أنت" sub="Identity" />
+                <SectionHeader index="01" title={c.sec1Title} sub={c.sec1Sub} />
 
                 <Field
                   id="fullName"
-                  label="الاسم الكامل"
-                  hint="Full name"
+                  label={c.fullNameLabel}
+                  hint={c.fullNameHint}
                   icon={UserIcon}
                   value={form.fullName}
                   onChange={(v) => update("fullName", v)}
                   error={issues.fullName}
-                  placeholder="مثال: ياسمين الغزّاوي"
+                  placeholder={c.fullNamePlaceholder}
                   autoComplete="name"
                 />
 
                 <div className="grid sm:grid-cols-2 gap-5">
                   <Field
                     id="email"
-                    label="البريد الإلكتروني"
-                    hint="Email"
+                    label={c.emailLabel}
+                    hint={c.emailHint}
                     icon={Mail}
                     value={form.email}
                     onChange={(v) => update("email", v)}
                     error={issues.email}
-                    placeholder="name@example.com"
+                    placeholder={c.emailPlaceholder}
                     type="email"
                     ltr
                     autoComplete="email"
                   />
                   <Field
                     id="phone"
-                    label="رقم الواتساب"
-                    hint="WhatsApp"
+                    label={c.phoneLabel}
+                    hint={c.phoneHint}
                     icon={Phone}
                     value={form.phone}
                     onChange={(v) => update("phone", v)}
                     error={issues.phone}
-                    placeholder="+970 …"
+                    placeholder={c.phonePlaceholder}
                     type="tel"
                     ltr
                     autoComplete="tel"
@@ -245,16 +279,16 @@ export default function Apply() {
 
                 {/* Section: category */}
                 <div className="pt-2">
-                  <SectionHeader index="02" title="ما تصنيفك" sub="Category" />
+                  <SectionHeader index="02" title={c.sec2Title} sub={c.sec2Sub} />
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-1">
-                    {CATEGORIES.map((c) => {
-                      const active = form.category === c.id;
-                      const Icon = c.Icon;
+                    {CATEGORIES.map((cat) => {
+                      const active = form.category === cat.id;
+                      const Icon = cat.Icon;
                       return (
                         <button
-                          key={c.id}
+                          key={cat.id}
                           type="button"
-                          onClick={() => update("category", c.id)}
+                          onClick={() => update("category", cat.id)}
                           aria-pressed={active}
                           className={`group relative rounded-2xl p-3.5 text-center transition-all duration-200 border backdrop-blur-md ${
                             active
@@ -273,10 +307,10 @@ export default function Apply() {
                               active ? "text-white" : "text-white/80"
                             }`}
                           >
-                            {c.label}
+                            {cat.label}
                           </div>
                           <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/35 mt-0.5">
-                            {c.sub}
+                            {cat.sub}
                           </div>
                         </button>
                       );
@@ -286,11 +320,11 @@ export default function Apply() {
 
                 {/* Section: bio */}
                 <div className="pt-2">
-                  <SectionHeader index="03" title="حدّثنا عنك" sub="About you" />
+                  <SectionHeader index="03" title={c.sec3Title} sub={c.sec3Sub} />
                   <FieldWrap
                     id="bio"
-                    label="نبذة ومجال عملك"
-                    hint="Bio"
+                    label={c.bioLabel}
+                    hint={c.bioHint}
                     icon={PenLine}
                     error={issues.bio}
                   >
@@ -300,7 +334,7 @@ export default function Apply() {
                       onChange={(e) => update("bio", e.target.value)}
                       rows={5}
                       maxLength={2000}
-                      placeholder="ماذا تعمل أو تدرس؟ ما الذي تنوي تحقيقه في آيلاند هيفن؟"
+                      placeholder={c.bioPlaceholder}
                       className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                       data-testid="input-bio"
                     />
@@ -340,11 +374,11 @@ export default function Apply() {
                       {submitting ? (
                         <>
                           <span className="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                          جارٍ الإرسال…
+                          {c.submitLoading}
                         </>
                       ) : (
                         <>
-                          أرسل طلب الانتساب
+                          {c.submitLabel}
                           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                         </>
                       )}
@@ -360,7 +394,7 @@ export default function Apply() {
                     />
                   </button>
                   <p className="text-[11.5px] text-center text-white/35 mt-3.5 leading-relaxed">
-                    بإرسالك الطلب، توافق على أن نتواصل معك بشأنه فقط.
+                    {c.consentLine}
                   </p>
                 </div>
               </div>
@@ -369,7 +403,7 @@ export default function Apply() {
 
           {/* Footer trust line */}
           <div className="mt-10 text-center text-[11px] text-white/35 tracking-[0.16em] uppercase">
-            بدعمٍ من <span className="text-white/65 font-semibold">من الناس إلى الناس</span>
+            {c.trustLabel} <span className="text-white/65 font-semibold">{c.trustBrand}</span>
           </div>
         </div>
       </main>
@@ -521,8 +555,9 @@ function BackgroundAura() {
   );
 }
 
-function SuccessScreen({ id, firstName }: { id: number; firstName: string }) {
+function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c: ApplyContent }) {
   const ref = String(id).padStart(5, "0");
+  const bodyLines = c.successBody.split("\n");
   return (
     <div
       dir="rtl"
@@ -556,19 +591,22 @@ function SuccessScreen({ id, firstName }: { id: number; firstName: string }) {
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-              وصل طلبك
+              {c.successEyebrow}
             </div>
             <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
-              شكرًا لك يا{" "}
-              <span className="text-accent-gradient">{firstName || "صديقنا"}</span>
+              {c.successThanksLead}{" "}
+              <span className="text-accent-gradient">{firstName || c.successFallbackName}</span>
             </h1>
             <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
-              استلمنا طلبك بأمان. سنراجعه ونتواصل معك على واتساب خلال أيّام.
-              <br />
-              مرحبًا بك في عائلة آيلاند هيفن.
+              {bodyLines.map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < bodyLines.length - 1 && <br />}
+                </span>
+              ))}
             </p>
             <div className="inline-block rounded-xl px-4 py-2 bg-white/5 border border-white/10 text-[11px] tracking-[0.2em] uppercase text-white/55 font-semibold mb-7">
-              رقم الطلب · #{ref}
+              {c.successRefLabel} · #{ref}
             </div>
             <div>
               <Link
@@ -576,7 +614,7 @@ function SuccessScreen({ id, firstName }: { id: number; firstName: string }) {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-[#0A0E1A] font-bold text-[13.5px] hover:bg-white/90 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                العودة للرئيسيّة
+                {c.successCta}
               </Link>
             </div>
           </div>

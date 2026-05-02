@@ -4,6 +4,17 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { api } from "@/lib/api";
 import { DAILY_TYPE_LABELS, formatArabicDate, type DailyType } from "@/lib/labels";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "فعاليّات آيلاند · Events",
+  title: "ما يحدث في المساحة هذا الأسبوع.",
+  ctaAll: "كلّ الفعاليّات",
+  ctaCard: "اقرأ المزيد",
+  emptyText: "لا توجد فعاليّات معلَنة بعد — تابعنا قريبًا.",
+  prevAria: "السّابق",
+  nextAria: "التّالي",
+};
 
 interface Post {
   id: number;
@@ -22,6 +33,7 @@ interface Post {
 export function NewsSlider() {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const c = useContentSection("newsSlider", FALLBACK);
 
   useEffect(() => {
     api<{ posts: Post[] }>("/daily")
@@ -48,26 +60,26 @@ export function NewsSlider() {
         <div className="flex items-end justify-between gap-6 mb-8 lg:mb-10">
           <div>
             <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold mb-3">
-              فعاليّات آيلاند · Events
+              {c.eyebrow}
             </div>
             <h2
               className="font-bold text-foreground tracking-tight leading-[1.1]"
               style={{ fontSize: "clamp(1.85rem, 4.2vw, 3rem)" }}
             >
-              ما يحدث في المساحة هذا الأسبوع.
+              {c.title}
             </h2>
           </div>
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <button
               onClick={() => scrollBy(1)}
-              aria-label="السّابق"
+              aria-label={c.prevAria}
               className="w-11 h-11 rounded-full border border-border bg-white text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => scrollBy(-1)}
-              aria-label="التّالي"
+              aria-label={c.nextAria}
               className="w-11 h-11 rounded-full border border-border bg-white text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -77,7 +89,7 @@ export function NewsSlider() {
               className="ms-2 inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
               data-testid="link-all-events"
             >
-              كلّ الفعاليّات
+              {c.ctaAll}
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             </Link>
           </div>
@@ -96,7 +108,7 @@ export function NewsSlider() {
           <div className="rounded-3xl bg-foreground/[0.03] border border-dashed border-border p-12 text-center">
             <Calendar className="w-7 h-7 mx-auto mb-3 text-foreground/30" />
             <p className="text-foreground/55 text-[14px]">
-              لا توجد فعاليّات معلَنة بعد — تابعنا قريبًا.
+              {c.emptyText}
             </p>
           </div>
         ) : (
@@ -147,7 +159,7 @@ export function NewsSlider() {
                       {p.title}
                     </h3>
                     <div className="mt-4 flex items-center gap-1.5 text-[12.5px] font-semibold text-primary">
-                      اقرأ المزيد
+                      {c.ctaCard}
                       <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1" />
                     </div>
                   </div>
@@ -162,7 +174,7 @@ export function NewsSlider() {
             href="/events"
             className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold"
           >
-            كلّ الفعاليّات
+            {c.ctaAll}
             <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
           </Link>
         </div>

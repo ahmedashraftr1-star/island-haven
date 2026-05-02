@@ -4,6 +4,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { useContentSection } from "@/hooks/use-content";
+
+const FALLBACK = {
+  eyebrow: "Gallery",
+  title: "معرض الصّور",
+  subtitle:
+    "مقتطفاتٌ من أعمال المنتسبين، ولحظاتٍ من حياة المساحة. اضغط أيّ صورة لعرضها بحجمها الكامل.",
+  emptyTitle: "لا توجد صور بعد",
+  emptyHint: "ستظهر هنا تلقائيًّا مع كلّ عمل جديد.",
+  byAuthor: "بقلم",
+  openWork: "افتح العمل",
+};
 
 interface Item {
   id: string;
@@ -20,6 +32,7 @@ export default function Gallery() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<Item | null>(null);
+  const c = useContentSection("pageGallery", FALLBACK);
 
   useEffect(() => {
     document.title = "معرض الصّور — آيلاند هيفن";
@@ -43,9 +56,9 @@ export default function Gallery() {
 
   return (
     <PageShell
-      eyebrow="Gallery"
-      title="معرض الصّور"
-      subtitle="مقتطفاتٌ من أعمال المنتسبين، ولحظاتٍ من حياة المساحة. اضغط أيّ صورة لعرضها بحجمها الكامل."
+      eyebrow={c.eyebrow}
+      title={c.title}
+      subtitle={c.subtitle}
       maxWidth="max-w-7xl"
     >
       {error && (
@@ -62,7 +75,7 @@ export default function Gallery() {
           ))}
         </div>
       ) : items && items.length === 0 ? (
-        <EmptyState title="لا توجد صور بعد" hint="ستظهر هنا تلقائيًّا مع كلّ عمل جديد." />
+        <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
       ) : (
         <div
           className="columns-2 sm:columns-3 lg:columns-4 gap-3 [&>*]:mb-3"
@@ -132,7 +145,7 @@ export default function Gallery() {
                   <div className="text-[16px] font-bold truncate">{active.title}</div>
                   {active.author && (
                     <div className="text-white/55 text-[12.5px] truncate">
-                      بقلم {active.author}
+                      {c.byAuthor} {active.author}
                     </div>
                   )}
                 </div>
@@ -142,7 +155,7 @@ export default function Gallery() {
                       href={`/works/${active.workId}`}
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-primary-foreground text-[12.5px] font-semibold"
                     >
-                      افتح العمل
+                      {c.openWork}
                       <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                     </Link>
                   )}
