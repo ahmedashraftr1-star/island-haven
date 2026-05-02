@@ -10,16 +10,32 @@ const FALLBACK = {
   tagline: "آيلاند هيفن · غزّة",
   ctaLabel: "انتسب الآن",
   ctaHref: "/apply",
+  bookCtaLabel: "احجز مقعد",
+  menuLabel: "القائمة",
+  nav1Label: "الرئيسيّة",
+  nav1En: "Home",
+  nav2Label: "منتسبو المساحة",
+  nav2En: "Members",
+  nav3Label: "البرنامج التّدريبيّ",
+  nav3En: "Programs",
+  nav4Label: "مُجتمعنا بالأرقام",
+  nav4En: "Numbers",
+  nav5Label: "فعاليّات آيلاند",
+  nav5En: "Events",
+  nav6Label: "معرض الصّور",
+  nav6En: "Gallery",
+  nav7Label: "من نحن",
+  nav7En: "About",
 };
 
-const NAV: Array<{ label: string; en: string; href: string }> = [
-  { label: "الرئيسيّة", en: "Home", href: "/" },
-  { label: "منتسبو المساحة", en: "Members", href: "/members" },
-  { label: "البرنامج التّدريبيّ", en: "Programs", href: "/courses" },
-  { label: "مُجتمعنا بالأرقام", en: "Numbers", href: "/numbers" },
-  { label: "فعاليّات آيلاند", en: "Events", href: "/events" },
-  { label: "معرض الصّور", en: "Gallery", href: "/gallery" },
-  { label: "من نحن", en: "About", href: "/about" },
+const NAV_ROUTES: Array<{ href: string; labelKey: keyof typeof FALLBACK; enKey: keyof typeof FALLBACK }> = [
+  { href: "/", labelKey: "nav1Label", enKey: "nav1En" },
+  { href: "/members", labelKey: "nav2Label", enKey: "nav2En" },
+  { href: "/courses", labelKey: "nav3Label", enKey: "nav3En" },
+  { href: "/numbers", labelKey: "nav4Label", enKey: "nav4En" },
+  { href: "/events", labelKey: "nav5Label", enKey: "nav5En" },
+  { href: "/gallery", labelKey: "nav6Label", enKey: "nav6En" },
+  { href: "/about", labelKey: "nav7Label", enKey: "nav7En" },
 ];
 
 function isActiveRoute(loc: string, href: string): boolean {
@@ -29,6 +45,11 @@ function isActiveRoute(loc: string, href: string): boolean {
 
 export function Header() {
   const c = useContentSection("header", FALLBACK);
+  const NAV = NAV_ROUTES.map((r) => ({
+    href: r.href,
+    label: c[r.labelKey] || (FALLBACK[r.labelKey] as string),
+    en: c[r.enKey] || (FALLBACK[r.enKey] as string),
+  }));
   const [scrolledRaw, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [loc] = useLocation();
@@ -132,7 +153,7 @@ export function Header() {
                 : "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15"
             }`}
           >
-            احجز مقعد
+            {c.bookCtaLabel}
           </Link>
           <Link
             href={c.ctaHref || "/apply"}
@@ -154,7 +175,7 @@ export function Header() {
               ? "border border-border bg-white text-foreground"
               : "border border-white/25 bg-white/10 backdrop-blur-md text-white"
           }`}
-          aria-label="القائمة"
+          aria-label={c.menuLabel}
           data-testid="button-mobile-menu"
         >
           {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -193,7 +214,7 @@ export function Header() {
                   href="/book"
                   className="inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary-soft text-primary text-[14px] font-semibold"
                 >
-                  احجز مقعد
+                  {c.bookCtaLabel}
                 </Link>
                 <Link
                   href={c.ctaHref || "/apply"}

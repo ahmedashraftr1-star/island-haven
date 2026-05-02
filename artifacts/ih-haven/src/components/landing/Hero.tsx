@@ -16,6 +16,9 @@ const FALLBACK = {
   ctaSecondary: "تحدّث معنا",
   ctaSecondaryHref: "https://wa.me/972567536815",
   topRight: "Season · 2026 · open",
+  onAirLabel: "On Air · غزّة",
+  bookCtaLabel: "احجز مقعدك",
+  scrollLabel: "Scroll",
   estLabel: "Est · 2024",
   placeLabel: "فلسطين · Gaza",
   stat1Value: "٣٩",
@@ -42,10 +45,10 @@ function KineticLine({
   accent?: boolean;
 }) {
   return (
-    <span className="block overflow-hidden pb-[0.16em]">
+    <span className="block overflow-hidden pt-[0.22em] pb-[0.18em]">
       <motion.span
         className={`block ${accent ? "text-accent-gradient" : ""}`}
-        initial={{ y: "108%" }}
+        initial={{ y: "115%" }}
         animate={{ y: 0 }}
         transition={{ duration: 1.2, delay, ease: [0.19, 1, 0.22, 1] }}
       >
@@ -171,7 +174,7 @@ export function Hero() {
         <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            On Air · غزّة · {now}
+            {c.onAirLabel} · {now}
           </div>
           {c.topRight && (
             <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.16em] uppercase font-semibold text-white/85">
@@ -238,7 +241,7 @@ export function Hero() {
               data-testid="cta-book"
               className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(220,68,84,0.45)]"
             >
-              <span className="relative z-10">احجز مقعدك</span>
+              <span className="relative z-10">{c.bookCtaLabel}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
             </a>
             {c.ctaSecondary && (
@@ -295,7 +298,7 @@ export function Hero() {
               transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:flex flex-col items-center gap-2 text-white/65"
             >
-              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">Scroll</span>
+              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
               <ArrowDown className="w-4 h-4" />
             </motion.div>
           </div>

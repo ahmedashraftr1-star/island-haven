@@ -56,6 +56,9 @@ export const CONTENT_SCHEMA: SectionDef[] = [
       txt("ctaSecondary", "نص الزر الثانوي", "تحدّث معنا"),
       url("ctaSecondaryHref", "رابط الزر الثانوي (واتساب)", "https://wa.me/970599000000"),
       txt("topRight", "كتابة أعلى يمين الشاشة", "Season · 2026 · open"),
+      txt("onAirLabel", "شارة \"On Air\" أعلى يسار الشاشة", "On Air · غزّة"),
+      txt("bookCtaLabel", "زرّ الحجز — التسمية", "احجز مقعدك"),
+      txt("scrollLabel", "نصّ مؤشّر التمرير أسفل الشاشة", "Scroll"),
       txt("estLabel", "نص الـ Est تحت الشعار", "Est · 2024"),
       txt("placeLabel", "نص الموقع تحت الشعار", "فلسطين · Gaza"),
       txt("stat1Value", "إحصائية ١ — الرقم", "٣٩"),
@@ -312,28 +315,29 @@ export const CONTENT_SCHEMA: SectionDef[] = [
   {
     key: "header",
     label: "الهيدر (Header)",
-    description: "شريط التنقّل العلوي — الشعار، الروابط، وزرّ الانتساب.",
+    description: "شريط التنقّل العلوي — الشعار، روابط القائمة، زرّ الحجز، وزرّ الانتساب.",
     fields: [
       img("logo", "الشعار", "/logo.png"),
       txt("brand", "اسم العلامة (لاتيني)", "Island Haven"),
       txt("tagline", "تسمية تحت العلامة", "آيلاند هيفن · غزّة"),
-      txt("nav1Label", "رابط ١ — التسمية", "من نحن"),
-      url("nav1Href", "رابط ١ — الوجهة", "#about"),
-      txt("nav1Group", "رابط ١ — المجموعة", "المساحة"),
-      txt("nav2Label", "رابط ٢ — التسمية", "الفئات"),
-      url("nav2Href", "رابط ٢ — الوجهة", "#audience"),
-      txt("nav2Group", "رابط ٢ — المجموعة", "المجتمع"),
-      txt("nav3Label", "رابط ٣ — التسمية", "ما نقدّم"),
-      url("nav3Href", "رابط ٣ — الوجهة", "#offerings"),
-      txt("nav3Group", "رابط ٣ — المجموعة", "التجربة"),
-      txt("nav4Label", "رابط ٤ — التسمية", "الفعاليّات"),
-      url("nav4Href", "رابط ٤ — الوجهة", "#programs"),
-      txt("nav4Group", "رابط ٤ — المجموعة", "المجتمع"),
-      txt("nav5Label", "رابط ٥ — التسمية", "تواصل"),
-      url("nav5Href", "رابط ٥ — الوجهة", "#visit"),
-      txt("nav5Group", "رابط ٥ — المجموعة", "الزيارة"),
-      txt("ctaLabel", "نص الزر", "انتسب الآن"),
-      url("ctaHref", "رابط الزر", "/apply"),
+      txt("nav1Label", "رابط ١ — التسمية", "الرئيسيّة"),
+      txt("nav1En", "رابط ١ — إنجليزي", "Home"),
+      txt("nav2Label", "رابط ٢ — التسمية", "منتسبو المساحة"),
+      txt("nav2En", "رابط ٢ — إنجليزي", "Members"),
+      txt("nav3Label", "رابط ٣ — التسمية", "البرنامج التّدريبيّ"),
+      txt("nav3En", "رابط ٣ — إنجليزي", "Programs"),
+      txt("nav4Label", "رابط ٤ — التسمية", "مُجتمعنا بالأرقام"),
+      txt("nav4En", "رابط ٤ — إنجليزي", "Numbers"),
+      txt("nav5Label", "رابط ٥ — التسمية", "فعاليّات آيلاند"),
+      txt("nav5En", "رابط ٥ — إنجليزي", "Events"),
+      txt("nav6Label", "رابط ٦ — التسمية", "معرض الصّور"),
+      txt("nav6En", "رابط ٦ — إنجليزي", "Gallery"),
+      txt("nav7Label", "رابط ٧ — التسمية", "من نحن"),
+      txt("nav7En", "رابط ٧ — إنجليزي", "About"),
+      txt("bookCtaLabel", "زرّ الحجز — التسمية", "احجز مقعد"),
+      txt("ctaLabel", "زرّ الانتساب — التسمية", "انتسب الآن"),
+      url("ctaHref", "زرّ الانتساب — الرابط", "/apply"),
+      txt("menuLabel", "تسمية زرّ القائمة على الجوّال", "القائمة"),
     ],
   },
   {
@@ -729,6 +733,7 @@ router.put("/admin/content/:key", requireAdmin, async (req, res) => {
   }
   const fields = FIELD_INDEX.get(key)!;
   const cleaned: Record<string, string> = {};
+  const unknownKeys: string[] = [];
   const isSafeUrlOrPath = (v: string): boolean => {
     if (v === "") return true;
     if (v.startsWith("/")) return true; // relative path (uploads, public assets)
@@ -742,8 +747,14 @@ router.put("/admin/content/:key", requireAdmin, async (req, res) => {
   };
   for (const [fk, fv] of Object.entries(parsed.data.value)) {
     const def = fields.get(fk);
-    if (!def) continue; // drop unknown fields silently
-    if (typeof fv !== "string") continue;
+    if (!def) {
+      unknownKeys.push(fk);
+      continue;
+    }
+    if (typeof fv !== "string") {
+      res.status(400).json({ error: `قيمة الحقل ${fk} يجب أن تكون نصّاً` });
+      return;
+    }
     if (fv.length > 8000) {
       res.status(400).json({ error: `حقل ${fk} يتجاوز الحدّ المسموح` });
       return;
@@ -753,6 +764,13 @@ router.put("/admin/content/:key", requireAdmin, async (req, res) => {
       return;
     }
     cleaned[fk] = fv;
+  }
+  if (unknownKeys.length > 0) {
+    res.status(400).json({
+      error: `حقول غير معروفة في القسم ${key}: ${unknownKeys.join(", ")}`,
+      unknownKeys,
+    });
+    return;
   }
   await db
     .insert(siteSettingsTable)
