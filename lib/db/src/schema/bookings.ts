@@ -78,7 +78,7 @@ export const insertBookingSchema = z.object({
       return day - Date.now() < 1000 * 60 * 60 * 24 * 180;
     }, "التاريخ بعيد جدًّا"),
   timeSlot: z.enum(["morning", "midday", "afternoon", "fullday"]),
-  purpose: z.enum(["work", "study", "meeting", "event", "tour", "other"]),
+  purpose: z.enum(["work", "study", "meeting", "event", "tour", "guest", "other"]),
   attendees: z.coerce.number().int().min(1).max(8).default(1),
   notes: safeText(0, 1000, "").default(""),
 });

@@ -12,6 +12,11 @@ import { api, ApiError } from "./api";
 
 export type UserRole = "freelancer" | "graduate" | "student" | "other";
 
+export interface ExtraLink {
+  label: string;
+  url: string;
+}
+
 export interface AuthUser {
   id: number;
   email: string;
@@ -19,9 +24,14 @@ export interface AuthUser {
   role: UserRole;
   avatarUrl: string | null;
   bio: string;
+  jobTitle: string;
   phone: string;
   skills: string;
   portfolioUrl: string;
+  linkedinUrl: string;
+  behanceUrl: string;
+  githubUrl: string;
+  otherLinks: ExtraLink[];
   createdAt: string;
   updatedAt: string;
 }

@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
-import { Phone, Globe, ExternalLink } from "lucide-react";
+import {
+  Phone,
+  Globe,
+  Linkedin,
+  Github,
+  Briefcase,
+  ExternalLink,
+} from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
-import { ROLE_LABELS, type UserRole } from "@/lib/auth";
+import { ROLE_LABELS, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
 
 interface Resp {
@@ -13,8 +20,13 @@ interface Resp {
     role: UserRole;
     avatarUrl: string | null;
     bio: string;
+    jobTitle: string;
     skills: string;
     portfolioUrl: string;
+    linkedinUrl: string;
+    behanceUrl: string;
+    githubUrl: string;
+    otherLinks: ExtraLink[];
     phone: string;
     createdAt: string;
   };
@@ -26,6 +38,17 @@ interface Resp {
     tags: string;
   }>;
 }
+
+const BehanceMark = ({ className = "" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden
+    className={className}
+  >
+    <path d="M22 7h-7V5.5h7V7Zm1.7 10.7H14V6.4h9.5c4.6 0 4.6 5.7 1.5 6.4 3.7.7 3.4 5-1.3 4.9Zm-5.5-9.3v2.8h4.6c1.5 0 1.7-2.8 0-2.8h-4.6Zm0 4.6v3h4.7c1.8 0 2.1-3 0-3h-4.7ZM10.4 9.2c0-2.5-1.7-3.7-4.6-3.7H0v13h6.1c3 0 4.7-1.5 4.7-4 0-1.7-.7-2.9-2.4-3.4 1.4-.6 2-1.5 2-2Zm-7.6-.7H6c2.3 0 2.4 2.5 0 2.5H2.8V8.5Zm3.4 7.5H2.8v-3h3.5c2.6 0 2.6 3 0 3Z" />
+  </svg>
+);
 
 export default function PublicProfile() {
   const [, params] = useRoute("/u/:id");
@@ -48,15 +71,15 @@ export default function PublicProfile() {
 
   if (error && !data) {
     return (
-      <PageShell>
-        <BackLink href="/works" label="عودة" />
+      <PageShell active="members">
+        <BackLink href="/members" label="عودة للمنتسبين" />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
-      <PageShell>
+      <PageShell active="members">
         <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
       </PageShell>
     );
@@ -65,26 +88,43 @@ export default function PublicProfile() {
   const u = data.user;
   const initials = u.fullName.split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
   const skills = splitTags(u.skills);
+  const otherLinks = Array.isArray(u.otherLinks) ? u.otherLinks : [];
+
+  const externalLinks: Array<{ label: string; url: string; Icon: React.ComponentType<{ className?: string }> }> = [];
+  if (u.linkedinUrl) externalLinks.push({ label: "LinkedIn", url: u.linkedinUrl, Icon: Linkedin });
+  if (u.behanceUrl) externalLinks.push({ label: "Behance", url: u.behanceUrl, Icon: BehanceMark });
+  if (u.githubUrl) externalLinks.push({ label: "GitHub", url: u.githubUrl, Icon: Github });
+  if (u.portfolioUrl) externalLinks.push({ label: "الموقع", url: u.portfolioUrl, Icon: Globe });
 
   return (
-    <PageShell maxWidth="max-w-5xl">
-      <BackLink href="/works" label="معرض المجتمع" />
+    <PageShell active="members" maxWidth="max-w-5xl">
+      <BackLink href="/members" label="كلّ المنتسبين" />
       <GlassCard className="p-6 sm:p-10 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)]">
-            {initials || "·"}
+          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
+            {u.avatarUrl ? (
+              <img src={u.avatarUrl} alt={u.fullName} className="w-full h-full object-cover" />
+            ) : (
+              initials || "·"
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
               {ROLE_LABELS[u.role]}
             </div>
             <h1
-              className="font-bold text-white leading-tight mb-3"
+              className="font-bold text-white leading-tight mb-2"
               style={{ fontSize: "clamp(1.7rem, 4.5vw, 2.4rem)" }}
               data-testid="text-public-profile-name"
             >
               {u.fullName}
             </h1>
+            {u.jobTitle && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-white/80 text-[13px] mb-4">
+                <Briefcase className="w-3.5 h-3.5 text-primary" />
+                {u.jobTitle}
+              </div>
+            )}
             {u.bio && (
               <p className="text-white/65 text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
                 {u.bio}
@@ -114,18 +154,38 @@ export default function PublicProfile() {
                 <Phone className="w-3.5 h-3.5" /> واتساب
               </a>
             )}
-            {u.portfolioUrl && (
-              <a
-                href={u.portfolioUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white text-[12.5px] font-semibold hover:bg-white/[0.1] transition-colors"
-              >
-                <Globe className="w-3.5 h-3.5" /> الموقع
-              </a>
-            )}
           </div>
         </div>
+
+        {(externalLinks.length > 0 || otherLinks.length > 0) && (
+          <div className="mt-6 pt-6 border-t border-white/10 flex flex-wrap gap-2">
+            {externalLinks.map(({ label, url, Icon }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-white text-[12px] font-semibold hover:bg-white/[0.1] transition-colors"
+                data-testid={`link-${label.toLowerCase()}`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </a>
+            ))}
+            {otherLinks.map((l, i) => (
+              <a
+                key={`${l.url}-${i}`}
+                href={l.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-white/85 text-[12px] font-semibold hover:bg-white/[0.08] transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" />
+                {l.label}
+              </a>
+            ))}
+          </div>
+        )}
       </GlassCard>
 
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">

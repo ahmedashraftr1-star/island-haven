@@ -6,6 +6,7 @@ import {
   varchar,
   integer,
   index,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { usersTable } from "./users";
@@ -24,6 +25,8 @@ export const worksTable = pgTable(
     summary: varchar("summary", { length: 400 }).default("").notNull(),
     description: text("description").default("").notNull(),
     coverUrl: text("cover_url"),
+    galleryUrls: jsonb("gallery_urls").$type<string[]>().default([]).notNull(),
+    videoUrl: text("video_url").default("").notNull(),
     link: text("link").default("").notNull(),
     tags: varchar("tags", { length: 400 }).default("").notNull(), // comma-separated
     status: varchar("status", { length: 16 })
@@ -46,20 +49,27 @@ export const worksTable = pgTable(
 const safeText = (max: number) =>
   z.string().trim().max(max).regex(/^[^<>]*$/u, "رموز غير مسموح بها");
 
+const httpUrl = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .refine(
+      (v) => v === "" || /^https?:\/\//i.test(v),
+      "الرابط يجب أن يبدأ بـ http(s)://",
+    );
+
 export const upsertWorkSchema = z.object({
   title: safeText(200).min(2, "العنوان قصير جدًّا"),
   summary: safeText(400).default(""),
   description: safeText(8000).default(""),
   coverUrl: z.string().trim().max(800).optional().nullable(),
-  link: z
-    .string()
-    .trim()
-    .max(800)
-    .refine(
-      (v) => v === "" || /^https?:\/\//i.test(v),
-      "الرابط يجب أن يبدأ بـ http(s)://",
-    )
-    .default(""),
+  galleryUrls: z
+    .array(z.string().trim().max(800))
+    .max(20, "عدد الصور كبير جدًّا")
+    .default([]),
+  videoUrl: httpUrl(800).default(""),
+  link: httpUrl(800).default(""),
   tags: safeText(400).default(""),
 });
 

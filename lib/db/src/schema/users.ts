@@ -5,6 +5,7 @@ import {
   timestamp,
   varchar,
   index,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -13,6 +14,11 @@ export type UserRole = (typeof USER_ROLES)[number];
 
 export const USER_STATUSES = ["active", "banned"] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
+
+export interface ExtraLink {
+  label: string;
+  url: string;
+}
 
 export const usersTable = pgTable(
   "users",
@@ -24,9 +30,14 @@ export const usersTable = pgTable(
     role: varchar("role", { length: 16 }).notNull().$type<UserRole>(),
     avatarUrl: text("avatar_url"),
     bio: text("bio").default("").notNull(),
+    jobTitle: varchar("job_title", { length: 120 }).default("").notNull(),
     phone: varchar("phone", { length: 40 }).default("").notNull(),
     skills: text("skills").default("").notNull(), // comma-separated
     portfolioUrl: text("portfolio_url").default("").notNull(),
+    linkedinUrl: text("linkedin_url").default("").notNull(),
+    behanceUrl: text("behance_url").default("").notNull(),
+    githubUrl: text("github_url").default("").notNull(),
+    otherLinks: jsonb("other_links").$type<ExtraLink[]>().default([]).notNull(),
     status: varchar("status", { length: 16 })
       .default("active")
       .notNull()
@@ -76,9 +87,20 @@ const safeMultiline = (max: number) =>
     .max(max)
     .regex(/^[^<>]*$/u, "رموز غير مسموح بها");
 
+const httpUrl = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .refine(
+      (v) => v === "" || /^https?:\/\//i.test(v),
+      "الرابط يجب أن يبدأ بـ http(s)://",
+    );
+
 export const updateProfileSchema = z.object({
   fullName: safeName.optional(),
   bio: safeMultiline(2000).optional(),
+  jobTitle: safeMultiline(120).optional(),
   phone: z
     .string()
     .trim()
@@ -86,14 +108,18 @@ export const updateProfileSchema = z.object({
     .regex(/^[\d\s+()\-]*$/u, "رقم الهاتف يحتوي رموزًا غير صحيحة")
     .optional(),
   skills: safeMultiline(500).optional(),
-  portfolioUrl: z
-    .string()
-    .trim()
-    .max(400)
-    .refine(
-      (v) => v === "" || /^https?:\/\//i.test(v),
-      "الرابط يجب أن يبدأ بـ http(s)://",
+  portfolioUrl: httpUrl(400).optional(),
+  linkedinUrl: httpUrl(400).optional(),
+  behanceUrl: httpUrl(400).optional(),
+  githubUrl: httpUrl(400).optional(),
+  otherLinks: z
+    .array(
+      z.object({
+        label: safeMultiline(60).min(1, "العنوان مطلوب"),
+        url: httpUrl(400),
+      }),
     )
+    .max(8, "روابط كثيرة")
     .optional(),
   avatarUrl: z.string().trim().max(800).optional(),
 });

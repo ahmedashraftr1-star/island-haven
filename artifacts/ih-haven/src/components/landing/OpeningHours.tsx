@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 const OPEN_HOUR = 9; // 09:00
 const CLOSE_HOUR = 17; // 17:00 — "السّاعة ٥ مساءً"
 
+// Week starts on Saturday (Gaza convention).
+// Note: `idx` is the JS Date.getDay() value (Sun=0…Sat=6) so we can
+// compare against Asia/Gaza day-of-week to highlight today correctly.
 const DAYS = [
+  { ar: "سبت", en: "Sat", idx: 6 },
   { ar: "أحد", en: "Sun", idx: 0 },
   { ar: "إثنين", en: "Mon", idx: 1 },
   { ar: "ثلاثاء", en: "Tue", idx: 2 },
   { ar: "أربعاء", en: "Wed", idx: 3 },
   { ar: "خميس", en: "Thu", idx: 4 },
   { ar: "جمعة", en: "Fri", idx: 5, closed: true },
-  { ar: "سبت", en: "Sat", idx: 6 },
 ];
 
 /**
@@ -241,18 +244,18 @@ export function OpeningHours() {
             </span>
           </div>
 
-          {/* Weekly strip — glass tiles */}
-          <div className="flex flex-wrap gap-1.5 lg:gap-2 max-w-md">
+          {/* Weekly strip — single line, week starts Saturday */}
+          <div className="flex flex-nowrap gap-1 sm:gap-1.5 w-full max-w-xl">
             {DAYS.map((d) => {
               const isToday = d.idx === dayOfWeek;
               return (
                 <div
                   key={d.en}
-                  className={`flex-1 min-w-[68px] flex flex-col items-center justify-center px-1 py-3 rounded-xl transition-all relative overflow-hidden ${
+                  className={`flex-1 min-w-0 flex flex-col items-center justify-center px-0.5 py-2.5 rounded-xl transition-all relative overflow-hidden ${
                     isToday
                       ? "bg-white text-[#0A0E1A] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.5)]"
                       : d.closed
-                      ? "text-white/35 line-through decoration-white/30"
+                      ? "text-white/35"
                       : "text-white/75"
                   }`}
                   style={
@@ -266,13 +269,20 @@ export function OpeningHours() {
                           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
                         }
                   }
+                  data-testid={`day-tile-${d.en.toLowerCase()}`}
                 >
-                  <div className="text-[10px] tracking-[0.16em] uppercase font-semibold opacity-65">
+                  <div className="text-[9.5px] tracking-[0.14em] uppercase font-semibold opacity-65">
                     {d.en}
                   </div>
-                  <div className="text-[15px] font-bold mt-0.5">{d.ar}</div>
-                  <div className="text-[10px] mt-1.5 tabular-nums opacity-75 font-mono">
-                    {d.closed ? "—" : "9–17"}
+                  <div className="text-[13px] sm:text-[14px] font-bold mt-0.5 truncate max-w-full">
+                    {d.ar}
+                  </div>
+                  <div
+                    className={`text-[9.5px] mt-1 tabular-nums opacity-75 font-mono ${
+                      d.closed ? "line-through decoration-white/40" : ""
+                    }`}
+                  >
+                    {d.closed ? "مغلق" : "9–17"}
                   </div>
                 </div>
               );

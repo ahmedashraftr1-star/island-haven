@@ -14,7 +14,12 @@ import {
   Globe,
   GraduationCap,
   Briefcase,
+  Linkedin,
+  Github,
+  Link2,
+  X,
 } from "lucide-react";
+import type { ExtraLink } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth, ROLE_LABELS } from "@/lib/auth";
@@ -74,9 +79,14 @@ function ProfileInner({
   const [form, setForm] = useState({
     fullName: user.fullName,
     bio: user.bio || "",
+    jobTitle: user.jobTitle || "",
     phone: user.phone || "",
     skills: user.skills || "",
     portfolioUrl: user.portfolioUrl || "",
+    linkedinUrl: user.linkedinUrl || "",
+    behanceUrl: user.behanceUrl || "",
+    githubUrl: user.githubUrl || "",
+    otherLinks: (user.otherLinks ?? []) as ExtraLink[],
   });
   const [submitting, setSubmitting] = useState(false);
   const [issues, setIssues] = useState<Record<string, string>>({});
@@ -88,11 +98,36 @@ function ProfileInner({
     setForm({
       fullName: user.fullName,
       bio: user.bio || "",
+      jobTitle: user.jobTitle || "",
       phone: user.phone || "",
       skills: user.skills || "",
       portfolioUrl: user.portfolioUrl || "",
+      linkedinUrl: user.linkedinUrl || "",
+      behanceUrl: user.behanceUrl || "",
+      githubUrl: user.githubUrl || "",
+      otherLinks: (user.otherLinks ?? []) as ExtraLink[],
     });
   }, [user]);
+
+  function addOtherLink() {
+    setForm((s) =>
+      s.otherLinks.length >= 8
+        ? s
+        : { ...s, otherLinks: [...s.otherLinks, { label: "", url: "" }] },
+    );
+  }
+  function updateOtherLink(idx: number, patch: Partial<ExtraLink>) {
+    setForm((s) => ({
+      ...s,
+      otherLinks: s.otherLinks.map((l, i) => (i === idx ? { ...l, ...patch } : l)),
+    }));
+  }
+  function removeOtherLink(idx: number) {
+    setForm((s) => ({
+      ...s,
+      otherLinks: s.otherLinks.filter((_, i) => i !== idx),
+    }));
+  }
 
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
@@ -271,6 +306,16 @@ function ProfileInner({
                 error={issues.fullName}
               />
               <EditField
+                id="jobTitle"
+                label="المسمّى الوظيفيّ"
+                hint="Job title"
+                icon={Briefcase}
+                value={form.jobTitle}
+                onChange={(v) => setForm((s) => ({ ...s, jobTitle: v }))}
+                placeholder="مثال: مصمّم منتجات، مطوّر واجهات"
+                error={issues.jobTitle}
+              />
+              <EditField
                 id="phone"
                 label="رقم الواتساب"
                 hint="WhatsApp"
@@ -306,6 +351,103 @@ function ProfileInner({
                 ltr
                 error={issues.portfolioUrl}
               />
+              <EditField
+                id="linkedinUrl"
+                label="حساب لينكدإن"
+                hint="LinkedIn"
+                icon={Linkedin}
+                value={form.linkedinUrl}
+                onChange={(v) => setForm((s) => ({ ...s, linkedinUrl: v }))}
+                placeholder="https://www.linkedin.com/in/…"
+                ltr
+                error={issues.linkedinUrl}
+              />
+              <EditField
+                id="behanceUrl"
+                label="حساب بيهانس"
+                hint="Behance"
+                icon={Globe}
+                value={form.behanceUrl}
+                onChange={(v) => setForm((s) => ({ ...s, behanceUrl: v }))}
+                placeholder="https://www.behance.net/…"
+                ltr
+                error={issues.behanceUrl}
+              />
+              <EditField
+                id="githubUrl"
+                label="حساب جيت‌هَب"
+                hint="GitHub"
+                icon={Github}
+                value={form.githubUrl}
+                onChange={(v) => setForm((s) => ({ ...s, githubUrl: v }))}
+                placeholder="https://github.com/…"
+                ltr
+                error={issues.githubUrl}
+              />
+
+              <FieldShell
+                id="otherLinks"
+                label="روابط إضافيّة"
+                hint="Other links"
+                icon={Link2}
+                error={issues.otherLinks}
+              >
+                <div className="space-y-2">
+                  {form.otherLinks.length === 0 && (
+                    <p className="text-white/35 text-[12.5px] italic px-1">
+                      أضف روابط مثل اليوتيوب، Dribbble، أو موقعك الخاصّ.
+                    </p>
+                  )}
+                  {form.otherLinks.map((l, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[1fr_2fr_auto] gap-2 items-center"
+                    >
+                      <input
+                        value={l.label}
+                        onChange={(e) =>
+                          updateOtherLink(i, { label: e.target.value })
+                        }
+                        placeholder="العنوان"
+                        maxLength={60}
+                        className="rounded-xl bg-white/[0.04] border border-white/10 px-3 py-2 text-white text-[13px] outline-none focus:border-primary/40"
+                        data-testid={`input-other-link-label-${i}`}
+                      />
+                      <input
+                        value={l.url}
+                        dir="ltr"
+                        onChange={(e) =>
+                          updateOtherLink(i, { url: e.target.value })
+                        }
+                        placeholder="https://…"
+                        maxLength={400}
+                        className="rounded-xl bg-white/[0.04] border border-white/10 px-3 py-2 text-white text-[13px] outline-none focus:border-primary/40"
+                        data-testid={`input-other-link-url-${i}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeOtherLink(i)}
+                        className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/10 text-white/55 hover:text-red-200 hover:border-red-500/30 hover:bg-red-500/10 flex items-center justify-center transition-colors"
+                        aria-label="حذف"
+                        data-testid={`button-remove-other-link-${i}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {form.otherLinks.length < 8 && (
+                    <button
+                      type="button"
+                      onClick={addOtherLink}
+                      className="w-full py-2 rounded-xl border border-dashed border-white/15 text-white/55 text-[12.5px] font-semibold hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+                      data-testid="button-add-other-link"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      إضافة رابط
+                    </button>
+                  )}
+                </div>
+              </FieldShell>
 
               <div className="pt-2">
                 <SectionHeader index="03" title="نبذتك" sub="About" />
@@ -433,6 +575,48 @@ function ProfileInner({
                 ) : (
                   <Empty msg="لم يُضَف بعد." />
                 )}
+              </InfoCard>
+
+              <InfoCard label="المسمّى الوظيفيّ" hint="Job title" icon={Briefcase}>
+                {user.jobTitle ? (
+                  <div className="text-white text-[14px] font-semibold">
+                    {user.jobTitle}
+                  </div>
+                ) : (
+                  <Empty msg="لم يُضَف بعد." />
+                )}
+              </InfoCard>
+
+              <InfoCard label="حساباتي" hint="Profiles" icon={Link2}>
+                {(() => {
+                  const all: Array<{ label: string; url: string; Icon: React.ElementType }> = [];
+                  if (user.linkedinUrl)
+                    all.push({ label: "LinkedIn", url: user.linkedinUrl, Icon: Linkedin });
+                  if (user.behanceUrl)
+                    all.push({ label: "Behance", url: user.behanceUrl, Icon: Globe });
+                  if (user.githubUrl)
+                    all.push({ label: "GitHub", url: user.githubUrl, Icon: Github });
+                  for (const l of user.otherLinks ?? []) {
+                    if (l.url) all.push({ label: l.label || l.url, url: l.url, Icon: Link2 });
+                  }
+                  if (all.length === 0)
+                    return <Empty msg="أضف روابط حساباتك من زرّ التعديل." />;
+                  return (
+                    <div className="flex flex-wrap gap-1.5">
+                      {all.map(({ label, url, Icon }) => (
+                        <a
+                          key={`${label}-${url}`}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/15 text-white text-[12px] font-semibold hover:bg-white/[0.1] transition-colors"
+                        >
+                          <Icon className="w-3 h-3" /> {label}
+                        </a>
+                      ))}
+                    </div>
+                  );
+                })()}
               </InfoCard>
             </div>
           )}

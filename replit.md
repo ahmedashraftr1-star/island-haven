@@ -32,9 +32,36 @@ Arabic RTL landing page + admin dashboard for a free workspace in Gaza supported
 
 ### Routes (frontend, `artifacts/ih-haven`)
 
-- `/` — landing page (17 sections; `Home.tsx`)
+- `/` — slim landing page (Hero → NewsSlider → NumbersBand → Audience → HoursLocation; `Home.tsx`)
+- `/members` — full members directory with rich profile cards (`pages/Members.tsx`)
+- `/u/:id` — public profile + works grid (`pages/PublicProfile.tsx`)
+- `/numbers` — live community statistics from real DB (`pages/Numbers.tsx`)
+- `/gallery` — collected images from works covers + galleries (`pages/Gallery.tsx`)
+- `/events`, `/events/:id` — Daily content rebranded as Events (`pages/Events.tsx`)
+- `/about` — vision/mission + Story + Support (`pages/About.tsx`)
+- `/courses`, `/works`, `/work/:id`, `/work/new`, `/work/:id/edit` — programs + member works
+- `/profile` — authenticated member profile editor with jobTitle + linkedin/behance/github/portfolio + 8 free links
 - `/apply` — public application form (`pages/Apply.tsx`)
 - `/admin` — admin login + dashboard (`pages/admin/`)
+
+### Header (`components/landing/Header.tsx`)
+
+7-tab nav with framer-motion `layoutId="nav-pill"` highlight, scroll-aware
+styling on home, and always condensed on non-home routes so the nav stays
+readable on white sections.
+
+### New backend endpoints (`artifacts/api-server/src/routes`)
+
+- `GET /api/members` — rich member list including new profile cols + worksCount
+- `GET /api/numbers` — aggregate community statistics
+- `GET /api/gallery` — collected images from `works.coverUrl` + `works.galleryUrls`
+
+### Access control
+
+- `GET /api/works/:id` and `GET /api/users/:id` both filter by
+  `works.status='visible'` and `users.status='active'` for non-owners
+  (admins moderate via `/api/admin/*`).
+- `phone` is omitted for anonymous callers across these endpoints.
 
 ### Admin dashboard
 

@@ -21,15 +21,28 @@ export function PageShell({
   subtitle?: string;
   children: ReactNode;
   maxWidth?: string;
-  active?: "courses" | "works" | "daily" | "profile";
+  active?:
+    | "members"
+    | "courses"
+    | "numbers"
+    | "events"
+    | "gallery"
+    | "works"
+    | "daily"
+    | "profile"
+    | "about";
 }) {
   const { user, loading } = useAuth();
   const [loc] = useLocation();
 
   const NAV = [
-    { href: "/courses", label: "الكورسات والورشات", key: "courses" as const },
-    { href: "/works", label: "أعمال المستقلّين", key: "works" as const },
-    { href: "/daily", label: "اليوميّات", key: "daily" as const },
+    { href: "/members", label: "المنتسبون", key: "members" as const },
+    { href: "/courses", label: "البرنامج التّدريبيّ", key: "courses" as const },
+    { href: "/numbers", label: "بالأرقام", key: "numbers" as const },
+    { href: "/events", label: "الفعاليّات", key: "events" as const },
+    { href: "/gallery", label: "الصّور", key: "gallery" as const },
+    { href: "/works", label: "الأعمال", key: "works" as const },
+    { href: "/about", label: "من نحن", key: "about" as const },
   ];
 
   return (

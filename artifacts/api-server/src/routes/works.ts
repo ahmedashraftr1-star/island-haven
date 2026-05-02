@@ -88,8 +88,14 @@ router.get("/works/:id", optionalUser, async (req, res) => {
           role: usersTable.role,
           avatarUrl: usersTable.avatarUrl,
           bio: usersTable.bio,
+          jobTitle: usersTable.jobTitle,
           portfolioUrl: usersTable.portfolioUrl,
+          linkedinUrl: usersTable.linkedinUrl,
+          behanceUrl: usersTable.behanceUrl,
+          githubUrl: usersTable.githubUrl,
+          otherLinks: usersTable.otherLinks,
           phone: usersTable.phone,
+          authorStatus: usersTable.status,
         },
       })
       .from(worksTable)
@@ -102,11 +108,23 @@ router.get("/works/:id", optionalUser, async (req, res) => {
     }
     const session = (req as Request & { userSession?: UserSession }).userSession;
     const isOwner = session?.userId === row.author.id;
+    // Hidden works and inactive authors are only viewable by their owner.
+    // Admins moderate via dedicated /api/admin/* endpoints.
+    if (
+      !isOwner &&
+      (row.work.status !== "visible" || row.author.authorStatus !== "active")
+    ) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // Strip the internal authorStatus before responding.
+    const { authorStatus: _omit, ...authorSafe } = row.author;
+    void _omit;
     // Phone is contact info — only expose to authenticated members
     // to prevent scraping by anonymous visitors.
     const author = session
-      ? row.author
-      : { ...row.author, phone: null as unknown as string };
+      ? authorSafe
+      : { ...authorSafe, phone: null as unknown as string };
     res.json({ work: row.work, author, isOwner });
   } catch (err) {
     logger.error({ err }, "GET /works/:id failed");
@@ -139,6 +157,8 @@ router.post("/works", requireUser, async (req, res) => {
         summary: d.summary,
         description: d.description,
         coverUrl: d.coverUrl ?? null,
+        galleryUrls: d.galleryUrls ?? [],
+        videoUrl: d.videoUrl ?? "",
         link: d.link,
         tags: d.tags,
       })
@@ -175,6 +195,8 @@ router.patch("/works/:id", requireUser, async (req, res) => {
     if (d.summary !== undefined) update.summary = d.summary;
     if (d.description !== undefined) update.description = d.description;
     if (d.coverUrl !== undefined) update.coverUrl = d.coverUrl;
+    if (d.galleryUrls !== undefined) update.galleryUrls = d.galleryUrls;
+    if (d.videoUrl !== undefined) update.videoUrl = d.videoUrl;
     if (d.link !== undefined) update.link = d.link;
     if (d.tags !== undefined) update.tags = d.tags;
     const [row] = await db
@@ -227,8 +249,13 @@ router.get("/users/:id", optionalUser, async (req, res) => {
         role: usersTable.role,
         avatarUrl: usersTable.avatarUrl,
         bio: usersTable.bio,
+        jobTitle: usersTable.jobTitle,
         skills: usersTable.skills,
         portfolioUrl: usersTable.portfolioUrl,
+        linkedinUrl: usersTable.linkedinUrl,
+        behanceUrl: usersTable.behanceUrl,
+        githubUrl: usersTable.githubUrl,
+        otherLinks: usersTable.otherLinks,
         phone: usersTable.phone,
         createdAt: usersTable.createdAt,
       })
@@ -239,14 +266,22 @@ router.get("/users/:id", optionalUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    const isOwner = session?.userId === id;
     const works = await db
       .select()
       .from(worksTable)
-      .where(eq(worksTable.userId, id))
+      .where(
+        isOwner
+          ? eq(worksTable.userId, id)
+          : and(
+              eq(worksTable.userId, id),
+              eq(worksTable.status, "visible"),
+            ),
+      )
       .orderBy(desc(worksTable.createdAt));
     // Phone is contact info — only expose to authenticated members
     // to prevent anonymous scraping by ID enumeration.
-    const session = (req as Request & { userSession?: UserSession }).userSession;
     const user = session ? u : { ...u, phone: null as unknown as string };
     res.json({ user, works });
   } catch (err) {

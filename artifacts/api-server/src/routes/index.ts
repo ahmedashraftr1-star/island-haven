@@ -14,6 +14,9 @@ import worksRouter from "./works";
 import dailyRouter from "./daily";
 import statsRouter from "./stats";
 import userUploadRouter from "./userUpload";
+import membersRouter from "./members";
+import numbersRouter from "./numbers";
+import galleryRouter from "./gallery";
 
 const router: IRouter = Router();
 
@@ -32,5 +35,8 @@ router.use(worksRouter);
 router.use(dailyRouter);
 router.use(statsRouter);
 router.use(userUploadRouter);
+router.use(membersRouter);
+router.use(numbersRouter);
+router.use(galleryRouter);
 
 export default router;

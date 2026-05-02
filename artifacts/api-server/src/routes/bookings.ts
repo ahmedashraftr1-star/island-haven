@@ -318,7 +318,7 @@ const adminCreateSchema = z.object({
   email: z.string().trim().max(160).optional().or(z.literal("")),
   visitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "تاريخ غير صحيح"),
   timeSlot: z.enum(["morning", "midday", "afternoon", "fullday"]),
-  purpose: z.enum(["work", "study", "meeting", "event", "tour", "other"]),
+  purpose: z.enum(["work", "study", "meeting", "event", "tour", "guest", "other"]),
   attendees: z.coerce.number().int().min(1).max(20).default(1),
   notes: z.string().trim().max(2000).regex(/^[^<>]*$/u).default(""),
   status: z.enum(["pending", "confirmed", "cancelled", "completed"]).default("confirmed"),

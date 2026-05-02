@@ -1,0 +1,28 @@
+import { useEffect } from "react";
+import { Header } from "@/components/landing/Header";
+import { ScrollProgress } from "@/components/landing/ScrollProgress";
+import { About as AboutSection } from "@/components/landing/About";
+import { Story } from "@/components/landing/Story";
+import { Support } from "@/components/landing/Support";
+import { Footer } from "@/components/landing/Footer";
+import { SmoothScroll } from "@/components/landing/SmoothScroll";
+
+export default function About() {
+  useEffect(() => {
+    document.title = "من نحن — آيلاند هيفن";
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-background font-sans antialiased relative">
+      <SmoothScroll />
+      <ScrollProgress />
+      <Header />
+      <main className="relative z-10 pt-20">
+        <AboutSection />
+        <Story />
+        <Support />
+      </main>
+      <Footer />
+    </div>
+  );
+}

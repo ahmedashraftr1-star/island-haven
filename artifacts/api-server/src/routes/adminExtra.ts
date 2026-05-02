@@ -376,6 +376,7 @@ export const SETTING_FLAGS = [
   "registration_enabled",
   "bookings_enabled",
   "works_submission_enabled",
+  "guest_seat_enabled",
 ] as const;
 export type SettingFlag = (typeof SETTING_FLAGS)[number];
 
@@ -383,12 +384,14 @@ const SETTING_DEFAULTS: Record<SettingFlag, boolean> = {
   registration_enabled: true,
   bookings_enabled: true,
   works_submission_enabled: true,
+  guest_seat_enabled: false,
 };
 
 const SETTING_LABELS: Record<SettingFlag, string> = {
   registration_enabled: "السماح بالتسجيل في الموقع",
   bookings_enabled: "السماح بحجز المقاعد",
   works_submission_enabled: "السماح برفع الأعمال",
+  guest_seat_enabled: "تفعيل مقعد الضّيف للحجز اليوميّ",
 };
 
 export async function getFlag(key: SettingFlag): Promise<boolean> {

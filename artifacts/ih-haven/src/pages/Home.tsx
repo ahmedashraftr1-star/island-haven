@@ -3,24 +3,13 @@ import { usePageView } from "@/hooks/use-tracking";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
-import { About } from "@/components/landing/About";
 import { Audience } from "@/components/landing/Audience";
-import { Programs } from "@/components/landing/Programs";
-import { Gallery } from "@/components/landing/Gallery";
-import { Story } from "@/components/landing/Story";
-import { Voices } from "@/components/landing/Voices";
 import { HoursLocation } from "@/components/landing/HoursLocation";
-import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
-import { Features } from "@/components/landing/Features";
-import { LiveNow } from "@/components/landing/LiveNow";
-import { StatsBand } from "@/components/landing/StatsBand";
-import { FloatingLivePill } from "@/components/landing/FloatingLivePill";
-import { SideRail } from "@/components/landing/SideRail";
+import { NewsSlider } from "@/components/landing/NewsSlider";
+import { NumbersBand } from "@/components/landing/NumbersBand";
 import { AdminShortcut } from "@/components/landing/AdminShortcut";
-import { Scrollytelling } from "@/components/landing/Scrollytelling";
-import { WordWindow } from "@/components/landing/WordWindow";
 
 export default function Home() {
   usePageView("/");
@@ -30,7 +19,6 @@ export default function Home() {
     if (y) {
       const n = parseInt(y, 10);
       if (!Number.isNaN(n)) {
-        // Repeated scroll catches lenis' smooth-scroll engine resync.
         const tries = [250, 500, 900, 1400];
         tries.forEach((t) =>
           setTimeout(() => window.scrollTo({ top: n, behavior: "auto" }), t),
@@ -45,23 +33,12 @@ export default function Home() {
       <Header />
       <main className="relative z-10">
         <Hero />
-        <LiveNow />
-        <WordWindow />
-        <About />
-        <Features />
-        <StatsBand />
-        <Scrollytelling />
+        <NewsSlider />
+        <NumbersBand />
         <Audience />
-        <Programs />
-        <Gallery />
-        <Voices />
-        <Story />
         <HoursLocation />
-        <Support />
       </main>
       <Footer />
-      <FloatingLivePill />
-      <SideRail />
       <AdminShortcut />
     </div>
   );

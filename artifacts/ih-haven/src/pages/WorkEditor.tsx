@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useRoute } from "wouter";
-import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, X, Plus, Youtube } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -10,6 +10,8 @@ interface FormState {
   summary: string;
   description: string;
   coverUrl: string;
+  galleryUrls: string[];
+  videoUrl: string;
   link: string;
   tags: string;
 }
@@ -19,9 +21,13 @@ const EMPTY: FormState = {
   summary: "",
   description: "",
   coverUrl: "",
+  galleryUrls: [],
+  videoUrl: "",
   link: "",
   tags: "",
 };
+
+const MAX_GALLERY = 12;
 
 export default function WorkEditor() {
   const [matchEdit, paramsEdit] = useRoute("/works/:id/edit");
@@ -34,8 +40,9 @@ export default function WorkEditor() {
   const [submitting, setSubmitting] = useState(false);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState<"cover" | "gallery" | null>(null);
+  const coverFileRef = useRef<HTMLInputElement | null>(null);
+  const galleryFileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     document.title = (editing ? "تعديل عمل" : "إضافة عمل جديد") + " — آيلاند هيفن";
@@ -47,14 +54,27 @@ export default function WorkEditor() {
 
   useEffect(() => {
     if (!editing || !id) return;
-    api<{ work: FormState & { id: number; userId: number } }>(`/works/${id}`)
+    api<{
+      work: {
+        title: string;
+        summary: string;
+        description: string;
+        coverUrl: string | null;
+        galleryUrls: string[] | null;
+        videoUrl: string | null;
+        link: string;
+        tags: string;
+      };
+    }>(`/works/${id}`)
       .then((r) => {
-        const w = (r as unknown as { work: FormState }).work;
+        const w = r.work;
         setForm({
           title: w.title || "",
           summary: w.summary || "",
           description: w.description || "",
           coverUrl: w.coverUrl || "",
+          galleryUrls: Array.isArray(w.galleryUrls) ? w.galleryUrls : [],
+          videoUrl: w.videoUrl || "",
           link: w.link || "",
           tags: w.tags || "",
         });
@@ -64,28 +84,59 @@ export default function WorkEditor() {
       );
   }, [editing, id]);
 
-  async function onUpload(file: File) {
+  async function uploadOne(file: File): Promise<string> {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/uploads/image", {
+      method: "POST",
+      credentials: "include",
+      body: fd,
+    });
+    const data = (await res.json()) as { url?: string; error?: string };
+    if (!res.ok || !data.url) throw new Error(data.error || "فشل الرفع");
+    return data.url;
+  }
+
+  async function onUploadCover(file: File) {
     if (!file) return;
-    setUploading(true);
+    setUploading("cover");
     setError(null);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/uploads/image", {
-        method: "POST",
-        credentials: "include",
-        body: fd,
-      });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || "فشل الرفع");
-      }
-      setForm((s) => ({ ...s, coverUrl: data.url! }));
+      const url = await uploadOne(file);
+      setForm((s) => ({ ...s, coverUrl: url }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "فشل الرفع");
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
+  }
+
+  async function onUploadGallery(files: FileList) {
+    if (!files.length) return;
+    setUploading("gallery");
+    setError(null);
+    try {
+      const slots = MAX_GALLERY - form.galleryUrls.length;
+      const picks = Array.from(files).slice(0, Math.max(0, slots));
+      // Sequential upload — simpler and friendlier to the upload endpoint.
+      const urls: string[] = [];
+      for (const f of picks) {
+        const u = await uploadOne(f);
+        urls.push(u);
+      }
+      setForm((s) => ({ ...s, galleryUrls: [...s.galleryUrls, ...urls] }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "فشل الرفع");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  function removeGalleryAt(idx: number) {
+    setForm((s) => ({
+      ...s,
+      galleryUrls: s.galleryUrls.filter((_, i) => i !== idx),
+    }));
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -130,12 +181,14 @@ export default function WorkEditor() {
     );
   }
 
+  const remaining = MAX_GALLERY - form.galleryUrls.length;
+
   return (
     <PageShell
       active="works"
       eyebrow={editing ? "تحرير" : "إضافة جديدة"}
       title={editing ? "عدّل عملك" : "أضف عملًا جديدًا"}
-      subtitle="شارك مشروعك حتى يراه المجتمع — أضف صورة وعنوانًا واصفًا ورابطًا للوصول إليه."
+      subtitle="شارك مشروعك حتى يراه المجتمع — أضف صورة وعنوانًا واصفًا، معرضًا اختياريًّا للصّور، ورابطًا أو فيديو."
       maxWidth="max-w-3xl"
     >
       <BackLink href={editing && id ? `/works/${id}` : "/works"} label="رجوع" />
@@ -163,12 +216,12 @@ export default function WorkEditor() {
             ) : (
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
+                onClick={() => coverFileRef.current?.click()}
+                disabled={uploading !== null}
                 className="w-full h-44 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] text-white/55 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2"
                 data-testid="button-upload-cover"
               >
-                {uploading ? (
+                {uploading === "cover" ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     <span className="text-[13px]">جارٍ الرفع…</span>
@@ -187,13 +240,70 @@ export default function WorkEditor() {
               </button>
             )}
             <input
-              ref={fileRef}
+              ref={coverFileRef}
               type="file"
               accept="image/*"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) void onUpload(f);
+                if (f) void onUploadCover(f);
+                e.currentTarget.value = "";
+              }}
+            />
+          </Field>
+
+          {/* Gallery */}
+          <Field
+            label="معرض صور إضافيّ"
+            hint="Gallery"
+            note={`اختياريّ · حتّى ${MAX_GALLERY} صور`}
+            error={issues.galleryUrls}
+          >
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {form.galleryUrls.map((url, i) => (
+                <div
+                  key={`${url}-${i}`}
+                  className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group"
+                >
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryAt(i)}
+                    className="absolute top-1 left-1 w-7 h-7 rounded-full bg-black/65 backdrop-blur text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
+                    data-testid={`button-remove-gallery-${i}`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              {remaining > 0 && (
+                <button
+                  type="button"
+                  onClick={() => galleryFileRef.current?.click()}
+                  disabled={uploading !== null}
+                  className="aspect-square rounded-xl border border-dashed border-white/20 bg-white/[0.03] text-white/45 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1"
+                  data-testid="button-upload-gallery"
+                >
+                  {uploading === "gallery" ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span className="text-[10.5px] font-semibold">إضافة</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            <input
+              ref={galleryFileRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length)
+                  void onUploadGallery(e.target.files);
                 e.currentTarget.value = "";
               }}
             />
@@ -241,6 +351,28 @@ export default function WorkEditor() {
             />
           </Field>
 
+          <Field
+            label="فيديو يوتيوب"
+            hint="YouTube"
+            note="اختياريّ"
+            error={issues.videoUrl}
+          >
+            <div className="flex items-center gap-2">
+              <Youtube className="w-4 h-4 text-primary shrink-0" />
+              <input
+                dir="ltr"
+                value={form.videoUrl}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, videoUrl: e.target.value }))
+                }
+                className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
+                placeholder="https://www.youtube.com/watch?v=…"
+                data-testid="input-video-url"
+                maxLength={800}
+              />
+            </div>
+          </Field>
+
           <div className="grid sm:grid-cols-2 gap-5">
             <Field label="رابط العمل" hint="Link" error={issues.link}>
               <input
@@ -283,7 +415,7 @@ export default function WorkEditor() {
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               type="submit"
-              disabled={submitting || uploading}
+              disabled={submitting || uploading !== null}
               className="flex-1 min-w-[180px] py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-45"
               data-testid="button-save-work"
             >
