@@ -111,14 +111,14 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden xl:flex items-center gap-0.5 relative">
+        <nav className="hidden xl:flex flex-1 items-center justify-evenly mx-2 min-w-0 relative">
           {NAV.map((l) => {
             const active = isActiveRoute(loc, l.href);
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`relative px-3 py-2 text-[13.5px] font-semibold transition-colors rounded-full whitespace-nowrap ${
+                className={`relative px-2.5 py-1.5 text-[12.5px] font-semibold transition-colors rounded-full whitespace-nowrap ${
                   scrolled
                     ? active
                       ? "text-primary"
