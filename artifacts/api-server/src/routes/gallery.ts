@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db, worksTable, usersTable, dailyPostsTable } from "@workspace/db";
 import { logger } from "../lib/logger";
 
@@ -29,7 +29,7 @@ router.get("/gallery", async (_req, res) => {
       })
       .from(worksTable)
       .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
-      .where(eq(worksTable.status, "visible"))
+      .where(and(eq(worksTable.status, "visible"), eq(usersTable.status, "active")))
       .orderBy(desc(worksTable.createdAt))
       .limit(120);
 

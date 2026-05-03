@@ -35,7 +35,7 @@ router.get("/numbers", async (_req, res) => {
         freelancers: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'freelancer')`,
         graduates: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'graduate')`,
         students: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'student')`,
-        works: sql<number>`(SELECT COUNT(*)::int FROM ${worksTable} WHERE ${worksTable.status} = 'visible')`,
+        works: sql<number>`(SELECT COUNT(*)::int FROM ${worksTable} JOIN ${usersTable} ON ${usersTable.id} = ${worksTable.userId} WHERE ${worksTable.status} = 'visible' AND ${usersTable.status} = 'active')`,
         courses: sql<number>`(SELECT COUNT(*)::int FROM ${coursesTable} WHERE ${coursesTable.status} <> 'draft')`,
         enrollments: sql<number>`(SELECT COUNT(*)::int FROM ${enrollmentsTable} WHERE ${enrollmentsTable.status} <> 'cancelled')`,
         bookings: sql<number>`(SELECT COUNT(*)::int FROM ${bookingsTable} WHERE ${bookingsTable.status} <> 'cancelled')`,

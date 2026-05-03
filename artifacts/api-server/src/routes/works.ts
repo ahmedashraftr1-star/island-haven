@@ -245,6 +245,7 @@ router.get("/users/:id", optionalUser, async (req, res) => {
     const [u] = await db
       .select({
         id: usersTable.id,
+        status: usersTable.status,
         fullName: usersTable.fullName,
         role: usersTable.role,
         avatarUrl: usersTable.avatarUrl,
@@ -262,7 +263,7 @@ router.get("/users/:id", optionalUser, async (req, res) => {
       .from(usersTable)
       .where(eq(usersTable.id, id))
       .limit(1);
-    if (!u) {
+    if (!u || u.status !== "active") {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
@@ -280,9 +281,11 @@ router.get("/users/:id", optionalUser, async (req, res) => {
             ),
       )
       .orderBy(desc(worksTable.createdAt));
+    // Strip internal fields before sending: status is for server-side checks only.
     // Phone is contact info — only expose to authenticated members
     // to prevent anonymous scraping by ID enumeration.
-    const user = session ? u : { ...u, phone: null as unknown as string };
+    const { status: _status, ...uPublic } = u;
+    const user = session ? uPublic : { ...uPublic, phone: null as unknown as string };
     res.json({ user, works });
   } catch (err) {
     logger.error({ err }, "GET /users/:id failed");
