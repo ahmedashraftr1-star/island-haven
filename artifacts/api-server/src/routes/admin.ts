@@ -18,7 +18,7 @@ router.post("/admin/login", (req, res) => {
   }
   const token = makeSessionToken();
   setSessionCookie(res, token);
-  res.json({ ok: true });
+  res.json({ ok: true, token });
 });
 
 router.post("/admin/logout", (_req, res) => {

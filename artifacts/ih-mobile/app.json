@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "آيلاند هيفن",
+    "slug": "ih-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "ihhaven",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#D8344F"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.islandhaven.app",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleLocalizations": ["ar", "en"],
+        "NSCameraUsageDescription": "نحتاج الكاميرا لرفع صور أعمالك وملفك الشخصي.",
+        "NSPhotoLibraryUsageDescription": "نحتاج الوصول للصور لرفعها في معرض أعمالك."
+      }
+    },
+    "android": {
+      "package": "com.islandhaven.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#D8344F"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "POST_NOTIFICATIONS"]
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://replit.com/"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "color": "#D8344F"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    }
+  }
+}

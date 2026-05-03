@@ -17,6 +17,7 @@ import userUploadRouter from "./userUpload";
 import membersRouter from "./members";
 import numbersRouter from "./numbers";
 import galleryRouter from "./gallery";
+import pushRouter from "./push";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(userUploadRouter);
 router.use(membersRouter);
 router.use(numbersRouter);
 router.use(galleryRouter);
+router.use(pushRouter);
 
 export default router;

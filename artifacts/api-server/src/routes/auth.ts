@@ -130,7 +130,7 @@ router.post("/auth/register", async (req, res) => {
     }
     const token = makeUserSessionToken(row.id);
     setUserSessionCookie(res, token);
-    res.json({ ok: true, user: toPublic(row) });
+    res.json({ ok: true, user: toPublic(row), token });
   } catch (err) {
     logger.error({ err }, "register failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -172,7 +172,7 @@ router.post("/auth/login", async (req, res) => {
     }
     const token = makeUserSessionToken(user.id);
     setUserSessionCookie(res, token);
-    res.json({ ok: true, user: toPublic(user) });
+    res.json({ ok: true, user: toPublic(user), token });
   } catch (err) {
     logger.error({ err }, "login failed");
     res.status(500).json({ error: "خطأ في الخادم" });

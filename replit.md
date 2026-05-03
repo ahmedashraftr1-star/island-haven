@@ -104,3 +104,46 @@ Admin (require `ih_admin` cookie):
 - `ADMIN_PASSWORD` — admin dashboard password
 - `SESSION_SECRET` — optional, HMAC key for session cookie
 - `DATABASE_URL` — provided by Replit
+
+## Island Haven Mobile (آيلاند هيفن — Expo)
+
+Native iOS + Android app at `artifacts/ih-mobile/` mirroring the website.
+Bundle ids `com.islandhaven.app` (iOS + Android), RTL forced, IBM Plex Sans
+Arabic via `@expo-google-fonts/ibm-plex-sans-arabic`, red brand
+`hsl(354 70% 52%)`, light + dark palettes in `constants/colors.ts`.
+
+### Screens (`app/`)
+- `(tabs)/index.tsx` — hero greeting, NewsSlider, NumbersBand, Audience cards
+- `(tabs)/members.tsx` — directory; tap → `member/[id].tsx` rich profile
+- `(tabs)/events.tsx` — Events list (Daily content rebranded)
+- `(tabs)/gallery.tsx` — image grid from works covers + galleries
+- `(tabs)/profile.tsx` — auth-gated profile editor + my works
+- `login.tsx`, `register.tsx` — email/password (Bearer token in AsyncStorage)
+- `admin.tsx` — admin push broadcast UI (title + body → Expo push API)
+- `work/[id].tsx` — work detail with gallery + YouTube embed
+
+### Auth
+Reuses website's bcrypt accounts. `/auth/login`, `/auth/register`,
+`/admin/login` accept email/password and return `{ token }` in JSON body
+(also set as cookie). API server's `requireUser` / `requireAdmin` /
+`readUserSession` accept either cookie or `Authorization: Bearer <token>`.
+Mobile stores token in AsyncStorage and sends `Authorization` header on
+every API call via `lib/api.ts`. Google/Apple/Clerk OAuth deferred.
+
+### Push notifications
+- Schema: `push_tokens (id, userId, token UNIQUE, platform, createdAt)`
+- `POST /api/push/register {token, platform}` (auth required)
+- `POST /api/push/unregister {token}`
+- `POST /api/admin/push/broadcast {title, body, data?}` — sends via
+  `https://exp.host/--/api/v2/push/send` in batches of 100, filters
+  `ExponentPushToken[...]` format only.
+- `GET /api/admin/push/stats` — token counts by platform.
+- Mobile: `lib/push.ts` requests permission on login, registers
+  ExponentPushToken with backend, listens for incoming notifications.
+
+### Constraints
+- **Replit Expo Launch publishes to iOS App Store only.** Google Play
+  submission is not handled by Replit's deploy pipeline; Android side
+  must be submitted manually outside Replit.
+- App icon at `assets/images/icon.png` (red brand, generated).
+- `app.json` — never edit `app.config.ts`; static config only.

@@ -118,9 +118,18 @@ export function clearUserSessionCookie(res: Response): void {
   res.clearCookie(USER_COOKIE, { path: "/" });
 }
 
+function readBearer(req: Request): string | undefined {
+  const h = req.headers["authorization"];
+  if (typeof h !== "string") return undefined;
+  if (!h.toLowerCase().startsWith("bearer ")) return undefined;
+  return h.slice(7).trim() || undefined;
+}
+
 export function readUserSession(req: Request): UserSession | null {
-  const token = req.cookies?.[USER_COOKIE];
-  return verifyUserSessionToken(token);
+  const cookieToken = req.cookies?.[USER_COOKIE];
+  const fromCookie = verifyUserSessionToken(cookieToken);
+  if (fromCookie) return fromCookie;
+  return verifyUserSessionToken(readBearer(req));
 }
 
 export function requireUser(
@@ -173,10 +182,15 @@ export function requireAdmin(
   res: Response,
   next: NextFunction,
 ): void {
-  const token = req.cookies?.[ADMIN_COOKIE];
-  if (!verifySessionToken(token)) {
-    res.status(401).json({ error: "غير مصرّح" });
+  const cookieToken = req.cookies?.[ADMIN_COOKIE];
+  if (verifySessionToken(cookieToken)) {
+    next();
     return;
   }
-  next();
+  const bearer = readBearer(req);
+  if (verifySessionToken(bearer)) {
+    next();
+    return;
+  }
+  res.status(401).json({ error: "غير مصرّح" });
 }
