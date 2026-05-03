@@ -185,7 +185,7 @@ export default function Apply() {
       </header>
 
       {/* Main */}
-      <main className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-20">
+      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-20">
         <div className="mx-auto max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -406,7 +406,7 @@ export default function Apply() {
             {c.trustLabel} <span className="text-white/65 font-semibold">{c.trustBrand}</span>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

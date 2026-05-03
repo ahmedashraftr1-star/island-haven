@@ -43,7 +43,7 @@ export default function NotFound() {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 flex items-center justify-center px-6 py-16">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -91,7 +91,7 @@ export default function NotFound() {
             </Link>
           </div>
         </motion.div>
-      </main>
+      </div>
     </div>
   );
 }

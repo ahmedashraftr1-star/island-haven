@@ -177,7 +177,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Content */}
-      <main className="flex-1 min-w-0 pt-[110px] lg:pt-0">
+      <div className="flex-1 min-w-0 pt-[110px] lg:pt-0">
         <header className="hidden lg:flex items-center justify-between px-8 lg:px-10 h-16 border-b border-border bg-white/70 backdrop-blur-xl sticky top-0 z-20">
           <div>
             <h1 className="text-[18px] font-bold text-foreground tracking-tight">
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "settings" && <AdminSettings />}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

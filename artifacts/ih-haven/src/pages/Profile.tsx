@@ -204,7 +204,7 @@ function ProfileInner({
         </div>
       </header>
 
-      <main className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-12 pb-16">
+      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-12 pb-16">
         <div className="mx-auto max-w-3xl">
           {/* Identity card */}
           <motion.div
@@ -623,7 +623,7 @@ function ProfileInner({
 
           {!editing && <ActivitySections userId={user.id} />}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -132,7 +132,7 @@ export function PageShell({
         </nav>
       </header>
 
-      <main className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-16">
+      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
           {(eyebrow || title || subtitle) && (
             <motion.div
@@ -172,7 +172,7 @@ export function PageShell({
           )}
           {children}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

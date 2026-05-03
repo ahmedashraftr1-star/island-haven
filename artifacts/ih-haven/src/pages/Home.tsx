@@ -31,13 +31,13 @@ export default function Home() {
       <SmoothScroll />
       <ScrollProgress />
       <Header />
-      <main className="relative z-10">
+      <div className="relative z-10">
         <Hero />
         <NewsSlider />
         <NumbersBand />
         <Audience />
         <HoursLocation />
-      </main>
+      </div>
       <Footer />
       <AdminShortcut />
     </div>

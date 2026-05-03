@@ -17,11 +17,11 @@ export default function About() {
       <SmoothScroll />
       <ScrollProgress />
       <Header />
-      <main className="relative z-10 pt-20">
+      <div className="relative z-10 pt-20">
         <AboutSection />
         <Story />
         <Support />
-      </main>
+      </div>
       <Footer />
     </div>
   );
