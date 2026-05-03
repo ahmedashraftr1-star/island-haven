@@ -258,3 +258,4 @@ const s = StyleSheet.create({
   },
   numbersGrid: { flexDirection: "row-reverse", flexWrap: "wrap", gap: 10 },
 });
+
