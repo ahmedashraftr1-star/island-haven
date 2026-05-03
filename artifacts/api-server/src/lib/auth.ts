@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
+import { eq } from "drizzle-orm";
+import { db, usersTable } from "@workspace/db";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sessions: HMAC-signed cookies, two flavours
@@ -142,8 +144,27 @@ export function requireUser(
     res.status(401).json({ error: "يجب تسجيل الدخول" });
     return;
   }
-  (req as Request & { userSession: UserSession }).userSession = session;
-  next();
+  // Re-check current user status on every request so that banning a user
+  // immediately revokes access even for existing valid session cookies.
+  db.select({ status: usersTable.status })
+    .from(usersTable)
+    .where(eq(usersTable.id, session.userId))
+    .limit(1)
+    .then(([row]) => {
+      if (!row) {
+        res.status(401).json({ error: "الحساب غير موجود" });
+        return;
+      }
+      if (row.status === "banned") {
+        res.status(403).json({ error: "هذا الحساب مُعلَّق" });
+        return;
+      }
+      (req as Request & { userSession: UserSession }).userSession = session;
+      next();
+    })
+    .catch(() => {
+      res.status(500).json({ error: "خطأ في الخادم" });
+    });
 }
 
 // Soft variant — never blocks; just attaches the session if a valid cookie
@@ -155,10 +176,25 @@ export function optionalUser(
   next: NextFunction,
 ): void {
   const session = readUserSession(req);
-  if (session) {
-    (req as Request & { userSession: UserSession }).userSession = session;
+  if (!session) {
+    next();
+    return;
   }
-  next();
+  // Also check ban status for optional sessions — banned users should not
+  // receive personalised data even on public endpoints.
+  db.select({ status: usersTable.status })
+    .from(usersTable)
+    .where(eq(usersTable.id, session.userId))
+    .limit(1)
+    .then(([row]) => {
+      if (row && row.status !== "banned") {
+        (req as Request & { userSession: UserSession }).userSession = session;
+      }
+      next();
+    })
+    .catch(() => {
+      next();
+    });
 }
 
 // ─── Password helpers ───────────────────────────────────────────────────────
