@@ -19,6 +19,10 @@ const FALLBACK = {
   onAirLabel: "On Air · غزّة",
   bookCtaLabel: "احجز مقعدك",
   scrollLabel: "Scroll",
+  greetingMorning: "صباح الخير",
+  greetingNoon: "نهارك مُبارك",
+  greetingEvening: "مساء النّور",
+  greetingNight: "ليلة هانئة",
   estLabel: "Est · 2024",
   placeLabel: "فلسطين · Gaza",
   stat1Value: "٣٩",
@@ -64,6 +68,14 @@ export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   const [now, setNow] = useState<string>("");
+  const [hour, setHour] = useState<number>(() => new Date().getHours());
+
+  const greeting = useMemo(() => {
+    if (hour >= 5 && hour <= 11) return c.greetingMorning;
+    if (hour >= 12 && hour <= 16) return c.greetingNoon;
+    if (hour >= 17 && hour <= 19) return c.greetingEvening;
+    return c.greetingNight;
+  }, [hour, c.greetingMorning, c.greetingNoon, c.greetingEvening, c.greetingNight]);
 
   const stills = useMemo(
     () =>
@@ -85,6 +97,7 @@ export function Hero() {
       const hh = d.getHours().toString().padStart(2, "0");
       const mm = d.getMinutes().toString().padStart(2, "0");
       setNow(`${hh}:${mm}`);
+      setHour(d.getHours());
     }
     tick();
     const id = setInterval(tick, 30_000);
@@ -172,9 +185,23 @@ export function Hero() {
         className="absolute top-24 lg:top-28 inset-x-0 z-20 px-6 lg:px-12"
       >
         <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            {c.onAirLabel} · {now}
+          <div className="inline-flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              {c.onAirLabel} · {now}
+            </div>
+            {greeting && (
+              <motion.div
+                key={greeting}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
+                className="hidden sm:inline-flex items-center h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/95"
+                aria-live="polite"
+              >
+                {greeting}
+              </motion.div>
+            )}
           </div>
           {c.topRight && (
             <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.16em] uppercase font-semibold text-white/85">
