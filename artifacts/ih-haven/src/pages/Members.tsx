@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -58,6 +58,7 @@ export default function Members() {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Member[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const c = useContentSection("pageMembers", FALLBACK);
 
@@ -84,11 +85,12 @@ export default function Members() {
     if (role) params.set("role", role);
     if (q.trim()) params.set("q", q.trim());
     params.set("page", String(page));
-    api<{ members: Member[]; totalPages: number }>(`/members?${params}`)
+    api<{ members: Member[]; totalPages: number; total: number }>(`/members?${params}`)
       .then((r) => {
         if (!cancelled) {
           setRows(r.members);
           setTotalPages(r.totalPages ?? 1);
+          setTotal(r.total ?? null);
         }
       })
       .catch((e) => {
@@ -98,12 +100,6 @@ export default function Members() {
     return () => { cancelled = true; };
   }, [role, q, page]);
 
-  const counts = useMemo(() => {
-    if (!rows) return null;
-    const m: Record<string, number> = { all: rows.length };
-    for (const r of rows) m[r.role] = (m[r.role] ?? 0) + 1;
-    return m;
-  }, [rows]);
 
   return (
     <PageShell
@@ -126,7 +122,6 @@ export default function Members() {
         <div className="flex items-center gap-1.5 flex-wrap">
           {ROLE_FILTERS.map((f) => {
             const active = role === f.key;
-            const count = counts && (f.key === "" ? counts.all : counts[f.key] ?? 0);
             return (
               <button
                 key={f.key}
@@ -139,9 +134,9 @@ export default function Members() {
                 data-testid={`filter-role-${f.key || "all"}`}
               >
                 <span>{f.label}</span>
-                {count !== null && counts && (
+                {active && total !== null && (
                   <span className="text-[10.5px] text-white/55 tabular-nums">
-                    {count}
+                    {total}
                   </span>
                 )}
               </button>
