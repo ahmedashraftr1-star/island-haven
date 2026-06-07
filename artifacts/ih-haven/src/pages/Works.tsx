@@ -35,29 +35,38 @@ const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
 export default function Works() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<"" | UserRole>("");
+  const [page, setPage] = useState(1);
   const [rows, setRows] = useState<WorkRow[] | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "أعمال المستقلّين — آيلاند هيفن";
   }, []);
 
+  // Reset page when filter changes
+  useEffect(() => { setPage(1); }, [filter]);
+
   useEffect(() => {
     let cancelled = false;
     setRows(null);
     setError(null);
-    api<{ works: WorkRow[] }>(`/works${filter ? `?role=${filter}` : ""}`)
+    const params = new URLSearchParams();
+    if (filter) params.set("role", filter);
+    params.set("page", String(page));
+    api<{ works: WorkRow[]; totalPages: number }>(`/works?${params}`)
       .then((r) => {
-        if (!cancelled) setRows(r.works);
+        if (!cancelled) {
+          setRows(r.works);
+          setTotalPages(r.totalPages ?? 1);
+        }
       })
       .catch((e) => {
         if (cancelled) return;
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [filter]);
+    return () => { cancelled = true; };
+  }, [filter, page]);
 
   return (
     <PageShell
@@ -130,6 +139,49 @@ export default function Works() {
               <WorkCard row={row} />
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-10" dir="ltr">
+          <button
+            onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+          >
+            ←
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+            .reduce<(number | "…")[]>((acc, p, i, arr) => {
+              if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("…");
+              acc.push(p);
+              return acc;
+            }, [])
+            .map((p, i) =>
+              p === "…" ? (
+                <span key={`e${i}`} className="text-white/30 text-[13px] px-1">…</span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${
+                    p === page
+                      ? "bg-primary text-white shadow-[0_4px_14px_-3px_rgba(220,38,55,0.5)]"
+                      : "bg-white/[0.07] border border-white/15 text-white/70 hover:bg-white/[0.11]"
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
+          <button
+            onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            disabled={page >= totalPages}
+            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+          >
+            →
+          </button>
         </div>
       )}
     </PageShell>

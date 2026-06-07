@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { usePageMeta } from "@/hooks/use-meta";
 import { Link, useLocation, useRoute } from "wouter";
 import {
   ExternalLink,
@@ -92,11 +93,12 @@ export default function WorkDetail() {
       );
   }, [id]);
 
-  useEffect(() => {
-    if (data?.work?.title) {
-      document.title = `${data.work.title} — آيلاند هيفن`;
-    }
-  }, [data?.work?.title]);
+  usePageMeta({
+    title: data?.work.title,
+    description: data?.work.summary || undefined,
+    image: data?.work.coverUrl || undefined,
+    type: "article",
+  });
 
   const allImages = useMemo(() => {
     if (!data) return [];

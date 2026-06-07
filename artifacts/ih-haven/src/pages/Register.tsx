@@ -57,7 +57,7 @@ export default function Register() {
         password: form.password,
         role: form.role,
       });
-      navigate("/profile");
+      navigate("/onboarding");
     } catch (e) {
       if (e instanceof ApiError && e.data && typeof e.data === "object") {
         const d = e.data as {

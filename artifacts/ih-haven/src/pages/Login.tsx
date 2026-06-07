@@ -76,19 +76,26 @@ export default function Login() {
           error={issues.email}
           autoComplete="email"
         />
-        <AuthField
-          id="password"
-          label="كلمة السرّ"
-          hint="Password"
-          icon={Lock}
-          type="password"
-          ltr
-          value={form.password}
-          onChange={(v) => setForm((s) => ({ ...s, password: v }))}
-          placeholder="••••••••"
-          error={issues.password}
-          autoComplete="current-password"
-        />
+        <div className="space-y-1">
+          <AuthField
+            id="password"
+            label="كلمة السرّ"
+            hint="Password"
+            icon={Lock}
+            type="password"
+            ltr
+            value={form.password}
+            onChange={(v) => setForm((s) => ({ ...s, password: v }))}
+            placeholder="••••••••"
+            error={issues.password}
+            autoComplete="current-password"
+          />
+          <div className="flex justify-start pt-1">
+            <Link href="/forgot-password" className="text-[12px] text-primary/70 hover:text-primary transition-colors">
+              نسيت كلمة السرّ؟
+            </Link>
+          </div>
+        </div>
 
         <AnimatePresence>
           {error && (

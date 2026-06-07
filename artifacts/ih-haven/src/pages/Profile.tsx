@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
+  Lock,
   LogOut,
   PenLine,
   Phone,
@@ -621,10 +622,120 @@ function ProfileInner({
             </div>
           )}
 
-          {!editing && <ActivitySections userId={user.id} />}
+          {!editing && (
+            <>
+              <ChangePasswordSection />
+              <ActivitySections userId={user.id} />
+            </>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Change Password Section ─────────────────────────────────────────────────
+
+function ChangePasswordSection() {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (form.newPassword !== form.confirm) { setError("كلمتا السرّ غير متطابقتين"); return; }
+    if (form.newPassword.length < 8) { setError("كلمة السرّ الجديدة يجب أن تكون 8 أحرف فأكثر"); return; }
+    setSaving(true);
+    try {
+      await api("/auth/me/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword: form.currentPassword, newPassword: form.newPassword }),
+      });
+      setDone(true);
+      setForm({ currentPassword: "", newPassword: "", confirm: "" });
+      setTimeout(() => { setDone(false); setOpen(false); }, 2500);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر تغيير كلمة السرّ");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="mt-8">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 overflow-hidden">
+        <button
+          onClick={() => { setOpen(o => !o); setError(null); setDone(false); }}
+          className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors"
+          data-testid="toggle-change-password"
+        >
+          <div className="flex items-center gap-3">
+            <Lock className="w-4 h-4 text-white/50" />
+            <span className="text-[14px] font-semibold text-white">تغيير كلمة السرّ</span>
+            <span className="text-[11px] text-white/35 tracking-widest uppercase">Security</span>
+          </div>
+          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/35"}`}>
+            {open ? "إغلاق" : "تغيير"}
+          </span>
+        </button>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <form onSubmit={onSubmit} className="px-5 pb-5 pt-1 space-y-3 border-t border-white/10">
+                {done && (
+                  <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-semibold py-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    تمّ تغيير كلمة السرّ بنجاح
+                  </div>
+                )}
+                {error && (
+                  <div className="rounded-xl px-4 py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[13px]">
+                    {error}
+                  </div>
+                )}
+                {[
+                  { key: "currentPassword" as const, label: "كلمة السرّ الحالية", hint: "Current" },
+                  { key: "newPassword" as const, label: "كلمة السرّ الجديدة", hint: "New (8+ chars)" },
+                  { key: "confirm" as const, label: "تأكيد كلمة السرّ", hint: "Confirm" },
+                ].map(({ key, label, hint }) => (
+                  <div key={key} className="space-y-1">
+                    <label className="text-[12px] font-semibold text-white/55 flex items-center gap-1.5">
+                      {label} <span className="text-white/25 font-normal">{hint}</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={form[key]}
+                      onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                      className="w-full h-11 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[14px] outline-none focus:border-primary/60 transition-all"
+                      required
+                      autoComplete={key === "currentPassword" ? "current-password" : "new-password"}
+                    />
+                  </div>
+                ))}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full h-11 rounded-xl bg-primary text-white font-bold text-[13.5px] disabled:opacity-50 transition-opacity mt-1"
+                  data-testid="button-change-password"
+                >
+                  {saving ? "جارٍ الحفظ…" : "حفظ كلمة السرّ الجديدة"}
+                </button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
   );
 }
 

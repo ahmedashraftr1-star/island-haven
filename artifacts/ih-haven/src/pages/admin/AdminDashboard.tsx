@@ -6,6 +6,7 @@ import {
   Inbox,
   FileText,
   BarChart3,
+  Bell,
   CalendarCheck,
   GraduationCap,
   Newspaper,
@@ -26,6 +27,7 @@ import AdminDaily from "./AdminDaily";
 import AdminUsers from "./AdminUsers";
 import AdminWorks from "./AdminWorks";
 import AdminSettings from "./AdminSettings";
+import AdminPush from "./AdminPush";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -38,6 +40,7 @@ type Tab =
   | "daily"
   | "content"
   | "analytics"
+  | "push"
   | "settings";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
@@ -50,6 +53,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "daily", label: "اليوميّات", Icon: Newspaper },
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
+  { id: "push", label: "الإشعارات", Icon: Bell },
   { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
 
@@ -200,6 +204,7 @@ export default function AdminDashboard() {
           {tab === "daily" && <AdminDaily />}
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
+          {tab === "push" && <AdminPush />}
           {tab === "settings" && <AdminSettings />}
         </div>
       </div>

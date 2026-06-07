@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import {
   db,
   worksTable,
@@ -16,12 +16,26 @@ const router: IRouter = Router();
 
 // ─── Public gallery ─────────────────────────────────────────────────────────
 
+const WORKS_PAGE_SIZE = 18;
+
 router.get("/works", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
-    const filterByRole = USER_ROLES.includes(role as UserRole)
-      ? (role as UserRole)
-      : null;
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const filterByRole = USER_ROLES.includes(role as UserRole) ? (role as UserRole) : null;
+
+    const where = and(
+      filterByRole ? eq(usersTable.role, filterByRole) : undefined,
+      eq(usersTable.status, "active"),
+      eq(worksTable.status, "visible") as never,
+    );
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(worksTable)
+      .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+      .where(where);
+
     const rows = await db
       .select({
         work: worksTable,
@@ -34,19 +48,12 @@ router.get("/works", async (req, res) => {
       })
       .from(worksTable)
       .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
-      .where(
-        and(
-          filterByRole ? eq(usersTable.role, filterByRole) : undefined,
-          // Hide moderation-hidden works and banned users from the public.
-          eq(usersTable.status, "active"),
-          // status visible/featured only — drop hidden.
-          // eq returns boolean expression; we wrap in raw via and().
-          // works.status DEFAULT 'visible' so existing rows are visible.
-          eq(worksTable.status, "visible") as never,
-        ),
-      )
-      .orderBy(desc(worksTable.createdAt));
-    res.json({ works: rows });
+      .where(where)
+      .orderBy(desc(worksTable.createdAt))
+      .limit(WORKS_PAGE_SIZE)
+      .offset((page - 1) * WORKS_PAGE_SIZE);
+
+    res.json({ works: rows, total, page, totalPages: Math.ceil(total / WORKS_PAGE_SIZE) });
   } catch (err) {
     logger.error({ err }, "GET /works failed");
     res.status(500).json({ error: "خطأ في الخادم" });

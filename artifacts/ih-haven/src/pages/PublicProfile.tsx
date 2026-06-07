@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageMeta } from "@/hooks/use-meta";
 import { Link, useRoute } from "wouter";
 import {
   Phone,
@@ -63,11 +64,12 @@ export default function PublicProfile() {
       .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
   }, [id]);
 
-  useEffect(() => {
-    if (data?.user?.fullName) {
-      document.title = `${data.user.fullName} — آيلاند هيفن`;
-    }
-  }, [data?.user?.fullName]);
+  usePageMeta({
+    title: data?.user.fullName,
+    description: data?.user.bio || undefined,
+    image: data?.user.avatarUrl || undefined,
+    type: "profile",
+  });
 
   if (error && !data) {
     return (

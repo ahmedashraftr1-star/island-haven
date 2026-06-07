@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import {
   db,
   dailyPostsTable,
@@ -17,21 +17,21 @@ const router: IRouter = Router();
 router.get("/daily", async (req, res) => {
   try {
     const type = String(req.query.type ?? "");
-    const limit = Math.min(
-      Math.max(parseInt(String(req.query.limit ?? "30"), 10) || 30, 1),
-      100,
-    );
+    const pageSize = Math.min(Math.max(parseInt(String(req.query.limit ?? "12"), 10) || 12, 1), 100);
+    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const typeFilter = DAILY_TYPES.includes(type as DailyType) ? eq(dailyPostsTable.type, type as DailyType) : undefined;
+
+    const [{ total }] = await db.select({ total: count() }).from(dailyPostsTable).where(typeFilter);
+
     const rows = await db
       .select()
       .from(dailyPostsTable)
-      .where(
-        DAILY_TYPES.includes(type as DailyType)
-          ? eq(dailyPostsTable.type, type as DailyType)
-          : undefined,
-      )
+      .where(typeFilter)
       .orderBy(desc(dailyPostsTable.publishedAt))
-      .limit(limit);
-    res.json({ posts: rows });
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
+
+    res.json({ posts: rows, total, page, totalPages: Math.ceil(total / pageSize) });
   } catch (err) {
     logger.error({ err }, "GET /daily failed");
     res.status(500).json({ error: "خطأ في الخادم" });

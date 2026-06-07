@@ -116,9 +116,13 @@ export default function AdminSettings() {
                 aria-pressed={s.value}
               >
                 <span
-                  className={`absolute top-0.5 ${
-                    s.value ? "right-0.5" : "right-[1.4rem]"
-                  } w-6 h-6 rounded-full bg-white shadow transition-all`}
+                  className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all ${
+                    s.value ? "translate-x-0 inset-inline-end-0.5" : "inset-inline-start-0.5"
+                  }`}
+                  style={{
+                    insetInlineEnd: s.value ? "2px" : "auto",
+                    insetInlineStart: s.value ? "auto" : "2px",
+                  }}
                 />
               </button>
             </div>

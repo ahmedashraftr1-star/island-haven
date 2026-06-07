@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request } from "express";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import {
   db,
   usersTable,
@@ -18,6 +19,30 @@ import {
 } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
+
+// ─── In-memory password reset tokens ────────────────────────────────────────
+// Single-instance app — in-memory is fine. Tokens expire in 15 minutes.
+const RESET_TTL_MS = 15 * 60 * 1000;
+interface ResetEntry { email: string; hash: string; expiresAt: number }
+const resetTokens = new Map<string, ResetEntry>();
+
+function pruneResets() {
+  const now = Date.now();
+  for (const [k, v] of resetTokens) if (v.expiresAt < now) resetTokens.delete(k);
+}
+
+// Rate-limit forgot-password: 3 per email per hour
+const forgotAttempts = new Map<string, number[]>();
+function forgotRateLimited(email: string): boolean {
+  pruneResets();
+  const HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  const arr = (forgotAttempts.get(email) || []).filter(t => now - t < HOUR);
+  if (arr.length >= 3) return true;
+  arr.push(now);
+  forgotAttempts.set(email, arr);
+  return false;
+}
 
 // Postgres unique-violation SQLSTATE — used to surface a friendly 409 instead
 // of letting drizzle bubble up as a generic 500 on registration races.
@@ -238,6 +263,124 @@ router.patch("/auth/me", requireUser, async (req, res) => {
     res.json({ user: toPublic(user) });
   } catch (err) {
     logger.error({ err }, "update profile failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Change password (authenticated) ────────────────────────────────────────
+
+router.post("/auth/me/change-password", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const { currentPassword, newPassword } = req.body ?? {};
+
+    if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
+      res.status(400).json({ error: "بيانات غير صحيحة" });
+      return;
+    }
+    if (newPassword.length < 8) {
+      res.status(400).json({ error: "كلمة السرّ الجديدة يجب أن تكون 8 أحرف فأكثر" });
+      return;
+    }
+    if (newPassword.length > 200) {
+      res.status(400).json({ error: "كلمة السرّ طويلة جدًّا" });
+      return;
+    }
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, session.userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "غير موجود" }); return; }
+
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!ok) { res.status(401).json({ error: "كلمة السرّ الحالية خاطئة" }); return; }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await db.update(usersTable).set({ passwordHash, updatedAt: new Date() }).where(eq(usersTable.id, session.userId));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "change-password failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Forgot password ─────────────────────────────────────────────────────────
+// Stores a short-lived token in memory and logs it.
+// Wire up an email provider (Resend/Nodemailer) by replacing the logger.info
+// line with your send() call and the reset URL.
+
+router.post("/auth/forgot-password", async (req, res) => {
+  try {
+    if (rateLimited(req)) { res.status(429).json({ error: "محاولات كثيرة، حاول لاحقًا" }); return; }
+
+    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+      res.status(400).json({ error: "بريد غير صحيح" });
+      return;
+    }
+
+    if (forgotRateLimited(email)) {
+      // Always return success to prevent email enumeration
+      res.json({ ok: true });
+      return;
+    }
+
+    const [user] = await db.select({ id: usersTable.id, fullName: usersTable.fullName })
+      .from(usersTable).where(eq(usersTable.email, email)).limit(1);
+
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+      resetTokens.set(tokenHash, { email, hash: tokenHash, expiresAt: Date.now() + RESET_TTL_MS });
+
+      const resetUrl = `${process.env.FRONTEND_URL ?? "http://localhost:5173"}/reset-password?token=${rawToken}`;
+      // TODO: Replace with actual email send
+      logger.info({ email, resetUrl, fullName: user.fullName }, "Password reset requested — send this link to the user");
+    }
+
+    // Always return ok (don't reveal whether email exists)
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "forgot-password failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Reset password ──────────────────────────────────────────────────────────
+
+router.post("/auth/reset-password", async (req, res) => {
+  try {
+    const rawToken = String(req.body?.token ?? "").trim();
+    const newPassword = String(req.body?.newPassword ?? "");
+
+    if (!rawToken || newPassword.length < 8) {
+      res.status(400).json({ error: "بيانات غير صحيحة أو كلمة السرّ قصيرة" });
+      return;
+    }
+    if (newPassword.length > 200) {
+      res.status(400).json({ error: "كلمة السرّ طويلة جدًّا" });
+      return;
+    }
+
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const entry = resetTokens.get(tokenHash);
+
+    if (!entry || entry.expiresAt < Date.now()) {
+      resetTokens.delete(tokenHash);
+      res.status(400).json({ error: "الرابط منتهٍ أو غير صحيح" });
+      return;
+    }
+
+    const [user] = await db.select({ id: usersTable.id })
+      .from(usersTable).where(eq(usersTable.email, entry.email)).limit(1);
+
+    if (!user) { res.status(404).json({ error: "الحساب غير موجود" }); return; }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await db.update(usersTable).set({ passwordHash, updatedAt: new Date() }).where(eq(usersTable.id, user.id));
+
+    resetTokens.delete(tokenHash);
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "reset-password failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

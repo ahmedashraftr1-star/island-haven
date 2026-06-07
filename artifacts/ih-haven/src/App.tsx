@@ -10,6 +10,9 @@ import Apply from "@/pages/Apply";
 import Book from "@/pages/Book";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
 import Courses from "@/pages/Courses";
 import CourseDetail from "@/pages/CourseDetail";
@@ -68,6 +71,9 @@ function Router() {
       <Route path="/book" component={Book} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/onboarding" component={Onboarding} />
       <Route path="/profile" component={Profile} />
       <Route path="/members" component={Members} />
       <Route path="/numbers" component={Numbers} />
