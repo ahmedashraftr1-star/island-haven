@@ -20,6 +20,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { sendEmail, sessionConfirmedEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -130,6 +131,39 @@ async function myExpertProfile(userId: number) {
     .where(eq(expertProfilesTable.userId, userId))
     .limit(1);
   return row ?? null;
+}
+
+// Fire-and-forget: email the mentee when their session is confirmed.
+async function notifySessionConfirmed(row: {
+  menteeId: number;
+  expertId: number;
+  topic: string;
+  status: string;
+}) {
+  try {
+    if (row.status !== "confirmed") return;
+    const [mentee] = await db
+      .select({ email: usersTable.email, fullName: usersTable.fullName })
+      .from(usersTable)
+      .where(eq(usersTable.id, row.menteeId))
+      .limit(1);
+    const [expert] = await db
+      .select({ fullName: usersTable.fullName })
+      .from(expertProfilesTable)
+      .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .where(eq(expertProfilesTable.id, row.expertId))
+      .limit(1);
+    if (mentee && expert) {
+      const mail = sessionConfirmedEmail(
+        mentee.fullName,
+        expert.fullName,
+        row.topic,
+      );
+      void sendEmail({ to: mentee.email, ...mail });
+    }
+  } catch (err) {
+    logger.error({ err }, "notifySessionConfirmed failed");
+  }
 }
 
 router.get("/experts/me/profile", requireUser, async (req, res) => {
@@ -254,6 +288,7 @@ router.patch("/experts/me/sessions/:id", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    void notifySessionConfirmed(row);
     res.json({ session: row });
   } catch (err) {
     logger.error({ err }, "PATCH /experts/me/sessions/:id failed");
@@ -627,6 +662,7 @@ router.patch("/admin/sessions/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    void notifySessionConfirmed(row);
     res.json({ session: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/sessions/:id failed");

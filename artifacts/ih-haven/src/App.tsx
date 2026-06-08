@@ -28,6 +28,7 @@ import ExpertDashboard from "@/pages/ExpertDashboard";
 import Programs from "@/pages/Programs";
 import ProgramDetail from "@/pages/ProgramDetail";
 import Ventures from "@/pages/Ventures";
+import VentureDetail from "@/pages/VentureDetail";
 import Numbers from "@/pages/Numbers";
 import Gallery from "@/pages/Gallery";
 import About from "@/pages/About";
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/programs" component={Programs} />
       <Route path="/programs/:id" component={ProgramDetail} />
       <Route path="/ventures" component={Ventures} />
+      <Route path="/ventures/:id" component={VentureDetail} />
       <Route path="/numbers" component={Numbers} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />

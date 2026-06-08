@@ -128,3 +128,46 @@ export function passwordResetEmail(
   const text = `${greeting}\n\nوصلنا طلب لإعادة تعيين كلمة سرّ حسابك في ${BRAND}.\nافتح الرابط التالي خلال 15 دقيقة لتعيين كلمة سرّ جديدة:\n\n${resetUrl}\n\nإذا لم تطلب هذا، تجاهل هذه الرسالة.`;
   return { subject: `إعادة تعيين كلمة السرّ — ${BRAND}`, html, text };
 }
+
+/** Sent when an admin accepts a member's application to an incubation program. */
+export function programAcceptedEmail(
+  fullName: string | null,
+  programTitle: string,
+): { subject: string; html: string; text: string } {
+  const greeting = fullName ? `مبارك ${fullName}!` : "مبارك!";
+  const html = shell(
+    "تمّ قبولك في البرنامج 🎉",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">${greeting}</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       يسعدنا إبلاغك بقبول طلبك للانضمام إلى برنامج
+       <strong style="color:#fff;">${programTitle}</strong> في ${BRAND}.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       سيتواصل معك فريقنا قريبًا بتفاصيل البدء والخطوات التالية. نحن متحمّسون لرحلتك معنا.
+     </p>`,
+  );
+  const text = `${greeting}\n\nتمّ قبول طلبك للانضمام إلى برنامج "${programTitle}" في ${BRAND}.\nسيتواصل معك فريقنا قريبًا بالتفاصيل.`;
+  return { subject: `🎉 قبولك في ${programTitle} — ${BRAND}`, html, text };
+}
+
+/** Sent to a mentee when an expert/admin confirms their mentorship session. */
+export function sessionConfirmedEmail(
+  fullName: string | null,
+  expertName: string,
+  topic: string,
+): { subject: string; html: string; text: string } {
+  const greeting = fullName ? `مرحبًا ${fullName}،` : "مرحبًا،";
+  const html = shell(
+    "تأكّدت جلسة الإرشاد ✅",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">${greeting}</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       أكّد الخبير <strong style="color:#fff;">${expertName}</strong> جلسة الإرشاد حول
+       «<span style="color:#fff;">${topic}</span>».
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       ستصلك تفاصيل الموعد قريبًا. جهّز أسئلتك لتحصل على أقصى فائدة من الجلسة.
+     </p>`,
+  );
+  const text = `${greeting}\n\nأكّد الخبير ${expertName} جلسة الإرشاد حول «${topic}» في ${BRAND}.\nستصلك تفاصيل الموعد قريبًا.`;
+  return { subject: `✅ تأكيد جلسة الإرشاد — ${BRAND}`, html, text };
+}

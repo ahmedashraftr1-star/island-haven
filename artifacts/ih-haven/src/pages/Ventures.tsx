@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ExternalLink, Users, Star } from "lucide-react";
+import { ArrowLeft, Users, Star } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
@@ -75,10 +76,15 @@ export default function Ventures() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.04 }}
             >
-              <GlassCard className="h-full flex flex-col hover:border-primary/40 transition-colors">
+              <Link
+                href={`/ventures/${v.id}`}
+                className="group block h-full"
+                data-testid={`venture-card-${v.id}`}
+              >
+              <GlassCard className="h-full flex flex-col group-hover:border-primary/40 transition-colors">
                 {v.coverUrl ? (
                   <div className="aspect-[16/9] overflow-hidden bg-black/30">
-                    <img src={v.coverUrl} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={v.coverUrl} alt={v.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700" loading="lazy" />
                   </div>
                 ) : (
                   <div className="aspect-[16/9] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />
@@ -115,19 +121,14 @@ export default function Ventures() {
                       {v.teamSize} في الفريق
                       {v.foundedYear ? ` · ${v.foundedYear}` : ""}
                     </span>
-                    {v.websiteUrl && (
-                      <a
-                        href={v.websiteUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-white/65 hover:text-primary transition-colors font-semibold"
-                      >
-                        زيارة <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
+                    <span className="inline-flex items-center gap-1 text-white/65 group-hover:text-primary transition-colors font-semibold">
+                      التفاصيل
+                      <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                    </span>
                   </div>
                 </div>
               </GlassCard>
+              </Link>
             </motion.div>
           ))}
         </div>

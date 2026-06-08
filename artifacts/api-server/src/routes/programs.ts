@@ -17,6 +17,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { sendEmail, programAcceptedEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -353,6 +354,23 @@ router.patch(
       if (!row) {
         res.status(404).json({ error: "غير موجود" });
         return;
+      }
+      // Congratulate the applicant by email the moment they're accepted.
+      if (row.status === "accepted") {
+        const [u] = await db
+          .select({ email: usersTable.email, fullName: usersTable.fullName })
+          .from(usersTable)
+          .where(eq(usersTable.id, row.userId))
+          .limit(1);
+        const [p] = await db
+          .select({ title: programsTable.title })
+          .from(programsTable)
+          .where(eq(programsTable.id, row.programId))
+          .limit(1);
+        if (u && p) {
+          const mail = programAcceptedEmail(u.fullName, p.title);
+          void sendEmail({ to: u.email, ...mail });
+        }
       }
       res.json({ application: row });
     } catch (err) {
