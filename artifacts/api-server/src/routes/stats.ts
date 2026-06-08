@@ -19,6 +19,23 @@ const router: IRouter = Router();
 let cache: { at: number; data: unknown } | null = null;
 const TTL = 5_000;
 
+/**
+ * Invalidate the /api/stats cache so the next request recomputes from DB.
+ * Call this from any route that mutates data feeding into the aggregate, e.g.:
+ *   - routes/admin.ts        (user status/role changes, deletions)
+ *   - routes/adminExtra.ts   (bulk admin actions)
+ *   - routes/works.ts        (work create/update/delete)
+ *   - routes/auth.ts         (registration → new user counted)
+ *   - routes/members.ts      (profile/status updates)
+ *   - routes/programs.ts, routes/ventures.ts, routes/experts.ts,
+ *     routes/partners.ts, routes/successStories.ts (when they affect totals)
+ * Anything touching: users, applications, bookings, courses, enrollments,
+ * works, or daily_posts tables.
+ */
+export function invalidateStatsCache(): void {
+  cache = null;
+}
+
 router.get("/stats", async (_req, res) => {
   try {
     if (cache && Date.now() - cache.at < TTL) {

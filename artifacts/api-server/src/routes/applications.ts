@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { z } from "zod";
+import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
 
@@ -102,6 +103,7 @@ router.post("/applications", rateLimitApplications, async (req, res) => {
     .insert(applicationsTable)
     .values(parsed.data)
     .returning({ id: applicationsTable.id });
+  invalidateNumbersCache();
   res.json({ ok: true, id: row.id });
 });
 
@@ -148,6 +150,7 @@ router.delete("/admin/applications/:id", requireAdmin, async (req, res) => {
     return;
   }
   await db.delete(applicationsTable).where(eq(applicationsTable.id, id));
+  invalidateNumbersCache();
   res.json({ ok: true });
 });
 

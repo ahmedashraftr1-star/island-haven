@@ -48,6 +48,17 @@ function RootLayoutNav() {
       <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="member/[id]" options={{ title: "" }} />
       <Stack.Screen name="work/[id]" options={{ title: "" }} />
+      <Stack.Screen name="experts" options={{ title: "الخبراء" }} />
+      <Stack.Screen name="expert/[id]" options={{ title: "" }} />
+      <Stack.Screen name="programs" options={{ title: "البرامج" }} />
+      <Stack.Screen name="program/[id]" options={{ title: "" }} />
+      <Stack.Screen name="ventures" options={{ title: "المشاريع" }} />
+      <Stack.Screen name="venture/[id]" options={{ title: "" }} />
+      <Stack.Screen name="courses" options={{ title: "الكورسات والورشات" }} />
+      <Stack.Screen name="course/[id]" options={{ title: "" }} />
+      <Stack.Screen name="apply" options={{ title: "طلب الانتساب", presentation: "modal" }} />
+      <Stack.Screen name="about" options={{ title: "من نحن" }} />
+      <Stack.Screen name="numbers" options={{ title: "أرقامنا" }} />
     </Stack>
   );
 }

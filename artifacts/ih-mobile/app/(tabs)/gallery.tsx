@@ -1,23 +1,25 @@
 import React from "react";
-import { ActivityIndicator, FlatList, RefreshControl, View, useWindowDimensions } from "react-native";
+import { FlatList, RefreshControl, View, useWindowDimensions } from "react-native";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { T, Empty } from "@/components/Branded";
+import { T, Empty, SkeletonBlock } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 
 interface GalleryItem {
+  id: string;
   url: string;
-  source?: string;
+  title: string;
+  author?: string;
+  authorId?: number;
+  workId?: number;
+  kind: "work" | "post";
+  at: string;
 }
 interface GalleryResponse {
-  images: (string | GalleryItem)[];
-}
-
-function asUrl(it: string | GalleryItem): string {
-  return typeof it === "string" ? it : it.url;
+  items: GalleryItem[];
 }
 
 export default function GalleryScreen() {
@@ -40,25 +42,29 @@ export default function GalleryScreen() {
         <T size={13} color={colors.mutedForeground}>لقطات من المساحة وأعمال المنتسبين</T>
       </View>
       {q.isLoading ? (
-        <View style={{ padding: 32, alignItems: "center" }}>
-          <ActivityIndicator color={colors.primary} />
+        <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", paddingHorizontal: gap }}>
+          {Array.from({ length: cols * 3 }).map((_, i) => (
+            <View key={i} style={{ width: tile, height: tile, padding: gap / 2 }}>
+              <SkeletonBlock height={tile - gap} radius={6} />
+            </View>
+          ))}
         </View>
-      ) : (q.data?.images?.length ?? 0) === 0 ? (
-        <Empty title="لا توجد صور بعد" />
+      ) : (q.data?.items?.length ?? 0) === 0 ? (
+        <Empty icon="image" title="لا توجد صور بعد" hint="سنبدأ بنشر صور من المساحة والفعاليّات قريبًا." />
       ) : (
         <FlatList
-          data={q.data?.images ?? []}
-          keyExtractor={(it, i) => `${asUrl(it)}-${i}`}
+          data={q.data?.items ?? []}
+          keyExtractor={(it) => it.id}
           numColumns={cols}
           contentContainerStyle={{ paddingBottom: 120 }}
           refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} tintColor={colors.primary} />}
           renderItem={({ item, index }) => (
             <Image
-              source={{ uri: resolveMedia(asUrl(item)) }}
+              source={{ uri: resolveMedia(item.url) }}
               style={{
                 width: tile,
                 height: tile,
-                marginRight: (index + 1) % cols === 0 ? 0 : gap,
+                marginEnd: (index + 1) % cols === 0 ? 0 : gap,
                 marginBottom: gap,
                 backgroundColor: colors.muted,
               }}

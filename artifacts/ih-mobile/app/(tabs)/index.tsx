@@ -12,6 +12,37 @@ import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 import type { DailyPost, Numbers, SiteContent } from "@/lib/types";
 
+interface ExpertCard {
+  id: number;
+  userId: number;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string;
+  expertise: string;
+  featured: boolean;
+}
+interface StoryCard {
+  id: number;
+  personName: string;
+  role: string;
+  quote: string;
+  avatarUrl: string | null;
+  featured: boolean;
+}
+interface PartnerCard {
+  id: number;
+  name: string;
+  logoUrl: string | null;
+  description: string;
+  tier: "partner" | "supporter" | "sponsor";
+}
+
+const TIER_LABEL: Record<PartnerCard["tier"], string> = {
+  sponsor: "راعٍ",
+  partner: "شريك",
+  supporter: "داعم",
+};
+
 const HEBRON_TZ = "Asia/Hebron";
 
 function getHebronHour(): number {
@@ -62,6 +93,18 @@ export default function Home() {
     queryKey: ["daily-news"],
     queryFn: () => api("/daily?type=news&limit=5"),
   });
+  const expertsQ = useQuery<{ experts: ExpertCard[] }>({
+    queryKey: ["experts-featured"],
+    queryFn: () => api("/experts"),
+  });
+  const storiesQ = useQuery<{ stories: StoryCard[] }>({
+    queryKey: ["stories-featured"],
+    queryFn: () => api("/stories"),
+  });
+  const partnersQ = useQuery<{ partners: PartnerCard[] }>({
+    queryKey: ["partners"],
+    queryFn: () => api("/partners"),
+  });
 
   if (contentQ.isLoading) {
     return (
@@ -75,6 +118,9 @@ export default function Home() {
   const g = greeting(content);
   const numbers = numbersQ.data?.numbers;
   const news = newsQ.data?.posts ?? [];
+  const experts = (expertsQ.data?.experts ?? []).slice(0, 6);
+  const stories = (storiesQ.data?.stories ?? []).filter((s) => s.featured).slice(0, 4);
+  const partners = partnersQ.data?.partners ?? [];
 
   return (
     <FlatList
@@ -101,6 +147,48 @@ export default function Home() {
             </T>
           </View>
 
+          {/* Quick shortcuts */}
+          <View style={{ paddingTop: 22 }}>
+            <FlatList
+              horizontal
+              data={
+                [
+                  { key: "programs", label: "برامج الاحتضان", icon: "layers" },
+                  { key: "experts", label: "خبراء ومرشدون", icon: "award" },
+                  { key: "courses", label: "كورسات وورشات", icon: "book-open" },
+                  { key: "ventures", label: "مشاريع ناشئة", icon: "trending-up" },
+                  { key: "numbers", label: "أرقامنا", icon: "bar-chart-2" },
+                  { key: "about", label: "من نحن", icon: "info" },
+                  { key: "apply", label: "انتسب", icon: "user-plus" },
+                ] as Array<{ key: string; label: string; icon: keyof typeof Feather.glyphMap }>
+              }
+              keyExtractor={(it) => it.key}
+              inverted
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+              renderItem={({ item }) => (
+                <Pressable
+                  onPress={() => router.push(`/${item.key}` as never)}
+                  hitSlop={6}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 10,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    backgroundColor: colors.card,
+                    flexDirection: "row-reverse",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <Feather name={item.icon} size={14} color={colors.primary} />
+                  <T size={13} weight="medium">{item.label}</T>
+                </Pressable>
+              )}
+            />
+          </View>
+
           {/* News slider */}
           <View style={{ paddingTop: 24 }}>
             <View style={s.sectionHead}>
@@ -112,7 +200,9 @@ export default function Home() {
             {news.length === 0 ? (
               <View style={{ paddingHorizontal: 20 }}>
                 <Card>
-                  <T size={14} color={colors.mutedForeground}>لا توجد أخبار جديدة بعد.</T>
+                  <T size={14} color={colors.mutedForeground}>
+                    سننشر أوّل أخبارنا قريبًا — تابعنا للاطّلاع على إطلاقاتنا.
+                  </T>
                 </Card>
               </View>
             ) : (
@@ -152,6 +242,131 @@ export default function Home() {
               />
             )}
           </View>
+
+          {/* Featured Experts */}
+          {experts.length > 0 && (
+            <View style={{ paddingTop: 28 }}>
+              <View style={s.sectionHead}>
+                <T size={20} weight="bold">الخبراء والمرشدون</T>
+                <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
+                  <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
+                </Pressable>
+              </View>
+              <FlatList
+                horizontal
+                data={experts}
+                keyExtractor={(e) => String(e.id)}
+                showsHorizontalScrollIndicator={false}
+                inverted
+                contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+                renderItem={({ item }) => (
+                  <Pressable
+                    onPress={() => router.push(`/expert/${item.id}` as never)}
+                    style={{
+                      width: 220,
+                      backgroundColor: colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                      borderRadius: colors.radius + 2,
+                      padding: 14,
+                      gap: 10,
+                    }}
+                  >
+                    <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+                      {item.avatarUrl ? (
+                        <Image
+                          source={{ uri: resolveMedia(item.avatarUrl) }}
+                          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.muted }}
+                        />
+                      ) : (
+                        <View
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 22,
+                            backgroundColor: colors.primarySoft,
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Feather name="user" size={20} color={colors.primary} />
+                        </View>
+                      )}
+                      <View style={{ flex: 1 }}>
+                        <T size={14} weight="bold" numberOfLines={1}>{item.fullName}</T>
+                        <T size={12} color={colors.mutedForeground} numberOfLines={1}>{item.headline}</T>
+                      </View>
+                    </View>
+                    <T size={12} color={colors.mutedForeground} numberOfLines={2}>
+                      {item.expertise}
+                    </T>
+                  </Pressable>
+                )}
+              />
+            </View>
+          )}
+
+          {/* Success Stories */}
+          {stories.length > 0 && (
+            <View style={{ paddingTop: 28 }}>
+              <View style={s.sectionHead}>
+                <T size={20} weight="bold">قصص نجاح</T>
+              </View>
+              <FlatList
+                horizontal
+                data={stories}
+                keyExtractor={(s) => String(s.id)}
+                showsHorizontalScrollIndicator={false}
+                inverted
+                contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+                renderItem={({ item }) => (
+                  <View
+                    style={{
+                      width: 300,
+                      backgroundColor: colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                      borderRadius: colors.radius + 2,
+                      padding: 16,
+                      gap: 12,
+                    }}
+                  >
+                    <Feather name="message-square" size={18} color={colors.primary} />
+                    <T size={14} numberOfLines={4} style={{ lineHeight: 22 }}>
+                      "{item.quote}"
+                    </T>
+                    <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+                      {item.avatarUrl ? (
+                        <Image
+                          source={{ uri: resolveMedia(item.avatarUrl) }}
+                          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.muted }}
+                        />
+                      ) : (
+                        <View
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 18,
+                            backgroundColor: colors.primarySoft,
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <T size={13} weight="bold" color={colors.primary}>
+                            {item.personName.charAt(0)}
+                          </T>
+                        </View>
+                      )}
+                      <View style={{ flex: 1 }}>
+                        <T size={13} weight="bold" numberOfLines={1}>{item.personName}</T>
+                        <T size={11} color={colors.mutedForeground} numberOfLines={1}>{item.role}</T>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+          )}
 
           {/* Numbers */}
           <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
@@ -214,6 +429,73 @@ export default function Home() {
               </View>
             </Card>
           </View>
+
+          {/* Partners */}
+          {partners.length > 0 && (
+            <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
+              <T size={20} weight="bold">شركاؤنا</T>
+              <View style={{ marginTop: 12, gap: 10 }}>
+                {partners.map((p) => (
+                  <Card
+                    key={p.id}
+                    style={{
+                      flexDirection: "row-reverse",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    {p.logoUrl ? (
+                      <Image
+                        source={{ uri: resolveMedia(p.logoUrl) }}
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 8,
+                          backgroundColor: colors.muted,
+                        }}
+                        contentFit="contain"
+                      />
+                    ) : (
+                      <View
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 8,
+                          backgroundColor: colors.primarySoft,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Feather name="award" size={20} color={colors.primary} />
+                      </View>
+                    )}
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+                        <T size={15} weight="bold">{p.name}</T>
+                        <View
+                          style={{
+                            paddingHorizontal: 8,
+                            paddingVertical: 2,
+                            borderRadius: 10,
+                            backgroundColor: colors.primarySoft,
+                          }}
+                        >
+                          <T size={10} weight="medium" color={colors.primary}>
+                            {TIER_LABEL[p.tier]}
+                          </T>
+                        </View>
+                      </View>
+                      {p.description ? (
+                        <T size={12} color={colors.mutedForeground} numberOfLines={2}>
+                          {p.description}
+                        </T>
+                      ) : null}
+                    </View>
+                  </Card>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       )}
     />

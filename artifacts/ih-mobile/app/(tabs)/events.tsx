@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { T, Card, Empty } from "@/components/Branded";
+import { T, Card, Empty, SkeletonCard } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 import type { DailyPost } from "@/lib/types";
@@ -46,11 +46,13 @@ export default function EventsScreen() {
         <T size={13} color={colors.mutedForeground}>أحدث الأنشطة والتحديثات</T>
       </View>
       {isLoading ? (
-        <View style={{ padding: 32, alignItems: "center" }}>
-          <ActivityIndicator color={colors.primary} />
+        <View style={{ paddingHorizontal: 20, gap: 14 }}>
+          {[0, 1, 2].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
         </View>
       ) : posts.length === 0 ? (
-        <Empty title="لا توجد فعاليات بعد" />
+        <Empty icon="calendar" title="لا توجد فعاليات بعد" hint="ترقّب الإعلان عن أوّل دفعة قريبًا — تابعنا." />
       ) : (
         <FlatList
           data={posts}

@@ -21,8 +21,14 @@ const FALLBACK = {
   chip4Ar: "تحسينات", chip4En: "Improvements",
   featureCta: "شاركنا فكرتك",
   featureCtaHref: "https://www.instagram.com/ih_haven",
-  sec1Ar: "ورش تدريبيّة دوريّة", sec1En: "Weekly workshops", sec1Body: "",
-  sec2Ar: "جلسات تشبيك ولقاءات مهنيّة", sec2En: "Networking nights", sec2Body: "",
+  sec1Ar: "ورش تدريبيّة دوريّة",
+  sec1En: "Weekly workshops",
+  sec1Body:
+    "ورش أسبوعيّة في الريادة والتسويق والتقنية والتصميم — يقودها خبراء من غزّة والشّتات. مجّاناً، ومفتوحة لكلّ المنتسبين.",
+  sec2Ar: "جلسات تشبيك ولقاءات مهنيّة",
+  sec2En: "Networking nights",
+  sec2Body:
+    "ليالٍ شهريّة نلتقي فيها بمستثمرين، مرشدين، وروّاد أعمال — فرصة للعرض، للسّؤال، ولبناء علاقات تنقل مشروعك خطوة للأمام.",
 };
 
 export function Programs() {

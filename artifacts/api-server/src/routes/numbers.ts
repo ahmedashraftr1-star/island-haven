@@ -20,6 +20,23 @@ let cache: { at: number; data: unknown } | null = null;
 const TTL = 30_000;
 
 /**
+ * Invalidate the /api/numbers cache so the next request recomputes from DB.
+ * Call this from any route that mutates data feeding into the aggregate, e.g.:
+ *   - routes/admin.ts        (user status changes, role changes, deletions)
+ *   - routes/adminExtra.ts   (bulk admin actions)
+ *   - routes/works.ts        (work create/update/delete, visibility toggles)
+ *   - routes/auth.ts         (registration → new user counted)
+ *   - routes/members.ts      (profile/status updates affecting active counts)
+ *   - routes/programs.ts, routes/ventures.ts, routes/experts.ts,
+ *     routes/partners.ts, routes/successStories.ts (when they affect totals)
+ * Anything touching: users, works, courses, enrollments, bookings,
+ * applications, or daily_posts tables.
+ */
+export function invalidateNumbersCache(): void {
+  cache = null;
+}
+
+/**
  * GET /api/numbers — rich aggregated stats for the public "بالأرقام" page.
  * Real database counts only — never inflated, never hard-coded.
  */

@@ -15,3 +15,8 @@ export * from "./programs";
 export * from "./ventures";
 export * from "./successStories";
 export * from "./partners";
+export * from "./teamMembers";
+export * from "./cohorts";
+export * from "./ventureMilestones";
+export * from "./expertAvailability";
+export * from "./resources";

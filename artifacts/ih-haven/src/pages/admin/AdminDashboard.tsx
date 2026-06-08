@@ -21,6 +21,10 @@ import {
   Lightbulb,
   Quote,
   Handshake,
+  UserSquare2,
+  Layers,
+  BookOpen,
+  CalendarRange,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -40,6 +44,10 @@ import AdminPrograms from "./AdminPrograms";
 import AdminVentures from "./AdminVentures";
 import AdminStories from "./AdminStories";
 import AdminPartners from "./AdminPartners";
+import AdminTeam from "./AdminTeam";
+import AdminCohorts from "./AdminCohorts";
+import AdminResources from "./AdminResources";
+import AdminSlots from "./AdminSlots";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -53,6 +61,10 @@ type Tab =
   | "ventures"
   | "stories"
   | "partners"
+  | "team"
+  | "cohorts"
+  | "slots"
+  | "resources"
   | "works"
   | "courses"
   | "daily"
@@ -69,9 +81,13 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "experts", label: "الخبراء", Icon: Sparkles },
   { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare },
   { id: "programs", label: "برامج الاحتضان", Icon: Rocket },
+  { id: "cohorts", label: "الدّفعات", Icon: Layers },
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
+  { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
+  { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
   { id: "stories", label: "قصص النجاح", Icon: Quote },
   { id: "partners", label: "الشركاء", Icon: Handshake },
+  { id: "team", label: "فريق آيلاند", Icon: UserSquare2 },
   { id: "works", label: "الأعمال", Icon: Briefcase },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap },
   { id: "daily", label: "اليوميّات", Icon: Newspaper },
@@ -229,6 +245,10 @@ export default function AdminDashboard() {
           {tab === "ventures" && <AdminVentures />}
           {tab === "stories" && <AdminStories />}
           {tab === "partners" && <AdminPartners />}
+          {tab === "team" && <AdminTeam />}
+          {tab === "cohorts" && <AdminCohorts />}
+          {tab === "slots" && <AdminSlots />}
+          {tab === "resources" && <AdminResources />}
           {tab === "works" && <AdminWorks />}
           {tab === "courses" && <AdminCourses />}
           {tab === "daily" && <AdminDaily />}

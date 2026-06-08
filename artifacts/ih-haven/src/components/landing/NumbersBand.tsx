@@ -7,17 +7,17 @@ import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 
 const FALLBACK = {
-  eyebrow: "مُجتمعنا بالأرقام · By the numbers",
+  eyebrow: "الحاضنة بالأرقام · By the numbers",
   titleA: "ليست شعارات.",
   titleAccent: "أرقام حقيقيّة",
   titleB: "من قاعدة بياناتنا.",
-  sub: "كلّ رقم تراه هنا يعكس حالة المساحة الآن — يتحدّث تلقائيًّا مع كلّ منتسب جديد، كلّ عمل، وكلّ مقعد محجوز.",
-  ctaLabel: "عرض المزيد",
-  tile1Label: "منتسب",
+  sub: "كلّ رقم تراه هنا يعكس حالة الحاضنة الآن — يتغيّر تلقائيًّا مع كلّ منتسب، كلّ مشروع، وكلّ مقعد إرشاد.",
+  ctaLabel: "عرض الكلّ",
+  tile1Label: "رائد/ة أعمال في المجتمع",
   tile1En: "Members",
-  tile2Label: "عمل منشور",
+  tile2Label: "مشروع في المعرض",
   tile2En: "Works",
-  tile3Label: "تسجيل في برامج",
+  tile3Label: "تسجيل في البرامج",
   tile3En: "Enrollments",
   tile4Label: "مقعد استضفناه",
   tile4En: "Seats hosted",

@@ -187,8 +187,129 @@ export default function VentureDetail() {
         </div>
       </GlassCard>
 
+      <MilestoneTimeline ventureId={v.id} />
+
       <OtherVentures excludeId={v.id} />
     </PageShell>
+  );
+}
+
+interface Milestone {
+  id: number;
+  title: string;
+  body: string;
+  type:
+    | "idea"
+    | "mvp"
+    | "launch"
+    | "first_customer"
+    | "first_revenue"
+    | "funding"
+    | "team_grew"
+    | "press"
+    | "partnership"
+    | "other";
+  achievedAt: string;
+  amount: number | null;
+  metricValue: number | null;
+  link: string;
+}
+
+const MILESTONE_LABELS: Record<Milestone["type"], string> = {
+  idea: "الفكرة",
+  mvp: "MVP",
+  launch: "إطلاق",
+  first_customer: "أوّل عميل",
+  first_revenue: "أوّل إيراد",
+  funding: "تمويل",
+  team_grew: "نموّ الفريق",
+  press: "تغطية إعلاميّة",
+  partnership: "شراكة",
+  other: "حدث",
+};
+
+function MilestoneTimeline({ ventureId }: { ventureId: number }) {
+  const [rows, setRows] = useState<Milestone[] | null>(null);
+  useEffect(() => {
+    api<{ milestones: Milestone[] }>(`/ventures/${ventureId}/milestones`)
+      .then((r) => setRows(r.milestones))
+      .catch(() => setRows([]));
+  }, [ventureId]);
+
+  if (!rows || rows.length === 0) return null;
+
+  return (
+    <div className="mt-10">
+      <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5">
+        الرّحلة · Timeline
+      </div>
+      <GlassCard className="p-6 sm:p-8">
+        <ol className="relative">
+          {rows.map((m, i) => {
+            const date = new Date(m.achievedAt).toLocaleDateString("ar-EG", {
+              year: "numeric",
+              month: "long",
+            });
+            return (
+              <li key={m.id} className="relative ps-8 pb-7 last:pb-0">
+                {i < rows.length - 1 && (
+                  <span
+                    aria-hidden
+                    className="absolute top-3 right-[10px] w-px h-full bg-gradient-to-b from-primary/40 to-white/[0.06]"
+                  />
+                )}
+                <span
+                  aria-hidden
+                  className="absolute top-1 right-[5px] w-3 h-3 rounded-full bg-primary border-2 border-[#0A0E1A] shadow-[0_0_0_2px_rgba(220,68,84,0.4)]"
+                />
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
+                    {MILESTONE_LABELS[m.type]}
+                  </span>
+                  <span className="text-[11.5px] text-white/45 font-medium">
+                    {date}
+                  </span>
+                </div>
+                <h4 className="text-white font-bold text-[15px] mb-1 leading-snug">
+                  {m.title}
+                </h4>
+                {m.body && (
+                  <p className="text-white/65 text-[13.5px] leading-[1.85] whitespace-pre-wrap">
+                    {m.body}
+                  </p>
+                )}
+                {(m.amount || m.metricValue || m.link) && (
+                  <div className="mt-2 flex items-center gap-3 flex-wrap text-[12px] text-white/55">
+                    {m.amount ? (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-200 border border-emerald-500/30 font-semibold tabular-nums">
+                        {"$"}
+                        {m.amount.toLocaleString("en-US")}
+                      </span>
+                    ) : null}
+                    {m.metricValue ? (
+                      <span className="text-white/60 tabular-nums">
+                        قيمة: {m.metricValue.toLocaleString("ar-EG")}
+                      </span>
+                    ) : null}
+                    {m.link && (
+                      <a
+                        href={m.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        رابط
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </GlassCard>
+    </div>
   );
 }
 

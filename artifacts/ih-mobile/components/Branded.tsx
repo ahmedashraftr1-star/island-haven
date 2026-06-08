@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import * as Haptics from "expo-haptics";
+import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 
 const ARABIC_FONT = "IBMPlexSansArabic_500Medium";
@@ -157,22 +158,159 @@ export function Card({ children, style }: { children: React.ReactNode; style?: V
   );
 }
 
-export function Empty({ title, hint }: { title: string; hint?: string }) {
+export function Empty({
+  title,
+  hint,
+  icon,
+}: {
+  title: string;
+  hint?: string;
+  icon?: keyof typeof Feather.glyphMap;
+}) {
   const colors = useColors();
   return (
     <View style={s.empty}>
       <View
         style={{
-          width: 64,
-          height: 64,
-          borderRadius: 32,
+          width: 72,
+          height: 72,
+          borderRadius: 36,
           backgroundColor: colors.muted,
           alignItems: "center",
           justifyContent: "center",
         }}
-      />
+      >
+        {icon ? <Feather name={icon} size={30} color={colors.mutedForeground} /> : null}
+      </View>
       <T size={17} weight="bold" align="center">{title}</T>
-      {hint ? <T size={14} color={colors.mutedForeground} align="center">{hint}</T> : null}
+      {hint ? (
+        <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 22, maxWidth: 320 }}>
+          {hint}
+        </T>
+      ) : null}
+    </View>
+  );
+}
+
+// ─── Skeletons ──────────────────────────────────────────────────────────────
+//
+// Subtle pulse animation. Driven by Animated to stay on the JS thread-light side;
+// useNativeDriver=true keeps it 60fps even on lower-end devices.
+
+import { Animated, Easing } from "react-native";
+
+function useSkeletonPulse() {
+  const v = React.useRef(new Animated.Value(0.4)).current;
+  React.useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(v, { toValue: 0.85, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(v, { toValue: 0.4, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [v]);
+  return v;
+}
+
+export function SkeletonBlock({
+  width,
+  height,
+  radius,
+  style,
+}: {
+  width?: number | `${number}%`;
+  height: number;
+  radius?: number;
+  style?: ViewStyle;
+}) {
+  const colors = useColors();
+  const opacity = useSkeletonPulse();
+  return (
+    <Animated.View
+      style={[
+        {
+          width: width ?? "100%",
+          height,
+          borderRadius: radius ?? 8,
+          backgroundColor: colors.muted,
+          opacity,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
+export function SkeletonCard() {
+  const colors = useColors();
+  return (
+    <View
+      style={{
+        backgroundColor: colors.card,
+        borderRadius: colors.radius + 2,
+        borderWidth: 1,
+        borderColor: colors.border,
+        padding: 14,
+        gap: 10,
+      }}
+    >
+      <SkeletonBlock height={140} radius={colors.radius} />
+      <SkeletonBlock height={16} width={"70%"} />
+      <SkeletonBlock height={12} width={"90%"} />
+      <SkeletonBlock height={12} width={"50%"} />
+    </View>
+  );
+}
+
+export function SkeletonRow() {
+  const colors = useColors();
+  return (
+    <View
+      style={{
+        flexDirection: "row-reverse",
+        alignItems: "center",
+        gap: 12,
+        backgroundColor: colors.card,
+        borderRadius: colors.radius + 2,
+        borderWidth: 1,
+        borderColor: colors.border,
+        padding: 14,
+      }}
+    >
+      <SkeletonBlock width={56} height={56} radius={28} />
+      <View style={{ flex: 1, gap: 8 }}>
+        <SkeletonBlock height={14} width={"60%"} />
+        <SkeletonBlock height={12} width={"85%"} />
+      </View>
+    </View>
+  );
+}
+
+export function SkeletonNewsSlider() {
+  const colors = useColors();
+  return (
+    <View style={{ flexDirection: "row-reverse", gap: 12, paddingHorizontal: 20 }}>
+      {[0, 1].map((i) => (
+        <View
+          key={i}
+          style={{
+            width: 280,
+            borderRadius: colors.radius + 2,
+            overflow: "hidden",
+            backgroundColor: colors.card,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <SkeletonBlock height={140} radius={0} />
+          <View style={{ padding: 14, gap: 6 }}>
+            <SkeletonBlock height={14} width={"75%"} />
+            <SkeletonBlock height={12} width={"95%"} />
+          </View>
+        </View>
+      ))}
     </View>
   );
 }

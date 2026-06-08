@@ -222,6 +222,8 @@ export default function ExpertDetail() {
 
         {/* Booking */}
         <div className="space-y-5">
+          <OfficeHoursPicker expertId={Number(id)} expertName={expert.fullName} />
+
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
               احجز جلسة إرشاد
@@ -359,6 +361,198 @@ export default function ExpertDetail() {
         </div>
       </div>
     </PageShell>
+  );
+}
+
+interface Slot {
+  id: number;
+  expertId: number;
+  startAt: string;
+  endAt: string;
+  mode: "online" | "onsite";
+  location: string;
+  status: "available" | "booked" | "cancelled";
+  note: string;
+}
+
+function OfficeHoursPicker({
+  expertId,
+  expertName,
+}: {
+  expertId: number;
+  expertName: string;
+}) {
+  const [, navigate] = useLocation();
+  const { user } = useAuth();
+  const [slots, setSlots] = useState<Slot[] | null>(null);
+  const [picked, setPicked] = useState<Slot | null>(null);
+  const [topic, setTopic] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function reload() {
+    try {
+      const r = await api<{ slots: Slot[] }>(`/experts/${expertId}/slots`);
+      setSlots(r.slots);
+    } catch {
+      setSlots([]);
+    }
+  }
+
+  useEffect(() => {
+    void reload();
+  }, [expertId]);
+
+  async function book() {
+    if (!user) {
+      navigate(`/login?next=/experts/${expertId}`);
+      return;
+    }
+    if (!picked) return;
+    if (topic.trim().length < 3) {
+      setError("اكتب موضوع الجلسة (3 أحرف فأكثر).");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/slots/${picked.id}/book`, {
+        method: "POST",
+        body: JSON.stringify({ topic: topic.trim(), message: message.trim() }),
+      });
+      setDone(true);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر الحجز");
+      void reload();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (slots === null) {
+    return (
+      <GlassCard className="p-6">
+        <div className="h-24 bg-white/[0.04] rounded-2xl animate-pulse" />
+      </GlassCard>
+    );
+  }
+  if (slots.length === 0) return null;
+
+  return (
+    <GlassCard className="p-6">
+      <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-1">
+        مواعيد متاحة · Office Hours
+      </div>
+      <p className="text-white/55 text-[12.5px] mb-4">
+        احجز فورًا فترةً مفتوحة من تقويم {expertName}.
+      </p>
+
+      {done ? (
+        <div className="text-center py-6">
+          <CheckCircle2 className="w-11 h-11 text-emerald-300 mx-auto mb-3" />
+          <div className="text-white font-bold text-[14.5px] mb-1">تمّ الحجز ✓</div>
+          <p className="text-white/55 text-[12.5px] leading-[1.85]">
+            ستصلك رسالة بريدية بتفاصيل الجلسة.
+          </p>
+          <Link
+            href="/profile"
+            className="inline-block mt-3 text-[12.5px] text-primary font-semibold hover:underline"
+          >
+            عرض جلساتي
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-2 mb-4 max-h-[260px] overflow-y-auto pr-1">
+            {slots.map((s) => {
+              const start = new Date(s.startAt);
+              const end = new Date(s.endAt);
+              const dateLabel = start.toLocaleDateString("ar-EG", {
+                weekday: "short",
+                day: "numeric",
+                month: "long",
+              });
+              const timeLabel = `${start.toLocaleTimeString("ar-EG", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })} – ${end.toLocaleTimeString("ar-EG", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`;
+              const isPicked = picked?.id === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setPicked(s)}
+                  className={`w-full text-right rounded-xl px-3.5 py-2.5 border transition-colors ${
+                    isPicked
+                      ? "bg-primary/15 border-primary/45 text-white"
+                      : "bg-white/[0.04] border-white/10 text-white/80 hover:bg-white/[0.08]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13.5px] font-semibold">{dateLabel}</span>
+                    <span className="text-[11px] text-white/55">
+                      {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+                    </span>
+                  </div>
+                  <div className="text-[12px] text-white/55 tabular-nums">
+                    {timeLabel}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {picked && (
+            <div className="space-y-3 pt-3 border-t border-white/[0.06]">
+              <label className="block">
+                <span className="block text-[11.5px] text-white/55 mb-1.5">
+                  موضوع الجلسة
+                </span>
+                <input
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  maxLength={200}
+                  placeholder="ماذا تريد أن نناقش؟"
+                  className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+                />
+              </label>
+              <label className="block">
+                <span className="block text-[11.5px] text-white/55 mb-1.5">
+                  تفاصيل إضافيّة (اختياري)
+                </span>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                />
+              </label>
+              {error && (
+                <div className="text-[12.5px] text-red-300">{error}</div>
+              )}
+              <button
+                type="button"
+                onClick={book}
+                disabled={busy}
+                className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" />
+                {busy ? "…" : "تأكيد الحجز"}
+              </button>
+              <p className="text-white/40 text-[11px] text-center">
+                مَجّاني — يَصلك إيميل التأكيد فورًا.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+    </GlassCard>
   );
 }
 

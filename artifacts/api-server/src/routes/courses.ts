@@ -17,6 +17,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
 
@@ -51,10 +52,15 @@ router.get("/courses", async (req, res) => {
         endsAt: coursesTable.endsAt,
         capacity: coursesTable.capacity,
         status: coursesTable.status,
-        enrolled: sql<number>`(SELECT COUNT(*)::int FROM enrollments e WHERE e.course_id = courses.id AND e.status <> 'cancelled')`,
+        enrolled: sql<number>`COALESCE(COUNT(e.id) FILTER (WHERE e.status <> 'cancelled'), 0)::int`,
       })
       .from(coursesTable)
+      .leftJoin(
+        sql`enrollments e`,
+        sql`e.course_id = ${coursesTable.id}`,
+      )
       .where(where.length ? and(...where) : undefined)
+      .groupBy(coursesTable.id)
       .orderBy(
         sql`CASE WHEN ${coursesTable.startsAt} IS NULL THEN 1 ELSE 0 END`,
         asc(coursesTable.startsAt),
@@ -221,6 +227,7 @@ router.post("/courses/:id/enroll", requireUser, async (req, res) => {
       res.status(409).json({ error: "اكتمل العدد" });
       return;
     }
+    invalidateNumbersCache();
     res.json(result);
   } catch (err) {
     logger.error({ err }, "POST /courses/:id/enroll failed");
@@ -245,6 +252,7 @@ router.delete("/courses/:id/enroll", requireUser, async (req, res) => {
           eq(enrollmentsTable.userId, session.userId),
         ),
       );
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /courses/:id/enroll failed");
@@ -356,6 +364,7 @@ router.post("/admin/courses", requireAdmin, async (req, res) => {
         status: data.status,
       })
       .returning();
+    invalidateNumbersCache();
     res.json({ course: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/courses failed");
@@ -407,6 +416,7 @@ router.patch("/admin/courses/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ course: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/courses/:id failed");
@@ -422,6 +432,7 @@ router.delete("/admin/courses/:id", requireAdmin, async (req, res) => {
       return;
     }
     await db.delete(coursesTable).where(eq(coursesTable.id, id));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/courses/:id failed");

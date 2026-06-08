@@ -11,6 +11,7 @@ import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
 import { getFlag } from "./adminExtra";
+import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
 
@@ -222,6 +223,7 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
       return;
     }
 
+    invalidateNumbersCache();
     res.json({ ok: true, id: result.id });
   } catch (err) {
     logger.error({ err }, "Failed to create booking");
@@ -304,6 +306,7 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ booking: row });
   } catch (err) {
     logger.error({ err, id }, "Failed to update booking");
@@ -354,6 +357,7 @@ router.post("/admin/bookings", requireAdmin, async (req, res) => {
         adminNotes: d.adminNotes,
       })
       .returning();
+    invalidateNumbersCache();
     res.json({ booking: row });
   } catch (err) {
     logger.error({ err }, "admin create booking failed");
@@ -369,6 +373,7 @@ router.delete("/admin/bookings/:id", requireAdmin, async (req, res) => {
   }
   try {
     await db.delete(bookingsTable).where(eq(bookingsTable.id, id));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err, id }, "Failed to delete booking");

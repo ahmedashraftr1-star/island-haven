@@ -23,6 +23,11 @@ import programsRouter from "./programs";
 import venturesRouter from "./ventures";
 import successStoriesRouter from "./successStories";
 import partnersRouter from "./partners";
+import teamMembersRouter from "./teamMembers";
+import cohortsRouter from "./cohorts";
+import ventureMilestonesRouter from "./ventureMilestones";
+import expertAvailabilityRouter from "./expertAvailability";
+import resourcesRouter from "./resources";
 
 const router: IRouter = Router();
 
@@ -50,5 +55,10 @@ router.use(programsRouter);
 router.use(venturesRouter);
 router.use(successStoriesRouter);
 router.use(partnersRouter);
+router.use(teamMembersRouter);
+router.use(cohortsRouter);
+router.use(ventureMilestonesRouter);
+router.use(expertAvailabilityRouter);
+router.use(resourcesRouter);
 
 export default router;

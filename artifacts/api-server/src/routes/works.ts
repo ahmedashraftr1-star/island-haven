@@ -11,6 +11,7 @@ import {
 import { optionalUser, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
+import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
 
@@ -172,6 +173,7 @@ router.post("/works", requireUser, async (req, res) => {
         tags: d.tags,
       })
       .returning();
+    invalidateNumbersCache();
     res.json({ work: row });
   } catch (err) {
     logger.error({ err }, "POST /works failed");
@@ -217,6 +219,7 @@ router.patch("/works/:id", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ work: row });
   } catch (err) {
     logger.error({ err }, "PATCH /works/:id failed");
@@ -235,6 +238,7 @@ router.delete("/works/:id", requireUser, async (req, res) => {
     await db
       .delete(worksTable)
       .where(and(eq(worksTable.id, id), eq(worksTable.userId, session.userId)));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /works/:id failed");

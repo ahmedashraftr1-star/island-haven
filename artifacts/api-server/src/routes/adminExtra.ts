@@ -21,6 +21,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
 
@@ -114,6 +115,7 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ user: publicUser(row) });
   } catch (err) {
     logger.error({ err, id }, "PATCH /admin/users failed");
@@ -129,6 +131,7 @@ router.delete("/admin/users/:id", requireAdmin, async (req, res) => {
   }
   try {
     await db.delete(usersTable).where(eq(usersTable.id, id));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err, id }, "DELETE /admin/users failed");
@@ -205,6 +208,7 @@ router.patch("/admin/works/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ work: row });
   } catch (err) {
     logger.error({ err, id }, "PATCH /admin/works failed");
@@ -220,6 +224,7 @@ router.delete("/admin/works/:id", requireAdmin, async (req, res) => {
   }
   try {
     await db.delete(worksTable).where(eq(worksTable.id, id));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err, id }, "DELETE /admin/works failed");
@@ -315,6 +320,7 @@ router.post(
           set: { status: parsed.data.status as EnrollmentStatus },
         })
         .returning();
+      invalidateNumbersCache();
       res.json({ enrollment: row });
     } catch (err) {
       logger.error({ err, courseId }, "POST add enrollment failed");
@@ -348,6 +354,7 @@ router.patch("/admin/enrollments/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    invalidateNumbersCache();
     res.json({ enrollment: row });
   } catch (err) {
     logger.error({ err, id }, "PATCH enrollment failed");
@@ -363,6 +370,7 @@ router.delete("/admin/enrollments/:id", requireAdmin, async (req, res) => {
   }
   try {
     await db.delete(enrollmentsTable).where(eq(enrollmentsTable.id, id));
+    invalidateNumbersCache();
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err, id }, "DELETE enrollment failed");

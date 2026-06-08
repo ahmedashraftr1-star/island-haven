@@ -80,6 +80,90 @@ export const PARTNER_TIER_LABELS: Record<PartnerTier, string> = {
   sponsor: "راعٍ",
 };
 
+export type TeamRoleGroup = "leadership" | "mentors" | "advisors" | "support";
+export const TEAM_ROLE_GROUP_LABELS: Record<TeamRoleGroup, string> = {
+  leadership: "القيادة",
+  mentors: "المرشدون",
+  advisors: "المستشارون",
+  support: "الدّعم والتشغيل",
+};
+
+export type CohortStatus =
+  | "announced"
+  | "open"
+  | "in_progress"
+  | "demo_day"
+  | "completed";
+export const COHORT_STATUS_LABELS: Record<CohortStatus, string> = {
+  announced: "أُعلِنت",
+  open: "التقديم مفتوح",
+  in_progress: "جارٍ التنفيذ",
+  demo_day: "يوم العرض",
+  completed: "خُتِمت",
+};
+
+export type CohortVentureStatus = "active" | "graduated" | "paused" | "dropped";
+export const COHORT_VENTURE_STATUS_LABELS: Record<CohortVentureStatus, string> = {
+  active: "نشط",
+  graduated: "متخرّج",
+  paused: "متوقّف",
+  dropped: "منسحب",
+};
+
+export type VentureMilestoneType =
+  | "idea"
+  | "mvp"
+  | "launch"
+  | "first_customer"
+  | "first_revenue"
+  | "funding"
+  | "team_grew"
+  | "press"
+  | "partnership"
+  | "other";
+export const VENTURE_MILESTONE_TYPE_LABELS: Record<VentureMilestoneType, string> = {
+  idea: "الفكرة",
+  mvp: "MVP / نموذج أوّليّ",
+  launch: "إطلاق",
+  first_customer: "أوّل عميل",
+  first_revenue: "أوّل إيراد",
+  funding: "تمويل",
+  team_grew: "نموّ الفريق",
+  press: "تغطية إعلاميّة",
+  partnership: "شراكة",
+  other: "حدث",
+};
+
+export type SlotStatus = "available" | "booked" | "cancelled";
+export const SLOT_STATUS_LABELS: Record<SlotStatus, string> = {
+  available: "متاح",
+  booked: "محجوز",
+  cancelled: "ملغى",
+};
+
+export type ResourceCategory =
+  | "template"
+  | "guide"
+  | "tool"
+  | "perk"
+  | "recording"
+  | "legal";
+export const RESOURCE_CATEGORY_LABELS: Record<ResourceCategory, string> = {
+  template: "قالب",
+  guide: "دليل",
+  tool: "أداة",
+  perk: "حافز / Perk",
+  recording: "تسجيل",
+  legal: "قانوني",
+};
+
+export type ResourceVisibility = "public" | "members" | "admins";
+export const RESOURCE_VISIBILITY_LABELS: Record<ResourceVisibility, string> = {
+  public: "للجميع",
+  members: "للمنتسبين فقط",
+  admins: "للإدارة فقط",
+};
+
 export function formatArabicDate(iso?: string | null): string {
   if (!iso) return "";
   try {

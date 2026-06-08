@@ -20,6 +20,7 @@ import {
 import { logger } from "../lib/logger";
 import { sendEmail, passwordResetEmail } from "../lib/email";
 import { getFlag } from "./adminExtra";
+import { invalidateNumbersCache } from "./numbers";
 
 // ─── In-memory password reset tokens ────────────────────────────────────────
 // Single-instance app — in-memory is fine. Tokens expire in 15 minutes.
@@ -156,6 +157,7 @@ router.post("/auth/register", async (req, res) => {
     }
     const token = makeUserSessionToken(row.id);
     setUserSessionCookie(res, token);
+    invalidateNumbersCache();
     res.json({ ok: true, user: toPublic(row), token });
   } catch (err) {
     logger.error({ err }, "register failed");

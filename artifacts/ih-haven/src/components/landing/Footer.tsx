@@ -1,20 +1,23 @@
-import { Instagram, Linkedin, Facebook, Link as LinkIcon, ArrowLeft } from "lucide-react";
+import { Instagram, Linkedin, Facebook, Link as LinkIcon, ArrowLeft, Mail, Phone, MessageCircle } from "lucide-react";
 import { imageUrl, useContent, useContentSection } from "@/hooks/use-content";
 
 const FOOTER_FALLBACK = {
   logo: "/logo.png",
   colophonEyebrow: "Colophon · شعار الكتاب",
-  signOffA: "مساحة",
-  signOffAccent: "تتّسع",
-  signOffB: "لأحلامك.",
+  signOffA: "حاضنة",
+  signOffAccent: "نحضنُ",
+  signOffB: "أحلامكم.",
   estLabel: "تأسّس ٢٠٢٤",
   placeLabel: "غزّة · فلسطين",
   brand: "Island Haven",
-  aboutBody: "",
+  aboutBody:
+    "حاضنة أعمال غزّاويّة مجّانيّة. نَحضن المشاريع الناشئة والمستقلّين والخرّيجين بإرشاد، برامج، وشبكة من الخبراء والشركاء.",
   indexLabel: "فهرس",
   programmeLabel: "برنامج تنمويّ تابع لـ",
   programmeTitle: "من الناس إلى الناس",
-  programmeBody: "",
+  programmeBody:
+    "آيلاند هيفن هو البرنامج التنمويّ للتقنية والريادة من «من النّاس إلى النّاس» — جسر تضامن يربط أصدقاء غزّة بمشاريع حقيقيّة على الأرض.",
+  contactLabel: "تواصل معنا",
   bottomCopy: "© Island Haven · غزّة — فلسطين",
   bottomTag: "بُني بحبّ ليتّسع لأحلامكم",
 };
@@ -26,9 +29,9 @@ const CONTACT_FALLBACK = {
   linktree: "https://linktr.ee/ih_haven",
   nastonas: "https://nastonas.org",
   nas2nas: "https://nastonas.org/generalDonations/4/0",
-  email: "",
-  phone: "",
-  whatsapp: "",
+  email: "island-haven@nastonas.org",
+  phone: "+972 56 753 6815",
+  whatsapp: "https://wa.me/972567536815",
 };
 
 export function Footer() {
@@ -45,13 +48,13 @@ export function Footer() {
   ].filter((s) => s.href);
 
   const index: Array<[string, string]> = [
-    ["#about", "من نحن"],
-    ["#audience", "الفئات والمعايير"],
-    ["#offerings", "ما نقدّم"],
-    ["#programs", "البرامج والفعاليّات"],
-    ["#story", "قصّتنا"],
-    ["#visit", "تواصل معنا"],
-    ["#support", "ادعمنا"],
+    ["/about", "من نحن"],
+    ["/team", "الفريق"],
+    ["/programs", "البرامج"],
+    ["/experts", "الخبراء"],
+    ["/ventures", "المشاريع"],
+    ["/numbers", "بالأرقام"],
+    ["/apply", "انتسب"],
   ];
 
   return (
@@ -94,7 +97,7 @@ export function Footer() {
               {c.aboutBody}
             </p>
             {socials.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-6">
                 {socials.map((s) => {
                   const Icon = s.icon;
                   return (
@@ -110,6 +113,46 @@ export function Footer() {
                     </a>
                   );
                 })}
+              </div>
+            )}
+            {(contact.email || contact.phone || contact.whatsapp) && (
+              <div className="space-y-2.5 text-[14px]">
+                <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-2">
+                  {c.contactLabel}
+                </div>
+                {contact.email && (
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="inline-flex items-center gap-2 text-foreground/75 hover:text-primary transition-colors w-fit"
+                  >
+                    <Mail className="w-4 h-4 text-primary/80" />
+                    <span dir="ltr">{contact.email}</span>
+                  </a>
+                )}
+                {contact.phone && (
+                  <div className="block">
+                    <a
+                      href={`tel:${contact.phone.replace(/\s/g, "")}`}
+                      className="inline-flex items-center gap-2 text-foreground/75 hover:text-primary transition-colors w-fit"
+                    >
+                      <Phone className="w-4 h-4 text-primary/80" />
+                      <span dir="ltr">{contact.phone}</span>
+                    </a>
+                  </div>
+                )}
+                {contact.whatsapp && (
+                  <div className="block">
+                    <a
+                      href={contact.whatsapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-foreground/75 hover:text-primary transition-colors w-fit"
+                    >
+                      <MessageCircle className="w-4 h-4 text-primary/80" />
+                      WhatsApp
+                    </a>
+                  </div>
+                )}
               </div>
             )}
             {heroEyebrow && (

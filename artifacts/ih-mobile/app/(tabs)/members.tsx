@@ -5,7 +5,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { T, Card, Empty } from "@/components/Branded";
+import { T, Card, Empty, SkeletonRow } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 import type { PublicMember } from "@/lib/types";
@@ -51,11 +51,13 @@ export default function MembersScreen() {
         </T>
       </View>
       {isLoading ? (
-        <View style={{ padding: 32, alignItems: "center" }}>
-          <ActivityIndicator color={colors.primary} />
+        <View style={{ paddingHorizontal: 20, gap: 10 }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <SkeletonRow key={i} />
+          ))}
         </View>
       ) : members.length === 0 ? (
-        <Empty title="لم يلتحق منتسبون بعد" />
+        <Empty icon="users" title="لم يلتحق منتسبون بعد" hint="كن أوّل من ينضمّ — قدّم طلب الانتساب الآن." />
       ) : (
         <FlatList
           data={members}

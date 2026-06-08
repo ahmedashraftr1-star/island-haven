@@ -421,10 +421,15 @@ router.get("/admin/experts", requireAdmin, async (_req, res) => {
         sortOrder: expertProfilesTable.sortOrder,
         acceptingSessions: expertProfilesTable.acceptingSessions,
         createdAt: expertProfilesTable.createdAt,
-        sessionsCount: sql<number>`(SELECT COUNT(*)::int FROM mentorship_sessions ms WHERE ms.expert_id = expert_profiles.id)`,
+        sessionsCount: sql<number>`COALESCE(COUNT(${mentorshipSessionsTable.id}), 0)::int`,
       })
       .from(expertProfilesTable)
       .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .leftJoin(
+        mentorshipSessionsTable,
+        eq(mentorshipSessionsTable.expertId, expertProfilesTable.id),
+      )
+      .groupBy(expertProfilesTable.id, usersTable.id)
       .orderBy(
         desc(expertProfilesTable.featured),
         asc(expertProfilesTable.sortOrder),

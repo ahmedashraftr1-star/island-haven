@@ -15,17 +15,19 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "الرئيسيّة", en: "Home", key: "home" },
-  { href: "/experts", label: "الخبراء", en: "Experts", key: "experts" },
-  { href: "/programs", label: "برامج الاحتضان", en: "Programs", key: "programs" },
+  { href: "/programs", label: "البرامج", en: "Programs", key: "programs" },
+  { href: "/cohorts", label: "الدّفعات", en: "Cohorts", key: "cohorts" },
   { href: "/ventures", label: "المشاريع", en: "Ventures", key: "ventures" },
-  { href: "/courses", label: "التّدريب", en: "Training", key: "courses" },
-  { href: "/members", label: "المنتسبون", en: "Members", key: "members" },
-  { href: "/works", label: "الأعمال", en: "Works", key: "works" },
+  { href: "/experts", label: "الخبراء", en: "Experts", key: "experts" },
+  { href: "/resources", label: "الموارد", en: "Resources", key: "resources" },
+  { href: "/team", label: "الفريق", en: "Team", key: "team" },
   { href: "/about", label: "من نحن", en: "About", key: "about" },
 ];
 
 // Secondary destinations — surfaced in the mobile sheet & footer, not the bar.
 export const NAV_SECONDARY: NavItem[] = [
+  { href: "/courses", label: "التّدريب", en: "Training", key: "courses" },
+  { href: "/members", label: "المنتسبون", en: "Members", key: "members" },
   { href: "/events", label: "الفعاليّات", en: "Events", key: "events" },
   { href: "/gallery", label: "الصّور", en: "Gallery", key: "gallery" },
   { href: "/numbers", label: "بالأرقام", en: "Numbers", key: "numbers" },

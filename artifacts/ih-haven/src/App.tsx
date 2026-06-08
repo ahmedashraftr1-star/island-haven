@@ -32,13 +32,17 @@ import VentureDetail from "@/pages/VentureDetail";
 import Numbers from "@/pages/Numbers";
 import Gallery from "@/pages/Gallery";
 import About from "@/pages/About";
+import Team from "@/pages/Team";
+import Cohorts from "@/pages/Cohorts";
+import CohortDetail from "@/pages/CohortDetail";
+import Resources from "@/pages/Resources";
 import PublicProfile from "@/pages/PublicProfile";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
 
 const ROUTE_TITLES: Record<string, string> = {
-  "/": "Island Haven · مساحة تتّسع لأحلامك",
+  "/": "Island Haven · حاضنة أعمال في غزّة",
   "/apply": "انتسب — Island Haven",
   "/book": "احجز مقعد — Island Haven",
   "/login": "تسجيل الدخول — Island Haven",
@@ -52,6 +56,9 @@ const ROUTE_TITLES: Record<string, string> = {
   "/numbers": "مُجتمعنا بالأرقام — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
+  "/team": "فريق آيلاند — Island Haven",
+  "/cohorts": "دفعات الاحتضان — Island Haven",
+  "/resources": "دليل الرّائد — Island Haven",
   "/courses": "البرنامج التَّدريبيّ — Island Haven",
   "/works": "أعمال المنتسبين — Island Haven",
   "/events": "فعاليّات آيلاند — Island Haven",
@@ -97,6 +104,10 @@ function Router() {
       <Route path="/numbers" component={Numbers} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />
+      <Route path="/team" component={Team} />
+      <Route path="/cohorts" component={Cohorts} />
+      <Route path="/cohorts/:slug" component={CohortDetail} />
+      <Route path="/resources" component={Resources} />
       <Route path="/courses" component={Courses} />
       <Route path="/courses/:id" component={CourseDetail} />
       <Route path="/works" component={Works} />

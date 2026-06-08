@@ -1,17 +1,19 @@
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowLeft, Phone, ArrowDown } from "lucide-react";
+import { ArrowLeft, Phone, ArrowDown, Heart } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { HavenMark } from "./HavenMark";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 
 const FALLBACK = {
-  eyebrow: "Island Haven · Gaza · Free Workspace",
-  title1: "مساحةٌ تتّسع لأحلامك،",
+  eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
+  title1: "نَحضن أحلامك،",
   title2: "في قلب غزّة.",
   subtitle:
-    "بيتٌ مهنيّ يحتضن المستقلّين والخرّيجين وطلبة الجامعات. مكتبٌ، إنترنت، وقهوة — مجّاناً وبكلّ راحة.",
-  ctaPrimary: "سجّل للانتساب — مجّاناً",
+    "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء. مجّاناً تماماً.",
+  backedByLabel: "بدعمٍ من",
+  backedByBrand: "من النّاس إلى النّاس",
+  ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
   ctaSecondary: "تحدّث معنا",
   ctaSecondaryHref: "https://wa.me/972567536815",
@@ -250,15 +252,26 @@ export function Hero() {
           </motion.p>
 
           <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.35, duration: 0.8, ease: EASE_OUT_EXPO }}
+            className="mt-6 lg:mt-7 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/85"
+          >
+            <Heart className="h-3.5 w-3.5 text-primary fill-primary/70" />
+            <span className="text-white/60">{c.backedByLabel} ·</span>
+            <span className="text-white">{c.backedByBrand}</span>
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.45, duration: 0.9, ease: EASE_OUT_EXPO }}
-            className="mt-9 lg:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
             <a
               href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-8 rounded-full bg-white text-[#0A0E1A] font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(255,255,255,0.4)]"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-8 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(220,68,84,0.55)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
@@ -266,7 +279,7 @@ export function Hero() {
             <a
               href={`${import.meta.env.BASE_URL}book`}
               data-testid="cta-book"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(220,68,84,0.45)]"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 transition-all duration-500"
             >
               <span className="relative z-10">{c.bookCtaLabel}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />

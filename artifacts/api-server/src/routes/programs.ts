@@ -51,10 +51,15 @@ router.get("/programs", async (_req, res) => {
         startsAt: programsTable.startsAt,
         applyDeadline: programsTable.applyDeadline,
         status: programsTable.status,
-        applicants: sql<number>`(SELECT COUNT(*)::int FROM program_applications pa WHERE pa.program_id = programs.id)`,
+        applicants: sql<number>`COALESCE(COUNT(pa.id), 0)::int`,
       })
       .from(programsTable)
+      .leftJoin(
+        sql`program_applications pa`,
+        sql`pa.program_id = ${programsTable.id}`,
+      )
       .where(sql`${programsTable.status} <> 'draft'`)
+      .groupBy(programsTable.id)
       .orderBy(asc(programsTable.sortOrder), desc(programsTable.createdAt));
     res.json({ programs: rows });
   } catch (err) {
