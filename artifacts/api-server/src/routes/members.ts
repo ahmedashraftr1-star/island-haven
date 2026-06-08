@@ -3,7 +3,6 @@ import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import {
   db,
   usersTable,
-  worksTable,
   USER_ROLES,
   type UserRole,
 } from "@workspace/db";
@@ -26,9 +25,14 @@ router.get("/members", async (req, res) => {
     const role = String(req.query.role ?? "");
     const q = String(req.query.q ?? "").trim().slice(0, 80);
     const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
-    const filterByRole = USER_ROLES.includes(role as UserRole) ? (role as UserRole) : null;
+    const filterByRole = (USER_ROLES as readonly string[]).includes(role)
+      ? (role as UserRole)
+      : null;
 
     const where = [eq(usersTable.status, "active") as never];
+    // Experts have their own directory (/experts) — keep them out of the
+    // general members list so the two surfaces don't overlap.
+    where.push(sql`${usersTable.role} <> 'expert'` as never);
     if (filterByRole) where.push(eq(usersTable.role, filterByRole) as never);
     if (q) {
       where.push(
@@ -62,9 +66,9 @@ router.get("/members", async (req, res) => {
         otherLinks: usersTable.otherLinks,
         createdAt: usersTable.createdAt,
         worksCount: sql<number>`(
-          SELECT COUNT(*)::int FROM ${worksTable}
-          WHERE ${worksTable.userId} = ${usersTable.id}
-            AND ${worksTable.status} = 'visible'
+          SELECT COUNT(*)::int FROM works w
+          WHERE w.user_id = users.id
+            AND w.status = 'visible'
         )`,
       })
       .from(usersTable)

@@ -15,6 +15,12 @@ import {
   Users,
   Briefcase,
   Settings,
+  Sparkles,
+  MessageSquare,
+  Rocket,
+  Lightbulb,
+  Quote,
+  Handshake,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -28,6 +34,12 @@ import AdminUsers from "./AdminUsers";
 import AdminWorks from "./AdminWorks";
 import AdminSettings from "./AdminSettings";
 import AdminPush from "./AdminPush";
+import AdminExperts from "./AdminExperts";
+import AdminSessions from "./AdminSessions";
+import AdminPrograms from "./AdminPrograms";
+import AdminVentures from "./AdminVentures";
+import AdminStories from "./AdminStories";
+import AdminPartners from "./AdminPartners";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -35,6 +47,12 @@ type Tab =
   | "bookings"
   | "applications"
   | "users"
+  | "experts"
+  | "sessions"
+  | "programs"
+  | "ventures"
+  | "stories"
+  | "partners"
   | "works"
   | "courses"
   | "daily"
@@ -48,6 +66,12 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
   { id: "applications", label: "الطلبات", Icon: Inbox },
   { id: "users", label: "المستخدمون", Icon: Users },
+  { id: "experts", label: "الخبراء", Icon: Sparkles },
+  { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare },
+  { id: "programs", label: "برامج الاحتضان", Icon: Rocket },
+  { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
+  { id: "stories", label: "قصص النجاح", Icon: Quote },
+  { id: "partners", label: "الشركاء", Icon: Handshake },
   { id: "works", label: "الأعمال", Icon: Briefcase },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap },
   { id: "daily", label: "اليوميّات", Icon: Newspaper },
@@ -199,6 +223,12 @@ export default function AdminDashboard() {
           {tab === "bookings" && <AdminBookings />}
           {tab === "applications" && <AdminApplications />}
           {tab === "users" && <AdminUsers />}
+          {tab === "experts" && <AdminExperts />}
+          {tab === "sessions" && <AdminSessions />}
+          {tab === "programs" && <AdminPrograms />}
+          {tab === "ventures" && <AdminVentures />}
+          {tab === "stories" && <AdminStories />}
+          {tab === "partners" && <AdminPartners />}
           {tab === "works" && <AdminWorks />}
           {tab === "courses" && <AdminCourses />}
           {tab === "daily" && <AdminDaily />}

@@ -19,6 +19,8 @@ import {
   Github,
   Link2,
   X,
+  CalendarCheck,
+  ArrowRight,
 } from "lucide-react";
 import type { ExtraLink } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
@@ -30,8 +32,12 @@ import {
   COURSE_STATUS_LABELS,
   COURSE_TYPE_LABELS,
   formatArabicDateTime,
+  SESSION_STATUS_LABELS,
+  SESSION_MODE_LABELS,
   type CourseStatus,
   type CourseType,
+  type SessionStatus,
+  type SessionMode,
 } from "@/lib/labels";
 
 export default function Profile() {
@@ -207,6 +213,8 @@ function ProfileInner({
 
       <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-12 pb-16">
         <div className="mx-auto max-w-3xl">
+          {user.role === "expert" && <ExpertDashboardLink />}
+          <MyMentorshipSessions />
           {/* Identity card */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -1048,4 +1056,127 @@ function InfoCard({
 
 function Empty({ msg }: { msg: string }) {
   return <p className="text-white/35 text-[13px] italic">{msg}</p>;
+}
+
+// ─── Expert dashboard shortcut (shown only to experts) ───────────────────────
+
+function ExpertDashboardLink() {
+  return (
+    <Link
+      href="/expert/dashboard"
+      className="group flex items-center justify-between gap-4 rounded-[24px] p-5 mb-6 bg-gradient-to-l from-primary/15 to-primary/[0.04] border border-primary/30 hover:border-primary/50 transition-colors"
+    >
+      <div className="flex items-center gap-3.5">
+        <div className="w-11 h-11 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <div className="text-white font-bold text-[14.5px]">لوحة الخبير</div>
+          <div className="text-white/55 text-[12px]">
+            أدِر ملفّك الإرشاديّ وطلبات الجلسات
+          </div>
+        </div>
+      </div>
+      <ArrowRight className="w-5 h-5 text-primary rtl:rotate-180 transition-transform group-hover:-translate-x-1" />
+    </Link>
+  );
+}
+
+// ─── A mentee's own mentorship-session requests ──────────────────────────────
+
+interface MySession {
+  session: {
+    id: number;
+    topic: string;
+    mode: SessionMode;
+    preferredAt: string | null;
+    status: SessionStatus;
+    createdAt: string;
+  };
+  expertName: string;
+  expertHeadline: string;
+}
+
+function MyMentorshipSessions() {
+  const [rows, setRows] = useState<MySession[] | null>(null);
+
+  useEffect(() => {
+    api<{ sessions: MySession[] }>("/me/sessions")
+      .then((r) => setRows(r.sessions))
+      .catch(() => setRows([]));
+  }, []);
+
+  if (!rows || rows.length === 0) return null;
+
+  const badge: Record<SessionStatus, string> = {
+    requested: "bg-amber-400/10 text-amber-200 border-amber-400/30",
+    confirmed: "bg-emerald-500/10 text-emerald-200 border-emerald-500/30",
+    completed: "bg-primary/15 text-primary border-primary/30",
+    declined: "bg-white/[0.05] text-white/50 border-white/10",
+    cancelled: "bg-white/[0.05] text-white/50 border-white/10",
+  };
+
+  async function cancel(id: number) {
+    if (!window.confirm("إلغاء طلب الجلسة؟")) return;
+    await api(`/me/sessions/${id}`, { method: "DELETE" });
+    setRows((rs) =>
+      rs
+        ? rs.map((r) =>
+            r.session.id === id
+              ? { ...r, session: { ...r.session, status: "cancelled" } }
+              : r,
+          )
+        : rs,
+    );
+  }
+
+  return (
+    <div className="rounded-[24px] p-5 sm:p-6 mb-6 bg-white/[0.045] border border-white/10 backdrop-blur-2xl">
+      <div className="flex items-center gap-2 mb-4">
+        <CalendarCheck className="w-4 h-4 text-primary" />
+        <h2 className="text-white font-bold text-[15px]">جلسات الإرشاد</h2>
+        <span className="text-white/40 text-[12px]">({rows.length})</span>
+      </div>
+      <div className="space-y-2.5">
+        {rows.map((r) => {
+          const s = r.session;
+          const canCancel = s.status === "requested" || s.status === "confirmed";
+          return (
+            <div
+              key={s.id}
+              className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 bg-white/[0.03] border border-white/[0.06]"
+            >
+              <div className="min-w-0">
+                <div className="text-white text-[13.5px] font-semibold truncate">
+                  {s.topic}
+                </div>
+                <div className="text-white/45 text-[11.5px] truncate">
+                  مع {r.expertName} · {SESSION_MODE_LABELS[s.mode]}
+                  {s.preferredAt
+                    ? ` · ${formatArabicDateTime(s.preferredAt)}`
+                    : ""}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-semibold border ${badge[s.status]}`}
+                >
+                  {SESSION_STATUS_LABELS[s.status]}
+                </span>
+                {canCancel && (
+                  <button
+                    onClick={() => cancel(s.id)}
+                    className="text-white/35 hover:text-red-300 transition-colors"
+                    title="إلغاء"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }

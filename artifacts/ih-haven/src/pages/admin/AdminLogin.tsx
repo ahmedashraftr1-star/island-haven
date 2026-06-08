@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { api, ApiError } from "@/lib/api";
 import { motion } from "framer-motion";
-import { Shield, ArrowLeft, Lock, KeyRound, Loader2 } from "lucide-react";
+import { Shield, ArrowLeft, Lock, KeyRound, Loader2, User } from "lucide-react";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ export default function AdminLogin() {
     try {
       await api("/admin/login", {
         method: "POST",
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
       setLocation("/admin");
       window.location.reload();
@@ -171,6 +172,52 @@ export default function AdminLogin() {
 
           <div className="h-px bg-white/10 my-7" />
 
+          {/* Username input */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-2.5">
+              <label
+                htmlFor="username"
+                className="text-[11px] tracking-[0.2em] uppercase text-white/55 font-semibold"
+              >
+                اسم المستخدم · Username
+              </label>
+              <User className="w-3.5 h-3.5 text-white/35" />
+            </div>
+            <div className="relative">
+              <input
+                ref={inputRef}
+                id="username"
+                name="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                dir="ltr"
+                autoComplete="username"
+                data-testid="input-username"
+                placeholder="ahmedashraf"
+                className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/25 outline-none transition-all"
+                style={{
+                  background: "rgba(0,0,0,0.32)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  boxShadow:
+                    "inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "hsl(354 70% 60% / 0.6)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 1px 0 rgba(0,0,0,0.4), 0 0 0 4px hsl(354 70% 50% / 0.18)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 1px 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05)";
+                }}
+              />
+              <User className="absolute top-1/2 -translate-y-1/2 left-3.5 w-3.5 h-3.5 text-white/35" />
+            </div>
+          </div>
+
           {/* Password input */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
@@ -183,19 +230,7 @@ export default function AdminLogin() {
               <KeyRound className="w-3.5 h-3.5 text-white/35" />
             </div>
             <div className="relative">
-              {/* Hidden username for password manager / a11y compliance */}
               <input
-                type="text"
-                name="username"
-                value="admin"
-                autoComplete="username"
-                readOnly
-                aria-hidden="true"
-                tabIndex={-1}
-                className="sr-only"
-              />
-              <input
-                ref={inputRef}
                 id="password"
                 type="password"
                 value={password}

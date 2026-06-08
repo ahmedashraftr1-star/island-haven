@@ -1,7 +1,7 @@
 import React from "react";
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, View } from "react-native";
 import { Image } from "expo-image";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -21,31 +21,66 @@ export default function MembersScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const q = useQuery<{ members: PublicMember[] }>({
+  
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery<{ members: PublicMember[]; total: number; totalPages: number; page: number }>({
     queryKey: ["members"],
-    queryFn: () => api("/members"),
+    queryFn: ({ pageParam = 1 }) => api(`/members?page=${pageParam}`),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+    },
   });
+
+  const members = data?.pages.flatMap((page) => page.members) ?? [];
+  const totalCount = data?.pages[0]?.total ?? 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ paddingTop: insets.top + 12, paddingBottom: 12, paddingHorizontal: 20 }}>
         <T size={26} weight="bold">منتسبو المساحة</T>
         <T size={13} color={colors.mutedForeground}>
-          {q.data?.members.length ?? 0} عضوًا فاعلًا
+          {totalCount} عضوًا فاعلًا
         </T>
       </View>
-      {q.isLoading ? (
+      {isLoading ? (
         <View style={{ padding: 32, alignItems: "center" }}>
           <ActivityIndicator color={colors.primary} />
         </View>
-      ) : q.data?.members.length === 0 ? (
+      ) : members.length === 0 ? (
         <Empty title="لم يلتحق منتسبون بعد" />
       ) : (
         <FlatList
-          data={q.data?.members ?? []}
+          data={members}
           keyExtractor={(m) => String(m.id)}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 10 }}
-          refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} tintColor={colors.primary} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isFetchingNextPage}
+              onRefresh={() => refetch()}
+              tintColor={colors.primary}
+            />
+          }
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={{ paddingVertical: 16, alignItems: "center" }}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : null
+          }
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push(`/member/${item.id}`)}>
               <Card style={{ flexDirection: "row-reverse", alignItems: "center", gap: 12 }}>

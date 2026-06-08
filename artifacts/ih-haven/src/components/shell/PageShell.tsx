@@ -1,10 +1,11 @@
 import { type ReactNode } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { ArrowLeft, LogIn, UserCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
+import { NavRail } from "@/components/nav/NavRail";
 
 export function PageShell({
   eyebrow,
@@ -13,7 +14,6 @@ export function PageShell({
   subtitle,
   children,
   maxWidth = "max-w-6xl",
-  active,
 }: {
   eyebrow?: string;
   title?: string;
@@ -21,29 +21,11 @@ export function PageShell({
   subtitle?: string;
   children: ReactNode;
   maxWidth?: string;
-  active?:
-    | "members"
-    | "courses"
-    | "numbers"
-    | "events"
-    | "gallery"
-    | "works"
-    | "daily"
-    | "profile"
-    | "about";
+  /** Kept for call-site compatibility; the shared NavRail derives the active
+   * item from the current route, so this is no longer needed. */
+  active?: string;
 }) {
   const { user, loading } = useAuth();
-  const [loc] = useLocation();
-
-  const NAV = [
-    { href: "/members", label: "المنتسبون", key: "members" as const },
-    { href: "/courses", label: "البرنامج التّدريبيّ", key: "courses" as const },
-    { href: "/numbers", label: "بالأرقام", key: "numbers" as const },
-    { href: "/events", label: "الفعاليّات", key: "events" as const },
-    { href: "/gallery", label: "الصّور", key: "gallery" as const },
-    { href: "/works", label: "الأعمال", key: "works" as const },
-    { href: "/about", label: "من نحن", key: "about" as const },
-  ];
 
   return (
     <div
@@ -68,24 +50,11 @@ export function PageShell({
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md">
-            {NAV.map((l) => {
-              const isActive = active === l.key || loc.startsWith(l.href);
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
-                    isActive
-                      ? "bg-primary/20 text-white border border-primary/40"
-                      : "text-white/65 hover:text-white hover:bg-white/[0.06]"
-                  }`}
-                  data-testid={`nav-${l.key}`}
-                >
-                  {l.label}
-                </Link>
-              );
-            })}
+          <nav
+            aria-label="التنقّل الرئيسيّ"
+            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md"
+          >
+            <NavRail tone="onDark" pillId="shell-rail" />
           </nav>
 
           <div className="flex items-center gap-2">
@@ -111,24 +80,13 @@ export function PageShell({
           </div>
         </div>
 
-        {/* Mobile nav */}
-        <nav className="md:hidden mt-4 mx-auto flex items-center gap-1 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10">
-          {NAV.map((l) => {
-            const isActive = active === l.key || loc.startsWith(l.href);
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-colors ${
-                  isActive
-                    ? "bg-primary/20 text-white border border-primary/40"
-                    : "text-white/65"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
+        {/* Same rail, horizontally scrollable below xl — identical items, so the
+            bar never changes shape between breakpoints or pages. */}
+        <nav
+          aria-label="التنقّل الرئيسيّ"
+          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10 [&::-webkit-scrollbar]:hidden"
+        >
+          <NavRail tone="onDark" pillId="shell-scroll" />
         </nav>
       </header>
 

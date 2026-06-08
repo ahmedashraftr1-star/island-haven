@@ -42,6 +42,10 @@ function RootLayoutNav() {
       <Stack.Screen name="login" options={{ presentation: "modal", title: "تسجيل الدخول" }} />
       <Stack.Screen name="register" options={{ presentation: "modal", title: "حساب جديد" }} />
       <Stack.Screen name="admin" options={{ presentation: "modal", title: "لوحة الإدارة" }} />
+      <Stack.Screen name="forgot-password" options={{ presentation: "modal", title: "نسيت كلمة السرّ" }} />
+      <Stack.Screen name="reset-password" options={{ presentation: "modal", title: "استعادة كلمة السرّ" }} />
+      <Stack.Screen name="change-password" options={{ presentation: "modal", title: "تغيير كلمة السرّ" }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="member/[id]" options={{ title: "" }} />
       <Stack.Screen name="work/[id]" options={{ title: "" }} />
     </Stack>

@@ -9,8 +9,14 @@ import {
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
+// Roles a visitor may self-register as.
 export const USER_ROLES = ["freelancer", "graduate", "student", "other"] as const;
-export type UserRole = (typeof USER_ROLES)[number];
+// Roles only an admin can assign (never self-registerable). Experts/mentors
+// power the incubator's mentorship system and can log in to their own dashboard.
+export const STAFF_ROLES = ["expert"] as const;
+// Every role the `role` column may hold.
+export const ALL_USER_ROLES = [...USER_ROLES, ...STAFF_ROLES] as const;
+export type UserRole = (typeof ALL_USER_ROLES)[number];
 
 export const USER_STATUSES = ["active", "banned"] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
@@ -132,4 +138,5 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   graduate: "خرّيج جامعي",
   student: "طالب جامعي",
   other: "عضو",
+  expert: "خبير / مرشد",
 };

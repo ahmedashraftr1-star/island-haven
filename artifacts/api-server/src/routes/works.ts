@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import {
   db,
   worksTable,
@@ -22,7 +22,9 @@ router.get("/works", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
     const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
-    const filterByRole = USER_ROLES.includes(role as UserRole) ? (role as UserRole) : null;
+    const filterByRole = (USER_ROLES as readonly string[]).includes(role)
+      ? (role as UserRole)
+      : null;
 
     const where = and(
       filterByRole ? eq(usersTable.role, filterByRole) : undefined,

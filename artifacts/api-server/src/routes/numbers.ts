@@ -31,19 +31,22 @@ router.get("/numbers", async (_req, res) => {
     }
     const [totals] = await db
       .select({
-        members: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active')`,
-        freelancers: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'freelancer')`,
-        graduates: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'graduate')`,
-        students: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable} WHERE ${usersTable.status} = 'active' AND ${usersTable.role} = 'student')`,
-        works: sql<number>`(SELECT COUNT(*)::int FROM ${worksTable} JOIN ${usersTable} ON ${usersTable.id} = ${worksTable.userId} WHERE ${worksTable.status} = 'visible' AND ${usersTable.status} = 'active')`,
-        courses: sql<number>`(SELECT COUNT(*)::int FROM ${coursesTable} WHERE ${coursesTable.status} <> 'draft')`,
-        enrollments: sql<number>`(SELECT COUNT(*)::int FROM ${enrollmentsTable} WHERE ${enrollmentsTable.status} <> 'cancelled')`,
-        bookings: sql<number>`(SELECT COUNT(*)::int FROM ${bookingsTable} WHERE ${bookingsTable.status} <> 'cancelled')`,
-        seatsHosted: sql<number>`(SELECT COALESCE(SUM(${bookingsTable.attendees}),0)::int FROM ${bookingsTable} WHERE ${bookingsTable.status} <> 'cancelled')`,
-        applications: sql<number>`(SELECT COUNT(*)::int FROM ${applicationsTable})`,
-        events: sql<number>`(SELECT COUNT(*)::int FROM ${dailyPostsTable})`,
+        members: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active')`,
+        freelancers: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'freelancer')`,
+        graduates: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'graduate')`,
+        students: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'student')`,
+        works: sql<number>`(SELECT COUNT(*)::int FROM works w JOIN users u ON u.id = w.user_id WHERE w.status IN ('visible','featured') AND u.status = 'active')`,
+        courses: sql<number>`(SELECT COUNT(*)::int FROM courses WHERE status <> 'draft')`,
+        enrollments: sql<number>`(SELECT COUNT(*)::int FROM enrollments WHERE status <> 'cancelled')`,
+        bookings: sql<number>`(SELECT COUNT(*)::int FROM bookings WHERE status <> 'cancelled')`,
+        seatsHosted: sql<number>`(SELECT COALESCE(SUM(attendees),0)::int FROM bookings WHERE status <> 'cancelled')`,
+        applications: sql<number>`(SELECT COUNT(*)::int FROM applications)`,
+        events: sql<number>`(SELECT COUNT(*)::int FROM daily_posts)`,
       })
       .from(sql`(SELECT 1) AS _`);
+    void usersTable; void worksTable; void coursesTable;
+    void enrollmentsTable; void bookingsTable; void applicationsTable;
+    void dailyPostsTable;
 
     const data = { numbers: totals };
     cache = { at: Date.now(), data };

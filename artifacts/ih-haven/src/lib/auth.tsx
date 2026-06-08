@@ -10,7 +10,7 @@ import {
 } from "react";
 import { api, ApiError } from "./api";
 
-export type UserRole = "freelancer" | "graduate" | "student" | "other";
+export type UserRole = "freelancer" | "graduate" | "student" | "other" | "expert";
 
 export interface ExtraLink {
   label: string;
@@ -144,4 +144,5 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   graduate: "خرّيج جامعي",
   student: "طالب جامعي",
   other: "عضو",
+  expert: "خبير / مرشد",
 };

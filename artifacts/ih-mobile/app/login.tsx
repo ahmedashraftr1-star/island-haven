@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 
 import { T, Field, Btn, Card } from "@/components/Branded";
@@ -54,6 +54,18 @@ export default function Login() {
           autoComplete="password"
           error={error ?? undefined}
         />
+        <Pressable
+          onPress={() => router.push("/forgot-password" as never)}
+          style={({ pressed }: { pressed: boolean }) => ({
+            alignSelf: "flex-start",
+            paddingVertical: 6,
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <T size={13} color={colors.primary} weight="medium">
+            نسيت كلمة السرّ؟
+          </T>
+        </Pressable>
         <Btn title="دخول" loading={loading} onPress={submit} fullWidth />
       </Card>
       <View style={{ alignItems: "center", marginTop: 8 }}>

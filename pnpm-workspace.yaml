@@ -52,6 +52,8 @@ overrides:
   'uuid': '14.0.0'
   'vite>picomatch': '4.0.4'
   'yaml': '^2.8.3'
+  '@types/react': '19.2.14'
+  '@types/react-dom': '19.2.3'
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-arm64': '-'
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-x64': '-'
   '@expo/ngrok-bin>@expo/ngrok-bin-freebsd-ia32': '-'

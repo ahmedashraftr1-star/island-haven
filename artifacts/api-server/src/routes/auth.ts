@@ -18,6 +18,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { sendEmail, passwordResetEmail } from "../lib/email";
 import { getFlag } from "./adminExtra";
 
 // ─── In-memory password reset tokens ────────────────────────────────────────
@@ -303,9 +304,9 @@ router.post("/auth/me/change-password", requireUser, async (req, res) => {
 });
 
 // ─── Forgot password ─────────────────────────────────────────────────────────
-// Stores a short-lived token in memory and logs it.
-// Wire up an email provider (Resend/Nodemailer) by replacing the logger.info
-// line with your send() call and the reset URL.
+// Stores a short-lived token in memory and emails the reset link via Resend.
+// Without RESEND_API_KEY the email service falls back to logging the link, so
+// the flow still works in local dev (see src/lib/email.ts).
 
 router.post("/auth/forgot-password", async (req, res) => {
   try {
@@ -332,8 +333,10 @@ router.post("/auth/forgot-password", async (req, res) => {
       resetTokens.set(tokenHash, { email, hash: tokenHash, expiresAt: Date.now() + RESET_TTL_MS });
 
       const resetUrl = `${process.env.FRONTEND_URL ?? "http://localhost:5173"}/reset-password?token=${rawToken}`;
-      // TODO: Replace with actual email send
-      logger.info({ email, resetUrl, fullName: user.fullName }, "Password reset requested — send this link to the user");
+      const { subject, html, text } = passwordResetEmail(resetUrl, user.fullName);
+      // Fire-and-forget: never let provider latency/failure leak timing info or
+      // block the constant-time success response below.
+      void sendEmail({ to: email, subject, html, text });
     }
 
     // Always return ok (don't reveal whether email exists)

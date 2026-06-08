@@ -56,6 +56,20 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    // On Replit the workspace runner routes /api to the backend for us. For
+    // local dev (no REPL_ID) proxy /api to the api-server so the SPA's
+    // same-origin `/api` fetches reach it. Target is overridable via env.
+    ...(process.env.REPL_ID === undefined
+      ? {
+          proxy: {
+            "/api": {
+              target:
+                process.env.API_PROXY_TARGET ?? "http://localhost:3001",
+              changeOrigin: true,
+            },
+          },
+        }
+      : {}),
   },
   preview: {
     port,

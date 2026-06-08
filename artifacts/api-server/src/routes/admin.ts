@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request } from "express";
 import {
-  checkPassword,
+  checkAdminCredentials,
   clearSessionCookie,
   makeSessionToken,
   requireAdmin,
@@ -43,9 +43,10 @@ router.post("/admin/login", (req, res) => {
     res.status(429).json({ ok: false, error: "محاولات كثيرة، حاول لاحقًا" });
     return;
   }
+  const username = String(req.body?.username ?? "");
   const password = String(req.body?.password ?? "");
-  if (!checkPassword(password)) {
-    res.status(401).json({ ok: false, error: "كلمة السرّ غير صحيحة" });
+  if (!checkAdminCredentials(username, password)) {
+    res.status(401).json({ ok: false, error: "بيانات الدخول غير صحيحة" });
     return;
   }
   const token = makeSessionToken();

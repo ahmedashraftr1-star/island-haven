@@ -54,7 +54,7 @@ export default function Home() {
     queryKey: ["content"],
     queryFn: () => api("/content"),
   });
-  const numbersQ = useQuery<Numbers>({
+  const numbersQ = useQuery<{ numbers: Numbers }>({
     queryKey: ["numbers"],
     queryFn: () => api("/numbers"),
   });
@@ -73,7 +73,7 @@ export default function Home() {
 
   const content = contentQ.data?.content ?? {};
   const g = greeting(content);
-  const numbers = numbersQ.data;
+  const numbers = numbersQ.data?.numbers;
   const news = newsQ.data?.posts ?? [];
 
   return (

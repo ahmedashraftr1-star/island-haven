@@ -1,7 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DOMAIN = process.env.EXPO_PUBLIC_DOMAIN;
-export const API_BASE = DOMAIN ? `https://${DOMAIN}/api` : "/api";
+// EXPO_PUBLIC_API_BASE overrides the domain-based URL (used for local dev with iOS simulator)
+export const API_BASE =
+  process.env.EXPO_PUBLIC_API_BASE ??
+  (DOMAIN ? `https://${DOMAIN}/api` : "/api");
+
+const _apiOrigin = process.env.EXPO_PUBLIC_API_BASE
+  ? process.env.EXPO_PUBLIC_API_BASE.replace(/\/api$/, "")
+  : DOMAIN
+    ? `https://${DOMAIN}`
+    : "";
 
 const TOKEN_KEY = "ih_session_token";
 const ADMIN_TOKEN_KEY = "ih_admin_token";
@@ -85,6 +94,6 @@ export async function api<T = unknown>(path: string, opts: ApiOpts = {}): Promis
 export function resolveMedia(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
   if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return DOMAIN ? `https://${DOMAIN}${url}` : url;
+  if (url.startsWith("/")) return _apiOrigin ? `${_apiOrigin}${url}` : url;
   return url;
 }

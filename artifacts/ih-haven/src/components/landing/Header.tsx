@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import { Menu, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
+import { NavRail } from "@/components/nav/NavRail";
+import { NAV_ITEMS, NAV_SECONDARY, isNavActive } from "@/components/nav/navConfig";
 
 const FALLBACK = {
   logo: "/logo.png",
@@ -12,44 +14,10 @@ const FALLBACK = {
   ctaHref: "/apply",
   bookCtaLabel: "احجز مقعد",
   menuLabel: "القائمة",
-  nav1Label: "الرئيسيّة",
-  nav1En: "Home",
-  nav2Label: "منتسبو المساحة",
-  nav2En: "Members",
-  nav3Label: "البرنامج التّدريبيّ",
-  nav3En: "Programs",
-  nav4Label: "مُجتمعنا بالأرقام",
-  nav4En: "Numbers",
-  nav5Label: "فعاليّات آيلاند",
-  nav5En: "Events",
-  nav6Label: "معرض الصّور",
-  nav6En: "Gallery",
-  nav7Label: "من نحن",
-  nav7En: "About",
 };
-
-const NAV_ROUTES: Array<{ href: string; labelKey: keyof typeof FALLBACK; enKey: keyof typeof FALLBACK }> = [
-  { href: "/", labelKey: "nav1Label", enKey: "nav1En" },
-  { href: "/members", labelKey: "nav2Label", enKey: "nav2En" },
-  { href: "/courses", labelKey: "nav3Label", enKey: "nav3En" },
-  { href: "/numbers", labelKey: "nav4Label", enKey: "nav4En" },
-  { href: "/events", labelKey: "nav5Label", enKey: "nav5En" },
-  { href: "/gallery", labelKey: "nav6Label", enKey: "nav6En" },
-  { href: "/about", labelKey: "nav7Label", enKey: "nav7En" },
-];
-
-function isActiveRoute(loc: string, href: string): boolean {
-  if (href === "/") return loc === "/" || loc === "";
-  return loc === href || loc.startsWith(href + "/");
-}
 
 export function Header() {
   const c = useContentSection("header", FALLBACK);
-  const NAV = NAV_ROUTES.map((r) => ({
-    href: r.href,
-    label: c[r.labelKey] || (FALLBACK[r.labelKey] as string),
-    en: c[r.enKey] || (FALLBACK[r.enKey] as string),
-  }));
   const [scrolledRaw, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [loc] = useLocation();
@@ -111,37 +79,11 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden xl:flex flex-1 items-center justify-evenly mx-2 min-w-0 relative">
-          {NAV.map((l) => {
-            const active = isActiveRoute(loc, l.href);
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`relative px-2.5 py-1.5 text-[12.5px] font-semibold transition-colors rounded-full whitespace-nowrap ${
-                  scrolled
-                    ? active
-                      ? "text-primary"
-                      : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
-                    : active
-                    ? "text-white"
-                    : "text-white/75 hover:text-white hover:bg-white/10"
-                }`}
-                data-testid={`nav-${l.en.toLowerCase()}`}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    className={`absolute inset-0 rounded-full -z-10 ${
-                      scrolled ? "bg-primary/10" : "bg-white/15 backdrop-blur-sm"
-                    }`}
-                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                  />
-                )}
-                <span className="relative">{l.label}</span>
-              </Link>
-            );
-          })}
+        <nav
+          aria-label="التنقّل الرئيسيّ"
+          className="hidden xl:flex flex-1 items-center justify-center gap-0.5 mx-2 min-w-0"
+        >
+          <NavRail tone={scrolled ? "onLight" : "onDark"} pillId="header-rail" />
         </nav>
 
         <div className="hidden lg:flex items-center gap-2 shrink-0">
@@ -192,8 +134,8 @@ export function Header() {
             className="xl:hidden border-t border-border bg-white/95 backdrop-blur-xl"
           >
             <nav className="container mx-auto px-6 py-4 flex flex-col">
-              {NAV.map((l) => {
-                const active = isActiveRoute(loc, l.href);
+              {[...NAV_ITEMS, ...NAV_SECONDARY].map((l) => {
+                const active = isNavActive(loc, l.href);
                 return (
                   <Link
                     key={l.href}

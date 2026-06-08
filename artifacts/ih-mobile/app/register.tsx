@@ -30,7 +30,7 @@ export default function Register() {
     setLoading(true);
     try {
       await signUp({ email: email.trim(), password, fullName: fullName.trim(), role });
-      router.dismissAll();
+      router.replace("/onboarding" as never);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "تعذّر إنشاء الحساب");
     } finally {

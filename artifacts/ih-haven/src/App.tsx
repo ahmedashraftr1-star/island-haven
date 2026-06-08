@@ -22,6 +22,12 @@ import WorkEditor from "@/pages/WorkEditor";
 import Daily, { DailyDetail } from "@/pages/Daily";
 import Events, { EventDetail } from "@/pages/Events";
 import Members from "@/pages/Members";
+import Experts from "@/pages/Experts";
+import ExpertDetail from "@/pages/ExpertDetail";
+import ExpertDashboard from "@/pages/ExpertDashboard";
+import Programs from "@/pages/Programs";
+import ProgramDetail from "@/pages/ProgramDetail";
+import Ventures from "@/pages/Ventures";
 import Numbers from "@/pages/Numbers";
 import Gallery from "@/pages/Gallery";
 import About from "@/pages/About";
@@ -38,6 +44,10 @@ const ROUTE_TITLES: Record<string, string> = {
   "/register": "حساب جديد — Island Haven",
   "/profile": "ملفّي — Island Haven",
   "/members": "منتسبو المساحة — Island Haven",
+  "/experts": "خبراء آيلاند — Island Haven",
+  "/expert": "لوحة الخبير — Island Haven",
+  "/programs": "برامج الاحتضان — Island Haven",
+  "/ventures": "المشاريع الناشئة — Island Haven",
   "/numbers": "مُجتمعنا بالأرقام — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
@@ -76,6 +86,12 @@ function Router() {
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/profile" component={Profile} />
       <Route path="/members" component={Members} />
+      <Route path="/experts" component={Experts} />
+      <Route path="/experts/:id" component={ExpertDetail} />
+      <Route path="/expert/dashboard" component={ExpertDashboard} />
+      <Route path="/programs" component={Programs} />
+      <Route path="/programs/:id" component={ProgramDetail} />
+      <Route path="/ventures" component={Ventures} />
       <Route path="/numbers" component={Numbers} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />

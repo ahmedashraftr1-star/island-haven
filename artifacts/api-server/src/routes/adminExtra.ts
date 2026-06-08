@@ -10,7 +10,7 @@ import {
   coursesTable,
   pageViewsTable,
   siteSettingsTable,
-  USER_ROLES,
+  ALL_USER_ROLES,
   USER_STATUSES,
   WORK_STATUSES,
   ENROLLMENT_STATUSES,
@@ -50,7 +50,7 @@ router.get("/admin/users", requireAdmin, async (req, res) => {
         ) as never,
       );
     }
-    if (USER_ROLES.includes(role as UserRole)) {
+    if ((ALL_USER_ROLES as readonly string[]).includes(role)) {
       where.push(eq(usersTable.role, role as UserRole));
     }
     if (USER_STATUSES.includes(status as UserStatus)) {
@@ -71,7 +71,7 @@ router.get("/admin/users", requireAdmin, async (req, res) => {
 
 const updateUserSchema = z.object({
   fullName: safeText(120).min(2).optional(),
-  role: z.enum(USER_ROLES).optional(),
+  role: z.enum(ALL_USER_ROLES).optional(),
   status: z.enum(USER_STATUSES).optional(),
   bio: safeText(2000).optional(),
   phone: z.string().trim().max(40).regex(/^[\d\s+()\-]*$/u).optional(),

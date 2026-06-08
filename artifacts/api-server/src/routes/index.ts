@@ -18,6 +18,11 @@ import membersRouter from "./members";
 import numbersRouter from "./numbers";
 import galleryRouter from "./gallery";
 import pushRouter from "./push";
+import expertsRouter from "./experts";
+import programsRouter from "./programs";
+import venturesRouter from "./ventures";
+import successStoriesRouter from "./successStories";
+import partnersRouter from "./partners";
 
 const router: IRouter = Router();
 
@@ -40,5 +45,10 @@ router.use(membersRouter);
 router.use(numbersRouter);
 router.use(galleryRouter);
 router.use(pushRouter);
+router.use(expertsRouter);
+router.use(programsRouter);
+router.use(venturesRouter);
+router.use(successStoriesRouter);
+router.use(partnersRouter);
 
 export default router;

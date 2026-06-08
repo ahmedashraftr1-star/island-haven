@@ -51,7 +51,7 @@ router.get("/courses", async (req, res) => {
         endsAt: coursesTable.endsAt,
         capacity: coursesTable.capacity,
         status: coursesTable.status,
-        enrolled: sql<number>`(SELECT COUNT(*)::int FROM ${enrollmentsTable} WHERE ${enrollmentsTable.courseId} = ${coursesTable.id} AND ${enrollmentsTable.status} <> 'cancelled')`,
+        enrolled: sql<number>`(SELECT COUNT(*)::int FROM enrollments e WHERE e.course_id = courses.id AND e.status <> 'cancelled')`,
       })
       .from(coursesTable)
       .where(where.length ? and(...where) : undefined)
@@ -287,7 +287,7 @@ router.get("/admin/courses", requireAdmin, async (_req, res) => {
         capacity: coursesTable.capacity,
         status: coursesTable.status,
         createdAt: coursesTable.createdAt,
-        enrolled: sql<number>`(SELECT COUNT(*)::int FROM ${enrollmentsTable} WHERE ${enrollmentsTable.courseId} = ${coursesTable.id} AND ${enrollmentsTable.status} <> 'cancelled')`,
+        enrolled: sql<number>`(SELECT COUNT(*)::int FROM enrollments e WHERE e.course_id = courses.id AND e.status <> 'cancelled')`,
       })
       .from(coursesTable)
       .orderBy(desc(coursesTable.createdAt));

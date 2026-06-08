@@ -88,6 +88,13 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      <Btn
+        title="تغيير كلمة السرّ"
+        variant="ghost"
+        fullWidth
+        style={{ borderColor: colors.border, marginBottom: 8 }}
+        onPress={() => router.push("/change-password" as never)}
+      />
       <Btn title="تسجيل الخروج" variant="ghost" fullWidth onPress={signOut} />
       <Btn title="دخول الإدارة" variant="ghost" fullWidth onPress={() => router.push("/admin")} />
     </ScrollView>

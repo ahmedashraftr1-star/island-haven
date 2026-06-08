@@ -9,6 +9,9 @@ import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { NewsSlider } from "@/components/landing/NewsSlider";
 import { NumbersBand } from "@/components/landing/NumbersBand";
+import { ExpertsBand } from "@/components/landing/ExpertsBand";
+import { SuccessStories } from "@/components/landing/SuccessStories";
+import { Partners } from "@/components/landing/Partners";
 import { AdminShortcut } from "@/components/landing/AdminShortcut";
 
 export default function Home() {
@@ -36,7 +39,10 @@ export default function Home() {
         <NewsSlider />
         <NumbersBand />
         <Audience />
+        <ExpertsBand />
+        <SuccessStories />
         <HoursLocation />
+        <Partners />
       </div>
       <Footer />
       <AdminShortcut />

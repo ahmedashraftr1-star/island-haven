@@ -1,7 +1,7 @@
 import React from "react";
 import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
 import { Image } from "expo-image";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { T, Card, Empty } from "@/components/Branded";
@@ -19,10 +19,25 @@ const TYPE_AR: Record<DailyPost["type"], string> = {
 export default function EventsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const q = useQuery<{ posts: DailyPost[] }>({
+  
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery<{ posts: DailyPost[]; total: number; totalPages: number; page: number }>({
     queryKey: ["events"],
-    queryFn: () => api("/daily?limit=50"),
+    queryFn: ({ pageParam = 1 }) => api(`/daily?page=${pageParam}`),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+    },
   });
+
+  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -30,18 +45,37 @@ export default function EventsScreen() {
         <T size={26} weight="bold">فعاليات آيلاند</T>
         <T size={13} color={colors.mutedForeground}>أحدث الأنشطة والتحديثات</T>
       </View>
-      {q.isLoading ? (
+      {isLoading ? (
         <View style={{ padding: 32, alignItems: "center" }}>
           <ActivityIndicator color={colors.primary} />
         </View>
-      ) : q.data?.posts.length === 0 ? (
+      ) : posts.length === 0 ? (
         <Empty title="لا توجد فعاليات بعد" />
       ) : (
         <FlatList
-          data={q.data?.posts ?? []}
+          data={posts}
           keyExtractor={(p) => String(p.id)}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 14 }}
-          refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} tintColor={colors.primary} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && !isFetchingNextPage}
+              onRefresh={() => refetch()}
+              tintColor={colors.primary}
+            />
+          }
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={{ paddingVertical: 16, alignItems: "center" }}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : null
+          }
           renderItem={({ item }) => (
             <Card style={{ padding: 0, overflow: "hidden" }}>
               {item.imageUrl ? (

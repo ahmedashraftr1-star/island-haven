@@ -209,6 +209,23 @@ export function checkPassword(password: string): boolean {
   return crypto.timingSafeEqual(a, b);
 }
 
+// Full admin sign-in check: password (always) + username (only when
+// ADMIN_USERNAME is configured). Both comparisons are timing-safe. When no
+// ADMIN_USERNAME is set the login stays password-only for backward compat.
+export function checkAdminCredentials(
+  username: string,
+  password: string,
+): boolean {
+  if (!checkPassword(password)) return false;
+  const expectedUser = process.env.ADMIN_USERNAME;
+  if (!expectedUser) return true;
+  if (typeof username !== "string" || username.length === 0) return false;
+  const a = Buffer.from(username);
+  const b = Buffer.from(expectedUser);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 export function ensureAuthConfigured(): void {
   getSecret();
 }

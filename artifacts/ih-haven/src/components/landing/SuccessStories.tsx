@@ -1,0 +1,96 @@
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Quote } from "lucide-react";
+import { EditorialHeader } from "./EditorialHeader";
+import { api } from "@/lib/api";
+
+interface Story {
+  id: number;
+  personName: string;
+  role: string;
+  quote: string;
+  avatarUrl: string | null;
+  ventureName: string;
+}
+
+export function SuccessStories() {
+  const [rows, setRows] = useState<Story[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api<{ stories: Story[] }>("/stories")
+      .then((r) => !cancelled && setRows(r.stories.slice(0, 6)))
+      .catch(() => !cancelled && setRows([]));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (rows !== null && rows.length === 0) return null;
+
+  return (
+    <section
+      id="stories"
+      className="relative bg-foreground/[0.02] py-24 lg:py-32 overflow-hidden"
+    >
+      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
+        <EditorialHeader
+          label="قصص نجاح"
+          title={
+            <>
+              من <span className="text-accent-gradient">آيلاند</span> إلى العالم
+            </>
+          }
+          sub="حكايات أعضاء وروّاد بدؤوا من مقعد في مساحتنا، وصنعوا أثرًا يُلهم الجيل القادم."
+        />
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
+          {(rows ?? Array.from({ length: 3 }).map(() => null)).map((s, i) =>
+            s ? (
+              <motion.figure
+                key={s.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, delay: i * 0.05 }}
+                className="rounded-3xl p-6 bg-white border border-foreground/8 shadow-soft flex flex-col"
+              >
+                <Quote className="w-7 h-7 text-primary/30 mb-3" />
+                <blockquote className="text-foreground/80 text-[14.5px] leading-[1.9] flex-1">
+                  {s.quote}
+                </blockquote>
+                <figcaption className="flex items-center gap-3 mt-5 pt-5 border-t border-foreground/8">
+                  {s.avatarUrl ? (
+                    <img
+                      src={s.avatarUrl}
+                      alt={s.personName}
+                      className="w-11 h-11 rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold">
+                      {s.personName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-bold text-foreground text-[13.5px] truncate">
+                      {s.personName}
+                    </div>
+                    <div className="text-foreground/55 text-[12px] truncate">
+                      {[s.role, s.ventureName].filter(Boolean).join(" · ")}
+                    </div>
+                  </div>
+                </figcaption>
+              </motion.figure>
+            ) : (
+              <div
+                key={i}
+                className="h-56 rounded-3xl bg-foreground/[0.03] border border-foreground/8 animate-pulse"
+              />
+            ),
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
