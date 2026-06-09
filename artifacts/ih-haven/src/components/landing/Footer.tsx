@@ -49,12 +49,16 @@ export function Footer() {
 
   const index: Array<[string, string]> = [
     ["/about", "من نحن"],
-    ["/team", "الفريق"],
     ["/programs", "البرامج"],
-    ["/experts", "الخبراء"],
+    ["/stories", "قصص النجاح"],
+    ["/jobs", "الوظائف"],
+    ["/investors", "المستثمرون"],
+    ["/alumni", "الخرّيجون"],
+    ["/process", "كيف نعمل"],
+    ["/faq", "الأسئلة الشائعة"],
     ["/ventures", "المشاريع"],
-    ["/numbers", "بالأرقام"],
-    ["/apply", "انتسب"],
+    ["/experts", "الخبراء"],
+    ["/apply", "انتسب الآن"],
   ];
 
   return (
