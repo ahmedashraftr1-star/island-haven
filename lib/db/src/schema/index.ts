@@ -20,3 +20,5 @@ export * from "./cohorts";
 export * from "./ventureMilestones";
 export * from "./expertAvailability";
 export * from "./resources";
+export * from "./demoDayRsvps";
+export * from "./cohortJourney";

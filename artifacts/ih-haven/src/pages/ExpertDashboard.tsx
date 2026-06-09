@@ -7,6 +7,9 @@ import {
   XCircle,
   CalendarCheck,
   User as UserIcon,
+  Plus,
+  Trash2,
+  Clock,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
@@ -15,8 +18,10 @@ import {
   formatArabicDateTime,
   SESSION_STATUS_LABELS,
   SESSION_MODE_LABELS,
+  SLOT_STATUS_LABELS,
   type SessionStatus,
   type SessionMode,
+  type SlotStatus,
 } from "@/lib/labels";
 
 interface ExpertProfile {
@@ -52,7 +57,9 @@ interface SessionRow {
 export default function ExpertDashboard() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
-  const [tab, setTab] = useState<"sessions" | "profile">("sessions");
+  const [tab, setTab] = useState<"sessions" | "officehours" | "profile">(
+    "sessions",
+  );
   const [profile, setProfile] = useState<ExpertProfile | null>(null);
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
   const [notExpert, setNotExpert] = useState(false);
@@ -121,6 +128,7 @@ export default function ExpertDashboard() {
         {(
           [
             { k: "sessions", label: "طلبات الجلسات" },
+            { k: "officehours", label: "مواعيدي (Office Hours)" },
             { k: "profile", label: "ملفّي الإرشاديّ" },
           ] as const
         ).map((t) => (
@@ -138,9 +146,11 @@ export default function ExpertDashboard() {
         ))}
       </div>
 
-      {tab === "sessions" ? (
+      {tab === "sessions" && (
         <SessionsPanel sessions={sessions} onChanged={loadSessions} />
-      ) : (
+      )}
+      {tab === "officehours" && <OfficeHoursPanel />}
+      {tab === "profile" && (
         <ProfilePanel profile={profile} onSaved={setProfile} />
       )}
     </PageShell>
@@ -499,5 +509,243 @@ function Input({
       placeholder={placeholder}
       className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
     />
+  );
+}
+
+// ─── Office Hours panel (expert manages their own availability slots) ──────────
+
+interface Slot {
+  id: number;
+  startAt: string;
+  endAt: string;
+  mode: SessionMode;
+  location: string;
+  status: SlotStatus;
+  note: string;
+}
+
+const SLOT_BADGE: Record<SlotStatus, string> = {
+  available: "bg-emerald-500/10 text-emerald-200 border-emerald-500/30",
+  booked: "bg-primary/15 text-primary border-primary/30",
+  cancelled: "bg-white/[0.05] text-white/45 border-white/10",
+};
+
+const inputCls =
+  "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none";
+
+function OfficeHoursPanel() {
+  const [slots, setSlots] = useState<Slot[] | null>(null);
+  const [startAt, setStartAt] = useState("");
+  const [endAt, setEndAt] = useState("");
+  const [mode, setMode] = useState<SessionMode>("online");
+  const [location, setLocation] = useState("");
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const r = await api<{ slots: Slot[] }>("/experts/me/slots");
+      setSlots(r.slots);
+    } catch {
+      setSlots([]);
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // When the expert picks a start, default the end to +60 min for convenience.
+  function onStartChange(v: string) {
+    setStartAt(v);
+    if (v && !endAt) {
+      const d = new Date(v);
+      d.setMinutes(d.getMinutes() + 60);
+      const p = (n: number) => String(n).padStart(2, "0");
+      setEndAt(
+        `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`,
+      );
+    }
+  }
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      if (!startAt || !endAt) throw new Error("اختر وقت البداية والنهاية");
+      await api("/experts/me/slots", {
+        method: "POST",
+        body: JSON.stringify({
+          startAt: new Date(startAt).toISOString(),
+          endAt: new Date(endAt).toISOString(),
+          mode,
+          location: mode === "onsite" ? location : "",
+          note,
+        }),
+      });
+      setStartAt("");
+      setEndAt("");
+      setLocation("");
+      setNote("");
+      await load();
+    } catch (e) {
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : e instanceof Error
+            ? e.message
+            : "تعذّر الإضافة",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function remove(id: number) {
+    if (!window.confirm("حذف هذا الموعد؟")) return;
+    try {
+      await api(`/experts/me/slots/${id}`, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر الحذف");
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <GlassCard className="p-5 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-4 h-4 text-primary" />
+          <h3 className="text-white font-bold text-[15px]">أضِف موعدًا متاحًا</h3>
+        </div>
+        <form onSubmit={add} className="grid sm:grid-cols-2 gap-3">
+          <label className="block">
+            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+              من
+            </span>
+            <input
+              type="datetime-local"
+              value={startAt}
+              onChange={(e) => onStartChange(e.target.value)}
+              className={inputCls}
+            />
+          </label>
+          <label className="block">
+            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+              إلى
+            </span>
+            <input
+              type="datetime-local"
+              value={endAt}
+              onChange={(e) => setEndAt(e.target.value)}
+              className={inputCls}
+            />
+          </label>
+          <label className="block">
+            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+              النّوع
+            </span>
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as SessionMode)}
+              className={inputCls}
+            >
+              <option value="online">{SESSION_MODE_LABELS.online}</option>
+              <option value="onsite">{SESSION_MODE_LABELS.onsite}</option>
+            </select>
+          </label>
+          {mode === "onsite" && (
+            <label className="block">
+              <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+                المكان
+              </span>
+              <input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                maxLength={400}
+                placeholder="آيلاند هيفن — غزّة"
+                className={inputCls}
+              />
+            </label>
+          )}
+          <label className="block sm:col-span-2">
+            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+              ملاحظة (اختياري)
+            </span>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              maxLength={1000}
+              className={inputCls}
+            />
+          </label>
+          {error && (
+            <div className="sm:col-span-2 text-red-300 text-[12.5px]">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="sm:col-span-2 inline-flex items-center justify-center gap-2 h-11 rounded-full bg-primary text-white font-semibold text-[13.5px] disabled:opacity-50 hover:-translate-y-px transition-transform"
+          >
+            <Plus className="w-4 h-4" />
+            {submitting ? "جارِ الإضافة…" : "إضافة الموعد"}
+          </button>
+        </form>
+      </GlassCard>
+
+      <div>
+        <h3 className="text-white font-bold text-[15px] mb-3">مواعيدي</h3>
+        {slots === null ? (
+          <div className="text-white/45 text-[13px] py-8 text-center">
+            جارِ التحميل…
+          </div>
+        ) : slots.length === 0 ? (
+          <EmptyState
+            title="لا مواعيد بعد"
+            hint="أضف أوّل موعد متاح ليحجزه المنتسبون."
+          />
+        ) : (
+          <div className="space-y-2.5">
+            {slots.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 bg-white/[0.04] border border-white/[0.07]"
+              >
+                <div className="min-w-0">
+                  <div className="text-white text-[13.5px] font-semibold">
+                    {formatArabicDateTime(s.startAt)}
+                  </div>
+                  <div className="text-white/45 text-[11.5px] truncate">
+                    {SESSION_MODE_LABELS[s.mode]}
+                    {s.location ? ` · ${s.location}` : ""}
+                    {s.note ? ` · ${s.note}` : ""}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-semibold border ${SLOT_BADGE[s.status]}`}
+                  >
+                    {SLOT_STATUS_LABELS[s.status]}
+                  </span>
+                  {s.status !== "booked" && (
+                    <button
+                      onClick={() => remove(s.id)}
+                      className="text-white/35 hover:text-red-300 transition-colors"
+                      title="حذف"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

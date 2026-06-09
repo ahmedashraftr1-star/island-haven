@@ -154,9 +154,11 @@ export default function Home() {
               data={
                 [
                   { key: "programs", label: "برامج الاحتضان", icon: "layers" },
+                  { key: "cohorts", label: "دفعات الاحتضان", icon: "git-branch" },
                   { key: "experts", label: "خبراء ومرشدون", icon: "award" },
                   { key: "courses", label: "كورسات وورشات", icon: "book-open" },
                   { key: "ventures", label: "مشاريع ناشئة", icon: "trending-up" },
+                  { key: "resources", label: "دليل الرّائد", icon: "book" },
                   { key: "numbers", label: "أرقامنا", icon: "bar-chart-2" },
                   { key: "about", label: "من نحن", icon: "info" },
                   { key: "apply", label: "انتسب", icon: "user-plus" },

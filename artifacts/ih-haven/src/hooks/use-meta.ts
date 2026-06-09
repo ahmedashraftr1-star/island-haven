@@ -24,7 +24,8 @@ function setMeta(name: string, content: string) {
 }
 
 const SITE_NAME = "Island Haven · آيلاند هيفن";
-const DEFAULT_IMAGE = `${window.location.origin}/og-image.png`;
+// Matches index.html's static og:image. (/og-image.png does not exist.)
+const DEFAULT_IMAGE = `${window.location.origin}/opengraph.jpg`;
 const BASE_URL = window.location.origin;
 
 export function usePageMeta({ title, description, image, type = "website", url }: MetaOptions) {

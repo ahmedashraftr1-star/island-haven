@@ -9,9 +9,11 @@ import {
   Building2,
   ArrowLeft,
   Sparkles,
+  FileText,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { usePageMeta } from "@/hooks/use-meta";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 
 interface Venture {
@@ -36,13 +38,22 @@ export default function VentureDetail() {
   const [, params] = useRoute("/ventures/:id");
   const id = params?.id;
   const [v, setV] = useState<Venture | null>(null);
+  const [pitchDeck, setPitchDeck] = useState<{ title: string; url: string } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    api<{ venture: Venture }>(`/ventures/${id}`)
-      .then((r) => !cancelled && setV(r.venture))
+    api<{ venture: Venture; pitchDeck: { title: string; url: string } | null }>(
+      `/ventures/${id}`,
+    )
+      .then((r) => {
+        if (cancelled) return;
+        setV(r.venture);
+        setPitchDeck(r.pitchDeck);
+      })
       .catch(
         (e) =>
           !cancelled &&
@@ -53,9 +64,12 @@ export default function VentureDetail() {
     };
   }, [id]);
 
-  useEffect(() => {
-    if (v?.name) document.title = `${v.name} — مشاريع آيلاند`;
-  }, [v?.name]);
+  usePageMeta({
+    title: v?.name,
+    description: v?.tagline,
+    image: v?.coverUrl ?? undefined,
+    type: "article",
+  });
 
   if (error && !v) {
     return (
@@ -173,17 +187,30 @@ export default function VentureDetail() {
             </div>
           )}
 
-          {v.websiteUrl && (
-            <a
-              href={v.websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
-            >
-              زيارة المشروع
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {v.websiteUrl && (
+              <a
+                href={v.websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
+              >
+                زيارة المشروع
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+            {pitchDeck && (
+              <a
+                href={pitchDeck.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
+              >
+                <FileText className="w-4 h-4 text-primary" />
+                ملفّ العرض (Pitch Deck)
+              </a>
+            )}
+          </div>
         </div>
       </GlassCard>
 

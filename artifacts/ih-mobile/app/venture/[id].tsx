@@ -196,7 +196,93 @@ export default function VentureDetailScreen() {
             <Feather name="external-link" size={16} color={colors.primaryForeground} />
           </Pressable>
         ) : null}
+
+        <VentureMilestones ventureId={Number(id)} />
       </View>
     </ScrollView>
+  );
+}
+
+const MILESTONE_TYPE_LABELS: Record<string, string> = {
+  idea: "الفكرة",
+  mvp: "MVP",
+  launch: "إطلاق",
+  first_customer: "أوّل عميل",
+  first_revenue: "أوّل إيراد",
+  funding: "تمويل",
+  team_grew: "نموّ الفريق",
+  press: "تغطية إعلاميّة",
+  partnership: "شراكة",
+  other: "حدث",
+};
+
+function fmtDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+interface Milestone {
+  id: number;
+  title: string;
+  body: string;
+  type: string;
+  achievedAt: string;
+}
+
+function VentureMilestones({ ventureId }: { ventureId: number }) {
+  const colors = useColors();
+  const q = useQuery<{ milestones: Milestone[] }>({
+    queryKey: ["venture-milestones", ventureId],
+    queryFn: () => api(`/ventures/${ventureId}/milestones`),
+    enabled: Number.isFinite(ventureId),
+  });
+  const items = q.data?.milestones ?? [];
+  if (items.length === 0) return null;
+
+  return (
+    <View style={{ gap: 10, marginTop: 4 }}>
+      <T size={16} weight="bold">الخطّ الزمنيّ</T>
+      {items.map((m, idx) => (
+        <View key={m.id} style={{ flexDirection: "row-reverse", gap: 10 }}>
+          <View style={{ alignItems: "center", width: 12 }}>
+            <View
+              style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary, marginTop: 5 }}
+            />
+            {idx < items.length - 1 ? (
+              <View style={{ flex: 1, width: 2, backgroundColor: colors.border, marginTop: 2 }} />
+            ) : null}
+          </View>
+          <Card style={{ flex: 1, padding: 12 }}>
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <View
+                style={{ paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999, backgroundColor: colors.primarySoft }}
+              >
+                <T size={10} weight="bold" color={colors.primary}>
+                  {MILESTONE_TYPE_LABELS[m.type] ?? m.type}
+                </T>
+              </View>
+              <T size={13.5} weight="bold" numberOfLines={2} style={{ flexShrink: 1 }}>
+                {m.title}
+              </T>
+            </View>
+            {m.body ? (
+              <T size={12.5} color={colors.mutedForeground} style={{ marginTop: 4, lineHeight: 20 }}>
+                {m.body}
+              </T>
+            ) : null}
+            <T size={11} color={colors.mutedForeground} style={{ marginTop: 4 }}>
+              {fmtDate(m.achievedAt)}
+            </T>
+          </Card>
+        </View>
+      ))}
+    </View>
   );
 }

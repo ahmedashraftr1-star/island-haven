@@ -20,6 +20,7 @@ interface Row {
   featured: boolean;
   status: "draft" | "published" | "hidden";
   sortOrder: number;
+  pitchDeckResourceId: number | null;
 }
 
 const EMPTY: Row = {
@@ -38,6 +39,7 @@ const EMPTY: Row = {
   featured: false,
   status: "draft",
   sortOrder: 0,
+  pitchDeckResourceId: null,
 };
 
 export default function AdminVentures() {
@@ -138,6 +140,13 @@ function VentureEditor({ initial, onClose, onSaved }: { initial: Row; onClose: (
   const [form, setForm] = useState<Row>(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resources, setResources] = useState<{ id: number; title: string }[]>([]);
+
+  useEffect(() => {
+    api<{ resources: { id: number; title: string }[] }>("/admin/resources")
+      .then((r) => setResources(r.resources))
+      .catch(() => setResources([]));
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -199,6 +208,25 @@ function VentureEditor({ initial, onClose, onSaved }: { initial: Row; onClose: (
           </Field>
           <Field label="الترتيب"><input type="number" min={0} value={form.sortOrder} onChange={(e) => setForm((s) => ({ ...s, sortOrder: Number(e.target.value) || 0 }))} className="inp tabular-nums" /></Field>
         </div>
+        <Field label="ملفّ العرض (Pitch Deck) — من دليل الرّائد">
+          <select
+            value={form.pitchDeckResourceId ?? ""}
+            onChange={(e) =>
+              setForm((s) => ({
+                ...s,
+                pitchDeckResourceId: e.target.value ? Number(e.target.value) : null,
+              }))
+            }
+            className="inp"
+          >
+            <option value="">— لا يوجد —</option>
+            {resources.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.title}
+              </option>
+            ))}
+          </select>
+        </Field>
         <label className="flex items-center gap-2.5 cursor-pointer text-[13px] text-foreground/75">
           <input type="checkbox" checked={form.featured} onChange={(e) => setForm((s) => ({ ...s, featured: e.target.checked }))} className="w-4 h-4 accent-primary" />
           مشروع مميّز

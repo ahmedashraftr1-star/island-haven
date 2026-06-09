@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { usePageMeta } from "@/hooks/use-meta";
 import {
   COHORT_STATUS_LABELS,
   COHORT_VENTURE_STATUS_LABELS,
@@ -89,11 +90,12 @@ export default function CohortDetail() {
     };
   }, [slug]);
 
-  useEffect(() => {
-    if (data?.cohort?.name) {
-      document.title = `${data.cohort.name} — دفعات آيلاند`;
-    }
-  }, [data?.cohort?.name]);
+  usePageMeta({
+    title: data?.cohort?.name,
+    description: data?.cohort?.summary,
+    image: data?.cohort?.coverUrl ?? undefined,
+    type: "article",
+  });
 
   if (error && !data) {
     return (
@@ -186,16 +188,25 @@ export default function CohortDetail() {
             <Fact icon={Users} label="عدد المشاريع" value={String(data.ventures.length)} />
           </div>
 
+          {c.demoDayAt && (
+            <Link
+              href={`/cohorts/${c.slug}/demo-day`}
+              className="inline-flex items-center gap-2 mt-6 me-3 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
+            >
+              <Sparkles className="w-4 h-4" />
+              صفحة يوم العرض
+            </Link>
+          )}
+
           {c.demoDayUrl && (
             <a
               href={c.demoDayUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
+              className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
             >
-              <Sparkles className="w-4 h-4" />
-              صفحة يوم العرض
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-4 h-4 text-primary" />
+              البثّ المباشر
             </a>
           )}
 
@@ -231,7 +242,115 @@ export default function CohortDetail() {
           </div>
         )}
       </div>
+
+      <CohortJourney slug={c.slug} />
     </PageShell>
+  );
+}
+
+// ─── Cohort journey: weekly curriculum + progress updates ─────────────────────
+
+interface Week {
+  id: number;
+  weekNumber: number;
+  title: string;
+  theme: string;
+}
+interface Update {
+  id: number;
+  title: string;
+  body: string;
+  weekNumber: number | null;
+  postedAt: string;
+}
+
+function CohortJourney({ slug }: { slug: string }) {
+  const [weeks, setWeeks] = useState<Week[] | null>(null);
+  const [updates, setUpdates] = useState<Update[]>([]);
+
+  useEffect(() => {
+    api<{ weeks: Week[]; updates: Update[] }>(`/cohorts/${slug}/journey`)
+      .then((r) => {
+        setWeeks(r.weeks);
+        setUpdates(r.updates);
+      })
+      .catch(() => setWeeks([]));
+  }, [slug]);
+
+  if (!weeks || (weeks.length === 0 && updates.length === 0)) return null;
+
+  return (
+    <div className="mt-10">
+      <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5">
+        رحلة الدفعة
+      </div>
+
+      {weeks.length > 0 && (
+        <div className="relative mb-8">
+          <div className="absolute top-0 bottom-0 right-[7px] w-px bg-white/10" />
+          <div className="space-y-4">
+            {weeks.map((w, i) => (
+              <motion.div
+                key={w.id}
+                initial={{ opacity: 0, x: 10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: i * 0.04 }}
+                className="relative ps-7"
+              >
+                <span className="absolute right-0 top-1.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-[#0A0E1A]" />
+                <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
+                      الأسبوع {w.weekNumber}
+                    </span>
+                    <h3 className="text-white font-bold text-[14.5px]">{w.title}</h3>
+                  </div>
+                  {w.theme && (
+                    <p className="text-white/55 text-[12.5px] leading-[1.7]">
+                      {w.theme}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {updates.length > 0 && (
+        <div>
+          <h3 className="text-white font-bold text-[15px] mb-3">آخر التحديثات</h3>
+          <div className="space-y-2.5">
+            {updates.map((u) => (
+              <div
+                key={u.id}
+                className="rounded-2xl px-4 py-3 bg-white/[0.03] border border-white/[0.06]"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {u.weekNumber !== null && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60">
+                      أسبوع {u.weekNumber}
+                    </span>
+                  )}
+                  <span className="text-white font-semibold text-[13.5px]">
+                    {u.title}
+                  </span>
+                  <span className="text-white/35 text-[11px] ms-auto">
+                    {formatArabicDate(u.postedAt)}
+                  </span>
+                </div>
+                {u.body && (
+                  <p className="text-white/55 text-[12.5px] leading-[1.75]">
+                    {u.body}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

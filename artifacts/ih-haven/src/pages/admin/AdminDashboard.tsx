@@ -25,6 +25,8 @@ import {
   Layers,
   BookOpen,
   CalendarRange,
+  Flag,
+  Map,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -48,6 +50,8 @@ import AdminTeam from "./AdminTeam";
 import AdminCohorts from "./AdminCohorts";
 import AdminResources from "./AdminResources";
 import AdminSlots from "./AdminSlots";
+import AdminMilestones from "./AdminMilestones";
+import AdminCohortJourney from "./AdminCohortJourney";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -59,10 +63,12 @@ type Tab =
   | "sessions"
   | "programs"
   | "ventures"
+  | "milestones"
   | "stories"
   | "partners"
   | "team"
   | "cohorts"
+  | "journey"
   | "slots"
   | "resources"
   | "works"
@@ -82,7 +88,9 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare },
   { id: "programs", label: "برامج الاحتضان", Icon: Rocket },
   { id: "cohorts", label: "الدّفعات", Icon: Layers },
+  { id: "journey", label: "رحلة الدفعة", Icon: Map },
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
+  { id: "milestones", label: "محطّات المشاريع", Icon: Flag },
   { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
   { id: "stories", label: "قصص النجاح", Icon: Quote },
@@ -243,6 +251,8 @@ export default function AdminDashboard() {
           {tab === "sessions" && <AdminSessions />}
           {tab === "programs" && <AdminPrograms />}
           {tab === "ventures" && <AdminVentures />}
+          {tab === "milestones" && <AdminMilestones />}
+          {tab === "journey" && <AdminCohortJourney />}
           {tab === "stories" && <AdminStories />}
           {tab === "partners" && <AdminPartners />}
           {tab === "team" && <AdminTeam />}

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { usePageMeta } from "@/hooks/use-meta";
 import { useAuth } from "@/lib/auth";
 import {
   formatArabicDate,
@@ -69,10 +70,12 @@ export default function ProgramDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  useEffect(() => {
-    if (data?.program?.title)
-      document.title = `${data.program.title} — برامج آيلاند`;
-  }, [data?.program?.title]);
+  usePageMeta({
+    title: data?.program?.title,
+    description: data?.program?.summary,
+    image: data?.program?.coverUrl ?? undefined,
+    type: "article",
+  });
 
   async function apply(ev: React.FormEvent) {
     ev.preventDefault();

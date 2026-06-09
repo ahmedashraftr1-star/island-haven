@@ -33,6 +33,27 @@ function sessionOf(req: Request): UserSession | undefined {
   return (req as Request & { userSession?: UserSession }).userSession;
 }
 
+// Expert's own slots — MUST be declared before "/experts/:id/slots" so the
+// literal "me" segment isn't captured as an :id param.
+router.get("/experts/me/slots", requireUser, async (req, res) => {
+  try {
+    const expertId = await myExpertId(sessionOf(req)!.userId);
+    if (!expertId) {
+      res.status(403).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const rows = await db
+      .select()
+      .from(expertAvailabilitySlotsTable)
+      .where(eq(expertAvailabilitySlotsTable.expertId, expertId))
+      .orderBy(asc(expertAvailabilitySlotsTable.startAt));
+    res.json({ slots: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /experts/me/slots failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 // Public — upcoming available slots for one expert.
 router.get("/experts/:id/slots", async (req, res) => {
   try {
@@ -160,6 +181,154 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
     res.json({ slot, session: sessionRow });
   } catch (err) {
     logger.error({ err }, "POST /slots/:id/book failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Expert self-service ──────────────────────────────────────────────────────
+// Experts manage their OWN office-hours slots from their dashboard (so the
+// admin doesn't have to maintain availability for every expert).
+
+async function myExpertId(userId: number): Promise<number | null> {
+  const [row] = await db
+    .select({ id: expertProfilesTable.id })
+    .from(expertProfilesTable)
+    .where(eq(expertProfilesTable.userId, userId))
+    .limit(1);
+  return row?.id ?? null;
+}
+
+// Expert provides everything except expertId (derived from their session).
+const expertSlotCreateSchema = slotShape.omit({ expertId: true }).refine(
+  (v) => new Date(v.endAt).getTime() > new Date(v.startAt).getTime(),
+  { message: "نهاية الجلسة يجب أن تكون بعد بدايتها", path: ["endAt"] },
+);
+
+router.post("/experts/me/slots", requireUser, async (req, res) => {
+  try {
+    const expertId = await myExpertId(sessionOf(req)!.userId);
+    if (!expertId) {
+      res.status(403).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const parsed = expertSlotCreateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const d = parsed.data;
+    const [row] = await db
+      .insert(expertAvailabilitySlotsTable)
+      .values({
+        expertId,
+        startAt: new Date(d.startAt),
+        endAt: new Date(d.endAt),
+        mode: d.mode,
+        location: d.location,
+        note: d.note,
+        status: "available",
+      })
+      .returning();
+    res.json({ slot: row });
+  } catch (err) {
+    logger.error({ err }, "POST /experts/me/slots failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.patch("/experts/me/slots/:id", requireUser, async (req, res) => {
+  try {
+    const expertId = await myExpertId(sessionOf(req)!.userId);
+    if (!expertId) {
+      res.status(403).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [existing] = await db
+      .select()
+      .from(expertAvailabilitySlotsTable)
+      .where(
+        and(
+          eq(expertAvailabilitySlotsTable.id, id),
+          eq(expertAvailabilitySlotsTable.expertId, expertId),
+        ),
+      )
+      .limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    if (existing.status === "booked") {
+      res.status(400).json({ error: "لا يمكن تعديل موعد محجوز" });
+      return;
+    }
+    const parsed = slotShape.omit({ expertId: true }).partial().safeParse(req.body);
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const d = parsed.data;
+    const update: Record<string, unknown> = { updatedAt: new Date() };
+    for (const k of ["mode", "location", "note"] as const) {
+      if (d[k] !== undefined) update[k] = d[k];
+    }
+    // Experts can toggle a slot available <-> cancelled, but never force "booked".
+    if (d.status !== undefined && d.status !== "booked") update.status = d.status;
+    if (d.startAt !== undefined) update.startAt = new Date(d.startAt);
+    if (d.endAt !== undefined) update.endAt = new Date(d.endAt);
+    const [row] = await db
+      .update(expertAvailabilitySlotsTable)
+      .set(update)
+      .where(eq(expertAvailabilitySlotsTable.id, id))
+      .returning();
+    res.json({ slot: row });
+  } catch (err) {
+    logger.error({ err }, "PATCH /experts/me/slots/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.delete("/experts/me/slots/:id", requireUser, async (req, res) => {
+  try {
+    const expertId = await myExpertId(sessionOf(req)!.userId);
+    if (!expertId) {
+      res.status(403).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [existing] = await db
+      .select({ status: expertAvailabilitySlotsTable.status })
+      .from(expertAvailabilitySlotsTable)
+      .where(
+        and(
+          eq(expertAvailabilitySlotsTable.id, id),
+          eq(expertAvailabilitySlotsTable.expertId, expertId),
+        ),
+      )
+      .limit(1);
+    if (existing?.status === "booked") {
+      res.status(400).json({ error: "لا يمكن حذف موعد محجوز" });
+      return;
+    }
+    await db
+      .delete(expertAvailabilitySlotsTable)
+      .where(
+        and(
+          eq(expertAvailabilitySlotsTable.id, id),
+          eq(expertAvailabilitySlotsTable.expertId, expertId),
+        ),
+      );
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /experts/me/slots/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

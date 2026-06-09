@@ -8,6 +8,12 @@ import {
   venturesTable,
   upsertCohortSchema,
   upsertCohortVentureSchema,
+  demoDayRsvpsTable,
+  insertDemoDayRsvpSchema,
+  cohortWeeksTable,
+  cohortUpdatesTable,
+  upsertCohortWeekSchema,
+  upsertCohortUpdateSchema,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
@@ -92,6 +98,70 @@ router.get("/cohorts/:slug", async (req, res) => {
     res.json({ ...cohort, ventures });
   } catch (err) {
     logger.error({ err }, "GET /cohorts/:slug failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Demo Day RSVP ────────────────────────────────────────────────────────────
+// Lightweight in-memory throttle (10 RSVPs / IP / 10 min) — enough to slow
+// spam on this public endpoint without external infra.
+const rsvpHits = new Map<string, number[]>();
+function rsvpRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const win = 10 * 60 * 1000;
+  const arr = (rsvpHits.get(ip) || []).filter((t) => now - t < win);
+  arr.push(now);
+  rsvpHits.set(ip, arr);
+  return arr.length > 10;
+}
+
+router.post("/cohorts/:slug/rsvp", async (req, res) => {
+  try {
+    if (rsvpRateLimited(req.ip || "unknown")) {
+      res.status(429).json({ error: "محاولات كثيرة، حاول لاحقًا" });
+      return;
+    }
+    const slug = String(req.params.slug);
+    const [cohort] = await db
+      .select({ id: cohortsTable.id })
+      .from(cohortsTable)
+      .where(eq(cohortsTable.slug, slug))
+      .limit(1);
+    if (!cohort) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const parsed = insertDemoDayRsvpSchema.safeParse(req.body);
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const [row] = await db
+      .insert(demoDayRsvpsTable)
+      .values({ ...parsed.data, cohortId: cohort.id })
+      .returning();
+    res.json({ ok: true, rsvp: { id: row.id } });
+  } catch (err) {
+    logger.error({ err }, "POST /cohorts/:slug/rsvp failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.get("/admin/cohorts/:id/rsvps", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const rows = await db
+      .select()
+      .from(demoDayRsvpsTable)
+      .where(eq(demoDayRsvpsTable.cohortId, id))
+      .orderBy(desc(demoDayRsvpsTable.createdAt));
+    res.json({ rsvps: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/cohorts/:id/rsvps failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
@@ -361,5 +431,141 @@ router.delete(
     }
   },
 );
+
+// ─── Cohort journey: weekly curriculum + progress updates ─────────────────────
+
+// Public — the journey for one cohort (by slug).
+router.get("/cohorts/:slug/journey", async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+    const [cohort] = await db
+      .select({ id: cohortsTable.id })
+      .from(cohortsTable)
+      .where(eq(cohortsTable.slug, slug))
+      .limit(1);
+    if (!cohort) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [weeks, updates] = await Promise.all([
+      db
+        .select()
+        .from(cohortWeeksTable)
+        .where(eq(cohortWeeksTable.cohortId, cohort.id))
+        .orderBy(asc(cohortWeeksTable.weekNumber), asc(cohortWeeksTable.sortOrder)),
+      db
+        .select()
+        .from(cohortUpdatesTable)
+        .where(eq(cohortUpdatesTable.cohortId, cohort.id))
+        .orderBy(desc(cohortUpdatesTable.postedAt)),
+    ]);
+    res.json({ weeks, updates });
+  } catch (err) {
+    logger.error({ err }, "GET /cohorts/:slug/journey failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Admin — journey by cohort id (for the editor).
+router.get("/admin/cohorts/:id/journey", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [weeks, updates] = await Promise.all([
+      db
+        .select()
+        .from(cohortWeeksTable)
+        .where(eq(cohortWeeksTable.cohortId, id))
+        .orderBy(asc(cohortWeeksTable.weekNumber)),
+      db
+        .select()
+        .from(cohortUpdatesTable)
+        .where(eq(cohortUpdatesTable.cohortId, id))
+        .orderBy(desc(cohortUpdatesTable.postedAt)),
+    ]);
+    res.json({ weeks, updates });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/cohorts/:id/journey failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.post("/admin/cohort-weeks", requireAdmin, async (req, res) => {
+  try {
+    const parsed = upsertCohortWeekSchema.safeParse(req.body);
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const [row] = await db
+      .insert(cohortWeeksTable)
+      .values(parsed.data)
+      .returning();
+    res.json({ week: row });
+  } catch (err) {
+    logger.error({ err }, "POST /admin/cohort-weeks failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.delete("/admin/cohort-weeks/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    await db.delete(cohortWeeksTable).where(eq(cohortWeeksTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /admin/cohort-weeks/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.post("/admin/cohort-updates", requireAdmin, async (req, res) => {
+  try {
+    const parsed = upsertCohortUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const d = parsed.data;
+    const [row] = await db
+      .insert(cohortUpdatesTable)
+      .values({
+        cohortId: d.cohortId,
+        ventureId: d.ventureId ?? null,
+        weekNumber: d.weekNumber ?? null,
+        title: d.title,
+        body: d.body,
+        sortOrder: d.sortOrder,
+        ...(d.postedAt ? { postedAt: new Date(d.postedAt) } : {}),
+      })
+      .returning();
+    res.json({ update: row });
+  } catch (err) {
+    logger.error({ err }, "POST /admin/cohort-updates failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.delete("/admin/cohort-updates/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    await db.delete(cohortUpdatesTable).where(eq(cohortUpdatesTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /admin/cohort-updates/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
 
 export default router;

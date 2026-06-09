@@ -31,6 +31,7 @@ export const NAV_SECONDARY: NavItem[] = [
   { href: "/events", label: "الفعاليّات", en: "Events", key: "events" },
   { href: "/gallery", label: "الصّور", en: "Gallery", key: "gallery" },
   { href: "/numbers", label: "بالأرقام", en: "Numbers", key: "numbers" },
+  { href: "/press", label: "المركز الإعلاميّ", en: "Press", key: "press" },
 ];
 
 export function isNavActive(loc: string, href: string): boolean {

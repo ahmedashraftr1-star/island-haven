@@ -44,6 +44,9 @@ export const venturesTable = pgTable(
       .$type<VentureStatus>()
       .default("draft"),
     sortOrder: integer("sort_order").default(0).notNull(),
+    // Optional link to a resource row that holds this venture's pitch deck.
+    // Plain int (no hard FK) to keep the schema import graph acyclic.
+    pitchDeckResourceId: integer("pitch_deck_resource_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -85,6 +88,7 @@ export const upsertVentureSchema = z.object({
   featured: z.boolean().default(false),
   status: z.enum(VENTURE_STATUSES).default("draft"),
   sortOrder: z.number().int().min(0).max(100000).default(0),
+  pitchDeckResourceId: z.number().int().positive().nullable().optional(),
 });
 
 export type Venture = typeof venturesTable.$inferSelect;

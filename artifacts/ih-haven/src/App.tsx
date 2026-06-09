@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
+import { usePageView } from "@/hooks/use-tracking";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
@@ -35,9 +36,13 @@ import About from "@/pages/About";
 import Team from "@/pages/Team";
 import Cohorts from "@/pages/Cohorts";
 import CohortDetail from "@/pages/CohortDetail";
+import DemoDay from "@/pages/DemoDay";
+import Press from "@/pages/Press";
 import Resources from "@/pages/Resources";
 import PublicProfile from "@/pages/PublicProfile";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
+// Lazy-loaded: the admin panel is large and never needed by public visitors,
+// so it's split into its own chunk to shrink the initial bundle.
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -58,6 +63,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/about": "من نحن — Island Haven",
   "/team": "فريق آيلاند — Island Haven",
   "/cohorts": "دفعات الاحتضان — Island Haven",
+  "/press": "المركز الإعلاميّ — Island Haven",
   "/resources": "دليل الرّائد — Island Haven",
   "/courses": "البرنامج التَّدريبيّ — Island Haven",
   "/works": "أعمال المنتسبين — Island Haven",
@@ -67,6 +73,9 @@ const ROUTE_TITLES: Record<string, string> = {
 
 function RouteEffects() {
   const [loc] = useLocation();
+  // Global page-view tracking — covers every route (incl. the new pillars)
+  // from one place instead of a per-page usePageView call.
+  usePageView(loc);
   useEffect(() => {
     const exact = ROUTE_TITLES[loc];
     if (exact) {
@@ -83,7 +92,8 @@ function RouteEffects() {
 
 function Router() {
   return (
-    <Switch>
+    <Suspense fallback={null}>
+      <Switch>
       <Route path="/" component={Home} />
       <Route path="/apply" component={Apply} />
       <Route path="/book" component={Book} />
@@ -105,7 +115,9 @@ function Router() {
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />
       <Route path="/team" component={Team} />
+      <Route path="/press" component={Press} />
       <Route path="/cohorts" component={Cohorts} />
+      <Route path="/cohorts/:slug/demo-day" component={DemoDay} />
       <Route path="/cohorts/:slug" component={CohortDetail} />
       <Route path="/resources" component={Resources} />
       <Route path="/courses" component={Courses} />
@@ -121,7 +133,8 @@ function Router() {
       <Route path="/u/:id" component={PublicProfile} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
-    </Switch>
+      </Switch>
+    </Suspense>
   );
 }
 

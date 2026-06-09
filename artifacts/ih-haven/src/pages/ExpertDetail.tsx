@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
+import { usePageMeta } from "@/hooks/use-meta";
 import { useAuth } from "@/lib/auth";
 import { splitTags, SESSION_MODE_LABELS, type SessionMode } from "@/lib/labels";
 import type { ExpertCard } from "./Experts";
@@ -51,9 +52,12 @@ export default function ExpertDetail() {
     };
   }, [id]);
 
-  useEffect(() => {
-    if (expert?.fullName) document.title = `${expert.fullName} — خبراء آيلاند`;
-  }, [expert?.fullName]);
+  usePageMeta({
+    title: expert?.fullName,
+    description: expert?.headline,
+    image: expert?.avatarUrl ?? undefined,
+    type: "profile",
+  });
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();

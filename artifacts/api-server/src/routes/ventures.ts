@@ -3,6 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import {
   db,
   venturesTable,
+  resourcesTable,
   upsertVentureSchema,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
@@ -59,7 +60,23 @@ router.get("/ventures/:id", async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    res.json({ venture: row });
+    // Attach the linked pitch deck (title + downloadable URL) if one is set.
+    let pitchDeck: { title: string; url: string } | null = null;
+    if (row.pitchDeckResourceId) {
+      const [r] = await db
+        .select({
+          title: resourcesTable.title,
+          fileUrl: resourcesTable.fileUrl,
+          externalUrl: resourcesTable.externalUrl,
+        })
+        .from(resourcesTable)
+        .where(eq(resourcesTable.id, row.pitchDeckResourceId))
+        .limit(1);
+      if (r && (r.fileUrl || r.externalUrl)) {
+        pitchDeck = { title: r.title, url: r.fileUrl || r.externalUrl };
+      }
+    }
+    res.json({ venture: row, pitchDeck });
   } catch (err) {
     logger.error({ err }, "GET /ventures/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
