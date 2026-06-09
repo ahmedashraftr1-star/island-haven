@@ -21,6 +21,7 @@ interface Row {
   status: "draft" | "published" | "hidden";
   sortOrder: number;
   pitchDeckResourceId: number | null;
+  userId: number | null;
 }
 
 const EMPTY: Row = {
@@ -40,6 +41,7 @@ const EMPTY: Row = {
   status: "draft",
   sortOrder: 0,
   pitchDeckResourceId: null,
+  userId: null,
 };
 
 export default function AdminVentures() {
@@ -141,11 +143,15 @@ function VentureEditor({ initial, onClose, onSaved }: { initial: Row; onClose: (
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resources, setResources] = useState<{ id: number; title: string }[]>([]);
+  const [users, setUsers] = useState<{ id: number; fullName: string; email: string }[]>([]);
 
   useEffect(() => {
     api<{ resources: { id: number; title: string }[] }>("/admin/resources")
       .then((r) => setResources(r.resources))
       .catch(() => setResources([]));
+    api<{ users: { id: number; fullName: string; email: string }[] }>("/admin/users")
+      .then((r) => setUsers(r.users))
+      .catch(() => setUsers([]));
   }, []);
 
   async function onSubmit(e: React.FormEvent) {
@@ -223,6 +229,25 @@ function VentureEditor({ initial, onClose, onSaved }: { initial: Row; onClose: (
             {resources.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.title}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="حساب المؤسِّس (يربط المشروع بعضو ليراه في ملفّه)">
+          <select
+            value={form.userId ?? ""}
+            onChange={(e) =>
+              setForm((s) => ({
+                ...s,
+                userId: e.target.value ? Number(e.target.value) : null,
+              }))
+            }
+            className="inp"
+          >
+            <option value="">— غير مربوط —</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.fullName} ({u.email})
               </option>
             ))}
           </select>

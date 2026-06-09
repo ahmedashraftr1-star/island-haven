@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
 import { asc, desc, eq } from "drizzle-orm";
 import {
   db,
@@ -6,7 +6,7 @@ import {
   resourcesTable,
   upsertVentureSchema,
 } from "@workspace/db";
-import { requireAdmin } from "../lib/auth";
+import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -79,6 +79,22 @@ router.get("/ventures/:id", async (req, res) => {
     res.json({ venture: row, pitchDeck });
   } catch (err) {
     logger.error({ err }, "GET /ventures/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Ventures the logged-in member founded (admin links them via venture.userId).
+router.get("/me/ventures", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const rows = await db
+      .select()
+      .from(venturesTable)
+      .where(eq(venturesTable.userId, session.userId))
+      .orderBy(desc(venturesTable.createdAt));
+    res.json({ ventures: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /me/ventures failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

@@ -214,6 +214,7 @@ function ProfileInner({
       <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-12 pb-16">
         <div className="mx-auto max-w-3xl">
           {user.role === "expert" && <ExpertDashboardLink />}
+          <MyVentures />
           <MyMentorshipSessions />
           {/* Identity card */}
           <motion.div
@@ -1079,6 +1080,69 @@ function ExpertDashboardLink() {
       </div>
       <ArrowRight className="w-5 h-5 text-primary rtl:rotate-180 transition-transform group-hover:-translate-x-1" />
     </Link>
+  );
+}
+
+// ─── Ventures the member founded (admin-linked via venture.userId) ───────────
+
+interface MyVenture {
+  id: number;
+  name: string;
+  tagline: string;
+  stage: string;
+  logoUrl: string | null;
+}
+
+const VENTURE_STAGE_AR: Record<string, string> = {
+  idea: "فكرة",
+  mvp: "نموذج أوّليّ",
+  launched: "أُطلِق",
+  scaling: "في توسّع",
+};
+
+function MyVentures() {
+  const [rows, setRows] = useState<MyVenture[] | null>(null);
+
+  useEffect(() => {
+    api<{ ventures: MyVenture[] }>("/me/ventures")
+      .then((r) => setRows(r.ventures))
+      .catch(() => setRows([]));
+  }, []);
+
+  if (!rows || rows.length === 0) return null;
+
+  return (
+    <div className="rounded-[24px] p-5 sm:p-6 mb-6 bg-white/[0.045] border border-white/10 backdrop-blur-2xl">
+      <div className="flex items-center gap-2 mb-4">
+        <Sparkles className="w-4 h-4 text-primary" />
+        <h2 className="text-white font-bold text-[15px]">مشاريعي</h2>
+        <span className="text-white/40 text-[12px]">({rows.length})</span>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-2.5">
+        {rows.map((v) => (
+          <Link
+            key={v.id}
+            href={`/ventures/${v.id}`}
+            className="group flex items-center gap-3 rounded-2xl px-4 py-3 bg-white/[0.03] border border-white/[0.06] hover:border-primary/40 transition-colors"
+          >
+            {v.logoUrl ? (
+              <img src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover" />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center text-white/70 font-bold">
+                {v.name.charAt(0)}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-white text-[13.5px] font-semibold truncate">{v.name}</div>
+              <div className="text-primary/80 text-[11px]">
+                {VENTURE_STAGE_AR[v.stage] ?? v.stage}
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-white/35 group-hover:text-primary rtl:rotate-180 transition-colors" />
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
