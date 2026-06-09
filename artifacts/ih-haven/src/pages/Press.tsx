@@ -108,7 +108,7 @@ export default function Press() {
             عقولٌ تقهر الركام وتبني مستقبلًا رقميًّا لغزّة.»
           </p>
           <div className="text-primary font-bold text-[14px]">مهنّد جندية</div>
-          <div className="text-white/45 text-[12.5px]">مدير مجتمع آيلاند هيفن</div>
+          <div className="text-white/45 text-[12.5px]">المدير ومؤسّس آيلاند هيفن</div>
         </div>
       </GlassCard>
 

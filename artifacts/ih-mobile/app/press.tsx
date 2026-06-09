@@ -56,7 +56,7 @@ export default function PressScreen() {
           «تنظيم فعاليّة بهذا الحجم تحت هذه الظروف تحدٍّ مباشر — عقولٌ تقهر الركام وتبني مستقبلًا رقميًّا لغزّة.»
         </T>
         <T size={12.5} color={colors.primary} weight="bold">مهنّد جندية</T>
-        <T size={11.5} color={colors.mutedForeground}>مدير مجتمع آيلاند هيفن</T>
+        <T size={11.5} color={colors.mutedForeground}>المدير ومؤسّس آيلاند هيفن</T>
       </Card>
 
       <Pressable onPress={() => Linking.openURL("https://felesteen.news/post/181271").catch(() => {})}>
