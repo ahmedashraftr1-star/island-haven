@@ -159,8 +159,10 @@ export default function Home() {
                   { key: "courses", label: "كورسات وورشات", icon: "book-open" },
                   { key: "ventures", label: "مشاريع ناشئة", icon: "trending-up" },
                   { key: "resources", label: "دليل الرّائد", icon: "book" },
+                  { key: "team", label: "فريق آيلاند", icon: "users" },
                   { key: "numbers", label: "أرقامنا", icon: "bar-chart-2" },
                   { key: "about", label: "من نحن", icon: "info" },
+                  { key: "press", label: "المركز الإعلاميّ", icon: "radio" },
                   { key: "apply", label: "انتسب", icon: "user-plus" },
                 ] as Array<{ key: string; label: string; icon: keyof typeof Feather.glyphMap }>
               }

@@ -59,6 +59,8 @@ function RootLayoutNav() {
       <Stack.Screen name="cohorts" options={{ title: "الدّفعات" }} />
       <Stack.Screen name="cohort/[slug]" options={{ title: "" }} />
       <Stack.Screen name="resources" options={{ title: "دليل الرّائد" }} />
+      <Stack.Screen name="team" options={{ title: "فريق آيلاند" }} />
+      <Stack.Screen name="press" options={{ title: "المركز الإعلاميّ" }} />
       <Stack.Screen name="apply" options={{ title: "طلب الانتساب", presentation: "modal" }} />
       <Stack.Screen name="about" options={{ title: "من نحن" }} />
       <Stack.Screen name="numbers" options={{ title: "أرقامنا" }} />
