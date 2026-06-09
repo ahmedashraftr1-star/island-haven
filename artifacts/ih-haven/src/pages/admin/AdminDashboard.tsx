@@ -27,6 +27,9 @@ import {
   CalendarRange,
   Flag,
   Map,
+  BriefcaseBusiness,
+  Mail,
+  TrendingUp,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -52,6 +55,9 @@ import AdminResources from "./AdminResources";
 import AdminSlots from "./AdminSlots";
 import AdminMilestones from "./AdminMilestones";
 import AdminCohortJourney from "./AdminCohortJourney";
+import AdminJobs from "./AdminJobs";
+import AdminNewsletter from "./AdminNewsletter";
+import AdminInvestors from "./AdminInvestors";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -77,7 +83,10 @@ type Tab =
   | "content"
   | "analytics"
   | "push"
-  | "settings";
+  | "settings"
+  | "jobs"
+  | "newsletter"
+  | "investors";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
@@ -102,6 +111,9 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
   { id: "push", label: "الإشعارات", Icon: Bell },
+  { id: "jobs", label: "لوحة الوظائف", Icon: BriefcaseBusiness },
+  { id: "newsletter", label: "النشرة الإخبارية", Icon: Mail },
+  { id: "investors", label: "المستثمرون", Icon: TrendingUp },
   { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
 
@@ -308,6 +320,9 @@ export default function AdminDashboard() {
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
+          {tab === "jobs" && <AdminJobs />}
+          {tab === "newsletter" && <AdminNewsletter />}
+          {tab === "investors" && <AdminInvestors />}
           {tab === "settings" && <AdminSettings />}
         </div>
       </div>

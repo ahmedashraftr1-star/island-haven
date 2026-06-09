@@ -12,6 +12,7 @@ import { ExpertsBand } from "@/components/landing/ExpertsBand";
 import { SuccessStories } from "@/components/landing/SuccessStories";
 import { Partners } from "@/components/landing/Partners";
 import { AdminShortcut } from "@/components/landing/AdminShortcut";
+import { NewsletterBand } from "@/components/landing/NewsletterBand";
 
 export default function Home() {
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function Home() {
         <SuccessStories />
         <HoursLocation />
         <Partners />
+        <NewsletterBand />
       </div>
       <Footer />
       <AdminShortcut />

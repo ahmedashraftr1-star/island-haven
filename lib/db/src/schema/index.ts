@@ -23,3 +23,6 @@ export * from "./resources";
 export * from "./demoDayRsvps";
 export * from "./cohortJourney";
 export * from "./notifications";
+export * from "./jobListings";
+export * from "./newsletterSubscribers";
+export * from "./investors";

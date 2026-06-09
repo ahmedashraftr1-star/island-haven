@@ -29,6 +29,9 @@ import cohortsRouter from "./cohorts";
 import ventureMilestonesRouter from "./ventureMilestones";
 import expertAvailabilityRouter from "./expertAvailability";
 import resourcesRouter from "./resources";
+import jobsRouter from "./jobs";
+import newsletterRouter from "./newsletter";
+import investorsRouter from "./investors";
 
 const router: IRouter = Router();
 
@@ -62,5 +65,8 @@ router.use(cohortsRouter);
 router.use(ventureMilestonesRouter);
 router.use(expertAvailabilityRouter);
 router.use(resourcesRouter);
+router.use(jobsRouter);
+router.use(newsletterRouter);
+router.use(investorsRouter);
 
 export default router;
