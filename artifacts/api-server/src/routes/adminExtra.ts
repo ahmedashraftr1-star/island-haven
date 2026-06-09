@@ -526,4 +526,49 @@ router.get("/admin/pending-counts", requireAdmin, async (_req, res) => {
   }
 });
 
+// Unified recent-activity feed across domains for the admin overview.
+router.get("/admin/activity", requireAdmin, async (_req, res) => {
+  try {
+    const rows = async (q: ReturnType<typeof sql>) =>
+      (
+        (await db.execute(q)) as unknown as {
+          rows: Array<Record<string, unknown>>;
+        }
+      ).rows;
+
+    const [apps, papps, sess, books, rsvps, users] = await Promise.all([
+      rows(sql`SELECT full_name, created_at FROM applications ORDER BY created_at DESC LIMIT 8`),
+      rows(sql`SELECT venture_name, created_at FROM program_applications ORDER BY created_at DESC LIMIT 8`),
+      rows(sql`SELECT topic, created_at FROM mentorship_sessions ORDER BY created_at DESC LIMIT 8`),
+      rows(sql`SELECT full_name, created_at FROM bookings ORDER BY created_at DESC LIMIT 8`),
+      rows(sql`SELECT full_name, created_at FROM demo_day_rsvps ORDER BY created_at DESC LIMIT 8`),
+      rows(sql`SELECT full_name, created_at FROM users WHERE role <> 'expert' ORDER BY created_at DESC LIMIT 8`),
+    ]);
+
+    const mk = (
+      type: string,
+      title: string,
+      detail: unknown,
+      at: unknown,
+    ) => ({ type, title, detail: String(detail ?? ""), at: at as string });
+
+    const activity = [
+      ...apps.map((r) => mk("application", "طلب انتساب", r.full_name, r.created_at)),
+      ...papps.map((r) => mk("program", "تقديم على برنامج", r.venture_name, r.created_at)),
+      ...sess.map((r) => mk("session", "طلب جلسة إرشاد", r.topic, r.created_at)),
+      ...books.map((r) => mk("booking", "حجز مقعد", r.full_name, r.created_at)),
+      ...rsvps.map((r) => mk("rsvp", "حجز يوم العرض", r.full_name, r.created_at)),
+      ...users.map((r) => mk("signup", "عضو جديد", r.full_name, r.created_at)),
+    ]
+      .filter((x) => x.at)
+      .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+      .slice(0, 20);
+
+    res.json({ activity });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/activity failed");
+    res.status(500).json({ error: "تعذّر التحميل" });
+  }
+});
+
 export default router;

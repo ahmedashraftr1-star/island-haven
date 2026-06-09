@@ -328,6 +328,57 @@ export default function AdminOverview({
           </div>
         )}
       </div>
+
+      <RecentActivity />
+    </div>
+  );
+}
+
+interface ActivityItem {
+  type: string;
+  title: string;
+  detail: string;
+  at: string;
+}
+
+function RecentActivity() {
+  const q = useQuery({
+    queryKey: ["admin-activity"],
+    queryFn: () => api<{ activity: ActivityItem[] }>("/admin/activity"),
+    refetchInterval: 60_000,
+  });
+  const items = q.data?.activity ?? [];
+
+  return (
+    <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+      <h3 className="text-[15px] font-bold text-foreground mb-4">آخر النشاط</h3>
+      {items.length === 0 ? (
+        <div className="text-foreground/45 text-[13px] py-6 text-center">
+          لا نشاط بعد.
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {items.map((a, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-3 border-b border-border/60 last:border-0 pb-2.5 last:pb-0"
+            >
+              <div className="min-w-0">
+                <span className="text-[11px] font-bold text-primary">{a.title}</span>
+                {a.detail ? (
+                  <span className="text-foreground/70 text-[13px] mr-2">{a.detail}</span>
+                ) : null}
+              </div>
+              <span className="text-foreground/40 text-[11px] shrink-0 tabular-nums">
+                {new Date(a.at).toLocaleDateString("ar-EG", {
+                  day: "numeric",
+                  month: "short",
+                })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
