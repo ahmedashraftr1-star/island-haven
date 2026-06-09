@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { usePageMeta } from "@/hooks/use-meta";
 import {
   Newspaper,
@@ -81,8 +82,12 @@ export default function Press() {
       {/* Fast facts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {FACTS.map((f, i) => (
-          <div
+          <motion.div
             key={i}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: i * 0.06 }}
             className="rounded-2xl p-5 bg-white/[0.05] border border-white/10"
           >
             <f.icon className="w-5 h-5 text-primary mb-3" />
@@ -90,7 +95,7 @@ export default function Press() {
               {f.value}
             </div>
             <div className="text-white/55 text-[12px] leading-snug">{f.label}</div>
-          </div>
+          </motion.div>
         ))}
       </div>
 

@@ -48,9 +48,21 @@ export function Partners() {
                 loading="lazy"
               />
             ) : (
-              <span className="text-foreground/55 hover:text-foreground font-bold text-[15px] transition-colors">
-                {p.name}
-              </span>
+              <div className="group flex items-center gap-3 px-5 py-3 rounded-2xl border border-border bg-muted/30 hover:border-primary/40 hover:bg-muted/50 transition-colors">
+                <span className="w-9 h-9 rounded-xl bg-primary-soft text-primary font-bold text-[15px] flex items-center justify-center shrink-0">
+                  {p.name.charAt(0)}
+                </span>
+                <div className="text-right">
+                  <div className="text-foreground font-bold text-[14px] leading-tight">
+                    {p.name}
+                  </div>
+                  {p.description ? (
+                    <div className="text-foreground/50 text-[11px] mt-0.5 max-w-[200px]">
+                      {p.description}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             );
             return (
               <motion.div
