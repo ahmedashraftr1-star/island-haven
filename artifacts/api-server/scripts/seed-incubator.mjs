@@ -51,65 +51,42 @@ async function post(path, body, label) {
 
 // ─── Experts / mentors ───────────────────────────────────────────────────────
 
+// The real Island Haven team — the leadership are the bookable experts/mentors.
 const EXPERTS = [
   {
-    fullName: "د. ليان أبو سمرة",
-    email: "mentor.layan@islandhaven.ps",
-    headline: "مستشارة ريادة أعمال ونماذج العمل",
-    expertise: "ريادة الأعمال، نماذج العمل، دراسة السوق، بناء الفرق",
-    bio: "أكثر من ١٢ عامًا في تأسيس وإرشاد المشاريع الناشئة في فلسطين والمنطقة. ساعدت عشرات الفرق على تحويل أفكارهم إلى نماذج عمل قابلة للنموّ والاستدامة.",
-    yearsExperience: 12,
+    fullName: "مهنّد جندية",
+    email: "mohannad@islandhaven.ps",
+    headline: "مؤسّس آيلاند هيفن ومرشد ريادة الأعمال",
+    expertise: "ريادة الأعمال، بناء المجتمعات، استراتيجيّة المشاريع، القيادة",
+    bio: "قائد ومؤسّس آيلاند هيفن — يقود رؤية تمكين شباب غزّة عبر الاقتصاد الرقميّ، ويرافق روّاد الأعمال من الفكرة إلى الأثر. عقولٌ تقهر الركام وتبني المستقبل.",
     languages: "العربية، الإنجليزية",
     featured: true,
   },
   {
-    fullName: "م. أنس الشوّا",
-    email: "mentor.anas@islandhaven.ps",
-    headline: "مهندس برمجيات أوّل وخبير ذكاء اصطناعي",
-    expertise: "هندسة البرمجيات، تطوير المنتجات، الذكاء الاصطناعي، البنية السحابيّة",
-    bio: "مهندس Full-stack بخبرة ١٠ سنوات في بناء المنتجات الرقميّة. شغوف بتمكين مطوّري غزّة من أدوات العصر لبناء حلول تخدم مجتمعهم.",
-    yearsExperience: 10,
+    fullName: "أحمد أشرف",
+    email: "ahmad@islandhaven.ps",
+    headline: "مدير الشراكات وتطوير الأعمال",
+    expertise: "الشراكات، تطوير الأعمال، بناء الشبكات، الوصول للأسواق",
+    bio: "يبني شراكات آيلاند هيفن مع المؤسّسات والشركات الداعمة، ويساعد الفرق على فتح أبواب الفرص وتوسيع شبكة علاقاتها بما يخدم نموّها.",
     languages: "العربية، الإنجليزية",
-    featured: true,
-  },
-  {
-    fullName: "سُهى نوفل",
-    email: "mentor.suha@islandhaven.ps",
-    headline: "مصمّمة تجربة المستخدم (UX/UI)",
-    expertise: "تصميم المنتجات، تجربة المستخدم، أبحاث المستخدم، أنظمة التصميم",
-    bio: "مصمّمة منتجات تؤمن أنّ التصميم الجيّد حقّ للجميع. تساعد الفرق على فهم مستخدميهم وبناء تجارب بسيطة ومؤثّرة.",
-    yearsExperience: 8,
-    languages: "العربية، الإنجليزية",
-    featured: false,
-  },
-  {
-    fullName: "م. كريم البابا",
-    email: "mentor.karim@islandhaven.ps",
-    headline: "خبير النموّ والتسويق الرقميّ",
-    expertise: "التسويق الرقميّ، استراتيجيّات النموّ، صناعة المحتوى، تحليل البيانات",
-    bio: "متخصّص في بناء قنوات النموّ للمشاريع الناشئة بميزانيّات محدودة، وتحويل المستخدمين الأوائل إلى مجتمع وفيّ.",
-    yearsExperience: 9,
-    languages: "العربية، الإنجليزية",
-    featured: false,
-  },
-  {
-    fullName: "أ. رشا قديح",
-    email: "mentor.rasha@islandhaven.ps",
-    headline: "مستشارة تمويل واستثمار",
-    expertise: "التمويل، الاستثمار الجريء، العرض على المستثمرين، الإدارة الماليّة",
-    bio: "خبرة ١٤ عامًا في تمويل المشاريع وربط روّاد الأعمال بالمستثمرين والمنح. تدرّب الفرق على بناء عرض استثماريّ مقنع.",
-    yearsExperience: 14,
-    languages: "العربية، الإنجليزية، الفرنسيّة",
     featured: true,
   },
   {
     fullName: "يوسف حلّس",
-    email: "mentor.youssef@islandhaven.ps",
-    headline: "مصمّم جرافيك ومدير محتوى ووسائل تواصل",
-    expertise: "الهويّة البصريّة، التصميم الجرافيكيّ، إدارة المحتوى، السوشال ميديا",
-    bio: "عضو في فريق آيلاند هيفن. يساعد المشاريع الناشئة على بناء هويّة بصريّة وحضور رقميّ يليق بطموحها.",
-    yearsExperience: 3,
+    email: "youssef@islandhaven.ps",
+    headline: "مدير المحتوى والهويّة البصريّة",
+    expertise: "الهويّة البصريّة، التصميم الجرافيكيّ، صناعة المحتوى، السوشال ميديا",
+    bio: "يقود إنتاج المحتوى والهويّة البصريّة في الحاضنة، ويساعد المشاريع على بناء حضور رقميّ وقصّة بصريّة تليق بطموحها.",
     languages: "العربية، الإنجليزية",
+    featured: true,
+  },
+  {
+    fullName: "رؤى",
+    email: "ruaa@islandhaven.ps",
+    headline: "تنسيق البرامج ودعم روّاد الأعمال",
+    expertise: "تنظيم البرامج، العمليّات، دعم المنتسبين، التنسيق",
+    bio: "تدعم إدارة المجتمع والعمليّات اليوميّة في آيلاند هيفن، وهي نقطة تواصل روّاد الأعمال للانضمام والمتابعة.",
+    languages: "العربية",
     featured: false,
   },
 ];
@@ -448,8 +425,9 @@ async function main() {
   await login();
 
   console.log("\n› Experts");
+  let expertSort = 0;
   for (const e of EXPERTS) {
-    const { fullName, email, headline, expertise, bio, yearsExperience, languages, featured } = e;
+    const { fullName, email, headline, expertise, bio, languages, featured } = e;
     await post(
       "/admin/experts",
       {
@@ -460,12 +438,12 @@ async function main() {
           headline,
           expertise,
           bio,
-          yearsExperience,
           languages,
           sessionMinutes: 45,
           acceptingSessions: true,
           status: "active",
           featured,
+          sortOrder: expertSort++,
         },
       },
       fullName,

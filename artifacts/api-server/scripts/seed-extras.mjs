@@ -55,18 +55,8 @@ async function main() {
       fullName: "رؤى", role: "مساعد إداريّ للمدير", group: "leadership",
       bio: "تدعم إدارة المجتمع والعمليّات اليوميّة في آيلاند هيفن.",
     },
-    {
-      fullName: "د. ليان أبو سمرة", role: "مرشدة ريادة الأعمال", group: "mentors",
-      bio: "ترافق روّاد الأعمال من الفكرة إلى نموذج العمل القابل للنموّ.",
-    },
-    {
-      fullName: "م. أنس الشوّا", role: "مرشد تقنيّ — هندسة البرمجيّات والذكاء الاصطناعيّ", group: "mentors",
-      bio: "يمكّن المطوّرين من بناء منتجات حقيقيّة بأدوات العصر.",
-    },
-    {
-      fullName: "أ. رشا قديح", role: "مستشارة التمويل والاستثمار", group: "advisors",
-      bio: "تجهّز الفرق للوصول إلى التمويل وبناء عرض استثماريّ مقنع.",
-    },
+    // The leadership above are also the bookable experts/mentors — seeded as
+    // expert profiles by seed-incubator.mjs, so /experts and /team stay in sync.
   ];
   let sort = 0;
   for (const t of TEAM) log(t.fullName, await api("/admin/team", { method: "POST", body: { ...t, sortOrder: sort++ } }));
