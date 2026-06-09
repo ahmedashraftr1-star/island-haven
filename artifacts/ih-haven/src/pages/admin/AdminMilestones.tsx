@@ -128,12 +128,16 @@ export default function AdminMilestones() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
+                        aria-label="تعديل المحطّة"
                         onClick={() => setEditing(r)}
                         className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        type="button"
+                        aria-label="حذف المحطّة"
                         onClick={() => onDelete(r.id)}
                         className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
                       >

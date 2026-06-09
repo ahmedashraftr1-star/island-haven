@@ -218,6 +218,8 @@ export default function AdminCohortJourney() {
                   )}
                 </div>
                 <button
+                  type="button"
+                  aria-label="حذف الأسبوع"
                   onClick={() => delWeek(w.id)}
                   className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-600 hover:bg-rose-50"
                 >
@@ -289,6 +291,8 @@ export default function AdminCohortJourney() {
                   )}
                 </div>
                 <button
+                  type="button"
+                  aria-label="حذف التحديث"
                   onClick={() => delUpdate(u.id)}
                   className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-600 hover:bg-rose-50 shrink-0"
                 >
