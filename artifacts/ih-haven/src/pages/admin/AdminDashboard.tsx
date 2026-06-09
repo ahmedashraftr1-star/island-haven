@@ -114,6 +114,31 @@ export default function AdminDashboard() {
     staleTime: 5_000,
   });
 
+  const { data: pendingData } = useQuery({
+    queryKey: ["admin-pending"],
+    queryFn: () =>
+      api<{
+        pending: {
+          applications: number;
+          programApplications: number;
+          sessions: number;
+          bookings: number;
+        };
+      }>("/admin/pending-counts"),
+    enabled: !!data?.authenticated,
+    refetchInterval: 60_000,
+  });
+
+  const pendingFor = (id: Tab): number => {
+    const p = pendingData?.pending;
+    if (!p) return 0;
+    if (id === "applications") return p.applications;
+    if (id === "programs") return p.programApplications;
+    if (id === "sessions") return p.sessions;
+    if (id === "bookings") return p.bookings;
+    return 0;
+  };
+
   useEffect(() => {
     document.title = "لوحة الإدارة — آيلاند هيفن";
   }, []);
@@ -167,6 +192,15 @@ export default function AdminDashboard() {
               >
                 <Icon className="w-4 h-4" strokeWidth={2.2} />
                 {label}
+                {pendingFor(id) > 0 && (
+                  <span
+                    className={`ms-auto min-w-[18px] h-[18px] px-1 rounded-full text-[10.5px] font-bold flex items-center justify-center ${
+                      active ? "bg-white/25 text-white" : "bg-primary text-primary-foreground"
+                    }`}
+                  >
+                    {pendingFor(id)}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -222,6 +256,15 @@ export default function AdminDashboard() {
               >
                 <Icon className="w-3.5 h-3.5" strokeWidth={2.2} />
                 {label}
+                {pendingFor(id) > 0 && (
+                  <span
+                    className={`min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                      active ? "bg-white/25 text-white" : "bg-primary text-primary-foreground"
+                    }`}
+                  >
+                    {pendingFor(id)}
+                  </span>
+                )}
               </button>
             );
           })}

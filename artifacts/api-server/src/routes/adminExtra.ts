@@ -507,4 +507,23 @@ router.get("/admin/totals", requireAdmin, async (_req, res) => {
   }
 });
 
+// Counts of items awaiting admin action — drives the sidebar "needs attention"
+// badges. Raw SQL by table name (consistent with the stats/numbers routes).
+router.get("/admin/pending-counts", requireAdmin, async (_req, res) => {
+  try {
+    const [row] = await db
+      .select({
+        applications: sql<number>`(SELECT COUNT(*)::int FROM applications WHERE status = 'new')`,
+        programApplications: sql<number>`(SELECT COUNT(*)::int FROM program_applications WHERE status = 'new')`,
+        sessions: sql<number>`(SELECT COUNT(*)::int FROM mentorship_sessions WHERE status = 'requested')`,
+        bookings: sql<number>`(SELECT COUNT(*)::int FROM bookings WHERE status = 'pending')`,
+      })
+      .from(sql`(SELECT 1) AS _`);
+    res.json({ pending: row });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/pending-counts failed");
+    res.status(500).json({ error: "تعذّر التحميل" });
+  }
+});
+
 export default router;

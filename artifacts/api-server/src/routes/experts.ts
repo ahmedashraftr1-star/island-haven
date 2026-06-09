@@ -354,6 +354,13 @@ router.post("/experts/:id/sessions", requireUser, async (req, res) => {
         status: "requested",
       })
       .returning();
+    // Let the expert know a request is waiting (they're a user → in-app bell).
+    void notify(expert.userId, {
+      type: "session_requested",
+      title: "طلب جلسة إرشاد جديد",
+      body: `طلب أحد المنتسبين جلسة حول «${d.topic}».`,
+      link: "/expert/dashboard",
+    });
     res.json({ session: row });
   } catch (err) {
     logger.error({ err }, "POST /experts/:id/sessions failed");
