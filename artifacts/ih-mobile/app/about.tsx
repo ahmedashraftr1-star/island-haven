@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { T, Card, Btn } from "@/components/Branded";
@@ -8,7 +8,7 @@ import { useColors } from "@/hooks/useColors";
 const PILLARS = [
   {
     icon: "home" as const,
-    title: "مساحة عمل مَجّانيّة",
+    title: "حاضنة أعمال مجّانيّة",
     body: "مكاتب وإنترنت وقاعات اجتماع لكلّ منتسب — لتعمل وتلتقي وتتعلّم دون أيّ تكلفة.",
   },
   {
@@ -40,7 +40,7 @@ export default function AboutScreen() {
         <T size={11} color={colors.primary} weight="bold">آيلاند هيفن · ISLAND HAVEN</T>
         <T size={28} weight="bold" align="center">من نحن</T>
         <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 24 }}>
-          مساحة عمل وحاضنة أعمال مَجّانيّة في قلب غزّة — تأخذ المواهب من الفكرة إلى المنتج،
+          حاضنة أعمال مجّانيّة في قلب غزّة — تأخذ المواهب من الفكرة إلى المنتج،
           ومن المهارة إلى الدخل، ومن العزلة إلى المجتمع.
         </T>
       </View>
@@ -81,19 +81,6 @@ export default function AboutScreen() {
           </Card>
         ))}
       </View>
-
-      <Card style={{ gap: 10, alignItems: "center" }}>
-        <T size={11} color={colors.primary} weight="bold">بدعمٍ من</T>
-        <T size={18} weight="bold" align="center">من النّاس إلى النّاس</T>
-        <T size={12} color={colors.mutedForeground} align="center" style={{ lineHeight: 20 }}>
-          NasToNas — جسر تضامن يربط أصدقاء غزّة في الخارج بمشاريع حقيقيّة على الأرض.
-        </T>
-        <Btn
-          title="زيارة موقع NasToNas"
-          variant="ghost"
-          onPress={() => Linking.openURL("https://nastonas.org")}
-        />
-      </Card>
 
       <Card style={{ gap: 10 }}>
         <T size={12} color={colors.primary} weight="bold">تواصل معنا</T>
