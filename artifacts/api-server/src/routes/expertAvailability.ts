@@ -126,7 +126,9 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
           topic: d.topic,
           message: d.message,
           mode: locked.mode,
-          preferredAt: locked.start_at,
+          // Raw SQL returns start_at as a string; coerce to Date so the
+          // Drizzle timestamp column doesn't choke on .toISOString().
+          preferredAt: new Date(locked.start_at),
           status: "confirmed",
         })
         .returning();

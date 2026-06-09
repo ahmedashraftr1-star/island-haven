@@ -232,3 +232,71 @@ describe("details & relations", () => {
     assert.ok(Array.isArray(r.json.milestones));
   });
 });
+
+const EXPERT_EMAIL = process.env.TEST_EXPERT_EMAIL ?? "mentor.layan@islandhaven.ps";
+const EXPERT_PASS = process.env.TEST_EXPERT_PASS ?? "IslandHaven#2026";
+
+describe("office-hours booking — atomic first-wins (write path)", () => {
+  let expertToken = "";
+  let memberToken = "";
+  let slotId = 0;
+
+  before(async () => {
+    const e = await req("/auth/login", {
+      method: "POST",
+      body: { email: EXPERT_EMAIL, password: EXPERT_PASS },
+    });
+    expertToken = e.json?.token ?? "";
+    const m = await req("/auth/login", {
+      method: "POST",
+      body: { email: MEMBER_EMAIL, password: MEMBER_PASS },
+    });
+    memberToken = m.json?.token ?? "";
+
+    // A unique far-future slot each run, so reruns never collide.
+    const start = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 * 30 + Math.floor(Math.random() * 1e9),
+    );
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const s = await req("/experts/me/slots", {
+      method: "POST",
+      token: expertToken,
+      body: {
+        startAt: start.toISOString(),
+        endAt: end.toISOString(),
+        mode: "online",
+      },
+    });
+    slotId = s.json?.slot?.id ?? 0;
+  });
+
+  test("expert created an availability slot", () => {
+    assert.ok(slotId > 0, "expert login + slot creation should succeed");
+  });
+
+  test("first booking wins (200), double-booking is rejected (409)", async () => {
+    const first = await req(`/slots/${slotId}/book`, {
+      method: "POST",
+      token: memberToken,
+      body: { topic: "اختبار حجز موعد", message: "" },
+    });
+    assert.equal(first.status, 200);
+    assert.ok(first.json.session?.id, "a confirmed session is created");
+
+    const second = await req(`/slots/${slotId}/book`, {
+      method: "POST",
+      token: memberToken,
+      body: { topic: "محاولة ثانية", message: "" },
+    });
+    assert.equal(second.status, 409, "the slot is already taken");
+  });
+
+  test("booking a non-existent slot → 404", async () => {
+    const r = await req("/slots/999999999/book", {
+      method: "POST",
+      token: memberToken,
+      body: { topic: "موعد غير موجود", message: "" },
+    });
+    assert.equal(r.status, 404);
+  });
+});
