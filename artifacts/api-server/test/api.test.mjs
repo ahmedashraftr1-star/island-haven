@@ -176,6 +176,29 @@ describe("authorization gating", () => {
   });
 });
 
+describe("in-app notifications", () => {
+  test("require auth", async () => {
+    const a = await req("/me/notifications");
+    const b = await req("/me/notifications/unread-count");
+    assert.equal(a.status, 401);
+    assert.equal(b.status, 401);
+  });
+
+  test("member can read their notifications + unread count", async () => {
+    const login = await req("/auth/login", {
+      method: "POST",
+      body: { email: MEMBER_EMAIL, password: MEMBER_PASS },
+    });
+    const token = login.json.token;
+    const list = await req("/me/notifications", { token });
+    assert.equal(list.status, 200);
+    assert.ok(Array.isArray(list.json.notifications));
+    const count = await req("/me/notifications/unread-count", { token });
+    assert.equal(count.status, 200);
+    assert.equal(typeof count.json.count, "number");
+  });
+});
+
 describe("details & relations", () => {
   test("GET /ventures/:id returns the venture (+ linked pitch deck)", async () => {
     const list = await req("/ventures");
