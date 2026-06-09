@@ -398,6 +398,15 @@ function daysAgo(n) {
   return d.toISOString();
 }
 
+// A future slot at local `hour:min`, `daysAhead` from now, lasting `durMin`.
+function slotAt(daysAhead, hour, min, durMin) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysAhead);
+  d.setHours(hour, min, 0, 0);
+  const end = new Date(d.getTime() + durMin * 60000);
+  return { startAt: d.toISOString(), endAt: end.toISOString() };
+}
+
 const DAILY = [
   {
     type: "news",
@@ -425,10 +434,11 @@ async function main() {
   await login();
 
   console.log("\n› Experts");
+  const expertIds = [];
   let expertSort = 0;
   for (const e of EXPERTS) {
     const { fullName, email, headline, expertise, bio, languages, featured } = e;
-    await post(
+    const res = await post(
       "/admin/experts",
       {
         fullName,
@@ -447,6 +457,29 @@ async function main() {
         },
       },
       fullName,
+    );
+    expertIds.push(res?.expert?.id ?? null);
+  }
+
+  // Office-hours slots over the coming week (indices map to EXPERTS order).
+  // Skipped automatically on re-run when experts collide (no id → no slot).
+  console.log("\n› Office-hours slots");
+  const SLOTS = [
+    { expert: 0, at: slotAt(2, 16, 0, 45) },
+    { expert: 0, at: slotAt(5, 11, 0, 45) },
+    { expert: 1, at: slotAt(3, 13, 0, 45) },
+    { expert: 1, at: slotAt(6, 17, 0, 45) },
+    { expert: 2, at: slotAt(2, 18, 0, 45) },
+    { expert: 2, at: slotAt(4, 12, 0, 45) },
+    { expert: 3, at: slotAt(3, 10, 0, 30) },
+  ];
+  for (const s of SLOTS) {
+    const expertId = expertIds[s.expert];
+    if (!expertId) continue;
+    await post(
+      "/admin/slots",
+      { expertId, startAt: s.at.startAt, endAt: s.at.endAt, mode: "online" },
+      `${EXPERTS[s.expert].fullName} · ${s.at.startAt.slice(0, 10)}`,
     );
   }
 
