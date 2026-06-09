@@ -664,8 +664,8 @@ export const CONTENT_SCHEMA: SectionDef[] = [
       txt("submitLabel", "زرّ الإرسال", "أرسل طلب الانتساب"),
       txt("submitLoading", "نص أثناء الإرسال", "جارٍ الإرسال…"),
       long("consentLine", "سطر الموافقة", "بإرسالك الطلب، توافق على أن نتواصل معك بشأنه فقط."),
-      txt("trustLabel", "تسمية «بدعم من»", "بدعمٍ من"),
-      txt("trustBrand", "اسم الجهة الدّاعمة", "من الناس إلى الناس"),
+      txt("trustLabel", "تسمية «بُني في»", "بُني في غزّة"),
+      txt("trustBrand", "الشعار الإنجليزي", "Made in Gaza"),
       // Errors
       txt("errFallback", "خطأ — رسالة افتراضيّة", "تعذّر إرسال الطلب"),
       txt("errNetwork", "خطأ — الشبكة", "تعذّر الاتّصال بالخادم. حاول مجدّدًا بعد قليل."),

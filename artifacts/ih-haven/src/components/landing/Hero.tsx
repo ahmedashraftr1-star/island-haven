@@ -11,8 +11,8 @@ const FALLBACK = {
   title2: "في قلب غزّة.",
   subtitle:
     "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء.",
-  backedByLabel: "بدعمٍ من",
-  backedByBrand: "من النّاس إلى النّاس",
+  backedByLabel: "بُني في غزّة",
+  backedByBrand: "Made in Gaza",
   ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
   ctaSecondary: "تحدّث معنا",
