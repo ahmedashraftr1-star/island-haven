@@ -8,7 +8,7 @@ import { useColors } from "@/hooks/useColors";
 const PILLARS = [
   {
     icon: "home" as const,
-    title: "حاضنة أعمال مجّانيّة",
+    title: "حاضنة أعمال",
     body: "مكاتب وإنترنت وقاعات اجتماع لكلّ منتسب — لتعمل وتلتقي وتتعلّم دون أيّ تكلفة.",
   },
   {
@@ -40,7 +40,7 @@ export default function AboutScreen() {
         <T size={11} color={colors.primary} weight="bold">آيلاند هيفن · ISLAND HAVEN</T>
         <T size={28} weight="bold" align="center">من نحن</T>
         <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 24 }}>
-          حاضنة أعمال مجّانيّة في قلب غزّة — تأخذ المواهب من الفكرة إلى المنتج،
+          حاضنة أعمال في قلب غزّة — تأخذ المواهب من الفكرة إلى المنتج،
           ومن المهارة إلى الدخل، ومن العزلة إلى المجتمع.
         </T>
       </View>
