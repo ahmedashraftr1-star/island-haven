@@ -18,6 +18,7 @@ import {
 } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, programAcceptedEmail } from "../lib/email";
+import { notify } from "./notifications";
 
 const router: IRouter = Router();
 
@@ -375,6 +376,12 @@ router.patch(
         if (u && p) {
           const mail = programAcceptedEmail(u.fullName, p.title);
           void sendEmail({ to: u.email, ...mail });
+          void notify(row.userId, {
+            type: "program_accepted",
+            title: "تمّ قبولك في البرنامج 🎉",
+            body: `قُبِل طلبك للانضمام إلى «${p.title}».`,
+            link: `/programs/${row.programId}`,
+          });
         }
       }
       res.json({ application: row });

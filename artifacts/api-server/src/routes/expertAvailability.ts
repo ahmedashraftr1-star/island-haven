@@ -13,6 +13,7 @@ import {
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
+import { notify } from "./notifications";
 
 const router: IRouter = Router();
 
@@ -172,6 +173,12 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
             d.topic,
           );
           await sendEmail({ to: user.email, ...mail });
+          void notify(sessionRow.menteeId, {
+            type: "session_confirmed",
+            title: "تأكّدت جلسة الإرشاد ✅",
+            body: `حجزت جلسة «${d.topic}» مع ${expert.fullName}.`,
+            link: "/profile",
+          });
         }
       } catch (err) {
         logger.warn({ err }, "send slot confirmation email failed");

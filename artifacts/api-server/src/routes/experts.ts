@@ -21,6 +21,7 @@ import {
 } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
+import { notify } from "./notifications";
 
 const router: IRouter = Router();
 
@@ -160,6 +161,12 @@ async function notifySessionConfirmed(row: {
         row.topic,
       );
       void sendEmail({ to: mentee.email, ...mail });
+      void notify(row.menteeId, {
+        type: "session_confirmed",
+        title: "تأكّدت جلسة الإرشاد ✅",
+        body: `أكّد ${expert.fullName} جلسة «${row.topic}».`,
+        link: "/profile",
+      });
     }
   } catch (err) {
     logger.error({ err }, "notifySessionConfirmed failed");

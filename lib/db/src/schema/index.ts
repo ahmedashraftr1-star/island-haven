@@ -22,3 +22,4 @@ export * from "./expertAvailability";
 export * from "./resources";
 export * from "./demoDayRsvps";
 export * from "./cohortJourney";
+export * from "./notifications";

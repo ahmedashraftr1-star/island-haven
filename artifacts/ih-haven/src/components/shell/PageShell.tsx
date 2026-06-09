@@ -6,6 +6,7 @@ import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { NavRail } from "@/components/nav/NavRail";
+import { NotificationBell } from "@/components/shell/NotificationBell";
 
 export function PageShell({
   eyebrow,
@@ -58,6 +59,7 @@ export function PageShell({
           </nav>
 
           <div className="flex items-center gap-2">
+            {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (
               <Link
                 href="/profile"
