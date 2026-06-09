@@ -6,42 +6,48 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
+// Home is the landing/LCP page — keep it eager. Everything else is route-level
+// code-split (own chunk, loaded on navigation) to keep the initial bundle lean.
 import Home from "@/pages/Home";
-import Apply from "@/pages/Apply";
-import Book from "@/pages/Book";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
-import Onboarding from "@/pages/Onboarding";
-import Profile from "@/pages/Profile";
-import Courses from "@/pages/Courses";
-import CourseDetail from "@/pages/CourseDetail";
-import Works from "@/pages/Works";
-import WorkDetail from "@/pages/WorkDetail";
-import WorkEditor from "@/pages/WorkEditor";
-import Daily, { DailyDetail } from "@/pages/Daily";
-import Events, { EventDetail } from "@/pages/Events";
-import Members from "@/pages/Members";
-import Experts from "@/pages/Experts";
-import ExpertDetail from "@/pages/ExpertDetail";
-import ExpertDashboard from "@/pages/ExpertDashboard";
-import Programs from "@/pages/Programs";
-import ProgramDetail from "@/pages/ProgramDetail";
-import Ventures from "@/pages/Ventures";
-import VentureDetail from "@/pages/VentureDetail";
-import Numbers from "@/pages/Numbers";
-import Gallery from "@/pages/Gallery";
-import About from "@/pages/About";
-import Team from "@/pages/Team";
-import Cohorts from "@/pages/Cohorts";
-import CohortDetail from "@/pages/CohortDetail";
-import DemoDay from "@/pages/DemoDay";
-import Press from "@/pages/Press";
-import Resources from "@/pages/Resources";
-import PublicProfile from "@/pages/PublicProfile";
-// Lazy-loaded: the admin panel is large and never needed by public visitors,
-// so it's split into its own chunk to shrink the initial bundle.
+const Apply = lazy(() => import("@/pages/Apply"));
+const Book = lazy(() => import("@/pages/Book"));
+const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Courses = lazy(() => import("@/pages/Courses"));
+const CourseDetail = lazy(() => import("@/pages/CourseDetail"));
+const Works = lazy(() => import("@/pages/Works"));
+const WorkDetail = lazy(() => import("@/pages/WorkDetail"));
+const WorkEditor = lazy(() => import("@/pages/WorkEditor"));
+const Daily = lazy(() => import("@/pages/Daily"));
+const DailyDetail = lazy(() =>
+  import("@/pages/Daily").then((m) => ({ default: m.DailyDetail })),
+);
+const Events = lazy(() => import("@/pages/Events"));
+const EventDetail = lazy(() =>
+  import("@/pages/Events").then((m) => ({ default: m.EventDetail })),
+);
+const Members = lazy(() => import("@/pages/Members"));
+const Experts = lazy(() => import("@/pages/Experts"));
+const ExpertDetail = lazy(() => import("@/pages/ExpertDetail"));
+const ExpertDashboard = lazy(() => import("@/pages/ExpertDashboard"));
+const Programs = lazy(() => import("@/pages/Programs"));
+const ProgramDetail = lazy(() => import("@/pages/ProgramDetail"));
+const Ventures = lazy(() => import("@/pages/Ventures"));
+const VentureDetail = lazy(() => import("@/pages/VentureDetail"));
+const Numbers = lazy(() => import("@/pages/Numbers"));
+const Gallery = lazy(() => import("@/pages/Gallery"));
+const About = lazy(() => import("@/pages/About"));
+const Team = lazy(() => import("@/pages/Team"));
+const Cohorts = lazy(() => import("@/pages/Cohorts"));
+const CohortDetail = lazy(() => import("@/pages/CohortDetail"));
+const DemoDay = lazy(() => import("@/pages/DemoDay"));
+const Press = lazy(() => import("@/pages/Press"));
+const Resources = lazy(() => import("@/pages/Resources"));
+const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
 const queryClient = new QueryClient();
@@ -90,9 +96,17 @@ function RouteEffects() {
   return null;
 }
 
+function RouteFallback() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="w-7 h-7 rounded-full border-2 border-primary/25 border-t-primary animate-spin" />
+    </div>
+  );
+}
+
 function Router() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteFallback />}>
       <Switch>
       <Route path="/" component={Home} />
       <Route path="/apply" component={Apply} />

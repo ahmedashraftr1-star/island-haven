@@ -47,6 +47,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Split rarely-changing vendor libs into their own long-cached chunks
+        // (separate from app code, which redeploys often).
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "wouter"],
+          motion: ["framer-motion"],
+          query: ["@tanstack/react-query"],
+        },
+      },
+    },
   },
   server: {
     port,
