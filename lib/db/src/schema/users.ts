@@ -6,6 +6,7 @@ import {
   varchar,
   index,
   jsonb,
+  integer,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -48,6 +49,9 @@ export const usersTable = pgTable(
       .default("active")
       .notNull()
       .$type<UserStatus>(),
+    // Bumped on password change/reset to revoke all previously-issued sessions:
+    // stateless session tokens embed this epoch and are rejected on mismatch.
+    sessionEpoch: integer("session_epoch").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -131,7 +135,7 @@ export const updateProfileSchema = z.object({
 });
 
 export type User = typeof usersTable.$inferSelect;
-export type PublicUser = Omit<User, "passwordHash">;
+export type PublicUser = Omit<User, "passwordHash" | "sessionEpoch">;
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   freelancer: "مستقلّ",

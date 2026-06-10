@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import {
@@ -106,9 +106,10 @@ function rateLimited(req: Request): boolean {
 }
 
 function toPublic(u: typeof usersTable.$inferSelect): PublicUser {
-  // Drop the hash before sending anywhere near the wire.
-  const { passwordHash: _hash, ...rest } = u;
+  // Drop the hash and the internal session epoch before sending near the wire.
+  const { passwordHash: _hash, sessionEpoch: _epoch, ...rest } = u;
   void _hash;
+  void _epoch;
   return rest;
 }
 
@@ -155,7 +156,7 @@ router.post("/auth/register", async (req, res) => {
       }
       throw err;
     }
-    const token = makeUserSessionToken(row.id);
+    const token = makeUserSessionToken(row.id, row.sessionEpoch);
     setUserSessionCookie(res, token);
     invalidateNumbersCache();
     res.json({ ok: true, user: toPublic(row), token });
@@ -198,7 +199,7 @@ router.post("/auth/login", async (req, res) => {
       res.status(403).json({ error: "هذا الحساب مُعلَّق" });
       return;
     }
-    const token = makeUserSessionToken(user.id);
+    const token = makeUserSessionToken(user.id, user.sessionEpoch);
     setUserSessionCookie(res, token);
     res.json({ ok: true, user: toPublic(user), token });
   } catch (err) {
@@ -297,7 +298,22 @@ router.post("/auth/me/change-password", requireUser, async (req, res) => {
     if (!ok) { res.status(401).json({ error: "كلمة السرّ الحالية خاطئة" }); return; }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await db.update(usersTable).set({ passwordHash, updatedAt: new Date() }).where(eq(usersTable.id, session.userId));
+    // Bump the session epoch to revoke all previously-issued tokens, then
+    // re-issue a fresh cookie so the user who just changed their own password
+    // stays logged in on this device.
+    const [updated] = await db
+      .update(usersTable)
+      .set({
+        passwordHash,
+        sessionEpoch: sql`${usersTable.sessionEpoch} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, session.userId))
+      .returning({ sessionEpoch: usersTable.sessionEpoch });
+    setUserSessionCookie(
+      res,
+      makeUserSessionToken(session.userId, updated.sessionEpoch),
+    );
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "change-password failed");
@@ -380,7 +396,16 @@ router.post("/auth/reset-password", async (req, res) => {
     if (!user) { res.status(404).json({ error: "الحساب غير موجود" }); return; }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await db.update(usersTable).set({ passwordHash, updatedAt: new Date() }).where(eq(usersTable.id, user.id));
+    // Bump the session epoch so every session issued before this reset is
+    // revoked (the whole point of a password reset after a compromise).
+    await db
+      .update(usersTable)
+      .set({
+        passwordHash,
+        sessionEpoch: sql`${usersTable.sessionEpoch} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, user.id));
 
     resetTokens.delete(tokenHash);
     res.json({ ok: true });

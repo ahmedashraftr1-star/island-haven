@@ -109,14 +109,18 @@ export function clearSessionCookie(res: Response): void {
 
 // ─── User sessions ──────────────────────────────────────────────────────────
 
-export function makeUserSessionToken(userId: number): string {
+// `epoch` is the user's current sessionEpoch (from the DB). Embedding it lets a
+// password change/reset (which bumps the stored epoch) invalidate every token
+// issued before it — without any server-side session store.
+export function makeUserSessionToken(userId: number, epoch: number): string {
   const expiresAt = Date.now() + SESSION_TTL_MS;
-  const payload = `user.${userId}.${expiresAt}`;
+  const payload = `user.${userId}.${epoch}.${expiresAt}`;
   return `${payload}.${sign(payload)}`;
 }
 
 export interface UserSession {
   userId: number;
+  epoch: number;
   expiresAt: number;
 }
 
@@ -125,17 +129,21 @@ export function verifyUserSessionToken(
 ): UserSession | null {
   if (!token) return null;
   const parts = token.split(".");
-  if (parts.length !== 4) return null;
-  const [kind, idStr, expiresAtStr, sig] = parts;
+  if (parts.length !== 5) return null;
+  const [kind, idStr, epochStr, expiresAtStr, sig] = parts;
   if (kind !== "user") return null;
   const userId = Number(idStr);
+  const epoch = Number(epochStr);
   const expiresAt = Number(expiresAtStr);
   if (!Number.isFinite(userId) || userId <= 0) return null;
+  if (!Number.isInteger(epoch) || epoch < 0) return null;
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return null;
-  if (!timingSafeEqualStr(sig, sign(`user.${idStr}.${expiresAtStr}`))) {
+  if (
+    !timingSafeEqualStr(sig, sign(`user.${idStr}.${epochStr}.${expiresAtStr}`))
+  ) {
     return null;
   }
-  return { userId, expiresAt };
+  return { userId, epoch, expiresAt };
 }
 
 export function setUserSessionCookie(res: Response, token: string): void {
@@ -178,7 +186,10 @@ export function requireUser(
   }
   // Re-check current user status on every request so that banning a user
   // immediately revokes access even for existing valid session cookies.
-  db.select({ status: usersTable.status })
+  db.select({
+    status: usersTable.status,
+    sessionEpoch: usersTable.sessionEpoch,
+  })
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
@@ -189,6 +200,13 @@ export function requireUser(
       }
       if (row.status === "banned") {
         res.status(403).json({ error: "هذا الحساب مُعلَّق" });
+        return;
+      }
+      // Reject tokens issued before the last password change/reset.
+      if (row.sessionEpoch !== session.epoch) {
+        res
+          .status(401)
+          .json({ error: "انتهت صلاحية الجلسة، سجّل الدخول من جديد" });
         return;
       }
       (req as Request & { userSession: UserSession }).userSession = session;
@@ -214,12 +232,19 @@ export function optionalUser(
   }
   // Also check ban status for optional sessions — banned users should not
   // receive personalised data even on public endpoints.
-  db.select({ status: usersTable.status })
+  db.select({
+    status: usersTable.status,
+    sessionEpoch: usersTable.sessionEpoch,
+  })
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
     .then(([row]) => {
-      if (row && row.status !== "banned") {
+      if (
+        row &&
+        row.status !== "banned" &&
+        row.sessionEpoch === session.epoch
+      ) {
         (req as Request & { userSession: UserSession }).userSession = session;
       }
       next();
