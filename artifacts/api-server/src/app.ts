@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
@@ -12,6 +13,17 @@ const app: Express = express();
 // any client-supplied chain. This is the foundation for trustworthy rate
 // limiting on the public booking endpoint.
 app.set("trust proxy", 1);
+
+// Baseline security headers. This is a JSON API behind the Replit proxy, which
+// also proxies object/image bytes, so we disable the default CSP (no HTML is
+// served here) and set Cross-Origin-Resource-Policy to "cross-origin" so those
+// images can still be embedded from the front-end origins.
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 app.use(
   pinoHttp({
@@ -82,8 +94,8 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 
 app.use("/api", router);
 

@@ -18,7 +18,10 @@ import {
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
-const pwHash = bcrypt.hashSync("Member#2026", 10);
+const pwHash = bcrypt.hashSync(
+  process.env.SEED_USER_PASSWORD || "change-me-local",
+  10,
+);
 
 const MEMBERS = [
   {
@@ -490,7 +493,9 @@ async function main() {
   await addBookings();
 
   console.log("\n✅ Extras seed complete.");
-  console.log("Members password: Member#2026");
+  console.log(
+    "Members login: use the password from SEED_USER_PASSWORD (local env).",
+  );
 
   await pool.end();
 }

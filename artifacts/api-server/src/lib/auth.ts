@@ -14,11 +14,43 @@ const ADMIN_COOKIE = "ih_admin";
 const USER_COOKIE = "ih_user";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
+let warnedDevSecret = false;
+
 function getSecret(): string {
-  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD;
+  const sessionSecret = process.env.SESSION_SECRET;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (process.env.NODE_ENV === "production") {
+    // In production the HMAC signing key MUST be independent from the login
+    // password. Reusing ADMIN_PASSWORD as the signing key leaks/couples the
+    // two, so require a dedicated, strong SESSION_SECRET.
+    if (
+      !sessionSecret ||
+      sessionSecret.length < 32 ||
+      sessionSecret === adminPassword
+    ) {
+      throw new Error(
+        "Refusing to operate without a dedicated session secret in production. " +
+          "Set SESSION_SECRET to a strong value (>=32 chars) that DIFFERS from ADMIN_PASSWORD. " +
+          "Generate one with: openssl rand -hex 32",
+      );
+    }
+    return sessionSecret;
+  }
+
+  // Non-production: prefer SESSION_SECRET; fall back to ADMIN_PASSWORD for
+  // local dev convenience, but warn (once) that this is insecure.
+  const secret = sessionSecret || adminPassword;
   if (!secret || secret.length < 8) {
     throw new Error(
-      "Refusing to operate without a strong session secret. Set ADMIN_PASSWORD (preferred) or SESSION_SECRET (>=8 chars).",
+      "Refusing to operate without a session secret. Set SESSION_SECRET (preferred) or ADMIN_PASSWORD (>=8 chars).",
+    );
+  }
+  if (!sessionSecret && !warnedDevSecret) {
+    warnedDevSecret = true;
+    console.warn(
+      "[auth] SESSION_SECRET is not set; falling back to ADMIN_PASSWORD for HMAC signing. " +
+        "This is dev-only and insecure — set a dedicated SESSION_SECRET in production.",
     );
   }
   return secret;

@@ -18,10 +18,15 @@ router.get("/daily", async (req, res) => {
   try {
     const type = String(req.query.type ?? "");
     const pageSize = Math.min(Math.max(parseInt(String(req.query.limit ?? "12"), 10) || 12, 1), 100);
-    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
     const typeFilter = DAILY_TYPES.includes(type as DailyType) ? eq(dailyPostsTable.type, type as DailyType) : undefined;
 
     const [{ total }] = await db.select({ total: count() }).from(dailyPostsTable).where(typeFilter);
+
+    // Clamp page to the valid range so a huge ?page never produces an
+    // out-of-range deep offset.
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const page = Math.min(requestedPage, totalPages);
 
     const rows = await db
       .select()
@@ -31,7 +36,7 @@ router.get("/daily", async (req, res) => {
       .limit(pageSize)
       .offset((page - 1) * pageSize);
 
-    res.json({ posts: rows, total, page, totalPages: Math.ceil(total / pageSize) });
+    res.json({ posts: rows, total, page, totalPages });
   } catch (err) {
     logger.error({ err }, "GET /daily failed");
     res.status(500).json({ error: "خطأ في الخادم" });

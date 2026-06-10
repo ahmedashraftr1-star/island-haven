@@ -22,7 +22,7 @@ const WORKS_PAGE_SIZE = 18;
 router.get("/works", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
-    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
     const filterByRole = (USER_ROLES as readonly string[]).includes(role)
       ? (role as UserRole)
       : null;
@@ -38,6 +38,11 @@ router.get("/works", async (req, res) => {
       .from(worksTable)
       .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
       .where(where);
+
+    // Clamp page to the valid range so a huge ?page never produces an
+    // out-of-range deep offset.
+    const totalPages = Math.max(1, Math.ceil(total / WORKS_PAGE_SIZE));
+    const page = Math.min(requestedPage, totalPages);
 
     const rows = await db
       .select({
@@ -56,7 +61,7 @@ router.get("/works", async (req, res) => {
       .limit(WORKS_PAGE_SIZE)
       .offset((page - 1) * WORKS_PAGE_SIZE);
 
-    res.json({ works: rows, total, page, totalPages: Math.ceil(total / WORKS_PAGE_SIZE) });
+    res.json({ works: rows, total, page, totalPages });
   } catch (err) {
     logger.error({ err }, "GET /works failed");
     res.status(500).json({ error: "خطأ في الخادم" });

@@ -8,6 +8,9 @@ export const logger = pino({
     "req.headers.authorization",
     "req.headers.cookie",
     "res.headers['set-cookie']",
+    // Specific sensitive field; intentionally NOT redacting "html" so the
+    // opt-in dev reset-link log (EMAIL_DEBUG_BODY=1) still works.
+    "resetUrl",
   ],
   ...(isProduction
     ? {}

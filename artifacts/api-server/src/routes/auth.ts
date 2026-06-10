@@ -307,8 +307,8 @@ router.post("/auth/me/change-password", requireUser, async (req, res) => {
 
 // ─── Forgot password ─────────────────────────────────────────────────────────
 // Stores a short-lived token in memory and emails the reset link via Resend.
-// Without RESEND_API_KEY the email service falls back to logging the link, so
-// the flow still works in local dev (see src/lib/email.ts).
+// Without RESEND_API_KEY the email is NOT sent; in local dev you can surface the
+// reset link by running with EMAIL_DEBUG_BODY=1 and LOG_LEVEL=debug (see src/lib/email.ts).
 
 router.post("/auth/forgot-password", async (req, res) => {
   try {

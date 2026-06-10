@@ -211,7 +211,9 @@ async function seedUsers() {
     .values(
       members.map((m) => ({
         ...m,
-        passwordHash: hash("Password123!"),
+        passwordHash: hash(
+          process.env.SEED_USER_PASSWORD || "change-me-local",
+        ),
         status: "active" as const,
       })),
     )
@@ -898,8 +900,12 @@ async function main() {
   await seedApplications();
 
   console.log("\n✅ Seeding complete!");
-  console.log("\nLogin: any seeded user with password: Password123!");
-  console.log("Admin login: username 'ahmedashraf' password 'ahmedadmin$$'");
+  console.log(
+    "\nLogin: any seeded user with the password from SEED_USER_PASSWORD (local env).",
+  );
+  console.log(
+    "Admin login: use the credentials from your local env (ADMIN_USERNAME / ADMIN_PASSWORD).",
+  );
 
   await pool.end();
 }

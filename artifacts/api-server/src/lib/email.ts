@@ -26,12 +26,23 @@ export interface SendEmailOptions {
  */
 export async function sendEmail(opts: SendEmailOptions): Promise<boolean> {
   if (!RESEND_API_KEY) {
+    if (process.env.NODE_ENV === "production") {
+      // Never log the body in production — it can contain live reset tokens.
+      logger.error(
+        { to: opts.to, subject: opts.subject },
+        "RESEND_API_KEY not set — email NOT sent. Refusing to log the email body.",
+      );
+      return false;
+    }
     logger.warn(
       { to: opts.to, subject: opts.subject },
       "RESEND_API_KEY not set — email NOT sent (dev fallback). Set RESEND_API_KEY + EMAIL_FROM to enable real delivery.",
     );
-    // Surface the body in dev so the link is still reachable from the console.
-    logger.info({ to: opts.to, html: opts.html }, "email body (dev fallback)");
+    // Body (which may contain a live reset link/token) is only surfaced when
+    // explicitly opted in, and never above debug level.
+    if (process.env.EMAIL_DEBUG_BODY === "1") {
+      logger.debug({ to: opts.to, html: opts.html }, "email body (dev opt-in)");
+    }
     return false;
   }
 
