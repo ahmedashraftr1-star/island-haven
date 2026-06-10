@@ -310,6 +310,10 @@ router.post("/auth/me/change-password", requireUser, async (req, res) => {
       })
       .where(eq(usersTable.id, session.userId))
       .returning({ sessionEpoch: usersTable.sessionEpoch });
+    if (!updated) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
     setUserSessionCookie(
       res,
       makeUserSessionToken(session.userId, updated.sessionEpoch),
