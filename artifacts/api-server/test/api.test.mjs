@@ -233,7 +233,7 @@ describe("details & relations", () => {
   });
 });
 
-const EXPERT_EMAIL = process.env.TEST_EXPERT_EMAIL ?? "mentor.layan@islandhaven.ps";
+const EXPERT_EMAIL = process.env.TEST_EXPERT_EMAIL ?? "mohannad@islandhaven.ps";
 const EXPERT_PASS = process.env.TEST_EXPERT_PASS ?? "IslandHaven#2026";
 
 describe("office-hours booking — atomic first-wins (write path)", () => {
