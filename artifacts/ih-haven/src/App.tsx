@@ -38,6 +38,8 @@ const Programs = lazy(() => import("@/pages/Programs"));
 const ProgramDetail = lazy(() => import("@/pages/ProgramDetail"));
 const Ventures = lazy(() => import("@/pages/Ventures"));
 const VentureDetail = lazy(() => import("@/pages/VentureDetail"));
+const Opportunities = lazy(() => import("@/pages/Opportunities"));
+const OpportunityDetail = lazy(() => import("@/pages/OpportunityDetail"));
 const Numbers = lazy(() => import("@/pages/Numbers"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
 const About = lazy(() => import("@/pages/About"));
@@ -64,6 +66,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/expert": "لوحة الخبير — Island Haven",
   "/programs": "برامج الاحتضان — Island Haven",
   "/ventures": "المشاريع الناشئة — Island Haven",
+  "/opportunities": "الفرص والوظائف — Island Haven",
   "/numbers": "مُجتمعنا بالأرقام — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
@@ -125,6 +128,8 @@ function Router() {
       <Route path="/programs/:id" component={ProgramDetail} />
       <Route path="/ventures" component={Ventures} />
       <Route path="/ventures/:id" component={VentureDetail} />
+      <Route path="/opportunities" component={Opportunities} />
+      <Route path="/opportunities/:id" component={OpportunityDetail} />
       <Route path="/numbers" component={Numbers} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />

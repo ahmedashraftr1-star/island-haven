@@ -27,6 +27,7 @@ import {
   CalendarRange,
   Flag,
   Map,
+  Target,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -44,6 +45,7 @@ import AdminExperts from "./AdminExperts";
 import AdminSessions from "./AdminSessions";
 import AdminPrograms from "./AdminPrograms";
 import AdminVentures from "./AdminVentures";
+import AdminOpportunities from "./AdminOpportunities";
 import AdminStories from "./AdminStories";
 import AdminPartners from "./AdminPartners";
 import AdminTeam from "./AdminTeam";
@@ -63,6 +65,7 @@ type Tab =
   | "sessions"
   | "programs"
   | "ventures"
+  | "opportunities"
   | "milestones"
   | "stories"
   | "partners"
@@ -90,6 +93,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "cohorts", label: "الدّفعات", Icon: Layers },
   { id: "journey", label: "رحلة الدفعة", Icon: Map },
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
+  { id: "opportunities", label: "الفرص والوظائف", Icon: Target },
   { id: "milestones", label: "محطّات المشاريع", Icon: Flag },
   { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
@@ -294,6 +298,7 @@ export default function AdminDashboard() {
           {tab === "sessions" && <AdminSessions />}
           {tab === "programs" && <AdminPrograms />}
           {tab === "ventures" && <AdminVentures />}
+          {tab === "opportunities" && <AdminOpportunities />}
           {tab === "milestones" && <AdminMilestones />}
           {tab === "journey" && <AdminCohortJourney />}
           {tab === "stories" && <AdminStories />}

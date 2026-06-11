@@ -13,6 +13,7 @@ export * from "./experts";
 export * from "./mentorshipSessions";
 export * from "./programs";
 export * from "./ventures";
+export * from "./opportunities";
 export * from "./successStories";
 export * from "./partners";
 export * from "./teamMembers";

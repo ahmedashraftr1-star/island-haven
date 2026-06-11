@@ -18,6 +18,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/programs", label: "البرامج", en: "Programs", key: "programs" },
   { href: "/cohorts", label: "الدّفعات", en: "Cohorts", key: "cohorts" },
   { href: "/ventures", label: "المشاريع", en: "Ventures", key: "ventures" },
+  { href: "/opportunities", label: "الفرص", en: "Opportunities", key: "opportunities" },
   { href: "/experts", label: "الخبراء", en: "Experts", key: "experts" },
   { href: "/resources", label: "الموارد", en: "Resources", key: "resources" },
   { href: "/team", label: "الفريق", en: "Team", key: "team" },
