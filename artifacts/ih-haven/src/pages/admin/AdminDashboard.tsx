@@ -28,6 +28,8 @@ import {
   Flag,
   Map,
   Target,
+  Award,
+  Gift,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -46,6 +48,8 @@ import AdminSessions from "./AdminSessions";
 import AdminPrograms from "./AdminPrograms";
 import AdminVentures from "./AdminVentures";
 import AdminOpportunities from "./AdminOpportunities";
+import AdminBadges from "./AdminBadges";
+import AdminPerks from "./AdminPerks";
 import AdminStories from "./AdminStories";
 import AdminPartners from "./AdminPartners";
 import AdminTeam from "./AdminTeam";
@@ -66,6 +70,8 @@ type Tab =
   | "programs"
   | "ventures"
   | "opportunities"
+  | "badges"
+  | "perks"
   | "milestones"
   | "stories"
   | "partners"
@@ -94,6 +100,8 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "journey", label: "رحلة الدفعة", Icon: Map },
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
   { id: "opportunities", label: "الفرص والوظائف", Icon: Target },
+  { id: "perks", label: "العروض والامتيازات", Icon: Gift },
+  { id: "badges", label: "الشّارات", Icon: Award },
   { id: "milestones", label: "محطّات المشاريع", Icon: Flag },
   { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
@@ -299,6 +307,8 @@ export default function AdminDashboard() {
           {tab === "programs" && <AdminPrograms />}
           {tab === "ventures" && <AdminVentures />}
           {tab === "opportunities" && <AdminOpportunities />}
+          {tab === "perks" && <AdminPerks />}
+          {tab === "badges" && <AdminBadges />}
           {tab === "milestones" && <AdminMilestones />}
           {tab === "journey" && <AdminCohortJourney />}
           {tab === "stories" && <AdminStories />}

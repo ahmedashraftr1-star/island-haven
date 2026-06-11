@@ -185,6 +185,22 @@ export const OPPORTUNITY_LOCATION_LABELS: Record<OpportunityLocation, string> = 
   hybrid: "مَزيج",
 };
 
+export type PerkCategory =
+  | "tool"
+  | "course"
+  | "cloud"
+  | "design"
+  | "finance"
+  | "other";
+export const PERK_CATEGORY_LABELS: Record<PerkCategory, string> = {
+  tool: "أداة",
+  course: "كورس",
+  cloud: "استضافة سحابيّة",
+  design: "تصميم",
+  finance: "ماليّ",
+  other: "أخرى",
+};
+
 export function formatArabicDate(iso?: string | null): string {
   if (!iso) return "";
   try {

@@ -40,6 +40,14 @@ const Ventures = lazy(() => import("@/pages/Ventures"));
 const VentureDetail = lazy(() => import("@/pages/VentureDetail"));
 const Opportunities = lazy(() => import("@/pages/Opportunities"));
 const OpportunityDetail = lazy(() => import("@/pages/OpportunityDetail"));
+const Learning = lazy(() => import("@/pages/Learning"));
+const Certificate = lazy(() => import("@/pages/Certificate"));
+const Messages = lazy(() => import("@/pages/Messages"));
+const RateSession = lazy(() => import("@/pages/RateSession"));
+const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
+const Perks = lazy(() => import("@/pages/Perks"));
+const PerkDetail = lazy(() => import("@/pages/PerkDetail"));
+const NotificationSettings = lazy(() => import("@/pages/NotificationSettings"));
 const Numbers = lazy(() => import("@/pages/Numbers"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
 const About = lazy(() => import("@/pages/About"));
@@ -67,6 +75,13 @@ const ROUTE_TITLES: Record<string, string> = {
   "/programs": "برامج الاحتضان — Island Haven",
   "/ventures": "المشاريع الناشئة — Island Haven",
   "/opportunities": "الفرص والوظائف — Island Haven",
+  "/learning": "التعلّم — Island Haven",
+  "/certificate": "شهادة الإكمال — Island Haven",
+  "/messages": "الرسائل — Island Haven",
+  "/sessions": "تقييم جلسة — Island Haven",
+  "/leaderboard": "الصدارة — Island Haven",
+  "/perks": "العروض والامتيازات — Island Haven",
+  "/settings": "إعدادات الإشعارات — Island Haven",
   "/numbers": "مُجتمعنا بالأرقام — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
@@ -130,6 +145,14 @@ function Router() {
       <Route path="/ventures/:id" component={VentureDetail} />
       <Route path="/opportunities" component={Opportunities} />
       <Route path="/opportunities/:id" component={OpportunityDetail} />
+      <Route path="/learning" component={Learning} />
+      <Route path="/certificate/:courseId" component={Certificate} />
+      <Route path="/messages" component={Messages} />
+      <Route path="/sessions/:id/rate" component={RateSession} />
+      <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/perks" component={Perks} />
+      <Route path="/perks/:id" component={PerkDetail} />
+      <Route path="/settings/notifications" component={NotificationSettings} />
       <Route path="/numbers" component={Numbers} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />

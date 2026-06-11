@@ -27,6 +27,11 @@ export const NAV_ITEMS: NavItem[] = [
 
 // Secondary destinations — surfaced in the mobile sheet & footer, not the bar.
 export const NAV_SECONDARY: NavItem[] = [
+  { href: "/perks", label: "العروض", en: "Perks", key: "perks" },
+  { href: "/learning", label: "التعلّم", en: "Learning", key: "learning" },
+  { href: "/messages", label: "الرسائل", en: "Messages", key: "messages" },
+  { href: "/leaderboard", label: "الصدارة", en: "Leaderboard", key: "leaderboard" },
+  { href: "/settings/notifications", label: "إعدادات الإشعارات", en: "Notifications", key: "notification-settings" },
   { href: "/courses", label: "التّدريب", en: "Training", key: "courses" },
   { href: "/members", label: "المنتسبون", en: "Members", key: "members" },
   { href: "/events", label: "الفعاليّات", en: "Events", key: "events" },
