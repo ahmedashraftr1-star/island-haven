@@ -28,6 +28,16 @@ interface ExpertProfile {
   websiteUrl: string;
 }
 
+interface Slot {
+  id: number;
+  startAt: string;
+  endAt: string;
+  mode: "online" | "onsite";
+  location: string | null;
+  status: string;
+  note: string | null;
+}
+
 function splitTags(s: string | null | undefined): string[] {
   return (s || "").split(/[,،]/).map((p) => p.trim()).filter(Boolean);
 }
@@ -189,6 +199,8 @@ export default function ExpertDetailScreen() {
         ) : null}
       </Card>
 
+      <OfficeHours expertId={Number(id)} expertName={e.fullName} />
+
       <Card style={{ gap: 12 }}>
         <T size={15} weight="bold">احجز جلسة إرشاد</T>
         {e.availabilityNote ? (
@@ -262,5 +274,145 @@ export default function ExpertDetailScreen() {
         )}
       </Card>
     </ScrollView>
+  );
+}
+
+function fmtSlotDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("ar-EG-u-ca-gregory", {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+  });
+}
+function fmtSlotTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+}
+
+function OfficeHours({ expertId, expertName }: { expertId: number; expertName: string }) {
+  const colors = useColors();
+  const router = useRouter();
+  const { user } = useAuth();
+  const [picked, setPicked] = useState<number | null>(null);
+  const [topic, setTopic] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const q = useQuery<{ slots: Slot[] }>({
+    queryKey: ["expert-slots", expertId],
+    queryFn: () => api(`/experts/${expertId}/slots`),
+    enabled: !!expertId,
+  });
+
+  const slots = q.data?.slots ?? [];
+  // Nothing to show until we know there are open slots (keeps the card hidden
+  // for experts who only take ad-hoc requests).
+  if (q.isLoading || slots.length === 0) return null;
+
+  async function book() {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (picked == null) return;
+    if (topic.trim().length < 3) {
+      Alert.alert("ناقص", "اكتب موضوع الجلسة (3 أحرف فأكثر)");
+      return;
+    }
+    setBusy(true);
+    try {
+      await api(`/slots/${picked}/book`, {
+        method: "POST",
+        body: { topic: topic.trim(), message: message.trim() },
+      });
+      setDone(true);
+    } catch (err) {
+      Alert.alert("تعذّر الحجز", err instanceof ApiError ? err.message : "حاول لاحقًا");
+      void q.refetch();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card style={{ gap: 12 }}>
+      <View>
+        <T size={12} color={colors.primary} weight="bold">مواعيد متاحة · Office Hours</T>
+        <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20, marginTop: 4 }}>
+          احجز فورًا فترة مفتوحة من تقويم {expertName}.
+        </T>
+      </View>
+
+      {done ? (
+        <View style={{ alignItems: "center", paddingVertical: 16, gap: 8 }}>
+          <Feather name="check-circle" size={36} color={colors.primary} />
+          <T size={15} weight="bold" align="center">تمّ الحجز ✓</T>
+          <T size={13} color={colors.mutedForeground} align="center" style={{ lineHeight: 20 }}>
+            ستصلك رسالة بريديّة بتفاصيل الجلسة. تابعها من ملفّك.
+          </T>
+        </View>
+      ) : (
+        <>
+          <View style={{ gap: 8 }}>
+            {slots.map((s) => {
+              const isPicked = picked === s.id;
+              return (
+                <Pressable
+                  key={s.id}
+                  onPress={() => setPicked(s.id)}
+                  style={{
+                    borderRadius: colors.radius,
+                    borderWidth: 1,
+                    borderColor: isPicked ? colors.primary : colors.border,
+                    backgroundColor: isPicked ? colors.primarySoft : "transparent",
+                    paddingHorizontal: 14,
+                    paddingVertical: 10,
+                    gap: 4,
+                  }}
+                >
+                  <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+                    <T size={14} weight="bold">{fmtSlotDate(s.startAt)}</T>
+                    <T size={11} color={colors.mutedForeground}>
+                      {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+                    </T>
+                  </View>
+                  <T size={12} color={colors.mutedForeground}>
+                    {fmtSlotTime(s.startAt)} – {fmtSlotTime(s.endAt)}
+                  </T>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {picked != null ? (
+            <View style={{ gap: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }}>
+              <Field
+                label="موضوع الجلسة"
+                value={topic}
+                onChangeText={setTopic}
+                maxLength={200}
+                placeholder="ماذا تريد أن نناقش؟"
+              />
+              <Field
+                label="تفاصيل إضافيّة (اختياري)"
+                value={message}
+                onChangeText={setMessage}
+                maxLength={2000}
+                multiline
+                numberOfLines={3}
+              />
+              {!user ? (
+                <Btn title="تسجيل الدخول للحجز" onPress={() => router.push("/login")} />
+              ) : (
+                <Btn title="تأكيد الحجز" loading={busy} onPress={book} />
+              )}
+              <T size={11} color={colors.mutedForeground} align="center">
+                مَجّاني — يصلك إيميل التأكيد فورًا.
+              </T>
+            </View>
+          ) : null}
+        </>
+      )}
+    </Card>
   );
 }
