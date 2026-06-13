@@ -51,7 +51,8 @@ async function post(path, body, label) {
 
 // ─── Experts / mentors ───────────────────────────────────────────────────────
 
-// The real Island Haven team — the leadership are the bookable experts/mentors.
+// The Island Haven expert teams — real leadership + domain mentors & advisors,
+// all bookable. Order: leadership (featured), then mentors, then advisors.
 const EXPERTS = [
   {
     fullName: "مهنّد جندية",
@@ -87,6 +88,62 @@ const EXPERTS = [
     expertise: "تنظيم البرامج، العمليّات، دعم المنتسبين، التنسيق",
     bio: "تدعم إدارة المجتمع والعمليّات اليوميّة في آيلاند هيفن، وهي نقطة تواصل روّاد الأعمال للانضمام والمتابعة.",
     languages: "العربية",
+    featured: false,
+  },
+  // ── Mentors (technical & product) ──
+  {
+    fullName: "م. باسل أبو ندى",
+    email: "basel@islandhaven.ps",
+    headline: "مهندس برمجيّات أوّل وخبير ذكاء اصطناعيّ",
+    expertise: "هندسة البرمجيّات، تطوير المنتجات، الذكاء الاصطناعيّ، البنية السحابيّة",
+    bio: "يرافق الفرق التقنيّة من النموذج الأوّليّ إلى منتج قابل للتوسّع، ويمكّن مطوّري غزّة من أدوات العصر لبناء حلول حقيقيّة تخدم مجتمعهم.",
+    languages: "العربية، الإنجليزية",
+    featured: false,
+  },
+  {
+    fullName: "م. دانا الأغا",
+    email: "dana@islandhaven.ps",
+    headline: "مصمّمة منتجات وتجربة مستخدم (UX/UI)",
+    expertise: "تصميم المنتجات، تجربة المستخدم، أبحاث المستخدم، أنظمة التصميم",
+    bio: "تساعد الفرق على فهم مستخدميهم وبناء تجارب بسيطة ومؤثّرة تترجم الفكرة إلى منتج يحبّه الناس.",
+    languages: "العربية، الإنجليزية",
+    featured: false,
+  },
+  {
+    fullName: "أ. مازن شعث",
+    email: "mazen@islandhaven.ps",
+    headline: "خبير النموّ والتسويق الرقميّ",
+    expertise: "التسويق الرقميّ، استراتيجيّات النموّ، صناعة المحتوى، تحليل البيانات",
+    bio: "يبني قنوات نموّ للمشاريع الناشئة بميزانيّات محدودة، ويحوّل أوّل المستخدمين إلى مجتمع وفيّ حول المنتج.",
+    languages: "العربية، الإنجليزية",
+    featured: false,
+  },
+  // ── Advisors (business & finance) ──
+  {
+    fullName: "أ. هبة العطّار",
+    email: "heba@islandhaven.ps",
+    headline: "مستشارة تمويل واستثمار جريء",
+    expertise: "التمويل، الاستثمار الجريء، العرض على المستثمرين، الإدارة الماليّة",
+    bio: "تجهّز الفرق للوصول إلى التمويل والمنح، وتدرّبهم على بناء عرض استثماريّ مقنع ونموذج ماليّ سليم.",
+    languages: "العربية، الإنجليزية",
+    featured: false,
+  },
+  {
+    fullName: "المحامي طارق سالم",
+    email: "tariq@islandhaven.ps",
+    headline: "مستشار قانونيّ — تأسيس الشركات والملكيّة الفكريّة",
+    expertise: "تأسيس الشركات، العقود، الملكيّة الفكريّة، الامتثال القانونيّ",
+    bio: "يرشد روّاد الأعمال في تأسيس كياناتهم القانونيّة وحماية ملكيّتهم الفكريّة وصياغة عقودهم بثقة.",
+    languages: "العربية، الإنجليزية",
+    featured: false,
+  },
+  {
+    fullName: "د. ناصر حمدان",
+    email: "nasser@islandhaven.ps",
+    headline: "مستشار استراتيجيّة وتطوير أعمال",
+    expertise: "استراتيجيّة الأعمال، العمليّات، تطوير الأعمال، التوسّع",
+    bio: "يساعد الفرق على تحويل الرؤية إلى خطّة تنفيذيّة، وبناء عمليّات قابلة للتوسّع ونماذج عمل مستدامة.",
+    languages: "العربية، الإنجليزية",
     featured: false,
   },
 ];
@@ -472,6 +529,13 @@ async function main() {
     { expert: 2, at: slotAt(2, 18, 0, 45) },
     { expert: 2, at: slotAt(4, 12, 0, 45) },
     { expert: 3, at: slotAt(3, 10, 0, 30) },
+    { expert: 4, at: slotAt(2, 17, 0, 45) },
+    { expert: 4, at: slotAt(5, 12, 0, 45) },
+    { expert: 5, at: slotAt(3, 14, 0, 45) },
+    { expert: 6, at: slotAt(4, 16, 0, 45) },
+    { expert: 7, at: slotAt(3, 11, 0, 45) },
+    { expert: 8, at: slotAt(6, 13, 0, 45) },
+    { expert: 9, at: slotAt(5, 15, 0, 45) },
   ];
   for (const s of SLOTS) {
     const expertId = expertIds[s.expert];

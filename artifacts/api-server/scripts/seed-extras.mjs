@@ -55,6 +55,32 @@ async function main() {
       fullName: "رؤى", role: "مساعد إداريّ للمدير", group: "leadership",
       bio: "تدعم إدارة المجتمع والعمليّات اليوميّة في آيلاند هيفن.",
     },
+    // Mentors (technical & product) — also bookable experts in seed-incubator.mjs.
+    {
+      fullName: "م. باسل أبو ندى", role: "مرشد تقنيّ — هندسة البرمجيّات والذكاء الاصطناعيّ", group: "mentors",
+      bio: "يرافق الفرق التقنيّة من النموذج الأوّليّ إلى منتج قابل للتوسّع بأدوات العصر.",
+    },
+    {
+      fullName: "م. دانا الأغا", role: "مرشدة تصميم المنتجات وتجربة المستخدم", group: "mentors",
+      bio: "تساعد الفرق على فهم مستخدميهم وبناء تجارب بسيطة ومؤثّرة.",
+    },
+    {
+      fullName: "أ. مازن شعث", role: "مرشد النموّ والتسويق الرقميّ", group: "mentors",
+      bio: "يبني قنوات نموّ للمشاريع الناشئة ويحوّل أوّل المستخدمين إلى مجتمع وفيّ.",
+    },
+    // Advisors (business & finance) — also bookable experts in seed-incubator.mjs.
+    {
+      fullName: "أ. هبة العطّار", role: "مستشارة التمويل والاستثمار", group: "advisors",
+      bio: "تجهّز الفرق للوصول إلى التمويل وبناء عرض استثماريّ مقنع.",
+    },
+    {
+      fullName: "المحامي طارق سالم", role: "مستشار الشؤون القانونيّة والتأسيس", group: "advisors",
+      bio: "يرشد روّاد الأعمال في تأسيس كياناتهم القانونيّة وحماية ملكيّتهم الفكريّة.",
+    },
+    {
+      fullName: "د. ناصر حمدان", role: "مستشار الاستراتيجيّة وتطوير الأعمال", group: "advisors",
+      bio: "يحوّل الرؤية إلى خطّة تنفيذيّة وعمليّات قابلة للتوسّع.",
+    },
     // The leadership above are also the bookable experts/mentors — seeded as
     // expert profiles by seed-incubator.mjs, so /experts and /team stay in sync.
   ];
