@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Star, CalendarCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 
 interface Row {
@@ -303,7 +303,7 @@ function ExpertEditor({
       } else {
         await api(`/admin/experts/${initialId}`, {
           method: "PATCH",
-          body: JSON.stringify(profile),
+          body: JSON.stringify({ ...profile, avatarUrl: form.avatarUrl || null }),
         });
       }
       onSaved();
@@ -512,18 +512,21 @@ function ExpertEditor({
               />
             </Field>
           </div>
-          <Field label="رابط الصورة الشخصيّة (اختياري)" error={issues.avatarUrl}>
-            <input
-              dir="ltr"
+          <div>
+            <label className="block mb-1.5 text-[12px] text-foreground/65 font-semibold">
+              الصورة الشخصيّة (اختياري)
+            </label>
+            <AvatarUploader
               value={form.avatarUrl}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, avatarUrl: e.target.value }))
-              }
-              className="w-full bg-transparent outline-none text-[13.5px]"
-              placeholder="/api/storage/objects/…"
-              maxLength={800}
+              name={form.fullName || "؟"}
+              onChange={(url) => setForm((s) => ({ ...s, avatarUrl: url }))}
             />
-          </Field>
+            {issues.avatarUrl && (
+              <div className="text-[11.5px] text-rose-600 mt-1 px-1">
+                {issues.avatarUrl}
+              </div>
+            )}
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="الحالة" error={issues.status}>
               <select
@@ -595,6 +598,114 @@ function ExpertEditor({
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+function AvatarUploader({
+  value,
+  name,
+  onChange,
+}: {
+  value: string;
+  name: string;
+  onChange: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const initials = name.trim().charAt(0) || "؟";
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const data = (await res.json()) as { ok?: boolean; url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setUploadError(data.error || "فشل الرفع");
+        return;
+      }
+      onChange(data.url);
+    } catch {
+      setUploadError("تعذّر الاتّصال بالخادم");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="w-16 h-16 rounded-2xl overflow-hidden border border-border bg-muted/40 flex-shrink-0 flex items-center justify-center">
+        {value ? (
+          <img
+            src={value}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-2xl font-bold text-foreground/30">{initials}</span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg bg-primary/10 text-primary text-[12.5px] font-semibold hover:bg-primary/15 transition-colors disabled:opacity-50"
+          >
+            {uploading ? (
+              "جارٍ الرفع…"
+            ) : (
+              <>
+                <Upload className="w-3.5 h-3.5" />
+                رفع صورة
+              </>
+            )}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="inline-flex items-center gap-1 px-2.5 h-8 rounded-lg text-foreground/45 text-[12px] hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+              حذف
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 rounded-xl px-3 py-2 bg-muted/40 border border-border">
+          <ImageIcon className="w-3.5 h-3.5 text-foreground/30 flex-shrink-0" />
+          <input
+            dir="ltr"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-[12px] text-foreground/65 placeholder:text-foreground/30 min-w-0"
+            placeholder="أو الصق رابط الصورة هنا…"
+            maxLength={800}
+          />
+        </div>
+        {uploadError && (
+          <div className="text-[11.5px] text-rose-600">{uploadError}</div>
+        )}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFile}
+      />
     </div>
   );
 }

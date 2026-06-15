@@ -555,6 +555,10 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    const avatarUrl =
+      typeof req.body?.avatarUrl === "string"
+        ? req.body.avatarUrl.trim().slice(0, 800) || null
+        : undefined;
     const parsed = adminExpertProfileSchema.partial().safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -566,16 +570,31 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       });
       return;
     }
-    const [row] = await db
-      .update(expertProfilesTable)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(expertProfilesTable.id, id))
-      .returning();
-    if (!row) {
+    const result = await db.transaction(async (tx) => {
+      const [profile] = await tx
+        .select({ userId: expertProfilesTable.userId })
+        .from(expertProfilesTable)
+        .where(eq(expertProfilesTable.id, id))
+        .limit(1);
+      if (!profile) return null;
+      if (avatarUrl !== undefined) {
+        await tx
+          .update(usersTable)
+          .set({ avatarUrl, updatedAt: new Date() })
+          .where(eq(usersTable.id, profile.userId));
+      }
+      const [row] = await tx
+        .update(expertProfilesTable)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(expertProfilesTable.id, id))
+        .returning();
+      return row;
+    });
+    if (!result) {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    res.json({ expert: row });
+    res.json({ expert: result });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/experts/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
