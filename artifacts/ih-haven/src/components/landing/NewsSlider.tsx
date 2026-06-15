@@ -3,8 +3,9 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { api } from "@/lib/api";
-import { DAILY_TYPE_LABELS, formatArabicDate, type DailyType } from "@/lib/labels";
+import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   eyebrow: "فعاليّات آيلاند · Events",
@@ -14,6 +15,16 @@ const FALLBACK = {
   emptyText: "لا توجد فعاليّات معلَنة بعد — تابعنا قريبًا.",
   prevAria: "السّابق",
   nextAria: "التّالي",
+};
+
+const FALLBACK_EN = {
+  eyebrow: "Island Events · فعاليّات",
+  title: "What's happening at the space this week.",
+  ctaAll: "All events",
+  ctaCard: "Read more",
+  emptyText: "No upcoming events announced yet — stay tuned.",
+  prevAria: "Previous",
+  nextAria: "Next",
 };
 
 interface Post {
@@ -44,9 +55,12 @@ function trimExcerpt(s: string, n = 110): string {
  * routes to the event detail page.
  */
 export function NewsSlider() {
+  const { lang } = useLanguage();
   const [posts, setPosts] = useState<Post[] | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const c = useContentSection("newsSlider", FALLBACK);
+  const cAr = useContentSection("newsSlider", FALLBACK);
+  const c = lang === "en" ? { ...cAr, ...FALLBACK_EN } : cAr;
+  const typeLabels = lang === "en" ? DAILY_TYPE_LABELS_EN : DAILY_TYPE_LABELS;
 
   useEffect(() => {
     api<{ posts: Post[] }>("/daily")
@@ -191,12 +205,12 @@ export function NewsSlider() {
                       </div>
                     )}
                     <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10.5px] tracking-[0.16em] uppercase text-primary font-bold">
-                      {DAILY_TYPE_LABELS[p.type]}
+                      {typeLabels[p.type]}
                     </div>
                   </div>
                   <div className="p-5">
                     <div className="text-[11px] text-foreground/55 mb-2 font-medium tabular-nums">
-                      {formatArabicDate(p.publishedAt)}
+                      {formatDate(p.publishedAt, lang)}
                     </div>
                     <h3 className="text-foreground font-bold text-[16px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">
                       {p.title}

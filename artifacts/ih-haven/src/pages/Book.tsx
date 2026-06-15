@@ -23,23 +23,24 @@ import {
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Step = 0 | 1 | 2;
 
 const TIME_SLOTS = [
-  { id: "morning", label: "صباحًا", time: "٩ – ١٢", icon: "☕" },
-  { id: "midday", label: "ظهرًا", time: "١٢ – ٣", icon: "☀️" },
-  { id: "afternoon", label: "بعد الظهر", time: "٣ – ٥", icon: "🌅" },
-  { id: "fullday", label: "اليوم الكامل", time: "٩ – ٥", icon: "✨" },
+  { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", icon: "☕" },
+  { id: "midday", label: "ظهرًا", labelEn: "Midday", time: "١٢ – ٣", timeEn: "12 – 3", icon: "☀️" },
+  { id: "afternoon", label: "بعد الظهر", labelEn: "Afternoon", time: "٣ – ٥", timeEn: "3 – 5", icon: "🌅" },
+  { id: "fullday", label: "اليوم الكامل", labelEn: "Full Day", time: "٩ – ٥", timeEn: "9 – 5", icon: "✨" },
 ] as const;
 
 const PURPOSES = [
-  { id: "work", label: "عمل مستقلّ", Icon: Briefcase },
-  { id: "study", label: "دراسة", Icon: GraduationCap },
-  { id: "meeting", label: "اجتماع", Icon: Users },
-  { id: "event", label: "فعّاليّة", Icon: PartyPopper },
-  { id: "tour", label: "زيارة استكشافيّة", Icon: Eye },
-  { id: "other", label: "غير ذلك", Icon: MoreHorizontal },
+  { id: "work", label: "عمل مستقلّ", labelEn: "Freelance work", Icon: Briefcase },
+  { id: "study", label: "دراسة", labelEn: "Study", Icon: GraduationCap },
+  { id: "meeting", label: "اجتماع", labelEn: "Meeting", Icon: Users },
+  { id: "event", label: "فعّاليّة", labelEn: "Event", Icon: PartyPopper },
+  { id: "tour", label: "زيارة استكشافيّة", labelEn: "Exploratory visit", Icon: Eye },
+  { id: "other", label: "غير ذلك", labelEn: "Other", Icon: MoreHorizontal },
 ] as const;
 
 // Asia/Gaza working week: Saturday(6) - Thursday(4); Friday(5) closed.
@@ -73,8 +74,10 @@ function arabicMonth(d: Date) {
 }
 
 const WEEKDAY_LABELS = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"];
+const WEEKDAY_LABELS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Book() {
+  const { lang } = useLanguage();
   const [step, setStep] = useState<Step>(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
@@ -94,8 +97,8 @@ export default function Book() {
   });
 
   useEffect(() => {
-    document.title = "احجز مقعدك — آيلاند هيفن";
-  }, []);
+    document.title = lang === "en" ? "Book a seat — Island Haven" : "احجز مقعدك — آيلاند هيفن";
+  }, [lang]);
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -176,7 +179,7 @@ export default function Book() {
 
   return (
     <div
-      dir="rtl"
+      dir={lang === "en" ? "ltr" : "rtl"}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
     >
       <BackgroundAura />
@@ -202,7 +205,7 @@ export default function Book() {
           href="/"
           className="text-[12.5px] text-white/65 hover:text-white inline-flex items-center gap-1.5 transition"
         >
-          العودة <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+          {lang === "en" ? "Back" : "العودة"} <ArrowLeft className={`w-3.5 h-3.5 ${lang === "en" ? "" : "rotate-180"}`} />
         </Link>
       </header>
 
@@ -210,20 +213,22 @@ export default function Book() {
         <div className="text-center max-w-2xl mx-auto pt-8 lg:pt-12 pb-10 lg:pb-14">
           <div className="inline-flex items-center gap-2 px-3 h-7 rounded-full bg-primary/15 text-primary text-[11px] tracking-[0.2em] font-semibold uppercase mb-5">
             <Sparkles className="w-3 h-3" />
-            احجز مقعدك · مجّاني تمامًا
+            {lang === "en" ? "Book a seat · Completely free" : "احجز مقعدك · مجّاني تمامًا"}
           </div>
           <h1
             className="font-bold leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)" }}
           >
-            تعالَ إلى{" "}
-            <span className="text-accent-gradient">آيلاند هيفن</span>
-            <br />
-            مقعدك ينتظرك.
+            {lang === "en" ? (
+              <>Come to{" "}<span className="text-accent-gradient">Island Haven</span><br />your seat awaits.</>
+            ) : (
+              <>تعالَ إلى{" "}<span className="text-accent-gradient">آيلاند هيفن</span><br />مقعدك ينتظرك.</>
+            )}
           </h1>
           <p className="mt-5 text-white/65 text-[15px] leading-[1.85] max-w-xl mx-auto">
-            اختَر يومًا وفترة، وسنُجهّز لك مساحتك. لا حاجة لتسجيل دخول، ولا
-            رسوم، ولا تعقيدات — فقط ثلاث خطوات.
+            {lang === "en"
+              ? "Pick a day and time slot, and we'll have your space ready. No login, no fees, no hassle — just three steps."
+              : "اختَر يومًا وفترة، وسنُجهّز لك مساحتك. لا حاجة لتسجيل دخول، ولا رسوم، ولا تعقيدات — فقط ثلاث خطوات."}
           </p>
         </div>
 
@@ -270,8 +275,8 @@ export default function Book() {
                   className="h-11 px-5 rounded-full text-[13px] font-medium text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-2"
                   data-testid="button-back"
                 >
-                  <ChevronRight className="w-4 h-4" />
-                  السابق
+                  <ChevronRight className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
+                  {lang === "en" ? "Back" : "السابق"}
                 </button>
                 {step < 2 ? (
                   <button
@@ -285,8 +290,8 @@ export default function Book() {
                     className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-next"
                   >
-                    التالي
-                    <ChevronLeft className="w-4 h-4" />
+                    {lang === "en" ? "Next" : "التالي"}
+                    <ChevronLeft className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   </button>
                 ) : (
                   <button
@@ -295,7 +300,7 @@ export default function Book() {
                     className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-submit"
                   >
-                    {submitting ? "جارٍ الإرسال..." : "أكِّد الحجز"}
+                    {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
                     <CheckCircle2 className="w-4 h-4" />
                   </button>
                 )}
@@ -329,11 +334,10 @@ function GlassPanel({ children }: { children: React.ReactNode }) {
 }
 
 function Stepper({ step }: { step: Step }) {
-  const items = [
-    { n: 1, label: "الموعد" },
-    { n: 2, label: "الهدف" },
-    { n: 3, label: "بياناتك" },
-  ];
+  const { lang } = useLanguage();
+  const items = lang === "en"
+    ? [{ n: 1, label: "Date" }, { n: 2, label: "Purpose" }, { n: 3, label: "Your info" }]
+    : [{ n: 1, label: "الموعد" }, { n: 2, label: "الهدف" }, { n: 3, label: "بياناتك" }];
   return (
     <div className="flex items-center justify-center gap-2 lg:gap-4">
       {items.map((it, i) => {
@@ -423,10 +427,11 @@ function StepOne({
     label: string;
   }>;
 }) {
+  const { lang } = useLanguage();
   return (
     <StepShell
-      title="اختر يومك وفترتك"
-      hint="مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"
+      title={lang === "en" ? "Pick your day & time slot" : "اختر يومك وفترتك"}
+      hint={lang === "en" ? "Open Sat–Thu · Closed Friday · Gaza time" : "مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"}
     >
       <div className="grid md:grid-cols-2 gap-7">
         {/* Calendar */}
@@ -435,25 +440,27 @@ function StepOne({
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
               className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition"
-              aria-label="الشهر السابق"
+              aria-label={lang === "en" ? "Previous month" : "الشهر السابق"}
               data-testid="button-prev-month"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
             <div className="text-[13.5px] font-semibold tracking-tight">
-              {arabicMonth(monthCursor)}
+              {lang === "en"
+                ? monthCursor.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+                : arabicMonth(monthCursor)}
             </div>
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
               className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition"
-              aria-label="الشهر التالي"
+              aria-label={lang === "en" ? "Next month" : "الشهر التالي"}
               data-testid="button-next-month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
           <div className="grid grid-cols-7 gap-1.5 text-[10px] text-white/40 font-semibold mb-2">
-            {WEEKDAY_LABELS.map((w) => (
+            {(lang === "en" ? WEEKDAY_LABELS_EN : WEEKDAY_LABELS).map((w) => (
               <div key={w} className="text-center">
                 {w}
               </div>
@@ -484,10 +491,10 @@ function StepOne({
           </div>
           <div className="mt-4 flex items-center gap-3 text-[11px] text-white/45">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" /> مختار
+              <span className="w-2 h-2 rounded-full bg-primary" /> {lang === "en" ? "Selected" : "مختار"}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-white/15" /> غير متاح
+              <span className="w-2 h-2 rounded-full bg-white/15" /> {lang === "en" ? "Unavailable" : "غير متاح"}
             </span>
           </div>
         </div>
@@ -496,7 +503,7 @@ function StepOne({
         <div>
           <div className="flex items-center gap-2 mb-4 text-[12.5px] text-white/65">
             <Clock className="w-3.5 h-3.5" />
-            <span>اختر الفترة</span>
+            <span>{lang === "en" ? "Pick a time slot" : "اختر الفترة"}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {TIME_SLOTS.map((s) => {
@@ -506,16 +513,16 @@ function StepOne({
                   key={s.id}
                   onClick={() => update("timeSlot", s.id)}
                   data-testid={`slot-${s.id}`}
-                  className={`relative p-4 rounded-2xl text-right transition group ${
+                  className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition group ${
                     active
                       ? "bg-primary/15 border border-primary/40 shadow-[0_10px_28px_-12px_rgba(220,38,55,0.4)]"
                       : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
                   }`}
                 >
                   <div className="text-[18px] mb-1.5">{s.icon}</div>
-                  <div className="text-[13.5px] font-semibold">{s.label}</div>
+                  <div className="text-[13.5px] font-semibold">{lang === "en" ? s.labelEn : s.label}</div>
                   <div className="text-[11px] text-white/50 mt-0.5 font-mono">
-                    {s.time}
+                    {lang === "en" ? s.timeEn : s.time}
                   </div>
                   {active && (
                     <CheckCircle2 className="absolute top-3 left-3 w-4 h-4 text-primary" />
@@ -537,10 +544,14 @@ function StepTwo({
   form: { purpose: string; attendees: number; notes: string };
   update: (k: any, v: any) => void;
 }) {
+  const { lang } = useLanguage();
   return (
-    <StepShell title="ما الهدف من زيارتك؟" hint="اختياراتك تساعدنا نُجهّز لك المساحة الأنسب">
+    <StepShell
+      title={lang === "en" ? "What's the purpose of your visit?" : "ما الهدف من زيارتك؟"}
+      hint={lang === "en" ? "Your choice helps us prepare the best space for you" : "اختياراتك تساعدنا نُجهّز لك المساحة الأنسب"}
+    >
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {PURPOSES.map(({ id, label, Icon }) => {
+        {PURPOSES.map(({ id, label, labelEn, Icon }) => {
           const active = form.purpose === id;
           return (
             <button
@@ -557,7 +568,7 @@ function StepTwo({
                 className={`w-5 h-5 mb-2.5 ${active ? "text-primary" : "text-white/55"}`}
                 strokeWidth={2}
               />
-              <div className="text-[13px] font-semibold">{label}</div>
+              <div className="text-[13px] font-semibold">{lang === "en" ? labelEn : label}</div>
             </button>
           );
         })}
@@ -566,7 +577,7 @@ function StepTwo({
       <div className="mt-8">
         <div className="flex items-center gap-2 mb-3 text-[12.5px] text-white/65">
           <Users className="w-3.5 h-3.5" />
-          <span>عدد الأشخاص</span>
+          <span>{lang === "en" ? "Number of people" : "عدد الأشخاص"}</span>
         </div>
         <div className="flex items-center gap-2.5">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
@@ -595,14 +606,14 @@ function StepTwo({
           className="block text-[12.5px] text-white/65 mb-2 flex items-center gap-2"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          ملاحظات إضافيّة <span className="text-white/35">(اختياريّ)</span>
+          {lang === "en" ? "Additional notes" : "ملاحظات إضافيّة"} <span className="text-white/35">{lang === "en" ? "(optional)" : "(اختياريّ)"}</span>
         </label>
         <textarea
           id="notes"
           rows={3}
           value={form.notes}
           onChange={(e) => update("notes", e.target.value)}
-          placeholder="مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."
+          placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
           maxLength={1000}
           data-testid="textarea-notes"
           className="w-full px-4 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-[13.5px] placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
@@ -621,23 +632,27 @@ function StepThree({
   update: (k: any, v: any) => void;
   issues: Record<string, string>;
 }) {
+  const { lang } = useLanguage();
   return (
-    <StepShell title="بياناتك" hint="نتواصل معك على واتساب لتأكيد الحجز">
+    <StepShell
+      title={lang === "en" ? "Your info" : "بياناتك"}
+      hint={lang === "en" ? "We'll reach you on WhatsApp to confirm your booking" : "نتواصل معك على واتساب لتأكيد الحجز"}
+    >
       <div className="space-y-5">
         <Field
           id="fullName"
-          label="الاسم الكامل"
+          label={lang === "en" ? "Full name" : "الاسم الكامل"}
           icon={UserIcon}
           value={form.fullName}
           onChange={(v) => update("fullName", v)}
           error={issues.fullName}
-          placeholder="مثلًا: لانا الشريف"
+          placeholder={lang === "en" ? "E.g. Lana Al-Sharif" : "مثلًا: لانا الشريف"}
           autoFocus
         />
         <div className="grid md:grid-cols-2 gap-5">
           <Field
             id="phone"
-            label="رقم الواتساب"
+            label={lang === "en" ? "WhatsApp number" : "رقم الواتساب"}
             icon={Phone}
             value={form.phone}
             onChange={(v) => update("phone", v)}
@@ -647,7 +662,7 @@ function StepThree({
           />
           <Field
             id="email"
-            label="البريد الإلكترونيّ"
+            label={lang === "en" ? "Email address" : "البريد الإلكترونيّ"}
             optional
             icon={Mail}
             value={form.email}
@@ -658,8 +673,9 @@ function StepThree({
           />
         </div>
         <div className="text-[11.5px] text-white/45 leading-[1.85]">
-          بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض
-          تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث.
+          {lang === "en"
+            ? "By submitting you agree that we may contact you on the selected channel solely for booking confirmation. We will never share your data with third parties."
+            : "بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث."}
         </div>
       </div>
     </StepShell>
@@ -733,11 +749,17 @@ function SummaryCard({
     fullName: string;
   };
 }) {
+  const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const purposeLabel = PURPOSES.find((p) => p.id === form.purpose);
   const dateObj = form.visitDate
     ? new Date(form.visitDate + "T00:00:00")
     : null;
+  const dateDisplay = dateObj
+    ? lang === "en"
+      ? dateObj.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+      : arabicDay(dateObj)
+    : "—";
   return (
     <aside className="lg:sticky lg:top-8 self-start">
       <div className="relative rounded-[24px] p-6 bg-white/[0.04] border border-white/10 backdrop-blur-2xl overflow-hidden">
@@ -752,38 +774,42 @@ function SummaryCard({
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-              ملخّص حجزك
+              {lang === "en" ? "Booking summary" : "ملخّص حجزك"}
             </div>
           </div>
 
           <SummaryRow
             icon={CalendarIcon}
-            label="التاريخ"
-            value={dateObj ? arabicDay(dateObj) : "—"}
+            label={lang === "en" ? "Date" : "التاريخ"}
+            value={dateDisplay}
             placeholder={!dateObj}
           />
           <SummaryRow
             icon={Clock}
-            label="الفترة"
+            label={lang === "en" ? "Time slot" : "الفترة"}
             value={
-              slotLabel ? `${slotLabel.label} · ${slotLabel.time}` : "—"
+              slotLabel
+                ? lang === "en"
+                  ? `${slotLabel.labelEn} · ${slotLabel.timeEn}`
+                  : `${slotLabel.label} · ${slotLabel.time}`
+                : "—"
             }
             placeholder={!slotLabel}
           />
           <SummaryRow
             icon={Briefcase}
-            label="الهدف"
-            value={purposeLabel?.label || "—"}
+            label={lang === "en" ? "Purpose" : "الهدف"}
+            value={(lang === "en" ? purposeLabel?.labelEn : purposeLabel?.label) || "—"}
             placeholder={!purposeLabel}
           />
           <SummaryRow
             icon={Users}
-            label="الأشخاص"
-            value={`${form.attendees}`.replace(/\d/g, (x) => "٠١٢٣٤٥٦٧٨٩"[Number(x)])}
+            label={lang === "en" ? "Attendees" : "الأشخاص"}
+            value={String(form.attendees)}
           />
           <SummaryRow
             icon={UserIcon}
-            label="باسم"
+            label={lang === "en" ? "Name" : "باسم"}
             value={form.fullName || "—"}
             placeholder={!form.fullName}
           />
@@ -791,7 +817,7 @@ function SummaryCard({
           <div className="mt-6 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2.5 text-[12px] text-white/55 leading-[1.7]">
               <Coffee className="w-3.5 h-3.5 shrink-0 text-primary" />
-              <span>قهوة وشاي وإنترنت سريع · على حسابنا دائمًا.</span>
+              <span>{lang === "en" ? "Coffee, tea & fast Wi-Fi · always on us." : "قهوة وشاي وإنترنت سريع · على حسابنا دائمًا."}</span>
             </div>
           </div>
         </div>
@@ -860,12 +886,16 @@ function SuccessScreen({
     fullName: string;
   };
 }) {
+  const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const dateObj = new Date(form.visitDate + "T00:00:00");
   const ref = String(id).padStart(5, "0");
+  const dateDisplay = lang === "en"
+    ? dateObj.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    : arabicDay(dateObj);
   return (
     <div
-      dir="rtl"
+      dir={lang === "en" ? "ltr" : "rtl"}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center px-6 py-16"
     >
       <BackgroundAura />
@@ -894,32 +924,40 @@ function SuccessScreen({
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-              تمّ بنجاح
+              {lang === "en" ? "Booking confirmed" : "تمّ بنجاح"}
             </div>
             <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
-              مقعدك محجوز يا{" "}
-              <span className="text-accent-gradient">
-                {form.fullName.split(" ")[0]}
-              </span>
+              {lang === "en" ? (
+                <>Your seat is booked,{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span>!</>
+              ) : (
+                <>مقعدك محجوز يا{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span></>
+              )}
             </h1>
             <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
-              نراك يوم{" "}
-              <span className="text-white font-semibold">
-                {arabicDay(dateObj)}
-              </span>{" "}
-              {slotLabel && (
+              {lang === "en" ? (
                 <>
-                  ·{" "}
-                  <span className="text-white font-semibold">
-                    {slotLabel.label}
-                  </span>
+                  See you on{" "}
+                  <span className="text-white font-semibold">{dateDisplay}</span>
+                  {slotLabel && (
+                    <> · <span className="text-white font-semibold">{slotLabel.labelEn}</span></>
+                  )}
+                  .<br />
+                  We'll send you a WhatsApp confirmation shortly.
+                </>
+              ) : (
+                <>
+                  نراك يوم{" "}
+                  <span className="text-white font-semibold">{dateDisplay}</span>
+                  {slotLabel && (
+                    <> · <span className="text-white font-semibold">{slotLabel.label}</span></>
+                  )}
+                  .<br />
+                  سنرسل لك رسالة تأكيد على واتساب قريبًا.
                 </>
               )}
-              .<br />
-              سنرسل لك رسالة تأكيد على واتساب قريبًا.
             </p>
             <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/65 mb-7">
-              <span className="text-white/45">رقم الحجز</span>
+              <span className="text-white/45">{lang === "en" ? "Booking ref." : "رقم الحجز"}</span>
               <span className="font-mono font-bold text-white tracking-wider">
                 #{ref}
               </span>
@@ -930,8 +968,8 @@ function SuccessScreen({
                 className="h-11 px-6 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:brightness-110 transition flex items-center gap-2"
                 data-testid="link-home-success"
               >
-                العودة للرئيسيّة
-                <ArrowLeft className="w-4 h-4 rotate-180" />
+                {lang === "en" ? "Back to home" : "العودة للرئيسيّة"}
+                <ArrowLeft className={`w-4 h-4 ${lang === "en" ? "" : "rotate-180"}`} />
               </Link>
               <Link
                 href="/book"
@@ -939,7 +977,7 @@ function SuccessScreen({
                 data-testid="link-new-booking"
                 onClick={() => window.location.reload()}
               >
-                حجز آخر
+                {lang === "en" ? "New booking" : "حجز آخر"}
               </Link>
             </div>
           </div>

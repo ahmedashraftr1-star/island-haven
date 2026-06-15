@@ -15,10 +15,12 @@ import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import { useAuth } from "@/lib/auth";
-import { splitTags, SESSION_MODE_LABELS, type SessionMode } from "@/lib/labels";
+import { splitTags, SESSION_MODE_LABELS, SESSION_MODE_LABELS_EN, type SessionMode } from "@/lib/labels";
 import type { ExpertCard } from "./Experts";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ExpertDetail() {
+  const { lang } = useLanguage();
   const [, params] = useRoute("/experts/:id");
   const [, navigate] = useLocation();
   const id = params?.id;
@@ -98,7 +100,7 @@ export default function ExpertDetail() {
   if (error && !expert) {
     return (
       <PageShell active="experts">
-        <BackLink href="/experts" label="عودة للخبراء" />
+        <BackLink href="/experts" label={lang === "en" ? "Back to experts" : "عودة للخبراء"} />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -117,14 +119,14 @@ export default function ExpertDetail() {
 
   return (
     <PageShell active="experts">
-      <BackLink href="/experts" label="كلّ الخبراء" />
+      <BackLink href="/experts" label={lang === "en" ? "All experts" : "كلّ الخبراء"} />
 
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
         {/* Profile */}
         <GlassCard className="p-6 sm:p-8">
           {expert.featured && (
             <div className="inline-flex items-center gap-1.5 mb-5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
+              <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> {lang === "en" ? "Featured expert" : "خبير مميّز"}
             </div>
           )}
           <div className="flex items-start gap-5 mb-6">
@@ -164,7 +166,7 @@ export default function ExpertDetail() {
           {areas.length > 0 && (
             <div className="mb-6">
               <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-                مجالات الخبرة
+                {lang === "en" ? "Areas of expertise" : "مجالات الخبرة"}
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {areas.map((a) => (
@@ -183,7 +185,7 @@ export default function ExpertDetail() {
             {expert.yearsExperience > 0 && (
               <span className="inline-flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
-                {expert.yearsExperience}+ سنة خبرة
+                {expert.yearsExperience}+ {lang === "en" ? "years experience" : "سنة خبرة"}
               </span>
             )}
             {langs.length > 0 && (
@@ -194,7 +196,7 @@ export default function ExpertDetail() {
             )}
             <span className="inline-flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
-              جلسة ~{expert.sessionMinutes} دقيقة
+              {lang === "en" ? `~${expert.sessionMinutes} min session` : `جلسة ~${expert.sessionMinutes} دقيقة`}
             </span>
           </div>
 
@@ -217,7 +219,7 @@ export default function ExpertDetail() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
                 >
-                  <Globe className="w-4 h-4" /> الموقع
+                  <Globe className="w-4 h-4" /> {lang === "en" ? "Website" : "الموقع"}
                 </a>
               )}
             </div>
@@ -230,7 +232,7 @@ export default function ExpertDetail() {
 
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
-              احجز جلسة إرشاد
+              {lang === "en" ? "Book a mentorship session" : "احجز جلسة إرشاد"}
             </div>
             {expert.availabilityNote && (
               <p className="text-white/55 text-[12.5px] leading-[1.7] mb-4">
@@ -248,17 +250,18 @@ export default function ExpertDetail() {
                 >
                   <CheckCircle2 className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
                   <div className="text-white font-bold text-[15px] mb-1">
-                    تمّ إرسال طلبك
+                    {lang === "en" ? "Request sent" : "تمّ إرسال طلبك"}
                   </div>
                   <p className="text-white/55 text-[13px] leading-[1.7]">
-                    سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من صفحة
-                    ملفّك.
+                    {lang === "en"
+                      ? "The expert will review your request and confirm a session time. Track it from your profile."
+                      : "سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من صفحة ملفّك."}
                   </p>
                   <Link
                     href="/profile"
                     className="inline-block mt-4 text-[12.5px] text-primary font-semibold hover:underline"
                   >
-                    عرض جلساتي
+                    {lang === "en" ? "View my sessions" : "عرض جلساتي"}
                   </Link>
                 </motion.div>
               ) : !expert.acceptingSessions ? (
@@ -268,7 +271,7 @@ export default function ExpertDetail() {
                   animate={{ opacity: 1 }}
                   className="text-white/55 text-[13px] text-center py-4 leading-[1.8]"
                 >
-                  هذا الخبير لا يستقبل طلبات جلسات حاليًا. تابعه لاحقًا.
+                  {lang === "en" ? "This expert is not accepting session requests at this time. Check back later." : "هذا الخبير لا يستقبل طلبات جلسات حاليًا. تابعه لاحقًا."}
                 </motion.div>
               ) : !user ? (
                 <motion.div
@@ -277,13 +280,15 @@ export default function ExpertDetail() {
                   animate={{ opacity: 1 }}
                 >
                   <p className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
-                    سجّل دخولك لحجز جلسة إرشاد مَجّانيّة مع {expert.fullName}.
+                    {lang === "en"
+                      ? `Sign in to book a free mentorship session with ${expert.fullName}.`
+                      : `سجّل دخولك لحجز جلسة إرشاد مَجّانيّة مع ${expert.fullName}.`}
                   </p>
                   <Link
                     href={`/login?next=/experts/${id}`}
                     className="block text-center w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                   >
-                    تسجيل الدخول للحجز
+                    {lang === "en" ? "Sign in to book" : "تسجيل الدخول للحجز"}
                   </Link>
                 </motion.div>
               ) : (
@@ -294,17 +299,17 @@ export default function ExpertDetail() {
                   onSubmit={submit}
                   className="space-y-3.5"
                 >
-                  <Field label="موضوع الجلسة">
+                  <Field label={lang === "en" ? "Session topic" : "موضوع الجلسة"}>
                     <input
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
                       maxLength={200}
-                      placeholder="مثال: مراجعة نموذج عمل مشروعي"
+                      placeholder={lang === "en" ? "E.g. Review my business model" : "مثال: مراجعة نموذج عمل مشروعي"}
                       className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
                       data-testid="input-session-topic"
                     />
                   </Field>
-                  <Field label="نبذة عمّا تحتاجه (اختياري)">
+                  <Field label={lang === "en" ? "What you need (optional)" : "نبذة عمّا تحتاجه (اختياري)"}>
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -314,7 +319,7 @@ export default function ExpertDetail() {
                       data-testid="input-session-message"
                     />
                   </Field>
-                  <Field label="نوع الجلسة">
+                  <Field label={lang === "en" ? "Session type" : "نوع الجلسة"}>
                     <div className="flex gap-2">
                       {(["online", "onsite"] as SessionMode[]).map((m) => (
                         <button
@@ -327,12 +332,12 @@ export default function ExpertDetail() {
                               : "bg-white/[0.04] text-white/60 border-white/10 hover:text-white"
                           }`}
                         >
-                          {SESSION_MODE_LABELS[m]}
+                          {(lang === "en" ? SESSION_MODE_LABELS_EN : SESSION_MODE_LABELS)[m]}
                         </button>
                       ))}
                     </div>
                   </Field>
-                  <Field label="الوقت المفضّل (اختياري)">
+                  <Field label={lang === "en" ? "Preferred time (optional)" : "الوقت المفضّل (اختياري)"}>
                     <input
                       type="datetime-local"
                       value={preferredAt}
@@ -353,10 +358,10 @@ export default function ExpertDetail() {
                     data-testid="button-request-session"
                   >
                     <Sparkles className="w-4 h-4" />
-                    {busy ? "…" : "إرسال طلب الجلسة"}
+                    {busy ? "…" : (lang === "en" ? "Send session request" : "إرسال طلب الجلسة")}
                   </button>
                   <p className="text-white/40 text-[11.5px] text-center leading-[1.6]">
-                    مَجّاني تمامًا — الخبير يؤكّد الموعد بعد المراجعة.
+                    {lang === "en" ? "Completely free — the expert confirms after review." : "مَجّاني تمامًا — الخبير يؤكّد الموعد بعد المراجعة."}
                   </p>
                 </motion.form>
               )}
@@ -386,6 +391,7 @@ function OfficeHoursPicker({
   expertId: number;
   expertName: string;
 }) {
+  const { lang } = useLanguage();
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const [slots, setSlots] = useState<Slot[] | null>(null);
@@ -447,24 +453,24 @@ function OfficeHoursPicker({
   return (
     <GlassCard className="p-6">
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-1">
-        مواعيد متاحة · Office Hours
+        {lang === "en" ? "Available slots · Office Hours" : "مواعيد متاحة · Office Hours"}
       </div>
       <p className="text-white/55 text-[12.5px] mb-4">
-        احجز فورًا فترةً مفتوحة من تقويم {expertName}.
+        {lang === "en" ? `Book an open slot from ${expertName}'s calendar right away.` : `احجز فورًا فترةً مفتوحة من تقويم ${expertName}.`}
       </p>
 
       {done ? (
         <div className="text-center py-6">
           <CheckCircle2 className="w-11 h-11 text-emerald-300 mx-auto mb-3" />
-          <div className="text-white font-bold text-[14.5px] mb-1">تمّ الحجز ✓</div>
+          <div className="text-white font-bold text-[14.5px] mb-1">{lang === "en" ? "Booked ✓" : "تمّ الحجز ✓"}</div>
           <p className="text-white/55 text-[12.5px] leading-[1.85]">
-            ستصلك رسالة بريدية بتفاصيل الجلسة.
+            {lang === "en" ? "You'll receive an email with session details." : "ستصلك رسالة بريدية بتفاصيل الجلسة."}
           </p>
           <Link
             href="/profile"
             className="inline-block mt-3 text-[12.5px] text-primary font-semibold hover:underline"
           >
-            عرض جلساتي
+            {lang === "en" ? "View my sessions" : "عرض جلساتي"}
           </Link>
         </div>
       ) : (
@@ -500,7 +506,7 @@ function OfficeHoursPicker({
                   <div className="flex items-center justify-between">
                     <span className="text-[13.5px] font-semibold">{dateLabel}</span>
                     <span className="text-[11px] text-white/55">
-                      {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+                      {s.mode === "online" ? (lang === "en" ? "Online" : "عن بُعد") : (lang === "en" ? "On-site" : "في المساحة")}
                     </span>
                   </div>
                   <div className="text-[12px] text-white/55 tabular-nums">
@@ -515,19 +521,19 @@ function OfficeHoursPicker({
             <div className="space-y-3 pt-3 border-t border-white/[0.06]">
               <label className="block">
                 <span className="block text-[11.5px] text-white/55 mb-1.5">
-                  موضوع الجلسة
+                  {lang === "en" ? "Session topic" : "موضوع الجلسة"}
                 </span>
                 <input
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   maxLength={200}
-                  placeholder="ماذا تريد أن نناقش؟"
+                  placeholder={lang === "en" ? "What would you like to discuss?" : "ماذا تريد أن نناقش؟"}
                   className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
                 />
               </label>
               <label className="block">
                 <span className="block text-[11.5px] text-white/55 mb-1.5">
-                  تفاصيل إضافيّة (اختياري)
+                  {lang === "en" ? "Additional details (optional)" : "تفاصيل إضافيّة (اختياري)"}
                 </span>
                 <textarea
                   value={message}
@@ -547,10 +553,10 @@ function OfficeHoursPicker({
                 className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
-                {busy ? "…" : "تأكيد الحجز"}
+                {busy ? "…" : (lang === "en" ? "Confirm booking" : "تأكيد الحجز")}
               </button>
               <p className="text-white/40 text-[11px] text-center">
-                مَجّاني — يَصلك إيميل التأكيد فورًا.
+                {lang === "en" ? "Free — confirmation email sent instantly." : "مَجّاني — يَصلك إيميل التأكيد فورًا."}
               </p>
             </div>
           )}

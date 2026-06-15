@@ -1,2 +1,4 @@
 - [Bilingual system](bilingual-i18n.md) — all translations live in `I18N` (i18n.ts); pattern: `const { lang, t } = useLanguage()`, `t(I18N.section.key)`.
 - [Expert seed data](expert-seed.md) — 6 placeholder experts seeded via SQL (users+expert_profiles tables, role='expert', status='active').
+- [Book.tsx bilingual](book-tsx-notes.md) — TIME_SLOTS/PURPOSES carry labelEn/timeEn fields; WEEKDAY_LABELS_EN parallel array; dir attr switches on lang; each sub-component calls useLanguage() directly.
+- [About.tsx curly quotes](about-curly-quotes.md) — curly/smart apostrophes used as JS string delimiters cause TS parse errors; fix with \uXXXX escapes or straight quotes.

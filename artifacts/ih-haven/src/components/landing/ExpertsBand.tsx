@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles, Star } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExpertCard {
   id: number;
@@ -16,6 +17,7 @@ interface ExpertCard {
 }
 
 export function ExpertsBand() {
+  const { lang } = useLanguage();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
 
   useEffect(() => {
@@ -32,7 +34,6 @@ export function ExpertsBand() {
     };
   }, []);
 
-  // Hide the whole section until at least one expert exists.
   if (rows !== null && rows.length === 0) return null;
 
   return (
@@ -42,14 +43,25 @@ export function ExpertsBand() {
     >
       <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
         <EditorialHeader
-          label="الإرشاد والخبرة"
+          label={lang === "en" ? "Mentorship & Expertise" : "الإرشاد والخبرة"}
           title={
-            <>
-              خبراء يأخذون بيدك نحو{" "}
-              <span className="text-accent-gradient">الأثر</span>
-            </>
+            lang === "en" ? (
+              <>
+                Experts who guide you toward{" "}
+                <span className="text-accent-gradient">real impact</span>
+              </>
+            ) : (
+              <>
+                خبراء يأخذون بيدك نحو{" "}
+                <span className="text-accent-gradient">الأثر</span>
+              </>
+            )
           }
-          sub="نخبة من المرشدين وروّاد الأعمال والمتخصّصين. احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ."
+          sub={
+            lang === "en"
+              ? "A curated network of mentors, entrepreneurs, and specialists. Book a free 1-on-1 mentorship session and turn your idea into a scalable venture."
+              : "نخبة من المرشدين وروّاد الأعمال والمتخصّصين. احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ."
+          }
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
@@ -125,7 +137,7 @@ export function ExpertsBand() {
             data-testid="link-all-experts"
           >
             <Sparkles className="w-4 h-4" />
-            تصفّح جميع الخبراء واحجز جلستك
+            {lang === "en" ? "Browse all experts & book a session" : "تصفّح جميع الخبراء واحجز جلستك"}
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
           </Link>
         </div>

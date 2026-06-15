@@ -42,8 +42,8 @@ const EN_FALLBACK = {
   imageEyebrow: "Inside the Haven",
   imageCaption: "A corner of Island Haven's open offices — for freelancers, graduates, and students.",
   quote:
-    '"Yes, it's a place to work. But more than that, it's a space to connect, learn, and build self-confidence."',
-  quoteAuthor: "— Founders' Vision",
+    "\u201cYes, it\u2019s a place to work. But more than that, it\u2019s a space to connect, learn, and build self-confidence.\u201d",
+  quoteAuthor: "— Founders\u2019 Vision",
   p1Ar: "Vision",
   p1En: "Vision",
   p1Body:

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { ArrowLeft, Users, Briefcase, GraduationCap, CalendarCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   eyebrow: "الحاضنة بالأرقام · By the numbers",
@@ -69,6 +70,7 @@ function CountUp({ value }: { value: number }) {
  * hard-coded.
  */
 export function NumbersBand() {
+  const { lang } = useLanguage();
   const [n, setN] = useState<Numbers | null>(null);
   const c = useContentSection("numbersBand", FALLBACK);
 
@@ -79,10 +81,10 @@ export function NumbersBand() {
   }, []);
 
   const tiles = [
-    { value: n?.members ?? 0, label: c.tile1Label, en: c.tile1En, icon: Users },
-    { value: n?.works ?? 0, label: c.tile2Label, en: c.tile2En, icon: Briefcase },
-    { value: n?.enrollments ?? 0, label: c.tile3Label, en: c.tile3En, icon: GraduationCap },
-    { value: n?.seatsHosted ?? 0, label: c.tile4Label, en: c.tile4En, icon: CalendarCheck },
+    { value: n?.members ?? 0, label: lang === "en" ? c.tile1En : c.tile1Label, en: c.tile1En, icon: Users },
+    { value: n?.works ?? 0, label: lang === "en" ? c.tile2En : c.tile2Label, en: c.tile2En, icon: Briefcase },
+    { value: n?.enrollments ?? 0, label: lang === "en" ? c.tile3En : c.tile3Label, en: c.tile3En, icon: GraduationCap },
+    { value: n?.seatsHosted ?? 0, label: lang === "en" ? c.tile4En : c.tile4Label, en: c.tile4En, icon: CalendarCheck },
   ];
 
   return (
@@ -95,7 +97,7 @@ export function NumbersBand() {
           <div className="lg:col-span-7">
             <div className="flex items-center gap-3 mb-3">
               <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold">
-                {c.eyebrow}
+                {lang === "en" ? "By the numbers · الحاضنة" : c.eyebrow}
               </div>
               <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-wider">
                 <span className="relative flex h-1.5 w-1.5">
@@ -109,21 +111,24 @@ export function NumbersBand() {
               className="font-bold text-foreground tracking-tight leading-[1.08]"
               style={{ fontSize: "clamp(1.95rem, 4.4vw, 3.1rem)" }}
             >
-              {c.titleA}
+              {lang === "en" ? "Not just slogans." : c.titleA}
               <br />
-              <span className="text-accent-gradient">{c.titleAccent}</span> {c.titleB}
+              <span className="text-accent-gradient">{lang === "en" ? "Real numbers" : c.titleAccent}</span>{" "}
+              {lang === "en" ? "from our database." : c.titleB}
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-end">
             <p className="text-[15px] text-foreground/65 leading-relaxed mb-5 max-w-md lg:ms-auto">
-              {c.sub}
+              {lang === "en"
+                ? "Every number you see here reflects the current state of the incubator — it updates automatically with every member, project, and mentorship seat."
+                : c.sub}
             </p>
             <Link
               href="/numbers"
               className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
               data-testid="link-numbers-more"
             >
-              {c.ctaLabel}
+              {lang === "en" ? "View all" : c.ctaLabel}
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             </Link>
           </div>

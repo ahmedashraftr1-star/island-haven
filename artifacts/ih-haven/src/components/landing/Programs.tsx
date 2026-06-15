@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   label: "الفعاليّات والبرامج",
@@ -32,6 +33,7 @@ const FALLBACK = {
 };
 
 export function Programs() {
+  const { lang } = useLanguage();
   const c = useContentSection("programs", FALLBACK);
   const chips = [
     { ar: c.chip1Ar, en: c.chip1En },
@@ -48,9 +50,19 @@ export function Programs() {
     <section id="programs" className="relative bg-muted/40 py-24 lg:py-32 border-y border-border">
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
-          label={c.label}
-          title={<>{c.titleA}<br /><span className="text-accent-gradient">{c.titleAccent}</span></>}
-          sub={c.sub}
+          label={lang === "en" ? "Events & Programs" : c.label}
+          title={
+            lang === "en" ? (
+              <>The space breathes through its people,<br /><span className="text-accent-gradient">not its walls.</span></>
+            ) : (
+              <>{c.titleA}<br /><span className="text-accent-gradient">{c.titleAccent}</span></>
+            )
+          }
+          sub={
+            lang === "en"
+              ? "Alongside the daily open workspace, Island Haven organises practical training workshops and internal initiatives — some led by the team, some by the members themselves."
+              : c.sub
+          }
         />
 
         <motion.article
@@ -96,8 +108,8 @@ export function Programs() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {chips.map((p) => (
                       <div key={p.ar} className="bg-muted/60 rounded-xl px-4 py-3">
-                        <div className="font-bold text-foreground text-[15px]">{p.ar}</div>
-                        <div className="text-[10px] tracking-wide text-foreground/45 mt-0.5">{p.en}</div>
+                        <div className="font-bold text-foreground text-[15px]">{lang === "en" ? p.en : p.ar}</div>
+                        <div className="text-[10px] tracking-wide text-foreground/45 mt-0.5">{lang === "en" ? p.ar : p.en}</div>
                       </div>
                     ))}
                   </div>
@@ -130,9 +142,9 @@ export function Programs() {
               className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all duration-500 hover:-translate-y-1"
             >
               <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-3">
-                {card.en}
+                {lang === "en" ? card.ar : card.en}
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-3">{card.ar}</h3>
+              <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-3">{lang === "en" ? card.en : card.ar}</h3>
               <p className="text-[15px] text-foreground/65 leading-relaxed whitespace-pre-line">
                 {card.body}
               </p>

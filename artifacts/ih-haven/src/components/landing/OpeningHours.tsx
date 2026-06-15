@@ -1,5 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const OPEN_HOUR = 9; // 09:00
 const CLOSE_HOUR = 17; // 17:00 — "السّاعة ٥ مساءً"
@@ -26,6 +27,7 @@ const DAYS = [
  * orbits the dial. Compact, premium, never sprawling.
  */
 export function OpeningHours() {
+  const { lang } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15%" });
 
@@ -172,7 +174,7 @@ export function OpeningHours() {
           <div className="flex items-center gap-3 mb-7">
             <span className="h-[1px] w-10 bg-white/40" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
-              Opening hours · ساعات العمل
+              {lang === "en" ? "Opening hours · ساعات العمل" : "Opening hours · ساعات العمل"}
             </span>
           </div>
 
@@ -214,15 +216,17 @@ export function OpeningHours() {
             className="font-bold text-white leading-[1.1] tracking-tight mb-4"
             style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
           >
-            العمل في المساحة
-            <br />
-            من <span className="text-accent-gradient">٩ صباحاً</span> حتّى{" "}
-            <span className="text-accent-gradient">٥ مساءً.</span>
+            {lang === "en" ? (
+              <>Work at the space<br />from <span className="text-accent-gradient">9 am</span> until{" "}<span className="text-accent-gradient">5 pm.</span></>
+            ) : (
+              <>العمل في المساحة<br />من <span className="text-accent-gradient">٩ صباحاً</span> حتّى{" "}<span className="text-accent-gradient">٥ مساءً.</span></>
+            )}
           </h3>
 
           <p className="text-[15px] lg:text-[17px] text-white/70 leading-relaxed max-w-md mb-9">
-            تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا
-            انقطاع — والقهوة دائماً جاهزة.
+            {lang === "en"
+              ? "Eight hours a day, five days a week. Stable internet, uninterrupted power — and coffee always ready."
+              : "تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا انقطاع — والقهوة دائماً جاهزة."}
           </p>
 
           {/* Live status — true Apple glass pill */}
@@ -238,9 +242,9 @@ export function OpeningHours() {
             }}
           >
             <span className={`w-2 h-2 rounded-full ${liveStatus.color} ${inHours ? "animate-pulse" : ""}`} />
-            <span>{liveStatus.ar}</span>
+            <span>{lang === "en" ? liveStatus.en : liveStatus.ar}</span>
             <span className="text-white/45 tabular-nums font-mono">
-              · {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} غزّة
+              · {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} Gaza
             </span>
           </div>
 
@@ -275,14 +279,14 @@ export function OpeningHours() {
                     {d.en}
                   </div>
                   <div className="text-[13px] sm:text-[14px] font-bold mt-0.5 truncate max-w-full">
-                    {d.ar}
+                    {lang === "en" ? d.en : d.ar}
                   </div>
                   <div
                     className={`text-[9.5px] mt-1 tabular-nums opacity-75 font-mono ${
                       d.closed ? "line-through decoration-white/40" : ""
                     }`}
                   >
-                    {d.closed ? "مغلق" : "9–17"}
+                    {d.closed ? (lang === "en" ? "Closed" : "مغلق") : "9–17"}
                   </div>
                 </div>
               );
@@ -292,8 +296,7 @@ export function OpeningHours() {
 
         {/* SR-only live region */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {liveStatus.ar} — الساعة {String(hours).padStart(2, "0")}:
-          {String(minutes).padStart(2, "0")} بتوقيت غزّة.
+          {lang === "en" ? liveStatus.en : liveStatus.ar} — {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} Gaza time.
         </div>
 
         {/* RIGHT — 24h dial inside its own glass disc */}
