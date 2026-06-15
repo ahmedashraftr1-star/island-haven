@@ -4,7 +4,7 @@
  * the 5 real service tracks.
  *
  * Safe to re-run: uses ON CONFLICT DO UPDATE for settings,
- * and TRUNCATE + re-insert for programs.
+ * and DELETE + re-insert for programs (no TRUNCATE CASCADE to protect applications).
  *
  * Usage:
  *   pnpm --filter @workspace/scripts run seed:content
@@ -84,12 +84,14 @@ async function seedCmsContent() {
   });
 
   // ── Audience (target groups) ───────────────────────────────────────────────
+  // CMS supports 3 segments; 4 real groups from docx mapped as:
+  // seg1 → طلاب التقنية، seg2 → خرّيجو التخصصات، seg3 → المستقلون وأصحاب المشاريع
   await upsertSection("audience", {
     label: "من نخدم",
     titleA: "نخدم",
     titleAccent: "أربع فئات",
     titleB: "رئيسيّة من المواهب الغزية.",
-    sub: "آيلاند هيفن مفتوح لكل من يمتلك الموهبة والإرادة — من الطالب الجامعي إلى صاحب المشروع الناشئ.",
+    sub: "آيلاند هيفن مفتوح لأربع فئات رئيسية: طلاب التقنية والبرمجة، خرّيجو التخصصات التقنية، المستقلّون في المجالات التقنية والإبداعية، وأصحاب المشاريع الناشئة — كل من يمتلك الموهبة والإرادة جسرنا يوصله.",
     seg1Ar: "طلاب التقنية والبرمجة",
     seg1En: "Tech & Programming Students",
     seg1Pct: "25",
@@ -99,18 +101,18 @@ async function seedCmsContent() {
     seg1C3: "الاستعداد للعمل ضمن بيئة مهنية منظّمة.",
     seg2Ar: "خرّيجو التخصصات التقنية",
     seg2En: "Tech Graduates",
-    seg2Pct: "30",
+    seg2Pct: "35",
     seg2Tag: "Recent tech graduates",
     seg2C1: "خرّيج تخصّص تقني أو هندسي.",
     seg2C2: "باحث عن بيئة عمل احترافية ومجتمع داعم.",
     seg2C3: "الاستعداد للتعلّم المستمر والمساهمة في المجتمع.",
-    seg3Ar: "المستقلّون",
-    seg3En: "Freelancers",
-    seg3Pct: "30",
-    seg3Tag: "Independent professionals",
-    seg3C1: "يمارس العمل الحرّ في مجال تقني أو إبداعي.",
-    seg3C2: "يحتاج بيئة عمل احترافية واتصالاً بسوق العمل العالمي.",
-    seg3C3: "مستعدّ للمساهمة في دعم مجتمع الحاضنة.",
+    seg3Ar: "المستقلّون وأصحاب المشاريع",
+    seg3En: "Freelancers & Founders",
+    seg3Pct: "40",
+    seg3Tag: "Freelancers · Startup founders",
+    seg3C1: "يمارس العمل الحرّ أو يعمل على مشروع ناشئ في مجال تقني أو إبداعي.",
+    seg3C2: "يحتاج بيئة عمل احترافية، وحلول مدفوعات، وتشبيكًا بالفرص العالمية.",
+    seg3C3: "مستعدّ للمساهمة في بناء مجتمع الحاضنة ودعم الأعضاء الآخرين.",
   });
 
   // ── Programs CMS section (homepage card text) ─────────────────────────────
@@ -139,10 +141,11 @@ async function seedCmsContent() {
 }
 
 async function seedRealPrograms() {
-  console.log("🗂  Replacing demo programs with 5 real service tracks...");
+  console.log("🗂  Replacing all programs with 5 real service tracks...");
 
-  // Remove only demo programs (keep any that may have been manually added)
-  await db.execute(sql`TRUNCATE programs RESTART IDENTITY CASCADE`);
+  // Delete all existing programs; program_applications cascade via FK onDelete.
+  // Using DELETE (not TRUNCATE CASCADE) so FK triggers fire normally.
+  await db.execute(sql`DELETE FROM programs`);
 
   const week = 7 * 24 * 60 * 60 * 1000;
   const now = Date.now();
