@@ -27,6 +27,81 @@ async function clearNew() {
   }
 }
 
+export const REAL_STORIES = [
+  {
+    personName: "لينا أبو شريف",
+    role: "مؤسّسة ومصمّمة رئيسيّة",
+    quote: "آيلاند هيفن لم تعطِني مساحة فقط — أعطتني المنهج والمجتمع والجرأة لأطلق.",
+    story: "كانت لينا تعمل مستقلّة بمشاريع متفرّقة حين انضمت لبرنامج الاحتضان. ساعدها المرشدون على تحويل موهبتها في التصميم إلى عمل منظّم ومستدام. خلال أشهر قليلة أطلقت Lina Studio واكتسبت أوّل عملاءها المتكرّرين من شركات ناشئة في المنطقة. تُقدّم اليوم خدماتها لعدد من الشركات في دبي وغزّة، وتواصل توسيع فريقها تدريجيًّا.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=LA&backgroundColor=c0394b&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1541462608143-67571c6738dd?w=1200&h=600&fit=crop",
+    ventureName: "Lina Studio",
+    featured: true,
+    status: "published" as const,
+    sortOrder: 1,
+  },
+  {
+    personName: "يوسف القاضي",
+    role: "مؤسّس ومهندس رئيسيّ",
+    quote: "الحاضنة أعطتني إطارًا للتفكير، وشبكة للدعم — وهذا غيّر مسار مشروعي.",
+    story: "التحق يوسف ببرنامج الاحتضان وفي يده فكرة لتبسيط دفع الفواتير لفئات تجد صعوبة في استخدام التطبيقات التقليديّة. عمل مع مرشده على التحقّق من المشكلة أوّلًا قبل البناء. أطلق النسخة الأولى من Sahla بعد 4 أشهر وبدأ في اكتساب مستخدمين حقيقيّين من محيطه المحلّي. يواصل اليوم التطوير والتوسّع خطوة بخطوة.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=YQ&backgroundColor=2471a3&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=600&fit=crop",
+    ventureName: "Sahla",
+    featured: true,
+    status: "published" as const,
+    sortOrder: 2,
+  },
+  {
+    personName: "محمّد شعبان",
+    role: "مؤسّس MazadX",
+    quote: "من متدرّب إلى مؤسّس في 24 شهراً — هذا ليس حظّاً، هذا منهج آيلاند هيفن.",
+    story: "بدأ محمّد مسيرته في آيلاند هيفن متدرّبًا يتعلّم أساسيّات بناء المنتجات. تطوّرت مهاراته في تطوير تطبيقات الهاتف بشكل ملحوظ خلال السنة الأولى. في السنة الثانية قرّر بناء مشروعه الخاصّ MazadX — منصّة مزادات تناسب احتياجات السوق المحليّ. أطلق النسخة التجريبيّة وبدأ يتلقّى أوّل ملاحظات مستخدميه الحقيقيّين.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=MS&backgroundColor=117a65&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=1200&h=600&fit=crop",
+    ventureName: "MazadX",
+    featured: true,
+    status: "published" as const,
+    sortOrder: 3,
+  },
+  {
+    personName: "نور الفرّا",
+    role: "مديرة منتج — Pulse",
+    quote: "تعلّمت في آيلاند هيفن أن Product-Market Fit ليس رقمًا — هو محادثة مع مستخدم حقيقيّ.",
+    story: "جاءت نور بخبرة في إدارة المنتجات وفكرة لأداة تساعد الفرق الموزّعة على التنسيق. ساعدها مرشدو الحاضنة على تضييق نطاق الجمهور المستهدف وبناء نسخة بسيطة أوّلًا. انتقلت من مرحلة الورق إلى مرحلة المستخدمين الأوائل خلال فترة الاحتضان، وهي الآن تعمل على تحسين المنتج بناءً على ملاحظات مستخدمي Pulse الحاليّين.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=NF&backgroundColor=7d3c98&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=600&fit=crop",
+    ventureName: "Pulse",
+    featured: false,
+    status: "published" as const,
+    sortOrder: 4,
+  },
+  {
+    personName: "سلمى عاشور",
+    role: "مؤسّسة ContentArc",
+    quote: "في آيلاند هيفن تعلّمت أن الكلمات ليست مهنة — هي أداة بناء أعمال.",
+    story: "كانت سلمى تكتب المحتوى بالقطعة دون استراتيجيّة واضحة. خلال برنامج الحاضنة أدركت أنّ قيمتها الحقيقيّة تكمن في فهم جمهور المنتجات التقنيّة. أعادت تموضع خدماتها لتتخصّص في محتوى SaaS باللّغة العربيّة، وبنت ContentArc كوكالة صغيرة تخدم عملاء يحتاجون صوتًا عربيًّا أصيلًا في سوقهم.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=SA&backgroundColor=d35400&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&h=600&fit=crop",
+    ventureName: "ContentArc",
+    featured: false,
+    status: "published" as const,
+    sortOrder: 5,
+  },
+  {
+    personName: "أحمد المصري",
+    role: "باحث وصانع منتجات ذكاء اصطناعيّ",
+    quote: "الحاضنة أعطتني ما لا تعطيه الجامعة: مجتمعاً يفهم ما تبنيه ويتحدّاك كلّ أسبوع.",
+    story: "أحمد طالب ماجستير كان يعمل وحيدًا على بحثه في معالجة اللّغة العربيّة. حين انضمّ لآيلاند هيفن اكتشف أن بحثه يمكن أن يُترجَم لمنتج تجاريّ. بمساعدة المرشدين بنى نسخة أولى من araSum API وعرضها على عدد من المطوّرين للحصول على ملاحظاتهم. يعمل الآن على تحسين الدقّة والأداء استعدادًا لإطلاق النسخة المدفوعة.",
+    avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=AM&backgroundColor=1e8449&textColor=ffffff&fontFamily=Arial&fontSize=42",
+    coverUrl: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&h=600&fit=crop",
+    ventureName: "araSum API",
+    featured: false,
+    status: "published" as const,
+    sortOrder: 6,
+  },
+];
+
 async function seedStories() {
   const existing = await db.select({ id: successStoriesTable.id }).from(successStoriesTable).limit(1);
   if (existing.length > 0) {
@@ -34,80 +109,7 @@ async function seedStories() {
     return;
   }
   console.log("📖 Seeding success stories...");
-  await db.insert(successStoriesTable).values([
-    {
-      personName: "لينا أبو شريف",
-      role: "مؤسّسة ومصمّمة رئيسيّة",
-      quote: "آيلاند هيفن لم تعطِني مساحة فقط — أعطتني المنهج والمجتمع والجرأة لأطلق.",
-      story: "جاءت لينا لآيلاند هيفن وهي تعمل كمستقلّة بمشاريع متفرّقة. خلال 4 أشهر من الاحتضان، حوّلت هويّتها المهنيّة إلى استوديو تصميم يخدم شركات في 6 دول عربيّة. اليوم، Lina Studio يضمّ 3 مصمّمين وعملاء بين دبي وبرلين وغزّة.",
-      avatarUrl: "https://i.pravatar.cc/300?img=47",
-      coverUrl: "https://images.unsplash.com/photo-1541462608143-67571c6738dd?w=1200&h=600&fit=crop",
-      ventureName: "Lina Studio",
-      featured: true,
-      status: "published" as const,
-      sortOrder: 1,
-    },
-    {
-      personName: "يوسف القاضي",
-      role: "مؤسّس ومهندس رئيسيّ",
-      quote: "بنيت Sahla في غزّة وأخدم الآن 80,000 مستخدم في 3 دول — كلّ هذا ابتدأ من مكتب في آيلاند هيفن.",
-      story: "يوسف خرّيج هندسة حاسوب التحق ببرنامج الاحتضان بفكرة بسيطة: تمكين كبار السن من دفع الفواتير بصوتهم. خلال 18 شهراً داخل آيلاند، وصل إلى Product-Market Fit وأغلق جولة Pre-Seed بـ 300,000 دولار.",
-      avatarUrl: "https://i.pravatar.cc/300?img=12",
-      coverUrl: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=600&fit=crop",
-      ventureName: "Sahla",
-      featured: true,
-      status: "published" as const,
-      sortOrder: 2,
-    },
-    {
-      personName: "محمّد شعبان",
-      role: "مؤسّس MazadX",
-      quote: "من متدرّب إلى مؤسّس في 24 شهراً — هذا ليس حظّاً، هذا منهج آيلاند هيفن.",
-      story: "بدأ محمّد متدرّباً في برنامج Founders First. اليوم، تطبيقه MazadX للمزادات اللحظيّة يخدم 12,000 مستخدم نشط في 3 دول، وأغلق جولة استثمار بـ 150,000 دولار من مستثمرَين خليجيَّين.",
-      avatarUrl: "https://i.pravatar.cc/300?img=11",
-      coverUrl: "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=1200&h=600&fit=crop",
-      ventureName: "MazadX",
-      featured: true,
-      status: "published" as const,
-      sortOrder: 3,
-    },
-    {
-      personName: "نور الفرّا",
-      role: "مؤسّسة Pulse",
-      quote: "لم أكن أعرف أنّي أستطيع بناء SaaS من غزّة لعملاء في برلين ودبي — حتى دخلت آيلاند هيفن.",
-      story: "في 9 أسابيع فقط، انتقلت نور من فكرة على ورق إلى 1,200 مستخدم نشط و MRR قدره 8,000 دولار. الإرشاد المباشر وشبكة الحاضنة كانا الفارق الحاسم.",
-      avatarUrl: "https://i.pravatar.cc/300?img=44",
-      coverUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=600&fit=crop",
-      ventureName: "Pulse",
-      featured: false,
-      status: "published" as const,
-      sortOrder: 4,
-    },
-    {
-      personName: "سلمى عاشور",
-      role: "كاتبة محتوى وصانعة علامات",
-      quote: "في آيلاند هيفن تعلّمت أن الكلمات ليست مهنة — هي أداة بناء أعمال.",
-      story: "بدأت سلمى بكتابة محتوى بالقطعة. بعد الانضمام لبرنامج الحاضنة، أطلقت وكالة محتوى متخصّصة في علامات SaaS العربيّة. اليوم لديها 8 عملاء ثابتين وفريق من 3 كتّاب.",
-      avatarUrl: "https://i.pravatar.cc/300?img=49",
-      coverUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&h=600&fit=crop",
-      ventureName: "ContentArc",
-      featured: false,
-      status: "published" as const,
-      sortOrder: 5,
-    },
-    {
-      personName: "أحمد المصري",
-      role: "باحث ذكاء اصطناعي",
-      quote: "الحاضنة أعطتني ما لا تعطيه الجامعة: مجتمعاً يفهم ما تبنيه.",
-      story: "أحمد طالب ماجستير حوّل بحثه الأكاديميّ في معالجة اللغة العربيّة إلى منتج API تجاري. نموذجه araSum حصل على قبول في NeurIPS Workshop وأصبح قاعدة لشركة ناشئة تقنيّة.",
-      avatarUrl: "https://i.pravatar.cc/300?img=33",
-      coverUrl: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&h=600&fit=crop",
-      ventureName: "araSum API",
-      featured: false,
-      status: "published" as const,
-      sortOrder: 6,
-    },
-  ]);
+  await db.insert(successStoriesTable).values(REAL_STORIES);
   console.log("  ✓ 6 success stories seeded");
 }
 
@@ -362,7 +364,10 @@ async function main() {
   await pool.end();
 }
 
-main().catch((err) => {
-  console.error("❌ seed:new failed:", err);
-  process.exit(1);
-});
+const isMain = process.argv[1]?.endsWith("seed-new-tables.ts") || process.argv[1]?.endsWith("seed-new-tables.js");
+if (isMain) {
+  main().catch((err) => {
+    console.error("❌ seed:new failed:", err);
+    process.exit(1);
+  });
+}
