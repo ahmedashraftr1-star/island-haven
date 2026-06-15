@@ -5,6 +5,8 @@ import { ArrowLeft, Sparkles, Star, Clock } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 export interface ExpertCard {
   id: number;
@@ -27,12 +29,14 @@ export interface ExpertCard {
 }
 
 export default function Experts() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const p = I18N.pages.experts;
 
   useEffect(() => {
-    document.title = "خبراء آيلاند — Island Haven";
-  }, []);
+    document.title = lang === "en" ? "Island Haven Experts & Mentors" : "خبراء آيلاند — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,10 +56,10 @@ export default function Experts() {
   return (
     <PageShell
       active="experts"
-      eyebrow="إرشاد · خبرة · شبكة علاقات"
-      title="خبراء"
-      highlight="آيلاند"
-      subtitle="نخبة من المرشدين وروّاد الأعمال والمتخصّصين — احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع، ومشروعك إلى أثر."
+      eyebrow={t(p.eyebrow)}
+      title={t(p.title)}
+      highlight={t(p.highlight)}
+      subtitle={t(p.subtitle)}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -72,8 +76,8 @@ export default function Experts() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="سيُعلَن عن الخبراء قريبًا"
-          hint="نُجهّز شبكة من أفضل المرشدين لمجتمع آيلاند."
+          title={t(p.empty)}
+          hint={t(p.emptyHint)}
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -94,8 +98,9 @@ export default function Experts() {
 }
 
 function ExpertCardView({ e }: { e: ExpertCard }) {
+  const { lang } = useLanguage();
   const areas = splitTags(e.expertise).slice(0, 4);
-  const initials = e.fullName.trim().charAt(0) || "؟";
+  const initials = e.fullName.trim().charAt(0) || "?";
   return (
     <Link
       href={`/experts/${e.id}`}
@@ -105,7 +110,7 @@ function ExpertCardView({ e }: { e: ExpertCard }) {
       <GlassCard className="h-full flex flex-col p-6 hover:border-primary/40 transition-colors">
         {e.featured && (
           <div className="inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-            <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
+            <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> {lang === "en" ? "Featured" : "خبير مميّز"}
           </div>
         )}
         <div className="flex items-center gap-4 mb-4">
@@ -157,17 +162,17 @@ function ExpertCardView({ e }: { e: ExpertCard }) {
             {e.acceptingSessions ? (
               <>
                 <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                <span className="text-emerald-200/80">يستقبل جلسات</span>
+                <span className="text-emerald-200/80">{lang === "en" ? "Accepting sessions" : "يستقبل جلسات"}</span>
               </>
             ) : (
               <>
                 <Clock className="w-3.5 h-3.5" />
-                <span>غير متاح حاليًا</span>
+                <span>{lang === "en" ? "Not available" : "غير متاح حاليًا"}</span>
               </>
             )}
           </span>
           <span className="inline-flex items-center gap-1 text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
-            الملف الكامل
+            {lang === "en" ? "Full Profile" : "الملف الكامل"}
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
           </span>
         </div>

@@ -11,6 +11,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 interface Investor {
   id: number;
@@ -24,13 +26,13 @@ interface Investor {
   sortOrder: number;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  lead: "مستثمر رئيسي",
-  angel: "مستثمر ملاك",
-  vc: "صندوق رأس مال مخاطر",
-  corporate: "شراكة مؤسسية",
-  ngo: "منظمة دولية",
-  individual: "مانح فردي",
+const TYPE_LABELS_AR: Record<string, string> = {
+  lead: "مستثمر رئيسي", angel: "مستثمر ملاك", vc: "صندوق رأس مال مخاطر",
+  corporate: "شراكة مؤسسية", ngo: "منظمة دولية", individual: "مانح فردي",
+};
+const TYPE_LABELS_EN: Record<string, string> = {
+  lead: "Lead Investor", angel: "Angel Investor", vc: "Venture Capital",
+  corporate: "Corporate Partner", ngo: "International NGO", individual: "Individual Donor",
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -42,30 +44,11 @@ const TYPE_COLORS: Record<string, string> = {
   individual: "bg-white/10 text-white/50 border-white/10",
 };
 
-const WHY_ITEMS = [
-  {
-    icon: Globe,
-    title: "وصول لسوق غير مستغَل",
-    desc: "غزة سوق ناشئة بقاعدة شبابية هائلة وحاجة حقيقية للتكنولوجيا. المستثمرون الباكرون يدخلون بميزة تنافسية لا تُضاهى.",
-  },
-  {
-    icon: Users,
-    title: "رواد أعمال متحمّسون ومدرَّبون",
-    desc: "نختار بعناية ونُدرّب منتسبينا على أعلى المعايير. مشاريعنا تُبنى لتدوم وتنمو.",
-  },
-  {
-    icon: TrendingUp,
-    title: "أثر مضاعف وعوائد حقيقية",
-    desc: "استثمارك لا يُدرّ عوائداً مالية فحسب — بل يبني اقتصاداً، يخلق وظائف، ويُغيّر مسار مجتمع بأكمله.",
-  },
-  {
-    icon: Lightbulb,
-    title: "شبكة محليّة ودولية",
-    desc: "انضم لشبكة من المستثمرين والشركاء الذين يؤمنون بقدرة الإنسان الغزاوي على الابتكار.",
-  },
-];
+const WHY_ICONS = [Globe, Users, TrendingUp, Lightbulb];
 
 export default function Investors() {
+  const { lang, t } = useLanguage();
+  const p = I18N.pages.investors;
   const { data, isLoading } = useQuery({
     queryKey: ["investors"],
     queryFn: () => api<{ investors: Investor[] }>("/investors"),
@@ -76,20 +59,21 @@ export default function Investors() {
 
   return (
     <PageShell
-      eyebrow="Investors & Sponsors · الداعمون والمستثمرون"
-      title="ابنِ معنا غزّة الجديدة"
-      subtitle="نبحث عن شركاء يؤمنون بأنّ الاستثمار في الإنسان هو أعلى عوائد."
+      eyebrow={t(p.eyebrow)}
+      title={t(p.title)}
+      highlight={t(p.highlight)}
+      subtitle={t(p.subtitle)}
     >
       <div className="space-y-16">
         {/* Why Invest */}
         <section>
           <div className="text-center mb-10">
-            <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-2">Why Invest</div>
-            <h2 className="text-[26px] font-black text-white">لماذا تستثمر في آيلاند؟</h2>
+            <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-2">{lang === "en" ? "Why Invest" : "لماذا تستثمر"}</div>
+            <h2 className="text-[26px] font-black text-white">{lang === "en" ? "Why Invest in Island Haven?" : "لماذا تستثمر في آيلاند؟"}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {WHY_ITEMS.map((item, i) => {
-              const Icon = item.icon;
+            {p.whyItems.map((item, i) => {
+              const Icon = WHY_ICONS[i] ?? Globe;
               return (
                 <motion.div
                   key={i}
@@ -102,8 +86,8 @@ export default function Investors() {
                     <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="text-[16px] font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-[13.5px] text-white/50 leading-relaxed">{item.desc}</p>
+                    <h3 className="text-[16px] font-bold text-white mb-2">{t(item.title)}</h3>
+                    <p className="text-[13.5px] text-white/50 leading-relaxed">{t(item.desc)}</p>
                   </GlassCard>
                 </motion.div>
               );
@@ -151,7 +135,7 @@ export default function Investors() {
                         </div>
                       )}
                       <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[inv.type] ?? "bg-white/10 text-white/50 border-white/10"}`}>
-                        {TYPE_LABELS[inv.type] ?? inv.type}
+                        {(lang === "en" ? TYPE_LABELS_EN : TYPE_LABELS_AR)[inv.type] ?? inv.type}
                       </span>
                     </div>
 
@@ -197,11 +181,10 @@ export default function Investors() {
               <TrendingUp className="w-7 h-7 text-primary" />
             </div>
             <h3 className="text-[24px] font-black text-white mb-3">
-              مستعدّ للاستثمار في المستقبل؟
+              {t(p.investTitle)}
             </h3>
             <p className="text-[14px] text-white/50 max-w-lg mx-auto mb-7 leading-relaxed">
-              سواء كنت مستثمراً ملاكاً أو مؤسسة أو شركة تبحث عن أثر حقيقي — نريد أن نسمع منك.
-              تواصل معنا وسنشاركك كل ما تحتاجه.
+              {t(p.investBody)}
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <a
@@ -209,7 +192,7 @@ export default function Investors() {
                 className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
               >
                 <Mail className="w-4 h-4" />
-                راسلنا الآن
+                {t(p.contactBtn)}
               </a>
               <a
                 href="https://wa.me/972567536815"
@@ -217,7 +200,7 @@ export default function Investors() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-white/15 text-white/70 font-medium text-[14px] hover:border-white/30 hover:text-white transition-all"
               >
-                واتساب
+                WhatsApp
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </a>
             </div>

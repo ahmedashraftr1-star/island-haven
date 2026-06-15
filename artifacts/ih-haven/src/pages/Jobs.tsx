@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 import {
   Briefcase,
   MapPin,
@@ -129,6 +131,8 @@ function JobCard({ job, index }: { job: Job; index: number }) {
 }
 
 export default function Jobs() {
+  const { lang, t } = useLanguage();
+  const jp = I18N.pages.jobs;
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
 
@@ -154,9 +158,10 @@ export default function Jobs() {
 
   return (
     <PageShell
-      eyebrow="Jobs Board · لوحة الوظائف"
-      title="فرص في النظام البيئي"
-      subtitle="وظائف وفرص من مشاريع وشركاء آيلاند هيفن — في قلب غزة وعن بُعد."
+      eyebrow={t(jp.eyebrow)}
+      title={t(jp.title)}
+      highlight={t(jp.highlight)}
+      subtitle={t(jp.subtitle)}
     >
       <div className="space-y-7">
         {/* Search + Filters */}
@@ -167,7 +172,7 @@ export default function Jobs() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث عن وظيفة أو شركة..."
+              placeholder={t(jp.searchPlaceholder)}
               className="w-full h-12 pr-11 pl-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
             />
           </div>
@@ -197,7 +202,7 @@ export default function Jobs() {
         {/* Count */}
         {!isLoading && (
           <div className="text-[13px] text-white/35">
-            {filtered.length} وظيفة متاحة
+            {filtered.length} {lang === "en" ? "jobs available" : "وظيفة متاحة"}
           </div>
         )}
 
@@ -214,8 +219,8 @@ export default function Jobs() {
         {!isLoading && filtered.length === 0 && (
           <div className="text-center py-20">
             <Briefcase className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/40 text-[15px] mb-2">لا وظائف متاحة حالياً</p>
-            <p className="text-white/25 text-[13px]">ارجع لاحقاً أو تابعنا للبقاء على اطّلاع.</p>
+            <p className="text-white/40 text-[15px] mb-2">{t(jp.empty)}</p>
+            <p className="text-white/25 text-[13px]">{lang === "en" ? "Check back later or follow us to stay updated." : "ارجع لاحقاً أو تابعنا للبقاء على اطّلاع."}</p>
           </div>
         )}
 

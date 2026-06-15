@@ -7,6 +7,8 @@ import { useAuth } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { NavRail } from "@/components/nav/NavRail";
 import { NotificationBell } from "@/components/shell/NotificationBell";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LangToggle } from "@/components/nav/LangToggle";
 
 export function PageShell({
   eyebrow,
@@ -27,10 +29,11 @@ export function PageShell({
   active?: string;
 }) {
   const { user, loading } = useAuth();
+  const { dir, lang } = useLanguage();
 
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
@@ -59,6 +62,7 @@ export function PageShell({
           </nav>
 
           <div className="flex items-center gap-2">
+            <LangToggle tone="onDark" />
             {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (
               <Link
@@ -76,7 +80,7 @@ export function PageShell({
                 data-testid="link-login"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                دخول
+                {lang === "en" ? "Login" : "دخول"}
               </Link>
             ) : null}
           </div>

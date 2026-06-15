@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { NAV_ITEMS, isNavActive } from "./navConfig";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * The shared primary navigation rail — one component, rendered identically on
@@ -20,12 +21,14 @@ export function NavRail({
   pillId?: string;
 }) {
   const [loc] = useLocation();
+  const { lang } = useLanguage();
   const onLight = tone === "onLight";
 
   return (
     <>
       {NAV_ITEMS.map((item) => {
         const active = isNavActive(loc, item.href);
+        const label = lang === "en" ? item.en : item.label;
         return (
           <Link
             key={item.href}
@@ -54,7 +57,7 @@ export function NavRail({
                 transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.7 }}
               />
             )}
-            <span className="relative">{item.label}</span>
+            <span className="relative">{label}</span>
           </Link>
         );
       })}

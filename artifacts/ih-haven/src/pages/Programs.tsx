@@ -10,6 +10,8 @@ import {
   PROGRAM_STATUS_LABELS,
   type ProgramStatus,
 } from "@/lib/labels";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 export interface ProgramRow {
   id: number;
@@ -26,12 +28,14 @@ export interface ProgramRow {
 }
 
 export default function Programs() {
+  const { lang, t } = useLanguage();
+  const p = I18N.pages.programs;
   const [rows, setRows] = useState<ProgramRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "برامج الاحتضان — Island Haven";
-  }, []);
+    document.title = lang === "en" ? "Incubation Programs — Island Haven" : "برامج الاحتضان — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,7 +44,7 @@ export default function Programs() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(e instanceof ApiError ? e.message : t(p.loadError)),
       );
     return () => {
       cancelled = true;
@@ -50,10 +54,10 @@ export default function Programs() {
   return (
     <PageShell
       active="programs"
-      eyebrow="احتضان · تسريع · نموّ"
-      title="برامج"
-      highlight="الاحتضان"
-      subtitle="مسارات احتضان وتسريع منظَّمة تأخذ مشروعك من الفكرة إلى الإطلاق — إرشاد، موارد، وشبكة علاقات في قلب غزّة."
+      eyebrow={t(p.eyebrow)}
+      title={t(p.title)}
+      highlight={t(p.highlight)}
+      subtitle={t(p.subtitle)}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -70,19 +74,19 @@ export default function Programs() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا توجد برامج منشورة بعد"
-          hint="ترقّب الإعلان عن أوّل دفعة احتضان قريبًا."
+          title={t(p.empty)}
+          hint={t(p.emptyHint)}
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-5">
-          {rows?.map((p, i) => (
+          {rows?.map((prog, i) => (
             <motion.div
-              key={p.id}
+              key={prog.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.05 }}
             >
-              <ProgramCard p={p} />
+              <ProgramCard p={prog} />
             </motion.div>
           ))}
         </div>
@@ -92,6 +96,7 @@ export default function Programs() {
 }
 
 function ProgramCard({ p }: { p: ProgramRow }) {
+  const { lang } = useLanguage();
   const open = p.status === "open";
   return (
     <Link
@@ -148,17 +153,17 @@ function ProgramCard({ p }: { p: ProgramRow }) {
             {p.durationWeeks > 0 && (
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-primary/80" />
-                {p.durationWeeks} أسبوع
+                {p.durationWeeks} {lang === "en" ? "weeks" : "أسبوع"}
               </span>
             )}
             <span className="inline-flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-primary/80" />
-              {p.applicants} متقدّم
+              {p.applicants} {lang === "en" ? "applicants" : "متقدّم"}
             </span>
             {p.applyDeadline && (
               <span className="inline-flex items-center gap-1.5 col-span-2">
                 <CalendarDays className="w-3.5 h-3.5 text-primary/80" />
-                آخر موعد: {formatArabicDate(p.applyDeadline)}
+                {lang === "en" ? "Deadline:" : "آخر موعد:"} {formatArabicDate(p.applyDeadline)}
               </span>
             )}
           </div>

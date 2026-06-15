@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 interface Story {
   id: number;
@@ -152,6 +154,8 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
 }
 
 export default function Stories() {
+  const { lang, t } = useLanguage();
+  const p = I18N.pages.stories;
   const { data, isLoading } = useQuery({
     queryKey: ["stories"],
     queryFn: () => api<{ stories: Story[] }>("/stories"),
@@ -162,10 +166,10 @@ export default function Stories() {
 
   return (
     <PageShell
-      eyebrow="Success Stories"
-      title="قصص النجاح"
-      highlight="النجاح"
-      subtitle="أشخاص من قلب غزة بنوا مشاريعهم من الصفر — هذه قصصهم."
+      eyebrow={t(p.eyebrow)}
+      title={t(p.title)}
+      highlight={t(p.highlight)}
+      subtitle={t(p.subtitle)}
     >
       <div className="space-y-12">
         {isLoading && (
@@ -179,7 +183,7 @@ export default function Stories() {
         {!isLoading && stories.length === 0 && (
           <div className="text-center py-24">
             <Quote className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/40 text-[15px]">لا قصص منشورة بعد.</p>
+            <p className="text-white/40 text-[15px]">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
           </div>
         )}
 
@@ -190,7 +194,7 @@ export default function Stories() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
-                  <span className="text-[13px] font-semibold text-white/50 tracking-widest uppercase">قصص مميّزة</span>
+                  <span className="text-[13px] font-semibold text-white/50 tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {stories.filter(s => s.featured).map((s, i) => (
@@ -205,7 +209,7 @@ export default function Stories() {
               {stories.some(s => s.featured) && (
                 <div className="flex items-center gap-3 mb-5">
                   <div className="h-px flex-1 bg-white/10" />
-                  <span className="text-[13px] font-semibold text-white/40 tracking-widest uppercase">كل القصص</span>
+                  <span className="text-[13px] font-semibold text-white/40 tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
               )}

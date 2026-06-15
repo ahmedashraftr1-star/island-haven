@@ -1,5 +1,7 @@
 import { Instagram, Linkedin, Facebook, Link as LinkIcon, ArrowLeft, Mail, Phone, MessageCircle } from "lucide-react";
 import { imageUrl, useContent, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 const FOOTER_FALLBACK = {
   logo: "/logo.png",
@@ -35,7 +37,25 @@ const CONTACT_FALLBACK = {
 };
 
 export function Footer() {
-  const c = useContentSection("footer", FOOTER_FALLBACK);
+  const { lang, t } = useLanguage();
+  const cms = useContentSection("footer", FOOTER_FALLBACK);
+  const c = lang === "en" ? {
+    ...cms,
+    colophonEyebrow: I18N.footer.colophon.en,
+    signOffA: I18N.footer.signOffA.en,
+    signOffAccent: I18N.footer.signOffAccent.en,
+    signOffB: I18N.footer.signOffB.en,
+    estLabel: I18N.footer.estLabel.en,
+    placeLabel: I18N.footer.placeLabel.en,
+    aboutBody: I18N.footer.aboutBody.en,
+    indexLabel: I18N.footer.indexLabel.en,
+    contactLabel: I18N.footer.contactLabel.en,
+    programmeLabel: I18N.footer.programmeLabel.en,
+    programmeTitle: I18N.footer.programmeTitle.en,
+    programmeBody: I18N.footer.programmeBody.en,
+    bottomCopy: I18N.footer.copyright.en,
+    bottomTag: I18N.footer.builtWith.en,
+  } : cms;
   const contact = useContentSection("contact", CONTACT_FALLBACK);
   const { data } = useContent();
   const heroEyebrow = data?.content.hero?.eyebrow;
@@ -47,19 +67,8 @@ export function Footer() {
     { label: "Linktree", icon: LinkIcon, href: contact.linktree },
   ].filter((s) => s.href);
 
-  const index: Array<[string, string]> = [
-    ["/about", "من نحن"],
-    ["/programs", "البرامج"],
-    ["/stories", "قصص النجاح"],
-    ["/jobs", "الوظائف"],
-    ["/investors", "المستثمرون"],
-    ["/alumni", "الخرّيجون"],
-    ["/process", "كيف نعمل"],
-    ["/faq", "الأسئلة الشائعة"],
-    ["/ventures", "المشاريع"],
-    ["/experts", "الخبراء"],
-    ["/apply", "انتسب الآن"],
-  ];
+  const indexEntries = Object.entries(I18N.footerIndex) as Array<[keyof typeof I18N.footerIndex, { ar: string; en: string }]>;
+  const index: Array<[string, string]> = indexEntries.map(([href, bi]) => [href, t(bi)]);
 
   return (
     <footer className="relative bg-muted/40 border-t border-border pt-20 pb-10">
@@ -209,7 +218,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-primary font-semibold hover:underline underline-offset-4 w-fit"
                 >
-                  {contact.nas2nas.replace(/^https?:\/\//, "")} · للتبرّع
+                  {contact.nas2nas.replace(/^https?:\/\//, "")} · {t(I18N.footer.donate)}
                   <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
               )}

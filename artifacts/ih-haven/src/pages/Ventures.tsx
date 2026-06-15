@@ -5,6 +5,8 @@ import { ArrowLeft, Users, Star } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 interface Venture {
   id: number;
@@ -23,12 +25,14 @@ interface Venture {
 }
 
 export default function Ventures() {
+  const { lang, t } = useLanguage();
+  const vp = I18N.landing.ventures;
   const [rows, setRows] = useState<Venture[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "المشاريع الناشئة — Island Haven";
-  }, []);
+    document.title = lang === "en" ? "Ventures — Island Haven" : "المشاريع الناشئة — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +41,7 @@ export default function Ventures() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(e instanceof ApiError ? e.message : (lang === "en" ? "Failed to load" : "تعذّر التحميل")),
       );
     return () => {
       cancelled = true;
@@ -47,10 +51,10 @@ export default function Ventures() {
   return (
     <PageShell
       active="ventures"
-      eyebrow="صُنِع في آيلاند"
-      title="المشاريع"
-      highlight="الناشئة"
-      subtitle="مشاريع وُلدت ونمت داخل مساحتنا — من فكرة على ورقة إلى منتجات تخدم النّاس وتصنع فرص عمل في غزّة."
+      eyebrow={t(vp.eyebrow)}
+      title={t(vp.title)}
+      highlight={t(vp.highlight)}
+      subtitle={t(vp.subtitle)}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -64,8 +68,8 @@ export default function Ventures() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="قريبًا — أوّل دفعة مشاريع"
-          hint="نعمل مع روّاد الأعمال على إطلاق مشاريعهم. تابعنا."
+          title={t(vp.empty)}
+          hint={t(vp.emptyHint)}
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

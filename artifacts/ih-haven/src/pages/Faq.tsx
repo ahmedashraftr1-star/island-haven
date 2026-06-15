@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { PageShell } from "@/components/shell/PageShell";
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 interface FaqItem { q: string; a: string; }
 interface FaqSection { title: string; en: string; items: FaqItem[]; }
@@ -116,13 +118,16 @@ function FaqItem({ item, index }: { item: FaqItem; index: number }) {
 }
 
 export default function Faq() {
+  const { lang, t } = useLanguage();
+  const p = I18N.pages.faq;
   const [activeSection, setActiveSection] = useState(0);
 
   return (
     <PageShell
-      eyebrow="FAQ · الأسئلة الشائعة"
-      title="كلّ ما تريد معرفته"
-      subtitle="إجابات واضحة لأكثر الأسئلة شيوعاً حول آيلاند هيفن ومساراتها الخمسة."
+      eyebrow={t(p.eyebrow)}
+      title={t(p.title)}
+      highlight={t(p.highlight)}
+      subtitle={t(p.subtitle)}
     >
       <div className="grid grid-cols-1 lg:grid-cols-[240px,1fr] gap-8 items-start">
         {/* Sidebar nav */}
@@ -137,7 +142,7 @@ export default function Faq() {
                   : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
               }`}
             >
-              {sec.title}
+              {lang === "en" ? sec.en : sec.title}
             </button>
           ))}
         </nav>
@@ -155,7 +160,7 @@ export default function Faq() {
                 {FAQ_DATA[activeSection].en}
               </div>
               <h2 className="text-[20px] font-bold text-white">
-                {FAQ_DATA[activeSection].title}
+                {lang === "en" ? FAQ_DATA[activeSection].en : FAQ_DATA[activeSection].title}
               </h2>
             </div>
             <div className="divide-y divide-white/[0.07]">
@@ -170,8 +175,8 @@ export default function Faq() {
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/[0.06] p-8 text-center">
         <MessageCircle className="w-10 h-10 text-primary/60 mx-auto mb-3" />
-        <h3 className="text-[18px] font-bold text-white mb-2">لم تجد إجابتك؟</h3>
-        <p className="text-[13.5px] text-white/50 mb-5">تواصل معنا مباشرة وسنرد عليك في أقرب وقت.</p>
+        <h3 className="text-[18px] font-bold text-white mb-2">{t(p.stillQuestion)}</h3>
+        <p className="text-[13.5px] text-white/50 mb-5">{lang === "en" ? "Contact us directly and we'll reply as soon as possible." : "تواصل معنا مباشرة وسنرد عليك في أقرب وقت."}</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <a
             href="https://wa.me/972567536815"
@@ -179,13 +184,13 @@ export default function Faq() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-white font-semibold text-[13px] hover:bg-primary/90 transition-colors"
           >
-            تواصل معنا عبر واتساب
+            {t(p.whatsapp)}
           </a>
           <Link
             href="/apply"
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/15 text-white/70 font-medium text-[13px] hover:border-white/30 hover:text-white transition-all"
           >
-            قدّم الآن
+            {lang === "en" ? "Apply Now" : "قدّم الآن"}
           </Link>
         </div>
       </div>
