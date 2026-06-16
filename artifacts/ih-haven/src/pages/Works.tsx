@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ExternalLink, Plus } from "lucide-react";
+import { ExternalLink, Plus, Heart, MessageCircle } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { useAuth, ROLE_LABELS, type UserRole } from "@/lib/auth";
@@ -23,6 +23,8 @@ interface WorkRow {
     role: UserRole;
     avatarUrl: string | null;
   };
+  likesCount?: number;
+  commentsCount?: number;
 }
 
 const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
@@ -245,6 +247,16 @@ function WorkCard({ row }: { row: WorkRow }) {
               <div className="text-white/45 text-[10.5px] tracking-[0.16em] uppercase">
                 {ROLE_LABELS[row.author.role]}
               </div>
+            </div>
+            <div className="ms-auto flex items-center gap-3 text-white/45 text-[11.5px] tabular-nums shrink-0">
+              <span className="inline-flex items-center gap-1" title="إعجابات">
+                <Heart className="w-3.5 h-3.5" />
+                {row.likesCount ?? 0}
+              </span>
+              <span className="inline-flex items-center gap-1" title="تعليقات">
+                <MessageCircle className="w-3.5 h-3.5" />
+                {row.commentsCount ?? 0}
+              </span>
             </div>
           </div>
         </div>

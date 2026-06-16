@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import {
   db,
   worksTable,
@@ -63,7 +63,32 @@ router.get("/works", async (req, res) => {
       .limit(WORKS_PAGE_SIZE)
       .offset((page - 1) * WORKS_PAGE_SIZE);
 
-    res.json({ works: rows, total, page, totalPages });
+    // Batch the like/comment counts for just this page's works (one query each,
+    // grouped by work_id) instead of a per-row correlated subquery.
+    const ids = rows.map((r) => r.work.id);
+    const likeMap = new Map<number, number>();
+    const commentMap = new Map<number, number>();
+    if (ids.length > 0) {
+      const likeRows = await db
+        .select({ workId: worksLikesTable.workId, c: count() })
+        .from(worksLikesTable)
+        .where(inArray(worksLikesTable.workId, ids))
+        .groupBy(worksLikesTable.workId);
+      for (const r of likeRows) likeMap.set(r.workId, Number(r.c));
+      const commentRows = await db
+        .select({ workId: worksCommentsTable.workId, c: count() })
+        .from(worksCommentsTable)
+        .where(inArray(worksCommentsTable.workId, ids))
+        .groupBy(worksCommentsTable.workId);
+      for (const r of commentRows) commentMap.set(r.workId, Number(r.c));
+    }
+    const works = rows.map((r) => ({
+      ...r,
+      likesCount: likeMap.get(r.work.id) ?? 0,
+      commentsCount: commentMap.get(r.work.id) ?? 0,
+    }));
+
+    res.json({ works, total, page, totalPages });
   } catch (err) {
     logger.error({ err }, "GET /works failed");
     res.status(500).json({ error: "خطأ في الخادم" });
