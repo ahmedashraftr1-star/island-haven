@@ -157,14 +157,17 @@ export function GlassCard({
   children,
   className = "",
   testId,
+  onClick,
 }: {
   children: ReactNode;
   className?: string;
   testId?: string;
+  onClick?: () => void;
 }) {
   return (
     <div
       data-testid={testId}
+      onClick={onClick}
       className={`relative rounded-[24px] bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.6)] overflow-hidden ${className}`}
     >
       {children}

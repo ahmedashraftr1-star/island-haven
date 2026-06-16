@@ -150,7 +150,7 @@ export function requireUser(
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
-    .then(([row]) => {
+    .then(([row]: Array<{ status: string }>) => {
       if (!row) {
         res.status(401).json({ error: "الحساب غير موجود" });
         return;
@@ -186,7 +186,7 @@ export function optionalUser(
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
-    .then(([row]) => {
+    .then(([row]: Array<{ status: string }>) => {
       if (row && row.status !== "banned") {
         (req as Request & { userSession: UserSession }).userSession = session;
       }

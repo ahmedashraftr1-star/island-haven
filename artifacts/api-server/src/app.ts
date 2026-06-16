@@ -2,6 +2,8 @@ import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -12,6 +14,38 @@ const app: Express = express();
 // any client-supplied chain. This is the foundation for trustworthy rate
 // limiting on the public booking endpoint.
 app.set("trust proxy", 1);
+
+// ─── Security headers (helmet) ───────────────────────────────────────────────
+// Sets X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, etc.
+// Cross-Origin-Resource-Policy is set to cross-origin so the API can be
+// consumed by the Vite frontend and the Expo mobile app from different origins.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // API only — no HTML served
+  }),
+);
+
+// ─── Rate limiting ────────────────────────────────────────────────────────────
+// Strict limiter on auth endpoints (login, register, password reset) to block
+// brute-force and credential-stuffing attacks.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+  skipSuccessfulRequests: false,
+});
+
+// General limiter for all other API routes — prevents DDoS / scraping.
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 300,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+});
 
 app.use(
   pinoHttp({
@@ -32,6 +66,7 @@ app.use(
     },
   }),
 );
+
 // Restrict credentialed CORS to the explicit set of known app origins.
 // Reflecting arbitrary origins back (origin: true) would let any third-party
 // website make credentialed cross-origin requests to public write endpoints.
@@ -81,9 +116,16 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Limit body size to 2 MB to prevent oversized payload attacks.
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+
+// Apply strict rate limiting to auth routes, general limiter to everything else.
+app.use("/api/auth", authLimiter);
+app.use("/api/admin/auth", authLimiter);
+app.use("/api", generalLimiter);
 
 app.use("/api", router);
 

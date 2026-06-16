@@ -207,7 +207,7 @@ export default function AdminInvestors() {
               </Field>
             </div>
           </div>
-          <SaveBar saving={saving} onSave={onSave} onCancel={() => setEditing(null)} />
+          <SaveBar submitting={saving} isNew={editing === "new"} onClose={() => setEditing(null)} />
         </Modal>
       )}
     </div>

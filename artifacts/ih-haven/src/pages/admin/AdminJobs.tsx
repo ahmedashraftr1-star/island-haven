@@ -266,7 +266,7 @@ export default function AdminJobs() {
               <span className="text-[13px] text-foreground/70">وظيفة مميّزة</span>
             </label>
           </div>
-          <SaveBar saving={saving} onSave={onSave} onCancel={() => setEditing(null)} />
+          <SaveBar submitting={saving} isNew={editing === "new"} onClose={() => setEditing(null)} />
         </Modal>
       )}
     </div>
