@@ -22,6 +22,7 @@ import {
 import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
 import { notify } from "./notifications";
+import { prefAllows } from "./notificationPrefs";
 
 const router: IRouter = Router();
 
@@ -160,7 +161,9 @@ async function notifySessionConfirmed(row: {
         expert.fullName,
         row.topic,
       );
-      void sendEmail({ to: mentee.email, ...mail });
+      if (await prefAllows(row.menteeId, "emailSessions")) {
+        void sendEmail({ to: mentee.email, ...mail });
+      }
       void notify(row.menteeId, {
         type: "session_confirmed",
         title: "تأكّدت جلسة الإرشاد ✅",

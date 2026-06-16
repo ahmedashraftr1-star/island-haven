@@ -51,6 +51,36 @@ async function getOrCreatePrefs(userId: number) {
   return row;
 }
 
+// Channel defaults — must mirror notificationPrefsTable column defaults.
+const PREF_DEFAULTS = {
+  emailSessions: true,
+  emailPrograms: true,
+  emailDaily: false,
+  pushEnabled: true,
+} as const;
+
+export type PrefKey = keyof typeof PREF_DEFAULTS;
+
+/**
+ * Whether `userId` allows notifications on `key`'s channel. Used to gate
+ * fire-and-forget sends. Fail-open (returns true) on a lookup error so a
+ * transient DB hiccup never silently drops a session/program email.
+ */
+export async function prefAllows(userId: number, key: PrefKey): Promise<boolean> {
+  try {
+    const [row] = await db
+      .select({ value: notificationPrefsTable[key] })
+      .from(notificationPrefsTable)
+      .where(eq(notificationPrefsTable.userId, userId))
+      .limit(1);
+    if (!row) return PREF_DEFAULTS[key];
+    return row.value;
+  } catch (err) {
+    logger.error({ err, userId, key }, "prefAllows lookup failed");
+    return true;
+  }
+}
+
 // ─── Member endpoints ─────────────────────────────────────────────────────────
 
 router.get("/me/notification-prefs", requireUser, async (req, res) => {

@@ -5,8 +5,8 @@ import {
   type Response,
   type NextFunction,
 } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, pushTokensTable } from "@workspace/db";
+import { eq, sql, or, isNull } from "drizzle-orm";
+import { db, pushTokensTable, notificationPrefsTable } from "@workspace/db";
 import { z } from "zod";
 import { requireAdmin, readUserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
@@ -224,7 +224,21 @@ router.post("/admin/push/broadcast", requireAdmin, async (req: Request, res) => 
   }
   const { title, body, url } = parsed.data;
   try {
-    const rows = await db.select({ token: pushTokensTable.token }).from(pushTokensTable);
+    // Skip tokens whose owner turned push off. Anonymous tokens (no userId) and
+    // users without a prefs row keep the default-on behaviour (LEFT JOIN → null).
+    const rows = await db
+      .select({ token: pushTokensTable.token })
+      .from(pushTokensTable)
+      .leftJoin(
+        notificationPrefsTable,
+        eq(notificationPrefsTable.userId, pushTokensTable.userId),
+      )
+      .where(
+        or(
+          isNull(notificationPrefsTable.userId),
+          eq(notificationPrefsTable.pushEnabled, true),
+        ),
+      );
     const messages: ExpoPushMessage[] = rows
       .filter((r) => r.token.startsWith("ExponentPushToken[") || r.token.startsWith("ExpoPushToken["))
       .map((r) => ({

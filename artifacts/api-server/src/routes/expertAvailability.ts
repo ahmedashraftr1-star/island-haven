@@ -14,6 +14,7 @@ import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
 import { notify } from "./notifications";
+import { prefAllows } from "./notificationPrefs";
 
 const router: IRouter = Router();
 
@@ -174,7 +175,9 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
             expert.fullName,
             d.topic,
           );
-          await sendEmail({ to: user.email, ...mail });
+          if (await prefAllows(sessionRow.menteeId, "emailSessions")) {
+            await sendEmail({ to: user.email, ...mail });
+          }
           void notify(sessionRow.menteeId, {
             type: "session_confirmed",
             title: "تأكّدت جلسة الإرشاد ✅",

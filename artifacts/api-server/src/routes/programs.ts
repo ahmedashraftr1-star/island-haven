@@ -19,6 +19,7 @@ import {
 import { logger } from "../lib/logger";
 import { sendEmail, programAcceptedEmail } from "../lib/email";
 import { notify } from "./notifications";
+import { prefAllows } from "./notificationPrefs";
 
 const router: IRouter = Router();
 
@@ -375,7 +376,9 @@ router.patch(
           .limit(1);
         if (u && p) {
           const mail = programAcceptedEmail(u.fullName, p.title);
-          void sendEmail({ to: u.email, ...mail });
+          if (await prefAllows(row.userId, "emailPrograms")) {
+            void sendEmail({ to: u.email, ...mail });
+          }
           void notify(row.userId, {
             type: "program_accepted",
             title: "تمّ قبولك في البرنامج 🎉",
