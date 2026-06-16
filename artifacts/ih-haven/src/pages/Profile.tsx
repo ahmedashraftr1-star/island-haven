@@ -23,6 +23,7 @@ import {
   X,
   CalendarCheck,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import type { ExtraLink } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
@@ -104,6 +105,7 @@ function ProfileInner({
   const errRef = useRef<HTMLDivElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarDeleting, setAvatarDeleting] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -141,6 +143,29 @@ function ProfileInner({
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  }
+
+  async function handleAvatarDelete() {
+    if (avatarDeleting || avatarUploading) return;
+    setAvatarError(null);
+    setAvatarDeleting(true);
+    try {
+      const res = await fetch("/api/auth/me", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: null }),
+      });
+      if (!res.ok) {
+        throw new Error("تعذّر حذف الصورة");
+      }
+      const { user: updatedUser } = (await res.json()) as { user: AuthUser };
+      setUser(updatedUser);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "تعذّر حذف الصورة");
+    } finally {
+      setAvatarDeleting(false);
     }
   }
 
@@ -314,6 +339,23 @@ function ProfileInner({
                 <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#0A0E1A] border border-primary/40 text-primary text-[9.5px] tracking-[0.18em] uppercase font-bold">
                   {ROLE_LABELS[user.role]}
                 </div>
+                {user.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarDelete}
+                    disabled={avatarDeleting || avatarUploading}
+                    className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-[#0A0E1A] border border-red-500/40 text-red-400 hover:bg-red-500/15 hover:border-red-400 transition-colors flex items-center justify-center disabled:opacity-50"
+                    title="حذف الصورة الشخصيّة"
+                    aria-label="حذف الصورة الشخصيّة"
+                    data-testid="button-delete-avatar"
+                  >
+                    {avatarDeleting ? (
+                      <span className="w-3 h-3 rounded-full border border-red-400/40 border-t-red-400 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3 h-3" />
+                    )}
+                  </button>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-1.5">

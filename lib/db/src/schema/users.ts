@@ -127,7 +127,7 @@ export const updateProfileSchema = z.object({
     )
     .max(8, "روابط كثيرة")
     .optional(),
-  avatarUrl: z.string().trim().max(800).optional(),
+  avatarUrl: z.string().trim().max(800).nullable().optional(),
 });
 
 export type User = typeof usersTable.$inferSelect;
