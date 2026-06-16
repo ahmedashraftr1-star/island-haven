@@ -373,6 +373,19 @@ export const I18N = {
       title:    { ar: "نحن هنا",                          en: "We're Here" },
       highlight:{ ar: "من أجلك",                         en: "For You" },
     },
+    becomeMentor: {
+      eyebrow:  { ar: "كُن مرشدًا",                      en: "Become a Mentor" },
+      title:    { ar: "هل أنت خبير",                     en: "Are you an" },
+      highlight:{ ar: "أو متخصّص؟",                      en: "expert or specialist?" },
+      body:     {
+        ar: "شارك خبرتك مع جيل غزّاوي جديد — جلسة واحدة بإمكانها أن تغيّر مسار حياة كاملة. انضم إلى شبكة مرشدي آيلاند واترك أثرًا حقيقيًا.",
+        en: "Share your expertise with a new generation of Gazan talent — a single session can change an entire life's trajectory. Join the Island Haven mentor network and make a real impact.",
+      },
+      cta:      { ar: "سجّل كمرشد",                      en: "Become a Mentor" },
+      badge1:   { ar: "مجّانيّ تمامًا",                  en: "Completely Free" },
+      badge2:   { ar: "مرن — حدّد وقتك أنت",             en: "Flexible — on your schedule" },
+      badge3:   { ar: "أثر حقيقي",                       en: "Real Impact" },
+    },
   },
 } as const;
 
