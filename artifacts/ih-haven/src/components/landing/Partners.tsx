@@ -79,7 +79,7 @@ export function Partners() {
         {/* Partner cards */}
         <div className="flex flex-wrap items-stretch justify-center gap-5 sm:gap-6">
           {rows.map((p, i) => {
-            const showLogo = p.logoUrl && !imgErrors.has(p.id);
+            const showLogo = !!p.logoUrl && !imgErrors.has(p.id);
             return (
               <motion.div
                 key={p.id}
