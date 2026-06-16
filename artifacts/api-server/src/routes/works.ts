@@ -14,6 +14,7 @@ import { optionalUser, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
+import { awardBadgeByKey } from "./gamification";
 
 const router: IRouter = Router();
 
@@ -221,6 +222,8 @@ router.post("/works", requireUser, async (req, res) => {
       })
       .returning();
     invalidateNumbersCache();
+    // Auto-award the "first work" badge (idempotent; no-op if not minted).
+    void awardBadgeByKey(session.userId, "first_work");
     res.json({ work: row });
   } catch (err) {
     logger.error({ err }, "POST /works failed");

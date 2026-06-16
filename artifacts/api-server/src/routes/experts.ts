@@ -23,6 +23,7 @@ import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
 import { notify } from "./notifications";
 import { prefAllows } from "./notificationPrefs";
+import { awardBadgeByKey } from "./gamification";
 
 const router: IRouter = Router();
 
@@ -364,6 +365,8 @@ router.post("/experts/:id/sessions", requireUser, async (req, res) => {
       body: `طلب أحد المنتسبين جلسة حول «${d.topic}».`,
       link: "/expert/dashboard",
     });
+    // Auto-award the mentee the "active learner" badge for engaging mentorship.
+    void awardBadgeByKey(session.userId, "mentor_fan");
     res.json({ session: row });
   } catch (err) {
     logger.error({ err }, "POST /experts/:id/sessions failed");

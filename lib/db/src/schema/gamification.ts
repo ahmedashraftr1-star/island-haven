@@ -5,6 +5,7 @@ import {
   varchar,
   integer,
   index,
+  unique,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -34,6 +35,8 @@ export const userBadgesTable = pgTable(
   },
   (t) => ({
     userIdx: index("user_badges_user_idx").on(t.userId),
+    // One row per (user, badge) so auto-award can onConflictDoNothing safely.
+    userBadgeUniq: unique("user_badges_user_badge_unique").on(t.userId, t.badgeId),
   }),
 );
 

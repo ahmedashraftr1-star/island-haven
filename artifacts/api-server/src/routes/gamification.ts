@@ -10,8 +10,39 @@ import {
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { notify } from "./notifications";
 
 const router: IRouter = Router();
+
+/**
+ * Award the badge identified by `key` to a user, idempotently. No-op when the
+ * badge key isn't minted yet, so callers can reference future badges safely.
+ * Notifies the user only on a brand-new award. Fire-and-forget at call sites.
+ */
+export async function awardBadgeByKey(userId: number, key: string): Promise<void> {
+  try {
+    const [badge] = await db
+      .select({ id: badgesTable.id, name: badgesTable.name })
+      .from(badgesTable)
+      .where(eq(badgesTable.key, key))
+      .limit(1);
+    if (!badge) return;
+    const inserted = await db
+      .insert(userBadgesTable)
+      .values({ userId, badgeId: badge.id })
+      .onConflictDoNothing()
+      .returning({ id: userBadgesTable.id });
+    if (inserted.length === 0) return; // already earned — no duplicate, no re-notify
+    void notify(userId, {
+      type: "badge_awarded",
+      title: "حصلت على شارة جديدة 🏅",
+      body: `لقد حصلت على شارة «${badge.name}».`,
+      link: "/profile",
+    });
+  } catch (err) {
+    logger.error({ err, userId, key }, "awardBadgeByKey failed");
+  }
+}
 
 function badData(
   res: import("express").Response,

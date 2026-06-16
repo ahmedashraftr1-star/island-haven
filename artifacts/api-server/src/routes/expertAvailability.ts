@@ -15,6 +15,7 @@ import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
 import { notify } from "./notifications";
 import { prefAllows } from "./notificationPrefs";
+import { awardBadgeByKey } from "./gamification";
 
 const router: IRouter = Router();
 
@@ -154,6 +155,9 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
       return;
     }
     const { slot, session: sessionRow } = result.ok;
+
+    // Auto-award the mentee the "active learner" badge for booking a session.
+    void awardBadgeByKey(sessionRow.menteeId, "mentor_fan");
 
     // Best-effort confirmation email (don't block response on this).
     void (async () => {
