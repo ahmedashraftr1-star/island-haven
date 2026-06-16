@@ -22,6 +22,29 @@ const router: IRouter = Router();
 
 const WORKS_PAGE_SIZE = 18;
 
+// A work the caller may interact with (like/comment) — same visibility rule as
+// GET /works/:id: public only for visible works by active authors; the owner
+// always may. Returns the row (id, userId, …) or null (caller should 404).
+async function loadInteractableWork(id: number, userId: number | undefined) {
+  const [row] = await db
+    .select({
+      id: worksTable.id,
+      userId: worksTable.userId,
+      status: worksTable.status,
+      authorStatus: usersTable.status,
+    })
+    .from(worksTable)
+    .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+    .where(eq(worksTable.id, id))
+    .limit(1);
+  if (!row) return null;
+  const isOwner = userId !== undefined && row.userId === userId;
+  if (!isOwner && (row.status !== "visible" || row.authorStatus !== "active")) {
+    return null;
+  }
+  return row;
+}
+
 router.get("/works", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
@@ -182,8 +205,12 @@ router.get("/works/:id", optionalUser, async (req, res) => {
         .limit(1);
       likedByMe = !!liked;
     }
+    const [{ commentsCount }] = await db
+      .select({ commentsCount: count() })
+      .from(worksCommentsTable)
+      .where(eq(worksCommentsTable.workId, id));
 
-    res.json({ work: row.work, author, isOwner, likesCount, likedByMe });
+    res.json({ work: row.work, author, isOwner, likesCount, likedByMe, commentsCount });
   } catch (err) {
     logger.error({ err }, "GET /works/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -366,11 +393,7 @@ router.post("/works/:id/like", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    const [work] = await db
-      .select({ id: worksTable.id })
-      .from(worksTable)
-      .where(eq(worksTable.id, id))
-      .limit(1);
+    const work = await loadInteractableWork(id, session.userId);
     if (!work) {
       res.status(404).json({ error: "غير موجود" });
       return;
@@ -413,11 +436,8 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    const [work] = await db
-      .select({ userId: worksTable.userId })
-      .from(worksTable)
-      .where(eq(worksTable.id, id))
-      .limit(1);
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    const work = await loadInteractableWork(id, session?.userId);
     if (!work) {
       res.status(404).json({ error: "غير موجود" });
       return;
@@ -440,7 +460,6 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
       .orderBy(desc(worksCommentsTable.createdAt))
       .limit(200);
 
-    const session = (req as Request & { userSession?: UserSession }).userSession;
     const meId = session?.userId ?? null;
     const isWorkOwner = meId !== null && work.userId === meId;
     const comments = rows.map((c) => ({
@@ -471,11 +490,7 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
       res.status(400).json({ error: `الحد الأقصى ${COMMENT_MAX} حرف` });
       return;
     }
-    const [work] = await db
-      .select({ id: worksTable.id })
-      .from(worksTable)
-      .where(eq(worksTable.id, id))
-      .limit(1);
+    const work = await loadInteractableWork(id, session.userId);
     if (!work) {
       res.status(404).json({ error: "غير موجود" });
       return;

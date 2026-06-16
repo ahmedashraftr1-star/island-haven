@@ -55,6 +55,7 @@ interface DetailResp {
   isOwner: boolean;
   likesCount: number;
   likedByMe: boolean;
+  commentsCount: number;
 }
 
 interface WorkComment {
@@ -111,6 +112,7 @@ export default function WorkDetail() {
 
   // Comments
   const [comments, setComments] = useState<WorkComment[]>([]);
+  const [commentsCount, setCommentsCount] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
@@ -122,6 +124,7 @@ export default function WorkDetail() {
         setData(d);
         setLiked(d.likedByMe);
         setLikesCount(d.likesCount);
+        setCommentsCount(d.commentsCount);
       })
       .catch((e) =>
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
@@ -136,7 +139,7 @@ export default function WorkDetail() {
   async function toggleLike() {
     if (!id || liking) return;
     if (!user) {
-      navigate("/login");
+      navigate(`/login?next=/works/${id}`);
       return;
     }
     setLiking(true);
@@ -173,6 +176,7 @@ export default function WorkDetail() {
         body: JSON.stringify({ body }),
       });
       setComments((cs) => [r.comment, ...cs]);
+      setCommentsCount((c) => c + 1);
       setCommentText("");
     } catch (err) {
       setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
@@ -184,11 +188,14 @@ export default function WorkDetail() {
   async function deleteComment(commentId: number) {
     if (!id) return;
     const prev = comments;
+    const prevCount = commentsCount;
     setComments((cs) => cs.filter((c) => c.id !== commentId));
+    setCommentsCount((c) => Math.max(0, c - 1));
     try {
       await api(`/works/${id}/comments/${commentId}`, { method: "DELETE" });
     } catch {
       setComments(prev);
+      setCommentsCount(prevCount);
     }
   }
 
@@ -335,7 +342,7 @@ export default function WorkDetail() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white/75 text-[13px] font-semibold hover:bg-white/[0.1] transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="tabular-nums">{comments.length}</span>
+                <span className="tabular-nums">{commentsCount}</span>
                 <span className="sr-only">تعليق</span>
               </a>
             </div>
@@ -425,7 +432,7 @@ export default function WorkDetail() {
         <div id="comments">
           <GlassCard className="p-6 sm:p-8">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" /> التعليقات — {comments.length}
+              <MessageCircle className="w-4 h-4" /> التعليقات — {commentsCount}
             </div>
 
             {user ? (
@@ -435,6 +442,7 @@ export default function WorkDetail() {
                   onChange={(e) => setCommentText(e.target.value)}
                   rows={3}
                   maxLength={1000}
+                  aria-label="تعليقك"
                   placeholder="شاركنا رأيك في هذا العمل…"
                   className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 placeholder:text-white/35"
                   data-testid="input-comment"
