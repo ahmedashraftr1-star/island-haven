@@ -421,6 +421,29 @@ export async function getFlag(key: SettingFlag): Promise<boolean> {
   }
 }
 
+const ADMIN_EMAIL_DB_KEY = "setting.admin_email";
+
+export async function getAdminEmail(): Promise<string | null> {
+  try {
+    const [row] = await db
+      .select()
+      .from(siteSettingsTable)
+      .where(eq(siteSettingsTable.key, ADMIN_EMAIL_DB_KEY))
+      .limit(1);
+    if (row) {
+      const v = row.value as unknown;
+      if (typeof v === "string" && v.length > 0) return v;
+      if (typeof v === "object" && v !== null && "value" in v) {
+        const inner = (v as { value: unknown }).value;
+        if (typeof inner === "string" && inner.length > 0) return inner;
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return process.env.ADMIN_EMAIL ?? null;
+}
+
 router.get("/admin/settings", requireAdmin, async (_req, res) => {
   try {
     const out: Array<{ key: SettingFlag; label: string; value: boolean }> = [];
@@ -433,6 +456,45 @@ router.get("/admin/settings", requireAdmin, async (_req, res) => {
     res.status(500).json({ error: "تعذّر التحميل" });
   }
 });
+
+// ─── ADMIN EMAIL SETTING (must be before the dynamic /:key route) ─────────────
+
+const adminEmailSchema = z.object({
+  value: z.string().email("بريد إلكتروني غير صالح").or(z.literal("")),
+});
+
+router.get("/admin/settings/admin-email", requireAdmin, async (_req, res) => {
+  try {
+    const email = await getAdminEmail();
+    res.json({ value: email ?? "" });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/settings/admin-email failed");
+    res.status(500).json({ error: "تعذّر التحميل" });
+  }
+});
+
+router.put("/admin/settings/admin-email", requireAdmin, async (req, res) => {
+  const parsed = adminEmailSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "بريد إلكتروني غير صالح" });
+    return;
+  }
+  try {
+    await db
+      .insert(siteSettingsTable)
+      .values({ key: ADMIN_EMAIL_DB_KEY, value: { value: parsed.data.value } })
+      .onConflictDoUpdate({
+        target: siteSettingsTable.key,
+        set: { value: { value: parsed.data.value }, updatedAt: new Date() },
+      });
+    res.json({ ok: true, value: parsed.data.value });
+  } catch (err) {
+    logger.error({ err }, "PUT /admin/settings/admin-email failed");
+    res.status(500).json({ error: "تعذّر الحفظ" });
+  }
+});
+
+// ─── BOOLEAN TOGGLE SETTINGS (dynamic /:key — keep after specific routes) ─────
 
 const setSettingSchema = z.object({ value: z.boolean() });
 

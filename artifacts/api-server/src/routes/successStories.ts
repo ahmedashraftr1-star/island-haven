@@ -10,6 +10,7 @@ import {
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, adminNewStoryEmail } from "../lib/email";
+import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
 const router: IRouter = Router();
@@ -117,7 +118,7 @@ router.post("/me/story", requireUser, async (req, res) => {
       .returning();
 
     // Notify admin about the new submission (fire-and-forget)
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = await getAdminEmail();
     if (adminEmail) {
       const adminUrl =
         (process.env.APP_URL ?? "https://islandhaven.io") +
@@ -126,7 +127,7 @@ router.post("/me/story", requireUser, async (req, res) => {
       void sendEmail({ to: adminEmail, ...mail });
     } else {
       logger.warn(
-        "ADMIN_EMAIL not set — new-story admin notification skipped",
+        "ADMIN_EMAIL not configured — new-story admin notification skipped",
       );
     }
 

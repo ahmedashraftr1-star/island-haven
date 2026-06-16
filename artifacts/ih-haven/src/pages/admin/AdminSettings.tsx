@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { AlertTriangle, Database } from "lucide-react";
+import { AlertTriangle, Database, Mail } from "lucide-react";
 
 interface Setting {
   key: string;
@@ -16,6 +16,12 @@ export default function AdminSettings() {
   const [pruneMsg, setPruneMsg] = useState<string | null>(null);
   const [totals, setTotals] = useState<{ users: number; works: number; courses: number; enrollments: number } | null>(null);
 
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminEmailDraft, setAdminEmailDraft] = useState("");
+  const [adminEmailBusy, setAdminEmailBusy] = useState(false);
+  const [adminEmailMsg, setAdminEmailMsg] = useState<string | null>(null);
+  const [adminEmailLoaded, setAdminEmailLoaded] = useState(false);
+
   async function reload() {
     try {
       const r = await api<{ settings: Setting[] }>("/admin/settings");
@@ -28,6 +34,14 @@ export default function AdminSettings() {
       setTotals(t);
     } catch {
       // non-critical
+    }
+    try {
+      const r = await api<{ value: string }>("/admin/settings/admin-email");
+      setAdminEmail(r.value);
+      setAdminEmailDraft(r.value);
+      setAdminEmailLoaded(true);
+    } catch {
+      setAdminEmailLoaded(true);
     }
   }
 
@@ -50,6 +64,23 @@ export default function AdminSettings() {
       setError(e instanceof ApiError ? e.message : "تعذّر الحفظ");
     } finally {
       setBusyKey(null);
+    }
+  }
+
+  async function saveAdminEmail() {
+    setAdminEmailBusy(true);
+    setAdminEmailMsg(null);
+    try {
+      await api("/admin/settings/admin-email", {
+        method: "PUT",
+        body: JSON.stringify({ value: adminEmailDraft.trim() }),
+      });
+      setAdminEmail(adminEmailDraft.trim());
+      setAdminEmailMsg("تم الحفظ");
+    } catch (e) {
+      setAdminEmailMsg(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+    } finally {
+      setAdminEmailBusy(false);
     }
   }
 
@@ -127,6 +158,42 @@ export default function AdminSettings() {
               </button>
             </div>
           ))
+        )}
+      </section>
+
+      <section className="rounded-2xl bg-white border border-border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Mail className="w-4 h-4 text-foreground/55" />
+          <h3 className="text-[14px] font-bold text-foreground">بريد الإشعارات الإداريّة</h3>
+        </div>
+        <p className="text-[12.5px] text-foreground/60 mb-4 leading-relaxed">
+          العنوان الذي تُرسَل إليه إشعارات المنصّة (طلبات الانتساب، القصص الجديدة…). إذا تُرِك فارغًا يُستخدَم متغيّر البيئة <span dir="ltr" className="font-mono">ADMIN_EMAIL</span>.
+        </p>
+        {!adminEmailLoaded ? (
+          <div className="text-[13px] text-foreground/45">جارِ التحميل…</div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="email"
+              placeholder="admin@example.com"
+              value={adminEmailDraft}
+              onChange={(e) => { setAdminEmailDraft(e.target.value); setAdminEmailMsg(null); }}
+              dir="ltr"
+              className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
+            />
+            <button
+              onClick={saveAdminEmail}
+              disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}
+              className="h-10 px-5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
+            >
+              {adminEmailBusy ? "جارِ الحفظ…" : "حفظ"}
+            </button>
+          </div>
+        )}
+        {adminEmailMsg && (
+          <p className={`text-[12.5px] mt-2 ${adminEmailMsg === "تم الحفظ" ? "text-emerald-700" : "text-rose-600"}`}>
+            {adminEmailMsg}
+          </p>
         )}
       </section>
 

@@ -30,6 +30,7 @@ import {
   adminMentorApplicationEmail,
 } from "../lib/email";
 import { notify } from "./notifications";
+import { getAdminEmail } from "./adminExtra";
 
 const router: IRouter = Router();
 
@@ -189,7 +190,7 @@ router.post("/experts/apply", async (req, res) => {
     void sendEmail({ to: email, ...mail });
 
     // Fire-and-forget admin notification
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = await getAdminEmail();
     if (adminEmail) {
       const appUrl =
         process.env.APP_URL ?? "https://islandhaven.replit.app";
@@ -202,7 +203,7 @@ router.post("/experts/apply", async (req, res) => {
     } else {
       logger.warn(
         { applicant: email },
-        "ADMIN_EMAIL not set — admin mentor-application notification skipped",
+        "ADMIN_EMAIL not configured — admin mentor-application notification skipped",
       );
     }
 
