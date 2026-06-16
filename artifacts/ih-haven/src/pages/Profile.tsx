@@ -9,6 +9,7 @@ import {
   PenLine,
   Phone,
   Plus,
+  Quote,
   Sparkles,
   User as UserIcon,
   Wrench,
@@ -634,12 +635,228 @@ function ProfileInner({
           {!editing && (
             <>
               <ChangePasswordSection />
+              <MyStorySection user={user} />
               <ActivitySections userId={user.id} />
             </>
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── My Story Section ────────────────────────────────────────────────────────
+
+interface MyStory {
+  id: number;
+  quote: string;
+  story: string;
+  ventureName: string;
+  projectUrl: string | null;
+  status: "draft" | "published" | "hidden";
+}
+
+function MyStorySection({ user }: { user: AuthUser }) {
+  const [open, setOpen] = useState(false);
+  const [myStory, setMyStory] = useState<MyStory | null | undefined>(undefined);
+  const [form, setForm] = useState({ quote: "", story: "", ventureName: "", projectUrl: "" });
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<{ story: MyStory | null }>("/me/story")
+      .then((r) => {
+        setMyStory(r.story);
+        if (r.story) {
+          setForm({
+            quote: r.story.quote,
+            story: r.story.story,
+            ventureName: r.story.ventureName,
+            projectUrl: r.story.projectUrl ?? "",
+          });
+        } else {
+          setForm({ quote: "", story: "", ventureName: "", projectUrl: "" });
+        }
+      })
+      .catch(() => setMyStory(null));
+  }, [user.id]);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (form.quote.trim().length < 10) {
+      setError("الاقتباس قصير جدًّا (10 أحرف كحدّ أدنى)");
+      return;
+    }
+    setSaving(true);
+    try {
+      const isEdit = myStory !== null && myStory !== undefined;
+      const r = await api<{ story: MyStory }>("/me/story", {
+        method: isEdit ? "PATCH" : "POST",
+        body: JSON.stringify({
+          quote: form.quote,
+          story: form.story,
+          ventureName: form.ventureName,
+          projectUrl: form.projectUrl || null,
+        }),
+      });
+      setMyStory(r.story);
+      setDone(true);
+      setTimeout(() => { setDone(false); setOpen(false); }, 2500);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر الإرسال");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const isLocked = myStory !== null && myStory !== undefined && myStory.status !== "draft";
+
+  const statusLabel: Record<string, string> = {
+    draft: "بانتظار المراجعة",
+    published: "منشورة",
+    hidden: "مخفيّة",
+  };
+  const statusColor: Record<string, string> = {
+    draft: "text-amber-300",
+    published: "text-emerald-400",
+    hidden: "text-white/40",
+  };
+
+  return (
+    <section className="mt-8">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 overflow-hidden">
+        <button
+          onClick={() => { setOpen(o => !o); setError(null); setDone(false); }}
+          className="w-full flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Quote className="w-4 h-4 text-white/50" />
+            <span className="text-[14px] font-semibold text-white">قصّتي في الحاضنة</span>
+            <span className="text-[11px] text-white/35 tracking-widest uppercase">My Story</span>
+            {myStory !== undefined && myStory !== null && (
+              <span className={`text-[11px] font-semibold ${statusColor[myStory.status] ?? "text-white/40"}`}>
+                · {statusLabel[myStory.status] ?? myStory.status}
+              </span>
+            )}
+          </div>
+          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/35"}`}>
+            {open ? "إغلاق" : myStory ? "تعديل" : "أضف قصّتك"}
+          </span>
+        </button>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5 pt-1 border-t border-white/10">
+                {myStory === undefined ? (
+                  <div className="py-6 text-center text-white/40 text-[13px]">جارٍ التحميل…</div>
+                ) : isLocked ? (
+                  <div className="py-4 space-y-3">
+                    <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-semibold">
+                      <CheckCircle2 className="w-4 h-4" />
+                      قصّتك منشورة في صفحة قصص النجاح
+                    </div>
+                    <div className="rounded-xl px-4 py-3 bg-white/[0.04] border border-white/10 text-white/65 text-[13px] leading-relaxed">
+                      "{myStory.quote}"
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={onSubmit} className="pt-3 space-y-4">
+                    {done && (
+                      <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-semibold py-2">
+                        <CheckCircle2 className="w-4 h-4" />
+                        تمّ إرسال قصّتك بنجاح — ستُراجَع قريبًا وتُنشَر!
+                      </div>
+                    )}
+                    {myStory !== null && (
+                      <div className="flex items-center gap-2 text-amber-300/80 text-[12px] px-1">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400/70" />
+                        قصّتك بانتظار مراجعة الإدارة — يمكنك تعديلها حتى ذلك الحين.
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <label className="text-[12px] font-semibold text-white/55">
+                        اقتباسك <span className="text-white/25 font-normal">Quote · مطلوب</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        maxLength={600}
+                        value={form.quote}
+                        onChange={e => setForm(f => ({ ...f, quote: e.target.value }))}
+                        placeholder="ما الذي أضافه آيلاند هيفن لمسيرتك؟ شارك تجربتك بإيجاز…"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/25"
+                        required
+                      />
+                      <div className="text-[10.5px] text-white/30 text-left">{form.quote.length}/600</div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[12px] font-semibold text-white/55">
+                        قصّتك كاملة <span className="text-white/25 font-normal">Full Story · اختياريّ</span>
+                      </label>
+                      <textarea
+                        rows={5}
+                        maxLength={8000}
+                        value={form.story}
+                        onChange={e => setForm(f => ({ ...f, story: e.target.value }))}
+                        placeholder="شارك رحلتك بشكل أوسع — ما واجهته، وما تعلّمته، وأين وصلت…"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/25"
+                      />
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[12px] font-semibold text-white/55">
+                          اسم مشروعك <span className="text-white/25 font-normal">اختياريّ</span>
+                        </label>
+                        <input
+                          value={form.ventureName}
+                          maxLength={200}
+                          onChange={e => setForm(f => ({ ...f, ventureName: e.target.value }))}
+                          placeholder="مثال: Tamkeen App"
+                          className="w-full h-11 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] outline-none focus:border-primary/60 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[12px] font-semibold text-white/55">
+                          رابط المشروع <span className="text-white/25 font-normal">اختياريّ</span>
+                        </label>
+                        <input
+                          dir="ltr"
+                          value={form.projectUrl}
+                          maxLength={800}
+                          onChange={e => setForm(f => ({ ...f, projectUrl: e.target.value }))}
+                          placeholder="https://…"
+                          className="w-full h-11 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] outline-none focus:border-primary/60 transition-all"
+                        />
+                      </div>
+                    </div>
+                    {error && (
+                      <div className="rounded-xl px-4 py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[13px]">
+                        {error}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="w-full h-11 rounded-xl bg-primary text-white font-bold text-[13.5px] disabled:opacity-50 transition-opacity"
+                    >
+                      {saving ? "جارٍ الإرسال…" : myStory ? "تحديث القصّة" : "إرسال قصّتي"}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
   );
 }
 

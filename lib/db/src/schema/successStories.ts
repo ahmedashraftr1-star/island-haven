@@ -28,12 +28,14 @@ export const successStoriesTable = pgTable(
     ventureName: varchar("venture_name", { length: 200 })
       .default("")
       .notNull(),
+    projectUrl: text("project_url"),
     featured: boolean("featured").default(false).notNull(),
     status: varchar("status", { length: 16 })
       .notNull()
       .$type<StoryStatus>()
       .default("draft"),
     sortOrder: integer("sort_order").default(0).notNull(),
+    submittedByUserId: integer("submitted_by_user_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -44,6 +46,7 @@ export const successStoriesTable = pgTable(
   (t) => ({
     statusIdx: index("success_stories_status_idx").on(t.status),
     featuredIdx: index("success_stories_featured_idx").on(t.featured),
+    submittedByIdx: index("success_stories_submitted_by_idx").on(t.submittedByUserId),
   }),
 );
 
@@ -58,9 +61,17 @@ export const upsertStorySchema = z.object({
   avatarUrl: z.string().trim().max(800).optional().nullable(),
   coverUrl: z.string().trim().max(800).optional().nullable(),
   ventureName: safeText(200).default(""),
+  projectUrl: z.string().trim().max(800).optional().nullable(),
   featured: z.boolean().default(false),
   status: z.enum(STORY_STATUSES).default("draft"),
   sortOrder: z.number().int().min(0).max(100000).default(0),
+});
+
+export const submitStorySchema = z.object({
+  quote: safeText(600).min(10, "الاقتباس قصير جدًّا"),
+  story: safeText(8000).default(""),
+  ventureName: safeText(200).default(""),
+  projectUrl: z.string().trim().max(800).optional().nullable(),
 });
 
 export type SuccessStory = typeof successStoriesTable.$inferSelect;

@@ -18,6 +18,7 @@ async function buildAll() {
     entryPoints: [
       path.resolve(artifactDir, "src/index.ts"),
       path.resolve(artifactDir, "src/seed/experts.ts"),
+      path.resolve(artifactDir, "src/seed/migrate-stories.ts"),
     ],
     platform: "node",
     bundle: true,
