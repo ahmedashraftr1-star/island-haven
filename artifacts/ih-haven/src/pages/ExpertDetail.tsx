@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Sparkles,
   Star,
@@ -10,6 +10,8 @@ import {
   Award,
   Languages as LanguagesIcon,
   CheckCircle2,
+  Users,
+  CalendarDays,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
@@ -18,13 +20,21 @@ import { useAuth } from "@/lib/auth";
 import { splitTags, SESSION_MODE_LABELS, type SessionMode } from "@/lib/labels";
 import type { ExpertCard } from "./Experts";
 
+const TEAM_LABELS: Record<string, string> = {
+  leadership: "فريق القيادة",
+  mentors: "فريق الإرشاد التقنيّ والمنتج",
+  advisors: "فريق الاستشارات والأعمال",
+};
+
 export default function ExpertDetail() {
   const [, params] = useRoute("/experts/:id");
   const [, navigate] = useLocation();
   const id = params?.id;
   const { user } = useAuth();
+  const reduce = useReducedMotion();
 
   const [expert, setExpert] = useState<ExpertCard | null>(null);
+  const [teamLabel, setTeamLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // session-request form
@@ -51,6 +61,22 @@ export default function ExpertDetail() {
       cancelled = true;
     };
   }, [id]);
+
+  // Derive which team this expert belongs to (by name) for a contextual chip.
+  useEffect(() => {
+    if (!expert) return;
+    let cancelled = false;
+    api<{ team: { fullName: string; group: string }[] }>("/team")
+      .then((r) => {
+        if (cancelled) return;
+        const m = r.team.find((t) => t.fullName.trim() === expert.fullName.trim());
+        setTeamLabel(m ? TEAM_LABELS[m.group] ?? null : null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [expert]);
 
   usePageMeta({
     title: expert?.fullName,
@@ -106,7 +132,11 @@ export default function ExpertDetail() {
   if (!expert) {
     return (
       <PageShell active="experts">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <BackLink href="/experts" label="كلّ الخبراء" />
+        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
+          <div className="h-[420px] rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+          <div className="h-[420px] rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        </div>
       </PageShell>
     );
   }
@@ -115,118 +145,166 @@ export default function ExpertDetail() {
   const langs = splitTags(expert.languages);
   const initials = expert.fullName.trim().charAt(0) || "؟";
 
+  const enter = (delay = 0) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 22 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const, delay },
+        };
+
   return (
     <PageShell active="experts">
       <BackLink href="/experts" label="كلّ الخبراء" />
 
-      <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
-        {/* Profile */}
-        <GlassCard className="p-6 sm:p-8">
-          {expert.featured && (
-            <div className="inline-flex items-center gap-1.5 mb-5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
-            </div>
-          )}
-          <div className="flex items-start gap-5 mb-6">
-            {expert.avatarUrl ? (
-              <img
-                src={expert.avatarUrl}
-                alt={expert.fullName}
-                className="w-24 h-24 rounded-3xl object-cover border border-white/10"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-4xl font-bold text-white/80">
-                {initials}
-              </div>
-            )}
-            <div className="min-w-0 pt-1">
-              <h1
-                className="font-bold text-white leading-tight mb-1"
-                style={{ fontSize: "clamp(1.5rem, 3.5vw, 2rem)" }}
-                data-testid="text-expert-name"
-              >
-                {expert.fullName}
-              </h1>
-              {expert.headline && (
-                <p className="text-primary/90 text-[14px] font-medium leading-snug">
-                  {expert.headline}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {expert.bio && (
-            <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
-              {expert.bio}
-            </div>
-          )}
-
-          {areas.length > 0 && (
-            <div className="mb-6">
-              <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-                مجالات الخبرة
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {areas.map((a) => (
-                  <span
-                    key={a}
-                    className="px-3 py-1 rounded-full text-[12px] font-medium bg-white/[0.05] text-white/75 border border-white/10"
-                  >
-                    {a}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[13px] text-white/70">
-            {expert.yearsExperience > 0 && (
-              <span className="inline-flex items-center gap-2">
-                <Award className="w-4 h-4 text-primary" />
-                {expert.yearsExperience}+ سنة خبرة
-              </span>
-            )}
-            {langs.length > 0 && (
-              <span className="inline-flex items-center gap-2">
-                <LanguagesIcon className="w-4 h-4 text-primary" />
-                {langs.join("، ")}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
-              جلسة ~{expert.sessionMinutes} دقيقة
+      <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 items-start">
+        {/* ── Profile — cinematic editorial header ── */}
+        <motion.div {...enter(0)}>
+          <GlassCard className="p-7 sm:p-9">
+            {/* Ambient brand glow + faint initial watermark */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -left-20 w-80 h-80 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, hsl(354 80% 55% / 0.14), transparent 70%)",
+              }}
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -bottom-10 -left-4 select-none font-black leading-none"
+              style={{
+                fontSize: "12rem",
+                color: "transparent",
+                WebkitTextStroke: "1.5px rgba(255,255,255,0.035)",
+              }}
+            >
+              {initials}
             </span>
-          </div>
 
-          {(expert.linkedinUrl || expert.websiteUrl) && (
-            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-white/[0.06]">
-              {expert.linkedinUrl && (
-                <a
-                  href={expert.linkedinUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
-                >
-                  <Linkedin className="w-4 h-4" /> LinkedIn
-                </a>
+            <div className="relative">
+              {expert.featured && (
+                <div className="inline-flex items-center gap-1.5 mb-5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
+                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
+                </div>
               )}
-              {expert.websiteUrl && (
-                <a
-                  href={expert.websiteUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
-                >
-                  <Globe className="w-4 h-4" /> الموقع
-                </a>
+
+              <div className="flex items-start gap-5 mb-6">
+                <div className="relative shrink-0">
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 rounded-3xl blur-xl"
+                    style={{ background: "hsl(354 80% 55% / 0.25)" }}
+                  />
+                  {expert.avatarUrl ? (
+                    <img
+                      src={expert.avatarUrl}
+                      alt={expert.fullName}
+                      className="relative w-28 h-28 rounded-3xl object-cover border border-white/15"
+                    />
+                  ) : (
+                    <div className="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-primary/40 to-primary/[0.06] border border-white/15 flex items-center justify-center text-[2.6rem] font-bold text-white/90">
+                      {initials}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 pt-1">
+                  <h1
+                    className="font-bold text-white leading-[1.1] mb-1.5"
+                    style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)", letterSpacing: "-0.02em" }}
+                    data-testid="text-expert-name"
+                  >
+                    {expert.fullName}
+                  </h1>
+                  {expert.headline && (
+                    <p className="text-primary/90 text-[14px] font-medium leading-snug">
+                      {expert.headline}
+                    </p>
+                  )}
+                  {teamLabel && (
+                    <span className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25">
+                      <Users className="w-3 h-3" /> {teamLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {expert.bio && (
+                <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
+                  {expert.bio}
+                </div>
+              )}
+
+              {areas.length > 0 && (
+                <div className="mb-6">
+                  <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
+                    مجالات الخبرة
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {areas.map((a) => (
+                      <span
+                        key={a}
+                        className="px-3 py-1 rounded-full text-[12px] font-medium bg-white/[0.05] text-white/75 border border-white/10"
+                      >
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2.5">
+                {expert.yearsExperience > 0 && (
+                  <Stat icon={<Award className="w-4 h-4 text-primary" />}>
+                    {expert.yearsExperience}+ سنة خبرة
+                  </Stat>
+                )}
+                {langs.length > 0 && (
+                  <Stat icon={<LanguagesIcon className="w-4 h-4 text-primary" />}>
+                    {langs.join("، ")}
+                  </Stat>
+                )}
+                <Stat icon={<Clock className="w-4 h-4 text-primary" />}>
+                  جلسة ~{expert.sessionMinutes} دقيقة
+                </Stat>
+              </div>
+
+              {(expert.linkedinUrl || expert.websiteUrl) && (
+                <div className="flex items-center gap-3 mt-6 pt-5 border-t border-white/[0.06]">
+                  {expert.linkedinUrl && (
+                    <a
+                      href={expert.linkedinUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
+                    >
+                      <Linkedin className="w-4 h-4" /> LinkedIn
+                    </a>
+                  )}
+                  {expert.websiteUrl && (
+                    <a
+                      href={expert.websiteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
+                    >
+                      <Globe className="w-4 h-4" /> الموقع
+                    </a>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </GlassCard>
+          </GlassCard>
+        </motion.div>
 
-        {/* Booking */}
-        <div className="space-y-5">
-          <OfficeHoursPicker expertId={Number(id)} expertName={expert.fullName} />
+        {/* ── Booking — sticky rail ── */}
+        <motion.div {...enter(0.1)} className="lg:sticky lg:top-6 space-y-5">
+          <OfficeHoursPicker
+            expertId={Number(id)}
+            expertName={expert.fullName}
+            reduce={!!reduce}
+          />
 
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
@@ -362,9 +440,18 @@ export default function ExpertDetail() {
               )}
             </AnimatePresence>
           </GlassCard>
-        </div>
+        </motion.div>
       </div>
     </PageShell>
+  );
+}
+
+function Stat({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-[12.5px] text-white/75">
+      {icon}
+      {children}
+    </span>
   );
 }
 
@@ -382,9 +469,11 @@ interface Slot {
 function OfficeHoursPicker({
   expertId,
   expertName,
+  reduce,
 }: {
   expertId: number;
   expertName: string;
+  reduce: boolean;
 }) {
   const [, navigate] = useLocation();
   const { user } = useAuth();
@@ -444,10 +533,31 @@ function OfficeHoursPicker({
   }
   if (slots.length === 0) return null;
 
+  // Group available slots by calendar day for a calendar-like picker.
+  const days: { key: string; label: string; slots: Slot[] }[] = [];
+  for (const s of slots) {
+    const d = new Date(s.startAt);
+    const key = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString("ar-EG-u-ca-gregory", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+    let day = days.find((x) => x.key === key);
+    if (!day) {
+      day = { key, label, slots: [] };
+      days.push(day);
+    }
+    day.slots.push(s);
+  }
+
   return (
     <GlassCard className="p-6">
-      <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-1">
-        مواعيد متاحة · Office Hours
+      <div className="flex items-center gap-2 mb-1">
+        <CalendarDays className="w-4 h-4 text-primary" />
+        <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
+          مواعيد متاحة · Office Hours
+        </div>
       </div>
       <p className="text-white/55 text-[12.5px] mb-4">
         احجز فورًا فترةً مفتوحة من تقويم {expertName}.
@@ -469,91 +579,98 @@ function OfficeHoursPicker({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-2 mb-4 max-h-[260px] overflow-y-auto pr-1">
-            {slots.map((s) => {
-              const start = new Date(s.startAt);
-              const end = new Date(s.endAt);
-              const dateLabel = start.toLocaleDateString("ar-EG", {
-                weekday: "short",
-                day: "numeric",
-                month: "long",
-              });
-              const timeLabel = `${start.toLocaleTimeString("ar-EG", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })} – ${end.toLocaleTimeString("ar-EG", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`;
-              const isPicked = picked?.id === s.id;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setPicked(s)}
-                  className={`w-full text-right rounded-xl px-3.5 py-2.5 border transition-colors ${
-                    isPicked
-                      ? "bg-primary/15 border-primary/45 text-white"
-                      : "bg-white/[0.04] border-white/10 text-white/80 hover:bg-white/[0.08]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13.5px] font-semibold">{dateLabel}</span>
-                    <span className="text-[11px] text-white/55">
-                      {s.mode === "online" ? "عن بُعد" : "في المساحة"}
-                    </span>
-                  </div>
-                  <div className="text-[12px] text-white/55 tabular-nums">
-                    {timeLabel}
-                  </div>
-                </button>
-              );
-            })}
+          <div className="space-y-4 mb-4 max-h-[320px] overflow-y-auto pr-1">
+            {days.map((day) => (
+              <div key={day.key}>
+                <div className="text-[12px] font-semibold text-white/80 mb-2">
+                  {day.label}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {day.slots.map((s) => {
+                    const start = new Date(s.startAt);
+                    const timeLabel = start.toLocaleTimeString("ar-EG", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const isPicked = picked?.id === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setPicked(s)}
+                        className={`group rounded-xl px-3.5 py-2 border transition-all tabular-nums ${
+                          isPicked
+                            ? "bg-primary/20 border-primary/50 text-white shadow-[0_10px_24px_-12px_rgba(220,38,55,0.6)]"
+                            : "bg-white/[0.04] border-white/10 text-white/80 hover:bg-white/[0.08] hover:border-white/20"
+                        } ${reduce ? "" : "hover:-translate-y-0.5"}`}
+                        aria-pressed={isPicked ? "true" : "false"}
+                      >
+                        <span className="block text-[13px] font-semibold">{timeLabel}</span>
+                        <span className="block text-[10px] text-white/45">
+                          {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {picked && (
-            <div className="space-y-3 pt-3 border-t border-white/[0.06]">
-              <label className="block">
-                <span className="block text-[11.5px] text-white/55 mb-1.5">
-                  موضوع الجلسة
-                </span>
-                <input
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  maxLength={200}
-                  placeholder="ماذا تريد أن نناقش؟"
-                  className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
-                />
-              </label>
-              <label className="block">
-                <span className="block text-[11.5px] text-white/55 mb-1.5">
-                  تفاصيل إضافيّة (اختياري)
-                </span>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={3}
-                  maxLength={2000}
-                  className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
-                />
-              </label>
-              {error && (
-                <div className="text-[12.5px] text-red-300">{error}</div>
-              )}
-              <button
-                type="button"
-                onClick={book}
-                disabled={busy}
-                className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          <AnimatePresence>
+            {picked && (
+              <motion.div
+                key="confirm"
+                initial={reduce ? false : { opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={reduce ? undefined : { opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
               >
-                <Sparkles className="w-4 h-4" />
-                {busy ? "…" : "تأكيد الحجز"}
-              </button>
-              <p className="text-white/40 text-[11px] text-center">
-                مَجّاني — يَصلك إيميل التأكيد فورًا.
-              </p>
-            </div>
-          )}
+                <div className="space-y-3 pt-3 border-t border-white/[0.06]">
+                  <label className="block">
+                    <span className="block text-[11.5px] text-white/55 mb-1.5">
+                      موضوع الجلسة
+                    </span>
+                    <input
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                      maxLength={200}
+                      placeholder="ماذا تريد أن نناقش؟"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="block text-[11.5px] text-white/55 mb-1.5">
+                      تفاصيل إضافيّة (اختياري)
+                    </span>
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={3}
+                      maxLength={2000}
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                    />
+                  </label>
+                  {error && (
+                    <div className="text-[12.5px] text-red-300">{error}</div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={book}
+                    disabled={busy}
+                    className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {busy ? "…" : "تأكيد الحجز"}
+                  </button>
+                  <p className="text-white/40 text-[11px] text-center">
+                    مَجّاني — يَصلك إيميل التأكيد فورًا.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </GlassCard>
