@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
+  Camera,
   CheckCircle2,
   Lock,
   LogOut,
@@ -101,6 +102,47 @@ function ProfileInner({
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
   const errRef = useRef<HTMLDivElement | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (avatarUploading) return;
+    setAvatarError(null);
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await fetch("/api/uploads/image", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        const d = await uploadRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error || "تعذّر رفع الصورة");
+      }
+      const { url } = (await uploadRes.json()) as { url: string };
+      const patchRes = await fetch("/api/auth/me", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: url }),
+      });
+      if (!patchRes.ok) {
+        throw new Error("تعذّر حفظ الصورة");
+      }
+      const { user: updatedUser } = (await patchRes.json()) as { user: AuthUser };
+      setUser(updatedUser);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "تعذّر رفع الصورة");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  }
 
   useEffect(() => {
     setForm({
@@ -234,9 +276,41 @@ function ProfileInner({
             />
             <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-7 text-center sm:text-right">
               <div className="relative shrink-0">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)]">
-                  {initials || <UserIcon className="w-10 h-10" />}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => !avatarUploading && avatarInputRef.current?.click()}
+                  className="group relative w-24 h-24 rounded-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                  title="تغيير الصورة الشخصيّة"
+                  aria-label="تغيير الصورة الشخصيّة"
+                  disabled={avatarUploading}
+                >
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={user.fullName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)]">
+                      {initials || <UserIcon className="w-10 h-10" />}
+                    </div>
+                  )}
+                  <div className={`absolute inset-0 flex items-center justify-center rounded-full transition-opacity ${avatarUploading ? "bg-black/60 opacity-100" : "bg-black/0 group-hover:bg-black/45 opacity-0 group-hover:opacity-100"}`}>
+                    {avatarUploading ? (
+                      <span className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-white drop-shadow" />
+                    )}
+                  </div>
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={handleAvatarChange}
+                  data-testid="input-avatar-file"
+                />
                 <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#0A0E1A] border border-primary/40 text-primary text-[9.5px] tracking-[0.18em] uppercase font-bold">
                   {ROLE_LABELS[user.role]}
                 </div>
@@ -281,6 +355,20 @@ function ProfileInner({
             </div>
           </motion.div>
 
+          <AnimatePresence>
+            {avatarError && (
+              <motion.div
+                key="avatar-err"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mb-5 rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-200 text-[13px] flex items-center gap-2"
+                role="alert"
+              >
+                {avatarError}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <AnimatePresence>
             {savedFlash && (
               <motion.div

@@ -87,7 +87,7 @@ router.post("/me/story", requireUser, async (req, res) => {
 
     // Fetch the member's name and job title from their profile
     const [user] = await db
-      .select({ fullName: usersTable.fullName, jobTitle: usersTable.jobTitle })
+      .select({ fullName: usersTable.fullName, jobTitle: usersTable.jobTitle, avatarUrl: usersTable.avatarUrl })
       .from(usersTable)
       .where(eq(usersTable.id, userId))
       .limit(1);
@@ -107,6 +107,7 @@ router.post("/me/story", requireUser, async (req, res) => {
         story: d.story,
         ventureName: d.ventureName,
         projectUrl: d.projectUrl ?? null,
+        avatarUrl: user.avatarUrl ?? null,
         status: "draft",
         featured: false,
         sortOrder: 0,

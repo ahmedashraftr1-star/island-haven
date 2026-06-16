@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import {
   db,
   usersTable,
+  successStoriesTable,
   registerUserSchema,
   loginUserSchema,
   updateProfileSchema,
@@ -262,6 +263,13 @@ router.patch("/auth/me", requireUser, async (req, res) => {
     if (!user) {
       res.status(404).json({ error: "غير موجود" });
       return;
+    }
+    // Sync avatarUrl to any story submitted by this user
+    if (parsed.data.avatarUrl !== undefined) {
+      await db
+        .update(successStoriesTable)
+        .set({ avatarUrl: parsed.data.avatarUrl ?? null, updatedAt: new Date() })
+        .where(eq(successStoriesTable.submittedByUserId, session.userId));
     }
     res.json({ user: toPublic(user) });
   } catch (err) {
