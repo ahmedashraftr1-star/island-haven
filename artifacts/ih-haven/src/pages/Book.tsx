@@ -25,7 +25,15 @@ import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-type Step = 0 | 1 | 2;
+type Step = 0 | 1 | 2 | 3;
+
+interface ExpertOption {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string;
+  acceptingSessions: boolean;
+}
 
 const TIME_SLOTS = [
   { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", icon: "☕" },
@@ -84,6 +92,13 @@ export default function Book() {
   const [error, setError] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [monthCursor, setMonthCursor] = useState<Date>(startOfMonth(new Date()));
+  const [experts, setExperts] = useState<ExpertOption[]>([]);
+
+  useEffect(() => {
+    api<{ experts: ExpertOption[] }>("/experts")
+      .then((r) => setExperts(r.experts))
+      .catch(() => {});
+  }, []);
 
   const [form, setForm] = useState({
     visitDate: "",
@@ -91,6 +106,7 @@ export default function Book() {
     purpose: "" as "" | (typeof PURPOSES)[number]["id"],
     attendees: 1,
     notes: "",
+    expertId: null as number | null,
     fullName: "",
     phone: "",
     email: "",
@@ -143,6 +159,7 @@ export default function Book() {
 
   const canStep1 = form.visitDate && form.timeSlot;
   const canStep2 = form.purpose && form.attendees >= 1;
+  const canStep3 = true;
   const canSubmit = canStep1 && canStep2 && form.fullName && form.phone;
 
   async function submit() {
@@ -227,8 +244,8 @@ export default function Book() {
           </h1>
           <p className="mt-5 text-white/65 text-[15px] leading-[1.85] max-w-xl mx-auto">
             {lang === "en"
-              ? "Pick a day and time slot, and we'll have your space ready. No login, no fees, no hassle — just three steps."
-              : "اختَر يومًا وفترة، وسنُجهّز لك مساحتك. لا حاجة لتسجيل دخول، ولا رسوم، ولا تعقيدات — فقط ثلاث خطوات."}
+              ? "Pick a day, time slot, and optionally an expert to meet. No login, no fees, no hassle — just four steps."
+              : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه اختياريًّا. لا حاجة لتسجيل دخول، ولا رسوم، ولا تعقيدات — فقط أربع خطوات."}
           </p>
         </div>
 
@@ -253,8 +270,11 @@ export default function Book() {
                   <StepTwo key="s1" form={form} update={update} />
                 )}
                 {step === 2 && (
+                  <StepExpert key="s2" form={form} update={update} experts={experts} />
+                )}
+                {step === 3 && (
                   <StepThree
-                    key="s2"
+                    key="s3"
                     form={form}
                     update={update}
                     issues={issues}
@@ -278,19 +298,24 @@ export default function Book() {
                   <ChevronRight className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   {lang === "en" ? "Back" : "السابق"}
                 </button>
-                {step < 2 ? (
+                {step < 3 ? (
                   <button
                     onClick={() =>
-                      setStep((s) => Math.min(2, s + 1) as Step)
+                      setStep((s) => Math.min(3, s + 1) as Step)
                     }
                     disabled={
                       (step === 0 && !canStep1) ||
-                      (step === 1 && !canStep2)
+                      (step === 1 && !canStep2) ||
+                      (step === 2 && !canStep3)
                     }
                     className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-next"
                   >
-                    {lang === "en" ? "Next" : "التالي"}
+                    {step === 2
+                      ? form.expertId
+                        ? lang === "en" ? "Next" : "التالي"
+                        : lang === "en" ? "Skip" : "تخطّ"
+                      : lang === "en" ? "Next" : "التالي"}
                     <ChevronLeft className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   </button>
                 ) : (
@@ -309,7 +334,10 @@ export default function Book() {
           </div>
 
           {/* Summary panel */}
-          <SummaryCard form={form} />
+          <SummaryCard
+            form={form}
+            expertName={experts.find((e) => e.id === form.expertId)?.fullName}
+          />
         </div>
       </div>
     </div>
@@ -336,8 +364,8 @@ function GlassPanel({ children }: { children: React.ReactNode }) {
 function Stepper({ step }: { step: Step }) {
   const { lang } = useLanguage();
   const items = lang === "en"
-    ? [{ n: 1, label: "Date" }, { n: 2, label: "Purpose" }, { n: 3, label: "Your info" }]
-    : [{ n: 1, label: "الموعد" }, { n: 2, label: "الهدف" }, { n: 3, label: "بياناتك" }];
+    ? [{ n: 1, label: "Date" }, { n: 2, label: "Purpose" }, { n: 3, label: "Expert" }, { n: 4, label: "Your info" }]
+    : [{ n: 1, label: "الموعد" }, { n: 2, label: "الهدف" }, { n: 3, label: "الخبير" }, { n: 4, label: "بياناتك" }];
   return (
     <div className="flex items-center justify-center gap-2 lg:gap-4">
       {items.map((it, i) => {
@@ -623,6 +651,84 @@ function StepTwo({
   );
 }
 
+function StepExpert({
+  form,
+  update,
+  experts,
+}: {
+  form: { expertId: number | null };
+  update: (k: any, v: any) => void;
+  experts: ExpertOption[];
+}) {
+  const { lang } = useLanguage();
+
+  return (
+    <StepShell
+      title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
+      hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
+    >
+      {experts.length === 0 && (
+        <p className="text-white/45 text-[13px]">
+          {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
+        </p>
+      )}
+      {experts.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {experts.map((e) => {
+            const selected = form.expertId === e.id;
+            const initials = e.fullName.trim().charAt(0) || "؟";
+            return (
+              <button
+                key={e.id}
+                onClick={() => update("expertId", selected ? null : e.id)}
+                data-testid={`expert-pick-${e.id}`}
+                className={`relative p-4 rounded-2xl text-right transition group ${
+                  selected
+                    ? "bg-primary/15 border border-primary/40 shadow-[0_8px_24px_-10px_rgba(220,38,55,0.4)]"
+                    : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
+                }`}
+              >
+                {selected && (
+                  <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
+                )}
+                <div className="flex flex-col items-center gap-2.5">
+                  {e.avatarUrl ? (
+                    <img
+                      src={e.avatarUrl}
+                      alt={e.fullName}
+                      className="w-14 h-14 rounded-xl object-cover border border-white/10"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-xl font-bold text-white/80">
+                      {initials}
+                    </div>
+                  )}
+                  <div className="w-full">
+                    <div className="text-[12.5px] font-semibold leading-snug line-clamp-1">
+                      {e.fullName}
+                    </div>
+                    {e.headline && (
+                      <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
+                        {e.headline}
+                      </div>
+                    )}
+                    {!e.acceptingSessions && (
+                      <div className="text-[10.5px] text-white/35 mt-1">
+                        {lang === "en" ? "Unavailable" : "غير متاح"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </StepShell>
+  );
+}
+
 function StepThree({
   form,
   update,
@@ -740,6 +846,7 @@ function Field({
 
 function SummaryCard({
   form,
+  expertName,
 }: {
   form: {
     visitDate: string;
@@ -747,7 +854,9 @@ function SummaryCard({
     purpose: string;
     attendees: number;
     fullName: string;
+    expertId: number | null;
   };
+  expertName?: string;
 }) {
   const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
@@ -806,6 +915,12 @@ function SummaryCard({
             icon={Users}
             label={lang === "en" ? "Attendees" : "الأشخاص"}
             value={String(form.attendees)}
+          />
+          <SummaryRow
+            icon={UserIcon}
+            label={lang === "en" ? "Expert" : "الخبير"}
+            value={expertName || (lang === "en" ? "None selected" : "لم يُختَر")}
+            placeholder={!form.expertId}
           />
           <SummaryRow
             icon={UserIcon}
