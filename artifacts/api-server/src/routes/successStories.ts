@@ -9,7 +9,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, adminNewStoryEmail } from "../lib/email";
+import { sendEmail, adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail } from "../lib/email";
 import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
@@ -264,6 +264,17 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
       badData(res, parsed.error);
       return;
     }
+
+    // Fetch the current story so we can detect a status transition
+    const [existing] = await db
+      .select({
+        status: successStoriesTable.status,
+        submittedByUserId: successStoriesTable.submittedByUserId,
+      })
+      .from(successStoriesTable)
+      .where(eq(successStoriesTable.id, id))
+      .limit(1);
+
     const [row] = await db
       .update(successStoriesTable)
       .set({ ...parsed.data, updatedAt: new Date() })
@@ -274,6 +285,35 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
       return;
     }
     res.json({ story: row });
+
+    // Notify the member if their story status changed to published or rejected
+    const newStatus = parsed.data.status;
+    if (
+      existing &&
+      newStatus &&
+      newStatus !== existing.status &&
+      (newStatus === "published" || newStatus === "rejected") &&
+      existing.submittedByUserId
+    ) {
+      const [member] = await db
+        .select({ email: usersTable.email, fullName: usersTable.fullName })
+        .from(usersTable)
+        .where(eq(usersTable.id, existing.submittedByUserId))
+        .limit(1);
+
+      if (member) {
+        const mail =
+          newStatus === "published"
+            ? storyPublishedEmail(member.fullName)
+            : storyRejectedEmail(member.fullName);
+        void sendEmail({ to: member.email, ...mail });
+      } else {
+        logger.warn(
+          { storyId: id, submittedByUserId: existing.submittedByUserId },
+          "story status changed but member not found — notification skipped",
+        );
+      }
+    }
   } catch (err) {
     logger.error({ err }, "PATCH /admin/stories/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });

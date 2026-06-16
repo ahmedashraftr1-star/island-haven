@@ -311,6 +311,49 @@ export function adminNewStoryEmail(
   return { subject: `📝 قصّة نجاح جديدة — ${memberName}`, html, text };
 }
 
+/** Sent to a member when the admin publishes their success story. */
+export function storyPublishedEmail(
+  fullName: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "نُشرت قصّتك على المنصّة 🎉",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مبارك ${fullName}!</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       يسعدنا إبلاغك بأنّ قصّة نجاحك قد <strong style="color:#fff;">نُشرت</strong> على منصّة
+       <strong style="color:#fff;">${BRAND}</strong> وأصبحت متاحة للجميع.
+     </p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       شكرًا لمشاركتك تجربتك مع مجتمعنا — قصّتك ستُلهم كثيرين في رحلتهم.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       فريق ${BRAND} يفخر بإنجازاتك ويتمنّى لك مزيدًا من التوفيق.
+     </p>`,
+  );
+  const text = `مبارك ${fullName}!\n\nنُشرت قصّة نجاحك على منصّة ${BRAND} وأصبحت متاحة للجميع.\nشكرًا لمشاركتك تجربتك مع مجتمعنا.\n\nفريق ${BRAND}`;
+  return { subject: `🎉 نُشرت قصّتك على ${BRAND}`, html, text };
+}
+
+/** Sent to a member when the admin rejects their success story. */
+export function storyRejectedEmail(
+  fullName: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "بخصوص قصّتك على المنصّة",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       شكرًا جزيلًا لمشاركتك قصّة نجاحك مع مجتمع <strong style="color:#fff;">${BRAND}</strong>.
+     </p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       بعد مراجعة فريقنا، لم نتمكّن من نشر قصّتك في الوقت الحالي. نقدّر وقتك وجهدك، ونشجّعك على التواصل معنا إذا كنت ترغب في مزيد من التفاصيل أو تعديل قصّتك وإعادة تقديمها.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       نحن دائمًا هنا لدعمك في رحلتك — فريق ${BRAND}.
+     </p>`,
+  );
+  const text = `مرحبًا ${fullName}،\n\nشكرًا لمشاركتك قصّة نجاحك مع ${BRAND}.\nبعد مراجعة فريقنا، لم نتمكّن من نشر قصّتك في الوقت الحالي. لا تتردّد في التواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
+  return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
+}
+
 /** Sent to a mentee when an expert/admin confirms their mentorship session. */
 export function sessionConfirmedEmail(
   fullName: string | null,

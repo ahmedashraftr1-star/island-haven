@@ -12,7 +12,7 @@ import { z } from "zod";
 
 // A success story / testimonial from a graduate, founder, or member.
 
-export const STORY_STATUSES = ["draft", "published", "hidden"] as const;
+export const STORY_STATUSES = ["draft", "published", "hidden", "rejected"] as const;
 export type StoryStatus = (typeof STORY_STATUSES)[number];
 
 export const successStoriesTable = pgTable(
@@ -80,4 +80,5 @@ export const STORY_STATUS_LABELS: Record<StoryStatus, string> = {
   draft: "مسوّدة",
   published: "منشور",
   hidden: "مخفيّ",
+  rejected: "مرفوض",
 };
