@@ -20,13 +20,14 @@ import {
   requireUser,
   type UserSession,
 } from "../lib/auth";
-import { createResetToken } from "./auth";
+import { createResetToken, isResetTokenValid } from "./auth";
 import { logger } from "../lib/logger";
 import {
   sendEmail,
   sessionConfirmedEmail,
   mentorApplicationEmail,
   mentorApplicationApprovedEmail,
+  mentorPasswordReminderEmail,
   adminMentorApplicationEmail,
 } from "../lib/email";
 import { notify } from "./notifications";
@@ -784,6 +785,39 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
           const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
           const mail = mentorApplicationApprovedEmail(user.fullName, resetUrl);
           void sendEmail({ to: user.email, ...mail });
+
+          // Schedule a reminder at the 20-hour mark (4 hours before expiry).
+          // The callback is a no-op if the mentor already used the link.
+          // Note: this timer lives in-memory and does not survive server restarts;
+          // acceptable for a single-instance deployment where restarts are rare.
+          const REMINDER_DELAY_MS = 20 * 60 * 60 * 1000;
+          setTimeout(() => {
+            void (async () => {
+              try {
+                if (!isResetTokenValid(rawToken)) {
+                  logger.info(
+                    { email: user.email },
+                    "mentor password-setup reminder skipped — token already used or expired",
+                  );
+                  return;
+                }
+                const reminderMail = mentorPasswordReminderEmail(
+                  user.fullName,
+                  resetUrl,
+                );
+                void sendEmail({ to: user.email, ...reminderMail });
+                logger.info(
+                  { email: user.email },
+                  "mentor password-setup reminder sent",
+                );
+              } catch (reminderErr) {
+                logger.error(
+                  { reminderErr },
+                  "mentor password-setup reminder failed",
+                );
+              }
+            })();
+          }, REMINDER_DELAY_MS).unref();
         }
       } catch (emailErr) {
         logger.error({ emailErr }, "Failed to send mentor approval email");

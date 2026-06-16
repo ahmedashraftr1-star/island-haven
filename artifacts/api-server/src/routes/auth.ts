@@ -49,6 +49,18 @@ export function createResetToken(email: string, ttlMs = RESET_TTL_MS): string {
   return rawToken;
 }
 
+/**
+ * Returns true if the given raw token is still present in the in-memory store
+ * and has not yet expired (i.e. has not been used or pruned).
+ * Used by the mentor-approval reminder to skip sending if the mentor already
+ * clicked the link before the 20-hour reminder fires.
+ */
+export function isResetTokenValid(rawToken: string): boolean {
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+  const entry = resetTokens.get(tokenHash);
+  return !!entry && entry.expiresAt > Date.now();
+}
+
 // Rate-limit forgot-password: 3 per email per hour
 const forgotAttempts = new Map<string, number[]>();
 function forgotRateLimited(email: string): boolean {

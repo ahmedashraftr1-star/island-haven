@@ -207,6 +207,42 @@ export function mentorApplicationApprovedEmail(
   return { subject: `✅ قبولك في برنامج الإرشاد — ${BRAND}`, html, text };
 }
 
+/** Sent to an approved mentor ~20 h after approval if they still haven't set
+ *  their password (i.e. the original 24-hour setup link is still unused). */
+export function mentorPasswordReminderEmail(
+  fullName: string,
+  resetUrl: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "تذكير: رابط ضبط كلمة السرّ ينتهي قريبًا ⏰",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       أرسلنا لك رابط ضبط كلمة السرّ عند قبولك كمرشد في <strong style="color:#fff;">${BRAND}</strong>،
+       ولاحظنا أنّك لم تستخدمه بعد. هذا الرابط صالح لمدّة <strong style="color:#fff;">24 ساعة</strong> فقط
+       وسينتهي خلال <strong style="color:#e0556b;">4 ساعات</strong>.
+     </p>
+     <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       اضغط الزرّ أدناه الآن لضبط كلمة سرّك والدخول إلى منصّتك قبل انتهاء الرابط.
+     </p>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+       <tr><td style="border-radius:10px;background:${PRIMARY};">
+         <a href="${resetUrl}" style="display:inline-block;padding:13px 28px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">ضبط كلمة السرّ الآن</a>
+       </td></tr>
+     </table>
+     <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#7c849c;">
+       إذا لم يعمل الزرّ، انسخ هذا الرابط والصقه في المتصفّح:
+     </p>
+     <p style="margin:0 0 24px;font-size:13px;line-height:1.6;word-break:break-all;direction:ltr;text-align:left;">
+       <a href="${resetUrl}" style="color:${PRIMARY};">${resetUrl}</a>
+     </p>
+     <p style="margin:0;font-size:13px;line-height:1.7;color:#7c849c;">
+       إذا انتهت صلاحية الرابط، استخدم خيار «نسيت كلمة السرّ» في صفحة تسجيل الدخول.
+     </p>`,
+  );
+  const text = `مرحبًا ${fullName}،\n\nتذكير: رابط ضبط كلمة السرّ الخاص بحسابك في ${BRAND} سينتهي خلال 4 ساعات.\nاضغط الرابط أدناه قبل انتهائه:\n\n${resetUrl}\n\nإذا انتهت صلاحيته، استخدم «نسيت كلمة السرّ» عند تسجيل الدخول.\n\nفريق ${BRAND}`;
+  return { subject: `⏰ تذكير: رابط ضبط كلمة السرّ ينتهي قريبًا — ${BRAND}`, html, text };
+}
+
 /** Sent to the admin when a new mentor application arrives via /become-mentor. */
 export function adminMentorApplicationEmail(
   applicantName: string,
