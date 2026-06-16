@@ -35,6 +35,7 @@ export default function ExpertDetail() {
 
   const [expert, setExpert] = useState<ExpertCard | null>(null);
   const [teamLabel, setTeamLabel] = useState<string | null>(null);
+  const [rating, setRating] = useState<{ average: number | null; count: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // session-request form
@@ -56,6 +57,13 @@ export default function ExpertDetail() {
       .catch((e) => {
         if (cancelled) return;
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+      });
+    api<{ average: number | null; count: number }>(`/experts/${id}/rating`)
+      .then((r) => {
+        if (!cancelled) setRating(r);
+      })
+      .catch(() => {
+        /* rating is non-critical */
       });
     return () => {
       cancelled = true;
@@ -226,6 +234,32 @@ export default function ExpertDetail() {
                     <span className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25">
                       <Users className="w-3 h-3" /> {teamLabel}
                     </span>
+                  )}
+                  {rating && rating.count > 0 && (
+                    <div
+                      className="flex items-center gap-1.5 mt-2.5"
+                      title={`${rating.average?.toFixed(1)} من 5 — ${rating.count} تقييم`}
+                      data-testid="expert-rating"
+                    >
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <Star
+                            key={n}
+                            className={`w-3.5 h-3.5 ${
+                              n <= Math.round(rating.average ?? 0)
+                                ? "fill-amber-300 text-amber-300"
+                                : "text-white/20"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-white/85 text-[12.5px] font-bold tabular-nums">
+                        {rating.average?.toFixed(1)}
+                      </span>
+                      <span className="text-white/40 text-[11.5px]">
+                        ({rating.count} تقييم)
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>

@@ -21,6 +21,7 @@ import {
   X,
   CalendarCheck,
   ArrowRight,
+  Star,
 } from "lucide-react";
 import type { ExtraLink } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
@@ -1222,6 +1223,15 @@ function MyMentorshipSessions() {
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {s.status === "completed" && (
+                  <Link
+                    href={`/sessions/${s.id}/rate`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-200 border border-amber-400/30 text-[11px] font-semibold hover:bg-amber-400/15 transition-colors"
+                    data-testid={`rate-session-${s.id}`}
+                  >
+                    <Star className="w-3 h-3" /> قيّم الجلسة
+                  </Link>
+                )}
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-semibold border ${badge[s.status]}`}
                 >
