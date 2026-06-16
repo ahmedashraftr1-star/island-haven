@@ -120,6 +120,12 @@ export const I18N = {
       empty:      { ar: "سيُعلَن عن الخبراء قريبًا",       en: "Experts coming soon" },
       emptyHint:  { ar: "نُجهّز شبكة من أفضل المرشدين لمجتمع آيلاند.", en: "We are assembling the best mentors for the Island Haven community." },
       loadError:  { ar: "تعذّر تحميل الخبراء",              en: "Failed to load experts" },
+      ctaHeading: { ar: "هل أنت خبير أو متخصّص؟",           en: "Are you an expert or specialist?" },
+      ctaBody:    {
+        ar: "انضم إلى شبكة مرشدي آيلاند وساهم في تنمية المواهب الغزيّة.",
+        en: "Join the Island Haven mentor network and help grow Gazan talent.",
+      },
+      ctaButton:  { ar: "سجّل كمرشد",                        en: "Become a Mentor" },
     },
     programs: {
       eyebrow:   { ar: "برامج الاحتضان",              en: "Incubation Tracks" },

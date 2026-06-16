@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles, Star, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Star, Clock, UserPlus } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
@@ -93,6 +93,39 @@ export default function Experts() {
           ))}
         </div>
       )}
+
+      {/* Become a Mentor CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mt-14"
+      >
+        <div className="relative overflow-hidden rounded-[28px] border border-primary/25 bg-gradient-to-br from-primary/10 via-white/[0.03] to-primary/5 p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center">
+            <UserPlus className="w-7 h-7 text-primary" />
+          </div>
+          <div className={`flex-1 text-center sm:text-${lang === "en" ? "left" : "right"}`} dir={lang === "ar" ? "rtl" : "ltr"}>
+            <h3 className="text-white font-bold text-[18px] mb-1">
+              {t(p.ctaHeading)}
+            </h3>
+            <p className="text-white/55 text-[14px] leading-relaxed">
+              {t(p.ctaBody)}
+            </p>
+          </div>
+          <Link
+            href="/become-mentor"
+            className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors"
+          >
+            {t(p.ctaButton)}
+            {lang === "en" ? (
+              <ArrowRight className="w-4 h-4" />
+            ) : (
+              <ArrowLeft className="w-4 h-4" />
+            )}
+          </Link>
+        </div>
+      </motion.div>
     </PageShell>
   );
 }
