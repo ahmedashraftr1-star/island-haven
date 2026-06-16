@@ -105,6 +105,16 @@ export const createExpertSchema = z.object({
   profile: adminExpertProfileSchema.partial().optional(),
 });
 
+// Public self-application schema — no password required; admin sets one later.
+export const applyMentorSchema = z.object({
+  fullName: safeText(120).min(2, "الاسم قصير جدًّا"),
+  email: z.string().trim().toLowerCase().email("بريد غير صحيح").max(160),
+  expertise: safeText(400).min(2, "أدخل مجالات الخبرة"),
+  yearsExperience: z.number().int().min(0).max(80).default(0),
+  bio: safeText(4000).min(20, "النبذة قصيرة جدًّا"),
+  linkedinUrl: httpUrl(400).default(""),
+});
+
 export type ExpertProfile = typeof expertProfilesTable.$inferSelect;
 
 export const EXPERT_STATUS_LABELS: Record<ExpertStatus, string> = {

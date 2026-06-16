@@ -150,6 +150,47 @@ export function programAcceptedEmail(
   return { subject: `🎉 قبولك في ${programTitle} — ${BRAND}`, html, text };
 }
 
+/** Sent to a mentor applicant immediately after they submit the /become-mentor form. */
+export function mentorApplicationEmail(
+  fullName: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "استلمنا طلبك للانضمام كمرشد 🎉",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       شكرًا لاهتمامك بالانضمام إلى برنامج الإرشاد في <strong style="color:#fff;">${BRAND}</strong>.
+       استلمنا طلبك وهو الآن قيد المراجعة من قِبل فريقنا.
+     </p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       سنتواصل معك في أقرب وقت لإعلامك بنتيجة الطلب وإرشادك للخطوات التالية.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       إذا كان لديك أيّ استفسار، لا تتردّد في التواصل معنا.
+     </p>`,
+  );
+  const text = `مرحبًا ${fullName}،\n\nشكرًا لتقديمك طلب الانضمام كمرشد في ${BRAND}.\nاستلمنا طلبك وهو قيد المراجعة. سنتواصل معك قريبًا.\n\nفريق ${BRAND}`;
+  return { subject: `استلمنا طلبك — برنامج الإرشاد في ${BRAND}`, html, text };
+}
+
+/** Sent to a mentor applicant immediately after they submit the /become-mentor form. */
+export function mentorApplicationApprovedEmail(
+  fullName: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "تمّ قبولك في برنامج الإرشاد ✅",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مبارك ${fullName}!</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       يسعدنا إبلاغك بقبول طلبك للانضمام كمرشد في <strong style="color:#fff;">${BRAND}</strong>.
+       حسابك الآن مُفعَّل ويمكنك تسجيل الدخول ومتابعة إعداد ملفّك الشخصيّ.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       سيتواصل معك فريقنا قريبًا بتفاصيل الخطوات التالية. نحن متحمّسون لرحلتك معنا.
+     </p>`,
+  );
+  const text = `مبارك ${fullName}!\n\nتمّ قبولك في برنامج الإرشاد في ${BRAND}.\nحسابك مُفعَّل الآن. سجّل الدخول وأكمل ملفّك الشخصيّ.\n\nفريق ${BRAND}`;
+  return { subject: `✅ قبولك في برنامج الإرشاد — ${BRAND}`, html, text };
+}
+
 /** Sent to a mentee when an expert/admin confirms their mentorship session. */
 export function sessionConfirmedEmail(
   fullName: string | null,

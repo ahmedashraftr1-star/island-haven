@@ -55,6 +55,7 @@ const Process = lazy(() => import("@/pages/Process"));
 const Alumni = lazy(() => import("@/pages/Alumni"));
 const Jobs = lazy(() => import("@/pages/Jobs"));
 const Investors = lazy(() => import("@/pages/Investors"));
+const BecomeMentor = lazy(() => import("@/pages/BecomeMentor"));
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/profile": "ملفّي — Island Haven",
   "/members": "منتسبو المساحة — Island Haven",
   "/experts": "خبراء آيلاند — Island Haven",
+  "/become-mentor": "كُن مرشدًا — Island Haven",
   "/expert": "لوحة الخبير — Island Haven",
   "/programs": "برامج الاحتضان — Island Haven",
   "/ventures": "المشاريع الناشئة — Island Haven",
@@ -162,6 +164,7 @@ function Router() {
       <Route path="/alumni" component={Alumni} />
       <Route path="/jobs" component={Jobs} />
       <Route path="/investors" component={Investors} />
+      <Route path="/become-mentor" component={BecomeMentor} />
       <Route path="/u/:id" component={PublicProfile} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

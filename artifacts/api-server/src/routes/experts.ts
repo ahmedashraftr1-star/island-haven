@@ -10,6 +10,7 @@ import {
   expertProfileSchema,
   adminExpertProfileSchema,
   createExpertSchema,
+  applyMentorSchema,
   requestSessionSchema,
   SESSION_STATUSES,
   type SessionStatus,
@@ -20,7 +21,12 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, sessionConfirmedEmail } from "../lib/email";
+import {
+  sendEmail,
+  sessionConfirmedEmail,
+  mentorApplicationEmail,
+  mentorApplicationApprovedEmail,
+} from "../lib/email";
 import { notify } from "./notifications";
 
 const router: IRouter = Router();
@@ -118,6 +124,71 @@ router.get("/experts/:id", async (req, res) => {
     res.json({ expert });
   } catch (err) {
     logger.error({ err }, "GET /experts/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Public: self-apply as mentor ────────────────────────────────────────────
+
+router.post("/experts/apply", async (req, res) => {
+  try {
+    const parsed = applyMentorSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "بيانات غير صحيحة",
+        details: parsed.error.issues.map((i) => ({
+          field: i.path.join("."),
+          message: i.message,
+        })),
+      });
+      return;
+    }
+    const { fullName, email, expertise, yearsExperience, bio, linkedinUrl } =
+      parsed.data;
+
+    // Generate a random temporary password — the admin will set a proper one
+    // or the applicant can use "forgot password" once approved.
+    const tmpPassword =
+      Math.random().toString(36).slice(2, 10) +
+      Math.random().toString(36).slice(2, 10);
+    const passwordHash = await bcrypt.hash(tmpPassword, 12);
+
+    try {
+      await db.transaction(async (tx) => {
+        const [user] = await tx
+          .insert(usersTable)
+          .values({
+            email,
+            passwordHash,
+            fullName,
+            role: "expert",
+          })
+          .returning();
+        await tx.insert(expertProfilesTable).values({
+          userId: user.id,
+          expertise,
+          yearsExperience,
+          bio,
+          linkedinUrl: linkedinUrl ?? "",
+          status: "pending",
+          acceptingSessions: false,
+        });
+      });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        res.status(409).json({ error: "هذا البريد مسجّل مسبقًا" });
+        return;
+      }
+      throw err;
+    }
+
+    // Fire-and-forget confirmation email
+    const mail = mentorApplicationEmail(fullName);
+    void sendEmail({ to: email, ...mail });
+
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "POST /experts/apply failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
@@ -571,30 +642,52 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       return;
     }
     const result = await db.transaction(async (tx) => {
-      const [profile] = await tx
-        .select({ userId: expertProfilesTable.userId })
+      const [existing] = await tx
+        .select({
+          userId: expertProfilesTable.userId,
+          prevStatus: expertProfilesTable.status,
+        })
         .from(expertProfilesTable)
         .where(eq(expertProfilesTable.id, id))
         .limit(1);
-      if (!profile) return null;
+      if (!existing) return null;
       if (avatarUrl !== undefined) {
         await tx
           .update(usersTable)
           .set({ avatarUrl, updatedAt: new Date() })
-          .where(eq(usersTable.id, profile.userId));
+          .where(eq(usersTable.id, existing.userId));
       }
       const [row] = await tx
         .update(expertProfilesTable)
         .set({ ...parsed.data, updatedAt: new Date() })
         .where(eq(expertProfilesTable.id, id))
         .returning();
-      return row;
+      return { row, userId: existing.userId, prevStatus: existing.prevStatus };
     });
     if (!result) {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    res.json({ expert: result });
+    // Send approval email when a pending application is activated for the first time.
+    if (
+      result.prevStatus === "pending" &&
+      parsed.data.status === "active"
+    ) {
+      try {
+        const [user] = await db
+          .select({ email: usersTable.email, fullName: usersTable.fullName })
+          .from(usersTable)
+          .where(eq(usersTable.id, result.userId))
+          .limit(1);
+        if (user) {
+          const mail = mentorApplicationApprovedEmail(user.fullName);
+          void sendEmail({ to: user.email, ...mail });
+        }
+      } catch (emailErr) {
+        logger.error({ emailErr }, "Failed to send mentor approval email");
+      }
+    }
+    res.json({ expert: result.row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/experts/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
