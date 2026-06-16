@@ -205,6 +205,35 @@ async function myExpertProfile(userId: number) {
   return row ?? null;
 }
 
+async function myExpertProfileWithAvatar(userId: number) {
+  const [row] = await db
+    .select({
+      id: expertProfilesTable.id,
+      userId: expertProfilesTable.userId,
+      headline: expertProfilesTable.headline,
+      expertise: expertProfilesTable.expertise,
+      bio: expertProfilesTable.bio,
+      yearsExperience: expertProfilesTable.yearsExperience,
+      languages: expertProfilesTable.languages,
+      sessionMinutes: expertProfilesTable.sessionMinutes,
+      availabilityNote: expertProfilesTable.availabilityNote,
+      acceptingSessions: expertProfilesTable.acceptingSessions,
+      linkedinUrl: expertProfilesTable.linkedinUrl,
+      websiteUrl: expertProfilesTable.websiteUrl,
+      status: expertProfilesTable.status,
+      featured: expertProfilesTable.featured,
+      sortOrder: expertProfilesTable.sortOrder,
+      createdAt: expertProfilesTable.createdAt,
+      updatedAt: expertProfilesTable.updatedAt,
+      avatarUrl: usersTable.avatarUrl,
+    })
+    .from(expertProfilesTable)
+    .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+    .where(eq(expertProfilesTable.userId, userId))
+    .limit(1);
+  return row ?? null;
+}
+
 // Fire-and-forget: email the mentee when their session is confirmed.
 async function notifySessionConfirmed(row: {
   menteeId: number;
@@ -247,7 +276,7 @@ async function notifySessionConfirmed(row: {
 router.get("/experts/me/profile", requireUser, async (req, res) => {
   try {
     const session = sessionOf(req)!;
-    const profile = await myExpertProfile(session.userId);
+    const profile = await myExpertProfileWithAvatar(session.userId);
     if (!profile) {
       res.status(404).json({ error: "لست خبيرًا مسجَّلًا" });
       return;
@@ -255,6 +284,29 @@ router.get("/experts/me/profile", requireUser, async (req, res) => {
     res.json({ profile });
   } catch (err) {
     logger.error({ err }, "GET /experts/me/profile failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.patch("/experts/me/avatar", requireUser, async (req, res) => {
+  try {
+    const session = sessionOf(req)!;
+    const profile = await myExpertProfile(session.userId);
+    if (!profile) {
+      res.status(404).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const avatarUrl =
+      typeof req.body?.avatarUrl === "string"
+        ? req.body.avatarUrl.trim().slice(0, 800) || null
+        : null;
+    await db
+      .update(usersTable)
+      .set({ avatarUrl, updatedAt: new Date() })
+      .where(eq(usersTable.id, session.userId));
+    res.json({ ok: true, avatarUrl });
+  } catch (err) {
+    logger.error({ err }, "PATCH /experts/me/avatar failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

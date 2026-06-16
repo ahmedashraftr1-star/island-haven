@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -10,6 +10,7 @@ import {
   Plus,
   Trash2,
   Clock,
+  Camera,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
@@ -37,6 +38,7 @@ interface ExpertProfile {
   linkedinUrl: string;
   websiteUrl: string;
   status: string;
+  avatarUrl: string | null;
 }
 
 interface SessionRow {
@@ -325,6 +327,9 @@ function ProfilePanel({
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setForm(profile);
@@ -338,6 +343,43 @@ function ProfilePanel({
 
   function set<K extends keyof ExpertProfile>(k: K, v: ExpertProfile[K]) {
     setForm((f) => (f ? { ...f, [k]: v } : f));
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || avatarUploading) return;
+    setAvatarError(null);
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await fetch("/api/uploads/image", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        const d = await uploadRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error || "تعذّر رفع الصورة");
+      }
+      const { url } = (await uploadRes.json()) as { url: string };
+      const patchRes = await fetch("/api/experts/me/avatar", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: url }),
+      });
+      if (!patchRes.ok) {
+        throw new Error("تعذّر حفظ الصورة");
+      }
+      setForm((f) => (f ? { ...f, avatarUrl: url } : f));
+      onSaved({ ...form!, avatarUrl: url });
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "تعذّر رفع الصورة");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
   }
 
   async function save() {
@@ -360,7 +402,7 @@ function ProfilePanel({
           websiteUrl: form.websiteUrl,
         }),
       });
-      onSaved(r.profile);
+      onSaved({ ...r.profile, avatarUrl: form.avatarUrl });
       setFlash("تمّ حفظ ملفّك.");
       setTimeout(() => setFlash(null), 3000);
     } catch (e) {
@@ -377,6 +419,51 @@ function ProfilePanel({
           ملفّك قيد المراجعة من الإدارة ولن يظهر للعامّة حتى يُفعَّل.
         </div>
       )}
+
+      {/* ─── Avatar upload ─── */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="relative shrink-0">
+          {form.avatarUrl ? (
+            <img
+              src={form.avatarUrl}
+              alt="صورتك الشخصية"
+              className="w-20 h-20 rounded-2xl object-cover border border-white/15"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
+              <UserIcon className="w-8 h-8 text-white/30" />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={avatarUploading}
+            className="absolute -bottom-2 -left-2 w-7 h-7 rounded-full bg-primary border-2 border-[#0A0E1A] flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
+            title="تغيير الصورة"
+          >
+            {avatarUploading ? (
+              <span className="w-3 h-3 border border-white/40 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Camera className="w-3.5 h-3.5 text-white" />
+            )}
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+        </div>
+        <div>
+          <p className="text-white/80 text-[13px] font-semibold">الصورة الشخصية</p>
+          <p className="text-white/40 text-[11.5px] mt-0.5">JPG · PNG · WEBP — حتى 5 ميغابايت</p>
+          {avatarError && (
+            <p className="text-red-300 text-[11.5px] mt-1">{avatarError}</p>
+          )}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <DField label="المسمّى التعريفيّ (مثال: مستشار ريادة أعمال)">
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
