@@ -20,6 +20,7 @@ import {
   requireUser,
   type UserSession,
 } from "../lib/auth";
+import { createResetToken } from "./auth";
 import { logger } from "../lib/logger";
 import {
   sendEmail,
@@ -740,6 +741,8 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       return;
     }
     // Send approval email when a pending application is activated for the first time.
+    // A 24-hour password-reset token is minted so the applicant can set their
+    // password immediately without going through the "forgot password" flow.
     if (
       result.prevStatus === "pending" &&
       parsed.data.status === "active"
@@ -751,7 +754,12 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
           .where(eq(usersTable.id, result.userId))
           .limit(1);
         if (user) {
-          const mail = mentorApplicationApprovedEmail(user.fullName);
+          const TTL_24H = 24 * 60 * 60 * 1000;
+          const rawToken = createResetToken(user.email, TTL_24H);
+          const frontendUrl =
+            process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
+          const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+          const mail = mentorApplicationApprovedEmail(user.fullName, resetUrl);
           void sendEmail({ to: user.email, ...mail });
         }
       } catch (emailErr) {

@@ -24,7 +24,7 @@ import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
 
 // ─── In-memory password reset tokens ────────────────────────────────────────
-// Single-instance app — in-memory is fine. Tokens expire in 15 minutes.
+// Single-instance app — in-memory is fine. Tokens expire in 15 minutes by default.
 const RESET_TTL_MS = 15 * 60 * 1000;
 interface ResetEntry { email: string; hash: string; expiresAt: number }
 const resetTokens = new Map<string, ResetEntry>();
@@ -32,6 +32,21 @@ const resetTokens = new Map<string, ResetEntry>();
 function pruneResets() {
   const now = Date.now();
   for (const [k, v] of resetTokens) if (v.expiresAt < now) resetTokens.delete(k);
+}
+
+/**
+ * Creates a password-reset token for the given email and returns the raw token.
+ * The raw token is suitable for embedding in a URL; it is never stored — only
+ * its SHA-256 hash is kept in memory.
+ *
+ * @param email   - The account email to bind the token to.
+ * @param ttlMs   - Time-to-live in milliseconds (defaults to 15 min).
+ */
+export function createResetToken(email: string, ttlMs = RESET_TTL_MS): string {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+  resetTokens.set(tokenHash, { email, hash: tokenHash, expiresAt: Date.now() + ttlMs });
+  return rawToken;
 }
 
 // Rate-limit forgot-password: 3 per email per hour

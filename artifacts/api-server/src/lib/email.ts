@@ -172,22 +172,38 @@ export function mentorApplicationEmail(
   return { subject: `استلمنا طلبك — برنامج الإرشاد في ${BRAND}`, html, text };
 }
 
-/** Sent to a mentor applicant immediately after they submit the /become-mentor form. */
+/** Sent to a mentor applicant when the admin activates their account (pending → active).
+ *  Includes a 24-hour password-setup link so the applicant can log in immediately. */
 export function mentorApplicationApprovedEmail(
   fullName: string,
+  resetUrl: string,
 ): { subject: string; html: string; text: string } {
   const html = shell(
     "تمّ قبولك في برنامج الإرشاد ✅",
     `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مبارك ${fullName}!</p>
      <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
        يسعدنا إبلاغك بقبول طلبك للانضمام كمرشد في <strong style="color:#fff;">${BRAND}</strong>.
-       حسابك الآن مُفعَّل ويمكنك تسجيل الدخول ومتابعة إعداد ملفّك الشخصيّ.
+       حسابك الآن مُفعَّل — اضغط الزرّ أدناه لضبط كلمة سرّك والدخول إلى منصّتك.
+     </p>
+     <p style="margin:0 0 24px;font-size:14px;line-height:1.7;color:#7c849c;">
+       هذا الرابط صالح لمدّة <strong style="color:#fff;">24 ساعة</strong> فقط.
+     </p>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+       <tr><td style="border-radius:10px;background:${PRIMARY};">
+         <a href="${resetUrl}" style="display:inline-block;padding:13px 28px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">ضبط كلمة السرّ وتسجيل الدخول</a>
+       </td></tr>
+     </table>
+     <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:#7c849c;">
+       إذا لم يعمل الزرّ، انسخ هذا الرابط والصقه في المتصفّح:
+     </p>
+     <p style="margin:0 0 24px;font-size:13px;line-height:1.6;word-break:break-all;direction:ltr;text-align:left;">
+       <a href="${resetUrl}" style="color:${PRIMARY};">${resetUrl}</a>
      </p>
      <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
-       سيتواصل معك فريقنا قريبًا بتفاصيل الخطوات التالية. نحن متحمّسون لرحلتك معنا.
+       نحن متحمّسون لرحلتك معنا في ${BRAND}.
      </p>`,
   );
-  const text = `مبارك ${fullName}!\n\nتمّ قبولك في برنامج الإرشاد في ${BRAND}.\nحسابك مُفعَّل الآن. سجّل الدخول وأكمل ملفّك الشخصيّ.\n\nفريق ${BRAND}`;
+  const text = `مبارك ${fullName}!\n\nتمّ قبولك في برنامج الإرشاد في ${BRAND}.\nاضغط الرابط أدناه لضبط كلمة سرّك خلال 24 ساعة:\n\n${resetUrl}\n\nفريق ${BRAND}`;
   return { subject: `✅ قبولك في برنامج الإرشاد — ${BRAND}`, html, text };
 }
 
