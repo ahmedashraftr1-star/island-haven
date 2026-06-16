@@ -751,6 +751,8 @@ function MyStorySection({ user }: { user: AuthUser }) {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
 
   useEffect(() => {
     api<{ story: MyStory | null }>("/me/story")
@@ -796,6 +798,26 @@ function MyStorySection({ user }: { user: AuthUser }) {
       setError(e instanceof ApiError ? e.message : "تعذّر الإرسال");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onWithdraw() {
+    if (!confirmWithdraw) {
+      setConfirmWithdraw(true);
+      return;
+    }
+    setWithdrawing(true);
+    setError(null);
+    try {
+      await api("/me/story", { method: "DELETE" });
+      setMyStory(null);
+      setForm({ quote: "", story: "", ventureName: "", projectUrl: "" });
+      setConfirmWithdraw(false);
+      setOpen(false);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر سحب القصّة");
+    } finally {
+      setWithdrawing(false);
     }
   }
 
@@ -932,11 +954,30 @@ function MyStorySection({ user }: { user: AuthUser }) {
                     )}
                     <button
                       type="submit"
-                      disabled={saving}
+                      disabled={saving || withdrawing}
                       className="w-full h-11 rounded-xl bg-primary text-white font-bold text-[13.5px] disabled:opacity-50 transition-opacity"
                     >
                       {saving ? "جارٍ الإرسال…" : myStory ? "تحديث القصّة" : "إرسال قصّتي"}
                     </button>
+                    {myStory !== null && (
+                      <button
+                        type="button"
+                        onClick={onWithdraw}
+                        onBlur={() => setConfirmWithdraw(false)}
+                        disabled={withdrawing}
+                        className={`w-full h-10 rounded-xl border text-[13px] font-semibold transition-all disabled:opacity-50 ${
+                          confirmWithdraw
+                            ? "border-rose-500/60 bg-rose-500/10 text-rose-300"
+                            : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
+                        }`}
+                      >
+                        {withdrawing
+                          ? "جارٍ السحب…"
+                          : confirmWithdraw
+                          ? "تأكيد السحب — ستُحذف القصّة نهائيًّا"
+                          : "سحب القصّة"}
+                      </button>
+                    )}
                   </form>
                 )}
               </div>

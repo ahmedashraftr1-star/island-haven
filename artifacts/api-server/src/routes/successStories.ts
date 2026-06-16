@@ -183,6 +183,36 @@ router.patch("/me/story", requireUser, async (req, res) => {
   }
 });
 
+router.delete("/me/story", requireUser, async (req, res) => {
+  const { userId } = (req as AuthReq).userSession;
+  try {
+    const [existing] = await db
+      .select({ id: successStoriesTable.id, status: successStoriesTable.status })
+      .from(successStoriesTable)
+      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .limit(1);
+
+    if (!existing) {
+      res.status(404).json({ error: "لا توجد قصّة لحذفها" });
+      return;
+    }
+
+    if (existing.status !== "draft") {
+      res.status(403).json({ error: "لا يمكن حذف القصّة بعد نشرها" });
+      return;
+    }
+
+    await db
+      .delete(successStoriesTable)
+      .where(eq(successStoriesTable.submittedByUserId, userId));
+
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /me/story failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 router.get("/admin/stories", requireAdmin, async (_req, res) => {
