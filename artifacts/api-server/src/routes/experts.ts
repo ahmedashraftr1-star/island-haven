@@ -207,6 +207,28 @@ router.post("/experts/apply", async (req, res) => {
       );
     }
 
+    // Fire-and-forget in-app notification for all admin users
+    void (async () => {
+      try {
+        const admins = await db
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.role, "admin"));
+        await Promise.all(
+          admins.map((admin: { id: number }) =>
+            notify(admin.id, {
+              type: "generic",
+              title: "طلب مرشد جديد",
+              body: `تقدّم ${fullName} للانضمام كمرشد في تخصّص «${expertise}».`,
+              link: "/admin",
+            }),
+          ),
+        );
+      } catch (err) {
+        logger.error({ err }, "admin mentor-application in-app notify failed");
+      }
+    })();
+
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "POST /experts/apply failed");
