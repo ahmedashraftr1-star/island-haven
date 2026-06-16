@@ -3,6 +3,8 @@ import { and, count, desc, eq, sql } from "drizzle-orm";
 import {
   db,
   worksTable,
+  worksLikesTable,
+  worksCommentsTable,
   usersTable,
   upsertWorkSchema,
   USER_ROLES,
@@ -140,7 +142,22 @@ router.get("/works/:id", optionalUser, async (req, res) => {
     const author = session
       ? authorSafe
       : { ...authorSafe, phone: null as unknown as string };
-    res.json({ work: row.work, author, isOwner });
+
+    const [{ likesCount }] = await db
+      .select({ likesCount: count() })
+      .from(worksLikesTable)
+      .where(eq(worksLikesTable.workId, id));
+    let likedByMe = false;
+    if (session) {
+      const [liked] = await db
+        .select({ id: worksLikesTable.id })
+        .from(worksLikesTable)
+        .where(and(eq(worksLikesTable.workId, id), eq(worksLikesTable.userId, session.userId)))
+        .limit(1);
+      likedByMe = !!liked;
+    }
+
+    res.json({ work: row.work, author, isOwner, likesCount, likedByMe });
   } catch (err) {
     logger.error({ err }, "GET /works/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -307,6 +324,197 @@ router.get("/users/:id", optionalUser, async (req, res) => {
     res.json({ user, works });
   } catch (err) {
     logger.error({ err }, "GET /users/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Likes (toggle) ──────────────────────────────────────────────────────────
+
+router.post("/works/:id/like", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [work] = await db
+      .select({ id: worksTable.id })
+      .from(worksTable)
+      .where(eq(worksTable.id, id))
+      .limit(1);
+    if (!work) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [existing] = await db
+      .select({ id: worksLikesTable.id })
+      .from(worksLikesTable)
+      .where(and(eq(worksLikesTable.workId, id), eq(worksLikesTable.userId, session.userId)))
+      .limit(1);
+    let liked: boolean;
+    if (existing) {
+      await db.delete(worksLikesTable).where(eq(worksLikesTable.id, existing.id));
+      liked = false;
+    } else {
+      await db
+        .insert(worksLikesTable)
+        .values({ workId: id, userId: session.userId })
+        .onConflictDoNothing();
+      liked = true;
+    }
+    const [{ likesCount }] = await db
+      .select({ likesCount: count() })
+      .from(worksLikesTable)
+      .where(eq(worksLikesTable.workId, id));
+    res.json({ liked, likesCount });
+  } catch (err) {
+    logger.error({ err }, "POST /works/:id/like failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Comments ────────────────────────────────────────────────────────────────
+
+const COMMENT_MAX = 1000;
+
+router.get("/works/:id/comments", optionalUser, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [work] = await db
+      .select({ userId: worksTable.userId })
+      .from(worksTable)
+      .where(eq(worksTable.id, id))
+      .limit(1);
+    if (!work) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const rows = await db
+      .select({
+        id: worksCommentsTable.id,
+        body: worksCommentsTable.body,
+        createdAt: worksCommentsTable.createdAt,
+        author: {
+          id: usersTable.id,
+          fullName: usersTable.fullName,
+          avatarUrl: usersTable.avatarUrl,
+          role: usersTable.role,
+        },
+      })
+      .from(worksCommentsTable)
+      .innerJoin(usersTable, eq(usersTable.id, worksCommentsTable.userId))
+      .where(eq(worksCommentsTable.workId, id))
+      .orderBy(desc(worksCommentsTable.createdAt))
+      .limit(200);
+
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    const meId = session?.userId ?? null;
+    const isWorkOwner = meId !== null && work.userId === meId;
+    const comments = rows.map((c) => ({
+      ...c,
+      canDelete: meId !== null && (c.author.id === meId || isWorkOwner),
+    }));
+    res.json({ comments });
+  } catch (err) {
+    logger.error({ err }, "GET /works/:id/comments failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.post("/works/:id/comments", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const body = typeof req.body?.body === "string" ? req.body.body.trim() : "";
+    if (!body) {
+      res.status(400).json({ error: "التعليق فارغ" });
+      return;
+    }
+    if (body.length > COMMENT_MAX) {
+      res.status(400).json({ error: `الحد الأقصى ${COMMENT_MAX} حرف` });
+      return;
+    }
+    const [work] = await db
+      .select({ id: worksTable.id })
+      .from(worksTable)
+      .where(eq(worksTable.id, id))
+      .limit(1);
+    if (!work) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [row] = await db
+      .insert(worksCommentsTable)
+      .values({ workId: id, userId: session.userId, body })
+      .returning();
+    const [author] = await db
+      .select({
+        id: usersTable.id,
+        fullName: usersTable.fullName,
+        avatarUrl: usersTable.avatarUrl,
+        role: usersTable.role,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, session.userId))
+      .limit(1);
+    res.json({
+      comment: { id: row.id, body: row.body, createdAt: row.createdAt, author, canDelete: true },
+    });
+  } catch (err) {
+    logger.error({ err }, "POST /works/:id/comments failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.delete("/works/:id/comments/:commentId", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    const commentId = Number(req.params.commentId);
+    if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(commentId) || commentId <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [c] = await db
+      .select({
+        id: worksCommentsTable.id,
+        userId: worksCommentsTable.userId,
+        workId: worksCommentsTable.workId,
+      })
+      .from(worksCommentsTable)
+      .where(eq(worksCommentsTable.id, commentId))
+      .limit(1);
+    if (!c || c.workId !== id) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // The commenter — or the work's author (moderating their own work) — may delete.
+    let allowed = c.userId === session.userId;
+    if (!allowed) {
+      const [work] = await db
+        .select({ userId: worksTable.userId })
+        .from(worksTable)
+        .where(eq(worksTable.id, id))
+        .limit(1);
+      allowed = !!work && work.userId === session.userId;
+    }
+    if (!allowed) {
+      res.status(403).json({ error: "غير مصرّح" });
+      return;
+    }
+    await db.delete(worksCommentsTable).where(eq(worksCommentsTable.id, commentId));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /works/:id/comments/:commentId failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

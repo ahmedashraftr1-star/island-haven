@@ -14,10 +14,14 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Heart,
+  MessageCircle,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
-import { ROLE_LABELS, type ExtraLink, type UserRole } from "@/lib/auth";
+import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags, formatArabicDate } from "@/lib/labels";
 
 interface DetailResp {
@@ -49,6 +53,21 @@ interface DetailResp {
     phone: string;
   };
   isOwner: boolean;
+  likesCount: number;
+  likedByMe: boolean;
+}
+
+interface WorkComment {
+  id: number;
+  body: string;
+  createdAt: string;
+  author: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+    role: UserRole;
+  };
+  canDelete: boolean;
 }
 
 /**
@@ -79,19 +98,99 @@ function youtubeEmbedUrl(raw: string | null | undefined): string | null {
 export default function WorkDetail() {
   const [, params] = useRoute("/works/:id");
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const id = params?.id;
   const [data, setData] = useState<DetailResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
+  // Likes
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [liking, setLiking] = useState(false);
+
+  // Comments
+  const [comments, setComments] = useState<WorkComment[]>([]);
+  const [commentText, setCommentText] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!id) return;
     api<DetailResp>(`/works/${id}`)
-      .then(setData)
+      .then((d) => {
+        setData(d);
+        setLiked(d.likedByMe);
+        setLikesCount(d.likesCount);
+      })
       .catch((e) =>
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
       );
+    api<{ comments: WorkComment[] }>(`/works/${id}/comments`)
+      .then((r) => setComments(r.comments))
+      .catch(() => {
+        /* comments are non-critical; ignore load errors */
+      });
   }, [id]);
+
+  async function toggleLike() {
+    if (!id || liking) return;
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setLiking(true);
+    // optimistic
+    const prevLiked = liked;
+    const prevCount = likesCount;
+    setLiked(!prevLiked);
+    setLikesCount(prevCount + (prevLiked ? -1 : 1));
+    try {
+      const r = await api<{ liked: boolean; likesCount: number }>(
+        `/works/${id}/like`,
+        { method: "POST" },
+      );
+      setLiked(r.liked);
+      setLikesCount(r.likesCount);
+    } catch {
+      setLiked(prevLiked);
+      setLikesCount(prevCount);
+    } finally {
+      setLiking(false);
+    }
+  }
+
+  async function submitComment(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id || posting) return;
+    const body = commentText.trim();
+    if (!body) return;
+    setPosting(true);
+    setCommentError(null);
+    try {
+      const r = await api<{ comment: WorkComment }>(`/works/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ body }),
+      });
+      setComments((cs) => [r.comment, ...cs]);
+      setCommentText("");
+    } catch (err) {
+      setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  async function deleteComment(commentId: number) {
+    if (!id) return;
+    const prev = comments;
+    setComments((cs) => cs.filter((c) => c.id !== commentId));
+    try {
+      await api(`/works/${id}/comments/${commentId}`, { method: "DELETE" });
+    } catch {
+      setComments(prev);
+    }
+  }
 
   usePageMeta({
     title: data?.work.title,
@@ -167,6 +266,7 @@ export default function WorkDetail() {
     <PageShell active="works">
       <BackLink href="/works" label="كلّ الأعمال" />
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
+        <div className="space-y-6">
         <GlassCard>
           {data.work.coverUrl ? (
             <button
@@ -211,6 +311,35 @@ export default function WorkDetail() {
                 ))}
               </div>
             )}
+
+            {/* Engagement: like toggle + jump-to-comments */}
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                type="button"
+                onClick={toggleLike}
+                disabled={liking}
+                aria-pressed={liked}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
+                  liked
+                    ? "bg-primary/15 border-primary/40 text-primary"
+                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                }`}
+                data-testid="button-like-work"
+              >
+                <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+                <span className="tabular-nums">{likesCount}</span>
+                <span className="sr-only">إعجاب</span>
+              </button>
+              <a
+                href="#comments"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white/75 text-[13px] font-semibold hover:bg-white/[0.1] transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="tabular-nums">{comments.length}</span>
+                <span className="sr-only">تعليق</span>
+              </a>
+            </div>
+
             {data.work.description && (
               <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap">
                 {data.work.description}
@@ -291,6 +420,108 @@ export default function WorkDetail() {
             )}
           </div>
         </GlassCard>
+
+        {/* Comments */}
+        <div id="comments">
+          <GlassCard className="p-6 sm:p-8">
+            <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5 flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" /> التعليقات — {comments.length}
+            </div>
+
+            {user ? (
+              <form onSubmit={submitComment} className="mb-6">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  rows={3}
+                  maxLength={1000}
+                  placeholder="شاركنا رأيك في هذا العمل…"
+                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 placeholder:text-white/35"
+                  data-testid="input-comment"
+                />
+                {commentError && (
+                  <p className="text-red-300 text-[12.5px] mt-2">{commentError}</p>
+                )}
+                <div className="flex justify-end mt-3">
+                  <button
+                    type="submit"
+                    disabled={posting || !commentText.trim()}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-bold text-[13px] disabled:opacity-50 hover:-translate-y-px transition-all"
+                    data-testid="button-submit-comment"
+                  >
+                    {posting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    نشر
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                className="block mb-6 text-center py-3 rounded-2xl bg-white/[0.05] border border-white/12 text-white/70 text-[13px] font-semibold hover:bg-white/[0.08] transition-colors"
+              >
+                سجّل الدخول للمشاركة بتعليق
+              </Link>
+            )}
+
+            {comments.length === 0 ? (
+              <p className="text-white/45 text-[13.5px] text-center py-6">
+                لا توجد تعليقات بعد — كن أول من يعلّق.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {comments.map((c) => (
+                  <div key={c.id} className="flex gap-3" data-testid={`comment-${c.id}`}>
+                    <Link href={`/u/${c.author.id}`} className="shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-white">
+                        {c.author.avatarUrl ? (
+                          <img
+                            src={c.author.avatarUrl}
+                            alt={c.author.fullName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          (c.author.fullName || "·").slice(0, 1)
+                        )}
+                      </div>
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/u/${c.author.id}`}
+                          className="text-white font-semibold text-[13px] hover:text-primary transition-colors truncate"
+                        >
+                          {c.author.fullName}
+                        </Link>
+                        <span className="text-white/35 text-[11px]">
+                          {formatArabicDate(c.createdAt)}
+                        </span>
+                        {c.canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => deleteComment(c.id)}
+                            className="ms-auto text-white/35 hover:text-red-300 transition-colors"
+                            aria-label="حذف التعليق"
+                            data-testid={`delete-comment-${c.id}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
+                        {c.body}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </GlassCard>
+        </div>
+        </div>
 
         <div className="space-y-5">
           <GlassCard className="p-6">

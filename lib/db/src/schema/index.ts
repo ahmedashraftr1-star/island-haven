@@ -9,6 +9,7 @@ export * from "./works";
 export * from "./dailyPosts";
 export * from "./pushTokens";
 export * from "./worksLikes";
+export * from "./worksComments";
 export * from "./experts";
 export * from "./mentorshipSessions";
 export * from "./programs";
