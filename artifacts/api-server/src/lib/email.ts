@@ -191,6 +191,39 @@ export function mentorApplicationApprovedEmail(
   return { subject: `✅ قبولك في برنامج الإرشاد — ${BRAND}`, html, text };
 }
 
+/** Sent to the admin when a new mentor application arrives via /become-mentor. */
+export function adminMentorApplicationEmail(
+  applicantName: string,
+  expertise: string,
+  adminUrl: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "طلب مرشد جديد 📋",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">وصل طلب انضمام جديد كمرشد على منصّة <strong style="color:#fff;">${BRAND}</strong>.</p>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;width:100%;border-collapse:collapse;">
+       <tr>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:8px 8px 0 0;border-bottom:1px solid rgba(255,255,255,0.06);color:#7c849c;font-size:13px;width:120px;">الاسم</td>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:8px 8px 0 0;border-bottom:1px solid rgba(255,255,255,0.06);color:#e8eaf2;font-size:14px;font-weight:600;">${applicantName}</td>
+       </tr>
+       <tr>
+         <td style="padding:10px 14px;background:#161b35;border-radius:0 0 8px 8px;color:#7c849c;font-size:13px;">مجالات الخبرة</td>
+         <td style="padding:10px 14px;background:#161b35;border-radius:0 0 8px 8px;color:#e8eaf2;font-size:14px;">${expertise}</td>
+       </tr>
+     </table>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+       <tr><td style="border-radius:10px;background:#e0556b;">
+         <a href="${adminUrl}" style="display:inline-block;padding:13px 28px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">مراجعة الطلب في لوحة الإدارة</a>
+       </td></tr>
+     </table>
+     <p style="margin:0;font-size:13px;line-height:1.7;color:#7c849c;">
+       إذا لم يعمل الزرّ، افتح الرابط التالي:<br>
+       <a href="${adminUrl}" style="color:#e0556b;direction:ltr;display:inline-block;">${adminUrl}</a>
+     </p>`,
+  );
+  const text = `طلب مرشد جديد في ${BRAND}\n\nالاسم: ${applicantName}\nمجالات الخبرة: ${expertise}\n\nراجع الطلب في لوحة الإدارة:\n${adminUrl}`;
+  return { subject: `📋 طلب مرشد جديد — ${applicantName}`, html, text };
+}
+
 /** Sent to a mentee when an expert/admin confirms their mentorship session. */
 export function sessionConfirmedEmail(
   fullName: string | null,

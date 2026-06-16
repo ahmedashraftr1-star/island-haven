@@ -26,6 +26,7 @@ import {
   sessionConfirmedEmail,
   mentorApplicationEmail,
   mentorApplicationApprovedEmail,
+  adminMentorApplicationEmail,
 } from "../lib/email";
 import { notify } from "./notifications";
 
@@ -182,9 +183,27 @@ router.post("/experts/apply", async (req, res) => {
       throw err;
     }
 
-    // Fire-and-forget confirmation email
+    // Fire-and-forget confirmation email to the applicant
     const mail = mentorApplicationEmail(fullName);
     void sendEmail({ to: email, ...mail });
+
+    // Fire-and-forget admin notification
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const appUrl =
+        process.env.APP_URL ?? "https://islandhaven.replit.app";
+      const adminMail = adminMentorApplicationEmail(
+        fullName,
+        expertise,
+        `${appUrl}/admin`,
+      );
+      void sendEmail({ to: adminEmail, ...adminMail });
+    } else {
+      logger.warn(
+        { applicant: email },
+        "ADMIN_EMAIL not set — admin mentor-application notification skipped",
+      );
+    }
 
     res.json({ ok: true });
   } catch (err) {
