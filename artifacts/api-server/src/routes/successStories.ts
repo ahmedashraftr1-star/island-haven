@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { sendEmail, adminNewStoryEmail } from "../lib/email";
 import type { Request } from "express";
 
 const router: IRouter = Router();
@@ -114,6 +115,21 @@ router.post("/me/story", requireUser, async (req, res) => {
         submittedByUserId: userId,
       })
       .returning();
+
+    // Notify admin about the new submission (fire-and-forget)
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const adminUrl =
+        (process.env.APP_URL ?? "https://islandhaven.io") +
+        "/admin/stories";
+      const mail = adminNewStoryEmail(user.fullName, d.quote, adminUrl);
+      void sendEmail({ to: adminEmail, ...mail });
+    } else {
+      logger.warn(
+        "ADMIN_EMAIL not set — new-story admin notification skipped",
+      );
+    }
+
     res.json({ story: row });
   } catch (err) {
     logger.error({ err }, "POST /me/story failed");
