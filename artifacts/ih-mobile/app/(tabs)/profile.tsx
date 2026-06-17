@@ -174,6 +174,7 @@ function fmtWhen(iso: string | null): string {
 }
 
 function MyMentorshipSessions({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const router = useRouter();
   const [rows, setRows] = useState<MySession[] | null>(null);
 
   useEffect(() => {
@@ -250,6 +251,24 @@ function MyMentorshipSessions({ colors }: { colors: ReturnType<typeof useColors>
                 {s.preferredAt ? ` · ${fmtWhen(s.preferredAt)}` : ""}
               </T>
             </View>
+            {s.status === "completed" ? (
+              <Pressable
+                onPress={() => router.push(`/sessions/${s.id}/rate` as never)}
+                hitSlop={6}
+                style={{
+                  flexDirection: "row-reverse",
+                  alignItems: "center",
+                  gap: 3,
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                  borderRadius: 999,
+                  backgroundColor: "rgba(251,191,36,0.14)",
+                }}
+              >
+                <Feather name="star" size={11} color="#b45309" />
+                <T size={10.5} weight="bold" color="#b45309">قيّم</T>
+              </Pressable>
+            ) : null}
             <View style={{ paddingHorizontal: 9, paddingVertical: 3, borderRadius: 999, backgroundColor: c.bg }}>
               <T size={10} weight="bold" color={c.fg}>{SS_AR[s.status]}</T>
             </View>
