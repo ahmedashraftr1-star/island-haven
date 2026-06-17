@@ -36,6 +36,7 @@ import cohortsRouter from "./cohorts";
 import ventureMilestonesRouter from "./ventureMilestones";
 import expertAvailabilityRouter from "./expertAvailability";
 import resourcesRouter from "./resources";
+import searchRouter from "./search";
 
 const router: IRouter = Router();
 
@@ -76,5 +77,6 @@ router.use(cohortsRouter);
 router.use(ventureMilestonesRouter);
 router.use(expertAvailabilityRouter);
 router.use(resourcesRouter);
+router.use(searchRouter);
 
 export default router;

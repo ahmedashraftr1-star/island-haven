@@ -31,6 +31,7 @@ const EventDetail = lazy(() =>
   import("@/pages/Events").then((m) => ({ default: m.EventDetail })),
 );
 const Members = lazy(() => import("@/pages/Members"));
+const Search = lazy(() => import("@/pages/Search"));
 const Experts = lazy(() => import("@/pages/Experts"));
 const ExpertDetail = lazy(() => import("@/pages/ExpertDetail"));
 const ExpertDashboard = lazy(() => import("@/pages/ExpertDashboard"));
@@ -138,6 +139,7 @@ function Router() {
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/profile" component={Profile} />
       <Route path="/members" component={Members} />
+      <Route path="/search" component={Search} />
       <Route path="/experts" component={Experts} />
       <Route path="/experts/:id" component={ExpertDetail} />
       <Route path="/expert/dashboard" component={ExpertDashboard} />
