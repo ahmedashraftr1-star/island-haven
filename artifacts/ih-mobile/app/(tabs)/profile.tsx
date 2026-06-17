@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, TextInput, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -135,89 +135,17 @@ const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
 
 function MyStorySection() {
   const colors = useColors();
+  const router = useRouter();
 
   const [story, setStory] = useState<MyStoryData | null | undefined>(undefined);
-  const [form, setForm] = useState({ quote: "", fullStory: "", ventureName: "", projectUrl: "" });
-  const [saving, setSaving] = useState(false);
-  const [withdrawing, setWithdrawing] = useState(false);
   const [resubmitting, setResubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
 
   useEffect(() => {
     api<{ story: MyStoryData | null }>("/me/story")
-      .then((r) => {
-        setStory(r.story);
-        if (r.story) {
-          setForm({
-            quote: r.story.quote,
-            fullStory: r.story.story,
-            ventureName: r.story.ventureName,
-            projectUrl: r.story.projectUrl ?? "",
-          });
-        }
-      })
+      .then((r) => setStory(r.story))
       .catch(() => setStory(null));
   }, []);
-
-  async function handleSubmit() {
-    setError(null);
-    if (form.quote.trim().length < 10) {
-      setError("الاقتباس قصير جدًّا (10 أحرف على الأقل)");
-      return;
-    }
-    setSaving(true);
-    try {
-      const isEdit = story !== null && story !== undefined;
-      const r = await api<{ story: MyStoryData }>("/me/story", {
-        method: isEdit ? "PATCH" : "POST",
-        body: {
-          quote: form.quote,
-          story: form.fullStory,
-          ventureName: form.ventureName,
-          projectUrl: form.projectUrl || null,
-        },
-      });
-      setStory(r.story);
-      setDone(true);
-      setTimeout(() => setDone(false), 3000);
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر إرسال القصّة");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function handleWithdraw() {
-    Alert.alert(
-      "سحب القصّة",
-      "هل أنت متأكّد؟ ستُحذف قصّتك نهائيًّا ولا يمكن التراجع عن هذا الإجراء.",
-      [
-        { text: "إلغاء", style: "cancel" },
-        {
-          text: "سحب القصّة",
-          style: "destructive",
-          onPress: async () => {
-            setWithdrawing(true);
-            setError(null);
-            try {
-              await api("/me/story", { method: "DELETE" });
-              setStory(null);
-              setForm({ quote: "", fullStory: "", ventureName: "", projectUrl: "" });
-            } catch (e) {
-              setError(e instanceof ApiError ? e.message : "تعذّر سحب القصّة");
-            } finally {
-              setWithdrawing(false);
-            }
-          },
-        },
-      ]
-    );
-  }
-
-  const isDraft = story?.status === "draft";
-  const isPublished = story?.status === "published";
-  const isRejected = story?.status === "rejected";
 
   async function handleResubmit() {
     setResubmitting(true);
@@ -232,6 +160,10 @@ function MyStorySection() {
     }
   }
 
+  const isPublished = story?.status === "published";
+  const isRejected = story?.status === "rejected";
+  const hasStory = story !== null && story !== undefined;
+
   const badgeColor = story ? (STATUS_COLOR[story.status] ?? { bg: colors.muted, text: colors.mutedForeground }) : null;
 
   return (
@@ -239,7 +171,7 @@ function MyStorySection() {
       <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
         <Feather name="book-open" size={16} color={colors.mutedForeground} />
         <T size={14} weight="bold">قصّتي في الحاضنة</T>
-        {story !== undefined && story !== null && badgeColor && (
+        {hasStory && badgeColor && (
           <View
             style={{
               backgroundColor: badgeColor.bg,
@@ -249,7 +181,7 @@ function MyStorySection() {
             }}
           >
             <T size={11} weight="medium" color={badgeColor.text}>
-              {STATUS_LABEL[story.status] ?? story.status}
+              {STATUS_LABEL[story!.status] ?? story!.status}
             </T>
           </View>
         )}
@@ -327,138 +259,51 @@ function MyStorySection() {
             disabled={resubmitting}
             onPress={handleResubmit}
           />
+          <Btn
+            title="تعديل القصّة"
+            variant="ghost"
+            fullWidth
+            onPress={() => router.push("/story-form" as never)}
+          />
+        </View>
+
+      ) : hasStory ? (
+        <View style={{ gap: 10 }}>
+          <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#f59e0b" }} />
+            <T size={12} color={colors.mutedForeground}>
+              قصّتك بانتظار مراجعة الإدارة — يمكنك تعديلها حتى ذلك الحين.
+            </T>
+          </View>
+          <View
+            style={{
+              backgroundColor: colors.muted,
+              borderRadius: colors.radius,
+              padding: 12,
+            }}
+          >
+            <T size={13} color={colors.mutedForeground} style={{ lineHeight: 20, fontStyle: "italic" }}>
+              "{story.quote}"
+            </T>
+          </View>
+          <Btn
+            title="تعديل القصّة"
+            variant="ghost"
+            fullWidth
+            onPress={() => router.push("/story-form" as never)}
+          />
         </View>
 
       ) : (
-        <View style={{ gap: 12 }}>
-          {story !== null && (
-            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#f59e0b" }} />
-              <T size={12} color={colors.mutedForeground}>
-                قصّتك بانتظار مراجعة الإدارة — يمكنك تعديلها حتى ذلك الحين.
-              </T>
-            </View>
-          )}
-
-          {done && (
-            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-              <Feather name="check-circle" size={14} color="#10b981" />
-              <T size={13} color="#10b981">تمّ إرسال قصّتك بنجاح — ستُراجَع قريبًا وتُنشَر!</T>
-            </View>
-          )}
-
-          <View style={{ gap: 4 }}>
-            <T size={12} weight="medium" color={colors.mutedForeground}>
-              اقتباسك <T size={11} color={colors.mutedForeground}>(مطلوب)</T>
-            </T>
-            <TextInput
-              value={form.quote}
-              onChangeText={(v) => setForm((f) => ({ ...f, quote: v }))}
-              placeholder="ما الذي أضافه آيلاند هيفن لمسيرتك؟"
-              placeholderTextColor={colors.mutedForeground}
-              multiline
-              numberOfLines={3}
-              maxLength={600}
-              style={{
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-                borderRadius: colors.radius,
-                padding: 12,
-                fontSize: 14,
-                color: colors.foreground,
-                textAlign: "right",
-                writingDirection: "rtl",
-                minHeight: 80,
-                textAlignVertical: "top",
-              }}
-            />
-          </View>
-
-          <View style={{ gap: 4 }}>
-            <T size={12} weight="medium" color={colors.mutedForeground}>
-              قصّتك كاملة <T size={11} color={colors.mutedForeground}>(اختياريّ)</T>
-            </T>
-            <TextInput
-              value={form.fullStory}
-              onChangeText={(v) => setForm((f) => ({ ...f, fullStory: v }))}
-              placeholder="شارك رحلتك بشكل أوسع…"
-              placeholderTextColor={colors.mutedForeground}
-              multiline
-              numberOfLines={4}
-              maxLength={8000}
-              style={{
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-                borderRadius: colors.radius,
-                padding: 12,
-                fontSize: 14,
-                color: colors.foreground,
-                textAlign: "right",
-                writingDirection: "rtl",
-                minHeight: 96,
-                textAlignVertical: "top",
-              }}
-            />
-          </View>
-
-          <View style={{ gap: 4 }}>
-            <T size={12} weight="medium" color={colors.mutedForeground}>اسم مشروعك (اختياريّ)</T>
-            <TextInput
-              value={form.ventureName}
-              onChangeText={(v) => setForm((f) => ({ ...f, ventureName: v }))}
-              placeholder="مثال: Tamkeen App"
-              placeholderTextColor={colors.mutedForeground}
-              maxLength={200}
-              style={{
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-                borderRadius: colors.radius,
-                padding: 12,
-                fontSize: 14,
-                color: colors.foreground,
-                textAlign: "right",
-                writingDirection: "rtl",
-                height: 48,
-              }}
-            />
-          </View>
-
-          {error ? (
-            <View
-              style={{
-                backgroundColor: "#ef444420",
-                borderWidth: 1,
-                borderColor: "#ef444440",
-                borderRadius: colors.radius,
-                padding: 12,
-              }}
-            >
-              <T size={13} color="#ef4444">{error}</T>
-            </View>
-          ) : null}
-
+        <View style={{ gap: 10 }}>
+          <T size={13} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
+            شارك تجربتك مع آيلاند هيفن وكن مصدر إلهام لأعضاء الحاضنة.
+          </T>
           <Btn
-            title={saving ? "جارٍ الإرسال…" : story ? "تحديث القصّة" : "إرسال قصّتي"}
+            title="شارك قصّتك"
             fullWidth
-            loading={saving}
-            disabled={saving || withdrawing}
-            onPress={handleSubmit}
+            onPress={() => router.push("/story-form" as never)}
           />
-
-          {isDraft && (
-            <Btn
-              title={withdrawing ? "جارٍ السحب…" : "سحب القصّة"}
-              variant="ghost"
-              fullWidth
-              loading={withdrawing}
-              disabled={saving || withdrawing}
-              style={{ borderColor: "#ef444440" }}
-              onPress={handleWithdraw}
-            />
-          )}
         </View>
       )}
     </Card>
