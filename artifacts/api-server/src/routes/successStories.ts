@@ -275,9 +275,22 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
       .where(eq(successStoriesTable.id, id))
       .limit(1);
 
+    const noteFromBody =
+      typeof req.body?.rejectionNote === "string" && req.body.rejectionNote.trim()
+        ? req.body.rejectionNote.trim()
+        : undefined;
+
     const [row] = await db
       .update(successStoriesTable)
-      .set({ ...parsed.data, updatedAt: new Date() })
+      .set({
+        ...parsed.data,
+        ...(parsed.data.status === "rejected"
+          ? { rejectionNote: noteFromBody ?? null }
+          : parsed.data.status
+            ? { rejectionNote: null }
+            : {}),
+        updatedAt: new Date(),
+      })
       .where(eq(successStoriesTable.id, id))
       .returning();
     if (!row) {
@@ -302,14 +315,10 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
         .limit(1);
 
       if (member) {
-        const rejectionReason =
-          typeof req.body?.rejectionReason === "string" && req.body.rejectionReason.trim()
-            ? req.body.rejectionReason.trim()
-            : undefined;
         const mail =
           newStatus === "published"
             ? storyPublishedEmail(member.fullName)
-            : storyRejectedEmail(member.fullName, rejectionReason);
+            : storyRejectedEmail(member.fullName, noteFromBody);
         void sendEmail({ to: member.email, ...mail });
       } else {
         logger.warn(

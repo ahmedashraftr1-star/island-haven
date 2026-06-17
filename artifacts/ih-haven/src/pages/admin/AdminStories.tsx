@@ -88,7 +88,7 @@ export default function AdminStories() {
     try {
       await api(`/admin/stories/${rejectTarget.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ status: "rejected", rejectionReason: rejectReason.trim() || undefined }),
+        body: JSON.stringify({ status: "rejected", rejectionNote: rejectReason.trim() || undefined }),
       });
       setRejectTarget(null);
       setRejectReason("");

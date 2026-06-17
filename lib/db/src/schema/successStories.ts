@@ -36,6 +36,7 @@ export const successStoriesTable = pgTable(
       .default("draft"),
     sortOrder: integer("sort_order").default(0).notNull(),
     submittedByUserId: integer("submitted_by_user_id"),
+    rejectionNote: text("rejection_note"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
