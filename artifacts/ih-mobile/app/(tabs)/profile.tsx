@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,6 +9,7 @@ import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
 import { resolveMedia, api, ApiError } from "@/lib/api";
+import type { CurrentUser } from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,7 +29,39 @@ export default function ProfileScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, refresh } = useAuth();
+  const [avatarDeleting, setAvatarDeleting] = useState(false);
+
+  function confirmAvatarDelete() {
+    Alert.alert(
+      "حذف الصورة الشخصيّة",
+      "هل أنت متأكّد من حذف صورتك الشخصيّة؟",
+      [
+        { text: "إلغاء", style: "cancel" },
+        {
+          text: "حذف",
+          style: "destructive",
+          onPress: handleAvatarDelete,
+        },
+      ]
+    );
+  }
+
+  async function handleAvatarDelete() {
+    if (avatarDeleting) return;
+    setAvatarDeleting(true);
+    try {
+      await api<{ user: CurrentUser }>("/auth/me", {
+        method: "PATCH",
+        body: { avatarUrl: null },
+      });
+      await refresh();
+    } catch {
+      Alert.alert("خطأ", "تعذّر حذف الصورة الشخصيّة، يرجى المحاولة مرّة أخرى.");
+    } finally {
+      setAvatarDeleting(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -78,13 +111,42 @@ export default function ProfileScreen() {
       contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, paddingBottom: 120, gap: 16 }}
     >
       <View style={{ alignItems: "center", gap: 12 }}>
-        {user.avatarUrl ? (
-          <Image source={{ uri: resolveMedia(user.avatarUrl) }} style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.muted }} />
-        ) : (
-          <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
-            <T size={32} weight="bold" color={colors.primary}>{user.fullName.trim().slice(0, 1)}</T>
-          </View>
-        )}
+        <View style={{ position: "relative" }}>
+          {user.avatarUrl ? (
+            <Image source={{ uri: resolveMedia(user.avatarUrl) }} style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.muted }} />
+          ) : (
+            <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+              <T size={32} weight="bold" color={colors.primary}>{user.fullName.trim().slice(0, 1)}</T>
+            </View>
+          )}
+          {user.avatarUrl ? (
+            <TouchableOpacity
+              onPress={confirmAvatarDelete}
+              disabled={avatarDeleting}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                width: 26,
+                height: 26,
+                borderRadius: 13,
+                backgroundColor: colors.background,
+                borderWidth: 1,
+                borderColor: "#ef444450",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: avatarDeleting ? 0.5 : 1,
+              }}
+              accessibilityLabel="حذف الصورة الشخصيّة"
+            >
+              {avatarDeleting ? (
+                <ActivityIndicator size="small" color="#ef4444" style={{ transform: [{ scale: 0.6 }] }} />
+              ) : (
+                <Feather name="trash-2" size={13} color="#ef4444" />
+              )}
+            </TouchableOpacity>
+          ) : null}
+        </View>
         <T size={22} weight="bold">{user.fullName}</T>
         {user.jobTitle ? <T size={14} color={colors.mutedForeground}>{user.jobTitle}</T> : null}
       </View>
