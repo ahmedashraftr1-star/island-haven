@@ -107,6 +107,7 @@ export default function Book() {
     attendees: 1,
     notes: "",
     expertId: null as number | null,
+    slotId: null as number | null,
     fullName: "",
     phone: "",
     email: "",
@@ -673,19 +674,37 @@ function ExpertSkeleton() {
   );
 }
 
+interface AvailableSlot {
+  id: number;
+  startAt: string;
+  endAt: string;
+  mode: "online" | "onsite";
+}
+
+function formatSlotTime(iso: string, lang: string) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(lang === "en" ? "en-US" : "ar-EG-u-nu-arab", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 function StepExpert({
   form,
   update,
   experts,
   visitDate,
 }: {
-  form: { expertId: number | null };
+  form: { expertId: number | null; slotId: number | null };
   update: (k: any, v: any) => void;
   experts: ExpertOption[] | null;
   visitDate: string;
 }) {
   const { lang } = useLanguage();
   const [availableIds, setAvailableIds] = useState<Set<number> | null>(null);
+  const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   useEffect(() => {
     if (!visitDate) {
@@ -703,6 +722,44 @@ function StepExpert({
     return () => { cancelled = true; };
   }, [visitDate]);
 
+  useEffect(() => {
+    if (!form.expertId || !visitDate) {
+      setDaySlots([]);
+      return;
+    }
+    let cancelled = false;
+    setSlotsLoading(true);
+    api<{ slots: AvailableSlot[] }>(`/experts/${form.expertId}/slots`)
+      .then((r) => {
+        if (cancelled) return;
+        const filtered = r.slots.filter((s) => {
+          const slotDate = new Date(s.startAt);
+          const y = slotDate.getFullYear();
+          const m = String(slotDate.getMonth() + 1).padStart(2, "0");
+          const d = String(slotDate.getDate()).padStart(2, "0");
+          return `${y}-${m}-${d}` === visitDate;
+        });
+        setDaySlots(filtered);
+      })
+      .catch(() => {
+        if (!cancelled) setDaySlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [form.expertId, visitDate]);
+
+  function handlePickExpert(id: number, currentlySelected: boolean) {
+    if (currentlySelected) {
+      update("expertId", null);
+      update("slotId", null);
+    } else {
+      if (form.expertId !== id) update("slotId", null);
+      update("expertId", id);
+    }
+  }
+
   return (
     <StepShell
       title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
@@ -715,79 +772,141 @@ function StepExpert({
         </p>
       )}
       {experts !== null && experts.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {[...experts].sort((a, b) => {
-            const rank = (e: ExpertOption) => {
-              if (!e.acceptingSessions) return 2;
-              if (availableIds !== null && availableIds.has(e.id)) return 0;
-              return 1;
-            };
-            return rank(a) - rank(b);
-          }).map((e) => {
-            const selected = form.expertId === e.id;
-            const initials = e.fullName.trim().charAt(0) || "؟";
-            const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
-            const unavailable = !e.acceptingSessions || hasSlot === false;
-            return (
-              <button
-                key={e.id}
-                onClick={() => update("expertId", selected ? null : e.id)}
-                data-testid={`expert-pick-${e.id}`}
-                className={`relative p-4 rounded-2xl text-right transition group ${
-                  unavailable && !selected ? "opacity-40" : ""
-                } ${
-                  selected
-                    ? "bg-primary/15 border border-primary/40 shadow-[0_8px_24px_-10px_rgba(220,38,55,0.4)]"
-                    : hasSlot === true
-                    ? "bg-emerald-500/[0.07] border border-emerald-500/25 hover:bg-emerald-500/[0.12] hover:border-emerald-500/40"
-                    : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
-                }`}
-              >
-                {selected && (
-                  <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
-                )}
-                {!selected && hasSlot === true && (
-                  <span className="absolute top-2 left-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
-                    {lang === "en" ? "Free" : "متاح"}
-                  </span>
-                )}
-                <div className="flex flex-col items-center gap-2.5">
-                  {e.avatarUrl ? (
-                    <img
-                      src={e.avatarUrl}
-                      alt={e.fullName}
-                      className="w-14 h-14 rounded-xl object-cover border border-white/10"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-xl font-bold text-white/80">
-                      {initials}
-                    </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[...experts].sort((a, b) => {
+              const rank = (e: ExpertOption) => {
+                if (!e.acceptingSessions) return 2;
+                if (availableIds !== null && availableIds.has(e.id)) return 0;
+                return 1;
+              };
+              return rank(a) - rank(b);
+            }).map((e) => {
+              const selected = form.expertId === e.id;
+              const initials = e.fullName.trim().charAt(0) || "؟";
+              const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
+              const unavailable = !e.acceptingSessions || hasSlot === false;
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => handlePickExpert(e.id, selected)}
+                  data-testid={`expert-pick-${e.id}`}
+                  className={`relative p-4 rounded-2xl text-right transition group ${
+                    unavailable && !selected ? "opacity-40" : ""
+                  } ${
+                    selected
+                      ? "bg-primary/15 border border-primary/40 shadow-[0_8px_24px_-10px_rgba(220,38,55,0.4)]"
+                      : hasSlot === true
+                      ? "bg-emerald-500/[0.07] border border-emerald-500/25 hover:bg-emerald-500/[0.12] hover:border-emerald-500/40"
+                      : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
+                  }`}
+                >
+                  {selected && (
+                    <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
                   )}
-                  <div className="w-full">
-                    <div className="text-[12.5px] font-semibold leading-snug line-clamp-1">
-                      {e.fullName}
-                    </div>
-                    {e.headline && (
-                      <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
-                        {e.headline}
+                  {!selected && hasSlot === true && (
+                    <span className="absolute top-2 left-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
+                      {lang === "en" ? "Free" : "متاح"}
+                    </span>
+                  )}
+                  <div className="flex flex-col items-center gap-2.5">
+                    {e.avatarUrl ? (
+                      <img
+                        src={e.avatarUrl}
+                        alt={e.fullName}
+                        className="w-14 h-14 rounded-xl object-cover border border-white/10"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-xl font-bold text-white/80">
+                        {initials}
                       </div>
                     )}
-                    {!e.acceptingSessions ? (
-                      <div className="text-[10.5px] text-white/35 mt-1">
-                        {lang === "en" ? "Unavailable" : "غير متاح"}
+                    <div className="w-full">
+                      <div className="text-[12.5px] font-semibold leading-snug line-clamp-1">
+                        {e.fullName}
                       </div>
-                    ) : hasSlot === false ? (
-                      <div className="text-[10.5px] text-white/35 mt-1">
-                        {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
-                      </div>
-                    ) : null}
+                      {e.headline && (
+                        <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
+                          {e.headline}
+                        </div>
+                      )}
+                      {!e.acceptingSessions ? (
+                        <div className="text-[10.5px] text-white/35 mt-1">
+                          {lang === "en" ? "Unavailable" : "غير متاح"}
+                        </div>
+                      ) : hasSlot === false ? (
+                        <div className="text-[10.5px] text-white/35 mt-1">
+                          {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {form.expertId !== null && (
+            <div className="mt-5 pt-5 border-t border-white/[0.07]">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-3.5 h-3.5 text-white/40 shrink-0" />
+                <span className="text-[12px] text-white/50 font-medium">
+                  {lang === "en" ? "Available slots for this day" : "المواعيد المتاحة لهذا اليوم"}
+                  <span className="text-white/30 ms-1">
+                    {lang === "en" ? "— optional" : "— اختياريّ"}
+                  </span>
+                </span>
+              </div>
+
+              {slotsLoading && (
+                <div className="flex gap-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-8 w-24 rounded-xl skeleton-shimmer" />
+                  ))}
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              )}
+
+              {!slotsLoading && daySlots.length === 0 && (
+                <p className="text-[12px] text-white/30 italic">
+                  {lang === "en"
+                    ? "No specific slots listed for this date — you can still book without a slot."
+                    : "لا توجد مواعيد محدّدة لهذا اليوم — يمكنك الحجز دون تحديد موعد."}
+                </p>
+              )}
+
+              {!slotsLoading && daySlots.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {daySlots.map((slot) => {
+                    const picked = form.slotId === slot.id;
+                    const start = formatSlotTime(slot.startAt, lang);
+                    const end = formatSlotTime(slot.endAt, lang);
+                    const modeLabel =
+                      slot.mode === "online"
+                        ? lang === "en" ? "Online" : "عن بُعد"
+                        : lang === "en" ? "On-site" : "حضوريّ";
+                    return (
+                      <button
+                        key={slot.id}
+                        onClick={() => update("slotId", picked ? null : slot.id)}
+                        data-testid={`slot-pick-${slot.id}`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition border ${
+                          picked
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-200 shadow-[0_4px_12px_-4px_rgba(52,211,153,0.3)]"
+                            : "bg-white/[0.05] border-white/10 text-white/70 hover:bg-white/[0.09] hover:border-white/20"
+                        }`}
+                      >
+                        {picked && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
+                        <span dir="ltr">{start} – {end}</span>
+                        <span className="text-[10px] opacity-60">· {modeLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </StepShell>
   );
