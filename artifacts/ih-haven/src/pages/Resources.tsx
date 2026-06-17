@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import {
   ArrowLeft,
   BookOpen,
@@ -54,11 +54,25 @@ const FILTERS: Array<{ key: "" | ResourceCategory; label: string }> = [
   { key: "recording", label: "تسجيلات" },
 ];
 
+const stagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
+};
+const rise: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
+};
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+
 export default function Resources() {
   const [rows, setRows] = useState<ResourceCard[] | null>(null);
   const [gated, setGated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"" | ResourceCategory>("");
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     document.title = "دليل الرّائد — Island Haven";
@@ -82,7 +96,9 @@ export default function Resources() {
     };
   }, []);
 
-  const filtered = filter ? rows?.filter((r) => r.category === filter) : rows;
+  const base = filter ? (rows ?? []).filter((r) => r.category === filter) : rows ?? [];
+  const filtered = [...base].sort((a, b) => Number(b.featured) - Number(a.featured));
+  const total = rows?.length ?? 0;
 
   return (
     <PageShell
@@ -124,23 +140,31 @@ export default function Resources() {
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
       )}
 
-      <div className="flex items-center gap-2 mb-8 flex-wrap">
-        {FILTERS.map((f) => {
-          const isActive = filter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
-                isActive
-                  ? "bg-primary/20 text-white border-primary/40"
-                  : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {FILTERS.map((f) => {
+            const isActive = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setFilter(f.key)}
+                className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
+                  isActive
+                    ? "bg-primary/20 text-white border-primary/40"
+                    : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+        {!!total && (
+          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+            {toArabicNum(total)} موردًا
+          </span>
+        )}
       </div>
 
       {rows === null && !error ? (
@@ -162,77 +186,92 @@ export default function Resources() {
           }
         />
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered?.map((r, i) => (
-            <motion.div
-              key={r.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.04 }}
-            >
-              <ResourceCardView r={r} />
-            </motion.div>
+        <motion.div
+          key={filter}
+          variants={reduce ? undefined : stagger}
+          initial={reduce ? undefined : "hidden"}
+          animate={reduce ? undefined : "show"}
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          {filtered.map((r) => (
+            <ResourceCardView key={r.id} r={r} reduce={!!reduce} />
           ))}
-        </div>
+        </motion.div>
       )}
     </PageShell>
   );
 }
 
-function ResourceCardView({ r }: { r: ResourceCard }) {
+function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
   const Icon = CATEGORY_ICONS[r.category];
   const href = r.externalUrl || r.fileUrl;
   return (
-    <a
-      href={href || "#"}
-      target={href ? "_blank" : undefined}
-      rel={href ? "noreferrer" : undefined}
-      className="group block h-full"
+    <motion.div
+      variants={reduce ? undefined : rise}
+      whileHover={reduce ? undefined : { y: -5 }}
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+      className="h-full"
     >
-      <GlassCard className="h-full flex flex-col p-6 hover:border-primary/40 transition-colors">
-        <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
-            <Icon className="w-5 h-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
-                {RESOURCE_CATEGORY_LABELS[r.category]}
-              </span>
-              {r.featured && (
-                <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
-              )}
+      <a
+        href={href || "#"}
+        target={href ? "_blank" : undefined}
+        rel={href ? "noreferrer" : undefined}
+        className="group block h-full"
+      >
+        <GlassCard
+          className={`group h-full flex flex-col p-6 transition-colors ${
+            r.featured ? "border-amber-400/25 hover:border-amber-300/45" : "hover:border-primary/40"
+          }`}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{ background: "radial-gradient(130% 80% at 80% 0%, hsl(354 80% 55% / 0.09), transparent 60%)" }}
+          />
+          <div className="relative flex items-start gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0 transition-transform duration-300 group-hover:scale-110">
+              <Icon className="w-5 h-5" />
             </div>
-            <h3 className="text-white font-bold text-[15.5px] leading-snug">
-              {r.title}
-            </h3>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
+                  {RESOURCE_CATEGORY_LABELS[r.category]}
+                </span>
+                {r.featured && (
+                  <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                )}
+              </div>
+              <h3 className="text-white font-bold text-[15.5px] leading-snug">
+                {r.title}
+              </h3>
+            </div>
           </div>
-        </div>
-        {r.summary && (
-          <p className="text-white/60 text-[13px] leading-[1.85] mb-4 line-clamp-3 flex-1">
-            {r.summary}
-          </p>
-        )}
-        <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
-          {r.visibility === "members" ? (
-            <span className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/85">
-              <Lock className="w-3 h-3" />
-              للمنتسبين
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-200/85">
-              <Sparkles className="w-3 h-3" />
-              للجميع
-            </span>
+          {r.summary && (
+            <p className="relative text-white/60 text-[13px] leading-[1.85] mb-4 line-clamp-3 flex-1">
+              {r.summary}
+            </p>
           )}
-          {href && (
-            <span className="inline-flex items-center gap-1.5">
-              {r.externalUrl ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-              فتح
-            </span>
-          )}
-        </div>
-      </GlassCard>
-    </a>
+          <div className="relative pt-3 border-t border-white/[0.06] flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
+            {r.visibility === "members" ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/85">
+                <Lock className="w-3 h-3" />
+                للمنتسبين
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-200/85">
+                <Sparkles className="w-3 h-3" />
+                للجميع
+              </span>
+            )}
+            {href && (
+              <span className="inline-flex items-center gap-1.5">
+                {r.externalUrl ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                فتح
+              </span>
+            )}
+          </div>
+        </GlassCard>
+      </a>
+    </motion.div>
   );
 }
