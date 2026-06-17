@@ -1,5 +1,14 @@
-import React from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Animated,
+  Easing,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -76,10 +85,51 @@ function greeting(content: SiteContent): { eyebrow: string; title: string; body:
   };
 }
 
+function useReduceMotion(): boolean {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled().then((v) => alive && setReduce(v));
+    const sub = AccessibilityInfo.addEventListener("reduceMotionChanged", setReduce);
+    return () => {
+      alive = false;
+      sub?.remove?.();
+    };
+  }, []);
+  return reduce;
+}
+
+// Eases a number from 0 → target on mount (skipped under reduce-motion).
+function useCountUp(target: number): number {
+  const reduce = useReduceMotion();
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (reduce || target <= 0) {
+      setVal(target);
+      return;
+    }
+    let raf = 0;
+    let startTs = 0;
+    const dur = 900;
+    const tick = (ts: number) => {
+      if (!startTs) startTs = ts;
+      const p = Math.min(1, (ts - startTs) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, reduce]);
+  return val;
+}
+
 export default function Home() {
   const router = useRouter();
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const reduce = useReduceMotion();
+  const intro = useRef(new Animated.Value(0)).current;
 
   const contentQ = useQuery<{ content: SiteContent }>({
     queryKey: ["content"],
@@ -106,6 +156,21 @@ export default function Home() {
     queryFn: () => api("/partners"),
   });
 
+  useEffect(() => {
+    if (contentQ.isLoading) return;
+    if (reduce) {
+      intro.setValue(1);
+      return;
+    }
+    intro.setValue(0);
+    Animated.timing(intro, {
+      toValue: 1,
+      duration: 500,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [contentQ.isLoading, reduce, intro]);
+
   if (contentQ.isLoading) {
     return (
       <View style={[s.center, { backgroundColor: colors.background }]}>
@@ -129,22 +194,87 @@ export default function Home() {
       contentContainerStyle={{ paddingBottom: 120, backgroundColor: colors.background }}
       style={{ backgroundColor: colors.background }}
       renderItem={() => (
-        <View>
+        <Animated.View
+          style={{
+            opacity: intro,
+            transform: [{ translateY: intro.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+          }}
+        >
           {/* Hero */}
-          <View style={[s.hero, { paddingTop: insets.top + 24, backgroundColor: colors.primary }]}>
+          <View
+            style={{
+              paddingTop: insets.top + 26,
+              paddingHorizontal: 20,
+              paddingBottom: 30,
+              borderBottomLeftRadius: 30,
+              borderBottomRightRadius: 30,
+              overflow: "hidden",
+              backgroundColor: colors.primary,
+            }}
+          >
             <LinearGradient
-              colors={["transparent", "rgba(0,0,0,0.15)"]}
+              colors={["hsl(354, 78%, 52%)", "hsl(348, 82%, 34%)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFill}
             />
+            <View
+              style={{
+                alignSelf: "flex-end",
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 6,
+                paddingHorizontal: 11,
+                paddingVertical: 5,
+                borderRadius: 999,
+                backgroundColor: "rgba(255,255,255,0.16)",
+                marginBottom: 14,
+              }}
+            >
+              <Feather name="heart" size={12} color="#fff" />
+              <T size={11.5} weight="medium" color="#fff">حاضنة أعمال في غزّة · من النّاس إلى النّاس</T>
+            </View>
             <T size={13} weight="medium" color="rgba(255,255,255,0.85)">
               {g.eyebrow}
             </T>
-            <T size={30} weight="bold" color="#fff" style={{ marginTop: 8, lineHeight: 38 }}>
+            <T size={31} weight="bold" color="#fff" style={{ marginTop: 6, lineHeight: 40 }}>
               {g.title}
             </T>
             <T size={15} color="rgba(255,255,255,0.92)" style={{ marginTop: 10, lineHeight: 24 }}>
               {g.body}
             </T>
+            <View style={{ flexDirection: "row-reverse", gap: 10, marginTop: 18 }}>
+              <Pressable
+                onPress={() => router.push("/apply" as never)}
+                style={{
+                  flexDirection: "row-reverse",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingHorizontal: 18,
+                  paddingVertical: 11,
+                  borderRadius: 999,
+                  backgroundColor: "#fff",
+                }}
+              >
+                <Feather name="user-plus" size={15} color={colors.primary} />
+                <T size={13.5} weight="bold" color={colors.primary}>انتسب الآن</T>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push("/programs" as never)}
+                style={{
+                  flexDirection: "row-reverse",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingHorizontal: 18,
+                  paddingVertical: 11,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: "rgba(255,255,255,0.5)",
+                }}
+              >
+                <T size={13.5} weight="bold" color="#fff">استكشف البرامج</T>
+              </Pressable>
+            </View>
           </View>
 
           {/* Quick shortcuts */}
@@ -153,6 +283,7 @@ export default function Home() {
               horizontal
               data={
                 [
+                  { key: "book", label: "احجز مقعدك", icon: "calendar" },
                   { key: "programs", label: "برامج الاحتضان", icon: "layers" },
                   { key: "cohorts", label: "دفعات الاحتضان", icon: "git-branch" },
                   { key: "experts", label: "خبراء ومرشدون", icon: "award" },
@@ -297,8 +428,11 @@ export default function Home() {
                         </View>
                       )}
                       <View style={{ flex: 1 }}>
-                        <T size={14} weight="bold" numberOfLines={1}>{item.fullName}</T>
-                        <T size={12} color={colors.mutedForeground} numberOfLines={1}>{item.headline}</T>
+                        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 5 }}>
+                          <T size={14} weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>{item.fullName}</T>
+                          {item.featured ? <Feather name="star" size={12} color={colors.primary} /> : null}
+                        </View>
+                        <T size={12} color={colors.primary} weight="medium" numberOfLines={1}>{item.headline}</T>
                       </View>
                     </View>
                     <T size={12} color={colors.mutedForeground} numberOfLines={2}>
@@ -500,7 +634,7 @@ export default function Home() {
               </View>
             </View>
           )}
-        </View>
+        </Animated.View>
       )}
     />
   );
@@ -508,6 +642,7 @@ export default function Home() {
 
 function NumberTile({ label, value }: { label: string; value: number }) {
   const colors = useColors();
+  const display = useCountUp(value);
   return (
     <View
       style={{
@@ -520,7 +655,7 @@ function NumberTile({ label, value }: { label: string; value: number }) {
         alignItems: "flex-end",
       }}
     >
-      <T size={28} weight="bold" color={colors.primary}>{value.toLocaleString("ar-EG")}</T>
+      <T size={28} weight="bold" color={colors.primary}>{display.toLocaleString("ar-EG")}</T>
       <T size={13} color={colors.mutedForeground}>{label}</T>
     </View>
   );
