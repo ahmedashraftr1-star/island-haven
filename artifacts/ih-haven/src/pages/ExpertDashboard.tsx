@@ -13,6 +13,16 @@ import {
   Camera,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -330,6 +340,8 @@ function ProfilePanel({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [confirmAvatarOpen, setConfirmAvatarOpen] = useState(false);
 
   useEffect(() => {
     setForm(profile);
@@ -345,9 +357,7 @@ function ProfilePanel({
     setForm((f) => (f ? { ...f, [k]: v } : f));
   }
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || avatarUploading) return;
+  async function doAvatarUpload(file: File) {
     setAvatarError(null);
     setAvatarUploading(true);
     try {
@@ -379,6 +389,17 @@ function ProfilePanel({
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  }
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || avatarUploading) return;
+    if (form?.avatarUrl) {
+      setPendingAvatarFile(file);
+      setConfirmAvatarOpen(true);
+    } else {
+      doAvatarUpload(file);
     }
   }
 
@@ -556,6 +577,42 @@ function ProfilePanel({
           {busy ? "…" : "حفظ الملف"}
         </button>
       </div>
+
+      <AlertDialog open={confirmAvatarOpen} onOpenChange={setConfirmAvatarOpen}>
+        <AlertDialogContent
+          dir="rtl"
+          className="bg-[#0f1424] border border-white/10 text-white rounded-2xl max-w-sm"
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white text-[15px] font-bold">
+              استبدال الصورة الشخصية؟
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white/55 text-[13px]">
+              سيُستبدل صورتك الحالية بالصورة الجديدة. لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 mt-1">
+            <AlertDialogCancel
+              onClick={() => {
+                setPendingAvatarFile(null);
+                if (avatarInputRef.current) avatarInputRef.current.value = "";
+              }}
+              className="flex-1 rounded-xl border-white/15 bg-white/[0.06] text-white hover:bg-white/10 hover:text-white"
+            >
+              إلغاء
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingAvatarFile) doAvatarUpload(pendingAvatarFile);
+                setPendingAvatarFile(null);
+              }}
+              className="flex-1 rounded-xl bg-primary text-white hover:bg-primary/90"
+            >
+              استبدال
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </GlassCard>
   );
 }
