@@ -107,6 +107,7 @@ function ProfileInner({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarDeleting, setAvatarDeleting] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarDeleteConfirm, setAvatarDeleteConfirm] = useState(false);
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -340,21 +341,65 @@ function ProfileInner({
                   {ROLE_LABELS[user.role]}
                 </div>
                 {user.avatarUrl && (
-                  <button
-                    type="button"
-                    onClick={handleAvatarDelete}
-                    disabled={avatarDeleting || avatarUploading}
-                    className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-[#0A0E1A] border border-red-500/40 text-red-400 hover:bg-red-500/15 hover:border-red-400 transition-colors flex items-center justify-center disabled:opacity-50"
-                    title="حذف الصورة الشخصيّة"
-                    aria-label="حذف الصورة الشخصيّة"
-                    data-testid="button-delete-avatar"
-                  >
-                    {avatarDeleting ? (
-                      <span className="w-3 h-3 rounded-full border border-red-400/40 border-t-red-400 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3 h-3" />
-                    )}
-                  </button>
+                  <div className="absolute -bottom-1 -left-1">
+                    <button
+                      type="button"
+                      onClick={() => !avatarDeleting && !avatarUploading && setAvatarDeleteConfirm(true)}
+                      disabled={avatarDeleting || avatarUploading}
+                      className="w-6 h-6 rounded-full bg-[#0A0E1A] border border-red-500/40 text-red-400 hover:bg-red-500/15 hover:border-red-400 transition-colors flex items-center justify-center disabled:opacity-50"
+                      title="حذف الصورة الشخصيّة"
+                      aria-label="حذف الصورة الشخصيّة"
+                      data-testid="button-delete-avatar"
+                    >
+                      {avatarDeleting ? (
+                        <span className="w-3 h-3 rounded-full border border-red-400/40 border-t-red-400 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3 h-3" />
+                      )}
+                    </button>
+                    <AnimatePresence>
+                      {avatarDeleteConfirm && (
+                        <>
+                        <div
+                          className="fixed inset-0 z-20"
+                          onClick={() => setAvatarDeleteConfirm(false)}
+                          aria-hidden
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: 4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: 4 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute bottom-8 left-0 z-30 w-max rounded-2xl bg-[#13172A] border border-white/12 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.7)] p-3 flex flex-col gap-2.5"
+                          dir="rtl"
+                        >
+                          <p className="text-white text-[12.5px] font-semibold whitespace-nowrap">حذف الصورة؟</p>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAvatarDeleteConfirm(false);
+                                handleAvatarDelete();
+                              }}
+                              className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 text-[11.5px] font-semibold hover:bg-red-500/30 transition-colors"
+                              data-testid="button-delete-avatar-confirm"
+                            >
+                              حذف
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAvatarDeleteConfirm(false)}
+                              className="px-3 py-1 rounded-lg bg-white/[0.06] border border-white/12 text-white/65 text-[11.5px] font-semibold hover:bg-white/[0.1] transition-colors"
+                              data-testid="button-delete-avatar-cancel"
+                            >
+                              إلغاء
+                            </button>
+                          </div>
+                        </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
