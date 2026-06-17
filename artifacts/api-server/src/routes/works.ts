@@ -6,6 +6,8 @@ import {
   worksLikesTable,
   worksCommentsTable,
   usersTable,
+  badgesTable,
+  userBadgesTable,
   upsertWorkSchema,
   USER_ROLES,
   type UserRole,
@@ -390,12 +392,26 @@ router.get("/users/:id", optionalUser, async (req, res) => {
             ),
       )
       .orderBy(desc(worksTable.createdAt));
+    // Earned badges (public — same data the leaderboard already exposes).
+    const badges = await db
+      .select({
+        id: badgesTable.id,
+        key: badgesTable.key,
+        name: badgesTable.name,
+        description: badgesTable.description,
+        icon: badgesTable.icon,
+        color: badgesTable.color,
+      })
+      .from(userBadgesTable)
+      .innerJoin(badgesTable, eq(badgesTable.id, userBadgesTable.badgeId))
+      .where(eq(userBadgesTable.userId, id))
+      .orderBy(desc(userBadgesTable.awardedAt));
     // Strip internal fields before sending: status is for server-side checks only.
     // Phone is contact info — only expose to authenticated members
     // to prevent anonymous scraping by ID enumeration.
     const { status: _status, ...uPublic } = u;
     const user = session ? uPublic : { ...uPublic, phone: null as unknown as string };
-    res.json({ user, works });
+    res.json({ user, works, badges });
   } catch (err) {
     logger.error({ err }, "GET /users/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });

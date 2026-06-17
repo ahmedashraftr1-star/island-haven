@@ -8,6 +8,7 @@ import {
   Github,
   Briefcase,
   ExternalLink,
+  Award,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
@@ -37,6 +38,14 @@ interface Resp {
     summary: string;
     coverUrl: string | null;
     tags: string;
+  }>;
+  badges?: Array<{
+    id: number;
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
   }>;
 }
 
@@ -189,6 +198,27 @@ export default function PublicProfile() {
           </div>
         )}
       </GlassCard>
+
+      {data.badges && data.badges.length > 0 && (
+        <div className="mb-6">
+          <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
+            الإنجازات — {data.badges.length}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {data.badges.map((b) => (
+              <span
+                key={b.id}
+                title={b.description || b.name}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400/10 text-amber-200 border border-amber-400/30 text-[12.5px] font-semibold"
+                data-testid={`badge-${b.key}`}
+              >
+                <Award className="w-3.5 h-3.5" />
+                {b.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
         الأعمال — {data.works.length}
