@@ -1,112 +1,156 @@
-import { and, isNull, isNotNull, gte, lte, sql } from "drizzle-orm";
-import { db, usersTable, expertProfilesTable } from "@workspace/db";
+import { and, eq, isNull } from "drizzle-orm";
+import { db, usersTable, pendingRemindersTable } from "@workspace/db";
 import { createResetToken } from "../routes/auth";
 import { sendEmail, mentorPasswordReminderEmail } from "./email";
 import { logger } from "./logger";
 
-// Reminder window: send once between the 20-hour and 24-hour mark after approval.
-// This gives the mentor ~4 hours to use the fresh link before it expires.
-const REMINDER_AFTER_MS = 20 * 60 * 60 * 1000; // 20 h
-const REMINDER_BEFORE_MS = 24 * 60 * 60 * 1000; // 24 h (outer bound)
-const FRESH_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // fresh 24-hour window
+const FRESH_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24-hour window for the mentor
 
 /**
- * Scans expert_profiles for mentors approved between 20 h and 24 h ago whose
- * password has never been set and who haven't received a reminder yet.
- * For each match: mints a fresh 24-hour reset token, emails the reminder, and
- * marks reminder_sent_at so the reminder is sent exactly once per approval.
- *
- * Safe to call repeatedly — the WHERE clause is idempotent.
+ * Fires a single pending reminder row: mints a fresh 24-hour reset token,
+ * sends the email, and marks the row sent.  Skips if the mentor has already
+ * set their password.
  */
-export async function runMentorReminderJob(): Promise<void> {
+async function fireReminder(row: {
+  id: number;
+  email: string;
+  fullName: string;
+}): Promise<void> {
   try {
-    const now = new Date();
-    const windowStart = new Date(now.getTime() - REMINDER_BEFORE_MS);
-    const windowEnd = new Date(now.getTime() - REMINDER_AFTER_MS);
+    // Skip if the mentor already set their password — nothing to remind.
+    const [user] = await db
+      .select({ passwordSetAt: usersTable.passwordSetAt })
+      .from(usersTable)
+      .where(eq(usersTable.email, row.email))
+      .limit(1);
 
-    const candidates = await db
-      .select({
-        profileId: expertProfilesTable.id,
-        email: usersTable.email,
-        fullName: usersTable.fullName,
-      })
-      .from(expertProfilesTable)
-      .innerJoin(usersTable, sql`${usersTable.id} = ${expertProfilesTable.userId}`)
-      .where(
-        and(
-          isNotNull(expertProfilesTable.approvedAt),
-          gte(expertProfilesTable.approvedAt, windowStart),
-          lte(expertProfilesTable.approvedAt, windowEnd),
-          isNull(expertProfilesTable.reminderSentAt),
-          isNull(usersTable.passwordSetAt),
-        ),
+    if (user?.passwordSetAt) {
+      logger.info(
+        { email: row.email, id: row.id },
+        "mentorReminderJob: mentor already set password — marking sent without emailing",
       );
-
-    if (candidates.length === 0) {
-      logger.debug("mentorReminderJob: no pending reminders");
+      await db
+        .update(pendingRemindersTable)
+        .set({ sent: true, sentAt: new Date() })
+        .where(eq(pendingRemindersTable.id, row.id));
       return;
     }
 
-    logger.info(
-      { count: candidates.length },
-      "mentorReminderJob: sending password-setup reminders",
-    );
-
+    // Mint a fresh 24-hour token so the mentor gets a full window.
     const frontendUrl =
       process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
+    const rawToken = createResetToken(row.email, FRESH_TOKEN_TTL_MS);
+    const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+    const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);
 
-    for (const candidate of candidates) {
-      try {
-        const rawToken = createResetToken(candidate.email, FRESH_TOKEN_TTL_MS);
-        const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
-        const mail = mentorPasswordReminderEmail(candidate.fullName, resetUrl);
+    const delivered = await sendEmail({ to: row.email, ...mail });
 
-        const delivered = await sendEmail({ to: candidate.email, ...mail });
-
-        if (delivered) {
-          await db
-            .update(expertProfilesTable)
-            .set({ reminderSentAt: now, updatedAt: now })
-            .where(sql`${expertProfilesTable.id} = ${candidate.profileId}`);
-
-          logger.info(
-            { email: candidate.email, profileId: candidate.profileId },
-            "mentorReminderJob: reminder sent",
-          );
-        } else {
-          logger.warn(
-            { email: candidate.email, profileId: candidate.profileId },
-            "mentorReminderJob: email delivery failed — will retry on next run",
-          );
-        }
-      } catch (err) {
-        logger.error(
-          { err, email: candidate.email },
-          "mentorReminderJob: failed to send reminder for candidate",
-        );
-      }
+    if (delivered) {
+      await db
+        .update(pendingRemindersTable)
+        .set({ sent: true, sentAt: new Date() })
+        .where(eq(pendingRemindersTable.id, row.id));
+      logger.info(
+        { email: row.email, id: row.id },
+        "mentorReminderJob: reminder sent",
+      );
+    } else {
+      logger.warn(
+        { email: row.email, id: row.id },
+        "mentorReminderJob: email delivery failed — will retry on next startup",
+      );
     }
   } catch (err) {
-    logger.error({ err }, "mentorReminderJob: scan failed");
+    logger.error(
+      { err, email: row.email, id: row.id },
+      "mentorReminderJob: failed to fire reminder",
+    );
   }
 }
 
 /**
- * Starts the recurring mentor password-setup reminder job.
- * Runs immediately on startup (to catch any missed reminders from before a
- * restart), then repeats every hour.  The interval is unref'd so it doesn't
- * prevent a clean process shutdown.
+ * Schedules a single pending reminder for in-process delivery.
+ * - If sendAt is in the past (or now): fires immediately.
+ * - If sendAt is in the future: registers a setTimeout that fires at the
+ *   right moment.  The handle is unref'd so it doesn't block process shutdown.
+ *
+ * Call this both at startup (for existing rows) AND right after inserting a
+ * new row at approval time, so reminders are always delivered even if the
+ * server never restarts.
+ */
+export function schedulePendingReminder(row: {
+  id: number;
+  email: string;
+  fullName: string;
+  sendAt: Date;
+}): void {
+  const delayMs = row.sendAt.getTime() - Date.now();
+
+  if (delayMs <= 0) {
+    void fireReminder(row);
+  } else {
+    const handle = setTimeout(() => {
+      void fireReminder(row);
+    }, delayMs);
+    handle.unref();
+
+    logger.info(
+      {
+        email: row.email,
+        id: row.id,
+        delayMinutes: Math.round(delayMs / 60_000),
+      },
+      "mentorReminderJob: scheduled future reminder",
+    );
+  }
+}
+
+/**
+ * Starts the mentor password-setup reminder job.
+ *
+ * On startup it reads every unsent row from `pending_reminders` and calls
+ * `schedulePendingReminder` for each one:
+ *   - Overdue rows fire immediately.
+ *   - Future rows are scheduled with setTimeout.
+ *
+ * Because the table is the source of truth, server restarts are safe: the
+ * next startup re-reads the table and re-schedules whatever is still pending.
+ * New approvals that happen while the server is running are handled by calling
+ * `schedulePendingReminder` directly after inserting the row.
  */
 export function startMentorReminderJob(): void {
-  const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+  void (async () => {
+    try {
+      const rows = await db
+        .select({
+          id: pendingRemindersTable.id,
+          email: pendingRemindersTable.email,
+          fullName: pendingRemindersTable.fullName,
+          sendAt: pendingRemindersTable.sendAt,
+        })
+        .from(pendingRemindersTable)
+        .where(
+          and(
+            eq(pendingRemindersTable.sent, false),
+            isNull(pendingRemindersTable.sentAt),
+          ),
+        );
 
-  void runMentorReminderJob();
+      if (rows.length === 0) {
+        logger.debug("mentorReminderJob: no pending reminders on startup");
+      } else {
+        logger.info(
+          { count: rows.length },
+          "mentorReminderJob: replaying pending reminders from DB",
+        );
+        for (const row of rows) {
+          schedulePendingReminder(row);
+        }
+      }
+    } catch (err) {
+      logger.error({ err }, "mentorReminderJob: startup scan failed");
+    }
+  })();
 
-  const handle = setInterval(() => {
-    void runMentorReminderJob();
-  }, INTERVAL_MS);
-
-  handle.unref();
-
-  logger.info("mentorReminderJob: scheduled (1 h interval)");
+  logger.info("mentorReminderJob: started");
 }

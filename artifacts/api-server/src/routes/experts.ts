@@ -7,6 +7,7 @@ import {
   usersTable,
   expertProfilesTable,
   mentorshipSessionsTable,
+  pendingRemindersTable,
   expertProfileSchema,
   adminExpertProfileSchema,
   createExpertSchema,
@@ -21,6 +22,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { createResetToken } from "./auth";
+import { schedulePendingReminder } from "../lib/mentorReminderJob";
 import { logger } from "../lib/logger";
 import {
   sendEmail,
@@ -780,11 +782,27 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
           const mail = mentorApplicationApprovedEmail(user.fullName, resetUrl);
           void sendEmail({ to: user.email, ...mail });
 
-          // Persist approvedAt so the reminder cron can find this expert.
+          const approvedAt = new Date();
+
+          // Persist approvedAt so the reminder job can find this expert.
           await db
             .update(expertProfilesTable)
-            .set({ approvedAt: new Date(), updatedAt: new Date() })
+            .set({ approvedAt, updatedAt: approvedAt })
             .where(eq(expertProfilesTable.id, id));
+
+          // Schedule the 20-hour password-setup reminder.
+          // 1. Insert a persistent row so the reminder survives restarts.
+          // 2. Also schedule it in-process via schedulePendingReminder so it
+          //    fires even if the server never restarts before the 20-hour mark.
+          const REMINDER_DELAY_MS = 20 * 60 * 60 * 1000; // 20 h
+          const sendAt = new Date(approvedAt.getTime() + REMINDER_DELAY_MS);
+          const [reminderRow] = await db
+            .insert(pendingRemindersTable)
+            .values({ email: user.email, fullName: user.fullName, sendAt })
+            .returning();
+          if (reminderRow) {
+            schedulePendingReminder(reminderRow);
+          }
         }
       } catch (emailErr) {
         logger.error({ emailErr }, "Failed to send mentor approval email");

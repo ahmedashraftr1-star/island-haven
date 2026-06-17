@@ -26,3 +26,4 @@ export * from "./notifications";
 export * from "./jobListings";
 export * from "./newsletterSubscribers";
 export * from "./investors";
+export * from "./pendingReminders";
