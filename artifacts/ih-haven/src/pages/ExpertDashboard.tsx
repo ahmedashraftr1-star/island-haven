@@ -11,6 +11,7 @@ import {
   Trash2,
   Clock,
   Camera,
+  X,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import {
@@ -342,6 +343,8 @@ function ProfilePanel({
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [confirmAvatarOpen, setConfirmAvatarOpen] = useState(false);
+  const [confirmRemoveAvatarOpen, setConfirmRemoveAvatarOpen] = useState(false);
+  const [avatarRemoving, setAvatarRemoving] = useState(false);
 
   useEffect(() => {
     setForm(profile);
@@ -389,6 +392,28 @@ function ProfilePanel({
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  }
+
+  async function doAvatarRemove() {
+    setAvatarError(null);
+    setAvatarRemoving(true);
+    try {
+      const patchRes = await fetch("/api/experts/me/avatar", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: null }),
+      });
+      if (!patchRes.ok) {
+        throw new Error("تعذّر حذف الصورة");
+      }
+      setForm((f) => (f ? { ...f, avatarUrl: null } : f));
+      onSaved({ ...form!, avatarUrl: null });
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "تعذّر حذف الصورة");
+    } finally {
+      setAvatarRemoving(false);
     }
   }
 
@@ -458,7 +483,7 @@ function ProfilePanel({
           <button
             type="button"
             onClick={() => avatarInputRef.current?.click()}
-            disabled={avatarUploading}
+            disabled={avatarUploading || avatarRemoving}
             className="absolute -bottom-2 -left-2 w-7 h-7 rounded-full bg-primary border-2 border-[#0A0E1A] flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
             title="تغيير الصورة"
           >
@@ -468,6 +493,21 @@ function ProfilePanel({
               <Camera className="w-3.5 h-3.5 text-white" />
             )}
           </button>
+          {form.avatarUrl && (
+            <button
+              type="button"
+              onClick={() => setConfirmRemoveAvatarOpen(true)}
+              disabled={avatarUploading || avatarRemoving}
+              className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-[#1a1f35] border border-white/15 flex items-center justify-center hover:bg-red-500/20 hover:border-red-400/40 transition-colors disabled:opacity-50"
+              title="حذف الصورة"
+            >
+              {avatarRemoving ? (
+                <span className="w-2.5 h-2.5 border border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <X className="w-3 h-3 text-white/60" />
+              )}
+            </button>
+          )}
           <input
             ref={avatarInputRef}
             type="file"
@@ -609,6 +649,35 @@ function ProfilePanel({
               className="flex-1 rounded-xl bg-primary text-white hover:bg-primary/90"
             >
               استبدال
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmRemoveAvatarOpen} onOpenChange={setConfirmRemoveAvatarOpen}>
+        <AlertDialogContent
+          dir="rtl"
+          className="bg-[#0f1424] border border-white/10 text-white rounded-2xl max-w-sm"
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white text-[15px] font-bold">
+              حذف الصورة الشخصية؟
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-white/55 text-[13px]">
+              ستُحذف صورتك الحالية وتُستبدل بالأيقونة الافتراضية.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 mt-1">
+            <AlertDialogCancel
+              className="flex-1 rounded-xl border-white/15 bg-white/[0.06] text-white hover:bg-white/10 hover:text-white"
+            >
+              إلغاء
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => doAvatarRemove()}
+              className="flex-1 rounded-xl bg-red-600 text-white hover:bg-red-500"
+            >
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
