@@ -1,7 +1,7 @@
 import React from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 
@@ -20,6 +20,7 @@ interface WorkAuthor {
 export default function WorkDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
+  const router = useRouter();
   const q = useQuery<{ work: Work; author?: WorkAuthor }>({
     queryKey: ["work", id],
     queryFn: () => api(`/works/${id}`),
@@ -46,7 +47,16 @@ export default function WorkDetail() {
       ) : null}
       <T size={22} weight="bold">{w.title}</T>
       {displayName ? (
-        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+        <Pressable
+          onPress={() => author?.id ? router.push(`/member/${author.id}`) : undefined}
+          style={({ pressed }) => ({
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            gap: 8,
+            opacity: pressed && author?.id ? 0.6 : 1,
+            alignSelf: "flex-start",
+          })}
+        >
           {author?.avatarUrl ? (
             <Image
               source={{ uri: resolveMedia(author.avatarUrl) }}
@@ -58,8 +68,11 @@ export default function WorkDetail() {
               <T size={13} weight="bold" color={colors.primary}>{(displayName || "·").slice(0, 1)}</T>
             </View>
           )}
-          <T size={13} color={colors.mutedForeground}>{displayName}</T>
-        </View>
+          <T size={13} color={author?.id ? colors.primary : colors.mutedForeground} weight={author?.id ? "medium" : "normal"}>
+            {displayName}
+          </T>
+          {author?.id ? <Feather name="chevron-left" size={14} color={colors.primary} /> : null}
+        </Pressable>
       ) : null}
       {w.description ? (
         <Card>
