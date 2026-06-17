@@ -23,6 +23,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "calendar", selected: "calendar" }} />
         <Label>فعاليات</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="works">
+        <Icon sf={{ default: "briefcase", selected: "briefcase.fill" }} />
+        <Label>الأعمال</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="gallery">
         <Icon sf={{ default: "photo.on.rectangle", selected: "photo.fill.on.rectangle.fill" }} />
         <Label>الصور</Label>
@@ -87,6 +91,13 @@ function ClassicTabLayout() {
         options={{
           title: "فعاليات",
           tabBarIcon: ({ color }) => <Feather name="calendar" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="works"
+        options={{
+          title: "الأعمال",
+          tabBarIcon: ({ color }) => <Feather name="briefcase" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
