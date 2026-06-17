@@ -18,7 +18,8 @@ interface MyStoryData {
   story: string;
   ventureName: string;
   projectUrl: string | null;
-  status: "draft" | "published" | "hidden";
+  status: "draft" | "published" | "hidden" | "rejected";
+  rejectionNote: string | null;
 }
 
 // ─── Profile Screen ───────────────────────────────────────────────────────────
@@ -122,6 +123,14 @@ const STATUS_LABEL: Record<string, string> = {
   draft: "بانتظار المراجعة",
   published: "منشورة",
   hidden: "مخفيّة",
+  rejected: "مرفوضة",
+};
+
+const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
+  draft: { bg: "#f59e0b20", text: "#f59e0b" },
+  published: { bg: "#10b98120", text: "#10b981" },
+  hidden: { bg: "#6b728020", text: "#6b7280" },
+  rejected: { bg: "#ef444420", text: "#ef4444" },
 };
 
 function MyStorySection() {
@@ -131,6 +140,7 @@ function MyStorySection() {
   const [form, setForm] = useState({ quote: "", fullStory: "", ventureName: "", projectUrl: "" });
   const [saving, setSaving] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [resubmitting, setResubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
@@ -207,26 +217,38 @@ function MyStorySection() {
 
   const isDraft = story?.status === "draft";
   const isPublished = story?.status === "published";
+  const isRejected = story?.status === "rejected";
+
+  async function handleResubmit() {
+    setResubmitting(true);
+    setError(null);
+    try {
+      const r = await api<{ story: MyStoryData }>("/me/story/resubmit", { method: "POST" });
+      setStory(r.story);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر إعادة التقديم");
+    } finally {
+      setResubmitting(false);
+    }
+  }
+
+  const badgeColor = story ? (STATUS_COLOR[story.status] ?? { bg: colors.muted, text: colors.mutedForeground }) : null;
 
   return (
     <Card style={{ gap: 12 }}>
       <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
         <Feather name="book-open" size={16} color={colors.mutedForeground} />
         <T size={14} weight="bold">قصّتي في الحاضنة</T>
-        {story !== undefined && story !== null && (
+        {story !== undefined && story !== null && badgeColor && (
           <View
             style={{
-              backgroundColor: isPublished ? "#10b98120" : isDraft ? "#f59e0b20" : colors.muted,
+              backgroundColor: badgeColor.bg,
               borderRadius: 20,
               paddingHorizontal: 8,
               paddingVertical: 2,
             }}
           >
-            <T
-              size={11}
-              weight="medium"
-              color={isPublished ? "#10b981" : isDraft ? "#f59e0b" : colors.mutedForeground}
-            >
+            <T size={11} weight="medium" color={badgeColor.text}>
               {STATUS_LABEL[story.status] ?? story.status}
             </T>
           </View>
@@ -255,6 +277,56 @@ function MyStorySection() {
               "{story.quote}"
             </T>
           </View>
+        </View>
+
+      ) : isRejected ? (
+        <View style={{ gap: 12 }}>
+          <View
+            style={{
+              backgroundColor: "#ef444412",
+              borderWidth: 1,
+              borderColor: "#ef444430",
+              borderRadius: colors.radius,
+              padding: 12,
+              gap: 6,
+            }}
+          >
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <Feather name="x-circle" size={14} color="#ef4444" />
+              <T size={13} weight="medium" color="#ef4444">لم تُقبَل قصّتك هذه المرّة</T>
+            </View>
+            {story.rejectionNote ? (
+              <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
+                {story.rejectionNote}
+              </T>
+            ) : (
+              <T size={12} color={colors.mutedForeground}>
+                يمكنك تعديل قصّتك وإعادة تقديمها للمراجعة.
+              </T>
+            )}
+          </View>
+
+          {error ? (
+            <View
+              style={{
+                backgroundColor: "#ef444420",
+                borderWidth: 1,
+                borderColor: "#ef444440",
+                borderRadius: colors.radius,
+                padding: 12,
+              }}
+            >
+              <T size={13} color="#ef4444">{error}</T>
+            </View>
+          ) : null}
+
+          <Btn
+            title={resubmitting ? "جارٍ المعالجة…" : "إعادة تقديم القصّة"}
+            fullWidth
+            loading={resubmitting}
+            disabled={resubmitting}
+            onPress={handleResubmit}
+          />
         </View>
 
       ) : (

@@ -184,6 +184,47 @@ router.patch("/me/story", requireUser, async (req, res) => {
   }
 });
 
+router.post("/me/story/resubmit", requireUser, async (req, res) => {
+  const { userId } = (req as AuthReq).userSession;
+  try {
+    const [existing] = await db
+      .select()
+      .from(successStoriesTable)
+      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .limit(1);
+
+    if (!existing) {
+      res.status(404).json({ error: "لا توجد قصّة لإعادة تقديمها" });
+      return;
+    }
+
+    if (existing.status !== "rejected") {
+      res.status(409).json({ error: "يمكن إعادة التقديم فقط للقصص المرفوضة" });
+      return;
+    }
+
+    const [row] = await db
+      .update(successStoriesTable)
+      .set({ status: "draft", rejectionNote: null, updatedAt: new Date() })
+      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .returning();
+
+    res.json({ story: row });
+
+    // Notify admin about the resubmission (fire-and-forget)
+    const adminEmail = await getAdminEmail();
+    if (adminEmail) {
+      const adminUrl =
+        (process.env.APP_URL ?? "https://islandhaven.io") + "/admin/stories";
+      const mail = adminNewStoryEmail(existing.personName, existing.quote, adminUrl);
+      void sendEmail({ to: adminEmail, ...mail });
+    }
+  } catch (err) {
+    logger.error({ err }, "POST /me/story/resubmit failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 router.delete("/me/story", requireUser, async (req, res) => {
   const { userId } = (req as AuthReq).userSession;
   try {
