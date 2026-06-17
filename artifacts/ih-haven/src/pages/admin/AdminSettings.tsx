@@ -194,35 +194,6 @@ export default function AdminSettings() {
           <div className="text-[13px] text-foreground/45">جارِ التحميل…</div>
         ) : (
           <>
-            {adminEmail && (
-              <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-muted/40 border border-border">
-                <span className="text-[12.5px] text-foreground/55 font-medium">النشط الآن:</span>
-                <span className="text-[13px] font-mono text-foreground flex-1 min-w-0 truncate" dir="ltr">
-                  {adminEmail}
-                </span>
-                {adminEmailSource === "env" ? (
-                  <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
-                    من متغيّر البيئة
-                  </span>
-                ) : (
-                  <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <Database className="w-3 h-3" />
-                    محفوظ في قاعدة البيانات
-                  </span>
-                )}
-                {adminEmailSource === "db" && (
-                  <button
-                    onClick={clearAdminEmail}
-                    disabled={adminEmailBusy}
-                    title="استعادة متغيّر البيئة"
-                    className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors disabled:opacity-40"
-                  >
-                    <X className="w-3 h-3" />
-                    مسح
-                  </button>
-                )}
-              </div>
-            )}
             <div className="flex flex-wrap items-center gap-3">
               <input
                 type="email"
@@ -239,6 +210,41 @@ export default function AdminSettings() {
               >
                 {adminEmailBusy ? "جارِ الحفظ…" : "حفظ"}
               </button>
+            </div>
+            <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-xl bg-muted/40 border border-border">
+              <span className="text-[12.5px] text-foreground/55 font-medium shrink-0">النشط الآن:</span>
+              {adminEmail ? (
+                <>
+                  <span className="text-[13px] font-mono text-foreground flex-1 min-w-0 truncate" dir="ltr">
+                    {adminEmail}
+                  </span>
+                  {adminEmailSource === "env" ? (
+                    <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
+                      من متغيّر البيئة
+                    </span>
+                  ) : (
+                    <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <Database className="w-3 h-3" />
+                      محفوظ في قاعدة البيانات
+                    </span>
+                  )}
+                  {adminEmailSource === "db" && (
+                    <button
+                      onClick={clearAdminEmail}
+                      disabled={adminEmailBusy}
+                      title="استعادة متغيّر البيئة"
+                      className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors disabled:opacity-40"
+                    >
+                      <X className="w-3 h-3" />
+                      مسح
+                    </button>
+                  )}
+                </>
+              ) : (
+                <span className="text-[12.5px] text-foreground/45 italic flex-1">
+                  لم يُعيَّن بريد — لن تُرسَل إشعارات حتى يُضبَط العنوان
+                </span>
+              )}
             </div>
           </>
         )}
