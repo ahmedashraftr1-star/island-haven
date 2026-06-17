@@ -336,7 +336,14 @@ export function storyPublishedEmail(
 /** Sent to a member when the admin rejects their success story. */
 export function storyRejectedEmail(
   fullName: string,
+  reason?: string,
 ): { subject: string; html: string; text: string } {
+  const reasonBlock = reason
+    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+         <strong style="color:#fff;">سبب القرار:</strong> ${reason}
+       </p>`
+    : "";
+  const reasonText = reason ? `\nسبب القرار: ${reason}\n` : "";
   const html = shell(
     "بخصوص قصّتك على المنصّة",
     `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
@@ -346,11 +353,33 @@ export function storyRejectedEmail(
      <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
        بعد مراجعة فريقنا، لم نتمكّن من نشر قصّتك في الوقت الحالي. نقدّر وقتك وجهدك، ونشجّعك على التواصل معنا إذا كنت ترغب في مزيد من التفاصيل أو تعديل قصّتك وإعادة تقديمها.
      </p>
+     ${reasonBlock}
      <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
        نحن دائمًا هنا لدعمك في رحلتك — فريق ${BRAND}.
      </p>`,
   );
-  const text = `مرحبًا ${fullName}،\n\nشكرًا لمشاركتك قصّة نجاحك مع ${BRAND}.\nبعد مراجعة فريقنا، لم نتمكّن من نشر قصّتك في الوقت الحالي. لا تتردّد في التواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
+  const text = `مرحبًا ${fullName}،\n\nشكرًا لمشاركتك قصّة نجاحك مع ${BRAND}.\nبعد مراجعة فريقنا، لم نتمكّن من نشر قصّتك في الوقت الحالي.${reasonText}\nلا تتردّد في التواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
+  return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
+}
+
+/** Sent to a member when the admin deletes their submitted success story. */
+export function storyDeletedEmail(
+  fullName: string,
+): { subject: string; html: string; text: string } {
+  const html = shell(
+    "بخصوص قصّتك على المنصّة",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       أودّ إعلامك بأنّ قصّة نجاحك التي قدّمتها إلى منصّة <strong style="color:#fff;">${BRAND}</strong> قد تمّ حذفها من قِبَل فريق الإدارة.
+     </p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       يمكنك التواصل معنا في أيّ وقت إذا كنت ترغب في مزيد من التفاصيل أو إعادة تقديم قصّتك.
+     </p>
+     <p style="margin:0;font-size:14px;line-height:1.7;color:#7c849c;">
+       نحن دائمًا هنا لدعمك — فريق ${BRAND}.
+     </p>`,
+  );
+  const text = `مرحبًا ${fullName}،\n\nنودّ إعلامك بأنّ قصّة نجاحك على منصّة ${BRAND} قد تمّ حذفها من قِبَل فريق الإدارة.\nتواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
   return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
 }
 

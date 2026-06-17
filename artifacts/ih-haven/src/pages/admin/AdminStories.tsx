@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Star, UserCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, UserCheck, XCircle } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -14,7 +14,7 @@ interface Row {
   ventureName: string;
   projectUrl: string | null;
   featured: boolean;
-  status: "draft" | "published" | "hidden";
+  status: "draft" | "published" | "hidden" | "rejected";
   sortOrder: number;
   submittedByUserId: number | null;
 }
@@ -35,10 +35,27 @@ const EMPTY: Row = {
   submittedByUserId: null,
 };
 
+const STATUS_LABELS: Record<Row["status"], string> = {
+  draft: "مسوّدة",
+  published: "منشور",
+  hidden: "مخفيّ",
+  rejected: "مرفوضة",
+};
+
+const STATUS_COLORS: Record<Row["status"], string> = {
+  draft: "bg-muted text-foreground/55 border border-border",
+  published: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  hidden: "bg-muted text-foreground/55 border border-border",
+  rejected: "bg-rose-50 text-rose-700 border border-rose-200",
+};
+
 export default function AdminStories() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<Row | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectBusy, setRejectBusy] = useState(false);
 
   async function reload() {
     try {
@@ -52,7 +69,7 @@ export default function AdminStories() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه القصّة؟")) return;
+    if (!window.confirm("حذف هذه القصّة؟ سيصلُ إشعارٌ بالبريد إلى العضو إن وُجد.")) return;
     await api(`/admin/stories/${id}`, { method: "DELETE" });
     void reload();
   }
@@ -63,6 +80,22 @@ export default function AdminStories() {
       body: JSON.stringify({ status: "published" }),
     });
     void reload();
+  }
+
+  async function onReject() {
+    if (!rejectTarget) return;
+    setRejectBusy(true);
+    try {
+      await api(`/admin/stories/${rejectTarget.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "rejected", rejectionReason: rejectReason.trim() || undefined }),
+      });
+      setRejectTarget(null);
+      setRejectReason("");
+      void reload();
+    } finally {
+      setRejectBusy(false);
+    }
   }
 
   const pendingCount = (rows ?? []).filter(
@@ -143,8 +176,8 @@ export default function AdminStories() {
                   <td className="px-4 py-3 text-foreground/65 max-w-xs truncate">{r.quote}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col gap-1">
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold w-fit ${r.status === "published" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-muted text-foreground/55 border border-border"}`}>
-                        {r.status === "published" ? "منشور" : r.status === "draft" ? "مسوّدة" : "مخفيّ"}
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold w-fit ${STATUS_COLORS[r.status]}`}>
+                        {STATUS_LABELS[r.status]}
                       </span>
                       {r.submittedByUserId !== null && (
                         <span className="text-[10.5px] text-blue-600 font-semibold">من عضو</span>
@@ -154,12 +187,20 @@ export default function AdminStories() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       {r.submittedByUserId !== null && r.status === "draft" && (
-                        <button
-                          onClick={() => onPublish(r)}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold hover:bg-emerald-100 transition-colors"
-                        >
-                          نشر
-                        </button>
+                        <>
+                          <button
+                            onClick={() => onPublish(r)}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold hover:bg-emerald-100 transition-colors"
+                          >
+                            نشر
+                          </button>
+                          <button
+                            onClick={() => { setRejectTarget(r); setRejectReason(""); }}
+                            className="px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold hover:bg-rose-100 transition-colors"
+                          >
+                            رفض
+                          </button>
+                        </>
                       )}
                       <button onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
                       <button onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -171,6 +212,45 @@ export default function AdminStories() {
           </table>
         )}
       </div>
+
+      {/* Reject with reason modal */}
+      {rejectTarget && (
+        <Modal title="رفض القصّة" onClose={() => setRejectTarget(null)}>
+          <div className="p-6 space-y-4">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200">
+              <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-rose-700">
+                سيُرسَل إشعار برفض القصّة إلى العضو تلقائيًّا بالبريد الإلكتروني.
+              </p>
+            </div>
+            <Field label="سبب الرفض (اختياري — يظهر في الإيميل)">
+              <textarea
+                rows={3}
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                className="inp resize-none leading-relaxed"
+                placeholder="مثال: القصّة بحاجة إلى تفاصيل إضافية…"
+                maxLength={500}
+              />
+            </Field>
+            <div className="flex gap-3">
+              <button
+                onClick={onReject}
+                disabled={rejectBusy}
+                className="flex-1 h-11 rounded-full bg-rose-600 text-white font-semibold text-[13.5px] hover:bg-rose-700 disabled:opacity-50 transition-colors"
+              >
+                {rejectBusy ? "جارِ الرفض…" : "تأكيد الرفض"}
+              </button>
+              <button
+                onClick={() => setRejectTarget(null)}
+                className="px-6 h-11 rounded-full bg-muted text-foreground/75 font-semibold text-[13.5px] hover:bg-muted/70 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {editing && (
         <StoryEditor
@@ -242,6 +322,7 @@ function StoryEditor({ initial, onClose, onSaved }: { initial: Row; onClose: () 
               <option value="draft">مسوّدة</option>
               <option value="published">منشور</option>
               <option value="hidden">مخفيّ</option>
+              <option value="rejected">مرفوضة</option>
             </select>
           </Field>
           <Field label="الترتيب"><input type="number" min={0} value={form.sortOrder} onChange={(e) => setForm((s) => ({ ...s, sortOrder: Number(e.target.value) || 0 }))} className="inp tabular-nums" /></Field>

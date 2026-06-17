@@ -9,7 +9,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail } from "../lib/email";
+import { sendEmail, adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail, storyDeletedEmail } from "../lib/email";
 import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
@@ -302,10 +302,14 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
         .limit(1);
 
       if (member) {
+        const rejectionReason =
+          typeof req.body?.rejectionReason === "string" && req.body.rejectionReason.trim()
+            ? req.body.rejectionReason.trim()
+            : undefined;
         const mail =
           newStatus === "published"
             ? storyPublishedEmail(member.fullName)
-            : storyRejectedEmail(member.fullName);
+            : storyRejectedEmail(member.fullName, rejectionReason);
         void sendEmail({ to: member.email, ...mail });
       } else {
         logger.warn(
@@ -327,8 +331,27 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    // Fetch before delete so we can notify the submitting member
+    const [existing] = await db
+      .select({ submittedByUserId: successStoriesTable.submittedByUserId })
+      .from(successStoriesTable)
+      .where(eq(successStoriesTable.id, id))
+      .limit(1);
+
     await db.delete(successStoriesTable).where(eq(successStoriesTable.id, id));
     res.json({ ok: true });
+
+    // Notify the member if the story was submitted by one
+    if (existing?.submittedByUserId) {
+      const [member] = await db
+        .select({ email: usersTable.email, fullName: usersTable.fullName })
+        .from(usersTable)
+        .where(eq(usersTable.id, existing.submittedByUserId))
+        .limit(1);
+      if (member) {
+        void sendEmail({ to: member.email, ...storyDeletedEmail(member.fullName) });
+      }
+    }
   } catch (err) {
     logger.error({ err }, "DELETE /admin/stories/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
