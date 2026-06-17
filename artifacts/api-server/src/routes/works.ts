@@ -57,6 +57,42 @@ async function notifyFollowersOfNewWork(
   }
 }
 
+// Count-milestone badges. Each is idempotent (awardBadgeByKey no-ops if the
+// badge is already held or its key isn't minted yet) and fire-and-forget.
+async function awardWorksMilestone(userId: number): Promise<void> {
+  try {
+    const [r] = await db
+      .select({ c: count() })
+      .from(worksTable)
+      .where(and(eq(worksTable.userId, userId), eq(worksTable.status, "visible")));
+    if ((r?.c ?? 0) >= 5) await awardBadgeByKey(userId, "prolific");
+  } catch (err) {
+    logger.error({ err, userId }, "awardWorksMilestone failed");
+  }
+}
+async function awardCommentsMilestone(userId: number): Promise<void> {
+  try {
+    const [r] = await db
+      .select({ c: count() })
+      .from(worksCommentsTable)
+      .where(eq(worksCommentsTable.userId, userId));
+    if ((r?.c ?? 0) >= 10) await awardBadgeByKey(userId, "conversationalist");
+  } catch (err) {
+    logger.error({ err, userId }, "awardCommentsMilestone failed");
+  }
+}
+async function awardFollowersMilestone(userId: number): Promise<void> {
+  try {
+    const [r] = await db
+      .select({ c: count() })
+      .from(userFollowsTable)
+      .where(eq(userFollowsTable.followingId, userId));
+    if ((r?.c ?? 0) >= 10) await awardBadgeByKey(userId, "well_connected");
+  } catch (err) {
+    logger.error({ err, userId }, "awardFollowersMilestone failed");
+  }
+}
+
 // Throttle repeated "new follower" notifications for the same (follower→target)
 // pair so a follow/unfollow loop can't spam a member. In-memory is fine: the
 // worst case of a process restart is one extra notification.
@@ -359,6 +395,8 @@ router.post("/works", requireUser, async (req, res) => {
     invalidateNumbersCache();
     // Auto-award the "first work" badge (idempotent; no-op if not minted).
     void awardBadgeByKey(session.userId, "first_work");
+    // …and the "prolific" milestone once they've published 5+ works.
+    void awardWorksMilestone(session.userId);
     // Notify followers of the new work (fire-and-forget; never blocks the response).
     void notifyFollowersOfNewWork(session.userId, row);
     res.json({ work: row });
@@ -600,6 +638,8 @@ router.post("/users/:id/follow", requireUser, async (req, res) => {
           link: `/u/${session.userId}`,
         });
       }
+      // "well connected" milestone once the target reaches 10+ followers.
+      void awardFollowersMilestone(targetId);
     }
     // Return the authoritative count so the client never drifts.
     const [fc] = await db
@@ -790,6 +830,8 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
       .where(eq(usersTable.id, session.userId))
       .limit(1);
     const name = author?.fullName ?? "أحد الأعضاء";
+    // "conversationalist" milestone once they've posted 10+ comments/replies.
+    void awardCommentsMilestone(session.userId);
     // Notify the person being replied to (skip self).
     if (parent && parent.userId !== session.userId) {
       void notify(parent.userId, {
