@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.islandhaven.app",
+      "associatedDomains": ["applinks:island-haven.replit.app"],
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
         "CFBundleLocalizations": ["ar", "en"],
@@ -30,7 +31,30 @@
         "backgroundColor": "#D8344F"
       },
       "edgeToEdgeEnabled": true,
-      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "POST_NOTIFICATIONS"]
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "POST_NOTIFICATIONS"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "island-haven.replit.app",
+              "pathPrefix": "/reset-password"
+            },
+            {
+              "scheme": "https",
+              "host": "island-haven.replit.app",
+              "pathPrefix": "/book"
+            },
+            {
+              "scheme": "https",
+              "host": "island-haven.replit.app"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
