@@ -115,6 +115,7 @@ export const applyMentorSchema = z.object({
   yearsExperience: z.number().int().min(0).max(80).default(0),
   bio: safeText(4000).min(20, "النبذة قصيرة جدًّا"),
   linkedinUrl: httpUrl(400).default(""),
+  ref: z.string().trim().max(100).optional(),
 });
 
 export type ExpertProfile = typeof expertProfilesTable.$inferSelect;

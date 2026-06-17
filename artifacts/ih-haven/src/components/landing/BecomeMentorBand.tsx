@@ -56,7 +56,7 @@ export function BecomeMentorBand() {
           </div>
 
           <Link
-            href="/become-mentor"
+            href="/become-mentor?ref=home-banner"
             className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-[14px] hover:shadow-soft-hover hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/25"
             data-testid="cta-become-mentor"
           >

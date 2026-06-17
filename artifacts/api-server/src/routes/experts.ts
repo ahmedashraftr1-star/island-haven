@@ -148,8 +148,12 @@ router.post("/experts/apply", async (req, res) => {
       });
       return;
     }
-    const { fullName, email, expertise, yearsExperience, bio, linkedinUrl } =
+    const { fullName, email, expertise, yearsExperience, bio, linkedinUrl, ref } =
       parsed.data;
+
+    if (ref) {
+      logger.info({ ref, applicant: email }, "mentor application from referral");
+    }
 
     // Generate a random temporary password — the admin will set a proper one
     // or the applicant can use "forgot password" once approved.

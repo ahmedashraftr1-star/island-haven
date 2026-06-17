@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -41,10 +41,19 @@ const EMPTY: FormState = {
 export default function BecomeMentor() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [referral, setReferral] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) {
+      setReferral(ref);
+      console.log("[analytics] become-mentor page visit", { ref });
+    }
+  }, []);
 
   function set<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm((s) => ({ ...s, [k]: v }));
@@ -109,6 +118,7 @@ export default function BecomeMentor() {
           yearsExperience: Number(form.yearsExperience) || 0,
           bio: form.bio.trim(),
           linkedinUrl: form.linkedinUrl.trim(),
+          ...(referral ? { ref: referral } : {}),
         }),
       });
       setDone(true);
