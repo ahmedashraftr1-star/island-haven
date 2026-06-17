@@ -48,6 +48,7 @@ function RootLayoutNav() {
       <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="member/[id]" options={{ title: "" }} />
       <Stack.Screen name="work/[id]" options={{ title: "" }} />
+      <Stack.Screen name="work/edit" options={{ title: "العمل", presentation: "modal" }} />
       <Stack.Screen name="experts" options={{ title: "الخبراء" }} />
       <Stack.Screen name="expert/[id]" options={{ title: "" }} />
       <Stack.Screen name="programs" options={{ title: "البرامج" }} />

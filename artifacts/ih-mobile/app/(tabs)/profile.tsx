@@ -88,6 +88,7 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      <Btn title="أضف عملاً" fullWidth onPress={() => router.push("/work/edit" as never)} />
       <Btn
         title="تغيير كلمة السرّ"
         variant="ghost"

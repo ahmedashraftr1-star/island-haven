@@ -20,6 +20,7 @@ import type { Work } from "@/lib/types";
 
 interface WorkResp {
   work: Work;
+  isOwner: boolean;
   likesCount: number;
   likedByMe: boolean;
   commentsCount: number;
@@ -131,7 +132,19 @@ export default function WorkDetail() {
       {w.coverUrl ? (
         <Image source={{ uri: resolveMedia(w.coverUrl) }} style={{ width: "100%", height: 220, borderRadius: colors.radius + 2, backgroundColor: colors.muted }} contentFit="cover" />
       ) : null}
-      <T size={22} weight="bold">{w.title}</T>
+      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+        <T size={22} weight="bold" style={{ flex: 1 }}>{w.title}</T>
+        {q.data.isOwner ? (
+          <Pressable
+            onPress={() => router.push(`/work/edit?id=${id}`)}
+            hitSlop={8}
+            style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4, paddingVertical: 6, paddingHorizontal: 10, borderRadius: colors.radius, borderWidth: 1, borderColor: colors.border }}
+          >
+            <Feather name="edit-2" size={13} color={colors.foreground} />
+            <T size={13} weight="medium">تعديل</T>
+          </Pressable>
+        ) : null}
+      </View>
       {w.authorName ? <T size={13} color={colors.mutedForeground}>{w.authorName}</T> : null}
 
       {/* Engagement: like toggle + comment count */}
