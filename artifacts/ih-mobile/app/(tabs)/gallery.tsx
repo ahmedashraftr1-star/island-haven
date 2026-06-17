@@ -13,6 +13,7 @@ import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 
 import { T, Empty, SkeletonBlock } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
@@ -57,6 +58,8 @@ export default function GalleryScreen() {
   const sidePad = 20;
   const tile = Math.floor((width - sidePad * 2 - gap * (cols - 1)) / cols);
 
+  const [failed, setFailed] = useState<Record<string, boolean>>({});
+
   const q = useQuery<GalleryResponse>({
     queryKey: ["gallery"],
     queryFn: () => api("/gallery"),
@@ -98,11 +101,27 @@ export default function GalleryScreen() {
           renderItem={({ item, index }) => (
             <Tile index={index} reduce={reduce}>
               <Pressable onPress={() => open(item)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
-                <Image
-                  source={{ uri: resolveMedia(item.url) }}
-                  style={{ width: tile, height: tile, borderRadius: 12, backgroundColor: colors.muted }}
-                  contentFit="cover"
-                />
+                {failed[item.id] ? (
+                  <View
+                    style={{
+                      width: tile,
+                      height: tile,
+                      borderRadius: 12,
+                      backgroundColor: colors.primarySoft,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Feather name="image" size={Math.max(18, tile * 0.28)} color={colors.primary} />
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: resolveMedia(item.url) }}
+                    style={{ width: tile, height: tile, borderRadius: 12, backgroundColor: colors.muted }}
+                    contentFit="cover"
+                    onError={() => setFailed((f) => (f[item.id] ? f : { ...f, [item.id]: true }))}
+                  />
+                )}
               </Pressable>
             </Tile>
           )}
