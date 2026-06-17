@@ -284,6 +284,7 @@ export default function Home() {
               data={
                 [
                   { key: "book", label: "احجز مقعدك", icon: "calendar" },
+                  { key: "search", label: "بحث", icon: "search" },
                   { key: "programs", label: "برامج الاحتضان", icon: "layers" },
                   { key: "cohorts", label: "دفعات الاحتضان", icon: "git-branch" },
                   { key: "experts", label: "خبراء ومرشدون", icon: "award" },
