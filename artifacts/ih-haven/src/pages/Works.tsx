@@ -46,6 +46,7 @@ export default function Works() {
   const [filter, setFilter] = useState<"" | UserRole>("");
   const [sort, setSort] = useState<SortKey>("newest");
   const [q, setQ] = useState("");
+  const [followingFeed, setFollowingFeed] = useState(false);
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<WorkRow[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -55,8 +56,8 @@ export default function Works() {
     document.title = "أعمال المستقلّين — آيلاند هيفن";
   }, []);
 
-  // Reset page when filter, sort, or query changes
-  useEffect(() => { setPage(1); }, [filter, sort, q]);
+  // Reset page when filter, sort, query, or feed scope changes
+  useEffect(() => { setPage(1); }, [filter, sort, q, followingFeed]);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +67,7 @@ export default function Works() {
     if (filter) params.set("role", filter);
     if (sort !== "newest") params.set("sort", sort);
     if (q.trim()) params.set("q", q.trim());
+    if (followingFeed) params.set("following", "1");
     params.set("page", String(page));
     api<{ works: WorkRow[]; totalPages: number }>(`/works?${params}`)
       .then((r) => {
@@ -79,7 +81,7 @@ export default function Works() {
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
       });
     return () => { cancelled = true; };
-  }, [filter, sort, q, page]);
+  }, [filter, sort, q, followingFeed, page]);
 
   return (
     <PageShell
@@ -151,7 +153,27 @@ export default function Works() {
             {o.label}
           </button>
         ))}
+        {user && (
+          <button
+            onClick={() => setFollowingFeed((v) => !v)}
+            aria-pressed={followingFeed}
+            className={`ms-1 px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
+              followingFeed
+                ? "bg-primary text-white border-primary"
+                : "bg-white/[0.03] text-white/55 border-white/10 hover:text-white hover:bg-white/[0.07]"
+            }`}
+            data-testid="toggle-following-feed"
+          >
+            أتابِعهم
+          </button>
+        )}
       </div>
+      {followingFeed && rows !== null && rows.length === 0 && !error && (
+        <GlassCard className="p-6 text-center text-white/65 text-[13.5px] mb-6">
+          لا توجد أعمال من الأعضاء الذين تتابِعهم بعد — تابِع أعضاء من صفحاتهم لترى
+          أعمالهم هنا.
+        </GlassCard>
+      )}
 
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>

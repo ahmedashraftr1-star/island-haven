@@ -16,6 +16,8 @@ export const NOTIFICATION_TYPES = [
   "session_requested",
   "badge_awarded",
   "work_comment",
+  "new_follower",
+  "new_work",
   "generic",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

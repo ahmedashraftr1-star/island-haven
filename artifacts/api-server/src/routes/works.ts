@@ -5,6 +5,7 @@ import {
   worksTable,
   worksLikesTable,
   worksCommentsTable,
+  userFollowsTable,
   usersTable,
   badgesTable,
   userBadgesTable,
@@ -20,6 +21,38 @@ import { awardBadgeByKey } from "./gamification";
 import { notify } from "./notifications";
 
 const router: IRouter = Router();
+
+// Notify every follower of `authorId` that a new work was published.
+// Fire-and-forget — failures are logged inside notify() and never surface.
+async function notifyFollowersOfNewWork(
+  authorId: number,
+  work: { id: number; title: string },
+): Promise<void> {
+  try {
+    const [author] = await db
+      .select({ fullName: usersTable.fullName })
+      .from(usersTable)
+      .where(eq(usersTable.id, authorId))
+      .limit(1);
+    const followers = await db
+      .select({ followerId: userFollowsTable.followerId })
+      .from(userFollowsTable)
+      .where(eq(userFollowsTable.followingId, authorId));
+    const name = author?.fullName ?? "أحد الأعضاء";
+    await Promise.all(
+      followers.map((f) =>
+        notify(f.followerId, {
+          type: "new_work",
+          title: "عمل جديد",
+          body: `نشر ${name} عملاً جديداً: ${work.title}`,
+          link: `/works/${work.id}`,
+        }),
+      ),
+    );
+  } catch (err) {
+    logger.error({ err, authorId }, "notifyFollowersOfNewWork failed");
+  }
+}
 
 // ─── Public gallery ─────────────────────────────────────────────────────────
 
@@ -49,7 +82,7 @@ async function loadInteractableWork(id: number, userId: number | undefined) {
   return row;
 }
 
-router.get("/works", async (req, res) => {
+router.get("/works", optionalUser, async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
     const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
@@ -60,6 +93,27 @@ router.get("/works", async (req, res) => {
     const filterByRole = (USER_ROLES as readonly string[]).includes(role)
       ? (role as UserRole)
       : null;
+
+    // Personalized feed: ?following=1 restricts to works by members the
+    // signed-in viewer follows. Anonymous viewers (or a viewer who follows
+    // nobody) get an empty feed rather than the global gallery.
+    const session = (req as Request & { userSession?: UserSession }).userSession;
+    let followedIds: number[] | null = null;
+    if (req.query.following === "1") {
+      if (!session) {
+        res.json({ works: [], total: 0, page: 1, totalPages: 1 });
+        return;
+      }
+      const rows = await db
+        .select({ id: userFollowsTable.followingId })
+        .from(userFollowsTable)
+        .where(eq(userFollowsTable.followerId, session.userId));
+      followedIds = rows.map((r) => r.id);
+      if (followedIds.length === 0) {
+        res.json({ works: [], total: 0, page: 1, totalPages: 1 });
+        return;
+      }
+    }
 
     // Sort by engagement via correlated COUNT subqueries. The outer table is the
     // unaliased FROM (`works`), so literal `works.id` correlates correctly —
@@ -88,6 +142,7 @@ router.get("/works", async (req, res) => {
             ilike(worksTable.tags, `%${esc}%`),
           )
         : undefined,
+      followedIds ? inArray(worksTable.userId, followedIds) : undefined,
     );
 
     const [{ total }] = await db
@@ -282,6 +337,8 @@ router.post("/works", requireUser, async (req, res) => {
     invalidateNumbersCache();
     // Auto-award the "first work" badge (idempotent; no-op if not minted).
     void awardBadgeByKey(session.userId, "first_work");
+    // Notify followers of the new work (fire-and-forget; never blocks the response).
+    void notifyFollowersOfNewWork(session.userId, row);
     res.json({ work: row });
   } catch (err) {
     logger.error({ err }, "POST /works failed");
@@ -416,14 +473,109 @@ router.get("/users/:id", optionalUser, async (req, res) => {
       .innerJoin(badgesTable, eq(badgesTable.id, userBadgesTable.badgeId))
       .where(eq(userBadgesTable.userId, id))
       .orderBy(desc(userBadgesTable.awardedAt));
+    // Follow graph: follower/following counts (public) + whether the viewer
+    // already follows this member (only meaningful when signed in).
+    const [[followers], [following]] = await Promise.all([
+      db
+        .select({ c: count() })
+        .from(userFollowsTable)
+        .where(eq(userFollowsTable.followingId, id)),
+      db
+        .select({ c: count() })
+        .from(userFollowsTable)
+        .where(eq(userFollowsTable.followerId, id)),
+    ]);
+    let followedByMe = false;
+    if (session && !isOwner) {
+      const [edge] = await db
+        .select({ id: userFollowsTable.id })
+        .from(userFollowsTable)
+        .where(
+          and(
+            eq(userFollowsTable.followerId, session.userId),
+            eq(userFollowsTable.followingId, id),
+          ),
+        )
+        .limit(1);
+      followedByMe = Boolean(edge);
+    }
     // Strip internal fields before sending: status is for server-side checks only.
     // Phone is contact info — only expose to authenticated members
     // to prevent anonymous scraping by ID enumeration.
     const { status: _status, ...uPublic } = u;
     const user = session ? uPublic : { ...uPublic, phone: null as unknown as string };
-    res.json({ user, works, badges });
+    res.json({
+      user,
+      works,
+      badges,
+      followersCount: followers?.c ?? 0,
+      followingCount: following?.c ?? 0,
+      followedByMe,
+    });
   } catch (err) {
     logger.error({ err }, "GET /users/:id failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Follow / unfollow a member (toggle) ─────────────────────────────────────
+
+router.post("/users/:id/follow", requireUser, async (req, res) => {
+  try {
+    const targetId = Number(req.params.id);
+    if (!Number.isInteger(targetId) || targetId <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    if (targetId === session.userId) {
+      res.status(400).json({ error: "لا يمكنك متابعة نفسك" });
+      return;
+    }
+    // Target must be an active member (don't let users follow ghosts/admins by id).
+    const [target] = await db
+      .select({ id: usersTable.id, fullName: usersTable.fullName })
+      .from(usersTable)
+      .where(and(eq(usersTable.id, targetId), eq(usersTable.status, "active")))
+      .limit(1);
+    if (!target) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const [existing] = await db
+      .select({ id: userFollowsTable.id })
+      .from(userFollowsTable)
+      .where(
+        and(
+          eq(userFollowsTable.followerId, session.userId),
+          eq(userFollowsTable.followingId, targetId),
+        ),
+      )
+      .limit(1);
+    if (existing) {
+      await db.delete(userFollowsTable).where(eq(userFollowsTable.id, existing.id));
+      res.json({ following: false });
+      return;
+    }
+    await db
+      .insert(userFollowsTable)
+      .values({ followerId: session.userId, followingId: targetId })
+      .onConflictDoNothing();
+    // Tell the followed member who their new follower is.
+    const [me] = await db
+      .select({ fullName: usersTable.fullName })
+      .from(usersTable)
+      .where(eq(usersTable.id, session.userId))
+      .limit(1);
+    void notify(targetId, {
+      type: "new_follower",
+      title: "متابِع جديد",
+      body: `بدأ ${me?.fullName ?? "أحد الأعضاء"} بمتابعتك`,
+      link: `/u/${session.userId}`,
+    });
+    res.json({ following: true });
+  } catch (err) {
+    logger.error({ err }, "POST /users/:id/follow failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

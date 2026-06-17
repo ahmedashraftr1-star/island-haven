@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { usePageMeta } from "@/hooks/use-meta";
-import { Link, useRoute } from "wouter";
+import { Link, useRoute, useLocation } from "wouter";
 import {
   Phone,
   Globe,
@@ -9,10 +9,12 @@ import {
   Briefcase,
   ExternalLink,
   Award,
+  UserPlus,
+  UserCheck,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
-import { ROLE_LABELS, type ExtraLink, type UserRole } from "@/lib/auth";
+import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
 
 interface Resp {
@@ -47,6 +49,9 @@ interface Resp {
     icon: string;
     color: string;
   }>;
+  followersCount?: number;
+  followingCount?: number;
+  followedByMe?: boolean;
 }
 
 const BehanceMark = ({ className = "" }: { className?: string }) => (
@@ -63,15 +68,48 @@ const BehanceMark = ({ className = "" }: { className?: string }) => (
 export default function PublicProfile() {
   const [, params] = useRoute("/u/:id");
   const id = params?.id;
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
   const [data, setData] = useState<Resp | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [following, setFollowing] = useState(false);
+  const [followers, setFollowers] = useState(0);
+  const [followBusy, setFollowBusy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     api<Resp>(`/users/${id}`)
-      .then(setData)
+      .then((d) => {
+        setData(d);
+        setFollowing(Boolean(d.followedByMe));
+        setFollowers(d.followersCount ?? 0);
+      })
       .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
   }, [id]);
+
+  async function toggleFollow() {
+    if (!id || followBusy) return;
+    if (!user) {
+      navigate(`/login?next=/u/${id}`);
+      return;
+    }
+    setFollowBusy(true);
+    const prev = following;
+    // optimistic
+    setFollowing(!prev);
+    setFollowers((c) => c + (prev ? -1 : 1));
+    try {
+      const r = await api<{ following: boolean }>(`/users/${id}/follow`, {
+        method: "POST",
+      });
+      setFollowing(r.following);
+    } catch {
+      setFollowing(prev);
+      setFollowers((c) => c + (prev ? 1 : -1));
+    } finally {
+      setFollowBusy(false);
+    }
+  }
 
   usePageMeta({
     title: data?.user.fullName,
@@ -136,6 +174,14 @@ export default function PublicProfile() {
                 {u.jobTitle}
               </div>
             )}
+            <div className="flex items-center gap-4 justify-center sm:justify-start mb-4 text-[13px]">
+              <span className="text-white/70" data-testid="text-followers-count">
+                <b className="text-white font-bold">{followers}</b> متابِع
+              </span>
+              <span className="text-white/70" data-testid="text-following-count">
+                <b className="text-white font-bold">{data.followingCount ?? 0}</b> يتابِع
+              </span>
+            </div>
             {u.bio && (
               <p className="text-white/65 text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
                 {u.bio}
@@ -155,6 +201,30 @@ export default function PublicProfile() {
             )}
           </div>
           <div className="flex sm:flex-col gap-2 shrink-0">
+            {user?.id !== u.id && (
+              <button
+                type="button"
+                onClick={toggleFollow}
+                disabled={followBusy}
+                aria-pressed={following}
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold border transition-colors disabled:opacity-60 ${
+                  following
+                    ? "bg-white/[0.06] border-white/15 text-white/85 hover:bg-white/[0.1]"
+                    : "bg-primary/15 border-primary/40 text-primary hover:bg-primary/25"
+                }`}
+                data-testid="button-follow"
+              >
+                {following ? (
+                  <>
+                    <UserCheck className="w-3.5 h-3.5" /> متابَع
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-3.5 h-3.5" /> متابعة
+                  </>
+                )}
+              </button>
+            )}
             {u.phone && (
               <a
                 href={`https://wa.me/${u.phone.replace(/[^\d]/g, "")}`}
