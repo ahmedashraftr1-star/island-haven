@@ -25,6 +25,7 @@ interface WorkResp {
   likesCount: number;
   likedByMe: boolean;
   commentsCount: number;
+  savedByMe: boolean;
 }
 
 interface WorkComment {
@@ -67,6 +68,7 @@ export default function WorkDetail() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [liking, setLiking] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
   const [replyBusy, setReplyBusy] = useState(false);
@@ -85,6 +87,23 @@ export default function WorkDetail() {
       /* ignore */
     } finally {
       setLiking(false);
+    }
+  }
+
+  async function toggleSave() {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (saving) return;
+    setSaving(true);
+    try {
+      await api(`/works/${id}/save`, { method: "POST" });
+      await qc.invalidateQueries({ queryKey: ["work", id] });
+    } catch {
+      /* ignore */
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -149,6 +168,7 @@ export default function WorkDetail() {
   const likesCount = q.data.likesCount ?? 0;
   const likedByMe = q.data.likedByMe ?? false;
   const commentsCount = q.data.commentsCount ?? 0;
+  const savedByMe = q.data.savedByMe ?? false;
   const comments = commentsQ.data?.comments ?? [];
   const gallery = Array.isArray(w.galleryUrls) ? w.galleryUrls : [];
 
@@ -200,6 +220,29 @@ export default function WorkDetail() {
           <Feather name="message-circle" size={16} color={colors.mutedForeground} />
           <T size={14} color={colors.mutedForeground}>{commentsCount}</T>
         </View>
+        <View style={{ flex: 1 }} />
+        <Pressable
+          onPress={toggleSave}
+          disabled={saving}
+          accessibilityRole="button"
+          accessibilityLabel={savedByMe ? "إلغاء الحفظ" : "حفظ العمل"}
+          style={{
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            gap: 6,
+            paddingVertical: 8,
+            paddingHorizontal: 14,
+            borderRadius: colors.radius,
+            borderWidth: 1,
+            borderColor: savedByMe ? colors.primary : colors.border,
+            backgroundColor: savedByMe ? colors.primary + "1A" : colors.card,
+          }}
+        >
+          <Feather name="bookmark" size={16} color={savedByMe ? colors.primary : colors.mutedForeground} />
+          <T size={13} weight="medium" color={savedByMe ? colors.primary : colors.mutedForeground}>
+            {savedByMe ? "محفوظ" : "حفظ"}
+          </T>
+        </Pressable>
       </View>
 
       {w.description ? (
