@@ -10,10 +10,17 @@ import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 import type { Work } from "@/lib/types";
 
+interface WorkAuthor {
+  id: number;
+  fullName: string;
+  role: string;
+  avatarUrl: string | null;
+}
+
 export default function WorkDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
-  const q = useQuery<{ work: Work }>({
+  const q = useQuery<{ work: Work; author?: WorkAuthor }>({
     queryKey: ["work", id],
     queryFn: () => api(`/works/${id}`),
     enabled: !!id,
@@ -28,7 +35,9 @@ export default function WorkDetail() {
   }
   if (!q.data) return null;
   const w = q.data.work;
+  const author = q.data.author;
   const gallery = Array.isArray(w.galleryUrls) ? w.galleryUrls : [];
+  const displayName = author?.fullName || w.authorName;
 
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }}>
@@ -36,7 +45,22 @@ export default function WorkDetail() {
         <Image source={{ uri: resolveMedia(w.coverUrl) }} style={{ width: "100%", height: 220, borderRadius: colors.radius + 2, backgroundColor: colors.muted }} contentFit="cover" />
       ) : null}
       <T size={22} weight="bold">{w.title}</T>
-      {w.authorName ? <T size={13} color={colors.mutedForeground}>{w.authorName}</T> : null}
+      {displayName ? (
+        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+          {author?.avatarUrl ? (
+            <Image
+              source={{ uri: resolveMedia(author.avatarUrl) }}
+              style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.muted }}
+              contentFit="cover"
+            />
+          ) : (
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary + "33", alignItems: "center", justifyContent: "center" }}>
+              <T size={13} weight="bold" color={colors.primary}>{(displayName || "·").slice(0, 1)}</T>
+            </View>
+          )}
+          <T size={13} color={colors.mutedForeground}>{displayName}</T>
+        </View>
+      ) : null}
       {w.description ? (
         <Card>
           <T size={14} style={{ lineHeight: 23 }}>{w.description}</T>

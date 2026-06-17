@@ -235,8 +235,17 @@ function WorkCard({ row }: { row: WorkRow }) {
             </div>
           )}
           <div className="mt-auto flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 flex items-center justify-center text-[11px] font-bold text-white">
-              {(row.author.fullName || "·").slice(0, 1)}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+              {row.author.avatarUrl ? (
+                <img
+                  src={row.author.avatarUrl}
+                  alt={row.author.fullName}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                (row.author.fullName || "·").slice(0, 1)
+              )}
             </div>
             <div className="leading-tight min-w-0">
               <div className="text-white text-[12.5px] font-semibold truncate">
