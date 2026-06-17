@@ -1,5 +1,5 @@
-import React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, TextInput, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,7 +8,20 @@ import { Feather } from "@expo/vector-icons";
 import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
-import { resolveMedia } from "@/lib/api";
+import { resolveMedia, api, ApiError } from "@/lib/api";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface MyStoryData {
+  id: number;
+  quote: string;
+  story: string;
+  ventureName: string;
+  projectUrl: string | null;
+  status: "draft" | "published" | "hidden";
+}
+
+// ─── Profile Screen ───────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
   const colors = useColors();
@@ -88,6 +101,8 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      <MyStorySection />
+
       <Btn
         title="تغيير كلمة السرّ"
         variant="ghost"
@@ -100,6 +115,285 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
+
+// ─── My Story Section ─────────────────────────────────────────────────────────
+
+const STATUS_LABEL: Record<string, string> = {
+  draft: "بانتظار المراجعة",
+  published: "منشورة",
+  hidden: "مخفيّة",
+};
+
+function MyStorySection() {
+  const colors = useColors();
+
+  const [story, setStory] = useState<MyStoryData | null | undefined>(undefined);
+  const [form, setForm] = useState({ quote: "", fullStory: "", ventureName: "", projectUrl: "" });
+  const [saving, setSaving] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    api<{ story: MyStoryData | null }>("/me/story")
+      .then((r) => {
+        setStory(r.story);
+        if (r.story) {
+          setForm({
+            quote: r.story.quote,
+            fullStory: r.story.story,
+            ventureName: r.story.ventureName,
+            projectUrl: r.story.projectUrl ?? "",
+          });
+        }
+      })
+      .catch(() => setStory(null));
+  }, []);
+
+  async function handleSubmit() {
+    setError(null);
+    if (form.quote.trim().length < 10) {
+      setError("الاقتباس قصير جدًّا (10 أحرف على الأقل)");
+      return;
+    }
+    setSaving(true);
+    try {
+      const isEdit = story !== null && story !== undefined;
+      const r = await api<{ story: MyStoryData }>("/me/story", {
+        method: isEdit ? "PATCH" : "POST",
+        body: {
+          quote: form.quote,
+          story: form.fullStory,
+          ventureName: form.ventureName,
+          projectUrl: form.projectUrl || null,
+        },
+      });
+      setStory(r.story);
+      setDone(true);
+      setTimeout(() => setDone(false), 3000);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر إرسال القصّة");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleWithdraw() {
+    Alert.alert(
+      "سحب القصّة",
+      "هل أنت متأكّد؟ ستُحذف قصّتك نهائيًّا ولا يمكن التراجع عن هذا الإجراء.",
+      [
+        { text: "إلغاء", style: "cancel" },
+        {
+          text: "سحب القصّة",
+          style: "destructive",
+          onPress: async () => {
+            setWithdrawing(true);
+            setError(null);
+            try {
+              await api("/me/story", { method: "DELETE" });
+              setStory(null);
+              setForm({ quote: "", fullStory: "", ventureName: "", projectUrl: "" });
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : "تعذّر سحب القصّة");
+            } finally {
+              setWithdrawing(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  const isDraft = story?.status === "draft";
+  const isPublished = story?.status === "published";
+
+  return (
+    <Card style={{ gap: 12 }}>
+      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+        <Feather name="book-open" size={16} color={colors.mutedForeground} />
+        <T size={14} weight="bold">قصّتي في الحاضنة</T>
+        {story !== undefined && story !== null && (
+          <View
+            style={{
+              backgroundColor: isPublished ? "#10b98120" : isDraft ? "#f59e0b20" : colors.muted,
+              borderRadius: 20,
+              paddingHorizontal: 8,
+              paddingVertical: 2,
+            }}
+          >
+            <T
+              size={11}
+              weight="medium"
+              color={isPublished ? "#10b981" : isDraft ? "#f59e0b" : colors.mutedForeground}
+            >
+              {STATUS_LABEL[story.status] ?? story.status}
+            </T>
+          </View>
+        )}
+      </View>
+
+      {story === undefined ? (
+        <View style={{ alignItems: "center", paddingVertical: 12 }}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+
+      ) : isPublished ? (
+        <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+            <Feather name="check-circle" size={14} color="#10b981" />
+            <T size={13} color="#10b981">قصّتك منشورة في صفحة قصص النجاح</T>
+          </View>
+          <View
+            style={{
+              backgroundColor: colors.muted,
+              borderRadius: colors.radius,
+              padding: 12,
+            }}
+          >
+            <T size={13} color={colors.mutedForeground} style={{ lineHeight: 20, fontStyle: "italic" }}>
+              "{story.quote}"
+            </T>
+          </View>
+        </View>
+
+      ) : (
+        <View style={{ gap: 12 }}>
+          {story !== null && (
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "#f59e0b" }} />
+              <T size={12} color={colors.mutedForeground}>
+                قصّتك بانتظار مراجعة الإدارة — يمكنك تعديلها حتى ذلك الحين.
+              </T>
+            </View>
+          )}
+
+          {done && (
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <Feather name="check-circle" size={14} color="#10b981" />
+              <T size={13} color="#10b981">تمّ إرسال قصّتك بنجاح — ستُراجَع قريبًا وتُنشَر!</T>
+            </View>
+          )}
+
+          <View style={{ gap: 4 }}>
+            <T size={12} weight="medium" color={colors.mutedForeground}>
+              اقتباسك <T size={11} color={colors.mutedForeground}>(مطلوب)</T>
+            </T>
+            <TextInput
+              value={form.quote}
+              onChangeText={(v) => setForm((f) => ({ ...f, quote: v }))}
+              placeholder="ما الذي أضافه آيلاند هيفن لمسيرتك؟"
+              placeholderTextColor={colors.mutedForeground}
+              multiline
+              numberOfLines={3}
+              maxLength={600}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+                borderRadius: colors.radius,
+                padding: 12,
+                fontSize: 14,
+                color: colors.foreground,
+                textAlign: "right",
+                writingDirection: "rtl",
+                minHeight: 80,
+                textAlignVertical: "top",
+              }}
+            />
+          </View>
+
+          <View style={{ gap: 4 }}>
+            <T size={12} weight="medium" color={colors.mutedForeground}>
+              قصّتك كاملة <T size={11} color={colors.mutedForeground}>(اختياريّ)</T>
+            </T>
+            <TextInput
+              value={form.fullStory}
+              onChangeText={(v) => setForm((f) => ({ ...f, fullStory: v }))}
+              placeholder="شارك رحلتك بشكل أوسع…"
+              placeholderTextColor={colors.mutedForeground}
+              multiline
+              numberOfLines={4}
+              maxLength={8000}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+                borderRadius: colors.radius,
+                padding: 12,
+                fontSize: 14,
+                color: colors.foreground,
+                textAlign: "right",
+                writingDirection: "rtl",
+                minHeight: 96,
+                textAlignVertical: "top",
+              }}
+            />
+          </View>
+
+          <View style={{ gap: 4 }}>
+            <T size={12} weight="medium" color={colors.mutedForeground}>اسم مشروعك (اختياريّ)</T>
+            <TextInput
+              value={form.ventureName}
+              onChangeText={(v) => setForm((f) => ({ ...f, ventureName: v }))}
+              placeholder="مثال: Tamkeen App"
+              placeholderTextColor={colors.mutedForeground}
+              maxLength={200}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+                borderRadius: colors.radius,
+                padding: 12,
+                fontSize: 14,
+                color: colors.foreground,
+                textAlign: "right",
+                writingDirection: "rtl",
+                height: 48,
+              }}
+            />
+          </View>
+
+          {error ? (
+            <View
+              style={{
+                backgroundColor: "#ef444420",
+                borderWidth: 1,
+                borderColor: "#ef444440",
+                borderRadius: colors.radius,
+                padding: 12,
+              }}
+            >
+              <T size={13} color="#ef4444">{error}</T>
+            </View>
+          ) : null}
+
+          <Btn
+            title={saving ? "جارٍ الإرسال…" : story ? "تحديث القصّة" : "إرسال قصّتي"}
+            fullWidth
+            loading={saving}
+            disabled={saving || withdrawing}
+            onPress={handleSubmit}
+          />
+
+          {isDraft && (
+            <Btn
+              title={withdrawing ? "جارٍ السحب…" : "سحب القصّة"}
+              variant="ghost"
+              fullWidth
+              loading={withdrawing}
+              disabled={saving || withdrawing}
+              style={{ borderColor: "#ef444440" }}
+              onPress={handleWithdraw}
+            />
+          )}
+        </View>
+      )}
+    </Card>
+  );
+}
+
+// ─── Row ──────────────────────────────────────────────────────────────────────
 
 function Row({ icon, label, value }: { icon: keyof typeof Feather.glyphMap; label: string; value: string }) {
   const colors = useColors();
