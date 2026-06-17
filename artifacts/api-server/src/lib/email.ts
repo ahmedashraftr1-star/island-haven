@@ -391,6 +391,50 @@ export function storyDeletedEmail(
   return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
 }
 
+const SLOT_LABELS_AR: Record<string, string> = {
+  morning: "الصباح",
+  midday: "منتصف النهار",
+  afternoon: "المساء",
+  fullday: "يوم كامل",
+};
+
+/** Sent to an expert when a booking that names them is confirmed by an admin. */
+export function bookingConfirmedExpertEmail(
+  expertName: string,
+  visitorName: string,
+  visitDate: string,
+  timeSlot: string,
+): { subject: string; html: string; text: string } {
+  const slotLabel = SLOT_LABELS_AR[timeSlot] ?? timeSlot;
+  const html = shell(
+    "لديك حجز جديد 🗓️",
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${expertName}،</p>
+     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+       أكّد أحد الزوّار رغبته في لقائك في <strong style="color:#fff;">${BRAND}</strong>.
+       إليك تفاصيل الحجز:
+     </p>
+     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;width:100%;border-collapse:collapse;">
+       <tr>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:8px 8px 0 0;border-bottom:1px solid rgba(255,255,255,0.06);color:#7c849c;font-size:13px;width:130px;">الزائر</td>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:8px 8px 0 0;border-bottom:1px solid rgba(255,255,255,0.06);color:#e8eaf2;font-size:14px;font-weight:600;">${visitorName}</td>
+       </tr>
+       <tr>
+         <td style="padding:10px 14px;background:#161b35;border-bottom:1px solid rgba(255,255,255,0.06);color:#7c849c;font-size:13px;">التاريخ</td>
+         <td style="padding:10px 14px;background:#161b35;border-bottom:1px solid rgba(255,255,255,0.06);color:#e8eaf2;font-size:14px;direction:ltr;text-align:left;">${visitDate}</td>
+       </tr>
+       <tr>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:0 0 8px 8px;color:#7c849c;font-size:13px;">الوقت</td>
+         <td style="padding:10px 14px;background:#1a2040;border-radius:0 0 8px 8px;color:#e8eaf2;font-size:14px;">${slotLabel}</td>
+       </tr>
+     </table>
+     <p style="margin:0;font-size:13px;line-height:1.7;color:#7c849c;">
+       سيتواصل معك فريق ${BRAND} إذا احتجت لأيّ تفاصيل إضافية.
+     </p>`,
+  );
+  const text = `مرحبًا ${expertName}،\n\nلديك حجز جديد في ${BRAND}.\n\nالزائر: ${visitorName}\nالتاريخ: ${visitDate}\nالوقت: ${slotLabel}\n\nسيتواصل معك فريق ${BRAND} إذا احتجت لأيّ تفاصيل إضافية.\n\nفريق ${BRAND}`;
+  return { subject: `🗓️ حجز جديد يذكرك — ${BRAND}`, html, text };
+}
+
 /** Sent to a mentee when an expert/admin confirms their mentorship session. */
 export function sessionConfirmedEmail(
   fullName: string | null,

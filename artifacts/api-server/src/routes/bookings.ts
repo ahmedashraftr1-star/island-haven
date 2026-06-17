@@ -12,6 +12,8 @@ import { logger } from "../lib/logger";
 import { z } from "zod";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
+import { notify } from "./notifications";
+import { sendEmail, bookingConfirmedExpertEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -318,6 +320,18 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
     return;
   }
   try {
+    // Read the current row first so we can detect a status transition.
+    const [before] = await db
+      .select({
+        status: bookingsTable.status,
+        expertId: bookingsTable.expertId,
+        fullName: bookingsTable.fullName,
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+      })
+      .from(bookingsTable)
+      .where(eq(bookingsTable.id, id));
+
     const [row] = await db
       .update(bookingsTable)
       .set(parsed.data)
@@ -329,6 +343,65 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
     }
     invalidateNumbersCache();
     res.json({ booking: row });
+
+    // Fire-and-forget: notify the expert when the booking transitions to
+    // 'confirmed' for the first time and the booking names an expert.
+    if (
+      parsed.data.status === "confirmed" &&
+      before?.status !== "confirmed" &&
+      row.expertId
+    ) {
+      (async () => {
+        try {
+          const [expert] = await db
+            .select({
+              userId: expertProfilesTable.userId,
+              expertEmail: usersTable.email,
+              expertFullName: usersTable.fullName,
+            })
+            .from(expertProfilesTable)
+            .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+            .where(eq(expertProfilesTable.id, row.expertId!));
+
+          if (!expert) return;
+
+          const visitorName = row.fullName;
+          const visitDate = row.visitDate;
+          const timeSlot = row.timeSlot;
+
+          const slotLabels: Record<string, string> = {
+            morning: "الصباح",
+            midday: "منتصف النهار",
+            afternoon: "المساء",
+            fullday: "يوم كامل",
+          };
+          const slotLabel = slotLabels[timeSlot] ?? timeSlot;
+
+          await notify(expert.userId, {
+            type: "booking_confirmed",
+            title: "حجز جديد يذكرك",
+            body: `${visitorName} — ${visitDate} (${slotLabel})`,
+          });
+
+          if (expert.expertEmail) {
+            const mail = bookingConfirmedExpertEmail(
+              expert.expertFullName ?? "",
+              visitorName,
+              visitDate,
+              timeSlot,
+            );
+            await sendEmail({
+              to: expert.expertEmail,
+              subject: mail.subject,
+              html: mail.html,
+              text: mail.text,
+            });
+          }
+        } catch (err) {
+          logger.error({ err, bookingId: id }, "expert booking notification failed");
+        }
+      })();
+    }
   } catch (err) {
     logger.error({ err, id }, "Failed to update booking");
     res.status(500).json({ error: "تعذّر التحديث" });
