@@ -192,7 +192,8 @@ export default function Book() {
     }
   }
 
-  if (done) return <SuccessScreen id={done.id} form={form} />;
+  const selectedExpert = experts.find((e) => e.id === form.expertId) ?? null;
+  if (done) return <SuccessScreen id={done.id} form={form} expert={selectedExpert} />;
 
   return (
     <div
@@ -1027,6 +1028,7 @@ function BackgroundAura() {
 function SuccessScreen({
   id,
   form,
+  expert,
 }: {
   id: number;
   form: {
@@ -1034,6 +1036,7 @@ function SuccessScreen({
     timeSlot: string;
     fullName: string;
   };
+  expert: ExpertOption | null;
 }) {
   const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
@@ -1082,7 +1085,7 @@ function SuccessScreen({
                 <>مقعدك محجوز يا{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span></>
               )}
             </h1>
-            <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
+            <p className="text-white/65 text-[14px] leading-[1.85] mb-6">
               {lang === "en" ? (
                 <>
                   See you on{" "}
@@ -1105,6 +1108,37 @@ function SuccessScreen({
                 </>
               )}
             </p>
+            {expert && (
+              <div className="mb-6 py-4 px-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center gap-4">
+                <div className="relative shrink-0">
+                  {expert.avatarUrl ? (
+                    <img
+                      src={expert.avatarUrl}
+                      alt={expert.fullName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-primary/40"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center text-primary text-lg font-bold">
+                      {expert.fullName.trim().charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-green-500 border-2 border-[#0A0E1A]" />
+                </div>
+                <div className={`flex-1 min-w-0 text-${lang === "en" ? "left" : "right"}`}>
+                  <p className="text-[10.5px] text-white/45 mb-0.5">
+                    {lang === "en" ? "Your mentor" : "مرشدك"}
+                  </p>
+                  <p className="text-[14px] font-semibold text-white truncate">
+                    {expert.fullName}
+                  </p>
+                  {expert.headline && (
+                    <p className="text-[11px] text-white/50 truncate mt-0.5">
+                      {expert.headline}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/65 mb-7">
               <span className="text-white/45">{lang === "en" ? "Booking ref." : "رقم الحجز"}</span>
               <span className="font-mono font-bold text-white tracking-wider">
