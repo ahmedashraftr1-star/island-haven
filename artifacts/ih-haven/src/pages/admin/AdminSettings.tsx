@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { AlertTriangle, Database, Mail } from "lucide-react";
+import { AlertTriangle, Database, Mail, X } from "lucide-react";
 
 interface Setting {
   key: string;
@@ -17,6 +17,7 @@ export default function AdminSettings() {
   const [totals, setTotals] = useState<{ users: number; works: number; courses: number; enrollments: number } | null>(null);
 
   const [adminEmail, setAdminEmail] = useState("");
+  const [adminEmailSource, setAdminEmailSource] = useState<"db" | "env" | null>(null);
   const [adminEmailDraft, setAdminEmailDraft] = useState("");
   const [adminEmailBusy, setAdminEmailBusy] = useState(false);
   const [adminEmailMsg, setAdminEmailMsg] = useState<string | null>(null);
@@ -36,8 +37,9 @@ export default function AdminSettings() {
       // non-critical
     }
     try {
-      const r = await api<{ value: string }>("/admin/settings/admin-email");
+      const r = await api<{ value: string; source: "db" | "env" }>("/admin/settings/admin-email");
       setAdminEmail(r.value);
+      setAdminEmailSource(r.source);
       setAdminEmailDraft(r.value);
       setAdminEmailLoaded(true);
     } catch {
@@ -71,14 +73,33 @@ export default function AdminSettings() {
     setAdminEmailBusy(true);
     setAdminEmailMsg(null);
     try {
-      await api("/admin/settings/admin-email", {
+      const r = await api<{ ok: boolean; value: string; source: "db" | "env" }>("/admin/settings/admin-email", {
         method: "PUT",
         body: JSON.stringify({ value: adminEmailDraft.trim() }),
       });
-      setAdminEmail(adminEmailDraft.trim());
+      setAdminEmail(r.value ?? adminEmailDraft.trim());
+      setAdminEmailSource(r.source ?? "db");
       setAdminEmailMsg("تم الحفظ");
     } catch (e) {
       setAdminEmailMsg(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+    } finally {
+      setAdminEmailBusy(false);
+    }
+  }
+
+  async function clearAdminEmail() {
+    setAdminEmailBusy(true);
+    setAdminEmailMsg(null);
+    try {
+      const r = await api<{ ok: boolean; value: string; source: "db" | "env" }>("/admin/settings/admin-email", {
+        method: "DELETE",
+      });
+      setAdminEmail(r.value ?? "");
+      setAdminEmailSource(r.source ?? "env");
+      setAdminEmailDraft(r.value ?? "");
+      setAdminEmailMsg("تمّت استعادة متغيّر البيئة");
+    } catch (e) {
+      setAdminEmailMsg(e instanceof ApiError ? e.message : "تعذّر المسح");
     } finally {
       setAdminEmailBusy(false);
     }
@@ -172,26 +193,57 @@ export default function AdminSettings() {
         {!adminEmailLoaded ? (
           <div className="text-[13px] text-foreground/45">جارِ التحميل…</div>
         ) : (
-          <div className="flex flex-wrap items-center gap-3">
-            <input
-              type="email"
-              placeholder="admin@example.com"
-              value={adminEmailDraft}
-              onChange={(e) => { setAdminEmailDraft(e.target.value); setAdminEmailMsg(null); }}
-              dir="ltr"
-              className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
-            />
-            <button
-              onClick={saveAdminEmail}
-              disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}
-              className="h-10 px-5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
-            >
-              {adminEmailBusy ? "جارِ الحفظ…" : "حفظ"}
-            </button>
-          </div>
+          <>
+            {adminEmail && (
+              <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-muted/40 border border-border">
+                <span className="text-[12.5px] text-foreground/55 font-medium">النشط الآن:</span>
+                <span className="text-[13px] font-mono text-foreground flex-1 min-w-0 truncate" dir="ltr">
+                  {adminEmail}
+                </span>
+                {adminEmailSource === "env" ? (
+                  <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
+                    من متغيّر البيئة
+                  </span>
+                ) : (
+                  <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <Database className="w-3 h-3" />
+                    محفوظ في قاعدة البيانات
+                  </span>
+                )}
+                {adminEmailSource === "db" && (
+                  <button
+                    onClick={clearAdminEmail}
+                    disabled={adminEmailBusy}
+                    title="استعادة متغيّر البيئة"
+                    className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors disabled:opacity-40"
+                  >
+                    <X className="w-3 h-3" />
+                    مسح
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="email"
+                placeholder="admin@example.com"
+                value={adminEmailDraft}
+                onChange={(e) => { setAdminEmailDraft(e.target.value); setAdminEmailMsg(null); }}
+                dir="ltr"
+                className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
+              />
+              <button
+                onClick={saveAdminEmail}
+                disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}
+                className="h-10 px-5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
+              >
+                {adminEmailBusy ? "جارِ الحفظ…" : "حفظ"}
+              </button>
+            </div>
+          </>
         )}
         {adminEmailMsg && (
-          <p className={`text-[12.5px] mt-2 ${adminEmailMsg === "تم الحفظ" ? "text-emerald-700" : "text-rose-600"}`}>
+          <p className={`text-[12.5px] mt-2 ${adminEmailMsg === "تم الحفظ" || adminEmailMsg === "تمّت استعادة متغيّر البيئة" ? "text-emerald-700" : "text-rose-600"}`}>
             {adminEmailMsg}
           </p>
         )}

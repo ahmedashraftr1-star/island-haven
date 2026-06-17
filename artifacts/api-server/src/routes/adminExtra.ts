@@ -463,13 +463,50 @@ const adminEmailSchema = z.object({
   value: z.string().email("بريد إلكتروني غير صالح").or(z.literal("")),
 });
 
+async function getAdminEmailWithSource(): Promise<{ value: string; source: "db" | "env" }> {
+  try {
+    const [row] = await db
+      .select()
+      .from(siteSettingsTable)
+      .where(eq(siteSettingsTable.key, ADMIN_EMAIL_DB_KEY))
+      .limit(1);
+    if (row) {
+      const v = row.value as unknown;
+      let inner: unknown;
+      if (typeof v === "string" && v.length > 0) inner = v;
+      else if (typeof v === "object" && v !== null && "value" in v) {
+        inner = (v as { value: unknown }).value;
+      }
+      if (typeof inner === "string" && inner.length > 0) {
+        return { value: inner, source: "db" };
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return { value: process.env.ADMIN_EMAIL ?? "", source: "env" };
+}
+
 router.get("/admin/settings/admin-email", requireAdmin, async (_req, res) => {
   try {
-    const email = await getAdminEmail();
-    res.json({ value: email ?? "" });
+    const { value, source } = await getAdminEmailWithSource();
+    res.json({ value, source });
   } catch (err) {
     logger.error({ err }, "GET /admin/settings/admin-email failed");
     res.status(500).json({ error: "تعذّر التحميل" });
+  }
+});
+
+router.delete("/admin/settings/admin-email", requireAdmin, async (_req, res) => {
+  try {
+    await db
+      .delete(siteSettingsTable)
+      .where(eq(siteSettingsTable.key, ADMIN_EMAIL_DB_KEY));
+    const { value, source } = await getAdminEmailWithSource();
+    res.json({ ok: true, value, source });
+  } catch (err) {
+    logger.error({ err }, "DELETE /admin/settings/admin-email failed");
+    res.status(500).json({ error: "تعذّر المسح" });
   }
 });
 
@@ -487,7 +524,8 @@ router.put("/admin/settings/admin-email", requireAdmin, async (req, res) => {
         target: siteSettingsTable.key,
         set: { value: { value: parsed.data.value }, updatedAt: new Date() },
       });
-    res.json({ ok: true, value: parsed.data.value });
+    const { value: activeValue, source } = await getAdminEmailWithSource();
+    res.json({ ok: true, value: activeValue, source });
   } catch (err) {
     logger.error({ err }, "PUT /admin/settings/admin-email failed");
     res.status(500).json({ error: "تعذّر الحفظ" });
