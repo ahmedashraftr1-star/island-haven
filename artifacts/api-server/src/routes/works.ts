@@ -837,6 +837,7 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
         id: worksCommentsTable.id,
         body: worksCommentsTable.body,
         createdAt: worksCommentsTable.createdAt,
+        editedAt: worksCommentsTable.editedAt,
         parentId: worksCommentsTable.parentId,
         author: {
           id: usersTable.id,
@@ -857,8 +858,12 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
       id: c.id,
       body: c.body,
       createdAt: c.createdAt,
+      editedAt: c.editedAt,
       parentId: c.parentId,
       author: c.author,
+      // Only the author may edit; the work owner may delete (moderate) but not
+      // edit someone else's words.
+      canEdit: meId !== null && c.author.id === meId,
       canDelete: meId !== null && (c.author.id === meId || isWorkOwner),
     });
     // Nest one level: top-level comments newest-first, replies chronological.
@@ -978,13 +983,59 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
         id: row.id,
         body: row.body,
         createdAt: row.createdAt,
+        editedAt: row.editedAt,
         parentId: row.parentId,
         author,
+        canEdit: true,
         canDelete: true,
       },
     });
   } catch (err) {
     logger.error({ err }, "POST /works/:id/comments failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Edit a comment — author only (the work owner may delete but not reword).
+router.patch("/works/:id/comments/:commentId", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    const commentId = Number(req.params.commentId);
+    if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(commentId) || commentId <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const body = typeof req.body?.body === "string" ? req.body.body.trim() : "";
+    if (!body) {
+      res.status(400).json({ error: "التعليق فارغ" });
+      return;
+    }
+    if (body.length > COMMENT_MAX) {
+      res.status(400).json({ error: `الحد الأقصى ${COMMENT_MAX} حرف` });
+      return;
+    }
+    const [c] = await db
+      .select({ id: worksCommentsTable.id, userId: worksCommentsTable.userId, workId: worksCommentsTable.workId })
+      .from(worksCommentsTable)
+      .where(eq(worksCommentsTable.id, commentId))
+      .limit(1);
+    if (!c || c.workId !== id) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    if (c.userId !== session.userId) {
+      res.status(403).json({ error: "غير مصرّح" });
+      return;
+    }
+    const [row] = await db
+      .update(worksCommentsTable)
+      .set({ body, editedAt: new Date() })
+      .where(eq(worksCommentsTable.id, commentId))
+      .returning({ id: worksCommentsTable.id, body: worksCommentsTable.body, editedAt: worksCommentsTable.editedAt });
+    res.json({ comment: row });
+  } catch (err) {
+    logger.error({ err }, "PATCH /works/:id/comments/:commentId failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

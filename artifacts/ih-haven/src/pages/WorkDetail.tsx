@@ -65,6 +65,7 @@ interface WorkComment {
   id: number;
   body: string;
   createdAt: string;
+  editedAt?: string | null;
   parentId?: number | null;
   author: {
     id: number;
@@ -72,6 +73,7 @@ interface WorkComment {
     avatarUrl: string | null;
     role: UserRole;
   };
+  canEdit?: boolean;
   canDelete: boolean;
   replies?: WorkComment[];
 }
@@ -126,6 +128,9 @@ export default function WorkDetail() {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
   const [replyPosting, setReplyPosting] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -243,6 +248,39 @@ export default function WorkDetail() {
       setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
     } finally {
       setReplyPosting(false);
+    }
+  }
+
+  function startEdit(c: WorkComment) {
+    setEditingId(c.id);
+    setEditText(c.body);
+    setReplyingTo(null);
+  }
+
+  async function submitEdit(e: React.FormEvent, commentId: number) {
+    e.preventDefault();
+    if (!id || editBusy) return;
+    const body = editText.trim();
+    if (!body) return;
+    setEditBusy(true);
+    setCommentError(null);
+    try {
+      const r = await api<{ comment: { id: number; body: string; editedAt: string | null } }>(
+        `/works/${id}/comments/${commentId}`,
+        { method: "PATCH", body: JSON.stringify({ body }) },
+      );
+      const applyEdit = (c: WorkComment): WorkComment =>
+        c.id === commentId ? { ...c, body: r.comment.body, editedAt: r.comment.editedAt } : c;
+      // Apply to both levels; only the matching id changes.
+      setComments((cs) =>
+        cs.map((c) => ({ ...applyEdit(c), replies: (c.replies ?? []).map(applyEdit) })),
+      );
+      setEditingId(null);
+      setEditText("");
+    } catch (err) {
+      setCommentError(err instanceof ApiError ? err.message : "تعذّر الحفظ");
+    } finally {
+      setEditBusy(false);
     }
   }
 
@@ -604,33 +642,61 @@ export default function WorkDetail() {
                             <span className="text-white/35 text-[11px]">
                               {formatArabicDate(c.createdAt)}
                             </span>
-                            {c.canDelete && (
-                              <button
-                                type="button"
-                                onClick={() => deleteComment(c.id)}
-                                className="ms-auto text-white/35 hover:text-red-300 transition-colors"
-                                aria-label="حذف التعليق"
-                                data-testid={`delete-comment-${c.id}`}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                            {c.editedAt && (
+                              <span className="text-white/30 text-[10.5px]">(عُدّل)</span>
                             )}
+                            <div className="ms-auto flex items-center gap-2">
+                              {c.canEdit && (
+                                <button
+                                  type="button"
+                                  onClick={() => startEdit(c)}
+                                  className="text-white/35 hover:text-primary transition-colors"
+                                  aria-label="تعديل التعليق"
+                                  data-testid={`edit-comment-${c.id}`}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {c.canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => deleteComment(c.id)}
+                                  className="text-white/35 hover:text-red-300 transition-colors"
+                                  aria-label="حذف التعليق"
+                                  data-testid={`delete-comment-${c.id}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
-                            {c.body}
-                          </p>
-                          {user && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReplyingTo(c.id);
-                                setReplyText("");
-                              }}
-                              className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
-                              data-testid={`reply-comment-${c.id}`}
-                            >
-                              <Reply className="w-3 h-3" /> رد
-                            </button>
+                          {editingId === c.id ? (
+                            <CommentEditForm
+                              value={editText}
+                              onChange={setEditText}
+                              onSubmit={(e) => submitEdit(e, c.id)}
+                              onCancel={() => setEditingId(null)}
+                              busy={editBusy}
+                            />
+                          ) : (
+                            <>
+                              <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
+                                {c.body}
+                              </p>
+                              {user && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyingTo(c.id);
+                                    setReplyText("");
+                                  }}
+                                  className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
+                                  data-testid={`reply-comment-${c.id}`}
+                                >
+                                  <Reply className="w-3 h-3" /> رد
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
@@ -667,33 +733,61 @@ export default function WorkDetail() {
                                   <span className="text-white/35 text-[10.5px]">
                                     {formatArabicDate(rep.createdAt)}
                                   </span>
-                                  {rep.canDelete && (
-                                    <button
-                                      type="button"
-                                      onClick={() => deleteComment(rep.id, c.id)}
-                                      className="ms-auto text-white/35 hover:text-red-300 transition-colors"
-                                      aria-label="حذف الرد"
-                                      data-testid={`delete-comment-${rep.id}`}
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </button>
+                                  {rep.editedAt && (
+                                    <span className="text-white/30 text-[10px]">(عُدّل)</span>
                                   )}
+                                  <div className="ms-auto flex items-center gap-2">
+                                    {rep.canEdit && (
+                                      <button
+                                        type="button"
+                                        onClick={() => startEdit(rep)}
+                                        className="text-white/35 hover:text-primary transition-colors"
+                                        aria-label="تعديل الرد"
+                                        data-testid={`edit-comment-${rep.id}`}
+                                      >
+                                        <Pencil className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                    {rep.canDelete && (
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteComment(rep.id, c.id)}
+                                        className="text-white/35 hover:text-red-300 transition-colors"
+                                        aria-label="حذف الرد"
+                                        data-testid={`delete-comment-${rep.id}`}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
-                                <p className="text-white/70 text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
-                                  {rep.body}
-                                </p>
-                                {user && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setReplyingTo(rep.id);
-                                      setReplyText("");
-                                    }}
-                                    className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
-                                    data-testid={`reply-comment-${rep.id}`}
-                                  >
-                                    <Reply className="w-3 h-3" /> رد
-                                  </button>
+                                {editingId === rep.id ? (
+                                  <CommentEditForm
+                                    value={editText}
+                                    onChange={setEditText}
+                                    onSubmit={(e) => submitEdit(e, rep.id)}
+                                    onCancel={() => setEditingId(null)}
+                                    busy={editBusy}
+                                  />
+                                ) : (
+                                  <>
+                                    <p className="text-white/70 text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
+                                      {rep.body}
+                                    </p>
+                                    {user && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setReplyingTo(rep.id);
+                                          setReplyText("");
+                                        }}
+                                        className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
+                                        data-testid={`reply-comment-${rep.id}`}
+                                      >
+                                        <Reply className="w-3 h-3" /> رد
+                                      </button>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             </div>
@@ -892,5 +986,47 @@ export default function WorkDetail() {
         </div>
       )}
     </PageShell>
+  );
+}
+
+function CommentEditForm({
+  value,
+  onChange,
+  onSubmit,
+  onCancel,
+  busy,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+  busy: boolean;
+}) {
+  return (
+    <form onSubmit={onSubmit} className="flex items-center gap-2 mt-1.5">
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoFocus
+        maxLength={1000}
+        className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 transition-colors"
+        data-testid="edit-comment-input"
+      />
+      <button
+        type="submit"
+        disabled={busy || !value.trim()}
+        className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+        data-testid="edit-comment-submit"
+      >
+        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+      >
+        إلغاء
+      </button>
+    </form>
   );
 }

@@ -28,6 +28,8 @@ export const worksCommentsTable = pgTable(
     ),
     body: text("body").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    // Stamped when the author edits the comment; null = never edited.
+    editedAt: timestamp("edited_at", { withTimezone: true }),
   },
   (t) => ({
     workIdx: index("works_comments_work_idx").on(t.workId),
