@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FlatList, Linking, Pressable, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -9,7 +9,7 @@ import { Feather } from "@expo/vector-icons";
 
 import { T, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
-import { api, resolveMedia } from "@/lib/api";
+import { api, resolveMedia, WEB_BASE } from "@/lib/api";
 import type { DailyPost, Numbers, SiteContent } from "@/lib/types";
 
 interface ExpertCard {
@@ -500,9 +500,98 @@ export default function Home() {
               </View>
             </View>
           )}
+
+          {/* Become a Mentor CTA */}
+          <BecomeMentorBanner />
         </View>
       )}
     />
+  );
+}
+
+function BecomeMentorBanner() {
+  const colors = useColors();
+  const url = WEB_BASE ? `${WEB_BASE}/become-mentor?ref=mobile-home-banner` : null;
+
+  const badges = [
+    { icon: "star" as const, label: "شارك خبرتك" },
+    { icon: "clock" as const, label: "ساعة أسبوعيًّا" },
+    { icon: "heart" as const, label: "أثّر في الجيل القادم" },
+  ];
+
+  return (
+    <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
+      <Pressable
+        onPress={() => {
+          if (url) Linking.openURL(url);
+        }}
+        style={({ pressed }) => ({
+          borderRadius: colors.radius + 4,
+          borderWidth: 1,
+          borderColor: colors.primary + "40",
+          backgroundColor: colors.primarySoft,
+          padding: 20,
+          opacity: pressed ? 0.85 : 1,
+          gap: 12,
+        })}
+        testID="cta-become-mentor"
+      >
+        <View style={{ alignItems: "flex-end" }}>
+          <T size={11} weight="bold" color={colors.primary} style={{ letterSpacing: 1, textTransform: "uppercase" }}>
+            هل أنت خبير؟
+          </T>
+        </View>
+
+        <View style={{ alignItems: "flex-end", gap: 4 }}>
+          <T size={24} weight="bold" style={{ textAlign: "right", lineHeight: 32 }}>
+            انضم كمرشد
+          </T>
+          <T size={13} color={colors.mutedForeground} style={{ textAlign: "right", lineHeight: 20 }}>
+            ساعد رواد الأعمال في غزة بمشاركة خبرتك ووقتك — جلسة واحدة قد تُغيّر مسار مشروع.
+          </T>
+        </View>
+
+        <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 8 }}>
+          {badges.map((b) => (
+            <View
+              key={b.label}
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: colors.primary + "30",
+                backgroundColor: colors.card,
+              }}
+            >
+              <Feather name={b.icon} size={12} color={colors.primary} />
+              <T size={12} weight="medium" color={colors.primary}>{b.label}</T>
+            </View>
+          ))}
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 6,
+            marginTop: 4,
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+            borderRadius: 999,
+            backgroundColor: colors.primary,
+            alignSelf: "flex-end",
+          }}
+        >
+          <Feather name="chevron-left" size={16} color="#fff" />
+          <T size={14} weight="bold" color="#fff">كُن مرشدًا</T>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
