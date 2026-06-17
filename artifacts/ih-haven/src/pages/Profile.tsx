@@ -15,6 +15,7 @@ import {
   Globe,
   GraduationCap,
   Briefcase,
+  Bookmark,
   Linkedin,
   Github,
   Link2,
@@ -890,14 +891,24 @@ function WorksList({ rows }: { rows: MyWork[] | null }) {
   }
   return (
     <div className="space-y-3">
-      <Link
-        href="/works/new"
-        className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] hover:bg-primary/5 hover:border-primary/40 hover:text-white text-white/55 py-4 text-[13px] font-semibold transition-colors"
-        data-testid="link-add-work"
-      >
-        <Plus className="w-4 h-4" />
-        أضف عملًا جديدًا
-      </Link>
+      <div className="flex gap-3">
+        <Link
+          href="/works/new"
+          className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] hover:bg-primary/5 hover:border-primary/40 hover:text-white text-white/55 py-4 text-[13px] font-semibold transition-colors"
+          data-testid="link-add-work"
+        >
+          <Plus className="w-4 h-4" />
+          أضف عملًا جديدًا
+        </Link>
+        <Link
+          href="/saved"
+          className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white text-white/65 px-4 py-4 text-[13px] font-semibold transition-colors"
+          data-testid="link-saved-works"
+        >
+          <Bookmark className="w-4 h-4" />
+          المحفوظات
+        </Link>
+      </div>
       {rows.length === 0 ? (
         <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-8 text-center text-white/55 text-[13.5px]">
           لم تنشر أيّ عمل بعد.

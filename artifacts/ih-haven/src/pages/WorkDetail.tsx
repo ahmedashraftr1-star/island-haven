@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Heart,
   MessageCircle,
+  Bookmark,
   Reply,
   Send,
   Loader2,
@@ -57,6 +58,7 @@ interface DetailResp {
   likesCount: number;
   likedByMe: boolean;
   commentsCount: number;
+  savedByMe: boolean;
 }
 
 interface WorkComment {
@@ -112,6 +114,8 @@ export default function WorkDetail() {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [liking, setLiking] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Comments
   const [comments, setComments] = useState<WorkComment[]>([]);
@@ -131,6 +135,7 @@ export default function WorkDetail() {
         setLiked(d.likedByMe);
         setLikesCount(d.likesCount);
         setCommentsCount(d.commentsCount);
+        setSaved(d.savedByMe);
       })
       .catch((e) =>
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
@@ -166,6 +171,25 @@ export default function WorkDetail() {
       setLikesCount(prevCount);
     } finally {
       setLiking(false);
+    }
+  }
+
+  async function toggleSave() {
+    if (!id || saving) return;
+    if (!user) {
+      navigate(`/login?next=/works/${id}`);
+      return;
+    }
+    setSaving(true);
+    const prev = saved;
+    setSaved(!prev); // optimistic
+    try {
+      const r = await api<{ saved: boolean }>(`/works/${id}/save`, { method: "POST" });
+      setSaved(r.saved);
+    } catch {
+      setSaved(prev);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -397,6 +421,21 @@ export default function WorkDetail() {
                 <span className="tabular-nums">{commentsCount}</span>
                 <span className="sr-only">تعليق</span>
               </a>
+              <button
+                type="button"
+                onClick={toggleSave}
+                disabled={saving}
+                aria-pressed={saved}
+                className={`ms-auto inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
+                  saved
+                    ? "bg-amber-400/15 border-amber-400/40 text-amber-200"
+                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                }`}
+                data-testid="button-save-work"
+              >
+                <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
+                <span>{saved ? "محفوظ" : "حفظ"}</span>
+              </button>
             </div>
 
             {data.work.description && (

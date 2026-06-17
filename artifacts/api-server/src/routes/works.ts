@@ -5,6 +5,7 @@ import {
   worksTable,
   worksLikesTable,
   worksCommentsTable,
+  worksSavesTable,
   userFollowsTable,
   usersTable,
   badgesTable,
@@ -353,8 +354,17 @@ router.get("/works/:id", optionalUser, async (req, res) => {
       .select({ commentsCount: count() })
       .from(worksCommentsTable)
       .where(eq(worksCommentsTable.workId, id));
+    let savedByMe = false;
+    if (session) {
+      const [saved] = await db
+        .select({ id: worksSavesTable.id })
+        .from(worksSavesTable)
+        .where(and(eq(worksSavesTable.workId, id), eq(worksSavesTable.userId, session.userId)))
+        .limit(1);
+      savedByMe = !!saved;
+    }
 
-    res.json({ work: row.work, author, isOwner, likesCount, likedByMe, commentsCount });
+    res.json({ work: row.work, author, isOwner, likesCount, likedByMe, commentsCount, savedByMe });
   } catch (err) {
     logger.error({ err }, "GET /works/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -691,6 +701,116 @@ router.post("/works/:id/like", requireUser, async (req, res) => {
     res.json({ liked, likesCount });
   } catch (err) {
     logger.error({ err }, "POST /works/:id/like failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ─── Save / bookmark (toggle) ────────────────────────────────────────────────
+
+router.post("/works/:id/save", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    const work = await loadInteractableWork(id, session.userId);
+    if (!work) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // Atomic toggle: insert-first; nothing inserted → it existed → un-save.
+    const inserted = await db
+      .insert(worksSavesTable)
+      .values({ workId: id, userId: session.userId })
+      .onConflictDoNothing()
+      .returning({ id: worksSavesTable.id });
+    let saved: boolean;
+    if (inserted.length === 0) {
+      await db
+        .delete(worksSavesTable)
+        .where(and(eq(worksSavesTable.workId, id), eq(worksSavesTable.userId, session.userId)));
+      saved = false;
+    } else {
+      saved = true;
+    }
+    res.json({ saved });
+  } catch (err) {
+    logger.error({ err }, "POST /works/:id/save failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// The signed-in member's saved works (most-recently-saved first), with author
+// and engagement counts — same card shape the gallery uses.
+router.get("/me/saved", requireUser, async (req, res) => {
+  try {
+    const session = (req as Request & { userSession: UserSession }).userSession;
+    const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+
+    const where = and(
+      eq(worksSavesTable.userId, session.userId),
+      eq(usersTable.status, "active"),
+      eq(worksTable.status, "visible") as never,
+    );
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(worksSavesTable)
+      .innerJoin(worksTable, eq(worksTable.id, worksSavesTable.workId))
+      .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+      .where(where);
+
+    const totalPages = Math.max(1, Math.ceil(total / WORKS_PAGE_SIZE));
+    const page = Math.min(requestedPage, totalPages);
+
+    const rows = await db
+      .select({
+        work: worksTable,
+        author: {
+          id: usersTable.id,
+          fullName: usersTable.fullName,
+          role: usersTable.role,
+          avatarUrl: usersTable.avatarUrl,
+        },
+        savedAt: worksSavesTable.createdAt,
+      })
+      .from(worksSavesTable)
+      .innerJoin(worksTable, eq(worksTable.id, worksSavesTable.workId))
+      .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
+      .where(where)
+      .orderBy(desc(worksSavesTable.createdAt))
+      .limit(WORKS_PAGE_SIZE)
+      .offset((page - 1) * WORKS_PAGE_SIZE);
+
+    const ids = rows.map((r) => r.work.id);
+    const likeMap = new Map<number, number>();
+    const commentMap = new Map<number, number>();
+    if (ids.length > 0) {
+      const likeRows = await db
+        .select({ workId: worksLikesTable.workId, c: count() })
+        .from(worksLikesTable)
+        .where(inArray(worksLikesTable.workId, ids))
+        .groupBy(worksLikesTable.workId);
+      for (const r of likeRows) likeMap.set(r.workId, Number(r.c));
+      const commentRows = await db
+        .select({ workId: worksCommentsTable.workId, c: count() })
+        .from(worksCommentsTable)
+        .where(inArray(worksCommentsTable.workId, ids))
+        .groupBy(worksCommentsTable.workId);
+      for (const r of commentRows) commentMap.set(r.workId, Number(r.c));
+    }
+
+    const works = rows.map((r) => ({
+      work: r.work,
+      author: r.author,
+      likesCount: likeMap.get(r.work.id) ?? 0,
+      commentsCount: commentMap.get(r.work.id) ?? 0,
+    }));
+    res.json({ works, total, page, totalPages });
+  } catch (err) {
+    logger.error({ err }, "GET /me/saved failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

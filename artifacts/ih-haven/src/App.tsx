@@ -58,6 +58,7 @@ const DemoDay = lazy(() => import("@/pages/DemoDay"));
 const Press = lazy(() => import("@/pages/Press"));
 const Resources = lazy(() => import("@/pages/Resources"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
+const Saved = lazy(() => import("@/pages/Saved"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
 const queryClient = new QueryClient();
@@ -91,6 +92,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/resources": "دليل الرّائد — Island Haven",
   "/courses": "البرنامج التَّدريبيّ — Island Haven",
   "/works": "أعمال المنتسبين — Island Haven",
+  "/saved": "المحفوظات — Island Haven",
   "/events": "فعاليّات آيلاند — Island Haven",
   "/admin": "لوحة التّحكم — Island Haven",
 };
@@ -165,6 +167,7 @@ function Router() {
       <Route path="/courses" component={Courses} />
       <Route path="/courses/:id" component={CourseDetail} />
       <Route path="/works" component={Works} />
+      <Route path="/saved" component={Saved} />
       <Route path="/works/new" component={WorkEditor} />
       <Route path="/works/:id/edit" component={WorkEditor} />
       <Route path="/works/:id" component={WorkDetail} />
