@@ -32,8 +32,10 @@ interface WorkComment {
   id: number;
   body: string;
   createdAt: string;
+  editedAt?: string | null;
   parentId?: number | null;
   author: { id: number; fullName: string; avatarUrl: string | null; role: string };
+  canEdit?: boolean;
   canDelete: boolean;
   replies?: WorkComment[];
 }
@@ -72,6 +74,9 @@ export default function WorkDetail() {
   const [replyTo, setReplyTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
   const [replyBusy, setReplyBusy] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
 
   async function toggleLike() {
     if (!user) {
@@ -141,6 +146,22 @@ export default function WorkDetail() {
       /* ignore */
     } finally {
       setReplyBusy(false);
+    }
+  }
+
+  async function saveEdit(cid: number) {
+    const body = editText.trim();
+    if (!body || editBusy) return;
+    setEditBusy(true);
+    try {
+      await api(`/works/${id}/comments/${cid}`, { method: "PATCH", body: { body } });
+      setEditId(null);
+      setEditText("");
+      await qc.invalidateQueries({ queryKey: ["work-comments", id] });
+    } catch {
+      /* ignore */
+    } finally {
+      setEditBusy(false);
     }
   }
 
@@ -320,26 +341,38 @@ export default function WorkDetail() {
                   </View>
                   <T size={13} weight="bold">{c.author.fullName}</T>
                   <T size={11} color={colors.mutedForeground}>{timeAgo(c.createdAt)}</T>
+                  {c.editedAt ? <T size={10} color={colors.mutedForeground}>(عُدّل)</T> : null}
                   <View style={{ flex: 1 }} />
+                  {c.canEdit ? (
+                    <Pressable onPress={() => { setEditId(c.id); setEditText(c.body); setReplyTo(null); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="تعديل التعليق">
+                      <Feather name="edit-2" size={14} color={colors.mutedForeground} />
+                    </Pressable>
+                  ) : null}
                   {c.canDelete ? (
                     <Pressable onPress={() => deleteComment(c.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف التعليق">
                       <Feather name="trash-2" size={15} color={colors.mutedForeground} />
                     </Pressable>
                   ) : null}
                 </View>
-                <T size={14} style={{ lineHeight: 22 }}>{c.body}</T>
-                {user ? (
-                  <Pressable
-                    onPress={() => { setReplyTo(c.id); setReplyText(""); }}
-                    hitSlop={6}
-                    accessibilityRole="button"
-                    accessibilityLabel="رد على التعليق"
-                    style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
-                  >
-                    <Feather name="corner-up-left" size={13} color={colors.primary} />
-                    <T size={12} weight="medium" color={colors.primary}>رد</T>
-                  </Pressable>
-                ) : null}
+                {editId === c.id ? (
+                  <EditRow value={editText} onChange={setEditText} onSave={() => saveEdit(c.id)} onCancel={() => { setEditId(null); setEditText(""); }} busy={editBusy} colors={colors} />
+                ) : (
+                  <>
+                    <T size={14} style={{ lineHeight: 22 }}>{c.body}</T>
+                    {user ? (
+                      <Pressable
+                        onPress={() => { setReplyTo(c.id); setReplyText(""); }}
+                        hitSlop={6}
+                        accessibilityRole="button"
+                        accessibilityLabel="رد على التعليق"
+                        style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
+                      >
+                        <Feather name="corner-up-left" size={13} color={colors.primary} />
+                        <T size={12} weight="medium" color={colors.primary}>رد</T>
+                      </Pressable>
+                    ) : null}
+                  </>
+                )}
 
                 {replies.length > 0 ? (
                   <View style={{ gap: 10, paddingRight: 12, borderRightWidth: 2, borderRightColor: colors.border, marginTop: 2 }}>
@@ -355,26 +388,38 @@ export default function WorkDetail() {
                           </View>
                           <T size={12} weight="bold">{rep.author.fullName}</T>
                           <T size={10} color={colors.mutedForeground}>{timeAgo(rep.createdAt)}</T>
+                          {rep.editedAt ? <T size={9} color={colors.mutedForeground}>(عُدّل)</T> : null}
                           <View style={{ flex: 1 }} />
+                          {rep.canEdit ? (
+                            <Pressable onPress={() => { setEditId(rep.id); setEditText(rep.body); setReplyTo(null); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="تعديل الرد">
+                              <Feather name="edit-2" size={12} color={colors.mutedForeground} />
+                            </Pressable>
+                          ) : null}
                           {rep.canDelete ? (
                             <Pressable onPress={() => deleteComment(rep.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف الرد">
                               <Feather name="trash-2" size={13} color={colors.mutedForeground} />
                             </Pressable>
                           ) : null}
                         </View>
-                        <T size={13} style={{ lineHeight: 20 }}>{rep.body}</T>
-                        {user ? (
-                          <Pressable
-                            onPress={() => { setReplyTo(rep.id); setReplyText(""); }}
-                            hitSlop={6}
-                            accessibilityRole="button"
-                            accessibilityLabel="رد"
-                            style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
-                          >
-                            <Feather name="corner-up-left" size={12} color={colors.primary} />
-                            <T size={11} weight="medium" color={colors.primary}>رد</T>
-                          </Pressable>
-                        ) : null}
+                        {editId === rep.id ? (
+                          <EditRow value={editText} onChange={setEditText} onSave={() => saveEdit(rep.id)} onCancel={() => { setEditId(null); setEditText(""); }} busy={editBusy} colors={colors} />
+                        ) : (
+                          <>
+                            <T size={13} style={{ lineHeight: 20 }}>{rep.body}</T>
+                            {user ? (
+                              <Pressable
+                                onPress={() => { setReplyTo(rep.id); setReplyText(""); }}
+                                hitSlop={6}
+                                accessibilityRole="button"
+                                accessibilityLabel="رد"
+                                style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
+                              >
+                                <Feather name="corner-up-left" size={12} color={colors.primary} />
+                                <T size={11} weight="medium" color={colors.primary}>رد</T>
+                              </Pressable>
+                            ) : null}
+                          </>
+                        )}
                       </View>
                     ))}
                   </View>
@@ -415,5 +460,51 @@ export default function WorkDetail() {
         )}
       </View>
     </ScrollView>
+  );
+}
+
+function EditRow({
+  value,
+  onChange,
+  onSave,
+  onCancel,
+  busy,
+  colors,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  busy: boolean;
+  colors: ReturnType<typeof useColors>;
+}) {
+  return (
+    <View style={{ gap: 6 }}>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        multiline
+        maxLength={1000}
+        autoFocus
+        placeholder="عدّل تعليقك…"
+        placeholderTextColor={colors.mutedForeground}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+          borderRadius: colors.radius,
+          padding: 10,
+          minHeight: 52,
+          fontSize: 14,
+          color: colors.foreground,
+          textAlign: "right",
+          writingDirection: "rtl",
+        }}
+      />
+      <View style={{ flexDirection: "row-reverse", gap: 8 }}>
+        <Btn title="حفظ" loading={busy} disabled={!value.trim()} onPress={onSave} style={{ flex: 1 }} />
+        <Btn title="إلغاء" variant="secondary" onPress={onCancel} />
+      </View>
+    </View>
   );
 }
