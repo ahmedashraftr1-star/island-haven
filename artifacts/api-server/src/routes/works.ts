@@ -9,6 +9,7 @@ import {
   usersTable,
   badgesTable,
   userBadgesTable,
+  notificationsTable,
   upsertWorkSchema,
   USER_ROLES,
   type UserRole,
@@ -38,20 +39,41 @@ async function notifyFollowersOfNewWork(
       .select({ followerId: userFollowsTable.followerId })
       .from(userFollowsTable)
       .where(eq(userFollowsTable.followingId, authorId));
+    if (followers.length === 0) return;
     const name = author?.fullName ?? "أحد الأعضاء";
-    await Promise.all(
-      followers.map((f) =>
-        notify(f.followerId, {
-          type: "new_work",
-          title: "عمل جديد",
-          body: `نشر ${name} عملاً جديداً: ${work.title}`,
-          link: `/works/${work.id}`,
-        }),
-      ),
+    // One bulk INSERT instead of N concurrent inserts — bounded fan-out cost
+    // even for an author with many followers.
+    await db.insert(notificationsTable).values(
+      followers.map((f) => ({
+        userId: f.followerId,
+        type: "new_work" as const,
+        title: "عمل جديد",
+        body: `نشر ${name} عملاً جديداً: ${work.title}`.slice(0, 500),
+        link: `/works/${work.id}`.slice(0, 400),
+      })),
     );
   } catch (err) {
     logger.error({ err, authorId }, "notifyFollowersOfNewWork failed");
   }
+}
+
+// Throttle repeated "new follower" notifications for the same (follower→target)
+// pair so a follow/unfollow loop can't spam a member. In-memory is fine: the
+// worst case of a process restart is one extra notification.
+const FOLLOW_NOTIFY_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+const recentFollowNotify = new Map<string, number>();
+function shouldNotifyNewFollower(followerId: number, targetId: number): boolean {
+  const key = `${followerId}:${targetId}`;
+  const now = Date.now();
+  const last = recentFollowNotify.get(key);
+  if (last && now - last < FOLLOW_NOTIFY_COOLDOWN_MS) return false;
+  recentFollowNotify.set(key, now);
+  if (recentFollowNotify.size > 5000) {
+    for (const [k, t] of recentFollowNotify) {
+      if (now - t > FOLLOW_NOTIFY_COOLDOWN_MS) recentFollowNotify.delete(k);
+    }
+  }
+  return true;
 }
 
 // ─── Public gallery ─────────────────────────────────────────────────────────
@@ -542,38 +564,49 @@ router.post("/users/:id/follow", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    const [existing] = await db
-      .select({ id: userFollowsTable.id })
-      .from(userFollowsTable)
-      .where(
-        and(
-          eq(userFollowsTable.followerId, session.userId),
-          eq(userFollowsTable.followingId, targetId),
-        ),
-      )
-      .limit(1);
-    if (existing) {
-      await db.delete(userFollowsTable).where(eq(userFollowsTable.id, existing.id));
-      res.json({ following: false });
-      return;
-    }
-    await db
+    // Atomic toggle: try to create the edge first. If nothing was inserted the
+    // edge already existed → this is an unfollow. Branching on a separate
+    // SELECT would race two concurrent toggles into an inconsistent state.
+    const inserted = await db
       .insert(userFollowsTable)
       .values({ followerId: session.userId, followingId: targetId })
-      .onConflictDoNothing();
-    // Tell the followed member who their new follower is.
-    const [me] = await db
-      .select({ fullName: usersTable.fullName })
-      .from(usersTable)
-      .where(eq(usersTable.id, session.userId))
-      .limit(1);
-    void notify(targetId, {
-      type: "new_follower",
-      title: "متابِع جديد",
-      body: `بدأ ${me?.fullName ?? "أحد الأعضاء"} بمتابعتك`,
-      link: `/u/${session.userId}`,
-    });
-    res.json({ following: true });
+      .onConflictDoNothing()
+      .returning({ id: userFollowsTable.id });
+    let following: boolean;
+    if (inserted.length === 0) {
+      await db
+        .delete(userFollowsTable)
+        .where(
+          and(
+            eq(userFollowsTable.followerId, session.userId),
+            eq(userFollowsTable.followingId, targetId),
+          ),
+        );
+      following = false;
+    } else {
+      following = true;
+      // Tell the followed member who their new follower is — only on a genuine
+      // new edge, and throttled per pair to defeat follow/unfollow spam.
+      if (shouldNotifyNewFollower(session.userId, targetId)) {
+        const [me] = await db
+          .select({ fullName: usersTable.fullName })
+          .from(usersTable)
+          .where(eq(usersTable.id, session.userId))
+          .limit(1);
+        void notify(targetId, {
+          type: "new_follower",
+          title: "متابِع جديد",
+          body: `بدأ ${me?.fullName ?? "أحد الأعضاء"} بمتابعتك`,
+          link: `/u/${session.userId}`,
+        });
+      }
+    }
+    // Return the authoritative count so the client never drifts.
+    const [fc] = await db
+      .select({ c: count() })
+      .from(userFollowsTable)
+      .where(eq(userFollowsTable.followingId, targetId));
+    res.json({ following, followersCount: fc?.c ?? 0 });
   } catch (err) {
     logger.error({ err }, "POST /users/:id/follow failed");
     res.status(500).json({ error: "خطأ في الخادم" });

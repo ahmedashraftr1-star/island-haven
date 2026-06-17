@@ -6,6 +6,13 @@ import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 
+// Where to land after login: honor an in-app ?next= path, but only a same-site
+// absolute path ("/…", not "//host") so it can't be used as an open redirect.
+function postLoginDest(): string {
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/profile";
+}
+
 export default function Login() {
   const { login, user } = useAuth();
   const [, navigate] = useLocation();
@@ -20,7 +27,7 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    if (user) navigate("/profile");
+    if (user) navigate(postLoginDest());
   }, [user, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -31,7 +38,7 @@ export default function Login() {
     setSubmitting(true);
     try {
       await login(form.email.trim(), form.password);
-      navigate("/profile");
+      navigate(postLoginDest());
     } catch (e) {
       if (e instanceof ApiError) {
         setError(e.message || "تعذّر تسجيل الدخول");

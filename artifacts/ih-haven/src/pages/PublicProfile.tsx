@@ -68,7 +68,7 @@ const BehanceMark = ({ className = "" }: { className?: string }) => (
 export default function PublicProfile() {
   const [, params] = useRoute("/u/:id");
   const id = params?.id;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [data, setData] = useState<Resp | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -99,10 +99,14 @@ export default function PublicProfile() {
     setFollowing(!prev);
     setFollowers((c) => c + (prev ? -1 : 1));
     try {
-      const r = await api<{ following: boolean }>(`/users/${id}/follow`, {
-        method: "POST",
-      });
+      const r = await api<{ following: boolean; followersCount?: number }>(
+        `/users/${id}/follow`,
+        { method: "POST" },
+      );
       setFollowing(r.following);
+      // Reconcile with the server's authoritative count (avoids drift on
+      // idempotent re-follows / concurrent toggles from another device).
+      if (typeof r.followersCount === "number") setFollowers(r.followersCount);
     } catch {
       setFollowing(prev);
       setFollowers((c) => c + (prev ? 1 : -1));
@@ -201,7 +205,7 @@ export default function PublicProfile() {
             )}
           </div>
           <div className="flex sm:flex-col gap-2 shrink-0">
-            {user?.id !== u.id && (
+            {!authLoading && user?.id !== u.id && (
               <button
                 type="button"
                 onClick={toggleFollow}

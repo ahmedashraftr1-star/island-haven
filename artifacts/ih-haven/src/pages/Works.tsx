@@ -189,7 +189,11 @@ export default function Works() {
           ))}
         </div>
       ) : rows && rows.length === 0 ? (
-        <EmptyState title="لا توجد أعمال بعد" hint="كن أوّل من يشارك عمله." />
+        // In following-feed mode the tailored card above already explains the
+        // empty state — don't also show the generic "be the first" prompt.
+        followingFeed ? null : (
+          <EmptyState title="لا توجد أعمال بعد" hint="كن أوّل من يشارك عمله." />
+        )
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {rows?.map((row, i) => (
