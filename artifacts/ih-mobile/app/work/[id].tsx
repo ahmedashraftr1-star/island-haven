@@ -20,6 +20,7 @@ import type { Work } from "@/lib/types";
 
 interface WorkResp {
   work: Work;
+  author?: { id: number; fullName: string; avatarUrl: string | null };
   isOwner: boolean;
   likesCount: number;
   likedByMe: boolean;
@@ -138,6 +139,8 @@ export default function WorkDetail() {
           <Pressable
             onPress={() => router.push(`/work/edit?id=${id}`)}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="تعديل العمل"
             style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4, paddingVertical: 6, paddingHorizontal: 10, borderRadius: colors.radius, borderWidth: 1, borderColor: colors.border }}
           >
             <Feather name="edit-2" size={13} color={colors.foreground} />
@@ -145,13 +148,15 @@ export default function WorkDetail() {
           </Pressable>
         ) : null}
       </View>
-      {w.authorName ? <T size={13} color={colors.mutedForeground}>{w.authorName}</T> : null}
+      {q.data.author?.fullName ? <T size={13} color={colors.mutedForeground}>{q.data.author.fullName}</T> : null}
 
       {/* Engagement: like toggle + comment count */}
       <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 14 }}>
         <Pressable
           onPress={toggleLike}
           disabled={liking}
+          accessibilityRole="button"
+          accessibilityLabel={likedByMe ? "إلغاء الإعجاب" : "إعجاب"}
           style={{
             flexDirection: "row-reverse",
             alignItems: "center",
@@ -246,7 +251,7 @@ export default function WorkDetail() {
                 <T size={11} color={colors.mutedForeground}>{timeAgo(c.createdAt)}</T>
                 <View style={{ flex: 1 }} />
                 {c.canDelete ? (
-                  <Pressable onPress={() => deleteComment(c.id)} hitSlop={8}>
+                  <Pressable onPress={() => deleteComment(c.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف التعليق">
                     <Feather name="trash-2" size={15} color={colors.mutedForeground} />
                   </Pressable>
                 ) : null}

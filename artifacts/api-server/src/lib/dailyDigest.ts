@@ -1,4 +1,4 @@
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, lte, inArray } from "drizzle-orm";
 import {
   db,
   usersTable,
@@ -32,21 +32,22 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function buildSections(since: Date): Promise<DigestSection[]> {
   const sections: DigestSection[] = [];
 
-  // New works that are publicly visible (visible | featured). We only surface
-  // works members can actually see, so hidden ones are excluded.
-  const works = await db
+  // New works that are publicly visible (visible | featured). Filter status in
+  // SQL so the limit never under-reports when recent works are hidden.
+  const visibleWorks = await db
     .select({
       title: worksTable.title,
       summary: worksTable.summary,
-      status: worksTable.status,
     })
     .from(worksTable)
-    .where(gte(worksTable.createdAt, since))
+    .where(
+      and(
+        gte(worksTable.createdAt, since),
+        inArray(worksTable.status, ["visible", "featured"]),
+      ),
+    )
     .orderBy(desc(worksTable.createdAt))
-    .limit(PER_SECTION_LIMIT * 4);
-  const visibleWorks = works
-    .filter((w) => w.status === "visible" || w.status === "featured")
-    .slice(0, PER_SECTION_LIMIT);
+    .limit(PER_SECTION_LIMIT);
   if (visibleWorks.length) {
     sections.push({
       heading: "أعمال جديدة",
@@ -87,15 +88,21 @@ async function buildSections(since: Date): Promise<DigestSection[]> {
     });
   }
 
-  // New daily posts (tips / news / quotes / stories).
+  // New daily posts (tips / news / quotes / stories). Keyed off publishedAt and
+  // bounded to now so future-scheduled posts never leak into the digest early.
   const posts = await db
     .select({
       title: dailyPostsTable.title,
       type: dailyPostsTable.type,
     })
     .from(dailyPostsTable)
-    .where(gte(dailyPostsTable.createdAt, since))
-    .orderBy(desc(dailyPostsTable.createdAt))
+    .where(
+      and(
+        gte(dailyPostsTable.publishedAt, since),
+        lte(dailyPostsTable.publishedAt, new Date()),
+      ),
+    )
+    .orderBy(desc(dailyPostsTable.publishedAt))
     .limit(PER_SECTION_LIMIT);
   if (posts.length) {
     sections.push({

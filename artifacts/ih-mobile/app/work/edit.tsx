@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -55,9 +55,14 @@ export default function WorkEditor() {
     queryFn: () => api(`/works/${id}`),
     enabled: editing,
   });
+  // Populate the form from the loaded work exactly ONCE, so a background
+  // refetch (e.g. on focus) can't clobber the user's unsaved edits.
+  const hydrated = useRef(false);
   useEffect(() => {
+    if (hydrated.current) return;
     const w = q.data?.work;
     if (!w) return;
+    hydrated.current = true;
     setTitle(w.title ?? "");
     setSummary(w.summary ?? "");
     setDescription(w.description ?? "");
@@ -95,12 +100,18 @@ export default function WorkEditor() {
     setBusy(true);
     setErr(null);
     try {
+      // The backend requires http(s):// on link/videoUrl — add it so a user who
+      // types "youtube.com/…" doesn't hit a confusing 400.
+      const withScheme = (v: string) => {
+        const t = v.trim();
+        return t && !/^https?:\/\//i.test(t) ? `https://${t}` : t;
+      };
       const payload = {
         title: title.trim(),
         summary: summary.trim(),
         description: description.trim(),
-        link: link.trim(),
-        videoUrl: videoUrl.trim(),
+        link: withScheme(link),
+        videoUrl: withScheme(videoUrl),
         tags: tags.trim(),
         coverUrl: coverUrl || null,
       };

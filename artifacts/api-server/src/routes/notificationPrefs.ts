@@ -118,14 +118,33 @@ router.patch("/me/notification-prefs", requireUser, async (req, res) => {
 
 // ─── Admin endpoint ───────────────────────────────────────────────────────────
 
+// Cooldown so an accidental double-trigger (or an over-eager external cron) can't
+// re-blast the same digest to every member. Pass ?force=1 to override. NB:
+// in-memory only — for multi-instance prod, prefer a persisted last-run guard.
+const DIGEST_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+let lastDigestRunAt = 0;
+
 // Manually trigger the daily digest run. In production a system cron should hit
 // this endpoint once a day (e.g. 8:00 AM), or set ENABLE_DAILY_DIGEST_CRON=1 to
 // run the in-process schedule instead. Returns the send/skip tallies.
 router.post(
   "/admin/notifications/daily-digest",
   requireAdmin,
-  async (_req, res) => {
+  async (req, res) => {
     try {
+      const force = req.query.force === "1";
+      const sinceLast = Date.now() - lastDigestRunAt;
+      if (!force && lastDigestRunAt > 0 && sinceLast < DIGEST_COOLDOWN_MS) {
+        res.json({
+          sent: 0,
+          skipped: 0,
+          empty: false,
+          throttled: true,
+          message: "تم تشغيل النشرة مؤخّرًا — أضف ?force=1 لإعادة الإرسال",
+        });
+        return;
+      }
+      lastDigestRunAt = Date.now();
       const result = await sendDailyDigest();
       res.json(result);
     } catch (err) {
