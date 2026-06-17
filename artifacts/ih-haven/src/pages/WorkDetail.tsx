@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Heart,
   MessageCircle,
+  Reply,
   Send,
   Loader2,
 } from "lucide-react";
@@ -62,6 +63,7 @@ interface WorkComment {
   id: number;
   body: string;
   createdAt: string;
+  parentId?: number | null;
   author: {
     id: number;
     fullName: string;
@@ -69,6 +71,7 @@ interface WorkComment {
     role: UserRole;
   };
   canDelete: boolean;
+  replies?: WorkComment[];
 }
 
 /**
@@ -116,6 +119,9 @@ export default function WorkDetail() {
   const [commentText, setCommentText] = useState("");
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyPosting, setReplyPosting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -175,7 +181,7 @@ export default function WorkDetail() {
         method: "POST",
         body: JSON.stringify({ body }),
       });
-      setComments((cs) => [r.comment, ...cs]);
+      setComments((cs) => [{ ...r.comment, replies: [] }, ...cs]);
       setCommentsCount((c) => c + 1);
       setCommentText("");
     } catch (err) {
@@ -185,12 +191,58 @@ export default function WorkDetail() {
     }
   }
 
-  async function deleteComment(commentId: number) {
+  async function submitReply(e: React.FormEvent, parentId: number, topLevelId: number) {
+    e.preventDefault();
+    if (!id || replyPosting) return;
+    const body = replyText.trim();
+    if (!body) return;
+    setReplyPosting(true);
+    setCommentError(null);
+    try {
+      const r = await api<{ comment: WorkComment }>(`/works/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ body, parentId }),
+      });
+      // Server re-points the reply at the top-level ancestor; place it there.
+      const rootId = r.comment.parentId ?? topLevelId;
+      setComments((cs) =>
+        cs.map((c) =>
+          c.id === rootId
+            ? { ...c, replies: [...(c.replies ?? []), r.comment] }
+            : c,
+        ),
+      );
+      setCommentsCount((n) => n + 1);
+      setReplyText("");
+      setReplyingTo(null);
+    } catch (err) {
+      setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
+    } finally {
+      setReplyPosting(false);
+    }
+  }
+
+  async function deleteComment(commentId: number, rootId?: number) {
     if (!id) return;
     const prev = comments;
     const prevCount = commentsCount;
-    setComments((cs) => cs.filter((c) => c.id !== commentId));
-    setCommentsCount((c) => Math.max(0, c - 1));
+    if (rootId != null) {
+      // Deleting a reply: drop it from its thread.
+      setComments((cs) =>
+        cs.map((c) =>
+          c.id === rootId
+            ? { ...c, replies: (c.replies ?? []).filter((rep) => rep.id !== commentId) }
+            : c,
+        ),
+      );
+      setCommentsCount((n) => Math.max(0, n - 1));
+    } else {
+      // Deleting a top-level comment also removes its replies (DB cascade).
+      const removed = comments.find((c) => c.id === commentId);
+      const drop = 1 + (removed?.replies?.length ?? 0);
+      setComments((cs) => cs.filter((c) => c.id !== commentId));
+      setCommentsCount((n) => Math.max(0, n - drop));
+    }
     try {
       await api(`/works/${id}/comments/${commentId}`, { method: "DELETE" });
     } catch {
@@ -480,51 +532,174 @@ export default function WorkDetail() {
                 لا توجد تعليقات بعد — كن أول من يعلّق.
               </p>
             ) : (
-              <div className="space-y-4">
-                {comments.map((c) => (
-                  <div key={c.id} className="flex gap-3" data-testid={`comment-${c.id}`}>
-                    <Link href={`/u/${c.author.id}`} className="shrink-0">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-white">
-                        {c.author.avatarUrl ? (
-                          <img
-                            src={c.author.avatarUrl}
-                            alt={c.author.fullName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          (c.author.fullName || "·").slice(0, 1)
-                        )}
-                      </div>
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/u/${c.author.id}`}
-                          className="text-white font-semibold text-[13px] hover:text-primary transition-colors truncate"
-                        >
-                          {c.author.fullName}
+              <div className="space-y-5">
+                {comments.map((c) => {
+                  const replies = c.replies ?? [];
+                  const threadIds = [c.id, ...replies.map((r) => r.id)];
+                  const composerOpen =
+                    replyingTo !== null && threadIds.includes(replyingTo);
+                  return (
+                    <div key={c.id} data-testid={`comment-${c.id}`}>
+                      <div className="flex gap-3">
+                        <Link href={`/u/${c.author.id}`} className="shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-white">
+                            {c.author.avatarUrl ? (
+                              <img
+                                src={c.author.avatarUrl}
+                                alt={c.author.fullName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              (c.author.fullName || "·").slice(0, 1)
+                            )}
+                          </div>
                         </Link>
-                        <span className="text-white/35 text-[11px]">
-                          {formatArabicDate(c.createdAt)}
-                        </span>
-                        {c.canDelete && (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/u/${c.author.id}`}
+                              className="text-white font-semibold text-[13px] hover:text-primary transition-colors truncate"
+                            >
+                              {c.author.fullName}
+                            </Link>
+                            <span className="text-white/35 text-[11px]">
+                              {formatArabicDate(c.createdAt)}
+                            </span>
+                            {c.canDelete && (
+                              <button
+                                type="button"
+                                onClick={() => deleteComment(c.id)}
+                                className="ms-auto text-white/35 hover:text-red-300 transition-colors"
+                                aria-label="حذف التعليق"
+                                data-testid={`delete-comment-${c.id}`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
+                            {c.body}
+                          </p>
+                          {user && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplyingTo(c.id);
+                                setReplyText("");
+                              }}
+                              className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
+                              data-testid={`reply-comment-${c.id}`}
+                            >
+                              <Reply className="w-3 h-3" /> رد
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {replies.length > 0 && (
+                        <div className="mt-3 space-y-3 pe-12 ps-3 border-e border-white/10">
+                          {replies.map((rep) => (
+                            <div
+                              key={rep.id}
+                              className="flex gap-2.5"
+                              data-testid={`comment-${rep.id}`}
+                            >
+                              <Link href={`/u/${rep.author.id}`} className="shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-white">
+                                  {rep.author.avatarUrl ? (
+                                    <img
+                                      src={rep.author.avatarUrl}
+                                      alt={rep.author.fullName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    (rep.author.fullName || "·").slice(0, 1)
+                                  )}
+                                </div>
+                              </Link>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Link
+                                    href={`/u/${rep.author.id}`}
+                                    className="text-white font-semibold text-[12.5px] hover:text-primary transition-colors truncate"
+                                  >
+                                    {rep.author.fullName}
+                                  </Link>
+                                  <span className="text-white/35 text-[10.5px]">
+                                    {formatArabicDate(rep.createdAt)}
+                                  </span>
+                                  {rep.canDelete && (
+                                    <button
+                                      type="button"
+                                      onClick={() => deleteComment(rep.id, c.id)}
+                                      className="ms-auto text-white/35 hover:text-red-300 transition-colors"
+                                      aria-label="حذف الرد"
+                                      data-testid={`delete-comment-${rep.id}`}
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                                <p className="text-white/70 text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
+                                  {rep.body}
+                                </p>
+                                {user && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setReplyingTo(rep.id);
+                                      setReplyText("");
+                                    }}
+                                    className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
+                                    data-testid={`reply-comment-${rep.id}`}
+                                  >
+                                    <Reply className="w-3 h-3" /> رد
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {composerOpen && user && (
+                        <form
+                          onSubmit={(e) => submitReply(e, replyingTo!, c.id)}
+                          className="flex items-center gap-2 mt-3 pe-12 ps-3"
+                        >
+                          <input
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="اكتب ردًّا…"
+                            autoFocus
+                            maxLength={1000}
+                            className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 transition-colors"
+                            data-testid={`reply-input-${c.id}`}
+                          />
+                          <button
+                            type="submit"
+                            disabled={replyPosting || !replyText.trim()}
+                            className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+                            data-testid={`reply-submit-${c.id}`}
+                          >
+                            {replyPosting ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Send className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                           <button
                             type="button"
-                            onClick={() => deleteComment(c.id)}
-                            className="ms-auto text-white/35 hover:text-red-300 transition-colors"
-                            aria-label="حذف التعليق"
-                            data-testid={`delete-comment-${c.id}`}
+                            onClick={() => setReplyingTo(null)}
+                            className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            إلغاء
                           </button>
-                        )}
-                      </div>
-                      <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
-                        {c.body}
-                      </p>
+                        </form>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </GlassCard>

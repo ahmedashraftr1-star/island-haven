@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import {
   db,
   worksTable,
@@ -677,6 +677,7 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
         id: worksCommentsTable.id,
         body: worksCommentsTable.body,
         createdAt: worksCommentsTable.createdAt,
+        parentId: worksCommentsTable.parentId,
         author: {
           id: usersTable.id,
           fullName: usersTable.fullName,
@@ -687,16 +688,36 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
       .from(worksCommentsTable)
       .innerJoin(usersTable, eq(usersTable.id, worksCommentsTable.userId))
       .where(eq(worksCommentsTable.workId, id))
-      .orderBy(desc(worksCommentsTable.createdAt))
-      .limit(200);
+      .orderBy(asc(worksCommentsTable.createdAt))
+      .limit(500);
 
     const meId = session?.userId ?? null;
     const isWorkOwner = meId !== null && work.userId === meId;
-    const comments = rows.map((c) => ({
-      ...c,
+    const decorate = (c: (typeof rows)[number]) => ({
+      id: c.id,
+      body: c.body,
+      createdAt: c.createdAt,
+      parentId: c.parentId,
+      author: c.author,
       canDelete: meId !== null && (c.author.id === meId || isWorkOwner),
-    }));
-    res.json({ comments });
+    });
+    // Nest one level: top-level comments newest-first, replies chronological.
+    type Decorated = ReturnType<typeof decorate>;
+    const repliesByParent = new Map<number, Decorated[]>();
+    const top: Array<Decorated & { replies: Decorated[] }> = [];
+    for (const c of rows) {
+      const d = decorate(c);
+      if (c.parentId == null) {
+        top.push({ ...d, replies: [] });
+      } else {
+        const arr = repliesByParent.get(c.parentId) ?? [];
+        arr.push(d);
+        repliesByParent.set(c.parentId, arr);
+      }
+    }
+    for (const t of top) t.replies = repliesByParent.get(t.id) ?? [];
+    top.reverse(); // rows were asc; reversing top-level → newest first
+    res.json({ comments: top });
   } catch (err) {
     logger.error({ err }, "GET /works/:id/comments failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -725,9 +746,38 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    // Optional reply target. Enforce one-level threading: a reply to a reply
+    // attaches to the top-level ancestor. The notification still goes to the
+    // author of the comment the user actually clicked "reply" on.
+    let parentId: number | null = null;
+    let parent: { id: number; userId: number; parentId: number | null } | null = null;
+    const rawParent = req.body?.parentId;
+    if (rawParent !== undefined && rawParent !== null && rawParent !== "") {
+      const pid = Number(rawParent);
+      if (!Number.isInteger(pid) || pid <= 0) {
+        res.status(400).json({ error: "تعليق غير صالح" });
+        return;
+      }
+      const [p] = await db
+        .select({
+          id: worksCommentsTable.id,
+          userId: worksCommentsTable.userId,
+          parentId: worksCommentsTable.parentId,
+          workId: worksCommentsTable.workId,
+        })
+        .from(worksCommentsTable)
+        .where(eq(worksCommentsTable.id, pid))
+        .limit(1);
+      if (!p || p.workId !== id) {
+        res.status(404).json({ error: "غير موجود" });
+        return;
+      }
+      parent = { id: p.id, userId: p.userId, parentId: p.parentId };
+      parentId = p.parentId ?? p.id;
+    }
     const [row] = await db
       .insert(worksCommentsTable)
-      .values({ workId: id, userId: session.userId, body })
+      .values({ workId: id, userId: session.userId, body, parentId })
       .returning();
     const [author] = await db
       .select({
@@ -739,17 +789,37 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
       .from(usersTable)
       .where(eq(usersTable.id, session.userId))
       .limit(1);
-    // Tell the work's author someone engaged with their work (skip self-comments).
-    if (work.userId !== session.userId) {
+    const name = author?.fullName ?? "أحد الأعضاء";
+    // Notify the person being replied to (skip self).
+    if (parent && parent.userId !== session.userId) {
+      void notify(parent.userId, {
+        type: "work_comment",
+        title: "ردّ على تعليقك 💬",
+        body: `ردّ ${name} على تعليقك في «${work.title}».`,
+        link: `/works/${id}`,
+      });
+    }
+    // Tell the work's author someone engaged (skip self, and skip if they were
+    // already notified above as the replied-to commenter).
+    if (work.userId !== session.userId && work.userId !== parent?.userId) {
       void notify(work.userId, {
         type: "work_comment",
-        title: "تعليق جديد على عملك 💬",
-        body: `علّق ${author?.fullName ?? "أحد الأعضاء"} على «${work.title}».`,
+        title: parent ? "ردّ جديد على عملك 💬" : "تعليق جديد على عملك 💬",
+        body: parent
+          ? `ردّ ${name} على تعليق في «${work.title}».`
+          : `علّق ${name} على «${work.title}».`,
         link: `/works/${id}`,
       });
     }
     res.json({
-      comment: { id: row.id, body: row.body, createdAt: row.createdAt, author, canDelete: true },
+      comment: {
+        id: row.id,
+        body: row.body,
+        createdAt: row.createdAt,
+        parentId: row.parentId,
+        author,
+        canDelete: true,
+      },
     });
   } catch (err) {
     logger.error({ err }, "POST /works/:id/comments failed");
