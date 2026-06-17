@@ -21,6 +21,7 @@ import {
   Search,
   Users,
   Clock,
+  UserCheck,
 } from "lucide-react";
 
 type Booking = {
@@ -33,6 +34,8 @@ type Booking = {
   purpose: string;
   attendees: number;
   notes: string | null;
+  expertId: number | null;
+  expertName: string | null;
   status: string;
   adminNotes: string | null;
   createdAt: string;
@@ -210,6 +213,12 @@ export default function AdminBookings() {
                       <span className="inline-flex items-center gap-1.5" dir="ltr">
                         <Mail className="w-3.5 h-3.5" />
                         {b.email}
+                      </span>
+                    )}
+                    {b.expertName && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <UserCheck className="w-3.5 h-3.5" />
+                        {b.expertName}
                       </span>
                     )}
                   </div>

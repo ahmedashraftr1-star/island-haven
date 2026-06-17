@@ -6,7 +6,7 @@ import {
   type NextFunction,
 } from "express";
 import { desc, eq, sql, gte, and } from "drizzle-orm";
-import { bookingsTable, db, insertBookingSchema } from "@workspace/db";
+import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
@@ -206,6 +206,7 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
           purpose: data.purpose,
           attendees: data.attendees,
           notes: data.notes,
+          expertId: data.expertId ?? null,
         })
         .returning({ id: bookingsTable.id });
       return { kind: "ok" as const, id: row!.id };
@@ -268,8 +269,28 @@ router.get("/bookings/availability", async (_req, res) => {
 router.get("/admin/bookings", requireAdmin, async (_req, res) => {
   try {
     const rows = await db
-      .select()
+      .select({
+        id: bookingsTable.id,
+        fullName: bookingsTable.fullName,
+        phone: bookingsTable.phone,
+        email: bookingsTable.email,
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+        purpose: bookingsTable.purpose,
+        attendees: bookingsTable.attendees,
+        notes: bookingsTable.notes,
+        expertId: bookingsTable.expertId,
+        status: bookingsTable.status,
+        adminNotes: bookingsTable.adminNotes,
+        createdAt: bookingsTable.createdAt,
+        expertName: usersTable.fullName,
+      })
       .from(bookingsTable)
+      .leftJoin(
+        expertProfilesTable,
+        eq(expertProfilesTable.id, bookingsTable.expertId),
+      )
+      .leftJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
       .orderBy(desc(bookingsTable.createdAt));
     res.json({ bookings: rows });
   } catch (err) {
@@ -326,6 +347,7 @@ const adminCreateSchema = z.object({
   notes: z.string().trim().max(2000).regex(/^[^<>]*$/u).default(""),
   status: z.enum(["pending", "confirmed", "cancelled", "completed"]).default("confirmed"),
   adminNotes: z.string().trim().max(4000).regex(/^[^<>]*$/u).default(""),
+  expertId: z.number().int().positive().optional().nullable(),
 });
 
 router.post("/admin/bookings", requireAdmin, async (req, res) => {
@@ -355,6 +377,7 @@ router.post("/admin/bookings", requireAdmin, async (req, res) => {
         notes: d.notes,
         status: d.status,
         adminNotes: d.adminNotes,
+        expertId: d.expertId ?? null,
       })
       .returning();
     invalidateNumbersCache();

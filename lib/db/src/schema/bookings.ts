@@ -8,6 +8,7 @@ import {
   date,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
+import { expertProfilesTable } from "./experts";
 
 export const bookingsTable = pgTable("bookings", {
   id: serial("id").primaryKey(),
@@ -19,6 +20,9 @@ export const bookingsTable = pgTable("bookings", {
   purpose: varchar("purpose", { length: 32 }).notNull(),
   attendees: integer("attendees").notNull().default(1),
   notes: text("notes").default(""),
+  expertId: integer("expert_id").references(() => expertProfilesTable.id, {
+    onDelete: "set null",
+  }),
   status: varchar("status", { length: 16 }).notNull().default("pending"),
   adminNotes: text("admin_notes").default(""),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -81,6 +85,7 @@ export const insertBookingSchema = z.object({
   purpose: z.enum(["work", "study", "meeting", "event", "tour", "guest", "other"]),
   attendees: z.coerce.number().int().min(1).max(8).default(1),
   notes: safeText(0, 1000, "").default(""),
+  expertId: z.number().int().positive().optional().nullable(),
 });
 
 export type Booking = typeof bookingsTable.$inferSelect;
