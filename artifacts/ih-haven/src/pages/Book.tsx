@@ -92,12 +92,12 @@ export default function Book() {
   const [error, setError] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [monthCursor, setMonthCursor] = useState<Date>(startOfMonth(new Date()));
-  const [experts, setExperts] = useState<ExpertOption[]>([]);
+  const [experts, setExperts] = useState<ExpertOption[] | null>(null);
 
   useEffect(() => {
     api<{ experts: ExpertOption[] }>("/experts")
       .then((r) => setExperts(r.experts))
-      .catch(() => {});
+      .catch(() => setExperts([]));
   }, []);
 
   const [form, setForm] = useState({
@@ -192,7 +192,7 @@ export default function Book() {
     }
   }
 
-  const selectedExpert = experts.find((e) => e.id === form.expertId) ?? null;
+  const selectedExpert = experts?.find((e) => e.id === form.expertId) ?? null;
   if (done) return <SuccessScreen id={done.id} form={form} expert={selectedExpert} />;
 
   return (
@@ -337,7 +337,7 @@ export default function Book() {
           {/* Summary panel */}
           <SummaryCard
             form={form}
-            expertName={experts.find((e) => e.id === form.expertId)?.fullName}
+            expertName={experts?.find((e) => e.id === form.expertId)?.fullName}
           />
         </div>
       </div>
@@ -652,6 +652,27 @@ function StepTwo({
   );
 }
 
+function ExpertSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="p-4 rounded-2xl bg-white/[0.04] border border-white/10"
+        >
+          <div className="flex flex-col items-center gap-2.5">
+            <div className="w-14 h-14 rounded-xl skeleton-shimmer" />
+            <div className="w-full flex flex-col gap-1.5">
+              <div className="h-3 rounded-md skeleton-shimmer w-4/5" />
+              <div className="h-2.5 rounded-md skeleton-shimmer w-3/5" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function StepExpert({
   form,
   update,
@@ -660,7 +681,7 @@ function StepExpert({
 }: {
   form: { expertId: number | null };
   update: (k: any, v: any) => void;
-  experts: ExpertOption[];
+  experts: ExpertOption[] | null;
   visitDate: string;
 }) {
   const { lang } = useLanguage();
@@ -687,12 +708,13 @@ function StepExpert({
       title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
       hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
     >
-      {experts.length === 0 && (
+      {experts === null && <ExpertSkeleton />}
+      {experts !== null && experts.length === 0 && (
         <p className="text-white/45 text-[13px]">
           {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
         </p>
       )}
-      {experts.length > 0 && (
+      {experts !== null && experts.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {experts.map((e) => {
             const selected = form.expertId === e.id;
