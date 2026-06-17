@@ -10,6 +10,7 @@ import {
   Award,
   Languages as LanguagesIcon,
   CheckCircle2,
+  User,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
@@ -115,7 +116,6 @@ export default function ExpertDetail() {
 
   const areas = splitTags(expert.expertise);
   const langs = splitTags(expert.languages);
-  const initials = expert.fullName.trim().charAt(0) || "؟";
 
   return (
     <PageShell active="experts">
@@ -137,8 +137,8 @@ export default function ExpertDetail() {
                 className="w-24 h-24 rounded-3xl object-cover border border-white/10"
               />
             ) : (
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-4xl font-bold text-white/80">
-                {initials}
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center">
+                <User className="w-10 h-10 text-white/50" />
               </div>
             )}
             <div className="min-w-0 pt-1">

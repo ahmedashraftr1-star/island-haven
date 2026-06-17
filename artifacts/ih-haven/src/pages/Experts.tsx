@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Sparkles, Star, Clock, UserPlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Star, Clock, UserPlus, User } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
@@ -133,7 +133,6 @@ export default function Experts() {
 function ExpertCardView({ e }: { e: ExpertCard }) {
   const { lang } = useLanguage();
   const areas = splitTags(e.expertise).slice(0, 4);
-  const initials = e.fullName.trim().charAt(0) || "?";
   return (
     <Link
       href={`/experts/${e.id}`}
@@ -155,8 +154,8 @@ function ExpertCardView({ e }: { e: ExpertCard }) {
               loading="lazy"
             />
           ) : (
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-2xl font-bold text-white/80">
-              {initials}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center">
+              <User className="w-7 h-7 text-white/50" />
             </div>
           )}
           <div className="min-w-0">
