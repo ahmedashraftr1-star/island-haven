@@ -365,13 +365,21 @@ export function storyRejectedEmail(
 /** Sent to a member when the admin deletes their submitted success story. */
 export function storyDeletedEmail(
   fullName: string,
+  reason?: string,
 ): { subject: string; html: string; text: string } {
+  const reasonBlock = reason
+    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
+         <strong style="color:#fff;">سبب الحذف:</strong> ${reason}
+       </p>`
+    : "";
+  const reasonText = reason ? `\nسبب الحذف: ${reason}\n` : "";
   const html = shell(
     "بخصوص قصّتك على المنصّة",
     `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">مرحبًا ${fullName}،</p>
      <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
        أودّ إعلامك بأنّ قصّة نجاحك التي قدّمتها إلى منصّة <strong style="color:#fff;">${BRAND}</strong> قد تمّ حذفها من قِبَل فريق الإدارة.
      </p>
+     ${reasonBlock}
      <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">
        يمكنك التواصل معنا في أيّ وقت إذا كنت ترغب في مزيد من التفاصيل أو إعادة تقديم قصّتك.
      </p>
@@ -379,7 +387,7 @@ export function storyDeletedEmail(
        نحن دائمًا هنا لدعمك — فريق ${BRAND}.
      </p>`,
   );
-  const text = `مرحبًا ${fullName}،\n\nنودّ إعلامك بأنّ قصّة نجاحك على منصّة ${BRAND} قد تمّ حذفها من قِبَل فريق الإدارة.\nتواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
+  const text = `مرحبًا ${fullName}،\n\nنودّ إعلامك بأنّ قصّة نجاحك على منصّة ${BRAND} قد تمّ حذفها من قِبَل فريق الإدارة.${reasonText}\nتواصل معنا إذا أردت مزيدًا من التفاصيل.\n\nفريق ${BRAND}`;
   return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
 }
 

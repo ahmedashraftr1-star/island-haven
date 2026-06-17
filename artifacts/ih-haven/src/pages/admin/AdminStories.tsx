@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Star, UserCheck, XCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, UserCheck, XCircle, AlertTriangle } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -56,6 +56,9 @@ export default function AdminStories() {
   const [rejectTarget, setRejectTarget] = useState<Row | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectBusy, setRejectBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
   async function reload() {
     try {
@@ -68,10 +71,20 @@ export default function AdminStories() {
     void reload();
   }, []);
 
-  async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه القصّة؟ سيصلُ إشعارٌ بالبريد إلى العضو إن وُجد.")) return;
-    await api(`/admin/stories/${id}`, { method: "DELETE" });
-    void reload();
+  async function onDelete() {
+    if (!deleteTarget) return;
+    setDeleteBusy(true);
+    try {
+      await api(`/admin/stories/${deleteTarget.id}`, {
+        method: "DELETE",
+        body: JSON.stringify({ reason: deleteReason.trim() || undefined }),
+      });
+      setDeleteTarget(null);
+      setDeleteReason("");
+      void reload();
+    } finally {
+      setDeleteBusy(false);
+    }
   }
 
   async function onPublish(row: Row) {
@@ -203,7 +216,7 @@ export default function AdminStories() {
                         </>
                       )}
                       <button onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => { setDeleteTarget(r); setDeleteReason(""); }} className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -243,6 +256,49 @@ export default function AdminStories() {
               </button>
               <button
                 onClick={() => setRejectTarget(null)}
+                className="px-6 h-11 rounded-full bg-muted text-foreground/75 font-semibold text-[13.5px] hover:bg-muted/70 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete with optional reason modal */}
+      {deleteTarget && (
+        <Modal title="حذف القصّة" onClose={() => setDeleteTarget(null)}>
+          <div className="p-6 space-y-4">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-rose-700">
+                {deleteTarget.submittedByUserId !== null
+                  ? "سيُحذف هذا المحتوى وسيصلُ إشعارٌ بالحذف إلى العضو تلقائيًّا بالبريد الإلكتروني."
+                  : "سيُحذف هذا المحتوى نهائيًّا."}
+              </p>
+            </div>
+            {deleteTarget.submittedByUserId !== null && (
+              <Field label="سبب الحذف (اختياري — يظهر في الإيميل)">
+                <textarea
+                  rows={3}
+                  value={deleteReason}
+                  onChange={(e) => setDeleteReason(e.target.value)}
+                  className="inp resize-none leading-relaxed"
+                  placeholder="مثال: محتوى مكرَّر، أو يخالف سياسة المنصّة…"
+                  maxLength={500}
+                />
+              </Field>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={onDelete}
+                disabled={deleteBusy}
+                className="flex-1 h-11 rounded-full bg-rose-600 text-white font-semibold text-[13.5px] hover:bg-rose-700 disabled:opacity-50 transition-colors"
+              >
+                {deleteBusy ? "جارِ الحذف…" : "تأكيد الحذف"}
+              </button>
+              <button
+                onClick={() => setDeleteTarget(null)}
                 className="px-6 h-11 rounded-full bg-muted text-foreground/75 font-semibold text-[13.5px] hover:bg-muted/70 transition-colors"
               >
                 إلغاء

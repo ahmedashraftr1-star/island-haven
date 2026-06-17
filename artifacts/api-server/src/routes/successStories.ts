@@ -439,13 +439,17 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
 
     // Notify the member if the story was submitted by one
     if (existing.submittedByUserId) {
+      const deleteReason =
+        typeof req.body?.reason === "string" && req.body.reason.trim()
+          ? req.body.reason.trim()
+          : undefined;
       const [member] = await db
         .select({ email: usersTable.email, fullName: usersTable.fullName })
         .from(usersTable)
         .where(eq(usersTable.id, existing.submittedByUserId))
         .limit(1);
       if (member) {
-        void sendEmail({ to: member.email, ...storyDeletedEmail(member.fullName) });
+        void sendEmail({ to: member.email, ...storyDeletedEmail(member.fullName, deleteReason) });
       }
     }
   } catch (err) {
