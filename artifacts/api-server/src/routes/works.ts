@@ -15,6 +15,7 @@ import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
 import { awardBadgeByKey } from "./gamification";
+import { notify } from "./notifications";
 
 const router: IRouter = Router();
 
@@ -30,6 +31,7 @@ async function loadInteractableWork(id: number, userId: number | undefined) {
     .select({
       id: worksTable.id,
       userId: worksTable.userId,
+      title: worksTable.title,
       status: worksTable.status,
       authorStatus: usersTable.status,
     })
@@ -49,9 +51,26 @@ router.get("/works", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
     const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const sort = String(req.query.sort ?? "newest");
     const filterByRole = (USER_ROLES as readonly string[]).includes(role)
       ? (role as UserRole)
       : null;
+
+    // Sort by engagement via correlated COUNT subqueries. The outer table is the
+    // unaliased FROM (`works`), so literal `works.id` correlates correctly —
+    // never interpolate the outer column into the sql template (renders bare).
+    const orderBy =
+      sort === "popular"
+        ? [
+            desc(sql`(SELECT COUNT(*) FROM works_likes wl WHERE wl.work_id = works.id)`),
+            desc(worksTable.createdAt),
+          ]
+        : sort === "discussed"
+          ? [
+              desc(sql`(SELECT COUNT(*) FROM works_comments wc WHERE wc.work_id = works.id)`),
+              desc(worksTable.createdAt),
+            ]
+          : [desc(worksTable.createdAt)];
 
     const where = and(
       filterByRole ? eq(usersTable.role, filterByRole) : undefined,
@@ -83,7 +102,7 @@ router.get("/works", async (req, res) => {
       .from(worksTable)
       .innerJoin(usersTable, eq(usersTable.id, worksTable.userId))
       .where(where)
-      .orderBy(desc(worksTable.createdAt))
+      .orderBy(...orderBy)
       .limit(WORKS_PAGE_SIZE)
       .offset((page - 1) * WORKS_PAGE_SIZE);
 
@@ -509,6 +528,15 @@ router.post("/works/:id/comments", requireUser, async (req, res) => {
       .from(usersTable)
       .where(eq(usersTable.id, session.userId))
       .limit(1);
+    // Tell the work's author someone engaged with their work (skip self-comments).
+    if (work.userId !== session.userId) {
+      void notify(work.userId, {
+        type: "work_comment",
+        title: "تعليق جديد على عملك 💬",
+        body: `علّق ${author?.fullName ?? "أحد الأعضاء"} على «${work.title}».`,
+        link: `/works/${id}`,
+      });
+    }
     res.json({
       comment: { id: row.id, body: row.body, createdAt: row.createdAt, author, canDelete: true },
     });

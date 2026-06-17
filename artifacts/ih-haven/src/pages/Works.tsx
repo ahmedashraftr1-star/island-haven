@@ -34,9 +34,17 @@ const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
   { key: "student", label: "الطلّاب" },
 ];
 
+type SortKey = "newest" | "popular" | "discussed";
+const SORT_OPTIONS: Array<{ key: SortKey; label: string }> = [
+  { key: "newest", label: "الأحدث" },
+  { key: "popular", label: "الأكثر إعجابًا" },
+  { key: "discussed", label: "الأكثر نقاشًا" },
+];
+
 export default function Works() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<"" | UserRole>("");
+  const [sort, setSort] = useState<SortKey>("newest");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<WorkRow[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,8 +54,8 @@ export default function Works() {
     document.title = "أعمال المستقلّين — آيلاند هيفن";
   }, []);
 
-  // Reset page when filter changes
-  useEffect(() => { setPage(1); }, [filter]);
+  // Reset page when filter or sort changes
+  useEffect(() => { setPage(1); }, [filter, sort]);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,6 +63,7 @@ export default function Works() {
     setError(null);
     const params = new URLSearchParams();
     if (filter) params.set("role", filter);
+    if (sort !== "newest") params.set("sort", sort);
     params.set("page", String(page));
     api<{ works: WorkRow[]; totalPages: number }>(`/works?${params}`)
       .then((r) => {
@@ -68,7 +77,7 @@ export default function Works() {
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
       });
     return () => { cancelled = true; };
-  }, [filter, page]);
+  }, [filter, sort, page]);
 
   return (
     <PageShell
@@ -112,6 +121,24 @@ export default function Works() {
             سجّل دخولك لإضافة أعمالك
           </Link>
         )}
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap mb-8 -mt-4">
+        <span className="text-white/40 text-[12px] font-semibold ml-1">ترتيب:</span>
+        {SORT_OPTIONS.map((o) => (
+          <button
+            key={o.key}
+            onClick={() => setSort(o.key)}
+            className={`px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
+              sort === o.key
+                ? "bg-primary/15 text-primary border-primary/35"
+                : "bg-white/[0.03] text-white/55 border-white/10 hover:text-white hover:bg-white/[0.07]"
+            }`}
+            data-testid={`sort-${o.key}`}
+          >
+            {o.label}
+          </button>
+        ))}
       </div>
 
       {error && (
