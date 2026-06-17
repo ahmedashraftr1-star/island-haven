@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -8,13 +8,28 @@ import { Feather } from "@expo/vector-icons";
 import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
-import { resolveMedia } from "@/lib/api";
+import { api, resolveMedia } from "@/lib/api";
 
 export default function ProfileScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, loading, signOut } = useAuth();
+  const [isExpert, setIsExpert] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setIsExpert(false);
+      return;
+    }
+    let alive = true;
+    api("/experts/me/profile")
+      .then(() => alive && setIsExpert(true))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   if (loading) {
     return (
@@ -88,6 +103,9 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      {isExpert ? (
+        <Btn title="لوحة الخبير" fullWidth onPress={() => router.push("/expert-dashboard" as never)} />
+      ) : null}
       <Btn title="أضف عملاً" fullWidth onPress={() => router.push("/work/edit" as never)} />
       <Btn
         title="تغيير كلمة السرّ"

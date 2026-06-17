@@ -51,6 +51,7 @@ function RootLayoutNav() {
       <Stack.Screen name="work/edit" options={{ title: "العمل", presentation: "modal" }} />
       <Stack.Screen name="experts" options={{ title: "الخبراء" }} />
       <Stack.Screen name="expert/[id]" options={{ title: "" }} />
+      <Stack.Screen name="expert-dashboard" options={{ title: "لوحة الخبير" }} />
       <Stack.Screen name="programs" options={{ title: "البرامج" }} />
       <Stack.Screen name="program/[id]" options={{ title: "" }} />
       <Stack.Screen name="ventures" options={{ title: "المشاريع" }} />
