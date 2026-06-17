@@ -31,8 +31,10 @@ interface WorkComment {
   id: number;
   body: string;
   createdAt: string;
+  parentId?: number | null;
   author: { id: number; fullName: string; avatarUrl: string | null; role: string };
   canDelete: boolean;
+  replies?: WorkComment[];
 }
 
 function timeAgo(iso: string): string {
@@ -65,6 +67,9 @@ export default function WorkDetail() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [liking, setLiking] = useState(false);
+  const [replyTo, setReplyTo] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
 
   async function toggleLike() {
     if (!user) {
@@ -98,6 +103,25 @@ export default function WorkDetail() {
       /* ignore */
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function postReply(parentId: number) {
+    const body = replyText.trim();
+    if (!body || replyBusy) return;
+    setReplyBusy(true);
+    try {
+      await api(`/works/${id}/comments`, { method: "POST", body: { body, parentId } });
+      setReplyText("");
+      setReplyTo(null);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["work-comments", id] }),
+        qc.invalidateQueries({ queryKey: ["work", id] }),
+      ]);
+    } catch {
+      /* ignore */
+    } finally {
+      setReplyBusy(false);
     }
   }
 
@@ -237,28 +261,114 @@ export default function WorkDetail() {
             لا توجد تعليقات بعد — كن أول من يعلّق.
           </T>
         ) : (
-          comments.map((c) => (
-            <Card key={c.id} style={{ gap: 6 }}>
-              <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
-                <View style={{ width: 30, height: 30, borderRadius: 15, overflow: "hidden", backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
-                  {c.author.avatarUrl ? (
-                    <Image source={{ uri: resolveMedia(c.author.avatarUrl) }} style={{ width: 30, height: 30 }} contentFit="cover" />
-                  ) : (
-                    <T size={13} weight="bold">{(c.author.fullName || "·").slice(0, 1)}</T>
-                  )}
+          comments.map((c) => {
+            const replies = c.replies ?? [];
+            const threadIds = [c.id, ...replies.map((r) => r.id)];
+            const composerOpen = replyTo !== null && threadIds.includes(replyTo);
+            return (
+              <Card key={c.id} style={{ gap: 8 }}>
+                <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+                  <View style={{ width: 30, height: 30, borderRadius: 15, overflow: "hidden", backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
+                    {c.author.avatarUrl ? (
+                      <Image source={{ uri: resolveMedia(c.author.avatarUrl) }} style={{ width: 30, height: 30 }} contentFit="cover" />
+                    ) : (
+                      <T size={13} weight="bold">{(c.author.fullName || "·").slice(0, 1)}</T>
+                    )}
+                  </View>
+                  <T size={13} weight="bold">{c.author.fullName}</T>
+                  <T size={11} color={colors.mutedForeground}>{timeAgo(c.createdAt)}</T>
+                  <View style={{ flex: 1 }} />
+                  {c.canDelete ? (
+                    <Pressable onPress={() => deleteComment(c.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف التعليق">
+                      <Feather name="trash-2" size={15} color={colors.mutedForeground} />
+                    </Pressable>
+                  ) : null}
                 </View>
-                <T size={13} weight="bold">{c.author.fullName}</T>
-                <T size={11} color={colors.mutedForeground}>{timeAgo(c.createdAt)}</T>
-                <View style={{ flex: 1 }} />
-                {c.canDelete ? (
-                  <Pressable onPress={() => deleteComment(c.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف التعليق">
-                    <Feather name="trash-2" size={15} color={colors.mutedForeground} />
+                <T size={14} style={{ lineHeight: 22 }}>{c.body}</T>
+                {user ? (
+                  <Pressable
+                    onPress={() => { setReplyTo(c.id); setReplyText(""); }}
+                    hitSlop={6}
+                    accessibilityRole="button"
+                    accessibilityLabel="رد على التعليق"
+                    style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
+                  >
+                    <Feather name="corner-up-left" size={13} color={colors.primary} />
+                    <T size={12} weight="medium" color={colors.primary}>رد</T>
                   </Pressable>
                 ) : null}
-              </View>
-              <T size={14} style={{ lineHeight: 22 }}>{c.body}</T>
-            </Card>
-          ))
+
+                {replies.length > 0 ? (
+                  <View style={{ gap: 10, paddingRight: 12, borderRightWidth: 2, borderRightColor: colors.border, marginTop: 2 }}>
+                    {replies.map((rep) => (
+                      <View key={rep.id} style={{ gap: 4 }}>
+                        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+                          <View style={{ width: 24, height: 24, borderRadius: 12, overflow: "hidden", backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
+                            {rep.author.avatarUrl ? (
+                              <Image source={{ uri: resolveMedia(rep.author.avatarUrl) }} style={{ width: 24, height: 24 }} contentFit="cover" />
+                            ) : (
+                              <T size={11} weight="bold">{(rep.author.fullName || "·").slice(0, 1)}</T>
+                            )}
+                          </View>
+                          <T size={12} weight="bold">{rep.author.fullName}</T>
+                          <T size={10} color={colors.mutedForeground}>{timeAgo(rep.createdAt)}</T>
+                          <View style={{ flex: 1 }} />
+                          {rep.canDelete ? (
+                            <Pressable onPress={() => deleteComment(rep.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="حذف الرد">
+                              <Feather name="trash-2" size={13} color={colors.mutedForeground} />
+                            </Pressable>
+                          ) : null}
+                        </View>
+                        <T size={13} style={{ lineHeight: 20 }}>{rep.body}</T>
+                        {user ? (
+                          <Pressable
+                            onPress={() => { setReplyTo(rep.id); setReplyText(""); }}
+                            hitSlop={6}
+                            accessibilityRole="button"
+                            accessibilityLabel="رد"
+                            style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}
+                          >
+                            <Feather name="corner-up-left" size={12} color={colors.primary} />
+                            <T size={11} weight="medium" color={colors.primary}>رد</T>
+                          </Pressable>
+                        ) : null}
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+
+                {composerOpen && user ? (
+                  <View style={{ gap: 6, marginTop: 2 }}>
+                    <TextInput
+                      value={replyText}
+                      onChangeText={setReplyText}
+                      multiline
+                      maxLength={1000}
+                      autoFocus
+                      placeholder="اكتب ردًّا…"
+                      placeholderTextColor={colors.mutedForeground}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        backgroundColor: colors.card,
+                        borderRadius: colors.radius,
+                        padding: 10,
+                        minHeight: 52,
+                        fontSize: 14,
+                        color: colors.foreground,
+                        textAlign: "right",
+                        writingDirection: "rtl",
+                      }}
+                    />
+                    <View style={{ flexDirection: "row-reverse", gap: 8 }}>
+                      <Btn title="رد" loading={replyBusy} disabled={!replyText.trim()} onPress={() => postReply(replyTo!)} style={{ flex: 1 }} />
+                      <Btn title="إلغاء" variant="secondary" onPress={() => { setReplyTo(null); setReplyText(""); }} />
+                    </View>
+                  </View>
+                ) : null}
+              </Card>
+            );
+          })
         )}
       </View>
     </ScrollView>
