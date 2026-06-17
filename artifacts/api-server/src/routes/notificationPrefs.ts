@@ -5,8 +5,9 @@ import {
   notificationPrefsTable,
   updateNotificationPrefsSchema,
 } from "@workspace/db";
-import { requireUser, type UserSession } from "../lib/auth";
+import { requireUser, requireAdmin, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { sendDailyDigest } from "../lib/dailyDigest";
 
 const router: IRouter = Router();
 
@@ -114,5 +115,24 @@ router.patch("/me/notification-prefs", requireUser, async (req, res) => {
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
+
+// ─── Admin endpoint ───────────────────────────────────────────────────────────
+
+// Manually trigger the daily digest run. In production a system cron should hit
+// this endpoint once a day (e.g. 8:00 AM), or set ENABLE_DAILY_DIGEST_CRON=1 to
+// run the in-process schedule instead. Returns the send/skip tallies.
+router.post(
+  "/admin/notifications/daily-digest",
+  requireAdmin,
+  async (_req, res) => {
+    try {
+      const result = await sendDailyDigest();
+      res.json(result);
+    } catch (err) {
+      logger.error({ err }, "POST /admin/notifications/daily-digest failed");
+      res.status(500).json({ error: "خطأ في الخادم" });
+    }
+  },
+);
 
 export default router;

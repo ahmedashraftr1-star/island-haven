@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureAuthConfigured } from "./lib/auth";
+import { startDailyDigestSchedule } from "./lib/dailyDigest";
 
 ensureAuthConfigured();
 
@@ -25,4 +26,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  // Opt-in in-process daily digest schedule (ENABLE_DAILY_DIGEST_CRON=1).
+  // No-op otherwise; the admin endpoint stays available regardless.
+  startDailyDigestSchedule(8);
 });
