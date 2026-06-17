@@ -415,7 +415,8 @@ router.post("/auth/reset-password", async (req, res) => {
     if (!user) { res.status(404).json({ error: "الحساب غير موجود" }); return; }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await db.update(usersTable).set({ passwordHash, updatedAt: new Date() }).where(eq(usersTable.id, user.id));
+    const now = new Date();
+    await db.update(usersTable).set({ passwordHash, passwordSetAt: now, updatedAt: now }).where(eq(usersTable.id, user.id));
 
     resetTokens.delete(tokenHash);
     res.json({ ok: true });

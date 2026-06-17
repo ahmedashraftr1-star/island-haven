@@ -48,6 +48,7 @@ export const usersTable = pgTable(
       .default("active")
       .notNull()
       .$type<UserStatus>(),
+    passwordSetAt: timestamp("password_set_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

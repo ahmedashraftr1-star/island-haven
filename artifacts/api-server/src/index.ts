@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureAuthConfigured } from "./lib/auth";
+import { startMentorReminderJob } from "./lib/mentorReminderJob";
 
 ensureAuthConfigured();
 
@@ -25,4 +26,5 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+  startMentorReminderJob();
 });
