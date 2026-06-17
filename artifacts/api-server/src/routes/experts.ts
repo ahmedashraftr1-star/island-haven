@@ -201,6 +201,21 @@ router.post("/experts/apply", async (req, res) => {
         `${appUrl}/admin`,
       );
       void sendEmail({ to: adminEmail, ...adminMail });
+
+      // In-app bell notification for the admin user
+      const [adminUser] = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.email, adminEmail))
+        .limit(1);
+      if (adminUser) {
+        void notify(adminUser.id, {
+          type: "mentor_application",
+          title: "طلب انضمام مرشد جديد",
+          body: `${fullName} يطلب الانضمام كمرشد (${expertise}).`,
+          link: "/admin",
+        });
+      }
     } else {
       logger.warn(
         { applicant: email },

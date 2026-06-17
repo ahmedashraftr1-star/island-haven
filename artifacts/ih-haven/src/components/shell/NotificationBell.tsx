@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Bell } from "lucide-react";
+import { Bell, UserCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -119,9 +119,13 @@ export function NotificationBell() {
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  {!n.readAt && (
+                  {n.type === "mentor_application" ? (
+                    <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <UserCheck className="w-3 h-3 text-emerald-400" />
+                    </span>
+                  ) : !n.readAt ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                  )}
+                  ) : null}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-white text-[12.5px] font-semibold">{n.title}</span>
