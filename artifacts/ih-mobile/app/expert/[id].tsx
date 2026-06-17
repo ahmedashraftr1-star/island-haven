@@ -13,7 +13,7 @@ import {
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
 import { T, Card, Btn, Field } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
@@ -104,6 +104,11 @@ export default function ExpertDetailScreen() {
     queryKey: ["team"],
     queryFn: () => api("/team"),
   });
+  const ratingQ = useQuery<{ average: number | null; count: number }>({
+    queryKey: ["expert-rating", id],
+    queryFn: () => api(`/experts/${id}/rating`),
+    enabled: !!id,
+  });
 
   // Intro fade — triggers once the profile data arrives.
   const intro = useRef(new Animated.Value(0)).current;
@@ -141,6 +146,8 @@ export default function ExpertDetailScreen() {
   const langs = splitTags(e.languages);
   const teamMember = tq.data?.team.find((t) => t.fullName.trim() === e.fullName.trim());
   const teamLabel = teamMember ? TEAM_LABELS[teamMember.group] ?? null : null;
+  const rating = ratingQ.data && ratingQ.data.count > 0 ? ratingQ.data : null;
+  const ratingRounded = Math.round(rating?.average ?? 0);
 
   async function submitRequest() {
     if (!user) {
@@ -244,6 +251,22 @@ export default function ExpertDetailScreen() {
               <T size={11.5} weight="bold" color={colors.primary}>
                 {teamLabel}
               </T>
+            </View>
+          ) : null}
+          {rating ? (
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <View style={{ flexDirection: "row" }}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <Ionicons
+                    key={n}
+                    name={n <= ratingRounded ? "star" : "star-outline"}
+                    size={14}
+                    color={n <= ratingRounded ? "#f59e0b" : colors.border}
+                  />
+                ))}
+              </View>
+              <T size={12.5} weight="bold">{rating.average?.toFixed(1)}</T>
+              <T size={11.5} color={colors.mutedForeground}>({rating.count} تقييم)</T>
             </View>
           ) : null}
         </View>
