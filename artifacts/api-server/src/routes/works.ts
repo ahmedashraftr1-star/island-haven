@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import {
   db,
   worksTable,
@@ -54,6 +54,9 @@ router.get("/works", async (req, res) => {
     const role = String(req.query.role ?? "");
     const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
     const sort = String(req.query.sort ?? "newest");
+    const q = String(req.query.q ?? "").trim().slice(0, 80);
+    // Escape LIKE wildcards so user input is matched literally.
+    const esc = q.replace(/[\\%_]/g, (c) => "\\" + c);
     const filterByRole = (USER_ROLES as readonly string[]).includes(role)
       ? (role as UserRole)
       : null;
@@ -78,6 +81,13 @@ router.get("/works", async (req, res) => {
       filterByRole ? eq(usersTable.role, filterByRole) : undefined,
       eq(usersTable.status, "active"),
       eq(worksTable.status, "visible") as never,
+      q
+        ? or(
+            ilike(worksTable.title, `%${esc}%`),
+            ilike(worksTable.summary, `%${esc}%`),
+            ilike(worksTable.tags, `%${esc}%`),
+          )
+        : undefined,
     );
 
     const [{ total }] = await db

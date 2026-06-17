@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ExternalLink, Plus, Heart, MessageCircle } from "lucide-react";
+import { ExternalLink, Plus, Heart, MessageCircle, Search } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { useAuth, ROLE_LABELS, type UserRole } from "@/lib/auth";
@@ -45,6 +45,7 @@ export default function Works() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<"" | UserRole>("");
   const [sort, setSort] = useState<SortKey>("newest");
+  const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<WorkRow[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -54,8 +55,8 @@ export default function Works() {
     document.title = "أعمال المستقلّين — آيلاند هيفن";
   }, []);
 
-  // Reset page when filter or sort changes
-  useEffect(() => { setPage(1); }, [filter, sort]);
+  // Reset page when filter, sort, or query changes
+  useEffect(() => { setPage(1); }, [filter, sort, q]);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +65,7 @@ export default function Works() {
     const params = new URLSearchParams();
     if (filter) params.set("role", filter);
     if (sort !== "newest") params.set("sort", sort);
+    if (q.trim()) params.set("q", q.trim());
     params.set("page", String(page));
     api<{ works: WorkRow[]; totalPages: number }>(`/works?${params}`)
       .then((r) => {
@@ -77,7 +79,7 @@ export default function Works() {
         setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
       });
     return () => { cancelled = true; };
-  }, [filter, sort, page]);
+  }, [filter, sort, q, page]);
 
   return (
     <PageShell
@@ -87,6 +89,16 @@ export default function Works() {
       highlight="مستقلّينا"
       subtitle="مشاريع وأعمال أنجزها أعضاء آيلاند هيفن — تَصفَّح، تواصل، أو شارك أنت أيضًا."
     >
+      <div className="relative mb-5">
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="ابحث في الأعمال بالعنوان أو الوصف أو الوسوم…"
+          className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
+          data-testid="input-search-works"
+        />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div className="flex items-center gap-2 flex-wrap">
           {ROLE_FILTERS.map((f) => (
