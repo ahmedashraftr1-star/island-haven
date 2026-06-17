@@ -70,13 +70,15 @@ router.get("/me/story", requireUser, async (req, res) => {
 router.post("/me/story", requireUser, async (req, res) => {
   const { userId } = (req as AuthReq).userSession;
   try {
-    // Ensure member hasn't already submitted a story
+    // Check if the member already has a story
     const [existing] = await db
-      .select({ id: successStoriesTable.id })
+      .select({ id: successStoriesTable.id, status: successStoriesTable.status })
       .from(successStoriesTable)
       .where(eq(successStoriesTable.submittedByUserId, userId))
       .limit(1);
-    if (existing) {
+
+    // Block if an active (non-deleted) story already exists
+    if (existing && existing.status !== "deleted") {
       res.status(409).json({ error: "لديك قصّة مقدَّمة بالفعل" });
       return;
     }
@@ -100,24 +102,50 @@ router.post("/me/story", requireUser, async (req, res) => {
     }
 
     const d = parsed.data;
-    const [row] = await db
-      .insert(successStoriesTable)
-      .values({
-        personName: user.fullName,
-        role: user.jobTitle ?? "",
-        quote: d.quote,
-        story: d.story,
-        ventureName: d.ventureName,
-        projectUrl: d.projectUrl ?? null,
-        avatarUrl: user.avatarUrl ?? null,
-        status: "draft",
-        featured: false,
-        sortOrder: 0,
-        submittedByUserId: userId,
-      })
-      .returning();
 
-    // Notify admin about the new submission (fire-and-forget)
+    let row: typeof successStoriesTable.$inferSelect;
+
+    if (existing && existing.status === "deleted") {
+      // Resubmit after admin deletion — update the existing row back to draft
+      const [updated] = await db
+        .update(successStoriesTable)
+        .set({
+          personName: user.fullName,
+          role: user.jobTitle ?? "",
+          quote: d.quote,
+          story: d.story,
+          ventureName: d.ventureName,
+          projectUrl: d.projectUrl ?? null,
+          avatarUrl: user.avatarUrl ?? null,
+          status: "draft",
+          rejectionNote: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(successStoriesTable.submittedByUserId, userId))
+        .returning();
+      row = updated;
+    } else {
+      // Fresh first submission
+      const [inserted] = await db
+        .insert(successStoriesTable)
+        .values({
+          personName: user.fullName,
+          role: user.jobTitle ?? "",
+          quote: d.quote,
+          story: d.story,
+          ventureName: d.ventureName,
+          projectUrl: d.projectUrl ?? null,
+          avatarUrl: user.avatarUrl ?? null,
+          status: "draft",
+          featured: false,
+          sortOrder: 0,
+          submittedByUserId: userId,
+        })
+        .returning();
+      row = inserted;
+    }
+
+    // Notify admin about the new/resubmitted story (fire-and-forget)
     const adminEmail = await getAdminEmail();
     if (adminEmail) {
       const adminUrl =
@@ -381,18 +409,36 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    // Fetch before delete so we can notify the submitting member
+    // Fetch before update so we know who to notify and whether it's member-submitted
     const [existing] = await db
-      .select({ submittedByUserId: successStoriesTable.submittedByUserId })
+      .select({
+        submittedByUserId: successStoriesTable.submittedByUserId,
+        status: successStoriesTable.status,
+      })
       .from(successStoriesTable)
       .where(eq(successStoriesTable.id, id))
       .limit(1);
 
-    await db.delete(successStoriesTable).where(eq(successStoriesTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+
+    if (existing.submittedByUserId) {
+      // Member-submitted story: soft-delete so the member can resubmit
+      await db
+        .update(successStoriesTable)
+        .set({ status: "deleted", updatedAt: new Date() })
+        .where(eq(successStoriesTable.id, id));
+    } else {
+      // Admin-created story: hard delete (no member to notify or allow resubmit)
+      await db.delete(successStoriesTable).where(eq(successStoriesTable.id, id));
+    }
+
     res.json({ ok: true });
 
     // Notify the member if the story was submitted by one
-    if (existing?.submittedByUserId) {
+    if (existing.submittedByUserId) {
       const [member] = await db
         .select({ email: usersTable.email, fullName: usersTable.fullName })
         .from(usersTable)

@@ -828,7 +828,7 @@ interface MyStory {
   story: string;
   ventureName: string;
   projectUrl: string | null;
-  status: "draft" | "published" | "hidden";
+  status: "draft" | "published" | "hidden" | "rejected" | "deleted";
 }
 
 function MyStorySection({ user }: { user: AuthUser }) {
@@ -868,9 +868,10 @@ function MyStorySection({ user }: { user: AuthUser }) {
     }
     setSaving(true);
     try {
-      const isEdit = myStory !== null && myStory !== undefined;
+      // Use PATCH only for active drafts; deleted stories resubmit via POST
+      const isDraftEdit = myStory !== null && myStory !== undefined && myStory.status === "draft";
       const r = await api<{ story: MyStory }>("/me/story", {
-        method: isEdit ? "PATCH" : "POST",
+        method: isDraftEdit ? "PATCH" : "POST",
         body: JSON.stringify({
           quote: form.quote,
           story: form.story,
@@ -908,17 +909,22 @@ function MyStorySection({ user }: { user: AuthUser }) {
     }
   }
 
-  const isLocked = myStory !== null && myStory !== undefined && myStory.status !== "draft";
+  const isDeleted = myStory?.status === "deleted";
+  const isLocked = myStory !== null && myStory !== undefined && myStory.status !== "draft" && !isDeleted;
 
   const statusLabel: Record<string, string> = {
     draft: "بانتظار المراجعة",
     published: "منشورة",
     hidden: "مخفيّة",
+    rejected: "مرفوضة",
+    deleted: "محذوفة من قِبَل الإدارة",
   };
   const statusColor: Record<string, string> = {
     draft: "text-amber-300",
     published: "text-emerald-400",
     hidden: "text-white/40",
+    rejected: "text-rose-400",
+    deleted: "text-white/40",
   };
 
   return (
@@ -973,7 +979,13 @@ function MyStorySection({ user }: { user: AuthUser }) {
                         تمّ إرسال قصّتك بنجاح — ستُراجَع قريبًا وتُنشَر!
                       </div>
                     )}
-                    {myStory !== null && (
+                    {isDeleted && (
+                      <div className="flex items-center gap-2 text-white/55 text-[12px] px-1 py-2 rounded-xl bg-white/[0.04] border border-white/10">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/30 shrink-0" />
+                        حذفت الإدارة قصّتك السابقة. يمكنك كتابة قصّة جديدة وإرسالها مجدّدًا.
+                      </div>
+                    )}
+                    {myStory !== null && myStory?.status === "draft" && (
                       <div className="flex items-center gap-2 text-amber-300/80 text-[12px] px-1">
                         <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400/70" />
                         قصّتك بانتظار مراجعة الإدارة — يمكنك تعديلها حتى ذلك الحين.
@@ -1044,9 +1056,15 @@ function MyStorySection({ user }: { user: AuthUser }) {
                       disabled={saving || withdrawing}
                       className="w-full h-11 rounded-xl bg-primary text-white font-bold text-[13.5px] disabled:opacity-50 transition-opacity"
                     >
-                      {saving ? "جارٍ الإرسال…" : myStory ? "تحديث القصّة" : "إرسال قصّتي"}
+                      {saving
+                        ? "جارٍ الإرسال…"
+                        : isDeleted
+                        ? "شارك قصّتك من جديد"
+                        : myStory
+                        ? "تحديث القصّة"
+                        : "إرسال قصّتي"}
                     </button>
-                    {myStory !== null && (
+                    {myStory !== null && !isDeleted && (
                       <button
                         type="button"
                         onClick={onWithdraw}

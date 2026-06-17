@@ -18,7 +18,7 @@ interface MyStoryData {
   story: string;
   ventureName: string;
   projectUrl: string | null;
-  status: "draft" | "published" | "hidden" | "rejected";
+  status: "draft" | "published" | "hidden" | "rejected" | "deleted";
   rejectionNote: string | null;
 }
 
@@ -124,6 +124,7 @@ const STATUS_LABEL: Record<string, string> = {
   published: "منشورة",
   hidden: "مخفيّة",
   rejected: "مرفوضة",
+  deleted: "محذوفة من قِبَل الإدارة",
 };
 
 const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
@@ -131,6 +132,7 @@ const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
   published: { bg: "#10b98120", text: "#10b981" },
   hidden: { bg: "#6b728020", text: "#6b7280" },
   rejected: { bg: "#ef444420", text: "#ef4444" },
+  deleted: { bg: "#6b728020", text: "#6b7280" },
 };
 
 function MyStorySection() {
@@ -162,6 +164,7 @@ function MyStorySection() {
 
   const isPublished = story?.status === "published";
   const isRejected = story?.status === "rejected";
+  const isDeleted = story?.status === "deleted";
   const hasStory = story !== null && story !== undefined;
 
   const badgeColor = story ? (STATUS_COLOR[story.status] ?? { bg: colors.muted, text: colors.mutedForeground }) : null;
@@ -262,6 +265,34 @@ function MyStorySection() {
           <Btn
             title="تعديل القصّة"
             variant="ghost"
+            fullWidth
+            onPress={() => router.push("/story-form" as never)}
+          />
+        </View>
+
+      ) : isDeleted ? (
+        <View style={{ gap: 12 }}>
+          <View
+            style={{
+              backgroundColor: "#6b728012",
+              borderWidth: 1,
+              borderColor: "#6b728030",
+              borderRadius: colors.radius,
+              padding: 12,
+              gap: 6,
+            }}
+          >
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+              <Feather name="trash-2" size={14} color="#9ca3af" />
+              <T size={13} weight="medium" color="#9ca3af">حذفت الإدارة قصّتك</T>
+            </View>
+            <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
+              يمكنك كتابة قصّة جديدة وتقديمها مرّة أخرى للمراجعة.
+            </T>
+          </View>
+
+          <Btn
+            title="شارك قصّتك من جديد"
             fullWidth
             onPress={() => router.push("/story-form" as never)}
           />

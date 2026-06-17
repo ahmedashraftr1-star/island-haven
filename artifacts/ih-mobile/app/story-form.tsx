@@ -24,7 +24,7 @@ interface MyStoryData {
   story: string;
   ventureName: string;
   projectUrl: string | null;
-  status: "draft" | "published" | "hidden" | "rejected";
+  status: "draft" | "published" | "hidden" | "rejected" | "deleted";
   rejectionNote: string | null;
 }
 
@@ -70,9 +70,10 @@ export default function StoryFormScreen() {
     }
     setSaving(true);
     try {
-      const isEdit = story !== null && story !== undefined;
+      // Use PATCH only when an active draft exists; deleted stories resubmit via POST
+      const isDraftEdit = story !== null && story !== undefined && story.status === "draft";
       await api<{ story: MyStoryData }>("/me/story", {
-        method: isEdit ? "PATCH" : "POST",
+        method: isDraftEdit ? "PATCH" : "POST",
         body: {
           quote: form.quote,
           story: form.fullStory,
@@ -114,7 +115,8 @@ export default function StoryFormScreen() {
   }
 
   const isDraft = story?.status === "draft";
-  const isEditing = story !== null && story !== undefined;
+  const isDeleted = story?.status === "deleted";
+  const isEditing = isDraft;
 
   return (
     <KeyboardAvoidingView
@@ -134,7 +136,7 @@ export default function StoryFormScreen() {
         <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10, marginBottom: 4 }}>
           <Feather name="book-open" size={20} color={colors.primary} />
           <T size={22} weight="bold">
-            {isEditing ? "تعديل قصّتي" : "شارك قصّتك"}
+            {isEditing ? "تعديل قصّتي" : isDeleted ? "شارك قصّتك من جديد" : "شارك قصّتك"}
           </T>
         </View>
 
