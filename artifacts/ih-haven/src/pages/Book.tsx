@@ -270,7 +270,7 @@ export default function Book() {
                   <StepTwo key="s1" form={form} update={update} />
                 )}
                 {step === 2 && (
-                  <StepExpert key="s2" form={form} update={update} experts={experts} />
+                  <StepExpert key="s2" form={form} update={update} experts={experts} visitDate={form.visitDate} />
                 )}
                 {step === 3 && (
                   <StepThree
@@ -655,12 +655,31 @@ function StepExpert({
   form,
   update,
   experts,
+  visitDate,
 }: {
   form: { expertId: number | null };
   update: (k: any, v: any) => void;
   experts: ExpertOption[];
+  visitDate: string;
 }) {
   const { lang } = useLanguage();
+  const [availableIds, setAvailableIds] = useState<Set<number> | null>(null);
+
+  useEffect(() => {
+    if (!visitDate) {
+      setAvailableIds(null);
+      return;
+    }
+    let cancelled = false;
+    api<{ available: number[] }>(`/experts/available-on?date=${visitDate}`)
+      .then((r) => {
+        if (!cancelled) setAvailableIds(new Set(r.available));
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableIds(null);
+      });
+    return () => { cancelled = true; };
+  }, [visitDate]);
 
   return (
     <StepShell
@@ -677,19 +696,30 @@ function StepExpert({
           {experts.map((e) => {
             const selected = form.expertId === e.id;
             const initials = e.fullName.trim().charAt(0) || "؟";
+            const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
+            const unavailable = !e.acceptingSessions || hasSlot === false;
             return (
               <button
                 key={e.id}
                 onClick={() => update("expertId", selected ? null : e.id)}
                 data-testid={`expert-pick-${e.id}`}
                 className={`relative p-4 rounded-2xl text-right transition group ${
+                  unavailable && !selected ? "opacity-40" : ""
+                } ${
                   selected
                     ? "bg-primary/15 border border-primary/40 shadow-[0_8px_24px_-10px_rgba(220,38,55,0.4)]"
+                    : hasSlot === true
+                    ? "bg-emerald-500/[0.07] border border-emerald-500/25 hover:bg-emerald-500/[0.12] hover:border-emerald-500/40"
                     : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
                 }`}
               >
                 {selected && (
                   <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
+                )}
+                {!selected && hasSlot === true && (
+                  <span className="absolute top-2 left-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
+                    {lang === "en" ? "Free" : "متاح"}
+                  </span>
                 )}
                 <div className="flex flex-col items-center gap-2.5">
                   {e.avatarUrl ? (
@@ -713,11 +743,15 @@ function StepExpert({
                         {e.headline}
                       </div>
                     )}
-                    {!e.acceptingSessions && (
+                    {!e.acceptingSessions ? (
                       <div className="text-[10.5px] text-white/35 mt-1">
                         {lang === "en" ? "Unavailable" : "غير متاح"}
                       </div>
-                    )}
+                    ) : hasSlot === false ? (
+                      <div className="text-[10.5px] text-white/35 mt-1">
+                        {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </button>
