@@ -716,7 +716,14 @@ function StepExpert({
       )}
       {experts !== null && experts.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {experts.map((e) => {
+          {[...experts].sort((a, b) => {
+            const rank = (e: ExpertOption) => {
+              if (!e.acceptingSessions) return 2;
+              if (availableIds !== null && availableIds.has(e.id)) return 0;
+              return 1;
+            };
+            return rank(a) - rank(b);
+          }).map((e) => {
             const selected = form.expertId === e.id;
             const initials = e.fullName.trim().charAt(0) || "؟";
             const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
