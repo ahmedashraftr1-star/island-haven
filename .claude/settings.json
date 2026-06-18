@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(psql -h localhost -U ahmedashraf -d ih_haven_dev -c \"SELECT status, count\\(*\\) FILTER \\(WHERE start_at >= now\\(\\)\\) AS upcoming, count\\(*\\) FILTER \\(WHERE start_at < now\\(\\)\\) AS past FROM expert_availability_slots GROUP BY status;\")",
+      "Bash(open \"http://localhost:5180/\")",
+      "Bash(xargs -n1 basename)",
+      "Bash(curl -s -m 6 http://localhost:3001/api/gallery)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code} type=%{content_type} size=%{size_download}\\\\n\" -m 6 \"http://localhost:3001/photos/IMG_8300.webp\")",
+      "Bash(psql -h localhost -U ahmedashraf -d ih_haven_dev -c \"SELECT count\\(*\\) FROM works WHERE cover_url LIKE '/photos/%' OR cover_url LIKE '%IMG_%';\")",
+      "Bash(ls app/sessions)",
+      "Bash(find app *)",
+      "Bash(curl -s -m 3 http://localhost:5180/)",
+      "Bash(curl -s -m 5 http://localhost:3001/api/experts/1/rating)",
+      "Bash(curl -s -o /dev/null -w \"status=%{http_code}\\\\n\" -m 6 \"http://localhost:3001/api/search?q=test\")",
+      "Bash(curl -s -m 6 \"http://localhost:3001/api/search?q=test\")",
+      "Bash(curl -s -m 6 \"http://localhost:3001/api/search?q=%D8%B1%D9%8A%D8%A7%D8%AF%D8%A9\")",
+      "Bash(curl -s -m 6 \"http://localhost:3001/api/search?q=React\")",
+      "Bash(python3 -c \"import sys,json;d=json.load\\(sys.stdin\\);print\\('members:',[m['title'] for m in d.get\\('members',[]\\)][:3]\\)\")",
+      "Bash(psql -h localhost -U ahmedashraf -d ih_haven_dev -c ' *)",
+      "Bash(psql -h localhost -U ahmedashraf -d ih_haven_dev -c \"\\\\d session_ratings\")",
+      "Bash(psql -h localhost -U ahmedashraf -d ih_haven_dev -c \"\\\\d mentorship_sessions\")",
+      "Bash(ls -1 artifacts/)",
+      "Bash(du -sh --exclude=node_modules --exclude=.git .)",
+      "Bash(du -sh .)",
+      "Bash(git push *)",
+      "Bash(git ls-remote *)"
+    ]
+  }
+}
