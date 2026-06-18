@@ -16,7 +16,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/lib/auth-context";
-import { WEB_BASE } from "@/lib/api";
 import { registerForPushNotifications } from "@/lib/push";
 
 if (!I18nManager.isRTL && Platform.OS !== "web") {
@@ -55,9 +54,7 @@ function DeepLinkHandler() {
             params: token ? { token } : {},
           });
         } else if (path === "/book" || path.startsWith("/book/")) {
-          // No native booking screen — open in browser
-          const webUrl = WEB_BASE ? `${WEB_BASE}/book` : url;
-          Linking.openURL(webUrl);
+          router.push("/book");
         } else if (path === "/" || path === "") {
           router.replace("/(tabs)");
         }

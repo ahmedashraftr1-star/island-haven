@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { T, Field, Btn, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
@@ -9,7 +9,8 @@ import { api, ApiError } from "@/lib/api";
 export default function ResetPassword() {
   const colors = useColors();
   const router = useRouter();
-  const [token, setToken] = useState("");
+  const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
+  const [token, setToken] = useState(tokenParam ?? "");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

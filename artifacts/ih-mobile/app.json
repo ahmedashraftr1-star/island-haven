@@ -63,7 +63,7 @@
       [
         "expo-router",
         {
-          "origin": "https://replit.com/"
+          "origin": "https://island-haven.replit.app"
         }
       ],
       "expo-font",
