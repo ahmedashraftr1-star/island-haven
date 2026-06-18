@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -10,20 +10,8 @@ import {
   Plus,
   Trash2,
   Clock,
-  Camera,
-  X,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -49,7 +37,6 @@ interface ExpertProfile {
   linkedinUrl: string;
   websiteUrl: string;
   status: string;
-  avatarUrl: string | null;
 }
 
 interface SessionRow {
@@ -338,14 +325,6 @@ function ProfilePanel({
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
-  const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
-  const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState<string | null>(null);
-  const [confirmAvatarOpen, setConfirmAvatarOpen] = useState(false);
-  const [confirmRemoveAvatarOpen, setConfirmRemoveAvatarOpen] = useState(false);
-  const [avatarRemoving, setAvatarRemoving] = useState(false);
 
   useEffect(() => {
     setForm(profile);
@@ -359,83 +338,6 @@ function ProfilePanel({
 
   function set<K extends keyof ExpertProfile>(k: K, v: ExpertProfile[K]) {
     setForm((f) => (f ? { ...f, [k]: v } : f));
-  }
-
-  async function doAvatarUpload(file: File) {
-    setAvatarError(null);
-    setAvatarUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const uploadRes = await fetch("/api/uploads/image", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-      if (!uploadRes.ok) {
-        const d = await uploadRes.json().catch(() => ({}));
-        throw new Error((d as { error?: string }).error || "تعذّر رفع الصورة");
-      }
-      const { url } = (await uploadRes.json()) as { url: string };
-      const patchRes = await fetch("/api/experts/me/avatar", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatarUrl: url }),
-      });
-      if (!patchRes.ok) {
-        throw new Error("تعذّر حفظ الصورة");
-      }
-      setForm((f) => (f ? { ...f, avatarUrl: url } : f));
-      onSaved({ ...form!, avatarUrl: url });
-    } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : "تعذّر رفع الصورة");
-    } finally {
-      setAvatarUploading(false);
-      if (avatarInputRef.current) avatarInputRef.current.value = "";
-    }
-  }
-
-  async function doAvatarRemove() {
-    setAvatarError(null);
-    setAvatarRemoving(true);
-    try {
-      const patchRes = await fetch("/api/experts/me/avatar", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatarUrl: null }),
-      });
-      if (!patchRes.ok) {
-        throw new Error("تعذّر حذف الصورة");
-      }
-      setForm((f) => (f ? { ...f, avatarUrl: null } : f));
-      onSaved({ ...form!, avatarUrl: null });
-    } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : "تعذّر حذف الصورة");
-    } finally {
-      setAvatarRemoving(false);
-    }
-  }
-
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || avatarUploading) return;
-    if (form?.avatarUrl) {
-      const previewUrl = URL.createObjectURL(file);
-      setPendingAvatarFile(file);
-      setPendingAvatarPreviewUrl(previewUrl);
-      setConfirmAvatarOpen(true);
-    } else {
-      doAvatarUpload(file);
-    }
-  }
-
-  function clearPendingAvatar() {
-    if (pendingAvatarPreviewUrl) URL.revokeObjectURL(pendingAvatarPreviewUrl);
-    setPendingAvatarPreviewUrl(null);
-    setPendingAvatarFile(null);
-    if (avatarInputRef.current) avatarInputRef.current.value = "";
   }
 
   async function save() {
@@ -458,7 +360,7 @@ function ProfilePanel({
           websiteUrl: form.websiteUrl,
         }),
       });
-      onSaved({ ...r.profile, avatarUrl: form.avatarUrl });
+      onSaved(r.profile);
       setFlash("تمّ حفظ ملفّك.");
       setTimeout(() => setFlash(null), 3000);
     } catch (e) {
@@ -475,66 +377,6 @@ function ProfilePanel({
           ملفّك قيد المراجعة من الإدارة ولن يظهر للعامّة حتى يُفعَّل.
         </div>
       )}
-
-      {/* ─── Avatar upload ─── */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative shrink-0">
-          {form.avatarUrl ? (
-            <img
-              src={form.avatarUrl}
-              alt="صورتك الشخصية"
-              className="w-20 h-20 rounded-2xl object-cover border border-white/15"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
-              <UserIcon className="w-8 h-8 text-white/30" />
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={() => avatarInputRef.current?.click()}
-            disabled={avatarUploading || avatarRemoving}
-            className="absolute -bottom-2 -left-2 w-7 h-7 rounded-full bg-primary border-2 border-[#0A0E1A] flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
-            title="تغيير الصورة"
-          >
-            {avatarUploading ? (
-              <span className="w-3 h-3 border border-white/40 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Camera className="w-3.5 h-3.5 text-white" />
-            )}
-          </button>
-          {form.avatarUrl && (
-            <button
-              type="button"
-              onClick={() => setConfirmRemoveAvatarOpen(true)}
-              disabled={avatarUploading || avatarRemoving}
-              className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-[#1a1f35] border border-white/15 flex items-center justify-center hover:bg-red-500/20 hover:border-red-400/40 transition-colors disabled:opacity-50"
-              title="حذف الصورة"
-            >
-              {avatarRemoving ? (
-                <span className="w-2.5 h-2.5 border border-white/40 border-t-white rounded-full animate-spin" />
-              ) : (
-                <X className="w-3 h-3 text-white/60" />
-              )}
-            </button>
-          )}
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
-        </div>
-        <div>
-          <p className="text-white/80 text-[13px] font-semibold">الصورة الشخصية</p>
-          <p className="text-white/40 text-[11.5px] mt-0.5">JPG · PNG · WEBP — حتى 5 ميغابايت</p>
-          {avatarError && (
-            <p className="text-red-300 text-[11.5px] mt-1">{avatarError}</p>
-          )}
-        </div>
-      </div>
-
       <div className="space-y-4">
         <DField label="المسمّى التعريفيّ (مثال: مستشار ريادة أعمال)">
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
@@ -627,102 +469,6 @@ function ProfilePanel({
           {busy ? "…" : "حفظ الملف"}
         </button>
       </div>
-
-      <AlertDialog open={confirmAvatarOpen} onOpenChange={setConfirmAvatarOpen}>
-        <AlertDialogContent
-          dir="rtl"
-          className="bg-[#0f1424] border border-white/10 text-white rounded-2xl max-w-sm"
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white text-[15px] font-bold">
-              استبدال الصورة الشخصية؟
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/55 text-[13px]">
-              سيُستبدل صورتك الحالية بالصورة الجديدة. لا يمكن التراجع عن هذا الإجراء.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <div className="flex items-center justify-center gap-4 py-3">
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] text-white/40">الحالية</span>
-              {form.avatarUrl ? (
-                <img
-                  src={form.avatarUrl}
-                  alt="الصورة الحالية"
-                  className="w-16 h-16 rounded-xl object-cover border border-white/15"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 text-white/30" />
-                </div>
-              )}
-            </div>
-
-            <div className="text-white/30 text-lg">←</div>
-
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] text-white/40">الجديدة</span>
-              {pendingAvatarPreviewUrl ? (
-                <img
-                  src={pendingAvatarPreviewUrl}
-                  alt="الصورة الجديدة"
-                  className="w-16 h-16 rounded-xl object-cover border border-primary/40 ring-2 ring-primary/20"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-xl bg-white/[0.06] border border-white/10" />
-              )}
-            </div>
-          </div>
-
-          <AlertDialogFooter className="gap-2 mt-1">
-            <AlertDialogCancel
-              onClick={clearPendingAvatar}
-              className="flex-1 rounded-xl border-white/15 bg-white/[0.06] text-white hover:bg-white/10 hover:text-white"
-            >
-              إلغاء
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                const file = pendingAvatarFile;
-                clearPendingAvatar();
-                if (file) doAvatarUpload(file);
-              }}
-              className="flex-1 rounded-xl bg-primary text-white hover:bg-primary/90"
-            >
-              استبدال
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={confirmRemoveAvatarOpen} onOpenChange={setConfirmRemoveAvatarOpen}>
-        <AlertDialogContent
-          dir="rtl"
-          className="bg-[#0f1424] border border-white/10 text-white rounded-2xl max-w-sm"
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white text-[15px] font-bold">
-              حذف الصورة الشخصية؟
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/55 text-[13px]">
-              ستُحذف صورتك الحالية وتُستبدل بالأيقونة الافتراضية.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 mt-1">
-            <AlertDialogCancel
-              className="flex-1 rounded-xl border-white/15 bg-white/[0.06] text-white hover:bg-white/10 hover:text-white"
-            >
-              إلغاء
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => doAvatarRemove()}
-              className="flex-1 rounded-xl bg-red-600 text-white hover:bg-red-500"
-            >
-              حذف
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </GlassCard>
   );
 }

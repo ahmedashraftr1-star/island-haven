@@ -27,9 +27,9 @@ import {
   CalendarRange,
   Flag,
   Map,
-  BriefcaseBusiness,
-  Mail,
-  TrendingUp,
+  Target,
+  Award,
+  Gift,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -47,6 +47,9 @@ import AdminExperts from "./AdminExperts";
 import AdminSessions from "./AdminSessions";
 import AdminPrograms from "./AdminPrograms";
 import AdminVentures from "./AdminVentures";
+import AdminOpportunities from "./AdminOpportunities";
+import AdminBadges from "./AdminBadges";
+import AdminPerks from "./AdminPerks";
 import AdminStories from "./AdminStories";
 import AdminPartners from "./AdminPartners";
 import AdminTeam from "./AdminTeam";
@@ -55,9 +58,6 @@ import AdminResources from "./AdminResources";
 import AdminSlots from "./AdminSlots";
 import AdminMilestones from "./AdminMilestones";
 import AdminCohortJourney from "./AdminCohortJourney";
-import AdminJobs from "./AdminJobs";
-import AdminNewsletter from "./AdminNewsletter";
-import AdminInvestors from "./AdminInvestors";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -69,6 +69,9 @@ type Tab =
   | "sessions"
   | "programs"
   | "ventures"
+  | "opportunities"
+  | "badges"
+  | "perks"
   | "milestones"
   | "stories"
   | "partners"
@@ -83,10 +86,7 @@ type Tab =
   | "content"
   | "analytics"
   | "push"
-  | "settings"
-  | "jobs"
-  | "newsletter"
-  | "investors";
+  | "settings";
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
@@ -99,6 +99,9 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "cohorts", label: "الدّفعات", Icon: Layers },
   { id: "journey", label: "رحلة الدفعة", Icon: Map },
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
+  { id: "opportunities", label: "الفرص والوظائف", Icon: Target },
+  { id: "perks", label: "العروض والامتيازات", Icon: Gift },
+  { id: "badges", label: "الشّارات", Icon: Award },
   { id: "milestones", label: "محطّات المشاريع", Icon: Flag },
   { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
@@ -111,9 +114,6 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
   { id: "push", label: "الإشعارات", Icon: Bell },
-  { id: "jobs", label: "لوحة الوظائف", Icon: BriefcaseBusiness },
-  { id: "newsletter", label: "النشرة الإخبارية", Icon: Mail },
-  { id: "investors", label: "المستثمرون", Icon: TrendingUp },
   { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
 
@@ -306,6 +306,9 @@ export default function AdminDashboard() {
           {tab === "sessions" && <AdminSessions />}
           {tab === "programs" && <AdminPrograms />}
           {tab === "ventures" && <AdminVentures />}
+          {tab === "opportunities" && <AdminOpportunities />}
+          {tab === "perks" && <AdminPerks />}
+          {tab === "badges" && <AdminBadges />}
           {tab === "milestones" && <AdminMilestones />}
           {tab === "journey" && <AdminCohortJourney />}
           {tab === "stories" && <AdminStories />}
@@ -320,9 +323,6 @@ export default function AdminDashboard() {
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
-          {tab === "jobs" && <AdminJobs />}
-          {tab === "newsletter" && <AdminNewsletter />}
-          {tab === "investors" && <AdminInvestors />}
           {tab === "settings" && <AdminSettings />}
         </div>
       </div>

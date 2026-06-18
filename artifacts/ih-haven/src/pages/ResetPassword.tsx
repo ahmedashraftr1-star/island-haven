@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, CheckCircle2, AlertCircle, Smartphone } from "lucide-react";
+import { Lock, CheckCircle2, AlertCircle } from "lucide-react";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { api, ApiError } from "@/lib/api";
-
-const MOBILE_SCHEME = "ihhaven";
 
 export default function ResetPassword() {
   const [, navigate] = useLocation();
@@ -17,10 +15,6 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const errRef = useRef<HTMLDivElement | null>(null);
-
-  const mobileDeepLink = token
-    ? `${MOBILE_SCHEME}://reset-password?token=${encodeURIComponent(token)}`
-    : null;
 
   useEffect(() => {
     document.title = "إعادة تعيين كلمة السرّ — آيلاند هيفن";
@@ -118,28 +112,6 @@ export default function ResetPassword() {
             onSubmit={onSubmit}
             className="space-y-4"
           >
-            {mobileDeepLink && (
-              <a
-                href={mobileDeepLink}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-right no-underline"
-              >
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 shrink-0">
-                  <Smartphone className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-[13px] font-semibold">فتح في تطبيق الجوّال</p>
-                  <p className="text-white/50 text-[11px] mt-0.5">إذا كان التطبيق مثبّتًا لديك</p>
-                </div>
-                <span className="text-white/30 text-[11px] shrink-0">←</span>
-              </a>
-            )}
-
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-white/30 text-[11px]">أو اضبط كلمة السرّ هنا</span>
-              <div className="flex-1 h-px bg-white/10" />
-            </div>
-
             <AnimatePresence>
               {error && (
                 <motion.div

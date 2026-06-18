@@ -184,6 +184,43 @@ export const RESOURCE_VISIBILITY_LABELS: Record<ResourceVisibility, string> = {
   admins: "للإدارة فقط",
 };
 
+export type OpportunityType =
+  | "job"
+  | "internship"
+  | "freelance"
+  | "gig"
+  | "volunteer";
+export const OPPORTUNITY_TYPE_LABELS: Record<OpportunityType, string> = {
+  job: "وظيفة",
+  internship: "تدريب",
+  freelance: "عمل حرّ",
+  gig: "مهمّة قصيرة",
+  volunteer: "تطوّع",
+};
+
+export type OpportunityLocation = "onsite" | "remote" | "hybrid";
+export const OPPORTUNITY_LOCATION_LABELS: Record<OpportunityLocation, string> = {
+  onsite: "حضوريّ",
+  remote: "عن بُعد",
+  hybrid: "مَزيج",
+};
+
+export type PerkCategory =
+  | "tool"
+  | "course"
+  | "cloud"
+  | "design"
+  | "finance"
+  | "other";
+export const PERK_CATEGORY_LABELS: Record<PerkCategory, string> = {
+  tool: "أداة",
+  course: "كورس",
+  cloud: "استضافة سحابيّة",
+  design: "تصميم",
+  finance: "ماليّ",
+  other: "أخرى",
+};
+
 export function formatArabicDate(iso?: string | null): string {
   if (!iso) return "";
   try {

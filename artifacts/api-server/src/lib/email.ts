@@ -456,3 +456,57 @@ export function sessionConfirmedEmail(
   const text = `${greeting}\n\nأكّد الخبير ${expertName} جلسة الإرشاد حول «${topic}» في ${BRAND}.\nستصلك تفاصيل الموعد قريبًا.`;
   return { subject: `✅ تأكيد جلسة الإرشاد — ${BRAND}`, html, text };
 }
+
+// ─── Daily digest types & template ───────────────────────────────────────────
+
+export interface DigestSection {
+  /** Section heading, e.g. "أعمال جديدة". */
+  heading: string;
+  /** Items in this section. `meta` is an optional muted sub-line. */
+  items: Array<{ title: string; meta?: string }>;
+}
+
+export function dailyDigestEmail(
+  fullName: string | null,
+  sections: DigestSection[],
+): { subject: string; html: string; text: string } {
+  const greeting = fullName ? `مرحبًا ${fullName}،` : "مرحبًا،";
+
+  const sectionsHtml = sections
+    .filter((s) => s.items.length > 0)
+    .map(
+      (s) => `
+     <div style="margin:0 0 24px;">
+       <h2 style="margin:0 0 12px;font-size:16px;font-weight:700;color:#fff;border-right:3px solid #8b5cf6;padding-right:10px;">${s.heading}</h2>
+       ${s.items
+         .map(
+           (it) => `
+       <div style="margin:0 0 10px;padding:12px 14px;background:#0a0e1a;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+         <p style="margin:0;font-size:14px;line-height:1.6;color:#e8eaf2;font-weight:600;">${it.title}</p>
+         ${it.meta ? `<p style="margin:4px 0 0;font-size:12px;line-height:1.5;color:#7c849c;">${it.meta}</p>` : ""}
+       </div>`,
+         )
+         .join("")}
+     </div>`,
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"></head><body style="background:#060a14;font-family:'Segoe UI',sans-serif;margin:0;padding:32px 16px;"><div style="max-width:600px;margin:0 auto;background:#0d1117;border-radius:20px;padding:32px;border:1px solid rgba(255,255,255,0.08);">
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">${greeting}</p>
+    <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#c7ccdc;">إليك أبرز ما جدّ في آيلاند هيفن خلال الـ٢٤ ساعة الماضية.</p>
+    ${sectionsHtml}
+    <p style="margin:8px 0 0;font-size:12px;line-height:1.7;color:#7c849c;">تصلك هذه الرسالة لأنّك فعّلت «الملخّص اليوميّ». يمكنك إيقافه من إعدادات الإشعارات في حسابك.</p>
+  </div></body></html>`;
+
+  const textSections = sections
+    .filter((s) => s.items.length > 0)
+    .map(
+      (s) =>
+        `${s.heading}:\n` +
+        s.items.map((it) => `  • ${it.title}${it.meta ? ` — ${it.meta}` : ""}`).join("\n"),
+    )
+    .join("\n\n");
+  const text = `${greeting}\n\nأبرز ما جدّ في آيلاند هيفن خلال الـ٢٤ ساعة الماضية:\n\n${textSections}\n\nتصلك هذه الرسالة لأنّك فعّلت «الملخّص اليوميّ».`;
+
+  return { subject: "✨ ملخّص اليوم — آيلاند هيفن", html, text };
+}

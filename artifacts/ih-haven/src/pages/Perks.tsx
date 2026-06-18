@@ -1,0 +1,219 @@
+import { useEffect, useState } from "react";
+import { Link } from "wouter";
+import { motion } from "framer-motion";
+import { ArrowLeft, Gift, Star, Tag, ExternalLink, Copy, Check } from "lucide-react";
+import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { api, ApiError } from "@/lib/api";
+import {
+  PERK_CATEGORY_LABELS,
+  type PerkCategory,
+} from "@/lib/labels";
+
+interface Perk {
+  id: number;
+  title: string;
+  partnerName: string;
+  description: string;
+  category: PerkCategory;
+  code: string;
+  url: string;
+  logoUrl: string | null;
+  featured: boolean;
+}
+
+const FILTERS: { key: "all" | PerkCategory; label: string }[] = [
+  { key: "all", label: "الكلّ" },
+  { key: "tool", label: PERK_CATEGORY_LABELS.tool },
+  { key: "course", label: PERK_CATEGORY_LABELS.course },
+  { key: "cloud", label: PERK_CATEGORY_LABELS.cloud },
+  { key: "design", label: PERK_CATEGORY_LABELS.design },
+  { key: "finance", label: PERK_CATEGORY_LABELS.finance },
+  { key: "other", label: PERK_CATEGORY_LABELS.other },
+];
+
+export default function Perks() {
+  const [rows, setRows] = useState<Perk[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | PerkCategory>("all");
+  const [copied, setCopied] = useState<number | null>(null);
+
+  useEffect(() => {
+    document.title = "العروض والامتيازات — Island Haven";
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRows(null);
+    setError(null);
+    const q = filter === "all" ? "/perks" : `/perks?category=${filter}`;
+    api<{ perks: Perk[] }>(q)
+      .then((r) => !cancelled && setRows(r.perks))
+      .catch(
+        (e) =>
+          !cancelled &&
+          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+      );
+    return () => {
+      cancelled = true;
+    };
+  }, [filter]);
+
+  function copyCode(id: number, code: string) {
+    navigator.clipboard?.writeText(code).then(() => {
+      setCopied(id);
+      window.setTimeout(() => setCopied((c) => (c === id ? null : c)), 1800);
+    });
+  }
+
+  return (
+    <PageShell
+      active="perks"
+      eyebrow="امتيازات المنتسبين"
+      title="العروض"
+      highlight="والامتيازات"
+      subtitle="خصومات وأرصدة وعروض حصريّة من شركائنا — أدوات، كورسات، استضافة، وتصميم — مختارة لتوفّر على مشروعك وتسرّع نموّك."
+    >
+      {/* Category filter chips */}
+      <div className="flex flex-wrap gap-2 mb-7">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
+              filter === f.key
+                ? "bg-primary text-white border-primary"
+                : "bg-white/[0.04] text-white/65 border-white/10 hover:border-white/25"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {error && (
+        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+      )}
+
+      {rows === null && !error ? (
+        <div className="grid sm:grid-cols-2 gap-5">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="rounded-[24px] h-52 bg-white/[0.035] border border-white/10 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : rows && rows.length === 0 ? (
+        <EmptyState
+          title="لا عروض ضمن هذا التصنيف حاليًّا"
+          hint="نضيف عروضًا جديدة باستمرار — تابعنا أو جرّب تصنيفًا آخر."
+        />
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-5">
+          {rows?.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: i * 0.04 }}
+            >
+              <GlassCard
+                className="h-full flex flex-col p-5 hover:border-primary/40 transition-colors"
+                testId={`perk-card-${p.id}`}
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-primary/15 text-primary border border-primary/30">
+                        <Tag className="w-3 h-3" />
+                        {PERK_CATEGORY_LABELS[p.category]}
+                      </span>
+                      {p.featured && (
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                      )}
+                    </div>
+                    <Link
+                      href={`/perks/${p.id}`}
+                      className="group inline-block"
+                    >
+                      <h3 className="text-white font-bold text-[16.5px] leading-snug mt-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {p.title}
+                      </h3>
+                    </Link>
+                    {p.partnerName && (
+                      <p className="text-white/55 text-[12.5px] mt-0.5">
+                        {p.partnerName}
+                      </p>
+                    )}
+                  </div>
+                  {p.logoUrl && (
+                    <img
+                      src={p.logoUrl}
+                      alt={p.partnerName}
+                      className="w-11 h-11 rounded-xl object-contain bg-white/[0.06] border border-white/10 p-1 shrink-0"
+                    />
+                  )}
+                </div>
+
+                {p.description && (
+                  <p className="text-white/45 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
+                    {p.description}
+                  </p>
+                )}
+
+                {p.code && (
+                  <button
+                    type="button"
+                    onClick={() => copyCode(p.id, p.code)}
+                    className="group/code flex items-center justify-between gap-2 mb-3 px-3 h-9 rounded-xl bg-white/[0.05] border border-dashed border-white/20 hover:border-primary/40 transition-colors"
+                    data-testid={`perk-code-${p.id}`}
+                  >
+                    <span className="font-mono text-[12.5px] tracking-wide text-white/85 truncate" dir="ltr">
+                      {p.code}
+                    </span>
+                    {copied === p.id ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-300 shrink-0">
+                        <Check className="w-3.5 h-3.5" /> نُسخ
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-white/55 group-hover/code:text-primary transition-colors shrink-0">
+                        <Copy className="w-3.5 h-3.5" /> نسخ
+                      </span>
+                    )}
+                  </button>
+                )}
+
+                <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+                  {p.url ? (
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all"
+                      data-testid={`perk-claim-${p.id}`}
+                    >
+                      <Gift className="w-3.5 h-3.5" />
+                      احصل على العرض
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  ) : (
+                    <span className="text-[12px] text-white/45">
+                      تواصل مع الفريق للحصول على العرض.
+                    </span>
+                  )}
+                  <Link
+                    href={`/perks/${p.id}`}
+                    className="group inline-flex items-center gap-1 text-[12px] text-white/65 hover:text-primary transition-colors font-semibold shrink-0"
+                  >
+                    التفاصيل
+                    <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                  </Link>
+                </div>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </PageShell>
+  );
+}

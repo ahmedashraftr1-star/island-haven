@@ -66,6 +66,7 @@ export function Btn({ title, variant = "primary", loading, fullWidth, onPress, d
 
   return (
     <Pressable
+      accessibilityRole="button"
       {...rest}
       disabled={disabled || loading}
       onPress={(e) => {

@@ -56,6 +56,18 @@ const Alumni = lazy(() => import("@/pages/Alumni"));
 const Jobs = lazy(() => import("@/pages/Jobs"));
 const Investors = lazy(() => import("@/pages/Investors"));
 const BecomeMentor = lazy(() => import("@/pages/BecomeMentor"));
+const Search = lazy(() => import("@/pages/Search"));
+const Messages = lazy(() => import("@/pages/Messages"));
+const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
+const Learning = lazy(() => import("@/pages/Learning"));
+const Opportunities = lazy(() => import("@/pages/Opportunities"));
+const OpportunityDetail = lazy(() => import("@/pages/OpportunityDetail"));
+const Perks = lazy(() => import("@/pages/Perks"));
+const PerkDetail = lazy(() => import("@/pages/PerkDetail"));
+const Certificate = lazy(() => import("@/pages/Certificate"));
+const Saved = lazy(() => import("@/pages/Saved"));
+const RateSession = lazy(() => import("@/pages/RateSession"));
+const NotificationSettings = lazy(() => import("@/pages/NotificationSettings"));
 
 const queryClient = new QueryClient();
 
@@ -165,6 +177,18 @@ function Router() {
       <Route path="/jobs" component={Jobs} />
       <Route path="/investors" component={Investors} />
       <Route path="/become-mentor" component={BecomeMentor} />
+      <Route path="/search" component={Search} />
+      <Route path="/messages" component={Messages} />
+      <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/learning" component={Learning} />
+      <Route path="/opportunities" component={Opportunities} />
+      <Route path="/opportunities/:id" component={OpportunityDetail} />
+      <Route path="/perks" component={Perks} />
+      <Route path="/perks/:id" component={PerkDetail} />
+      <Route path="/certificate/:courseId" component={Certificate} />
+      <Route path="/saved" component={Saved} />
+      <Route path="/sessions/:id/rate" component={RateSession} />
+      <Route path="/notifications" component={NotificationSettings} />
       <Route path="/u/:id" component={PublicProfile} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

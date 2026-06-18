@@ -32,6 +32,14 @@ import resourcesRouter from "./resources";
 import jobsRouter from "./jobs";
 import newsletterRouter from "./newsletter";
 import investorsRouter from "./investors";
+import gamificationRouter from "./gamification";
+import messagingRouter from "./messaging";
+import notificationPrefsRouter from "./notificationPrefs";
+import opportunitiesRouter from "./opportunities";
+import perksRouter from "./perks";
+import searchRouter from "./search";
+import sessionRatingsRouter from "./sessionRatings";
+import courseProgressRouter from "./courseProgress";
 
 const router: IRouter = Router();
 
@@ -68,5 +76,13 @@ router.use(resourcesRouter);
 router.use(jobsRouter);
 router.use(newsletterRouter);
 router.use(investorsRouter);
+router.use(gamificationRouter);
+router.use(messagingRouter);
+router.use(notificationPrefsRouter);
+router.use(opportunitiesRouter);
+router.use(perksRouter);
+router.use(searchRouter);
+router.use(sessionRatingsRouter);
+router.use(courseProgressRouter);
 
 export default router;
