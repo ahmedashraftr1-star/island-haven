@@ -208,11 +208,11 @@ router.post("/experts/apply", async (req, res) => {
       );
       void sendEmail({ to: adminEmail, ...adminMail });
 
-      // In-app bell notification for the admin user
+      // In-app bell notification for the admin user (looked up by role, not email)
       const [adminUser] = await db
         .select({ id: usersTable.id })
         .from(usersTable)
-        .where(eq(usersTable.email, adminEmail))
+        .where(eq(usersTable.role, "admin"))
         .limit(1);
       if (adminUser) {
         void notify(adminUser.id, {
