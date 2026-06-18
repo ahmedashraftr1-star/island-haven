@@ -32,6 +32,7 @@ interface ExpertOption {
   fullName: string;
   avatarUrl: string | null;
   headline: string;
+  bio: string | null;
   acceptingSessions: boolean;
 }
 
@@ -829,6 +830,11 @@ function StepExpert({
                       {e.headline && (
                         <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
                           {e.headline}
+                        </div>
+                      )}
+                      {e.bio && (
+                        <div className="text-[10.5px] text-white/35 line-clamp-2 mt-1 leading-relaxed">
+                          {e.bio}
                         </div>
                       )}
                       {!e.acceptingSessions ? (
