@@ -671,4 +671,16 @@ router.get("/admin/activity", requireAdmin, async (_req, res) => {
   }
 });
 
+// ─── PUBLIC: contact email (no auth required) ────────────────────────────────
+// Members can call this to find the incubator's contact address.
+router.get("/settings/contact-email", async (_req, res) => {
+  try {
+    const email = await getAdminEmail();
+    res.json({ value: email ?? "" });
+  } catch (err) {
+    logger.error({ err }, "GET /settings/contact-email failed");
+    res.status(500).json({ value: "" });
+  }
+});
+
 export default router;

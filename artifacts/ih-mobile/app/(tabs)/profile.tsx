@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -31,6 +31,13 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, loading, signOut, refresh } = useAuth();
   const [avatarDeleting, setAvatarDeleting] = useState(false);
+  const [contactEmail, setContactEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<{ value: string }>("/settings/contact-email")
+      .then((r) => setContactEmail(r.value || ""))
+      .catch(() => setContactEmail(""));
+  }, []);
 
   function confirmAvatarDelete() {
     Alert.alert(
@@ -100,6 +107,7 @@ export default function ProfileScreen() {
             <Btn title="إنشاء حساب جديد" variant="ghost" fullWidth onPress={() => router.push("/register")} />
           </View>
         </Card>
+        <ContactRow email={contactEmail} colors={colors} />
         <Btn title="دخول الإدارة" variant="ghost" fullWidth onPress={() => router.push("/admin")} />
       </ScrollView>
     );
@@ -174,6 +182,7 @@ export default function ProfileScreen() {
         onPress={() => router.push("/change-password" as never)}
       />
       <Btn title="تسجيل الخروج" variant="ghost" fullWidth onPress={signOut} />
+      <ContactRow email={contactEmail} colors={colors} />
       <Btn title="دخول الإدارة" variant="ghost" fullWidth onPress={() => router.push("/admin")} />
     </ScrollView>
   );
@@ -400,6 +409,39 @@ function MyStorySection() {
         </View>
       )}
     </Card>
+  );
+}
+
+// ─── Contact Row ──────────────────────────────────────────────────────────────
+
+function ContactRow({ email, colors }: { email: string | null; colors: ReturnType<typeof useColors> }) {
+  const display = email === null ? "…" : email || "غير متاح";
+  const tappable = !!email;
+
+  return (
+    <TouchableOpacity
+      disabled={!tappable}
+      onPress={() => tappable ? Linking.openURL(`mailto:${email}`) : undefined}
+      activeOpacity={tappable ? 0.7 : 1}
+      style={{
+        flexDirection: "row-reverse",
+        alignItems: "center",
+        gap: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: colors.radius,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.card,
+      }}
+    >
+      <Feather name="mail" size={16} color={colors.primary} />
+      <T size={13} color={colors.mutedForeground} style={{ width: 80 }}>تواصل معنا</T>
+      <T size={14} color={tappable ? colors.primary : colors.mutedForeground} style={{ flex: 1 }}>
+        {display}
+      </T>
+      {tappable ? <Feather name="external-link" size={14} color={colors.mutedForeground} /> : null}
+    </TouchableOpacity>
   );
 }
 
