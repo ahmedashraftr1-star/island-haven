@@ -807,9 +807,15 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
           const [reminderRow] = await db
             .insert(pendingRemindersTable)
             .values({ email: user.email, fullName: user.fullName, sendAt })
+            .onConflictDoNothing()
             .returning();
           if (reminderRow) {
             schedulePendingReminder(reminderRow);
+          } else {
+            logger.info(
+              { email: user.email },
+              "pending reminder already exists for this email — skipping duplicate",
+            );
           }
         }
       } catch (emailErr) {

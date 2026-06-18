@@ -5,7 +5,9 @@ import {
   boolean,
   timestamp,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /**
  * Stores one row per pending mentor password-setup reminder.
@@ -29,6 +31,9 @@ export const pendingRemindersTable = pgTable(
   (t) => ({
     sentIdx: index("pending_reminders_sent_idx").on(t.sent),
     sendAtIdx: index("pending_reminders_send_at_idx").on(t.sendAt),
+    emailUnsentUniq: uniqueIndex("pending_reminders_email_unsent_uniq")
+      .on(t.email)
+      .where(sql`sent = false`),
   }),
 );
 
