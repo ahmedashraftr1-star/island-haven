@@ -34,6 +34,10 @@ export const NAV_SECONDARY: NavItem[] = [
   { href: "/gallery", label: "الصّور", en: "Gallery", key: "gallery" },
   { href: "/numbers", label: "بالأرقام", en: "Numbers", key: "numbers" },
   { href: "/press", label: "المركز الإعلاميّ", en: "Press", key: "press" },
+  { href: "/opportunities", label: "فرص العمل", en: "Opportunities", key: "opportunities" },
+  { href: "/perks", label: "مزايا الأعضاء", en: "Perks", key: "perks" },
+  { href: "/leaderboard", label: "لوحة الشرف", en: "Leaderboard", key: "leaderboard" },
+  { href: "/search", label: "البحث", en: "Search", key: "search" },
 ];
 
 export function isNavActive(loc: string, href: string): boolean {
