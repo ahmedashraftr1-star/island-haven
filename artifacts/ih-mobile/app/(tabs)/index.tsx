@@ -1,5 +1,5 @@
-import React from "react";
-import { ActivityIndicator, FlatList, Linking, Pressable, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { ActivityIndicator, Animated, FlatList, Linking, Pressable, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -74,6 +74,47 @@ function greeting(content: SiteContent): { eyebrow: string; title: string; body:
     title: hero[`${slot}Title`] || fallback.title,
     body: hero[`${slot}Body`] || fallback.body,
   };
+}
+
+function ExpertCardSkeleton({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const shimmer = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+    return () => shimmer.stopAnimation();
+  }, [shimmer]);
+  const opacity = shimmer.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.7] });
+  const bg = colors.muted;
+  return (
+    <Animated.View
+      style={{
+        opacity,
+        width: 220,
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: colors.radius + 2,
+        padding: 14,
+        gap: 10,
+      }}
+    >
+      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }} />
+        <View style={{ flex: 1, gap: 6 }}>
+          <View style={{ height: 13, borderRadius: 6, backgroundColor: bg, width: "70%" }} />
+          <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "50%" }} />
+        </View>
+      </View>
+      <View style={{ gap: 5 }}>
+        <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "100%" }} />
+        <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "80%" }} />
+      </View>
+    </Animated.View>
+  );
 }
 
 export default function Home() {
@@ -248,14 +289,27 @@ export default function Home() {
           </View>
 
           {/* Featured Experts */}
-          {experts.length > 0 && (
+          {(expertsQ.isLoading || experts.length > 0) && (
             <View style={{ paddingTop: 28 }}>
               <View style={s.sectionHead}>
                 <T size={20} weight="bold">الخبراء والمرشدون</T>
-                <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
-                  <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
-                </Pressable>
+                {!expertsQ.isLoading && (
+                  <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
+                    <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
+                  </Pressable>
+                )}
               </View>
+              {expertsQ.isLoading ? (
+                <FlatList
+                  horizontal
+                  data={[0, 1, 2, 3]}
+                  keyExtractor={(i) => String(i)}
+                  showsHorizontalScrollIndicator={false}
+                  inverted
+                  contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+                  renderItem={() => <ExpertCardSkeleton colors={colors} />}
+                />
+              ) : (
               <FlatList
                 horizontal
                 data={experts}
@@ -307,6 +361,7 @@ export default function Home() {
                   </Pressable>
                 )}
               />
+              )}
             </View>
           )}
 
