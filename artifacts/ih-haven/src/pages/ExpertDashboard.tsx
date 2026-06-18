@@ -342,6 +342,7 @@ function ProfilePanel({
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState<string | null>(null);
   const [confirmAvatarOpen, setConfirmAvatarOpen] = useState(false);
   const [confirmRemoveAvatarOpen, setConfirmRemoveAvatarOpen] = useState(false);
   const [avatarRemoving, setAvatarRemoving] = useState(false);
@@ -421,11 +422,20 @@ function ProfilePanel({
     const file = e.target.files?.[0];
     if (!file || avatarUploading) return;
     if (form?.avatarUrl) {
+      const previewUrl = URL.createObjectURL(file);
       setPendingAvatarFile(file);
+      setPendingAvatarPreviewUrl(previewUrl);
       setConfirmAvatarOpen(true);
     } else {
       doAvatarUpload(file);
     }
+  }
+
+  function clearPendingAvatar() {
+    if (pendingAvatarPreviewUrl) URL.revokeObjectURL(pendingAvatarPreviewUrl);
+    setPendingAvatarPreviewUrl(null);
+    setPendingAvatarFile(null);
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
   }
 
   async function save() {
@@ -631,20 +641,51 @@ function ProfilePanel({
               سيُستبدل صورتك الحالية بالصورة الجديدة. لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          <div className="flex items-center justify-center gap-4 py-3">
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] text-white/40">الحالية</span>
+              {form.avatarUrl ? (
+                <img
+                  src={form.avatarUrl}
+                  alt="الصورة الحالية"
+                  className="w-16 h-16 rounded-xl object-cover border border-white/15"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
+                  <UserIcon className="w-6 h-6 text-white/30" />
+                </div>
+              )}
+            </div>
+
+            <div className="text-white/30 text-lg">←</div>
+
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] text-white/40">الجديدة</span>
+              {pendingAvatarPreviewUrl ? (
+                <img
+                  src={pendingAvatarPreviewUrl}
+                  alt="الصورة الجديدة"
+                  className="w-16 h-16 rounded-xl object-cover border border-primary/40 ring-2 ring-primary/20"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-white/[0.06] border border-white/10" />
+              )}
+            </div>
+          </div>
+
           <AlertDialogFooter className="gap-2 mt-1">
             <AlertDialogCancel
-              onClick={() => {
-                setPendingAvatarFile(null);
-                if (avatarInputRef.current) avatarInputRef.current.value = "";
-              }}
+              onClick={clearPendingAvatar}
               className="flex-1 rounded-xl border-white/15 bg-white/[0.06] text-white hover:bg-white/10 hover:text-white"
             >
               إلغاء
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (pendingAvatarFile) doAvatarUpload(pendingAvatarFile);
-                setPendingAvatarFile(null);
+                const file = pendingAvatarFile;
+                clearPendingAvatar();
+                if (file) doAvatarUpload(file);
               }}
               className="flex-1 rounded-xl bg-primary text-white hover:bg-primary/90"
             >
