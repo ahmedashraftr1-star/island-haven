@@ -783,7 +783,7 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
           .limit(1);
         if (user) {
           const TTL_24H = 24 * 60 * 60 * 1000;
-          const rawToken = createResetToken(user.email, TTL_24H);
+          const rawToken = await createResetToken(user.email, TTL_24H);
           const frontendUrl =
             process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
           const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
@@ -890,7 +890,7 @@ router.post("/admin/experts/:id/resend-setup-link", requireAdmin, async (req, re
       return;
     }
     const TTL_24H = 24 * 60 * 60 * 1000;
-    const rawToken = createResetToken(row.email, TTL_24H);
+    const rawToken = await createResetToken(row.email, TTL_24H);
     const frontendUrl = process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
     const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
     const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);

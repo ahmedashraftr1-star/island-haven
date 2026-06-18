@@ -39,7 +39,7 @@ async function fireReminder(row: {
     // Mint a fresh 24-hour token so the mentor gets a full window.
     const frontendUrl =
       process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
-    const rawToken = createResetToken(row.email, FRESH_TOKEN_TTL_MS);
+    const rawToken = await createResetToken(row.email, FRESH_TOKEN_TTL_MS);
     const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
     const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);
 
