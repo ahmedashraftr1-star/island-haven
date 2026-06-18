@@ -5,6 +5,8 @@ import { T, Field, Btn, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, ApiError, getAdminToken, setAdminToken } from "@/lib/api";
 
+type AdminEmailInfo = { value: string; source: "db" | "env" };
+
 export default function AdminScreen() {
   const colors = useColors();
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -18,6 +20,13 @@ export default function AdminScreen() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [stats, setStats] = useState<number | null>(null);
+
+  // Admin email settings
+  const [emailInfo, setEmailInfo] = useState<AdminEmailInfo | null>(null);
+  const [emailDraft, setEmailDraft] = useState("");
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailClearing, setEmailClearing] = useState(false);
+  const [emailMsg, setEmailMsg] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -37,7 +46,10 @@ export default function AdminScreen() {
   }, []);
 
   useEffect(() => {
-    if (authed) loadStats();
+    if (authed) {
+      loadStats();
+      loadEmail();
+    }
   }, [authed]);
 
   async function loadStats() {
@@ -46,6 +58,52 @@ export default function AdminScreen() {
       setStats(r.tokens);
     } catch {
       setStats(null);
+    }
+  }
+
+  async function loadEmail() {
+    try {
+      const r = await api<AdminEmailInfo>("/admin/settings/admin-email", { admin: true });
+      setEmailInfo(r);
+      setEmailDraft(r.value);
+    } catch {
+      setEmailInfo(null);
+    }
+  }
+
+  async function saveEmail() {
+    setEmailMsg(null);
+    setEmailSaving(true);
+    try {
+      const r = await api<{ ok: boolean; value: string; source: "db" | "env" }>(
+        "/admin/settings/admin-email",
+        { method: "PUT", admin: true, body: { value: emailDraft.trim() } },
+      );
+      setEmailInfo({ value: r.value, source: r.source });
+      setEmailDraft(r.value);
+      setEmailMsg("تمّ الحفظ");
+    } catch (e) {
+      setEmailMsg(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+    } finally {
+      setEmailSaving(false);
+    }
+  }
+
+  async function clearEmail() {
+    setEmailMsg(null);
+    setEmailClearing(true);
+    try {
+      const r = await api<{ ok: boolean; value: string; source: "db" | "env" }>(
+        "/admin/settings/admin-email",
+        { method: "DELETE", admin: true },
+      );
+      setEmailInfo({ value: r.value, source: r.source });
+      setEmailDraft(r.value);
+      setEmailMsg("تمّ مسح تجاوز قاعدة البيانات");
+    } catch (e) {
+      setEmailMsg(e instanceof ApiError ? e.message : "تعذّر المسح");
+    } finally {
+      setEmailClearing(false);
     }
   }
 
@@ -122,10 +180,12 @@ export default function AdminScreen() {
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }}>
       <T size={22} weight="bold">لوحة الإدارة</T>
+
       <Card style={{ gap: 6 }}>
         <T size={13} color={colors.mutedForeground}>الأجهزة المسجّلة للإشعارات</T>
         <T size={28} weight="bold" color={colors.primary}>{stats ?? "—"}</T>
       </Card>
+
       <Card style={{ gap: 12 }}>
         <T size={16} weight="bold">إرسال إشعار جماعي</T>
         <T size={12} color={colors.mutedForeground}>سيصل لكلّ مستخدم نشّط الإشعارات على هاتفه.</T>
@@ -134,6 +194,58 @@ export default function AdminScreen() {
         <Btn title="إرسال للجميع" loading={sending} onPress={broadcast} fullWidth disabled={!title.trim() || !body.trim()} />
         {result ? <T size={13} color={colors.foreground}>{result}</T> : null}
       </Card>
+
+      <Card style={{ gap: 12 }}>
+        <T size={16} weight="bold">بريد المسؤول للإشعارات</T>
+        {emailInfo ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View
+              style={{
+                backgroundColor: emailInfo.source === "db" ? colors.primary : colors.mutedForeground,
+                borderRadius: 6,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+              }}
+            >
+              <T size={11} weight="bold" color="#fff">
+                {emailInfo.source === "db" ? "قاعدة البيانات" : "متغيّر البيئة"}
+              </T>
+            </View>
+            <T size={13} color={colors.foreground} style={{ flex: 1 }}>
+              {emailInfo.value || "—"}
+            </T>
+          </View>
+        ) : (
+          <T size={13} color={colors.mutedForeground}>جارٍ التحميل…</T>
+        )}
+        <Field
+          label="البريد الجديد"
+          value={emailDraft}
+          onChangeText={(v) => { setEmailDraft(v); setEmailMsg(null); }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <Btn
+          title="حفظ البريد"
+          loading={emailSaving}
+          onPress={saveEmail}
+          fullWidth
+          disabled={!emailDraft.trim() || emailDraft.trim() === emailInfo?.value}
+        />
+        {emailInfo?.source === "db" ? (
+          <Btn
+            title="مسح تجاوز قاعدة البيانات"
+            variant="ghost"
+            loading={emailClearing}
+            onPress={clearEmail}
+            fullWidth
+          />
+        ) : null}
+        {emailMsg ? (
+          <T size={13} color={colors.foreground}>{emailMsg}</T>
+        ) : null}
+      </Card>
+
       <Btn title="خروج الإدارة" variant="ghost" onPress={logout} fullWidth />
     </ScrollView>
   );
