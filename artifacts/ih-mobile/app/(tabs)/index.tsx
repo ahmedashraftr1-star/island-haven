@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ActivityIndicator, Animated, FlatList, Linking, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Animated, FlatList, Pressable, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
@@ -9,7 +9,7 @@ import { Feather } from "@expo/vector-icons";
 
 import { T, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
-import { api, resolveMedia, WEB_BASE } from "@/lib/api";
+import { api, resolveMedia } from "@/lib/api";
 import type { DailyPost, Numbers, SiteContent } from "@/lib/types";
 
 interface ExpertCard {
@@ -566,7 +566,7 @@ export default function Home() {
 
 function BecomeMentorBanner() {
   const colors = useColors();
-  const url = WEB_BASE ? `${WEB_BASE}/become-mentor?ref=mobile-home-banner` : null;
+  const router = useRouter();
 
   const badges = [
     { icon: "star" as const, label: "شارك خبرتك" },
@@ -577,9 +577,7 @@ function BecomeMentorBanner() {
   return (
     <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
       <Pressable
-        onPress={() => {
-          if (url) Linking.openURL(url);
-        }}
+        onPress={() => router.push("/become-mentor" as never)}
         style={({ pressed }) => ({
           borderRadius: colors.radius + 4,
           borderWidth: 1,
