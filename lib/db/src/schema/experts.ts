@@ -44,6 +44,7 @@ export const expertProfilesTable = pgTable(
       .notNull()
       .$type<ExpertStatus>()
       .default("pending"),
+    ref: varchar("ref", { length: 100 }),
     approvedAt: timestamp("approved_at", { withTimezone: true }),
     reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

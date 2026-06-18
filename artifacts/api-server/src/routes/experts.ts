@@ -182,6 +182,7 @@ router.post("/experts/apply", async (req, res) => {
           linkedinUrl: linkedinUrl ?? "",
           status: "pending",
           acceptingSessions: false,
+          ...(ref ? { ref } : {}),
         });
       });
     } catch (err) {
@@ -606,6 +607,7 @@ router.get("/admin/experts", requireAdmin, async (_req, res) => {
         passwordSetAt: usersTable.passwordSetAt,
         lastLoginAt: usersTable.lastLoginAt,
         sessionsCount: sql<number>`COALESCE(COUNT(${mentorshipSessionsTable.id}), 0)::int`,
+        ref: expertProfilesTable.ref,
       })
       .from(expertProfilesTable)
       .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))

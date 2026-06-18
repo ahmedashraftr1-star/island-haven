@@ -19,6 +19,7 @@ interface Row {
   passwordSetAt: string | null;
   lastLoginAt: string | null;
   sessionsCount: number;
+  ref: string | null;
 }
 
 const STATUS_LABELS: Record<Row["status"], string> = {
@@ -225,6 +226,13 @@ export default function AdminExperts() {
                         تقدّم بطلبه {new Date(r.createdAt).toLocaleDateString("ar-EG")}
                       </div>
                     )}
+                    {tab === "pending" && r.ref && (
+                      <div className="mt-1">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 text-[10.5px] font-semibold" title="مصدر الإحالة">
+                          المصدر: {r.ref}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-foreground/65">
                     {r.headline || r.expertise || "—"}
@@ -361,6 +369,7 @@ interface FormState {
   email: string;
   password: string;
   avatarUrl: string;
+  ref: string | null;
   headline: string;
   expertise: string;
   bio: string;
@@ -381,6 +390,7 @@ const EMPTY: FormState = {
   email: "",
   password: "",
   avatarUrl: "",
+  ref: null,
   headline: "",
   expertise: "",
   bio: "",
@@ -418,7 +428,7 @@ function ExpertEditor({
     }
     api<{
       expert: {
-        profile: Omit<FormState, "fullName" | "email" | "password" | "avatarUrl">;
+        profile: Omit<FormState, "fullName" | "email" | "password" | "avatarUrl"> & { ref?: string | null };
         fullName: string;
         email: string;
         avatarUrl: string | null;
@@ -430,6 +440,7 @@ function ExpertEditor({
         email: r.expert.email,
         password: "",
         avatarUrl: r.expert.avatarUrl || "",
+        ref: p.ref ?? null,
         headline: p.headline || "",
         expertise: p.expertise || "",
         bio: p.bio || "",
@@ -565,6 +576,13 @@ function ExpertEditor({
                   />
                 </Field>
               </div>
+            </div>
+          )}
+
+          {!isNew && form.ref && (
+            <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 flex items-center gap-2">
+              <span className="text-[12px] font-semibold text-sky-700/70">مصدر الطلب</span>
+              <span className="text-[13px] font-semibold text-sky-700 dir-ltr" dir="ltr">{form.ref}</span>
             </div>
           )}
 
