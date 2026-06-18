@@ -662,9 +662,9 @@ function ExpertSkeleton() {
           key={i}
           className="p-4 rounded-2xl bg-white/[0.04] border border-white/10"
         >
-          <div className="flex flex-col items-center gap-2.5">
-            <div className="w-14 h-14 rounded-xl skeleton-shimmer" />
-            <div className="w-full flex flex-col gap-1.5">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl skeleton-shimmer shrink-0" />
+            <div className="min-w-0 flex flex-col gap-1.5 flex-1">
               <div className="h-3 rounded-md skeleton-shimmer w-4/5" />
               <div className="h-2.5 rounded-md skeleton-shimmer w-3/5" />
             </div>
@@ -832,20 +832,20 @@ function StepExpert({
                       {lang === "en" ? "Free" : "متاح"}
                     </span>
                   )}
-                  <div className="flex flex-col items-center gap-2.5">
+                  <div className="flex items-center gap-3">
                     {e.avatarUrl ? (
                       <img
                         src={e.avatarUrl}
                         alt={e.fullName}
-                        className="w-14 h-14 rounded-xl object-cover border border-white/10"
+                        className="w-12 h-12 rounded-2xl object-cover border border-white/10 shrink-0"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-xl font-bold text-white/80">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-lg font-bold text-white/80 shrink-0">
                         {initials}
                       </div>
                     )}
-                    <div className="w-full">
+                    <div className="min-w-0">
                       <div className="text-[12.5px] font-semibold leading-snug line-clamp-1">
                         {e.fullName}
                       </div>
@@ -854,17 +854,12 @@ function StepExpert({
                           {e.headline}
                         </div>
                       )}
-                      {e.bio && (
-                        <div className="text-[10.5px] text-white/35 line-clamp-2 mt-1 leading-relaxed">
-                          {e.bio}
-                        </div>
-                      )}
                       {!e.acceptingSessions ? (
-                        <div className="text-[10.5px] text-white/35 mt-1">
+                        <div className="text-[10.5px] text-white/35 mt-0.5">
                           {lang === "en" ? "Unavailable" : "غير متاح"}
                         </div>
                       ) : hasSlot === false ? (
-                        <div className="text-[10.5px] text-white/35 mt-1">
+                        <div className="text-[10.5px] text-white/35 mt-0.5">
                           {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
                         </div>
                       ) : null}
