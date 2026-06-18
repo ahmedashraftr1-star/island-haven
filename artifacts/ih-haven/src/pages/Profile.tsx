@@ -24,6 +24,7 @@ import {
   CalendarCheck,
   ArrowRight,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import type { ExtraLink } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
@@ -829,6 +830,7 @@ interface MyStory {
   ventureName: string;
   projectUrl: string | null;
   status: "draft" | "published" | "hidden" | "rejected" | "deleted";
+  rejectionNote: string | null;
 }
 
 function MyStorySection({ user }: { user: AuthUser }) {
@@ -910,7 +912,8 @@ function MyStorySection({ user }: { user: AuthUser }) {
   }
 
   const isDeleted = myStory?.status === "deleted";
-  const isLocked = myStory !== null && myStory !== undefined && myStory.status !== "draft" && !isDeleted;
+  const isRejected = myStory?.status === "rejected";
+  const isLocked = myStory !== null && myStory !== undefined && myStory.status !== "draft" && !isDeleted && !isRejected;
 
   const statusLabel: Record<string, string> = {
     draft: "بانتظار المراجعة",
@@ -961,6 +964,24 @@ function MyStorySection({ user }: { user: AuthUser }) {
               <div className="px-5 pb-5 pt-1 border-t border-white/10">
                 {myStory === undefined ? (
                   <div className="py-6 text-center text-white/40 text-[13px]">جارٍ التحميل…</div>
+                ) : isRejected ? (
+                  <div className="py-4 space-y-3">
+                    <div className="rounded-xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 space-y-2">
+                      <div className="flex items-center gap-2 text-rose-400 text-[13px] font-semibold">
+                        <XCircle className="w-4 h-4 shrink-0" />
+                        لم تُقبَل قصّتك هذه المرّة
+                      </div>
+                      {myStory.rejectionNote ? (
+                        <p className="text-[12.5px] text-white/60 leading-relaxed pr-6">
+                          {myStory.rejectionNote}
+                        </p>
+                      ) : (
+                        <p className="text-[12.5px] text-white/50 leading-relaxed pr-6">
+                          يمكنك تعديل قصّتك وإعادة تقديمها للمراجعة.
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 ) : isLocked ? (
                   <div className="py-4 space-y-3">
                     <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-semibold">
