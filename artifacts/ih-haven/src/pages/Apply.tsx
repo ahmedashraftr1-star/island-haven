@@ -13,6 +13,15 @@ import {
   Sparkles,
   Sparkle,
   PenLine,
+  Link2,
+  Github,
+  Clock,
+  Tag,
+  Heart,
+  FileUp,
+  Loader2,
+  FolderOpen,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
@@ -55,6 +64,45 @@ const FALLBACK = {
   bioLabel: "نبذة ومجال عملك",
   bioHint: "Bio",
   bioPlaceholder: "ماذا تعمل أو تدرس؟ ما الذي تنوي تحقيقه في آيلاند هيفن؟",
+  motivationLabel: "دوافعك للانضمام",
+  motivationHint: "Motivation",
+  motivationPlaceholder: "لماذا تريد الانضمام إلى آيلاند هيفن؟ ما الذي تأمل تحقيقه؟",
+  sec4Title: "خبرتك المهنيّة",
+  sec4Sub: "Professional",
+  skillsLabel: "المهارات التقنية",
+  skillsHint: "Skills",
+  skillsPlaceholder: "مثال: React، Node.js، Figma، Python …",
+  specializationLabel: "التخصص الأكاديمي / الجامعة",
+  specializationHint: "Academic",
+  specializationPlaceholder: "مثال: هندسة الحاسوب — الجامعة الإسلامية",
+  yearsLabel: "سنوات الخبرة",
+  sec5Title: "روابط احترافيّة",
+  sec5Sub: "Links",
+  linkedinLabel: "رابط LinkedIn",
+  linkedinHint: "LinkedIn",
+  linkedinPlaceholder: "https://linkedin.com/in/username",
+  portfolioLabel: "GitHub / Portfolio / موقعك",
+  portfolioHint: "Portfolio",
+  portfolioPlaceholder: "https://github.com/username",
+  sec6Title: "أعمالك السابقة",
+  sec6Sub: "Previous work",
+  previousWorkLabel: "مشاريع أو أعمال سابقة",
+  previousWorkHint: "Projects",
+  previousWorkPlaceholder: "اذكر مشروعًا أنجزته أو عملاً تفخر به، أو ضع رابطًا لأعمالك …",
+  sec7Title: "توفّرك الأسبوعي",
+  sec7Sub: "Availability",
+  weeklyHoursLabel: "ساعات العمل المتاحة في الأسبوع",
+  employedLabel: "هل تعمل حالياً؟",
+  employedYes: "نعم، أعمل",
+  employedNo: "لا، أبحث عن عمل",
+  sec8Title: "السيرة الذاتية",
+  sec8Sub: "CV / Résumé",
+  cvUploadLabel: "ارفع سيرتك الذاتية (PDF، حتّى 10 ميغا)",
+  cvUploadHint: "اختياري",
+  cvUploadBtn: "اختر ملف PDF",
+  cvUploadLoading: "جارٍ الرفع…",
+  cvUploadDone: "تم الرفع",
+  cvUploadRemove: "إزالة",
   submitLabel: "أرسل طلب الانتساب",
   submitLoading: "جارٍ الإرسال…",
   consentLine: "بإرسالك الطلب، توافق على أن نتواصل معك بشأنه فقط.",
@@ -81,12 +129,46 @@ export default function Apply() {
     phone: "",
     category: "freelancer" as CategoryId,
     bio: "",
+    motivation: "",
+    previousWork: "",
+    skills: "",
+    specialization: "",
+    linkedinUrl: "",
+    portfolioUrl: "",
   });
+  const [yearsExperience, setYearsExperience] = useState<number | null>(null);
+  const [weeklyHours, setWeeklyHours] = useState<number | null>(null);
+  const [isEmployed, setIsEmployed] = useState<boolean | null>(null);
+  const [cvUrl, setCvUrl] = useState("");
+  const [cvFileName, setCvFileName] = useState("");
+  const [cvUploading, setCvUploading] = useState(false);
+  const cvInputRef = useRef<HTMLInputElement | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  async function uploadCv(file: File) {
+    if (file.size > 10 * 1024 * 1024) {
+      setError("حجم الملف أكبر من 10 ميغا");
+      return;
+    }
+    setCvUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const resp = await fetch("/api/uploads/cv", { method: "POST", body: fd });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || "فشل رفع الملف");
+      setCvUrl(json.url);
+      setCvFileName(file.name);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "تعذّر رفع السيرة الذاتية");
+    } finally {
+      setCvUploading(false);
+    }
+  }
 
   const CATEGORIES: Array<{
     id: CategoryId;
@@ -112,6 +194,7 @@ export default function Apply() {
     form.email.trim().length > 3 &&
     form.phone.trim().length >= 6 &&
     form.bio.trim().length >= 10 &&
+    form.motivation.trim().length >= 10 &&
     !submitting;
 
   async function onSubmit(e: React.FormEvent) {
@@ -121,9 +204,16 @@ export default function Apply() {
     setError(null);
     setIssues({});
     try {
+      const payload = {
+        ...form,
+        ...(yearsExperience !== null ? { yearsExperience } : {}),
+        ...(weeklyHours !== null ? { weeklyHours } : {}),
+        ...(isEmployed !== null ? { isEmployed } : {}),
+        ...(cvUrl ? { cvUrl } : {}),
+      };
       const resp = await api<{ ok: boolean; id: number }>("/applications", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       setDone({ id: resp.id });
     } catch (e) {
@@ -318,30 +408,280 @@ export default function Apply() {
                   </div>
                 </div>
 
-                {/* Section: bio */}
+                {/* Section: bio + motivation */}
                 <div className="pt-2">
                   <SectionHeader index="03" title={c.sec3Title} sub={c.sec3Sub} />
+                  <div className="space-y-5">
+                    <FieldWrap
+                      id="bio"
+                      label={c.bioLabel}
+                      hint={c.bioHint}
+                      icon={PenLine}
+                      error={issues.bio}
+                    >
+                      <textarea
+                        id="bio"
+                        value={form.bio}
+                        onChange={(e) => update("bio", e.target.value)}
+                        rows={4}
+                        maxLength={2000}
+                        placeholder={c.bioPlaceholder}
+                        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        data-testid="input-bio"
+                      />
+                      <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.bio.length}/2000</div>
+                    </FieldWrap>
+                    <FieldWrap
+                      id="motivation"
+                      label={c.motivationLabel}
+                      hint={c.motivationHint}
+                      icon={Heart}
+                      error={issues.motivation}
+                    >
+                      <textarea
+                        id="motivation"
+                        value={form.motivation}
+                        onChange={(e) => update("motivation", e.target.value)}
+                        rows={4}
+                        maxLength={2000}
+                        placeholder={c.motivationPlaceholder}
+                        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        data-testid="input-motivation"
+                      />
+                      <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
+                    </FieldWrap>
+                  </div>
+                </div>
+
+                {/* Section 04: Professional */}
+                <div className="pt-2">
+                  <SectionHeader index="04" title={c.sec4Title} sub={c.sec4Sub} />
+                  <div className="space-y-5">
+                    <Field
+                      id="skills"
+                      label={c.skillsLabel}
+                      hint={c.skillsHint}
+                      icon={Tag}
+                      value={form.skills}
+                      onChange={(v) => update("skills", v)}
+                      error={issues.skills}
+                      placeholder={c.skillsPlaceholder}
+                    />
+                    <Field
+                      id="specialization"
+                      label={c.specializationLabel}
+                      hint={c.specializationHint}
+                      icon={GraduationCap}
+                      value={form.specialization}
+                      onChange={(v) => update("specialization", v)}
+                      error={issues.specialization}
+                      placeholder={c.specializationPlaceholder}
+                    />
+                    {/* Years of experience chips */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
+                        <span className="text-white/75 font-semibold">{c.yearsLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                          <Clock className="w-3 h-3" />
+                          <span className="text-[10px] tracking-[0.16em] uppercase">Experience</span>
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2" dir="rtl">
+                        {([0, 1, 2, 3, 5, 7, 10, 15] as const).map((yr) => {
+                          const active = yearsExperience === yr;
+                          return (
+                            <button
+                              key={yr}
+                              type="button"
+                              onClick={() => setYearsExperience(active ? null : yr)}
+                              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
+                                active
+                                  ? "bg-primary/15 border-primary/50 text-white"
+                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
+                              }`}
+                            >
+                              {yr === 0 ? "أقل من سنة" : yr === 15 ? "+15 سنة" : `${yr}+`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 05: Links */}
+                <div className="pt-2">
+                  <SectionHeader index="05" title={c.sec5Title} sub={c.sec5Sub} />
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <Field
+                      id="linkedinUrl"
+                      label={c.linkedinLabel}
+                      hint={c.linkedinHint}
+                      icon={Link2}
+                      value={form.linkedinUrl}
+                      onChange={(v) => update("linkedinUrl", v)}
+                      error={issues.linkedinUrl}
+                      placeholder={c.linkedinPlaceholder}
+                      ltr
+                    />
+                    <Field
+                      id="portfolioUrl"
+                      label={c.portfolioLabel}
+                      hint={c.portfolioHint}
+                      icon={Github}
+                      value={form.portfolioUrl}
+                      onChange={(v) => update("portfolioUrl", v)}
+                      error={issues.portfolioUrl}
+                      placeholder={c.portfolioPlaceholder}
+                      ltr
+                    />
+                  </div>
+                </div>
+
+                {/* Section 06: Previous work */}
+                <div className="pt-2">
+                  <SectionHeader index="06" title={c.sec6Title} sub={c.sec6Sub} />
                   <FieldWrap
-                    id="bio"
-                    label={c.bioLabel}
-                    hint={c.bioHint}
-                    icon={PenLine}
-                    error={issues.bio}
+                    id="previousWork"
+                    label={c.previousWorkLabel}
+                    hint={c.previousWorkHint}
+                    icon={FolderOpen}
+                    error={issues.previousWork}
                   >
                     <textarea
-                      id="bio"
-                      value={form.bio}
-                      onChange={(e) => update("bio", e.target.value)}
-                      rows={5}
-                      maxLength={2000}
-                      placeholder={c.bioPlaceholder}
+                      id="previousWork"
+                      value={form.previousWork}
+                      onChange={(e) => update("previousWork", e.target.value)}
+                      rows={3}
+                      maxLength={1000}
+                      placeholder={c.previousWorkPlaceholder}
                       className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
-                      data-testid="input-bio"
+                      data-testid="input-previousWork"
                     />
-                    <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">
-                      {form.bio.length}/2000
-                    </div>
+                    <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
                   </FieldWrap>
+                </div>
+
+                {/* Section 07: Availability */}
+                <div className="pt-2">
+                  <SectionHeader index="07" title={c.sec7Title} sub={c.sec7Sub} />
+                  <div className="space-y-5">
+                    {/* Weekly hours chips */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
+                        <span className="text-white/75 font-semibold">{c.weeklyHoursLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                          <Clock className="w-3 h-3" />
+                          <span className="text-[10px] tracking-[0.16em] uppercase">hrs/week</span>
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2" dir="rtl">
+                        {([5, 10, 15, 20, 30, 40] as const).map((h) => {
+                          const active = weeklyHours === h;
+                          return (
+                            <button
+                              key={h}
+                              type="button"
+                              onClick={() => setWeeklyHours(active ? null : h)}
+                              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
+                                active
+                                  ? "bg-primary/15 border-primary/50 text-white"
+                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
+                              }`}
+                            >
+                              {h}+ س/أسبوع
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    {/* Employed toggle */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
+                        <span className="text-white/75 font-semibold">{c.employedLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                          <BriefcaseBusiness className="w-3 h-3" />
+                          <span className="text-[10px] tracking-[0.16em] uppercase">Employment</span>
+                        </span>
+                      </div>
+                      <div className="flex gap-3" dir="rtl">
+                        {([{ v: true, l: c.employedYes }, { v: false, l: c.employedNo }] as const).map((opt) => {
+                          const active = isEmployed === opt.v;
+                          return (
+                            <button
+                              key={String(opt.v)}
+                              type="button"
+                              onClick={() => setIsEmployed(active ? null : opt.v)}
+                              className={`flex-1 py-2.5 rounded-2xl text-[13px] font-semibold border transition-all ${
+                                active
+                                  ? "bg-primary/15 border-primary/50 text-white"
+                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25"
+                              }`}
+                            >
+                              {opt.l}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 08: CV Upload */}
+                <div className="pt-2">
+                  <SectionHeader index="08" title={c.sec8Title} sub={c.sec8Sub} />
+                  <input
+                    ref={cvInputRef}
+                    type="file"
+                    accept="application/pdf"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadCv(file);
+                    }}
+                  />
+                  <div
+                    className={`rounded-2xl border-2 border-dashed transition-colors ${
+                      cvUrl
+                        ? "border-primary/40 bg-primary/[0.06]"
+                        : "border-white/12 bg-white/[0.02] hover:border-white/25"
+                    } p-5 text-center cursor-pointer`}
+                    onClick={() => !cvUploading && cvInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer.files[0];
+                      if (file) uploadCv(file);
+                    }}
+                  >
+                    {cvUploading ? (
+                      <div className="flex items-center justify-center gap-2 text-white/55 text-[13.5px]">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {c.cvUploadLoading}
+                      </div>
+                    ) : cvUrl ? (
+                      <div className="flex items-center justify-center gap-2.5">
+                        <FileUp className="w-4 h-4 text-primary" />
+                        <span className="text-[13.5px] text-white font-medium">{cvFileName}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setCvUrl(""); setCvFileName(""); }}
+                          className="text-[11px] text-white/40 hover:text-red-300 transition-colors underline underline-offset-2 mr-1"
+                        >
+                          {c.cvUploadRemove}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <FileUp className="w-6 h-6 text-white/30 mx-auto" />
+                        <div className="text-[13.5px] text-white/55">{c.cvUploadLabel}</div>
+                        <div className="text-[11px] text-white/30">{c.cvUploadHint} · اسحب الملف هنا أو</div>
+                        <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/70 hover:text-white transition-colors">
+                          {c.cvUploadBtn}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Error region */}
