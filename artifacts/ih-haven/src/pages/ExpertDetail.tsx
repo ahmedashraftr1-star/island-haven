@@ -38,6 +38,14 @@ export default function ExpertDetail() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLightboxOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen]);
 
   useEffect(() => {
     if (!id) return;
@@ -131,11 +139,18 @@ export default function ExpertDetail() {
           )}
           <div className="flex items-start gap-5 mb-6">
             {expert.avatarUrl ? (
-              <img
-                src={expert.avatarUrl}
-                alt={expert.fullName}
-                className="w-24 h-24 rounded-3xl object-cover border border-white/10"
-              />
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-3xl"
+                aria-label={lang === "en" ? "View full photo" : "عرض الصورة كاملة"}
+              >
+                <img
+                  src={expert.avatarUrl}
+                  alt={expert.fullName}
+                  className="w-24 h-24 rounded-3xl object-cover border border-white/10 cursor-pointer hover:opacity-90 transition-opacity"
+                />
+              </button>
             ) : (
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center">
                 <User className="w-10 h-10 text-white/50" />
@@ -369,6 +384,30 @@ export default function ExpertDetail() {
           </GlassCard>
         </div>
       </div>
+      <AnimatePresence>
+        {lightboxOpen && expert.avatarUrl && (
+          <motion.div
+            key="lightbox"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <motion.img
+              src={expert.avatarUrl}
+              alt={expert.fullName}
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </PageShell>
   );
 }
