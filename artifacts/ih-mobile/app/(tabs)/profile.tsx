@@ -4,11 +4,12 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
-import { resolveMedia, api, ApiError } from "@/lib/api";
+import { resolveMedia, api, ApiError, API_BASE, getToken } from "@/lib/api";
 import type { CurrentUser } from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, loading, signOut, refresh } = useAuth();
   const [avatarDeleting, setAvatarDeleting] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [contactEmail, setContactEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,6 +69,52 @@ export default function ProfileScreen() {
       Alert.alert("خطأ", "تعذّر حذف الصورة الشخصيّة، يرجى المحاولة مرّة أخرى.");
     } finally {
       setAvatarDeleting(false);
+    }
+  }
+
+  async function handleAvatarUpload() {
+    if (avatarUploading || avatarDeleting) return;
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("إذن مطلوب", "يرجى السماح بالوصول إلى مكتبة الصور من إعدادات الجهاز.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+    setAvatarUploading(true);
+    try {
+      const token = await getToken();
+      const formData = new FormData();
+      const uriParts = asset.uri.split(".");
+      const ext = uriParts[uriParts.length - 1]?.toLowerCase() ?? "jpg";
+      const mimeMap: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+      const mime = mimeMap[ext] ?? "image/jpeg";
+      formData.append("file", { uri: asset.uri, name: `avatar.${ext}`, type: mime } as unknown as Blob);
+      const uploadRes = await fetch(`${API_BASE}/uploads/image`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        const d = await uploadRes.json().catch(() => ({})) as { error?: string };
+        throw new Error(d.error ?? "تعذّر رفع الصورة");
+      }
+      const { url } = await uploadRes.json() as { url: string };
+      await api<{ user: CurrentUser }>("/auth/me", {
+        method: "PATCH",
+        body: { avatarUrl: url },
+      });
+      await refresh();
+    } catch (err) {
+      Alert.alert("خطأ", err instanceof Error ? err.message : "تعذّر رفع الصورة الشخصيّة، يرجى المحاولة مرّة أخرى.");
+    } finally {
+      setAvatarUploading(false);
     }
   }
 
@@ -120,17 +168,42 @@ export default function ProfileScreen() {
     >
       <View style={{ alignItems: "center", gap: 12 }}>
         <View style={{ position: "relative" }}>
-          {user.avatarUrl ? (
-            <Image source={{ uri: resolveMedia(user.avatarUrl) }} style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.muted }} />
-          ) : (
-            <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
-              <T size={32} weight="bold" color={colors.primary}>{user.fullName.trim().slice(0, 1)}</T>
+          <TouchableOpacity
+            onPress={handleAvatarUpload}
+            disabled={avatarUploading || avatarDeleting}
+            activeOpacity={0.8}
+            accessibilityLabel="تغيير الصورة الشخصيّة"
+          >
+            {user.avatarUrl ? (
+              <Image source={{ uri: resolveMedia(user.avatarUrl) }} style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.muted }} />
+            ) : (
+              <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+                <T size={32} weight="bold" color={colors.primary}>{user.fullName.trim().slice(0, 1)}</T>
+              </View>
+            )}
+            <View style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: 28,
+              height: 28,
+              borderRadius: 14,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: avatarUploading ? 0.5 : 1,
+            }}>
+              {avatarUploading ? (
+                <ActivityIndicator size="small" color="#fff" style={{ transform: [{ scale: 0.6 }] }} />
+              ) : (
+                <Feather name="camera" size={13} color="#fff" />
+              )}
             </View>
-          )}
+          </TouchableOpacity>
           {user.avatarUrl ? (
             <TouchableOpacity
               onPress={confirmAvatarDelete}
-              disabled={avatarDeleting}
+              disabled={avatarDeleting || avatarUploading}
               style={{
                 position: "absolute",
                 bottom: 0,
