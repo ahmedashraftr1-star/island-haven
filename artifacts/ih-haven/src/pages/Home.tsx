@@ -8,8 +8,13 @@ import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { NewsSlider } from "@/components/landing/NewsSlider";
 import { NumbersBand } from "@/components/landing/NumbersBand";
+import { StatsBand } from "@/components/landing/StatsBand";
 import { ExpertsBand } from "@/components/landing/ExpertsBand";
+import { CommunityWall } from "@/components/landing/CommunityWall";
+import { Voices } from "@/components/landing/Voices";
 import { SuccessStories } from "@/components/landing/SuccessStories";
+import { GazaPulseMap } from "@/components/landing/GazaPulseMap";
+import { Campaign } from "@/components/landing/Campaign";
 import { Partners } from "@/components/landing/Partners";
 import { AdminShortcut } from "@/components/landing/AdminShortcut";
 import { NewsletterBand } from "@/components/landing/NewsletterBand";
@@ -38,10 +43,15 @@ export default function Home() {
         <Hero />
         <NewsSlider />
         <NumbersBand />
+        <StatsBand />
         <Audience />
+        <CommunityWall />
         <ExpertsBand />
+        <Voices />
         <SuccessStories />
+        <GazaPulseMap />
         <HoursLocation />
+        <Campaign />
         <Partners />
         <BecomeMentorBand />
         <NewsletterBand />
