@@ -167,6 +167,27 @@ export default function ProfileScreen() {
       contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, paddingBottom: 120, gap: 16 }}
     >
       <View style={{ alignItems: "center", gap: 12 }}>
+        <TouchableOpacity
+          onPress={() => router.push("/edit-profile" as never)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 4,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: colors.radius,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+          }}
+          accessibilityLabel="تعديل الملف الشخصي"
+        >
+          <Feather name="edit-2" size={13} color={colors.mutedForeground} />
+          <T size={12} color={colors.mutedForeground}>تعديل</T>
+        </TouchableOpacity>
         <View style={{ position: "relative" }}>
           <TouchableOpacity
             onPress={handleAvatarUpload}
