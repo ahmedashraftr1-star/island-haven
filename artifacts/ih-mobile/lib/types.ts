@@ -1,4 +1,4 @@
-export type UserRole = "freelancer" | "graduate" | "student" | "other";
+export type UserRole = "freelancer" | "graduate" | "student" | "other" | "expert" | "admin";
 
 export interface ExtraLink {
   label: string;

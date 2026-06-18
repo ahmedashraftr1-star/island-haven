@@ -10,7 +10,8 @@ import { Feather } from "@expo/vector-icons";
 import { T, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
-import type { DailyPost, Numbers, SiteContent } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
+import type { CurrentUser, DailyPost, Numbers, SiteContent } from "@/lib/types";
 
 interface ExpertCard {
   id: number;
@@ -121,6 +122,7 @@ export default function Home() {
   const router = useRouter();
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const contentQ = useQuery<{ content: SiteContent }>({
     queryKey: ["content"],
@@ -557,16 +559,60 @@ export default function Home() {
           )}
 
           {/* Become a Mentor CTA */}
-          <BecomeMentorBanner />
+          <BecomeMentorBanner user={user} />
         </View>
       )}
     />
   );
 }
 
-function BecomeMentorBanner() {
+function BecomeMentorBanner({ user }: { user: CurrentUser | null }) {
   const colors = useColors();
   const router = useRouter();
+
+  if (user?.role === "expert") {
+    return (
+      <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
+        <Pressable
+          onPress={() => router.push("/experts" as never)}
+          style={({ pressed }) => ({
+            borderRadius: colors.radius + 4,
+            borderWidth: 1,
+            borderColor: colors.primary + "40",
+            backgroundColor: colors.primarySoft,
+            padding: 20,
+            opacity: pressed ? 0.85 : 1,
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            gap: 14,
+          })}
+          testID="cta-manage-availability"
+        >
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="calendar" size={20} color="#fff" />
+          </View>
+          <View style={{ flex: 1, gap: 3 }}>
+            <T size={15} weight="bold" style={{ textAlign: "right" }}>
+              أنت مرشد في المجتمع
+            </T>
+            <T size={13} color={colors.mutedForeground} style={{ textAlign: "right" }}>
+              تحقّق من ملفّك وأدِر توافرك للجلسات
+            </T>
+          </View>
+          <Feather name="chevron-left" size={18} color={colors.primary} />
+        </Pressable>
+      </View>
+    );
+  }
 
   const badges = [
     { icon: "star" as const, label: "شارك خبرتك" },
