@@ -602,7 +602,9 @@ router.get("/admin/experts", requireAdmin, async (_req, res) => {
         sortOrder: expertProfilesTable.sortOrder,
         acceptingSessions: expertProfilesTable.acceptingSessions,
         createdAt: expertProfilesTable.createdAt,
+        approvedAt: expertProfilesTable.approvedAt,
         passwordSetAt: usersTable.passwordSetAt,
+        lastLoginAt: usersTable.lastLoginAt,
         sessionsCount: sql<number>`COALESCE(COUNT(${mentorshipSessionsTable.id}), 0)::int`,
       })
       .from(expertProfilesTable)

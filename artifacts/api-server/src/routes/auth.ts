@@ -226,9 +226,14 @@ router.post("/auth/login", async (req, res) => {
       res.status(403).json({ error: "هذا الحساب مُعلَّق" });
       return;
     }
+    const now = new Date();
+    await db
+      .update(usersTable)
+      .set({ lastLoginAt: now, updatedAt: now })
+      .where(eq(usersTable.id, user.id));
     const token = makeUserSessionToken(user.id);
     setUserSessionCookie(res, token);
-    res.json({ ok: true, user: toPublic(user), token });
+    res.json({ ok: true, user: toPublic({ ...user, lastLoginAt: now, updatedAt: now }), token });
   } catch (err) {
     logger.error({ err }, "login failed");
     res.status(500).json({ error: "خطأ في الخادم" });

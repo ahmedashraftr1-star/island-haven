@@ -15,7 +15,9 @@ interface Row {
   sortOrder: number;
   acceptingSessions: boolean;
   createdAt: string;
+  approvedAt: string | null;
   passwordSetAt: string | null;
+  lastLoginAt: string | null;
   sessionsCount: number;
 }
 
@@ -24,6 +26,14 @@ const STATUS_LABELS: Record<Row["status"], string> = {
   active: "مُفعَّل",
   hidden: "مخفيّ",
 };
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isNeverLoggedIn(r: Row): boolean {
+  if (r.lastLoginAt !== null) return false;
+  if (!r.approvedAt) return false;
+  return Date.now() - new Date(r.approvedAt).getTime() <= SEVEN_DAYS_MS;
+}
 
 type Tab = "active" | "pending" | "hidden";
 
@@ -91,9 +101,10 @@ export default function AdminExperts() {
 
   const filtered = rows?.filter((r) => r.status === tab) ?? null;
   const pendingCount = rows?.filter((r) => r.status === "pending").length ?? 0;
+  const neverLoggedInCount = rows?.filter((r) => r.status === "active" && isNeverLoggedIn(r)).length ?? 0;
 
-  const TAB_CONFIG: { id: Tab; label: string; badge?: number }[] = [
-    { id: "active", label: "المُفعَّلون" },
+  const TAB_CONFIG: { id: Tab; label: string; badge?: number; badgeColor?: string }[] = [
+    { id: "active", label: "المُفعَّلون", badge: neverLoggedInCount, badgeColor: "bg-rose-500" },
     { id: "pending", label: "الطلبات المعلّقة", badge: pendingCount },
     { id: "hidden", label: "المخفيّون" },
   ];
@@ -151,7 +162,7 @@ export default function AdminExperts() {
           >
             {t.label}
             {t.badge !== undefined && t.badge > 0 && (
-              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-amber-500 text-white text-[10px] font-bold px-1">
+              <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full ${t.badgeColor ?? "bg-amber-500"} text-white text-[10px] font-bold px-1`}>
                 {t.badge}
               </span>
             )}
@@ -191,11 +202,20 @@ export default function AdminExperts() {
                   data-testid={`admin-expert-row-${r.id}`}
                 >
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 font-semibold text-foreground">
+                    <div className="flex items-center gap-2 font-semibold text-foreground flex-wrap">
                       {r.featured && (
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       )}
                       {r.fullName}
+                      {isNeverLoggedIn(r) && (
+                        <button
+                          onClick={() => setEditing(r)}
+                          title="لم يُسجَّل الدخول منذ الموافقة — انقر للتفاصيل"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10.5px] font-semibold hover:bg-rose-100 transition-colors"
+                        >
+                          لم يسجّل الدخول بعد
+                        </button>
+                      )}
                     </div>
                     <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5">
                       {r.email}
