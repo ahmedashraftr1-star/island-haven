@@ -30,6 +30,7 @@ import {
   mentorApplicationEmail,
   mentorApplicationApprovedEmail,
   adminMentorApplicationEmail,
+  mentorPasswordReminderEmail,
 } from "../lib/email";
 import { notify } from "./notifications";
 import { getAdminEmail } from "./adminExtra";
@@ -601,6 +602,7 @@ router.get("/admin/experts", requireAdmin, async (_req, res) => {
         sortOrder: expertProfilesTable.sortOrder,
         acceptingSessions: expertProfilesTable.acceptingSessions,
         createdAt: expertProfilesTable.createdAt,
+        passwordSetAt: usersTable.passwordSetAt,
         sessionsCount: sql<number>`COALESCE(COUNT(${mentorshipSessionsTable.id}), 0)::int`,
       })
       .from(expertProfilesTable)
@@ -848,6 +850,54 @@ router.delete("/admin/experts/:id", requireAdmin, async (req, res) => {
   } catch (err) {
     logger.error({ err }, "DELETE /admin/experts/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Resend a fresh 24-hour password-setup link to an active expert who hasn't
+// logged in yet (passwordSetAt IS NULL).
+router.post("/admin/experts/:id/resend-setup-link", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // Fetch expert profile + user row
+    const [row] = await db
+      .select({
+        userId: expertProfilesTable.userId,
+        status: expertProfilesTable.status,
+        email: usersTable.email,
+        fullName: usersTable.fullName,
+        passwordSetAt: usersTable.passwordSetAt,
+      })
+      .from(expertProfilesTable)
+      .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .where(eq(expertProfilesTable.id, id))
+      .limit(1);
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    if (row.status !== "active") {
+      res.status(400).json({ error: "الخبير ليس مُفعَّلًا" });
+      return;
+    }
+    if (row.passwordSetAt) {
+      res.status(400).json({ error: "قام هذا المرشد بضبط كلمة السرّ بالفعل" });
+      return;
+    }
+    const TTL_24H = 24 * 60 * 60 * 1000;
+    const rawToken = createResetToken(row.email, TTL_24H);
+    const frontendUrl = process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
+    const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+    const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);
+    await sendEmail({ to: row.email, ...mail });
+    logger.info({ expertId: id, email: row.email }, "Resent mentor setup link");
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "POST /admin/experts/:id/resend-setup-link failed");
+    res.status(500).json({ error: "تعذّر إرسال الرابط" });
   }
 });
 

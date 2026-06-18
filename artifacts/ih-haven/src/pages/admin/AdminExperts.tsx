@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 
 interface Row {
@@ -15,6 +15,7 @@ interface Row {
   sortOrder: number;
   acceptingSessions: boolean;
   createdAt: string;
+  passwordSetAt: string | null;
   sessionsCount: number;
 }
 
@@ -32,6 +33,8 @@ export default function AdminExperts() {
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [tab, setTab] = useState<Tab>("active");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [resendLoading, setResendLoading] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
   async function reload() {
     try {
@@ -71,6 +74,21 @@ export default function AdminExperts() {
     }
   }
 
+  async function resendSetupLink(id: number) {
+    setResendLoading(id);
+    setToast(null);
+    try {
+      await api(`/admin/experts/${id}/resend-setup-link`, { method: "POST" });
+      setToast({ kind: "ok", msg: "تمّ إرسال رابط الدخول بنجاح ✓" });
+      setTimeout(() => setToast(null), 4000);
+    } catch (e) {
+      setToast({ kind: "err", msg: e instanceof ApiError ? e.message : "تعذّر الإرسال" });
+      setTimeout(() => setToast(null), 5000);
+    } finally {
+      setResendLoading(null);
+    }
+  }
+
   const filtered = rows?.filter((r) => r.status === tab) ?? null;
   const pendingCount = rows?.filter((r) => r.status === "pending").length ?? 0;
 
@@ -104,6 +122,18 @@ export default function AdminExperts() {
       {error && (
         <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
           {error}
+        </div>
+      )}
+
+      {toast && (
+        <div
+          className={`rounded-2xl px-4 py-3 text-[13px] border ${
+            toast.kind === "ok"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+              : "bg-rose-50 border-rose-200 text-rose-700"
+          }`}
+        >
+          {toast.msg}
         </div>
       )}
 
@@ -253,6 +283,18 @@ export default function AdminExperts() {
                               className="p-2 rounded-lg hover:bg-amber-50 text-foreground/65 hover:text-amber-600 disabled:opacity-50 transition-colors"
                             >
                               <Clock className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {tab === "active" && !r.passwordSetAt && (
+                            <button
+                              onClick={() => resendSetupLink(r.id)}
+                              disabled={resendLoading === r.id}
+                              title="إعادة إرسال رابط الدخول"
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 disabled:opacity-50 transition-colors"
+                              data-testid={`button-resend-link-${r.id}`}
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              {resendLoading === r.id ? "…" : "إرسال رابط"}
                             </button>
                           )}
                           <button
