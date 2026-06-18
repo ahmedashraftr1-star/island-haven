@@ -294,7 +294,7 @@ export default function AdminExperts() {
                               data-testid={`button-resend-link-${r.id}`}
                             >
                               <Mail className="w-3.5 h-3.5" />
-                              {resendLoading === r.id ? "…" : "إرسال رابط"}
+                              {resendLoading === r.id ? "…" : "إعادة إرسال رابط الدخول"}
                             </button>
                           )}
                           <button

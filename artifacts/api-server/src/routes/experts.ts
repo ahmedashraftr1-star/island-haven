@@ -892,7 +892,11 @@ router.post("/admin/experts/:id/resend-setup-link", requireAdmin, async (req, re
     const frontendUrl = process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
     const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
     const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);
-    await sendEmail({ to: row.email, ...mail });
+    const delivered = await sendEmail({ to: row.email, ...mail });
+    if (!delivered) {
+      res.status(502).json({ error: "تعذّر إرسال البريد الإلكترونيّ — تحقّق من إعدادات البريد وحاول لاحقًا" });
+      return;
+    }
     logger.info({ expertId: id, email: row.email }, "Resent mentor setup link");
     res.json({ ok: true });
   } catch (err) {
