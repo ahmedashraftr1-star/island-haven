@@ -8,7 +8,11 @@ interface Setting {
   value: boolean;
 }
 
-export default function AdminSettings() {
+interface AdminSettingsProps {
+  onDirtyChange?: (dirty: boolean) => void;
+}
+
+export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
   const [items, setItems] = useState<Setting[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -24,6 +28,10 @@ export default function AdminSettings() {
   const [adminEmailLoaded, setAdminEmailLoaded] = useState(false);
 
   const isDirty = adminEmailLoaded && adminEmailDraft.trim() !== adminEmail;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (!isDirty) return;

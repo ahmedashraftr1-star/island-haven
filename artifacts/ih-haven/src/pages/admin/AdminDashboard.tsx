@@ -119,6 +119,14 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
+  const [settingsDirty, setSettingsDirty] = useState(false);
+
+  function navigateTo(id: Tab) {
+    if (tab === "settings" && settingsDirty && id !== "settings") {
+      if (!window.confirm("لديك تغييرات غير محفوظة في الإعدادات. هل تريد المغادرة؟")) return;
+    }
+    setTab(id);
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-me"],
@@ -194,7 +202,7 @@ export default function AdminDashboard() {
             return (
               <button
                 key={id}
-                onClick={() => setTab(id)}
+                onClick={() => navigateTo(id)}
                 data-testid={`tab-${id}`}
                 className={`w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13.5px] font-medium transition-all ${
                   active
@@ -259,7 +267,7 @@ export default function AdminDashboard() {
             return (
               <button
                 key={id}
-                onClick={() => setTab(id)}
+                onClick={() => navigateTo(id)}
                 className={`shrink-0 flex items-center gap-2 px-3.5 h-9 rounded-full text-[12.5px] font-medium transition-all ${
                   active
                     ? "bg-primary text-primary-foreground"
@@ -323,7 +331,7 @@ export default function AdminDashboard() {
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
-          {tab === "settings" && <AdminSettings />}
+          {tab === "settings" && <AdminSettings onDirtyChange={setSettingsDirty} />}
         </div>
       </div>
     </div>
