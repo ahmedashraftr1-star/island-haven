@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, Dimensions, Linking, Modal, Pressable, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -43,6 +43,8 @@ export default function ExpertDetailScreen() {
   const [mode, setMode] = useState<"online" | "onsite">("online");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [photoVisible, setPhotoVisible] = useState(false);
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   const q = useQuery<{ expert: ExpertProfile }>({
     queryKey: ["expert", id],
@@ -94,16 +96,19 @@ export default function ExpertDetailScreen() {
   }
 
   return (
+    <>
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }}
     >
       <View style={{ alignItems: "center", gap: 10 }}>
         {e.avatarUrl ? (
-          <Image
-            source={{ uri: resolveMedia(e.avatarUrl) }}
-            style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: colors.muted }}
-          />
+          <Pressable onPress={() => setPhotoVisible(true)} hitSlop={6}>
+            <Image
+              source={{ uri: resolveMedia(e.avatarUrl) }}
+              style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: colors.muted }}
+            />
+          </Pressable>
         ) : (
           <View
             style={{
@@ -297,5 +302,44 @@ export default function ExpertDetailScreen() {
         )}
       </Card>
     </ScrollView>
+
+    {e.avatarUrl ? (
+      <Modal
+        visible={photoVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPhotoVisible(false)}
+        statusBarTranslucent
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.92)", alignItems: "center", justifyContent: "center" }}
+          onPress={() => setPhotoVisible(false)}
+        >
+          <Image
+            source={{ uri: resolveMedia(e.avatarUrl) }}
+            style={{ width: screenWidth, height: screenWidth }}
+            contentFit="contain"
+          />
+          <Pressable
+            onPress={() => setPhotoVisible(false)}
+            hitSlop={12}
+            style={{
+              position: "absolute",
+              top: 52,
+              right: 20,
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "rgba(255,255,255,0.15)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="x" size={22} color="#fff" />
+          </Pressable>
+        </Pressable>
+      </Modal>
+    ) : null}
+    </>
   );
 }
