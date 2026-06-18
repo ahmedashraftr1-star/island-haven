@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Linking, ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -211,8 +211,17 @@ function MyStorySection() {
   const router = useRouter();
 
   const [story, setStory] = useState<MyStoryData | null | undefined>(undefined);
-  const [resubmitting, setResubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Inline edit-before-resubmit state
+  const [editingBeforeResubmit, setEditingBeforeResubmit] = useState(false);
+  const [resubmitForm, setResubmitForm] = useState({
+    quote: "",
+    fullStory: "",
+    ventureName: "",
+    projectUrl: "",
+  });
+  const [resubmitting, setResubmitting] = useState(false);
 
   useEffect(() => {
     api<{ story: MyStoryData | null }>("/me/story")
@@ -220,12 +229,37 @@ function MyStorySection() {
       .catch(() => setStory(null));
   }, []);
 
-  async function handleResubmit() {
-    setResubmitting(true);
+  function startEditing() {
+    if (!story) return;
+    setResubmitForm({
+      quote: story.quote,
+      fullStory: story.story,
+      ventureName: story.ventureName,
+      projectUrl: story.projectUrl ?? "",
+    });
     setError(null);
+    setEditingBeforeResubmit(true);
+  }
+
+  async function handleResubmitWithEdits() {
+    setError(null);
+    if (resubmitForm.quote.trim().length < 10) {
+      setError("الاقتباس قصير جدًّا (10 أحرف على الأقل)");
+      return;
+    }
+    setResubmitting(true);
     try {
-      const r = await api<{ story: MyStoryData }>("/me/story/resubmit", { method: "POST" });
+      const r = await api<{ story: MyStoryData }>("/me/story/resubmit", {
+        method: "POST",
+        body: {
+          quote: resubmitForm.quote,
+          story: resubmitForm.fullStory,
+          ventureName: resubmitForm.ventureName,
+          projectUrl: resubmitForm.projectUrl || null,
+        },
+      });
       setStory(r.story);
+      setEditingBeforeResubmit(false);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "تعذّر إعادة التقديم");
     } finally {
@@ -239,6 +273,19 @@ function MyStorySection() {
   const hasStory = story !== null && story !== undefined;
 
   const badgeColor = story ? (STATUS_COLOR[story.status] ?? { bg: colors.muted, text: colors.mutedForeground }) : null;
+
+  const inputStyle = {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    borderRadius: colors.radius,
+    padding: 12,
+    fontSize: 14,
+    color: colors.foreground,
+    textAlign: "right" as const,
+    writingDirection: "rtl" as const,
+    lineHeight: 22,
+  };
 
   return (
     <Card style={{ gap: 12 }}>
@@ -286,60 +333,138 @@ function MyStorySection() {
         </View>
 
       ) : isRejected ? (
-        <View style={{ gap: 12 }}>
-          <View
-            style={{
-              backgroundColor: "#ef444412",
-              borderWidth: 1,
-              borderColor: "#ef444430",
-              borderRadius: colors.radius,
-              padding: 12,
-              gap: 6,
-            }}
-          >
-            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-              <Feather name="x-circle" size={14} color="#ef4444" />
-              <T size={13} weight="medium" color="#ef4444">لم تُقبَل قصّتك هذه المرّة</T>
+        editingBeforeResubmit ? (
+          <View style={{ gap: 12 }}>
+            <View style={{ gap: 6 }}>
+              <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}>
+                <T size={13} weight="medium">اقتباسك</T>
+                <T size={12} color={colors.mutedForeground}>(مطلوب)</T>
+              </View>
+              <TextInput
+                value={resubmitForm.quote}
+                onChangeText={(v) => setResubmitForm((f) => ({ ...f, quote: v }))}
+                placeholder="ما الذي أضافه آيلاند هيفن لمسيرتك؟"
+                placeholderTextColor={colors.mutedForeground}
+                multiline
+                maxLength={600}
+                style={{ ...inputStyle, minHeight: 90, textAlignVertical: "top" }}
+              />
+              <T size={11} color={colors.mutedForeground} style={{ textAlign: "left" }}>
+                {resubmitForm.quote.length} / 600
+              </T>
             </View>
-            {story.rejectionNote ? (
-              <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
-                {story.rejectionNote}
-              </T>
-            ) : (
-              <T size={12} color={colors.mutedForeground}>
-                يمكنك تعديل قصّتك وإعادة تقديمها للمراجعة.
-              </T>
-            )}
-          </View>
 
-          {error ? (
+            <View style={{ gap: 6 }}>
+              <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4 }}>
+                <T size={13} weight="medium">قصّتك كاملة</T>
+                <T size={12} color={colors.mutedForeground}>(اختياريّ)</T>
+              </View>
+              <TextInput
+                value={resubmitForm.fullStory}
+                onChangeText={(v) => setResubmitForm((f) => ({ ...f, fullStory: v }))}
+                placeholder="شارك رحلتك بشكل أوسع…"
+                placeholderTextColor={colors.mutedForeground}
+                multiline
+                maxLength={8000}
+                style={{ ...inputStyle, minHeight: 130, textAlignVertical: "top" }}
+              />
+              <T size={11} color={colors.mutedForeground} style={{ textAlign: "left" }}>
+                {resubmitForm.fullStory.length} / 8000
+              </T>
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <T size={13} weight="medium">اسم مشروعك</T>
+              <T size={12} color={colors.mutedForeground}>(اختياريّ)</T>
+              <TextInput
+                value={resubmitForm.ventureName}
+                onChangeText={(v) => setResubmitForm((f) => ({ ...f, ventureName: v }))}
+                placeholder="مثال: Tamkeen App"
+                placeholderTextColor={colors.mutedForeground}
+                maxLength={200}
+                style={{ ...inputStyle, height: 48 }}
+              />
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <T size={13} weight="medium">رابط المشروع</T>
+              <T size={12} color={colors.mutedForeground}>(اختياريّ)</T>
+              <TextInput
+                value={resubmitForm.projectUrl}
+                onChangeText={(v) => setResubmitForm((f) => ({ ...f, projectUrl: v }))}
+                placeholder="https://example.com"
+                placeholderTextColor={colors.mutedForeground}
+                keyboardType="url"
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={500}
+                style={{ ...inputStyle, height: 48, textAlign: "left", writingDirection: "ltr" }}
+              />
+            </View>
+
+            {error ? (
+              <View
+                style={{
+                  backgroundColor: "#ef444420",
+                  borderWidth: 1,
+                  borderColor: "#ef444440",
+                  borderRadius: colors.radius,
+                  padding: 12,
+                }}
+              >
+                <T size={13} color="#ef4444">{error}</T>
+              </View>
+            ) : null}
+
+            <Btn
+              title={resubmitting ? "جارٍ الإرسال…" : "إرسال وإعادة التقديم"}
+              fullWidth
+              loading={resubmitting}
+              disabled={resubmitting}
+              onPress={handleResubmitWithEdits}
+            />
+            <Btn
+              title="إلغاء"
+              variant="ghost"
+              fullWidth
+              disabled={resubmitting}
+              onPress={() => { setEditingBeforeResubmit(false); setError(null); }}
+            />
+          </View>
+        ) : (
+          <View style={{ gap: 12 }}>
             <View
               style={{
-                backgroundColor: "#ef444420",
+                backgroundColor: "#ef444412",
                 borderWidth: 1,
-                borderColor: "#ef444440",
+                borderColor: "#ef444430",
                 borderRadius: colors.radius,
                 padding: 12,
+                gap: 6,
               }}
             >
-              <T size={13} color="#ef4444">{error}</T>
+              <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
+                <Feather name="x-circle" size={14} color="#ef4444" />
+                <T size={13} weight="medium" color="#ef4444">لم تُقبَل قصّتك هذه المرّة</T>
+              </View>
+              {story.rejectionNote ? (
+                <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
+                  {story.rejectionNote}
+                </T>
+              ) : (
+                <T size={12} color={colors.mutedForeground}>
+                  يمكنك تعديل قصّتك وإعادة تقديمها للمراجعة.
+                </T>
+              )}
             </View>
-          ) : null}
 
-          <Btn
-            title={resubmitting ? "جارٍ المعالجة…" : "إعادة تقديم القصّة"}
-            fullWidth
-            loading={resubmitting}
-            disabled={resubmitting}
-            onPress={handleResubmit}
-          />
-          <Btn
-            title="تعديل القصّة"
-            variant="ghost"
-            fullWidth
-            onPress={() => router.push("/story-form" as never)}
-          />
-        </View>
+            <Btn
+              title="إعادة تقديم القصّة"
+              fullWidth
+              onPress={startEditing}
+            />
+          </View>
+        )
 
       ) : isDeleted ? (
         <View style={{ gap: 12 }}>

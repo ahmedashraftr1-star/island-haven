@@ -231,9 +231,25 @@ router.post("/me/story/resubmit", requireUser, async (req, res) => {
       return;
     }
 
+    // Accept optional updated content in the request body (body may be absent)
+    const parsed = submitStorySchema.partial().safeParse(req.body ?? {});
+    if (!parsed.success) {
+      badData(res, parsed.error);
+      return;
+    }
+    const d = parsed.data;
+
     const [row] = await db
       .update(successStoriesTable)
-      .set({ status: "draft", rejectionNote: null, updatedAt: new Date() })
+      .set({
+        status: "draft",
+        rejectionNote: null,
+        ...(d.quote !== undefined ? { quote: d.quote } : {}),
+        ...(d.story !== undefined ? { story: d.story } : {}),
+        ...(d.ventureName !== undefined ? { ventureName: d.ventureName } : {}),
+        ...(d.projectUrl !== undefined ? { projectUrl: d.projectUrl ?? null } : {}),
+        updatedAt: new Date(),
+      })
       .where(eq(successStoriesTable.submittedByUserId, userId))
       .returning();
 
@@ -244,7 +260,8 @@ router.post("/me/story/resubmit", requireUser, async (req, res) => {
     if (adminEmail) {
       const adminUrl =
         (process.env.APP_URL ?? "https://islandhaven.io") + "/admin/stories";
-      const mail = adminNewStoryEmail(existing.personName, existing.quote, adminUrl);
+      const notifyQuote = d.quote ?? existing.quote;
+      const mail = adminNewStoryEmail(existing.personName, notifyQuote, adminUrl);
       void sendEmail({ to: adminEmail, ...mail });
     }
   } catch (err) {
