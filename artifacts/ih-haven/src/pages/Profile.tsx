@@ -842,6 +842,7 @@ function MyStorySection({ user }: { user: AuthUser }) {
   const [error, setError] = useState<string | null>(null);
   const [withdrawing, setWithdrawing] = useState(false);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  const [resubmitting, setResubmitting] = useState(false);
 
   useEffect(() => {
     api<{ story: MyStory | null }>("/me/story")
@@ -888,6 +889,19 @@ function MyStorySection({ user }: { user: AuthUser }) {
       setError(e instanceof ApiError ? e.message : "تعذّر الإرسال");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onResubmit() {
+    setResubmitting(true);
+    setError(null);
+    try {
+      const r = await api<{ story: MyStory }>("/me/story/resubmit", { method: "POST" });
+      setMyStory(r.story);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّرت إعادة التقديم");
+    } finally {
+      setResubmitting(false);
     }
   }
 
@@ -981,6 +995,19 @@ function MyStorySection({ user }: { user: AuthUser }) {
                         </p>
                       )}
                     </div>
+                    {error && (
+                      <div className="rounded-xl px-4 py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[13px]">
+                        {error}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={onResubmit}
+                      disabled={resubmitting}
+                      className="w-full h-11 rounded-xl bg-primary text-white font-bold text-[13.5px] disabled:opacity-50 transition-opacity"
+                    >
+                      {resubmitting ? "جارٍ إعادة التقديم…" : "إعادة تقديم"}
+                    </button>
                   </div>
                 ) : isLocked ? (
                   <div className="py-4 space-y-3">
