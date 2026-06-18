@@ -149,45 +149,55 @@ export default function WorksScreen() {
                       </T>
                     ) : null}
 
-                    <View
-                      style={{
-                        flexDirection: "row-reverse",
-                        alignItems: "center",
-                        gap: 8,
-                        marginTop: 2,
-                      }}
-                    >
-                      {author.avatarUrl ? (
-                        <Image
-                          source={{ uri: resolveMedia(author.avatarUrl) }}
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 14,
-                            backgroundColor: colors.muted,
-                          }}
-                          contentFit="cover"
-                        />
-                      ) : (
-                        <View
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 14,
-                            backgroundColor: colors.primarySoft,
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <T size={12} weight="bold" color={colors.primary}>
-                            {initial}
-                          </T>
-                        </View>
-                      )}
-                      <T size={13} color={colors.mutedForeground} numberOfLines={1}>
-                        {author.fullName}
-                      </T>
-                    </View>
+                    {author.fullName ? (
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          router.push(`/member/${author.id}` as never);
+                        }}
+                        hitSlop={6}
+                        accessibilityRole="button"
+                        accessibilityLabel={author.fullName}
+                        style={{
+                          flexDirection: "row-reverse",
+                          alignItems: "center",
+                          gap: 8,
+                          marginTop: 2,
+                          alignSelf: "flex-start",
+                        }}
+                      >
+                        {author.avatarUrl ? (
+                          <Image
+                            source={{ uri: resolveMedia(author.avatarUrl) }}
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: 14,
+                              backgroundColor: colors.muted,
+                            }}
+                            contentFit="cover"
+                          />
+                        ) : (
+                          <View
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: 14,
+                              backgroundColor: colors.primarySoft,
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <T size={12} weight="bold" color={colors.primary}>
+                              {initial}
+                            </T>
+                          </View>
+                        )}
+                        <T size={13} color={colors.mutedForeground} numberOfLines={1}>
+                          {author.fullName}
+                        </T>
+                      </Pressable>
+                    ) : null}
                   </View>
                 </Card>
               </Pressable>
