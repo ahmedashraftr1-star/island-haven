@@ -138,14 +138,14 @@ export default function WorksScreen() {
                       {work.title}
                     </T>
 
-                    {work.description ? (
+                    {(work.summary || work.description) ? (
                       <T
                         size={13}
                         color={colors.mutedForeground}
                         numberOfLines={2}
                         style={{ lineHeight: 20 }}
                       >
-                        {work.description}
+                        {work.summary || work.description}
                       </T>
                     ) : null}
 

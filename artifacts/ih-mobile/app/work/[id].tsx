@@ -215,6 +215,20 @@ export default function WorkDetail() {
       </View>
       {q.data.author?.fullName ? <T size={13} color={colors.mutedForeground}>{q.data.author.fullName}</T> : null}
 
+      {w.summary ? (
+        <T size={15} color={colors.mutedForeground} style={{ lineHeight: 23 }}>{w.summary}</T>
+      ) : null}
+
+      {w.tags ? (
+        <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 6 }}>
+          {w.tags.split(",").map((tag) => tag.trim()).filter(Boolean).map((tag) => (
+            <View key={tag} style={{ backgroundColor: colors.primarySoft, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
+              <T size={12} color={colors.primary} weight="medium">{tag}</T>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
       {/* Engagement: like toggle + comment count */}
       <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 14 }}>
         <Pressable
@@ -272,6 +286,14 @@ export default function WorkDetail() {
         <Card>
           <T size={14} style={{ lineHeight: 23 }}>{w.description}</T>
         </Card>
+      ) : null}
+      {w.link ? (
+        <Pressable onPress={() => Linking.openURL(w.link)}>
+          <Card style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+            <Feather name="external-link" size={20} color={colors.primary} />
+            <T size={14} color={colors.primary} weight="medium">رابط العمل</T>
+          </Card>
+        </Pressable>
       ) : null}
       {w.videoUrl ? (
         <Pressable onPress={() => Linking.openURL(w.videoUrl)}>

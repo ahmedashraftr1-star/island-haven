@@ -26,10 +26,13 @@ export interface Work {
   id: number;
   userId: number;
   title: string;
+  summary: string;
   description: string;
   coverUrl: string | null;
   galleryUrls: string[];
   videoUrl: string;
+  link: string;
+  tags: string;
   category: string;
   status: "draft" | "published";
   createdAt: string;
