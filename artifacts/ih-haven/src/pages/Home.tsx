@@ -10,7 +10,6 @@ import { NewsSlider } from "@/components/landing/NewsSlider";
 import { NumbersBand } from "@/components/landing/NumbersBand";
 import { StatsBand } from "@/components/landing/StatsBand";
 import { ExpertsBand } from "@/components/landing/ExpertsBand";
-import { CommunityWall } from "@/components/landing/CommunityWall";
 import { Voices } from "@/components/landing/Voices";
 import { SuccessStories } from "@/components/landing/SuccessStories";
 import { GazaPulseMap } from "@/components/landing/GazaPulseMap";
@@ -45,7 +44,6 @@ export default function Home() {
         <NumbersBand />
         <StatsBand />
         <Audience />
-        <CommunityWall />
         <ExpertsBand />
         <Voices />
         <SuccessStories />
