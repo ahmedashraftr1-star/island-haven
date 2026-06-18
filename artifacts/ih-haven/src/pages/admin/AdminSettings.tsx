@@ -23,6 +23,18 @@ export default function AdminSettings() {
   const [adminEmailMsg, setAdminEmailMsg] = useState<string | null>(null);
   const [adminEmailLoaded, setAdminEmailLoaded] = useState(false);
 
+  const isDirty = adminEmailLoaded && adminEmailDraft.trim() !== adminEmail;
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
   async function reload() {
     try {
       const r = await api<{ settings: Setting[] }>("/admin/settings");
@@ -195,14 +207,21 @@ export default function AdminSettings() {
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-3">
-              <input
-                type="email"
-                placeholder="admin@example.com"
-                value={adminEmailDraft}
-                onChange={(e) => { setAdminEmailDraft(e.target.value); setAdminEmailMsg(null); }}
-                dir="ltr"
-                className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
-              />
+              <div className="relative flex-1 min-w-0">
+                <input
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={adminEmailDraft}
+                  onChange={(e) => { setAdminEmailDraft(e.target.value); setAdminEmailMsg(null); }}
+                  dir="ltr"
+                  className={`w-full h-10 px-3 rounded-xl bg-muted/40 border text-[13px] outline-none focus:border-primary/50 transition-colors ${isDirty ? "border-amber-400/60" : "border-border"}`}
+                />
+                {isDirty && (
+                  <span className="absolute inset-inline-end-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full pointer-events-none">
+                    غير محفوظ
+                  </span>
+                )}
+              </div>
               <button
                 onClick={saveAdminEmail}
                 disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}

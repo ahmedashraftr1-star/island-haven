@@ -15,6 +15,13 @@ interface Notif {
   createdAt: string;
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  mentor_application: "طلبات مرشد",
+  session_requested: "جلسات",
+  booking_confirmed: "حجوزات",
+  generic: "عام",
+};
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
@@ -29,6 +36,7 @@ function timeAgo(iso: string): string {
 export function NotificationBell() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [filterType, setFilterType] = useState<string | null>(null);
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const ref = useRef<HTMLDivElement>(null);
@@ -56,7 +64,13 @@ export function NotificationBell() {
 
   if (!user) return null;
   const count = countQ.data?.count ?? 0;
-  const items = listQ.data?.notifications ?? [];
+  const allItems = listQ.data?.notifications ?? [];
+
+  const availableTypes = Array.from(new Set(allItems.map((n) => n.type))).filter(
+    (t) => TYPE_LABELS[t],
+  );
+
+  const items = filterType ? allItems.filter((n) => n.type === filterType) : allItems;
 
   function refresh() {
     qc.invalidateQueries({ queryKey: ["notif-count"] });
@@ -93,7 +107,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute left-0 mt-2 w-[300px] max-h-[420px] overflow-y-auto rounded-2xl bg-[#11162a] border border-white/12 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] z-50 p-2">
+        <div className="absolute left-0 mt-2 w-[310px] max-h-[460px] overflow-y-auto rounded-2xl bg-[#11162a] border border-white/12 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] z-50 p-2">
           <div className="flex items-center justify-between px-2 py-1.5 sticky top-0 bg-[#11162a]">
             <span className="text-white font-bold text-[13px]">الإشعارات</span>
             {count > 0 && (
@@ -105,6 +119,35 @@ export function NotificationBell() {
               </button>
             )}
           </div>
+
+          {availableTypes.length > 1 && (
+            <div className="flex items-center gap-1.5 px-1 pb-2 flex-wrap">
+              <button
+                onClick={() => setFilterType(null)}
+                className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
+                  filterType === null
+                    ? "bg-primary/20 text-primary border border-primary/30"
+                    : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
+                }`}
+              >
+                الكلّ
+              </button>
+              {availableTypes.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilterType(filterType === t ? null : t)}
+                  className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
+                    filterType === t
+                      ? "bg-primary/20 text-primary border border-primary/30"
+                      : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
+                  }`}
+                >
+                  {TYPE_LABELS[t] ?? t}
+                </button>
+              ))}
+            </div>
+          )}
+
           {items.length === 0 ? (
             <div className="text-white/45 text-[12.5px] text-center py-10">
               لا إشعارات بعد

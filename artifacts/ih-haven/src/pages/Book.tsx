@@ -774,7 +774,12 @@ function StepExpert({
       )}
       {experts !== null && experts.length > 0 && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+            initial="hidden"
+            animate="show"
+            variants={{ show: { transition: { staggerChildren: 0.06 } } }}
+          >
             {[...experts].sort((a, b) => {
               const rank = (e: ExpertOption) => {
                 if (!e.acceptingSessions) return 2;
@@ -788,8 +793,10 @@ function StepExpert({
               const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
               const unavailable = !e.acceptingSessions || hasSlot === false;
               return (
-                <button
+                <motion.button
                   key={e.id}
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
                   onClick={() => handlePickExpert(e.id, selected)}
                   data-testid={`expert-pick-${e.id}`}
                   className={`relative p-4 rounded-2xl text-right transition group ${
@@ -848,10 +855,10 @@ function StepExpert({
                       ) : null}
                     </div>
                   </div>
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
 
           {form.expertId !== null && (
             <div className="mt-5 pt-5 border-t border-white/[0.07]">
