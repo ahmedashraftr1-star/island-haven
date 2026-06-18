@@ -704,21 +704,30 @@ function StepExpert({
 }) {
   const { lang } = useLanguage();
   const [availableIds, setAvailableIds] = useState<Set<number> | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
   useEffect(() => {
     if (!visitDate) {
       setAvailableIds(null);
+      setAvailabilityLoading(false);
       return;
     }
     let cancelled = false;
+    setAvailabilityLoading(true);
     api<{ available: number[] }>(`/experts/available-on?date=${visitDate}`)
       .then((r) => {
-        if (!cancelled) setAvailableIds(new Set(r.available));
+        if (!cancelled) {
+          setAvailableIds(new Set(r.available));
+          setAvailabilityLoading(false);
+        }
       })
       .catch(() => {
-        if (!cancelled) setAvailableIds(null);
+        if (!cancelled) {
+          setAvailableIds(null);
+          setAvailabilityLoading(false);
+        }
       });
     return () => { cancelled = true; };
   }, [visitDate]);
@@ -790,6 +799,7 @@ function StepExpert({
           <>
           <motion.div
             key="expert-grid"
+            layout
             className="grid grid-cols-2 sm:grid-cols-3 gap-3"
             initial="hidden"
             animate="show"
@@ -805,11 +815,12 @@ function StepExpert({
             }).map((e) => {
               const selected = form.expertId === e.id;
               const initials = e.fullName.trim().charAt(0) || "؟";
-              const hasSlot = availableIds !== null ? availableIds.has(e.id) : null;
+              const hasSlot = availableIds !== null && !availabilityLoading ? availableIds.has(e.id) : null;
               const unavailable = !e.acceptingSessions || hasSlot === false;
               return (
                 <motion.button
                   key={e.id}
+                  layout
                   variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
                   transition={{ duration: 0.22, ease: [0.19, 1, 0.22, 1] }}
                   onClick={() => handlePickExpert(e.id, selected)}
@@ -827,7 +838,10 @@ function StepExpert({
                   {selected && (
                     <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
                   )}
-                  {!selected && hasSlot === true && (
+                  {!selected && availabilityLoading && e.acceptingSessions && (
+                    <span className="absolute top-2 left-2 h-4 w-10 rounded-full skeleton-shimmer" />
+                  )}
+                  {!selected && !availabilityLoading && hasSlot === true && (
                     <span className="absolute top-2 left-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
                       {lang === "en" ? "Free" : "متاح"}
                     </span>
@@ -858,7 +872,7 @@ function StepExpert({
                         <div className="text-[10.5px] text-white/35 mt-0.5">
                           {lang === "en" ? "Unavailable" : "غير متاح"}
                         </div>
-                      ) : hasSlot === false ? (
+                      ) : !availabilityLoading && hasSlot === false ? (
                         <div className="text-[10.5px] text-white/35 mt-0.5">
                           {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
                         </div>
