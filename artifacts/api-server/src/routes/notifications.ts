@@ -31,6 +31,13 @@ async function isAdminUser(userId: number): Promise<boolean> {
   }
 }
 
+const VALID_TYPES = new Set<string>([
+  "mentor_application",
+  "session_requested",
+  "booking_confirmed",
+  "generic",
+]);
+
 /**
  * Create an in-app notification for a user. Fire-and-forget at call sites —
  * never let a notification failure break the main flow.
@@ -54,23 +61,48 @@ export async function notify(
 
 // ─── Member endpoints ─────────────────────────────────────────────────────────
 
+/**
+ * GET /me/notifications
+ *
+ * Optional query param: ?type=<NotificationType>
+ * When provided, only notifications of that type are returned.
+ * Non-admin users cannot filter by mentor_application.
+ */
 router.get("/me/notifications", requireUser, async (req, res) => {
   try {
     const { userId } = sessionOf(req);
     const admin = await isAdminUser(userId);
+    const typeParam = typeof req.query.type === "string" ? req.query.type : null;
+
+    if (typeParam !== null && !VALID_TYPES.has(typeParam)) {
+      res.status(400).json({ error: "نوع الإشعار غير صالح" });
+      return;
+    }
+
+    if (!admin && typeParam === "mentor_application") {
+      res.status(403).json({ error: "غير مصرح" });
+      return;
+    }
+
+    const baseCondition = admin
+      ? eq(notificationsTable.userId, userId)
+      : and(
+          eq(notificationsTable.userId, userId),
+          ne(notificationsTable.type, "mentor_application"),
+        );
+
+    const whereCondition =
+      typeParam !== null
+        ? and(baseCondition, eq(notificationsTable.type, typeParam as NotificationType))
+        : baseCondition;
+
     const rows = await db
       .select()
       .from(notificationsTable)
-      .where(
-        admin
-          ? eq(notificationsTable.userId, userId)
-          : and(
-              eq(notificationsTable.userId, userId),
-              ne(notificationsTable.type, "mentor_application"),
-            ),
-      )
+      .where(whereCondition)
       .orderBy(desc(notificationsTable.createdAt))
       .limit(50);
+
     res.json({ notifications: rows });
   } catch (err) {
     logger.error({ err }, "GET /me/notifications failed");

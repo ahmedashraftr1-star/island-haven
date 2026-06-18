@@ -47,10 +47,18 @@ export function NotificationBell() {
     enabled: !!user,
     refetchInterval: 30_000,
   });
-  const listQ = useQuery({
-    queryKey: ["notif-list"],
+
+  const allQ = useQuery({
+    queryKey: ["notif-list", null],
     queryFn: () => api<{ notifications: Notif[] }>("/me/notifications"),
     enabled: !!user && open,
+  });
+
+  const filteredQ = useQuery({
+    queryKey: ["notif-list", filterType],
+    queryFn: () =>
+      api<{ notifications: Notif[] }>(`/me/notifications?type=${filterType}`),
+    enabled: !!user && open && filterType !== null,
   });
 
   useEffect(() => {
@@ -64,13 +72,19 @@ export function NotificationBell() {
 
   if (!user) return null;
   const count = countQ.data?.count ?? 0;
-  const allItems = listQ.data?.notifications ?? [];
+  const allItems = allQ.data?.notifications ?? [];
 
   const availableTypes = Array.from(new Set(allItems.map((n) => n.type))).filter(
     (t) => TYPE_LABELS[t],
   );
 
-  const items = filterType ? allItems.filter((n) => n.type === filterType) : allItems;
+  const items =
+    filterType !== null
+      ? (filteredQ.data?.notifications ?? [])
+      : allItems;
+
+  const isLoading =
+    filterType !== null ? filteredQ.isLoading : allQ.isLoading;
 
   function refresh() {
     qc.invalidateQueries({ queryKey: ["notif-count"] });
@@ -148,7 +162,9 @@ export function NotificationBell() {
             </div>
           )}
 
-          {items.length === 0 ? (
+          {isLoading ? (
+            <div className="text-white/35 text-[12px] text-center py-10">جارٍ التحميل…</div>
+          ) : items.length === 0 ? (
             <div className="text-white/45 text-[12.5px] text-center py-10">
               لا إشعارات بعد
             </div>
