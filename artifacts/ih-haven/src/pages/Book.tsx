@@ -766,19 +766,34 @@ function StepExpert({
       title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
       hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
     >
-      {experts === null && <ExpertSkeleton />}
-      {experts !== null && experts.length === 0 && (
-        <p className="text-white/45 text-[13px]">
-          {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
-        </p>
-      )}
-      {experts !== null && experts.length > 0 && (
-        <>
+      <AnimatePresence mode="wait">
+        {experts === null ? (
           <motion.div
+            key="expert-skeleton"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <ExpertSkeleton />
+          </motion.div>
+        ) : experts.length === 0 ? (
+          <motion.p
+            key="expert-empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="text-white/45 text-[13px]"
+          >
+            {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
+          </motion.p>
+        ) : (
+          <>
+          <motion.div
+            key="expert-grid"
             className="grid grid-cols-2 sm:grid-cols-3 gap-3"
             initial="hidden"
             animate="show"
-            variants={{ show: { transition: { staggerChildren: 0.06 } } }}
+            variants={{ show: { transition: { staggerChildren: 0.055 } } }}
           >
             {[...experts].sort((a, b) => {
               const rank = (e: ExpertOption) => {
@@ -796,7 +811,7 @@ function StepExpert({
                 <motion.button
                   key={e.id}
                   variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-                  transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+                  transition={{ duration: 0.22, ease: [0.19, 1, 0.22, 1] }}
                   onClick={() => handlePickExpert(e.id, selected)}
                   data-testid={`expert-pick-${e.id}`}
                   className={`relative p-4 rounded-2xl text-right transition group ${
@@ -921,6 +936,7 @@ function StepExpert({
           )}
         </>
       )}
+      </AnimatePresence>
     </StepShell>
   );
 }
