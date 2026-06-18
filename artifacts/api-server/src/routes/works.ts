@@ -16,6 +16,7 @@ import {
   type UserRole,
 } from "@workspace/db";
 import { optionalUser, requireUser, type UserSession } from "../lib/auth";
+import { makeUserRateLimit } from "../lib/rateLimit";
 import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
@@ -23,6 +24,20 @@ import { awardBadgeByKey } from "./gamification";
 import { notify } from "./notifications";
 
 const router: IRouter = Router();
+
+// Per-user write limiters (mounted after requireUser). Generous enough for real
+// use, low enough to stop comment/notification flooding from one account.
+const rlComment = makeUserRateLimit({ max: 15, windowMs: 60_000 });
+const rlFollow = makeUserRateLimit({ max: 40, windowMs: 60_000 });
+const rlWork = makeUserRateLimit({ max: 12, windowMs: 60_000 });
+const rlToggle = makeUserRateLimit({ max: 80, windowMs: 60_000 });
+
+// Statuses a non-owner may see/interact with. "featured" is strictly more
+// public than "visible" (numbers/digest/leaderboard already count it) — treat
+// the two the same everywhere so an admin-featured work doesn't vanish.
+const PUBLIC_WORK_STATUSES = ["visible", "featured"] as const;
+const isPublicWorkStatus = (s: string) =>
+  (PUBLIC_WORK_STATUSES as readonly string[]).includes(s);
 
 // Notify every follower of `authorId` that a new work was published.
 // Fire-and-forget — failures are logged inside notify() and never surface.
@@ -65,7 +80,7 @@ async function awardWorksMilestone(userId: number): Promise<void> {
     const [r] = await db
       .select({ c: count() })
       .from(worksTable)
-      .where(and(eq(worksTable.userId, userId), eq(worksTable.status, "visible")));
+      .where(and(eq(worksTable.userId, userId), inArray(worksTable.status, PUBLIC_WORK_STATUSES)));
     if ((r?.c ?? 0) >= 5) await awardBadgeByKey(userId, "prolific");
   } catch (err) {
     logger.error({ err, userId }, "awardWorksMilestone failed");
@@ -135,7 +150,7 @@ async function loadInteractableWork(id: number, userId: number | undefined) {
     .limit(1);
   if (!row) return null;
   const isOwner = userId !== undefined && row.userId === userId;
-  if (!isOwner && (row.status !== "visible" || row.authorStatus !== "active")) {
+  if (!isOwner && (!isPublicWorkStatus(row.status) || row.authorStatus !== "active")) {
     return null;
   }
   return row;
@@ -193,7 +208,7 @@ router.get("/works", optionalUser, async (req, res) => {
     const where = and(
       filterByRole ? eq(usersTable.role, filterByRole) : undefined,
       eq(usersTable.status, "active"),
-      eq(worksTable.status, "visible") as never,
+      inArray(worksTable.status, PUBLIC_WORK_STATUSES) as never,
       q
         ? or(
             ilike(worksTable.title, `%${esc}%`),
@@ -323,7 +338,7 @@ router.get("/works/:id", optionalUser, async (req, res) => {
     // Admins moderate via dedicated /api/admin/* endpoints.
     if (
       !isOwner &&
-      (row.work.status !== "visible" || row.author.authorStatus !== "active")
+      (!isPublicWorkStatus(row.work.status) || row.author.authorStatus !== "active")
     ) {
       res.status(404).json({ error: "غير موجود" });
       return;
@@ -373,7 +388,7 @@ router.get("/works/:id", optionalUser, async (req, res) => {
 
 // ─── Create / update / delete (owner) ───────────────────────────────────────
 
-router.post("/works", requireUser, async (req, res) => {
+router.post("/works", requireUser, rlWork, async (req, res) => {
   try {
     const session = (req as Request & { userSession: UserSession }).userSession;
     const parsed = upsertWorkSchema.safeParse(req.body);
@@ -525,7 +540,7 @@ router.get("/users/:id", optionalUser, async (req, res) => {
           ? eq(worksTable.userId, id)
           : and(
               eq(worksTable.userId, id),
-              eq(worksTable.status, "visible"),
+              inArray(worksTable.status, PUBLIC_WORK_STATUSES),
             ),
       )
       .orderBy(desc(worksTable.createdAt));
@@ -590,7 +605,7 @@ router.get("/users/:id", optionalUser, async (req, res) => {
 
 // ─── Follow / unfollow a member (toggle) ─────────────────────────────────────
 
-router.post("/users/:id/follow", requireUser, async (req, res) => {
+router.post("/users/:id/follow", requireUser, rlFollow, async (req, res) => {
   try {
     const targetId = Number(req.params.id);
     if (!Number.isInteger(targetId) || targetId <= 0) {
@@ -665,7 +680,7 @@ router.post("/users/:id/follow", requireUser, async (req, res) => {
 
 // ─── Likes (toggle) ──────────────────────────────────────────────────────────
 
-router.post("/works/:id/like", requireUser, async (req, res) => {
+router.post("/works/:id/like", requireUser, rlToggle, async (req, res) => {
   try {
     const session = (req as Request & { userSession: UserSession }).userSession;
     const id = Number(req.params.id);
@@ -678,20 +693,20 @@ router.post("/works/:id/like", requireUser, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    const [existing] = await db
-      .select({ id: worksLikesTable.id })
-      .from(worksLikesTable)
-      .where(and(eq(worksLikesTable.workId, id), eq(worksLikesTable.userId, session.userId)))
-      .limit(1);
+    // Atomic toggle: insert-first; nothing inserted → it existed → unlike.
+    // (Same hardened pattern as follow/save; avoids the SELECT-then-write race.)
+    const inserted = await db
+      .insert(worksLikesTable)
+      .values({ workId: id, userId: session.userId })
+      .onConflictDoNothing()
+      .returning({ id: worksLikesTable.id });
     let liked: boolean;
-    if (existing) {
-      await db.delete(worksLikesTable).where(eq(worksLikesTable.id, existing.id));
+    if (inserted.length === 0) {
+      await db
+        .delete(worksLikesTable)
+        .where(and(eq(worksLikesTable.workId, id), eq(worksLikesTable.userId, session.userId)));
       liked = false;
     } else {
-      await db
-        .insert(worksLikesTable)
-        .values({ workId: id, userId: session.userId })
-        .onConflictDoNothing();
       liked = true;
     }
     const [{ likesCount }] = await db
@@ -707,7 +722,7 @@ router.post("/works/:id/like", requireUser, async (req, res) => {
 
 // ─── Save / bookmark (toggle) ────────────────────────────────────────────────
 
-router.post("/works/:id/save", requireUser, async (req, res) => {
+router.post("/works/:id/save", requireUser, rlToggle, async (req, res) => {
   try {
     const session = (req as Request & { userSession: UserSession }).userSession;
     const id = Number(req.params.id);
@@ -752,7 +767,7 @@ router.get("/me/saved", requireUser, async (req, res) => {
     const where = and(
       eq(worksSavesTable.userId, session.userId),
       eq(usersTable.status, "active"),
-      eq(worksTable.status, "visible") as never,
+      inArray(worksTable.status, PUBLIC_WORK_STATUSES) as never,
     );
 
     const [{ total }] = await db
@@ -848,7 +863,9 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
       })
       .from(worksCommentsTable)
       .innerJoin(usersTable, eq(usersTable.id, worksCommentsTable.userId))
-      .where(eq(worksCommentsTable.workId, id))
+      // Exclude banned authors so a ban redacts their comments too — every
+      // other read in this layer already AND-s users.status='active'.
+      .where(and(eq(worksCommentsTable.workId, id), eq(usersTable.status, "active")))
       .orderBy(asc(worksCommentsTable.createdAt))
       .limit(500);
 
@@ -889,7 +906,7 @@ router.get("/works/:id/comments", optionalUser, async (req, res) => {
   }
 });
 
-router.post("/works/:id/comments", requireUser, async (req, res) => {
+router.post("/works/:id/comments", requireUser, rlComment, async (req, res) => {
   try {
     const session = (req as Request & { userSession: UserSession }).userSession;
     const id = Number(req.params.id);

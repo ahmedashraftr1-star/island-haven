@@ -131,25 +131,41 @@ export default function WorkDetail() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [editBusy, setEditBusy] = useState(false);
+  // Error for the inline reply/edit composers (shown next to them, not at the
+  // top-of-thread comment box where `commentError` renders).
+  const [composerError, setComposerError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
+    // Guard against a stale response from a previous work overwriting the
+    // current one when navigating /works/1 → /works/2 (the component stays
+    // mounted, so both fetches are in flight).
+    let cancelled = false;
+    setData(null);
+    setError(null);
+    setComments([]);
     api<DetailResp>(`/works/${id}`)
       .then((d) => {
+        if (cancelled) return;
         setData(d);
         setLiked(d.likedByMe);
         setLikesCount(d.likesCount);
         setCommentsCount(d.commentsCount);
         setSaved(d.savedByMe);
       })
-      .catch((e) =>
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
-      );
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+      });
     api<{ comments: WorkComment[] }>(`/works/${id}/comments`)
-      .then((r) => setComments(r.comments))
+      .then((r) => {
+        if (!cancelled) setComments(r.comments);
+      })
       .catch(() => {
         /* comments are non-critical; ignore load errors */
       });
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   async function toggleLike() {
@@ -226,7 +242,7 @@ export default function WorkDetail() {
     const body = replyText.trim();
     if (!body) return;
     setReplyPosting(true);
-    setCommentError(null);
+    setComposerError(null);
     try {
       const r = await api<{ comment: WorkComment }>(`/works/${id}/comments`, {
         method: "POST",
@@ -245,7 +261,7 @@ export default function WorkDetail() {
       setReplyText("");
       setReplyingTo(null);
     } catch (err) {
-      setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
+      setComposerError(err instanceof ApiError ? err.message : "تعذّر النشر");
     } finally {
       setReplyPosting(false);
     }
@@ -255,6 +271,7 @@ export default function WorkDetail() {
     setEditingId(c.id);
     setEditText(c.body);
     setReplyingTo(null);
+    setComposerError(null);
   }
 
   async function submitEdit(e: React.FormEvent, commentId: number) {
@@ -263,7 +280,7 @@ export default function WorkDetail() {
     const body = editText.trim();
     if (!body) return;
     setEditBusy(true);
-    setCommentError(null);
+    setComposerError(null);
     try {
       const r = await api<{ comment: { id: number; body: string; editedAt: string | null } }>(
         `/works/${id}/comments/${commentId}`,
@@ -278,7 +295,7 @@ export default function WorkDetail() {
       setEditingId(null);
       setEditText("");
     } catch (err) {
-      setCommentError(err instanceof ApiError ? err.message : "تعذّر الحفظ");
+      setComposerError(err instanceof ApiError ? err.message : "تعذّر الحفظ");
     } finally {
       setEditBusy(false);
     }
@@ -573,7 +590,7 @@ export default function WorkDetail() {
                   maxLength={1000}
                   aria-label="تعليقك"
                   placeholder="شاركنا رأيك في هذا العمل…"
-                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 placeholder:text-white/35"
+                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/35"
                   data-testid="input-comment"
                 />
                 {commentError && (
@@ -675,8 +692,9 @@ export default function WorkDetail() {
                               value={editText}
                               onChange={setEditText}
                               onSubmit={(e) => submitEdit(e, c.id)}
-                              onCancel={() => setEditingId(null)}
+                              onCancel={() => { setEditingId(null); setComposerError(null); }}
                               busy={editBusy}
+                              error={composerError}
                             />
                           ) : (
                             <>
@@ -687,6 +705,8 @@ export default function WorkDetail() {
                                 <button
                                   type="button"
                                   onClick={() => {
+                                    setEditingId(null);
+                                    setComposerError(null);
                                     setReplyingTo(c.id);
                                     setReplyText("");
                                   }}
@@ -766,8 +786,9 @@ export default function WorkDetail() {
                                     value={editText}
                                     onChange={setEditText}
                                     onSubmit={(e) => submitEdit(e, rep.id)}
-                                    onCancel={() => setEditingId(null)}
+                                    onCancel={() => { setEditingId(null); setComposerError(null); }}
                                     busy={editBusy}
+                                    error={composerError}
                                   />
                                 ) : (
                                   <>
@@ -778,6 +799,8 @@ export default function WorkDetail() {
                                       <button
                                         type="button"
                                         onClick={() => {
+                                          setEditingId(null);
+                                          setComposerError(null);
                                           setReplyingTo(rep.id);
                                           setReplyText("");
                                         }}
@@ -796,39 +819,44 @@ export default function WorkDetail() {
                       )}
 
                       {composerOpen && user && (
-                        <form
-                          onSubmit={(e) => submitReply(e, replyingTo!, c.id)}
-                          className="flex items-center gap-2 mt-3 pe-12 ps-3"
-                        >
-                          <input
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            placeholder="اكتب ردًّا…"
-                            autoFocus
-                            maxLength={1000}
-                            className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 transition-colors"
-                            data-testid={`reply-input-${c.id}`}
-                          />
-                          <button
-                            type="submit"
-                            disabled={replyPosting || !replyText.trim()}
-                            className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
-                            data-testid={`reply-submit-${c.id}`}
+                        <div className="mt-3 pe-12 ps-3">
+                          <form
+                            onSubmit={(e) => submitReply(e, replyingTo!, c.id)}
+                            className="flex items-center gap-2"
                           >
-                            {replyPosting ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Send className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setReplyingTo(null)}
-                            className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
-                          >
-                            إلغاء
-                          </button>
-                        </form>
+                            <input
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="اكتب ردًّا…"
+                              autoFocus
+                              maxLength={1000}
+                              className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+                              data-testid={`reply-input-${c.id}`}
+                            />
+                            <button
+                              type="submit"
+                              disabled={replyPosting || !replyText.trim()}
+                              className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+                              data-testid={`reply-submit-${c.id}`}
+                            >
+                              {replyPosting ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Send className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setReplyingTo(null); setComposerError(null); }}
+                              className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                          </form>
+                          {composerError && (
+                            <p className="text-red-300 text-[12px] mt-1.5">{composerError}</p>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
@@ -995,38 +1023,43 @@ function CommentEditForm({
   onSubmit,
   onCancel,
   busy,
+  error,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
   busy: boolean;
+  error?: string | null;
 }) {
   return (
-    <form onSubmit={onSubmit} className="flex items-center gap-2 mt-1.5">
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        autoFocus
-        maxLength={1000}
-        className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 transition-colors"
-        data-testid="edit-comment-input"
-      />
-      <button
-        type="submit"
-        disabled={busy || !value.trim()}
-        className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
-        data-testid="edit-comment-submit"
-      >
-        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-      </button>
-      <button
-        type="button"
-        onClick={onCancel}
-        className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
-      >
-        إلغاء
-      </button>
-    </form>
+    <div className="mt-1.5">
+      <form onSubmit={onSubmit} className="flex items-center gap-2">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoFocus
+          maxLength={1000}
+          className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+          data-testid="edit-comment-input"
+        />
+        <button
+          type="submit"
+          disabled={busy || !value.trim()}
+          className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+          data-testid="edit-comment-submit"
+        >
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+        >
+          إلغاء
+        </button>
+      </form>
+      {error && <p className="text-red-300 text-[12px] mt-1.5">{error}</p>}
+    </div>
   );
 }

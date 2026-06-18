@@ -99,6 +99,7 @@ export default function MemberDetail() {
             variant={followedByMe ? "secondary" : "primary"}
             loading={followBusy}
             onPress={toggleFollow}
+            accessibilityState={{ selected: followedByMe }}
             style={{ marginTop: 6, minWidth: 160 }}
           />
         ) : null}

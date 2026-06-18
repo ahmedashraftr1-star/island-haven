@@ -138,7 +138,7 @@ export default function Works() {
       </div>
 
       <div className="flex items-center gap-2 flex-wrap mb-8 -mt-4">
-        <span className="text-white/40 text-[12px] font-semibold ml-1">ترتيب:</span>
+        <span className="text-white/40 text-[12px] font-semibold me-1">ترتيب:</span>
         {SORT_OPTIONS.map((o) => (
           <button
             key={o.key}

@@ -194,7 +194,7 @@ export default function WorkDetail() {
   const gallery = Array.isArray(w.galleryUrls) ? w.galleryUrls : [];
 
   return (
-    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }}>
+    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
       {w.coverUrl ? (
         <Image source={{ uri: resolveMedia(w.coverUrl) }} style={{ width: "100%", height: 220, borderRadius: colors.radius + 2, backgroundColor: colors.muted }} contentFit="cover" />
       ) : null}
@@ -221,6 +221,7 @@ export default function WorkDetail() {
           onPress={toggleLike}
           disabled={liking}
           accessibilityRole="button"
+          accessibilityState={{ selected: likedByMe, disabled: liking }}
           accessibilityLabel={likedByMe ? "إلغاء الإعجاب" : "إعجاب"}
           style={{
             flexDirection: "row-reverse",
@@ -246,6 +247,7 @@ export default function WorkDetail() {
           onPress={toggleSave}
           disabled={saving}
           accessibilityRole="button"
+          accessibilityState={{ selected: savedByMe, disabled: saving }}
           accessibilityLabel={savedByMe ? "إلغاء الحفظ" : "حفظ العمل"}
           style={{
             flexDirection: "row-reverse",
