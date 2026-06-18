@@ -183,7 +183,7 @@ router.post("/auth/register", async (req, res) => {
       }
       throw err;
     }
-    const token = makeUserSessionToken(row.id);
+    const token = makeUserSessionToken(row.id, row.sessionEpoch);
     setUserSessionCookie(res, token);
     invalidateNumbersCache();
     res.json({ ok: true, user: toPublic(row), token });
@@ -231,7 +231,7 @@ router.post("/auth/login", async (req, res) => {
       .update(usersTable)
       .set({ lastLoginAt: now, updatedAt: now })
       .where(eq(usersTable.id, user.id));
-    const token = makeUserSessionToken(user.id);
+    const token = makeUserSessionToken(user.id, user.sessionEpoch);
     setUserSessionCookie(res, token);
     res.json({ ok: true, user: toPublic({ ...user, lastLoginAt: now, updatedAt: now }), token });
   } catch (err) {

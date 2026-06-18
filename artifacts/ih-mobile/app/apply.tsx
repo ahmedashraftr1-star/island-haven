@@ -104,10 +104,10 @@ export default function ApplyScreen() {
       contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 80 }}
     >
       <View style={{ alignItems: "center", gap: 8 }}>
-        <T size={11} color={colors.primary} weight="bold">طلب انتساب</T>
+        <T size={11} color={colors.primary} weight="bold">طلب انتساب · مجّاناً</T>
         <T size={26} weight="bold" align="center">انضمّ إلى آيلاند هيفن</T>
         <T size={13} color={colors.mutedForeground} align="center" style={{ lineHeight: 22 }}>
-          حاضنة أعمال تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل معك خلال أيّام.
+          مساحة عمل مَجّانيّة تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل معك خلال أيّام.
         </T>
       </View>
 

@@ -14,10 +14,16 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Heart,
+  MessageCircle,
+  Bookmark,
+  Reply,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
-import { ROLE_LABELS, type ExtraLink, type UserRole } from "@/lib/auth";
+import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags, formatArabicDate } from "@/lib/labels";
 
 interface DetailResp {
@@ -49,6 +55,27 @@ interface DetailResp {
     phone: string;
   };
   isOwner: boolean;
+  likesCount: number;
+  likedByMe: boolean;
+  commentsCount: number;
+  savedByMe: boolean;
+}
+
+interface WorkComment {
+  id: number;
+  body: string;
+  createdAt: string;
+  editedAt?: string | null;
+  parentId?: number | null;
+  author: {
+    id: number;
+    fullName: string;
+    avatarUrl: string | null;
+    role: UserRole;
+  };
+  canEdit?: boolean;
+  canDelete: boolean;
+  replies?: WorkComment[];
 }
 
 /**
@@ -79,19 +106,229 @@ function youtubeEmbedUrl(raw: string | null | undefined): string | null {
 export default function WorkDetail() {
   const [, params] = useRoute("/works/:id");
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const id = params?.id;
   const [data, setData] = useState<DetailResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
+  // Likes
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [liking, setLiking] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Comments
+  const [comments, setComments] = useState<WorkComment[]>([]);
+  const [commentsCount, setCommentsCount] = useState(0);
+  const [commentText, setCommentText] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyPosting, setReplyPosting] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+  // Error for the inline reply/edit composers (shown next to them, not at the
+  // top-of-thread comment box where `commentError` renders).
+  const [composerError, setComposerError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!id) return;
+    // Guard against a stale response from a previous work overwriting the
+    // current one when navigating /works/1 → /works/2 (the component stays
+    // mounted, so both fetches are in flight).
+    let cancelled = false;
+    setData(null);
+    setError(null);
+    setComments([]);
     api<DetailResp>(`/works/${id}`)
-      .then(setData)
-      .catch((e) =>
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
-      );
+      .then((d) => {
+        if (cancelled) return;
+        setData(d);
+        setLiked(d.likedByMe);
+        setLikesCount(d.likesCount);
+        setCommentsCount(d.commentsCount);
+        setSaved(d.savedByMe);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+      });
+    api<{ comments: WorkComment[] }>(`/works/${id}/comments`)
+      .then((r) => {
+        if (!cancelled) setComments(r.comments);
+      })
+      .catch(() => {
+        /* comments are non-critical; ignore load errors */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
+
+  async function toggleLike() {
+    if (!id || liking) return;
+    if (!user) {
+      navigate(`/login?next=/works/${id}`);
+      return;
+    }
+    setLiking(true);
+    // optimistic
+    const prevLiked = liked;
+    const prevCount = likesCount;
+    setLiked(!prevLiked);
+    setLikesCount(prevCount + (prevLiked ? -1 : 1));
+    try {
+      const r = await api<{ liked: boolean; likesCount: number }>(
+        `/works/${id}/like`,
+        { method: "POST" },
+      );
+      setLiked(r.liked);
+      setLikesCount(r.likesCount);
+    } catch {
+      setLiked(prevLiked);
+      setLikesCount(prevCount);
+    } finally {
+      setLiking(false);
+    }
+  }
+
+  async function toggleSave() {
+    if (!id || saving) return;
+    if (!user) {
+      navigate(`/login?next=/works/${id}`);
+      return;
+    }
+    setSaving(true);
+    const prev = saved;
+    setSaved(!prev); // optimistic
+    try {
+      const r = await api<{ saved: boolean }>(`/works/${id}/save`, { method: "POST" });
+      setSaved(r.saved);
+    } catch {
+      setSaved(prev);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function submitComment(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id || posting) return;
+    const body = commentText.trim();
+    if (!body) return;
+    setPosting(true);
+    setCommentError(null);
+    try {
+      const r = await api<{ comment: WorkComment }>(`/works/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ body }),
+      });
+      setComments((cs) => [{ ...r.comment, replies: [] }, ...cs]);
+      setCommentsCount((c) => c + 1);
+      setCommentText("");
+    } catch (err) {
+      setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  async function submitReply(e: React.FormEvent, parentId: number, topLevelId: number) {
+    e.preventDefault();
+    if (!id || replyPosting) return;
+    const body = replyText.trim();
+    if (!body) return;
+    setReplyPosting(true);
+    setComposerError(null);
+    try {
+      const r = await api<{ comment: WorkComment }>(`/works/${id}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ body, parentId }),
+      });
+      // Server re-points the reply at the top-level ancestor; place it there.
+      const rootId = r.comment.parentId ?? topLevelId;
+      setComments((cs) =>
+        cs.map((c) =>
+          c.id === rootId
+            ? { ...c, replies: [...(c.replies ?? []), r.comment] }
+            : c,
+        ),
+      );
+      setCommentsCount((n) => n + 1);
+      setReplyText("");
+      setReplyingTo(null);
+    } catch (err) {
+      setComposerError(err instanceof ApiError ? err.message : "تعذّر النشر");
+    } finally {
+      setReplyPosting(false);
+    }
+  }
+
+  function startEdit(c: WorkComment) {
+    setEditingId(c.id);
+    setEditText(c.body);
+    setReplyingTo(null);
+    setComposerError(null);
+  }
+
+  async function submitEdit(e: React.FormEvent, commentId: number) {
+    e.preventDefault();
+    if (!id || editBusy) return;
+    const body = editText.trim();
+    if (!body) return;
+    setEditBusy(true);
+    setComposerError(null);
+    try {
+      const r = await api<{ comment: { id: number; body: string; editedAt: string | null } }>(
+        `/works/${id}/comments/${commentId}`,
+        { method: "PATCH", body: JSON.stringify({ body }) },
+      );
+      const applyEdit = (c: WorkComment): WorkComment =>
+        c.id === commentId ? { ...c, body: r.comment.body, editedAt: r.comment.editedAt } : c;
+      // Apply to both levels; only the matching id changes.
+      setComments((cs) =>
+        cs.map((c) => ({ ...applyEdit(c), replies: (c.replies ?? []).map(applyEdit) })),
+      );
+      setEditingId(null);
+      setEditText("");
+    } catch (err) {
+      setComposerError(err instanceof ApiError ? err.message : "تعذّر الحفظ");
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
+  async function deleteComment(commentId: number, rootId?: number) {
+    if (!id) return;
+    const prev = comments;
+    const prevCount = commentsCount;
+    if (rootId != null) {
+      // Deleting a reply: drop it from its thread.
+      setComments((cs) =>
+        cs.map((c) =>
+          c.id === rootId
+            ? { ...c, replies: (c.replies ?? []).filter((rep) => rep.id !== commentId) }
+            : c,
+        ),
+      );
+      setCommentsCount((n) => Math.max(0, n - 1));
+    } else {
+      // Deleting a top-level comment also removes its replies (DB cascade).
+      const removed = comments.find((c) => c.id === commentId);
+      const drop = 1 + (removed?.replies?.length ?? 0);
+      setComments((cs) => cs.filter((c) => c.id !== commentId));
+      setCommentsCount((n) => Math.max(0, n - drop));
+    }
+    try {
+      await api(`/works/${id}/comments/${commentId}`, { method: "DELETE" });
+    } catch {
+      setComments(prev);
+      setCommentsCount(prevCount);
+    }
+  }
 
   usePageMeta({
     title: data?.work.title,
@@ -167,6 +404,7 @@ export default function WorkDetail() {
     <PageShell active="works">
       <BackLink href="/works" label="كلّ الأعمال" />
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
+        <div className="space-y-6">
         <GlassCard>
           {data.work.coverUrl ? (
             <button
@@ -211,6 +449,50 @@ export default function WorkDetail() {
                 ))}
               </div>
             )}
+
+            {/* Engagement: like toggle + jump-to-comments */}
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                type="button"
+                onClick={toggleLike}
+                disabled={liking}
+                aria-pressed={liked}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
+                  liked
+                    ? "bg-primary/15 border-primary/40 text-primary"
+                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                }`}
+                data-testid="button-like-work"
+              >
+                <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+                <span className="tabular-nums">{likesCount}</span>
+                <span className="sr-only">إعجاب</span>
+              </button>
+              <a
+                href="#comments"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white/75 text-[13px] font-semibold hover:bg-white/[0.1] transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="tabular-nums">{commentsCount}</span>
+                <span className="sr-only">تعليق</span>
+              </a>
+              <button
+                type="button"
+                onClick={toggleSave}
+                disabled={saving}
+                aria-pressed={saved}
+                className={`ms-auto inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
+                  saved
+                    ? "bg-amber-400/15 border-amber-400/40 text-amber-200"
+                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                }`}
+                data-testid="button-save-work"
+              >
+                <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
+                <span>{saved ? "محفوظ" : "حفظ"}</span>
+              </button>
+            </div>
+
             {data.work.description && (
               <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap">
                 {data.work.description}
@@ -291,6 +573,299 @@ export default function WorkDetail() {
             )}
           </div>
         </GlassCard>
+
+        {/* Comments */}
+        <div id="comments">
+          <GlassCard className="p-6 sm:p-8">
+            <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5 flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" /> التعليقات — {commentsCount}
+            </div>
+
+            {user ? (
+              <form onSubmit={submitComment} className="mb-6">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  rows={3}
+                  maxLength={1000}
+                  aria-label="تعليقك"
+                  placeholder="شاركنا رأيك في هذا العمل…"
+                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/35"
+                  data-testid="input-comment"
+                />
+                {commentError && (
+                  <p className="text-red-300 text-[12.5px] mt-2">{commentError}</p>
+                )}
+                <div className="flex justify-end mt-3">
+                  <button
+                    type="submit"
+                    disabled={posting || !commentText.trim()}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-bold text-[13px] disabled:opacity-50 hover:-translate-y-px transition-all"
+                    data-testid="button-submit-comment"
+                  >
+                    {posting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    نشر
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                className="block mb-6 text-center py-3 rounded-2xl bg-white/[0.05] border border-white/12 text-white/70 text-[13px] font-semibold hover:bg-white/[0.08] transition-colors"
+              >
+                سجّل الدخول للمشاركة بتعليق
+              </Link>
+            )}
+
+            {comments.length === 0 ? (
+              <p className="text-white/45 text-[13.5px] text-center py-6">
+                لا توجد تعليقات بعد — كن أول من يعلّق.
+              </p>
+            ) : (
+              <div className="space-y-5">
+                {comments.map((c) => {
+                  const replies = c.replies ?? [];
+                  const threadIds = [c.id, ...replies.map((r) => r.id)];
+                  const composerOpen =
+                    replyingTo !== null && threadIds.includes(replyingTo);
+                  return (
+                    <div key={c.id} data-testid={`comment-${c.id}`}>
+                      <div className="flex gap-3">
+                        <Link href={`/u/${c.author.id}`} className="shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-white">
+                            {c.author.avatarUrl ? (
+                              <img
+                                src={c.author.avatarUrl}
+                                alt={c.author.fullName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              (c.author.fullName || "·").slice(0, 1)
+                            )}
+                          </div>
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/u/${c.author.id}`}
+                              className="text-white font-semibold text-[13px] hover:text-primary transition-colors truncate"
+                            >
+                              {c.author.fullName}
+                            </Link>
+                            <span className="text-white/35 text-[11px]">
+                              {formatArabicDate(c.createdAt)}
+                            </span>
+                            {c.editedAt && (
+                              <span className="text-white/30 text-[10.5px]">(عُدّل)</span>
+                            )}
+                            <div className="ms-auto flex items-center gap-2">
+                              {c.canEdit && (
+                                <button
+                                  type="button"
+                                  onClick={() => startEdit(c)}
+                                  className="text-white/35 hover:text-primary transition-colors"
+                                  aria-label="تعديل التعليق"
+                                  data-testid={`edit-comment-${c.id}`}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {c.canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => deleteComment(c.id)}
+                                  className="text-white/35 hover:text-red-300 transition-colors"
+                                  aria-label="حذف التعليق"
+                                  data-testid={`delete-comment-${c.id}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          {editingId === c.id ? (
+                            <CommentEditForm
+                              value={editText}
+                              onChange={setEditText}
+                              onSubmit={(e) => submitEdit(e, c.id)}
+                              onCancel={() => { setEditingId(null); setComposerError(null); }}
+                              busy={editBusy}
+                              error={composerError}
+                            />
+                          ) : (
+                            <>
+                              <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
+                                {c.body}
+                              </p>
+                              {user && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingId(null);
+                                    setComposerError(null);
+                                    setReplyingTo(c.id);
+                                    setReplyText("");
+                                  }}
+                                  className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
+                                  data-testid={`reply-comment-${c.id}`}
+                                >
+                                  <Reply className="w-3 h-3" /> رد
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {replies.length > 0 && (
+                        <div className="mt-3 space-y-3 pe-12 ps-3 border-e border-white/10">
+                          {replies.map((rep) => (
+                            <div
+                              key={rep.id}
+                              className="flex gap-2.5"
+                              data-testid={`comment-${rep.id}`}
+                            >
+                              <Link href={`/u/${rep.author.id}`} className="shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-white">
+                                  {rep.author.avatarUrl ? (
+                                    <img
+                                      src={rep.author.avatarUrl}
+                                      alt={rep.author.fullName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    (rep.author.fullName || "·").slice(0, 1)
+                                  )}
+                                </div>
+                              </Link>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Link
+                                    href={`/u/${rep.author.id}`}
+                                    className="text-white font-semibold text-[12.5px] hover:text-primary transition-colors truncate"
+                                  >
+                                    {rep.author.fullName}
+                                  </Link>
+                                  <span className="text-white/35 text-[10.5px]">
+                                    {formatArabicDate(rep.createdAt)}
+                                  </span>
+                                  {rep.editedAt && (
+                                    <span className="text-white/30 text-[10px]">(عُدّل)</span>
+                                  )}
+                                  <div className="ms-auto flex items-center gap-2">
+                                    {rep.canEdit && (
+                                      <button
+                                        type="button"
+                                        onClick={() => startEdit(rep)}
+                                        className="text-white/35 hover:text-primary transition-colors"
+                                        aria-label="تعديل الرد"
+                                        data-testid={`edit-comment-${rep.id}`}
+                                      >
+                                        <Pencil className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                    {rep.canDelete && (
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteComment(rep.id, c.id)}
+                                        className="text-white/35 hover:text-red-300 transition-colors"
+                                        aria-label="حذف الرد"
+                                        data-testid={`delete-comment-${rep.id}`}
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {editingId === rep.id ? (
+                                  <CommentEditForm
+                                    value={editText}
+                                    onChange={setEditText}
+                                    onSubmit={(e) => submitEdit(e, rep.id)}
+                                    onCancel={() => { setEditingId(null); setComposerError(null); }}
+                                    busy={editBusy}
+                                    error={composerError}
+                                  />
+                                ) : (
+                                  <>
+                                    <p className="text-white/70 text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
+                                      {rep.body}
+                                    </p>
+                                    {user && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setEditingId(null);
+                                          setComposerError(null);
+                                          setReplyingTo(rep.id);
+                                          setReplyText("");
+                                        }}
+                                        className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
+                                        data-testid={`reply-comment-${rep.id}`}
+                                      >
+                                        <Reply className="w-3 h-3" /> رد
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {composerOpen && user && (
+                        <div className="mt-3 pe-12 ps-3">
+                          <form
+                            onSubmit={(e) => submitReply(e, replyingTo!, c.id)}
+                            className="flex items-center gap-2"
+                          >
+                            <input
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="اكتب ردًّا…"
+                              autoFocus
+                              maxLength={1000}
+                              className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+                              data-testid={`reply-input-${c.id}`}
+                            />
+                            <button
+                              type="submit"
+                              disabled={replyPosting || !replyText.trim()}
+                              className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+                              data-testid={`reply-submit-${c.id}`}
+                            >
+                              {replyPosting ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Send className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setReplyingTo(null); setComposerError(null); }}
+                              className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                          </form>
+                          {composerError && (
+                            <p className="text-red-300 text-[12px] mt-1.5">{composerError}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </GlassCard>
+        </div>
+        </div>
 
         <div className="space-y-5">
           <GlassCard className="p-6">
@@ -439,5 +1014,52 @@ export default function WorkDetail() {
         </div>
       )}
     </PageShell>
+  );
+}
+
+function CommentEditForm({
+  value,
+  onChange,
+  onSubmit,
+  onCancel,
+  busy,
+  error,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+  busy: boolean;
+  error?: string | null;
+}) {
+  return (
+    <div className="mt-1.5">
+      <form onSubmit={onSubmit} className="flex items-center gap-2">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoFocus
+          maxLength={1000}
+          className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+          data-testid="edit-comment-input"
+        />
+        <button
+          type="submit"
+          disabled={busy || !value.trim()}
+          className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+          data-testid="edit-comment-submit"
+        >
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+        >
+          إلغاء
+        </button>
+      </form>
+      {error && <p className="text-red-300 text-[12px] mt-1.5">{error}</p>}
+    </div>
   );
 }

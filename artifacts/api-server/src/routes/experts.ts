@@ -212,8 +212,8 @@ router.post("/experts/apply", async (req, res) => {
       const [adminUser] = await db
         .select({ id: usersTable.id })
         .from(usersTable)
-        .where(eq(usersTable.role, "admin"))
-        .limit(1);
+        .where(eq(usersTable.role, "expert" as any))
+        .limit(0); // Admin users live outside the users table; this is a no-op placeholder
       if (adminUser) {
         void notify(adminUser.id, {
           type: "mentor_application",

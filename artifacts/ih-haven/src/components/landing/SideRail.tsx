@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 type Item = {
   id: string;
@@ -8,27 +7,26 @@ type Item = {
   ar: string;
   en: string;
   group: string;
-  groupEn: string;
 };
 
 const items: Item[] = [
-  { id: "hero",      no: "01", ar: "البداية",    en: "Open",      group: "المساحة", groupEn: "Space" },
-  { id: "about",     no: "02", ar: "من نحن",     en: "About",     group: "المساحة", groupEn: "Space" },
-  { id: "offerings", no: "03", ar: "ما نقدّم",    en: "Offerings", group: "التجربة", groupEn: "Experience" },
-  { id: "audience",  no: "04", ar: "الفئات",     en: "Audience",  group: "المجتمع", groupEn: "Community" },
-  { id: "programs",  no: "05", ar: "الفعاليّات", en: "Programs",  group: "المجتمع", groupEn: "Community" },
-  { id: "gallery",   no: "06", ar: "لمحات",      en: "Glimpses",  group: "المجتمع", groupEn: "Community" },
-  { id: "story",     no: "07", ar: "القصّة",      en: "Story",     group: "المجتمع", groupEn: "Community" },
-  { id: "visit",     no: "08", ar: "الزيارة",    en: "Visit",     group: "الزيارة", groupEn: "Visit" },
+  { id: "hero",       no: "01", ar: "البداية",       en: "Open",       group: "المساحة" },
+  { id: "about",      no: "02", ar: "من نحن",        en: "About",      group: "المساحة" },
+  { id: "offerings",  no: "03", ar: "ما نقدّم",       en: "Offerings",  group: "التجربة" },
+  { id: "audience",   no: "04", ar: "الفئات",        en: "Audience",   group: "المجتمع" },
+  { id: "programs",   no: "05", ar: "الفعاليّات",    en: "Programs",   group: "المجتمع" },
+  { id: "gallery",    no: "06", ar: "لمحات",         en: "Glimpses",   group: "المجتمع" },
+  { id: "story",      no: "07", ar: "القصّة",         en: "Story",      group: "المجتمع" },
+  { id: "visit",      no: "08", ar: "الزيارة",       en: "Visit",      group: "الزيارة" },
 ];
 
 export function SideRail() {
-  const { lang } = useLanguage();
   const [active, setActive] = useState<string>("hero");
   const [hovered, setHovered] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
+  // Show after first scroll, hide on top
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.3);
     onScroll();
@@ -36,13 +34,14 @@ export function SideRail() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scrollspy
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        const vis = entries
+        const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (vis[0]) setActive(vis[0].target.id);
+        if (visible[0]) setActive(visible[0].target.id);
       },
       { rootMargin: "-25% 0px -55% 0px", threshold: 0 }
     );
@@ -53,6 +52,7 @@ export function SideRail() {
     return () => observer.disconnect();
   }, []);
 
+  // Vertical progress bar inside the rail
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
   const railFill = useTransform(progress, (v) => `${v * 100}%`);
@@ -64,7 +64,6 @@ export function SideRail() {
   };
 
   const isOpen = expanded || hovered !== null;
-  const activeItem = items.find((i) => i.id === active);
 
   return (
     <AnimatePresence>
@@ -80,8 +79,9 @@ export function SideRail() {
             setExpanded(false);
             setHovered(null);
           }}
-          aria-label={lang === "en" ? "Section navigation" : "ملاحة الأقسام"}
+          aria-label="ملاحة الأقسام"
         >
+          {/* Glass capsule */}
           <motion.div
             animate={{ width: isOpen ? 248 : 56 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -95,6 +95,7 @@ export function SideRail() {
                 "0 24px 60px -20px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.4)",
             }}
           >
+            {/* Inner ambient glow */}
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none opacity-60"
@@ -104,6 +105,7 @@ export function SideRail() {
               }}
             />
 
+            {/* Vertical progress rail (left side of capsule) */}
             <div className="absolute right-[26px] top-6 bottom-6 w-[2px] rounded-full bg-white/8 overflow-hidden">
               <motion.div
                 style={{ height: railFill }}
@@ -112,13 +114,15 @@ export function SideRail() {
                 <div
                   className="w-full h-full"
                   style={{
-                    background: "linear-gradient(to bottom, hsl(354 70% 62%) 0%, hsl(354 70% 52%) 100%)",
+                    background:
+                      "linear-gradient(to bottom, hsl(354 70% 62%) 0%, hsl(354 70% 52%) 100%)",
                     boxShadow: "0 0 12px hsl(354 70% 60% / 0.6)",
                   }}
                 />
               </motion.div>
             </div>
 
+            {/* Items */}
             <ul className="relative space-y-1.5">
               {items.map((it) => {
                 const isActive = active === it.id;
@@ -132,31 +136,47 @@ export function SideRail() {
                       aria-current={isActive ? "true" : undefined}
                       aria-label={`${it.ar} — ${it.en}`}
                     >
+                      {/* Label area (fades in when expanded) */}
                       <div className="flex-1 min-w-0 overflow-hidden">
                         <motion.div
-                          animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : 8 }}
+                          animate={{
+                            opacity: isOpen ? 1 : 0,
+                            x: isOpen ? 0 : 8,
+                          }}
                           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                           className="flex items-baseline justify-end gap-2"
                         >
                           <span
                             className={`text-[10px] tracking-[0.22em] uppercase font-semibold transition-colors ${
-                              isActive ? "text-white/55" : isHovered ? "text-white/45" : "text-white/30"
+                              isActive
+                                ? "text-white/55"
+                                : isHovered
+                                ? "text-white/45"
+                                : "text-white/30"
                             }`}
                           >
-                            {lang === "en" ? it.ar : it.en}
+                            {it.en}
                           </span>
                           <span
                             className={`text-[14px] font-semibold transition-colors whitespace-nowrap ${
-                              isActive ? "text-white" : isHovered ? "text-white/85" : "text-white/55"
+                              isActive
+                                ? "text-white"
+                                : isHovered
+                                ? "text-white/85"
+                                : "text-white/55"
                             }`}
                           >
-                            {lang === "en" ? it.en : it.ar}
+                            {it.ar}
                           </span>
                         </motion.div>
                       </div>
 
+                      {/* Number — visible only when expanded */}
                       <motion.span
-                        animate={{ opacity: isOpen ? 1 : 0, width: isOpen ? "auto" : 0 }}
+                        animate={{
+                          opacity: isOpen ? 1 : 0,
+                          width: isOpen ? "auto" : 0,
+                        }}
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                         className={`text-[10px] font-mono font-semibold tabular-nums tracking-wider overflow-hidden ${
                           isActive ? "text-white/60" : "text-white/25"
@@ -165,32 +185,40 @@ export function SideRail() {
                         {it.no}
                       </motion.span>
 
+                      {/* Dot + active indicator */}
                       <div className="relative w-7 h-7 flex items-center justify-center shrink-0">
+                        {/* Active halo */}
                         {isActive && (
                           <motion.span
                             layoutId="rail-halo"
                             className="absolute inset-0 rounded-full"
                             style={{
-                              background: "radial-gradient(circle, hsl(354 70% 62% / 0.45) 0%, transparent 70%)",
+                              background:
+                                "radial-gradient(circle, hsl(354 70% 62% / 0.45) 0%, transparent 70%)",
                             }}
                             transition={{ type: "spring", stiffness: 360, damping: 28 }}
                           />
                         )}
+                        {/* Active solid pill */}
                         {isActive && (
                           <motion.span
                             layoutId="rail-active"
                             className="absolute w-2 h-2 rounded-full"
                             style={{
                               background: "hsl(354 70% 62%)",
-                              boxShadow: "0 0 0 3px rgba(255,255,255,0.18), 0 0 14px hsl(354 70% 60% / 0.8)",
+                              boxShadow:
+                                "0 0 0 3px rgba(255,255,255,0.18), 0 0 14px hsl(354 70% 60% / 0.8)",
                             }}
                             transition={{ type: "spring", stiffness: 380, damping: 30 }}
                           />
                         )}
+                        {/* Inactive dot */}
                         {!isActive && (
                           <span
                             className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                              isHovered ? "bg-white/80 scale-125" : "bg-white/30 group-hover:bg-white/55"
+                              isHovered
+                                ? "bg-white/80 scale-125"
+                                : "bg-white/30 group-hover:bg-white/55"
                             }`}
                           />
                         )}
@@ -201,6 +229,7 @@ export function SideRail() {
               })}
             </ul>
 
+            {/* Footer mini-CTA — only when expanded */}
             <motion.div
               animate={{ opacity: isOpen ? 1 : 0, height: isOpen ? "auto" : 0 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -211,22 +240,25 @@ export function SideRail() {
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="text-[10px] tracking-[0.22em] uppercase font-semibold text-white/45 hover:text-white transition-colors"
                 >
-                  {lang === "en" ? "↑ Top" : "↑ للأعلى"}
+                  ↑ للأعلى
                 </button>
                 <a
                   href={`${import.meta.env.BASE_URL}apply`}
                   className="text-[11px] font-semibold text-white px-3 py-1.5 rounded-full transition-all hover:scale-[1.04]"
                   style={{
-                    background: "linear-gradient(135deg, hsl(354 70% 58%), hsl(354 70% 48%))",
-                    boxShadow: "0 6px 16px -4px hsl(354 70% 40% / 0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
+                    background:
+                      "linear-gradient(135deg, hsl(354 70% 58%), hsl(354 70% 48%))",
+                    boxShadow:
+                      "0 6px 16px -4px hsl(354 70% 40% / 0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
                   }}
                 >
-                  {lang === "en" ? "Apply" : "انتسب"}
+                  انتسب
                 </a>
               </div>
             </motion.div>
           </motion.div>
 
+          {/* Tiny chapter hint floating beside (when collapsed) */}
           <AnimatePresence>
             {!isOpen && (
               <motion.div
@@ -237,7 +269,7 @@ export function SideRail() {
                 className="absolute top-1/2 -translate-y-1/2 right-full mr-3 pointer-events-none"
               >
                 <div className="text-[10px] tracking-[0.22em] uppercase font-semibold text-foreground/40 whitespace-nowrap">
-                  {lang === "en" ? activeItem?.groupEn : activeItem?.group}
+                  {items.find((i) => i.id === active)?.group}
                 </div>
               </motion.div>
             )}

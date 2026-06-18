@@ -6,6 +6,7 @@ import {
   varchar,
   index,
   jsonb,
+  integer,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -50,6 +51,7 @@ export const usersTable = pgTable(
       .$type<UserStatus>(),
     passwordSetAt: timestamp("password_set_at", { withTimezone: true }),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    sessionEpoch: integer("session_epoch").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

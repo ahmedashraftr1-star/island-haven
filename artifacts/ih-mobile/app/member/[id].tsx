@@ -1,23 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, View } from "react-native";
 import { Image } from "expo-image";
-import { useLocalSearchParams } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 
-import { T, Card } from "@/components/Branded";
+import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
+import { useAuth } from "@/lib/auth-context";
 import { api, resolveMedia } from "@/lib/api";
 import type { CurrentUser, Work } from "@/lib/types";
+
+interface MemberResp {
+  user: CurrentUser;
+  works: Work[];
+  followersCount?: number;
+  followingCount?: number;
+  followedByMe?: boolean;
+}
 
 export default function MemberDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
-  const userQ = useQuery<{ user: CurrentUser; works: Work[] }>({
+  const router = useRouter();
+  const qc = useQueryClient();
+  const { user: me } = useAuth();
+  const [followBusy, setFollowBusy] = useState(false);
+  const userQ = useQuery<MemberResp>({
     queryKey: ["member", id],
     queryFn: () => api(`/users/${id}`),
     enabled: !!id,
   });
+
+  async function toggleFollow() {
+    if (followBusy) return;
+    if (!me) {
+      router.push("/login");
+      return;
+    }
+    setFollowBusy(true);
+    try {
+      await api(`/users/${id}/follow`, { method: "POST" });
+      await qc.invalidateQueries({ queryKey: ["member", id] });
+    } catch {
+      // surfaced by the next refetch; keep the screen quiet on transient errors
+    } finally {
+      setFollowBusy(false);
+    }
+  }
 
   if (userQ.isLoading) {
     return (
@@ -33,7 +63,8 @@ export default function MemberDetail() {
       </View>
     );
   }
-  const { user, works = [] } = userQ.data;
+  const { user, works = [], followersCount = 0, followingCount = 0, followedByMe = false } = userQ.data;
+  const canFollow = !!me && me.id !== user.id;
 
   const links: { label: string; url: string; icon: keyof typeof Feather.glyphMap }[] = [];
   if (user.portfolioUrl) links.push({ label: "الموقع", url: user.portfolioUrl, icon: "globe" });
@@ -54,6 +85,24 @@ export default function MemberDetail() {
         )}
         <T size={22} weight="bold" align="center">{user.fullName}</T>
         {user.jobTitle ? <T size={14} color={colors.mutedForeground} align="center">{user.jobTitle}</T> : null}
+        <View style={{ flexDirection: "row-reverse", gap: 16, marginTop: 4 }}>
+          <T size={13} color={colors.mutedForeground}>
+            <T size={13} weight="bold">{followersCount}</T> متابِع
+          </T>
+          <T size={13} color={colors.mutedForeground}>
+            <T size={13} weight="bold">{followingCount}</T> يتابِع
+          </T>
+        </View>
+        {canFollow ? (
+          <Btn
+            title={followedByMe ? "متابَع" : "متابعة"}
+            variant={followedByMe ? "secondary" : "primary"}
+            loading={followBusy}
+            onPress={toggleFollow}
+            accessibilityState={{ selected: followedByMe }}
+            style={{ marginTop: 6, minWidth: 160 }}
+          />
+        ) : null}
       </View>
 
       {user.bio ? (

@@ -76,6 +76,20 @@ const httpUrl = (max: number) =>
       (v) => v === "" || /^https?:\/\//i.test(v),
       "الرابط يجب أن يبدأ بـ http(s)://",
     );
+// Like httpUrl, but also accepts relative upload/asset paths ("/...").
+// Blocks javascript:/data: and other unsafe schemes (admin-stored XSS).
+const httpUrlOrPath = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .refine(
+      (v) =>
+        v === "" ||
+        (v.startsWith("/") && !v.startsWith("//")) ||
+        /^https?:\/\//i.test(v),
+      "الرابط يجب أن يبدأ بـ http(s):// أو /",
+    );
 
 export const upsertResourceSchema = z.object({
   title: safeText(200).min(2),
@@ -83,9 +97,9 @@ export const upsertResourceSchema = z.object({
   body: safeText(20000).default(""),
   category: z.enum(RESOURCE_CATEGORIES).default("guide"),
   visibility: z.enum(RESOURCE_VISIBILITIES).default("members"),
-  coverUrl: z.string().trim().max(800).optional().nullable(),
+  coverUrl: httpUrlOrPath(800).optional().nullable(),
   externalUrl: httpUrl(800).default(""),
-  fileUrl: z.string().trim().max(800).default(""),
+  fileUrl: httpUrlOrPath(800).default(""),
   tags: safeText(400).default(""),
   featured: z.boolean().default(false),
   sortOrder: z.number().int().min(0).max(100000).default(0),

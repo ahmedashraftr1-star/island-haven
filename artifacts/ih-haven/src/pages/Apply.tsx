@@ -24,11 +24,11 @@ const FALLBACK = {
   backLabel: "العودة",
   brandLatin: "Island Haven",
   brandArabic: "آيلاند هيفن",
-  eyebrow: "طلب انتساب",
+  eyebrow: "طلب انتساب · مجّاناً",
   titleLead: "انضمّ إلى",
   titleAccent: "آيلاند هيفن",
   subtitle:
-    "حاضنة أعمال تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل معك على واتساب خلال أيّام.",
+    "مساحة عمل مجّانيّة تتّسع لأحلامك في غزّة. املأ الطلب وسنتواصل معك على واتساب خلال أيّام.",
   sec1Title: "مَن أنت",
   sec1Sub: "Identity",
   fullNameLabel: "الاسم الكامل",

@@ -14,11 +14,43 @@ const ADMIN_COOKIE = "ih_admin";
 const USER_COOKIE = "ih_user";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
+let warnedDevSecret = false;
+
 function getSecret(): string {
-  const secret = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD;
+  const sessionSecret = process.env.SESSION_SECRET;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (process.env.NODE_ENV === "production") {
+    // In production the HMAC signing key MUST be independent from the login
+    // password. Reusing ADMIN_PASSWORD as the signing key leaks/couples the
+    // two, so require a dedicated, strong SESSION_SECRET.
+    if (
+      !sessionSecret ||
+      sessionSecret.length < 32 ||
+      sessionSecret === adminPassword
+    ) {
+      throw new Error(
+        "Refusing to operate without a dedicated session secret in production. " +
+          "Set SESSION_SECRET to a strong value (>=32 chars) that DIFFERS from ADMIN_PASSWORD. " +
+          "Generate one with: openssl rand -hex 32",
+      );
+    }
+    return sessionSecret;
+  }
+
+  // Non-production: prefer SESSION_SECRET; fall back to ADMIN_PASSWORD for
+  // local dev convenience, but warn (once) that this is insecure.
+  const secret = sessionSecret || adminPassword;
   if (!secret || secret.length < 8) {
     throw new Error(
-      "Refusing to operate without a strong session secret. Set ADMIN_PASSWORD (preferred) or SESSION_SECRET (>=8 chars).",
+      "Refusing to operate without a session secret. Set SESSION_SECRET (preferred) or ADMIN_PASSWORD (>=8 chars).",
+    );
+  }
+  if (!sessionSecret && !warnedDevSecret) {
+    warnedDevSecret = true;
+    console.warn(
+      "[auth] SESSION_SECRET is not set; falling back to ADMIN_PASSWORD for HMAC signing. " +
+        "This is dev-only and insecure — set a dedicated SESSION_SECRET in production.",
     );
   }
   return secret;
@@ -77,14 +109,18 @@ export function clearSessionCookie(res: Response): void {
 
 // ─── User sessions ──────────────────────────────────────────────────────────
 
-export function makeUserSessionToken(userId: number): string {
+// `epoch` is the user's current sessionEpoch (from the DB). Embedding it lets a
+// password change/reset (which bumps the stored epoch) invalidate every token
+// issued before it — without any server-side session store.
+export function makeUserSessionToken(userId: number, epoch: number): string {
   const expiresAt = Date.now() + SESSION_TTL_MS;
-  const payload = `user.${userId}.${expiresAt}`;
+  const payload = `user.${userId}.${epoch}.${expiresAt}`;
   return `${payload}.${sign(payload)}`;
 }
 
 export interface UserSession {
   userId: number;
+  epoch: number;
   expiresAt: number;
 }
 
@@ -93,17 +129,21 @@ export function verifyUserSessionToken(
 ): UserSession | null {
   if (!token) return null;
   const parts = token.split(".");
-  if (parts.length !== 4) return null;
-  const [kind, idStr, expiresAtStr, sig] = parts;
+  if (parts.length !== 5) return null;
+  const [kind, idStr, epochStr, expiresAtStr, sig] = parts;
   if (kind !== "user") return null;
   const userId = Number(idStr);
+  const epoch = Number(epochStr);
   const expiresAt = Number(expiresAtStr);
   if (!Number.isFinite(userId) || userId <= 0) return null;
+  if (!Number.isInteger(epoch) || epoch < 0) return null;
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return null;
-  if (!timingSafeEqualStr(sig, sign(`user.${idStr}.${expiresAtStr}`))) {
+  if (
+    !timingSafeEqualStr(sig, sign(`user.${idStr}.${epochStr}.${expiresAtStr}`))
+  ) {
     return null;
   }
-  return { userId, expiresAt };
+  return { userId, epoch, expiresAt };
 }
 
 export function setUserSessionCookie(res: Response, token: string): void {
@@ -146,17 +186,27 @@ export function requireUser(
   }
   // Re-check current user status on every request so that banning a user
   // immediately revokes access even for existing valid session cookies.
-  db.select({ status: usersTable.status })
+  db.select({
+    status: usersTable.status,
+    sessionEpoch: usersTable.sessionEpoch,
+  })
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
-    .then(([row]: Array<{ status: string }>) => {
+    .then(([row]) => {
       if (!row) {
         res.status(401).json({ error: "الحساب غير موجود" });
         return;
       }
       if (row.status === "banned") {
         res.status(403).json({ error: "هذا الحساب مُعلَّق" });
+        return;
+      }
+      // Reject tokens issued before the last password change/reset.
+      if (row.sessionEpoch !== session.epoch) {
+        res
+          .status(401)
+          .json({ error: "انتهت صلاحية الجلسة، سجّل الدخول من جديد" });
         return;
       }
       (req as Request & { userSession: UserSession }).userSession = session;
@@ -182,12 +232,19 @@ export function optionalUser(
   }
   // Also check ban status for optional sessions — banned users should not
   // receive personalised data even on public endpoints.
-  db.select({ status: usersTable.status })
+  db.select({
+    status: usersTable.status,
+    sessionEpoch: usersTable.sessionEpoch,
+  })
     .from(usersTable)
     .where(eq(usersTable.id, session.userId))
     .limit(1)
-    .then(([row]: Array<{ status: string }>) => {
-      if (row && row.status !== "banned") {
+    .then(([row]) => {
+      if (
+        row &&
+        row.status !== "banned" &&
+        row.sessionEpoch === session.epoch
+      ) {
         (req as Request & { userSession: UserSession }).userSession = session;
       }
       next();

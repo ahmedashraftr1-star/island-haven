@@ -24,7 +24,7 @@ router.get("/members", async (req, res) => {
   try {
     const role = String(req.query.role ?? "");
     const q = String(req.query.q ?? "").trim().slice(0, 80);
-    const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+    const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
     const filterByRole = (USER_ROLES as readonly string[]).includes(role)
       ? (role as UserRole)
       : null;
@@ -35,12 +35,15 @@ router.get("/members", async (req, res) => {
     where.push(sql`${usersTable.role} <> 'expert'` as never);
     if (filterByRole) where.push(eq(usersTable.role, filterByRole) as never);
     if (q) {
+      // Escape LIKE metacharacters so a user can't inject % / _ wildcards
+      // (Drizzle parameterizes the value — this is wildcard-DoS hardening).
+      const esc = q.replace(/[\\%_]/g, (c) => "\\" + c);
       where.push(
         or(
-          ilike(usersTable.fullName, `%${q}%`),
-          ilike(usersTable.jobTitle, `%${q}%`),
-          ilike(usersTable.skills, `%${q}%`),
-          ilike(usersTable.bio, `%${q}%`),
+          ilike(usersTable.fullName, `%${esc}%`),
+          ilike(usersTable.jobTitle, `%${esc}%`),
+          ilike(usersTable.skills, `%${esc}%`),
+          ilike(usersTable.bio, `%${esc}%`),
         ) as never,
       );
     }
@@ -49,6 +52,11 @@ router.get("/members", async (req, res) => {
       .select({ total: count() })
       .from(usersTable)
       .where(and(...where));
+
+    // Clamp page to the valid range so a huge ?page never produces an
+    // out-of-range deep offset.
+    const totalPages = Math.max(1, Math.ceil(total / MEMBERS_PAGE_SIZE));
+    const page = Math.min(requestedPage, totalPages);
 
     const rows = await db
       .select({
@@ -77,7 +85,7 @@ router.get("/members", async (req, res) => {
       .limit(MEMBERS_PAGE_SIZE)
       .offset((page - 1) * MEMBERS_PAGE_SIZE);
 
-    res.json({ members: rows, total, page, totalPages: Math.ceil(total / MEMBERS_PAGE_SIZE) });
+    res.json({ members: rows, total, page, totalPages });
   } catch (err) {
     logger.error({ err }, "GET /members failed");
     res.status(500).json({ error: "تعذّر تحميل المنتسبين" });
