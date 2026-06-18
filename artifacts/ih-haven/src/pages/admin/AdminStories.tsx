@@ -15,6 +15,7 @@ interface Row {
   projectUrl: string | null;
   featured: boolean;
   status: "draft" | "published" | "hidden" | "rejected";
+  rejectionNote: string | null;
   sortOrder: number;
   submittedByUserId: number | null;
 }
@@ -31,6 +32,7 @@ const EMPTY: Row = {
   projectUrl: "",
   featured: false,
   status: "draft",
+  rejectionNote: null,
   sortOrder: 0,
   submittedByUserId: null,
 };
@@ -383,6 +385,18 @@ function StoryEditor({ initial, onClose, onSaved }: { initial: Row; onClose: () 
           </Field>
           <Field label="الترتيب"><input type="number" min={0} value={form.sortOrder} onChange={(e) => setForm((s) => ({ ...s, sortOrder: Number(e.target.value) || 0 }))} className="inp tabular-nums" /></Field>
         </div>
+        {form.status === "rejected" && (
+          <Field label="سبب الرفض (اختياري — يظهر للعضو في الإيميل)">
+            <textarea
+              rows={3}
+              value={form.rejectionNote ?? ""}
+              onChange={(e) => setForm((s) => ({ ...s, rejectionNote: e.target.value || null }))}
+              className="inp resize-none leading-relaxed"
+              placeholder="مثال: القصّة بحاجة إلى تفاصيل إضافية…"
+              maxLength={500}
+            />
+          </Field>
+        )}
         <label className="flex items-center gap-2.5 cursor-pointer text-[13px] text-foreground/75">
           <input type="checkbox" checked={form.featured} onChange={(e) => setForm((s) => ({ ...s, featured: e.target.checked }))} className="w-4 h-4 accent-primary" />
           قصّة مميّزة
