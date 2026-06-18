@@ -116,6 +116,9 @@ function RootLayoutNav() {
       <Stack.Screen name="sessions/[id]/rate" options={{ title: "تقييم الجلسة", presentation: "modal" }} />
       <Stack.Screen name="become-mentor" options={{ title: "انضم كمرشد", presentation: "modal" }} />
       <Stack.Screen name="story-form" options={{ title: "قصتي", presentation: "modal" }} />
+      <Stack.Screen name="leaderboard" options={{ title: "لوحة الصدارة" }} />
+      <Stack.Screen name="perks" options={{ title: "مزايا الأعضاء" }} />
+      <Stack.Screen name="messages" options={{ title: "الرسائل" }} />
     </Stack>
   );
 }

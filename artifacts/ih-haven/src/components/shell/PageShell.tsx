@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, LogIn, UserCircle2 } from "lucide-react";
+import { ArrowLeft, LogIn, UserCircle2, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth } from "@/lib/auth";
@@ -62,6 +62,14 @@ export function PageShell({
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/search"
+              aria-label="بحث"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
+              data-testid="link-search"
+            >
+              <Search className="w-4 h-4 text-white/70" />
+            </Link>
             <LangToggle tone="onDark" />
             {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (

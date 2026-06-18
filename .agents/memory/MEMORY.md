@@ -2,4 +2,4 @@
 - [Expert seed data](expert-seed.md) — 6 placeholder experts seeded via SQL (users+expert_profiles tables, role='expert', status='active').
 - [Book.tsx bilingual](book-tsx-notes.md) — TIME_SLOTS/PURPOSES carry labelEn/timeEn fields; WEEKDAY_LABELS_EN parallel array; dir attr switches on lang; each sub-component calls useLanguage() directly.
 - [About.tsx curly quotes](about-curly-quotes.md) — curly/smart apostrophes used as JS string delimiters cause TS parse errors; fix with \uXXXX escapes or straight quotes.
-- [Schema + lib/db rebuild pattern](schema-rebuild.md) — after any schema change or task agent merge, always run `cd lib/db && npx tsc -b && npx drizzle-kit push` before TS-checking dependents.
+- [navConfig structure](navconfig-structure.md) — main nav uses GitHub's structure: cohorts/opportunities/resources/team; messages/learning/notifications in secondary.

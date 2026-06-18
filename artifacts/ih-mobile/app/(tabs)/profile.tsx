@@ -174,6 +174,33 @@ export default function ProfileScreen() {
 
       <MyStorySection />
 
+      <Card style={{ gap: 0 }}>
+        {[
+          { icon: "award" as const, label: "لوحة الصدارة", route: "/leaderboard" },
+          { icon: "gift" as const, label: "مزايا الأعضاء", route: "/perks" },
+          { icon: "message-circle" as const, label: "الرسائل", route: "/messages" },
+        ].map((item, i, arr) => (
+          <TouchableOpacity
+            key={item.route}
+            onPress={() => router.push(item.route as never)}
+            style={{
+              flexDirection: "row-reverse",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingVertical: 14,
+              borderBottomWidth: i < arr.length - 1 ? 1 : 0,
+              borderBottomColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+              <Feather name={item.icon} size={18} color={colors.primary} />
+              <T size={14} weight="medium">{item.label}</T>
+            </View>
+            <Feather name="chevron-left" size={16} color={colors.mutedForeground} />
+          </TouchableOpacity>
+        ))}
+      </Card>
+
       <Btn
         title="تغيير كلمة السرّ"
         variant="ghost"
