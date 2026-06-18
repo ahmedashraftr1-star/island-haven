@@ -198,11 +198,46 @@ export default function ExpertDetailScreen() {
         ) : null}
 
         {done ? (
-          <View style={{ alignItems: "center", paddingVertical: 16, gap: 8 }}>
+          <View style={{ alignItems: "center", paddingVertical: 16, gap: 10 }}>
             <Feather name="check-circle" size={36} color={colors.primary} />
             <T size={15} weight="bold" align="center">تمّ إرسال طلبك</T>
+            <T size={12} color={colors.mutedForeground} align="center">
+              Session request sent
+            </T>
+
+            <View style={{ alignItems: "center", gap: 8, paddingVertical: 8 }}>
+              {e.avatarUrl ? (
+                <Image
+                  source={{ uri: resolveMedia(e.avatarUrl) }}
+                  style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: colors.muted }}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32,
+                    backgroundColor: colors.primarySoft,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <T size={24} weight="bold" color={colors.primary}>
+                    {e.fullName.trim().slice(0, 1)}
+                  </T>
+                </View>
+              )}
+              <T size={14} weight="bold" align="center">{e.fullName}</T>
+              {e.headline ? (
+                <T size={12} color={colors.primary} align="center">{e.headline}</T>
+              ) : null}
+            </View>
+
             <T size={13} color={colors.mutedForeground} align="center" style={{ lineHeight: 20 }}>
-              سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من ملفّك.
+              سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من ملفّك.{"\n"}
+              <T size={12} color={colors.mutedForeground}>
+                The expert will confirm the session time. Check your profile for updates.
+              </T>
             </T>
           </View>
         ) : !e.acceptingSessions ? (
