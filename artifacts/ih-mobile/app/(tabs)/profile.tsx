@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Linking, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -33,6 +33,7 @@ export default function ProfileScreen() {
   const { user, loading, signOut, refresh } = useAuth();
   const [avatarDeleting, setAvatarDeleting] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [pendingAsset, setPendingAsset] = useState<{ uri: string; name: string; mime: string } | null>(null);
   const [contactEmail, setContactEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,15 +88,20 @@ export default function ProfileScreen() {
     });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
+    const uriParts = asset.uri.split(".");
+    const ext = uriParts[uriParts.length - 1]?.toLowerCase() ?? "jpg";
+    const mimeMap: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+    const mime = mimeMap[ext] ?? "image/jpeg";
+    setPendingAsset({ uri: asset.uri, name: `avatar.${ext}`, mime });
+  }
+
+  async function handleAvatarConfirm() {
+    if (!pendingAsset || avatarUploading) return;
     setAvatarUploading(true);
     try {
       const token = await getToken();
       const formData = new FormData();
-      const uriParts = asset.uri.split(".");
-      const ext = uriParts[uriParts.length - 1]?.toLowerCase() ?? "jpg";
-      const mimeMap: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
-      const mime = mimeMap[ext] ?? "image/jpeg";
-      formData.append("file", { uri: asset.uri, name: `avatar.${ext}`, type: mime } as unknown as Blob);
+      formData.append("file", { uri: pendingAsset.uri, name: pendingAsset.name, type: pendingAsset.mime } as unknown as Blob);
       const uploadRes = await fetch(`${API_BASE}/uploads/image`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -111,11 +117,16 @@ export default function ProfileScreen() {
         body: { avatarUrl: url },
       });
       await refresh();
+      setPendingAsset(null);
     } catch (err) {
       Alert.alert("خطأ", err instanceof Error ? err.message : "تعذّر رفع الصورة الشخصيّة، يرجى المحاولة مرّة أخرى.");
     } finally {
       setAvatarUploading(false);
     }
+  }
+
+  function handleAvatarCancelPreview() {
+    setPendingAsset(null);
   }
 
   if (loading) {
@@ -305,6 +316,81 @@ export default function ProfileScreen() {
       <Btn title="تسجيل الخروج" variant="ghost" fullWidth onPress={signOut} />
       <ContactRow email={contactEmail} colors={colors} />
       <Btn title="دخول الإدارة" variant="ghost" fullWidth onPress={() => router.push("/admin")} />
+
+      <Modal
+        visible={!!pendingAsset}
+        transparent
+        animationType="fade"
+        onRequestClose={handleAvatarCancelPreview}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "#00000080", alignItems: "center", justifyContent: "center", padding: 24 }}
+          onPress={handleAvatarCancelPreview}
+        >
+          <Pressable
+            style={{
+              backgroundColor: colors.background,
+              borderRadius: colors.radius + 4,
+              padding: 24,
+              width: "100%",
+              gap: 20,
+            }}
+            onPress={() => {}}
+          >
+            <T size={17} weight="bold" align="center">تغيير الصورة الشخصيّة</T>
+            <T size={13} color={colors.mutedForeground} align="center">
+              مقارنة الصورة الحاليّة بالصورة الجديدة
+            </T>
+
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "center", gap: 16 }}>
+              <View style={{ alignItems: "center", gap: 8 }}>
+                <T size={11} weight="medium" color={colors.mutedForeground}>الحاليّة</T>
+                {user?.avatarUrl ? (
+                  <Image
+                    source={{ uri: resolveMedia(user.avatarUrl) }}
+                    style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: colors.muted }}
+                  />
+                ) : (
+                  <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+                    <T size={30} weight="bold" color={colors.primary}>{user?.fullName.trim().slice(0, 1) ?? "؟"}</T>
+                  </View>
+                )}
+              </View>
+
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
+                <Feather name="arrow-left" size={16} color={colors.mutedForeground} />
+              </View>
+
+              <View style={{ alignItems: "center", gap: 8 }}>
+                <T size={11} weight="medium" color={colors.primary}>الجديدة</T>
+                {pendingAsset ? (
+                  <Image
+                    source={{ uri: pendingAsset.uri }}
+                    style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: colors.muted, borderWidth: 2, borderColor: colors.primary }}
+                  />
+                ) : null}
+              </View>
+            </View>
+
+            <View style={{ gap: 10 }}>
+              <Btn
+                title={avatarUploading ? "جارٍ الرفع…" : "تأكيد الصورة الجديدة"}
+                fullWidth
+                loading={avatarUploading}
+                disabled={avatarUploading}
+                onPress={handleAvatarConfirm}
+              />
+              <Btn
+                title="إلغاء"
+                variant="ghost"
+                fullWidth
+                disabled={avatarUploading}
+                onPress={handleAvatarCancelPreview}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 }
