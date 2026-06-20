@@ -29,3 +29,9 @@ id = "i1NaQ3jMOjXCvcLz8sB3j"
 uri = "file://exports/island-haven-source.tar.gz"
 type = "unspecified"
 title = "Island Haven — كل كود المشروع (مضغوط)"
+
+[[outputs]]
+id = "mF9LXm3PxmqJg9YS2AXcv"
+uri = "file://ih-haven-export.tar.gz"
+type = "unspecified"
+title = "Island Haven — Full Project Export (54MB)"
