@@ -6,6 +6,7 @@ import {
   Animated,
   Easing,
   Linking,
+  Modal,
   Pressable,
   ScrollView,
   View,
@@ -94,6 +95,7 @@ export default function ExpertDetailScreen() {
   const [mode, setMode] = useState<"online" | "onsite">("online");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [photoVisible, setPhotoVisible] = useState(false);
 
   const q = useQuery<{ expert: ExpertProfile }>({
     queryKey: ["expert", id],
@@ -175,6 +177,7 @@ export default function ExpertDetailScreen() {
   }
 
   return (
+    <>
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={{ padding: 20, paddingBottom: 90 }}
@@ -211,10 +214,12 @@ export default function ExpertDetailScreen() {
           ) : null}
 
           {e.avatarUrl ? (
-            <Image
-              source={{ uri: resolveMedia(e.avatarUrl) }}
-              style={{ width: 104, height: 104, borderRadius: 28, backgroundColor: colors.muted }}
-            />
+            <Pressable onPress={() => setPhotoVisible(true)}>
+              <Image
+                source={{ uri: resolveMedia(e.avatarUrl) }}
+                style={{ width: 104, height: 104, borderRadius: 28, backgroundColor: colors.muted }}
+              />
+            </Pressable>
           ) : (
             <View
               style={{
@@ -401,6 +406,41 @@ export default function ExpertDetailScreen() {
         </Card>
       </Animated.View>
     </ScrollView>
+
+    {/* Full-screen avatar viewer */}
+    {e.avatarUrl ? (
+      <Modal
+        visible={photoVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPhotoVisible(false)}
+      >
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.88)",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+          onPress={() => setPhotoVisible(false)}
+        >
+          <Pressable
+            style={{ position: "absolute", top: 48, left: 20, zIndex: 10 }}
+            onPress={() => setPhotoVisible(false)}
+            hitSlop={12}
+          >
+            <Feather name="x" size={28} color="#fff" />
+          </Pressable>
+          <Image
+            source={{ uri: resolveMedia(e.avatarUrl) }}
+            style={{ width: "100%", height: "60%", borderRadius: 12 }}
+            resizeMode="contain"
+          />
+        </Pressable>
+      </Modal>
+    ) : null}
+    </>
   );
 }
 
