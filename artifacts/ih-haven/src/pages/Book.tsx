@@ -104,6 +104,7 @@ export default function Book() {
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [monthCursor, setMonthCursor] = useState<Date>(startOfMonth(new Date()));
   const [experts, setExperts] = useState<ExpertOption[] | null>(null);
+  const [selectedSlotMeta, setSelectedSlotMeta] = useState<AvailableSlot | null>(null);
 
   useEffect(() => {
     api<{ experts: ExpertOption[] }>("/experts")
@@ -283,7 +284,7 @@ export default function Book() {
                   <StepTwo key="s1" form={form} update={update} />
                 )}
                 {step === 2 && (
-                  <StepExpert key="s2" form={form} update={update} experts={experts} visitDate={form.visitDate} />
+                  <StepExpert key="s2" form={form} update={update} experts={experts} visitDate={form.visitDate} onSlotMetaChange={setSelectedSlotMeta} />
                 )}
                 {step === 3 && (
                   <StepThree
@@ -350,6 +351,7 @@ export default function Book() {
           <SummaryCard
             form={form}
             expertName={experts?.find((e) => e.id === form.expertId)?.fullName}
+            selectedSlot={selectedSlotMeta}
           />
         </div>
       </div>
@@ -888,11 +890,13 @@ function StepExpert({
   update,
   experts,
   visitDate,
+  onSlotMetaChange,
 }: {
   form: { expertId: number | null; slotId: number | null };
   update: (k: any, v: any) => void;
   experts: ExpertOption[] | null;
   visitDate: string;
+  onSlotMetaChange: (slot: AvailableSlot | null) => void;
 }) {
   const { lang } = useLanguage();
   const [availableIds, setAvailableIds] = useState<Map<number, number> | null>(null);
@@ -957,8 +961,12 @@ function StepExpert({
     if (currentlySelected) {
       update("expertId", null);
       update("slotId", null);
+      onSlotMetaChange(null);
     } else {
-      if (form.expertId !== id) update("slotId", null);
+      if (form.expertId !== id) {
+        update("slotId", null);
+        onSlotMetaChange(null);
+      }
       update("expertId", id);
     }
   }
@@ -1127,7 +1135,10 @@ function StepExpert({
                     return (
                       <button
                         key={slot.id}
-                        onClick={() => update("slotId", picked ? null : slot.id)}
+                        onClick={() => {
+                          update("slotId", picked ? null : slot.id);
+                          onSlotMetaChange(picked ? null : slot);
+                        }}
                         data-testid={`slot-pick-${slot.id}`}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition border ${
                           picked
@@ -1283,6 +1294,7 @@ function Field({
 function SummaryCard({
   form,
   expertName,
+  selectedSlot,
 }: {
   form: {
     visitDate: string;
@@ -1293,6 +1305,7 @@ function SummaryCard({
     expertId: number | null;
   };
   expertName?: string;
+  selectedSlot?: AvailableSlot | null;
 }) {
   const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
@@ -1305,6 +1318,19 @@ function SummaryCard({
       ? dateObj.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
       : arabicDay(dateObj)
     : "—";
+
+  const expertSlotDisplay = selectedSlot
+    ? (() => {
+        const start = formatSlotTime(selectedSlot.startAt, lang);
+        const end = formatSlotTime(selectedSlot.endAt, lang);
+        const modeLabel =
+          selectedSlot.mode === "online"
+            ? lang === "en" ? "Online" : "عن بُعد"
+            : lang === "en" ? "On-site" : "حضوريّ";
+        return `${start} – ${end} · ${modeLabel}`;
+      })()
+    : null;
+
   return (
     <aside className="lg:sticky lg:top-8 self-start">
       <div className="relative rounded-[24px] p-6 bg-white/[0.04] border border-white/10 backdrop-blur-2xl overflow-hidden">
@@ -1358,6 +1384,13 @@ function SummaryCard({
             value={expertName || (lang === "en" ? "None selected" : "لم يُختَر")}
             placeholder={!form.expertId}
           />
+          {expertSlotDisplay && (
+            <SummaryRow
+              icon={Clock}
+              label={lang === "en" ? "Session time" : "وقت الجلسة"}
+              value={expertSlotDisplay}
+            />
+          )}
           <SummaryRow
             icon={UserIcon}
             label={lang === "en" ? "Name" : "باسم"}
