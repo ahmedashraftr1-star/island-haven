@@ -3,7 +3,6 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, View } from "react-nat
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-
 import { T, Card, Btn, Field, Empty } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, ApiError, resolveMedia } from "@/lib/api";
@@ -12,6 +11,16 @@ import { useAuth } from "@/lib/auth-context";
 type SessionMode = "online" | "onsite";
 type SessionStatus = "requested" | "confirmed" | "completed" | "declined" | "cancelled";
 type SlotStatus = "available" | "booked" | "cancelled";
+
+interface BookingNotification {
+  id: number;
+  type: string;
+  title: string;
+  body: string;
+  link: string;
+  readAt: string | null;
+  createdAt: string;
+}
 
 const SESSION_STATUS_AR: Record<SessionStatus, string> = {
   requested: "بانتظار",
@@ -76,10 +85,11 @@ export default function ExpertDashboardScreen() {
   const colors = useColors();
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState<"sessions" | "slots" | "profile">("sessions");
+  const [tab, setTab] = useState<"sessions" | "slots" | "profile" | "notifications">("sessions");
   const [profile, setProfile] = useState<ExpertProfile | null>(null);
   const [notExpert, setNotExpert] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -92,6 +102,15 @@ export default function ExpertDashboardScreen() {
     }
   }, []);
 
+  const refreshUnread = useCallback(async () => {
+    try {
+      const r = await api<{ notifications: BookingNotification[] }>("/me/notifications?type=booking_confirmed");
+      setUnreadCount(r.notifications.filter((n) => !n.readAt).length);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -99,7 +118,8 @@ export default function ExpertDashboardScreen() {
       return;
     }
     void loadProfile();
-  }, [user, loading, router, loadProfile]);
+    void refreshUnread();
+  }, [user, loading, router, loadProfile, refreshUnread]);
 
   if (loading || checking) {
     return (
@@ -124,39 +144,70 @@ export default function ExpertDashboardScreen() {
           أهلًا {user?.fullName ?? ""}
         </T>
         <T size={24} weight="bold">لوحة الخبير</T>
-        <View style={{ flexDirection: "row-reverse", gap: 8, marginTop: 12 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: "row-reverse", gap: 8 }}>
           {([
-            { k: "sessions", label: "الجلسات" },
-            { k: "slots", label: "مواعيدي" },
-            { k: "profile", label: "ملفّي" },
+            { k: "sessions", label: "الجلسات", badge: 0 },
+            { k: "slots", label: "مواعيدي", badge: 0 },
+            { k: "notifications", label: "الإشعارات", badge: unreadCount },
+            { k: "profile", label: "ملفّي", badge: 0 },
           ] as const).map((t) => {
             const active = tab === t.k;
             return (
               <Pressable
                 key={t.k}
                 onPress={() => setTab(t.k)}
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 7,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: active ? colors.primary : colors.border,
-                  backgroundColor: active ? colors.primarySoft : "transparent",
-                }}
+                style={{ position: "relative" }}
               >
-                <T size={12.5} weight="medium" color={active ? colors.primary : colors.foreground}>
-                  {t.label}
-                </T>
+                <View
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 7,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.primarySoft : "transparent",
+                    flexDirection: "row-reverse",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <T size={12.5} weight="medium" color={active ? colors.primary : colors.foreground}>
+                    {t.label}
+                  </T>
+                  {t.badge > 0 ? (
+                    <View
+                      style={{
+                        minWidth: 16,
+                        height: 16,
+                        borderRadius: 8,
+                        backgroundColor: colors.primary,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        paddingHorizontal: 4,
+                      }}
+                    >
+                      <T size={9} weight="bold" color={colors.primaryForeground}>
+                        {t.badge > 9 ? "9+" : String(t.badge)}
+                      </T>
+                    </View>
+                  ) : null}
+                </View>
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
 
       {tab === "sessions" ? (
         <SessionsPanel colors={colors} />
       ) : tab === "slots" ? (
         <SlotsPanel colors={colors} sessionMinutes={profile?.sessionMinutes ?? 45} />
+      ) : tab === "notifications" ? (
+        <NotificationsPanel
+          colors={colors}
+          onRead={() => refreshUnread()}
+          onNavigateSessions={() => setTab("sessions")}
+        />
       ) : (
         <ProfilePanel colors={colors} profile={profile} onSaved={setProfile} />
       )}
@@ -480,6 +531,151 @@ function SlotsPanel({ colors, sessionMinutes }: { colors: ReturnType<typeof useC
           })
         )}
       </View>
+    </ScrollView>
+  );
+}
+
+// ─── Booking Notifications ────────────────────────────────────────────────────
+
+function NotificationsPanel({
+  colors,
+  onRead,
+  onNavigateSessions,
+}: {
+  colors: ReturnType<typeof useColors>;
+  onRead: () => void;
+  onNavigateSessions: () => void;
+}) {
+  const [items, setItems] = useState<BookingNotification[] | null>(null);
+  const [markingAll, setMarkingAll] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const r = await api<{ notifications: BookingNotification[] }>("/me/notifications?type=booking_confirmed");
+      setItems(r.notifications);
+    } catch {
+      setItems([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function markOneRead(id: number) {
+    try {
+      await api(`/me/notifications/${id}/read`, { method: "POST" });
+      setItems((prev) => prev?.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)) ?? null);
+      onRead();
+    } catch {
+      // ignore
+    }
+  }
+
+  async function markAllRead() {
+    setMarkingAll(true);
+    try {
+      await api("/me/notifications/read-all", { method: "POST" });
+      setItems((prev) => prev?.map((n) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })) ?? null);
+      onRead();
+    } catch {
+      Alert.alert("تعذّر", "حاول لاحقًا");
+    } finally {
+      setMarkingAll(false);
+    }
+  }
+
+  if (items === null) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
+  const hasUnread = items.some((n) => !n.readAt);
+
+  return (
+    <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8, paddingBottom: 110, gap: 10 }}>
+      {items.length > 0 && hasUnread ? (
+        <Btn
+          title="تعليم الكلّ كمقروء"
+          variant="ghost"
+          loading={markingAll}
+          onPress={markAllRead}
+          fullWidth
+        />
+      ) : null}
+
+      {items.length === 0 ? (
+        <Empty icon="bell" title="لا إشعارات بعد" hint="ستظهر هنا إشعارات الحجوزات الجديدة." />
+      ) : (
+        items.map((n) => {
+          const unread = !n.readAt;
+          return (
+            <Pressable
+              key={n.id}
+              onPress={async () => {
+                if (unread) await markOneRead(n.id);
+                onNavigateSessions();
+              }}
+            >
+              <Card
+                style={{
+                  flexDirection: "row-reverse",
+                  alignItems: "flex-start",
+                  gap: 12,
+                  backgroundColor: unread ? colors.primarySoft : undefined,
+                  borderColor: unread ? colors.primary : undefined,
+                  borderWidth: unread ? 1 : undefined,
+                  opacity: unread ? 1 : 0.75,
+                }}
+              >
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    backgroundColor: unread ? colors.primary : colors.muted,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Feather name="calendar" size={18} color={unread ? colors.primaryForeground : colors.mutedForeground} />
+                </View>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+                    <T size={13.5} weight="bold" color={unread ? colors.primary : colors.foreground}>
+                      {n.title}
+                    </T>
+                    {unread ? (
+                      <View
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 4,
+                          backgroundColor: colors.primary,
+                        }}
+                      />
+                    ) : null}
+                  </View>
+                  {n.body ? (
+                    <T size={13} color={colors.foreground} style={{ lineHeight: 20 }}>
+                      {n.body}
+                    </T>
+                  ) : null}
+                  <T size={11} color={colors.mutedForeground}>{fmtDateTime(n.createdAt)}</T>
+                  <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4, marginTop: 2 }}>
+                    <Feather name="arrow-left" size={11} color={colors.primary} />
+                    <T size={11} color={colors.primary} weight="medium">عرض الجلسات</T>
+                  </View>
+                </View>
+              </Card>
+            </Pressable>
+          );
+        })
+      )}
     </ScrollView>
   );
 }
