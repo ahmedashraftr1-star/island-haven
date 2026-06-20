@@ -44,6 +44,8 @@ interface ExpertOption {
   linkedinUrl: string | null;
   websiteUrl: string | null;
   acceptingSessions: boolean;
+  sessionMinutes: number | null;
+  availabilityNote: string | null;
 }
 
 const TIME_SLOTS = [
@@ -817,6 +819,17 @@ function ExpertProfileModal({
             </p>
           )}
 
+          {(expert.sessionMinutes != null && expert.sessionMinutes > 0) && (
+            <div className="flex items-center gap-2 text-[12px] text-white/45">
+              <Clock className="w-3.5 h-3.5 shrink-0 text-white/30" />
+              <span className="text-white/60">
+                {lang === "en"
+                  ? `${expert.sessionMinutes}-minute session`
+                  : `جلسة مدّتها ${expert.sessionMinutes} دقيقة`}
+              </span>
+            </div>
+          )}
+
           {expert.languages && (
             <div className="flex items-center gap-2 text-[12px] text-white/45">
               <MessageSquare className="w-3.5 h-3.5 shrink-0 text-white/30" />
@@ -824,6 +837,13 @@ function ExpertProfileModal({
                 {lang === "en" ? "Languages: " : "اللغات: "}
                 <span className="text-white/60">{expert.languages}</span>
               </span>
+            </div>
+          )}
+
+          {expert.availabilityNote && (
+            <div className="flex items-start gap-2 text-[12px] text-white/45">
+              <Info className="w-3.5 h-3.5 shrink-0 text-white/30 mt-0.5" />
+              <span className="text-white/55 leading-relaxed">{expert.availabilityNote}</span>
             </div>
           )}
 
@@ -1055,7 +1075,10 @@ function StepExpert({
                         : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
                     </span>
                   )}
-                  <Info className="absolute bottom-2.5 end-2.5 w-3.5 h-3.5 text-white/25" />
+                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.09] text-white/30 text-[9.5px] font-medium leading-none pointer-events-none">
+                    <Info className="w-2.5 h-2.5 shrink-0" />
+                    {lang === "en" ? "profile" : "الملف"}
+                  </span>
                   <div className="flex items-center gap-3">
                     {e.avatarUrl ? (
                       <img
