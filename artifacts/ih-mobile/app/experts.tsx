@@ -12,7 +12,7 @@ import {
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
 import { T, Card, Empty, SkeletonCard } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
@@ -32,6 +32,8 @@ interface ExpertCard {
   availabilityNote: string;
   acceptingSessions: boolean;
   featured: boolean;
+  ratingAvg: number | null;
+  ratingCount: number;
 }
 
 interface TeamMember {
@@ -328,6 +330,13 @@ function ExpertCardView({
               <T size={12.5} color={colors.primary} numberOfLines={2} weight="medium" style={{ marginTop: 2 }}>
                 {e.headline}
               </T>
+            ) : null}
+            {e.ratingCount > 0 ? (
+              <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 4, marginTop: 4 }}>
+                <Ionicons name="star" size={12} color="#f59e0b" />
+                <T size={11.5} weight="bold">{e.ratingAvg?.toFixed(1)}</T>
+                <T size={10.5} color={colors.mutedForeground}>({toArabicNum(e.ratingCount)})</T>
+              </View>
             ) : null}
           </View>
         </View>

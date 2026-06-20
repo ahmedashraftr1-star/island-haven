@@ -70,6 +70,8 @@ const expertCardSelect = {
   websiteUrl: expertProfilesTable.websiteUrl,
   status: expertProfilesTable.status,
   createdAt: expertProfilesTable.createdAt,
+  ratingAvg: sql<number | null>`(SELECT ROUND(AVG(rating)::numeric, 1)::float8 FROM session_ratings WHERE expert_id = ${expertProfilesTable.id})`,
+  ratingCount: sql<number>`(SELECT COUNT(*)::int FROM session_ratings WHERE expert_id = ${expertProfilesTable.id})`,
 };
 
 // ─── Public: list active experts ─────────────────────────────────────────────

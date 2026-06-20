@@ -24,6 +24,8 @@ export interface ExpertCard {
   websiteUrl: string;
   status: string;
   createdAt: string;
+  ratingAvg: number | null;
+  ratingCount: number;
 }
 
 interface TeamMember {
@@ -341,6 +343,17 @@ function ExpertCardView({
                 <p className="text-primary/90 text-[12.5px] font-medium leading-snug line-clamp-2 mt-0.5">
                   {e.headline}
                 </p>
+              )}
+              {e.ratingCount > 0 && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                  <span className="text-[11.5px] text-white/85 font-bold tabular-nums">
+                    {e.ratingAvg?.toFixed(1)}
+                  </span>
+                  <span className="text-[10.5px] text-white/40">
+                    ({toArabicNum(e.ratingCount)})
+                  </span>
+                </div>
               )}
             </div>
           </div>
