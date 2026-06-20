@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -13,6 +13,23 @@ import { resolveMedia, api, ApiError, API_BASE, getToken } from "@/lib/api";
 import type { CurrentUser } from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type SessionStatus = "requested" | "confirmed" | "completed" | "declined" | "cancelled";
+
+interface MySession {
+  session: {
+    id: number;
+    topic: string;
+    message: string;
+    mode: "online" | "onsite";
+    status: SessionStatus;
+    createdAt: string;
+    preferredAt: string | null;
+  };
+  expertName: string;
+  expertAvatar: string | null;
+  expertHeadline: string | null;
+}
 
 interface MyStoryData {
   id: number;
@@ -278,6 +295,8 @@ export default function ProfileScreen() {
       ) : null}
 
       <MyStorySection />
+
+      <MySessionsSection />
 
       <Card style={{ gap: 0 }}>
         {[
@@ -740,6 +759,166 @@ function MyStorySection() {
           />
         </View>
       )}
+    </Card>
+  );
+}
+
+// ─── My Sessions Section ──────────────────────────────────────────────────────
+
+const SESSION_STATUS_AR: Record<SessionStatus, string> = {
+  requested: "بانتظار التأكيد",
+  confirmed: "مؤكّدة",
+  completed: "تمّت",
+  declined: "مرفوضة",
+  cancelled: "ملغاة",
+};
+
+const SESSION_STATUS_COLOR: Record<SessionStatus, { bg: string; text: string }> = {
+  requested: { bg: "rgba(251,191,36,0.14)", text: "#b45309" },
+  confirmed: { bg: "rgba(16,185,129,0.14)", text: "#059669" },
+  completed: { bg: "rgba(99,102,241,0.12)", text: "#6366f1" },
+  declined: { bg: "rgba(107,114,128,0.12)", text: "#6b7280" },
+  cancelled: { bg: "rgba(107,114,128,0.12)", text: "#6b7280" },
+};
+
+function fmtSessionDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("ar-EG-u-ca-gregory", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+function MySessionsSection() {
+  const colors = useColors();
+  const router = useRouter();
+  const [sessions, setSessions] = useState<MySession[] | undefined>(undefined);
+
+  const load = useCallback(async () => {
+    try {
+      const r = await api<{ sessions: MySession[] }>("/me/sessions");
+      setSessions(r.sessions);
+    } catch {
+      setSessions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  if (sessions === undefined) {
+    return (
+      <Card style={{ gap: 10 }}>
+        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+          <Feather name="calendar" size={16} color={colors.mutedForeground} />
+          <T size={14} weight="bold">جلسات الإرشاد</T>
+        </View>
+        <View style={{ alignItems: "center", paddingVertical: 12 }}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      </Card>
+    );
+  }
+
+  if (sessions.length === 0) return null;
+
+  return (
+    <Card style={{ gap: 12 }}>
+      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
+        <Feather name="calendar" size={16} color={colors.mutedForeground} />
+        <T size={14} weight="bold">جلسات الإرشاد</T>
+      </View>
+
+      {sessions.map((row) => {
+        const s = row.session;
+        const badge = SESSION_STATUS_COLOR[s.status] ?? { bg: colors.muted, text: colors.mutedForeground };
+        const canRate = s.status === "completed";
+
+        return (
+          <View
+            key={s.id}
+            style={{
+              gap: 10,
+              paddingTop: 10,
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+              {row.expertAvatar ? (
+                <Image
+                  source={{ uri: resolveMedia(row.expertAvatar) }}
+                  style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: colors.muted }}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 14,
+                    backgroundColor: colors.primarySoft,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <T size={17} weight="bold" color={colors.primary}>
+                    {row.expertName.trim().slice(0, 1)}
+                  </T>
+                </View>
+              )}
+              <View style={{ flex: 1, gap: 1 }}>
+                <T size={13.5} weight="bold">{row.expertName}</T>
+                {row.expertHeadline ? (
+                  <T size={11.5} color={colors.mutedForeground} numberOfLines={1}>{row.expertHeadline}</T>
+                ) : null}
+              </View>
+              <View
+                style={{
+                  paddingHorizontal: 9,
+                  paddingVertical: 3,
+                  borderRadius: 999,
+                  backgroundColor: badge.bg,
+                }}
+              >
+                <T size={10.5} weight="bold" color={badge.text}>
+                  {SESSION_STATUS_AR[s.status]}
+                </T>
+              </View>
+            </View>
+
+            <T size={13.5} weight="bold">{s.topic}</T>
+
+            <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+              <T size={11} color={colors.mutedForeground}>
+                {fmtSessionDate(s.createdAt)} · {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+              </T>
+              {canRate ? (
+                <Pressable
+                  onPress={() => router.push(`/sessions/${s.id}/rate` as never)}
+                  style={{
+                    flexDirection: "row-reverse",
+                    alignItems: "center",
+                    gap: 4,
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderRadius: colors.radius,
+                    borderWidth: 1,
+                    borderColor: colors.primary,
+                  }}
+                >
+                  <Feather name="star" size={12} color={colors.primary} />
+                  <T size={12} weight="medium" color={colors.primary}>تقييم</T>
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
+        );
+      })}
     </Card>
   );
 }
