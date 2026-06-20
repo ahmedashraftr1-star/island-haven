@@ -35,7 +35,10 @@ type Booking = {
   attendees: number;
   notes: string | null;
   expertId: number | null;
+  slotId: number | null;
   expertName: string | null;
+  slotStartAt: string | null;
+  slotEndAt: string | null;
   status: string;
   adminNotes: string | null;
   createdAt: string;
@@ -78,6 +81,16 @@ function fmtDate(iso: string) {
     month: "long",
     year: "numeric",
   });
+}
+
+function fmtSlotTime(startAt: string, endAt: string) {
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleTimeString("ar-EG", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  return `${fmt(startAt)} – ${fmt(endAt)}`;
 }
 
 export default function AdminBookings() {
@@ -219,6 +232,12 @@ export default function AdminBookings() {
                       <span className="inline-flex items-center gap-1.5">
                         <UserCheck className="w-3.5 h-3.5" />
                         {b.expertName}
+                      </span>
+                    )}
+                    {b.slotStartAt && b.slotEndAt && (
+                      <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium" dir="ltr">
+                        <Clock className="w-3.5 h-3.5" />
+                        {fmtSlotTime(b.slotStartAt, b.slotEndAt)}
                       </span>
                     )}
                   </div>

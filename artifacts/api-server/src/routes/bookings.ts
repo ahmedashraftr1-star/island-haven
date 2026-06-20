@@ -6,7 +6,7 @@ import {
   type NextFunction,
 } from "express";
 import { desc, eq, sql, gte, and } from "drizzle-orm";
-import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable } from "@workspace/db";
+import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable, expertAvailabilitySlotsTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
@@ -164,6 +164,19 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
     // SERIALIZABLE isolation ensures two concurrent bookings cannot each see
     // capacity available and both succeed beyond the cap.
     const result = await db.transaction(async (tx) => {
+      // If a specific expert slot was chosen, lock it first (atomic "first booker
+      // wins") before checking workspace capacity. This prevents two concurrent
+      // bookings from both seeing the slot as available.
+      if (data.slotId != null) {
+        const lockRes = (await tx.execute(
+          sql`SELECT id, status FROM ${expertAvailabilitySlotsTable}
+              WHERE id = ${data.slotId} FOR UPDATE`,
+        )) as unknown as { rows: Array<{ id: number; status: string }> };
+        const locked = lockRes.rows[0];
+        if (!locked) return { kind: "slotNotFound" as const };
+        if (locked.status !== "available") return { kind: "slotTaken" as const };
+      }
+
       const [slotSum] = await tx
         .select({
           n: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
@@ -209,11 +222,29 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
           attendees: data.attendees,
           notes: data.notes,
           expertId: data.expertId ?? null,
+          slotId: data.slotId ?? null,
         })
         .returning({ id: bookingsTable.id });
+
+      // Mark the expert slot as booked now that the booking row exists.
+      if (data.slotId != null) {
+        await tx
+          .update(expertAvailabilitySlotsTable)
+          .set({ status: "booked", updatedAt: new Date() })
+          .where(eq(expertAvailabilitySlotsTable.id, data.slotId));
+      }
+
       return { kind: "ok" as const, id: row!.id };
     });
 
+    if (result.kind === "slotNotFound") {
+      res.status(404).json({ ok: false, error: "الموعد المختار غير موجود." });
+      return;
+    }
+    if (result.kind === "slotTaken") {
+      res.status(409).json({ ok: false, error: "هذا الموعد حُجِز للتوّ — اختَر موعدًا آخر." });
+      return;
+    }
     if (result.kind === "full") {
       res.status(409).json({
         ok: false,
@@ -282,10 +313,13 @@ router.get("/admin/bookings", requireAdmin, async (_req, res) => {
         attendees: bookingsTable.attendees,
         notes: bookingsTable.notes,
         expertId: bookingsTable.expertId,
+        slotId: bookingsTable.slotId,
         status: bookingsTable.status,
         adminNotes: bookingsTable.adminNotes,
         createdAt: bookingsTable.createdAt,
         expertName: usersTable.fullName,
+        slotStartAt: expertAvailabilitySlotsTable.startAt,
+        slotEndAt: expertAvailabilitySlotsTable.endAt,
       })
       .from(bookingsTable)
       .leftJoin(
@@ -293,6 +327,10 @@ router.get("/admin/bookings", requireAdmin, async (_req, res) => {
         eq(expertProfilesTable.id, bookingsTable.expertId),
       )
       .leftJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .leftJoin(
+        expertAvailabilitySlotsTable,
+        eq(expertAvailabilitySlotsTable.id, bookingsTable.slotId),
+      )
       .orderBy(desc(bookingsTable.createdAt));
     res.json({ bookings: rows });
   } catch (err) {
