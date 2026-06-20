@@ -91,6 +91,7 @@ interface ExpertOption {
   fullName: string;
   avatarUrl: string | null;
   headline: string;
+  bio: string;
   acceptingSessions: boolean;
 }
 
@@ -538,6 +539,11 @@ export default function BookScreen() {
                     {e.headline ? (
                       <T size={12} color={active ? colors.primary : colors.mutedForeground} numberOfLines={1}>
                         {e.headline}
+                      </T>
+                    ) : null}
+                    {e.bio ? (
+                      <T size={12} color={colors.mutedForeground} numberOfLines={2} style={{ lineHeight: 18, marginTop: 2 }}>
+                        {e.bio}
                       </T>
                     ) : null}
                   </View>
