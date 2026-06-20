@@ -455,6 +455,61 @@ router.post("/admin/bookings", requireAdmin, async (req, res) => {
       .returning();
     invalidateNumbersCache();
     res.json({ booking: row });
+
+    // Fire-and-forget: notify the expert when the booking is created
+    // with status 'confirmed' and an expertId assigned.
+    if (d.status === "confirmed" && row.expertId) {
+      (async () => {
+        try {
+          const [expert] = await db
+            .select({
+              userId: expertProfilesTable.userId,
+              expertEmail: usersTable.email,
+              expertFullName: usersTable.fullName,
+            })
+            .from(expertProfilesTable)
+            .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+            .where(eq(expertProfilesTable.id, row.expertId!));
+
+          if (!expert) return;
+
+          const visitorName = row.fullName;
+          const visitDate = row.visitDate;
+          const timeSlot = row.timeSlot;
+
+          const slotLabels: Record<string, string> = {
+            morning: "الصباح",
+            midday: "منتصف النهار",
+            afternoon: "المساء",
+            fullday: "يوم كامل",
+          };
+          const slotLabel = slotLabels[timeSlot] ?? timeSlot;
+
+          await notify(expert.userId, {
+            type: "booking_confirmed",
+            title: "حجز جديد يذكرك",
+            body: `${visitorName} — ${visitDate} (${slotLabel})`,
+          });
+
+          if (expert.expertEmail) {
+            const mail = bookingConfirmedExpertEmail(
+              expert.expertFullName ?? "",
+              visitorName,
+              visitDate,
+              timeSlot,
+            );
+            await sendEmail({
+              to: expert.expertEmail,
+              subject: mail.subject,
+              html: mail.html,
+              text: mail.text,
+            });
+          }
+        } catch (err) {
+          logger.error({ err }, "expert booking notification failed (admin create)");
+        }
+      })();
+    }
   } catch (err) {
     logger.error({ err }, "admin create booking failed");
     res.status(500).json({ error: "تعذّر الإنشاء" });
