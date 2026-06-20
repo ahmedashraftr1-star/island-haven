@@ -55,7 +55,7 @@ router.get("/experts/me/slots", requireUser, async (req, res) => {
   }
 });
 
-// Public — which experts have at least one available slot on a given date?
+// Public — which experts have available slots on a given date, and how many?
 // Must be declared before "/experts/:id/slots" so "available-on" isn't
 // swallowed by the :id param.
 router.get("/experts/available-on", async (req, res) => {
@@ -66,15 +66,19 @@ router.get("/experts/available-on", async (req, res) => {
   }
   try {
     const rows = await db
-      .selectDistinct({ expertId: expertAvailabilitySlotsTable.expertId })
+      .select({
+        expertId: expertAvailabilitySlotsTable.expertId,
+        slotCount: sql<number>`COUNT(*)::int`,
+      })
       .from(expertAvailabilitySlotsTable)
       .where(
         and(
           eq(expertAvailabilitySlotsTable.status, "available"),
           sql`DATE(${expertAvailabilitySlotsTable.startAt}) = ${date}::date`,
         ),
-      );
-    res.json({ available: rows.map((r) => r.expertId) });
+      )
+      .groupBy(expertAvailabilitySlotsTable.expertId);
+    res.json({ available: rows });
   } catch (err) {
     logger.error({ err }, "GET /experts/available-on failed");
     res.status(500).json({ error: "خطأ في الخادم" });

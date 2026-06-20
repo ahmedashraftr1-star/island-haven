@@ -895,7 +895,7 @@ function StepExpert({
   visitDate: string;
 }) {
   const { lang } = useLanguage();
-  const [availableIds, setAvailableIds] = useState<Set<number> | null>(null);
+  const [availableIds, setAvailableIds] = useState<Map<number, number> | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -909,10 +909,10 @@ function StepExpert({
     }
     let cancelled = false;
     setAvailabilityLoading(true);
-    api<{ available: number[] }>(`/experts/available-on?date=${visitDate}`)
+    api<{ available: Array<{ expertId: number; slotCount: number }> }>(`/experts/available-on?date=${visitDate}`)
       .then((r) => {
         if (!cancelled) {
-          setAvailableIds(new Set(r.available));
+          setAvailableIds(new Map(r.available.map((x) => [x.expertId, x.slotCount])));
           setAvailabilityLoading(false);
         }
       })
@@ -1002,14 +1002,15 @@ function StepExpert({
             {[...experts].sort((a, b) => {
               const rank = (e: ExpertOption) => {
                 if (!e.acceptingSessions) return 2;
-                if (availableIds !== null && availableIds.has(e.id)) return 0;
+                if (availableIds !== null && (availableIds.get(e.id) ?? 0) > 0) return 0;
                 return 1;
               };
               return rank(a) - rank(b);
             }).map((e) => {
               const selected = form.expertId === e.id;
               const initials = e.fullName.trim().charAt(0) || "؟";
-              const hasSlot = availableIds !== null && !availabilityLoading ? availableIds.has(e.id) : null;
+              const slotCount = availableIds !== null && !availabilityLoading ? (availableIds.get(e.id) ?? 0) : null;
+              const hasSlot = slotCount !== null ? slotCount > 0 : null;
               const unavailable = !e.acceptingSessions || hasSlot === false;
               return (
                 <motion.div
@@ -1039,9 +1040,11 @@ function StepExpert({
                   {!selected && availabilityLoading && e.acceptingSessions && (
                     <span className="absolute top-2 start-2 h-4 w-10 rounded-full skeleton-shimmer" />
                   )}
-                  {!selected && !availabilityLoading && hasSlot === true && (
+                  {!selected && hasSlot === true && slotCount !== null && (
                     <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
-                      {lang === "en" ? "Free" : "متاح"}
+                      {lang === "en"
+                        ? `${slotCount} slot${slotCount === 1 ? "" : "s"}`
+                        : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
                     </span>
                   )}
                   <Info className="absolute bottom-2.5 end-2.5 w-3.5 h-3.5 text-white/25" />
