@@ -20,6 +20,11 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  Info,
+  X,
+  ExternalLink,
+  Globe,
+  Linkedin,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
@@ -33,6 +38,11 @@ interface ExpertOption {
   avatarUrl: string | null;
   headline: string;
   bio: string | null;
+  expertise: string | null;
+  yearsExperience: number | null;
+  languages: string | null;
+  linkedinUrl: string | null;
+  websiteUrl: string | null;
   acceptingSessions: boolean;
 }
 
@@ -691,6 +701,188 @@ function formatSlotTime(iso: string, lang: string) {
   });
 }
 
+function splitExpertiseTags(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw.split(",").map((t) => t.trim()).filter(Boolean);
+}
+
+function ExpertProfileModal({
+  expert,
+  isSelected,
+  onPick,
+  onClose,
+  lang,
+}: {
+  expert: ExpertOption;
+  isSelected: boolean;
+  onPick: () => void;
+  onClose: () => void;
+  lang: string;
+}) {
+  const initials = expert.fullName.trim().charAt(0) || "؟";
+  const tags = splitExpertiseTags(expert.expertise);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <motion.div
+        key="expert-modal-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        key="expert-modal-panel"
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 24, scale: 0.97 }}
+        transition={{ duration: 0.26, ease: [0.19, 1, 0.22, 1] }}
+        className="relative z-10 w-full sm:max-w-md bg-[#111418] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        dir={lang === "en" ? "ltr" : "rtl"}
+      >
+        <button
+          onClick={onClose}
+          aria-label={lang === "en" ? "Close" : "إغلاق"}
+          className="absolute top-3.5 end-3.5 w-8 h-8 rounded-full bg-white/[0.07] hover:bg-white/[0.14] flex items-center justify-center transition text-white/50 hover:text-white/80 z-10"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="p-5 pb-2">
+          <div className="flex items-start gap-4">
+            {expert.avatarUrl ? (
+              <img
+                src={expert.avatarUrl}
+                alt={expert.fullName}
+                className="w-16 h-16 rounded-2xl object-cover border border-white/10 shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-2xl font-bold text-white/80 shrink-0">
+                {initials}
+              </div>
+            )}
+            <div className="min-w-0 pt-0.5">
+              <h2 className="text-[16px] font-bold leading-snug text-white">
+                {expert.fullName}
+              </h2>
+              {expert.headline && (
+                <p className="text-[12.5px] text-white/55 mt-0.5 leading-snug">
+                  {expert.headline}
+                </p>
+              )}
+              {expert.yearsExperience != null && expert.yearsExperience > 0 && (
+                <p className="text-[11.5px] text-white/35 mt-1">
+                  {lang === "en"
+                    ? `${expert.yearsExperience} yrs experience`
+                    : `${expert.yearsExperience} سنوات خبرة`}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 space-y-4 max-h-[55vh] overflow-y-auto overscroll-contain">
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary/80 text-[11px] font-medium"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {expert.bio && (
+            <p className="text-[13px] text-white/65 leading-relaxed whitespace-pre-line">
+              {expert.bio}
+            </p>
+          )}
+
+          {expert.languages && (
+            <div className="flex items-center gap-2 text-[12px] text-white/45">
+              <MessageSquare className="w-3.5 h-3.5 shrink-0 text-white/30" />
+              <span>
+                {lang === "en" ? "Languages: " : "اللغات: "}
+                <span className="text-white/60">{expert.languages}</span>
+              </span>
+            </div>
+          )}
+
+          {(expert.linkedinUrl || expert.websiteUrl) && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {expert.linkedinUrl && (
+                <a
+                  href={expert.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/55 hover:text-white/80 text-[12px] transition"
+                >
+                  <Linkedin className="w-3.5 h-3.5" />
+                  LinkedIn
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              )}
+              {expert.websiteUrl && (
+                <a
+                  href={expert.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/55 hover:text-white/80 text-[12px] transition"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  {lang === "en" ? "Website" : "الموقع"}
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="px-5 pb-5 pt-1 border-t border-white/[0.07]">
+          {!expert.acceptingSessions ? (
+            <p className="text-center text-[12.5px] text-white/35 py-2">
+              {lang === "en" ? "Not accepting sessions right now" : "لا يستقبل جلسات حاليًا"}
+            </p>
+          ) : isSelected ? (
+            <button
+              onClick={() => { onPick(); onClose(); }}
+              className="w-full py-2.5 rounded-2xl bg-white/[0.07] border border-white/15 text-white/60 hover:bg-white/[0.11] hover:border-white/25 text-[13.5px] font-medium transition"
+            >
+              {lang === "en" ? "Deselect expert" : "إلغاء اختيار الخبير"}
+            </button>
+          ) : (
+            <button
+              onClick={() => { onPick(); onClose(); }}
+              className="w-full py-2.5 rounded-2xl bg-primary/90 hover:bg-primary text-white text-[13.5px] font-semibold transition shadow-[0_4px_16px_-6px_rgba(220,38,55,0.5)]"
+            >
+              {lang === "en" ? "Pick this expert" : "اختَر هذا الخبير"}
+            </button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 function StepExpert({
   form,
   update,
@@ -707,6 +899,7 @@ function StepExpert({
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [previewExpert, setPreviewExpert] = useState<ExpertOption | null>(null);
 
   useEffect(() => {
     if (!visitDate) {
@@ -771,6 +964,7 @@ function StepExpert({
   }
 
   return (
+    <>
     <StepShell
       title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
       hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
@@ -818,14 +1012,18 @@ function StepExpert({
               const hasSlot = availableIds !== null && !availabilityLoading ? availableIds.has(e.id) : null;
               const unavailable = !e.acceptingSessions || hasSlot === false;
               return (
-                <motion.button
+                <motion.div
                   key={e.id}
                   layout
                   variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
                   transition={{ duration: 0.22, ease: [0.19, 1, 0.22, 1] }}
-                  onClick={() => handlePickExpert(e.id, selected)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={lang === "en" ? `View ${e.fullName}'s profile` : `عرض ملف ${e.fullName}`}
+                  onClick={() => setPreviewExpert(e)}
+                  onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setPreviewExpert(e); } }}
                   data-testid={`expert-pick-${e.id}`}
-                  className={`relative p-4 rounded-2xl text-right transition group ${
+                  className={`relative p-4 rounded-2xl text-right transition cursor-pointer ${
                     unavailable && !selected ? "opacity-40" : ""
                   } ${
                     selected
@@ -836,16 +1034,17 @@ function StepExpert({
                   }`}
                 >
                   {selected && (
-                    <CheckCircle2 className="absolute top-2.5 left-2.5 w-4 h-4 text-primary" />
+                    <CheckCircle2 className="absolute top-2.5 start-2.5 w-4 h-4 text-primary" />
                   )}
                   {!selected && availabilityLoading && e.acceptingSessions && (
-                    <span className="absolute top-2 left-2 h-4 w-10 rounded-full skeleton-shimmer" />
+                    <span className="absolute top-2 start-2 h-4 w-10 rounded-full skeleton-shimmer" />
                   )}
                   {!selected && !availabilityLoading && hasSlot === true && (
-                    <span className="absolute top-2 left-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
+                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
                       {lang === "en" ? "Free" : "متاح"}
                     </span>
                   )}
+                  <Info className="absolute bottom-2.5 end-2.5 w-3.5 h-3.5 text-white/25" />
                   <div className="flex items-center gap-3">
                     {e.avatarUrl ? (
                       <img
@@ -879,7 +1078,7 @@ function StepExpert({
                       ) : null}
                     </div>
                   </div>
-                </motion.button>
+                </motion.div>
               );
             })}
           </motion.div>
@@ -947,6 +1146,19 @@ function StepExpert({
       )}
       </AnimatePresence>
     </StepShell>
+
+    <AnimatePresence>
+      {previewExpert && (
+        <ExpertProfileModal
+          expert={previewExpert}
+          isSelected={form.expertId === previewExpert.id}
+          onPick={() => handlePickExpert(previewExpert.id, form.expertId === previewExpert.id)}
+          onClose={() => setPreviewExpert(null)}
+          lang={lang}
+        />
+      )}
+    </AnimatePresence>
+    </>
   );
 }
 
