@@ -206,9 +206,63 @@ export default function BookScreen() {
           <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 24 }}>
             {day ? `نراك يوم ${day.weekday} ${day.dayNum} ${day.month}` : "استلمنا حجزك"}
             {slot ? ` · ${slot.label}` : ""}.
-            {chosenExpert ? `\nوسنُعلم ${chosenExpert.fullName} بموعدك.` : ""}
             {"\n"}سنرسل لك رسالة تأكيد على واتساب قريبًا.
           </T>
+
+          {/* Expert mini-card — shown when user selected an expert */}
+          {chosenExpert ? (
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 10,
+                alignSelf: "stretch",
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: colors.radius,
+                backgroundColor: colors.primarySoft,
+                borderWidth: 1,
+                borderColor: colors.primary + "33",
+              }}
+            >
+              {chosenExpert.avatarUrl ? (
+                <Image
+                  source={{ uri: resolveMedia(chosenExpert.avatarUrl) }}
+                  style={{ width: 44, height: 44, borderRadius: 22 }}
+                  contentFit="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 22,
+                    backgroundColor: colors.primary + "22",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <T size={18} weight="bold" color={colors.primary}>
+                    {chosenExpert.fullName.trim().slice(0, 1)}
+                  </T>
+                </View>
+              )}
+              <View style={{ flex: 1, gap: 2 }}>
+                <T size={13} weight="bold" color={colors.primary}>
+                  {chosenExpert.fullName}
+                </T>
+                {chosenExpert.headline ? (
+                  <T size={11.5} color={colors.primary} numberOfLines={1} style={{ opacity: 0.75 }}>
+                    {chosenExpert.headline}
+                  </T>
+                ) : null}
+                <T size={11} color={colors.mutedForeground} style={{ marginTop: 1 }}>
+                  سنُعلمه بموعدك
+                </T>
+              </View>
+            </View>
+          ) : null}
+
           <View
             style={{
               paddingHorizontal: 14,

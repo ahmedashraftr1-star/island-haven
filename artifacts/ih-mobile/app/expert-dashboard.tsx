@@ -748,7 +748,14 @@ function ProfilePanel({
         </Card>
       ) : null}
 
-      <Field label="المسمّى التعريفيّ" value={headline} onChangeText={setHeadline} maxLength={160} />
+      <Field
+        label="المسمّى التعريفيّ / الشعار"
+        value={headline}
+        onChangeText={setHeadline}
+        maxLength={160}
+        hint="يظهر أسفل اسمك على بطاقة الحجز وقائمة الخبراء"
+        placeholder="مثال: مستشار ريادة أعمال"
+      />
       <Field label="نبذة تعريفيّة" value={bio} onChangeText={setBio} maxLength={4000} multiline numberOfLines={5} />
       <Field
         label="ملاحظة عن التوفّر (اختياري)"
