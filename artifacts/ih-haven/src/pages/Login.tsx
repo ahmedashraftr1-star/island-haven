@@ -5,6 +5,7 @@ import { ArrowLeft, Mail, Lock } from "lucide-react";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Where to land after login: honor an in-app ?next= path, but only a same-site
 // absolute path ("/…", not "//host") so it can't be used as an open redirect.
@@ -14,6 +15,7 @@ function postLoginDest(): string {
 }
 
 export default function Login() {
+  const { lang } = useLanguage();
   const { login, user } = useAuth();
   const [, navigate] = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -23,8 +25,10 @@ export default function Login() {
   const errRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "تسجيل الدخول — آيلاند هيفن";
-  }, []);
+    document.title = lang === "en"
+      ? "Sign in — Island Haven"
+      : "تسجيل الدخول — آيلاند هيفن";
+  }, [lang]);
 
   useEffect(() => {
     if (user) navigate(postLoginDest());
@@ -41,9 +45,9 @@ export default function Login() {
       navigate(postLoginDest());
     } catch (e) {
       if (e instanceof ApiError) {
-        setError(e.message || "تعذّر تسجيل الدخول");
+        setError(e.message || (lang === "en" ? "Sign in failed" : "تعذّر تسجيل الدخول"));
       } else {
-        setError("تعذّر الاتّصال بالخادم");
+        setError(lang === "en" ? "Could not connect to server" : "تعذّر الاتّصال بالخادم");
       }
       setTimeout(() => errRef.current?.focus(), 50);
     } finally {
@@ -56,23 +60,36 @@ export default function Login() {
 
   return (
     <AuthShell
-      eyebrow="تسجيل الدخول"
-      title="مرحبًا بعودتك إلى"
+      eyebrow={lang === "en" ? "Sign in" : "تسجيل الدخول"}
+      title={lang === "en" ? "Welcome back to" : "مرحبًا بعودتك إلى"}
       highlight="آيلاند هيفن"
-      subtitle="ادخل إلى حسابك لمتابعة عملك ومشاريعك في الجزيرة."
+      subtitle={
+        lang === "en"
+          ? "Sign in to your account and continue your work on the island."
+          : "ادخل إلى حسابك لمتابعة عملك ومشاريعك في الجزيرة."
+      }
       footer={
-        <>
-          ليس لديك حساب؟{" "}
-          <Link href="/register" className="text-primary font-bold hover:underline">
-            أنشئ حسابًا الآن
-          </Link>
-        </>
+        lang === "en" ? (
+          <>
+            No account?{" "}
+            <Link href="/register" className="text-primary font-bold hover:underline">
+              Create one now
+            </Link>
+          </>
+        ) : (
+          <>
+            ليس لديك حساب؟{" "}
+            <Link href="/register" className="text-primary font-bold hover:underline">
+              أنشئ حسابًا الآن
+            </Link>
+          </>
+        )
       }
     >
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         <AuthField
           id="email"
-          label="البريد الإلكتروني"
+          label={lang === "en" ? "Email address" : "البريد الإلكتروني"}
           hint="Email"
           icon={Mail}
           type="email"
@@ -86,7 +103,7 @@ export default function Login() {
         <div className="space-y-1">
           <AuthField
             id="password"
-            label="كلمة السرّ"
+            label={lang === "en" ? "Password" : "كلمة السرّ"}
             hint="Password"
             icon={Lock}
             type="password"
@@ -99,7 +116,7 @@ export default function Login() {
           />
           <div className="flex justify-start pt-1">
             <Link href="/forgot-password" className="text-[12px] text-primary/70 hover:text-primary transition-colors">
-              نسيت كلمة السرّ؟
+              {lang === "en" ? "Forgot password?" : "نسيت كلمة السرّ؟"}
             </Link>
           </div>
         </div>
@@ -131,11 +148,11 @@ export default function Login() {
             {submitting ? (
               <>
                 <span className="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                جارٍ الدخول…
+                {lang === "en" ? "Signing in…" : "جارٍ الدخول…"}
               </>
             ) : (
               <>
-                دخول إلى حسابي
+                {lang === "en" ? "Sign in to my account" : "دخول إلى حسابي"}
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               </>
             )}

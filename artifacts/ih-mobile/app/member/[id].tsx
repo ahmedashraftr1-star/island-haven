@@ -137,15 +137,17 @@ export default function MemberDetail() {
         <View style={{ gap: 10 }}>
           <T size={17} weight="bold">الأعمال</T>
           {works.map((w) => (
-            <Card key={w.id} style={{ padding: 0, overflow: "hidden" }}>
-              {w.coverUrl ? (
-                <Image source={{ uri: resolveMedia(w.coverUrl) }} style={{ width: "100%", height: 160, backgroundColor: colors.muted }} contentFit="cover" />
-              ) : null}
-              <View style={{ padding: 14 }}>
-                <T size={15} weight="bold">{w.title}</T>
-                {w.description ? <T size={13} color={colors.mutedForeground} numberOfLines={2} style={{ marginTop: 4 }}>{w.description}</T> : null}
-              </View>
-            </Card>
+            <Pressable key={w.id} onPress={() => router.push(`/work/${w.id}`)} accessibilityRole="button">
+              <Card style={{ padding: 0, overflow: "hidden" }}>
+                {w.coverUrl ? (
+                  <Image source={{ uri: resolveMedia(w.coverUrl) }} style={{ width: "100%", height: 160, backgroundColor: colors.muted }} contentFit="cover" />
+                ) : null}
+                <View style={{ padding: 14 }}>
+                  <T size={15} weight="bold">{w.title}</T>
+                  {w.description ? <T size={13} color={colors.mutedForeground} numberOfLines={2} style={{ marginTop: 4 }}>{w.description}</T> : null}
+                </View>
+              </Card>
+            </Pressable>
           ))}
         </View>
       ) : null}

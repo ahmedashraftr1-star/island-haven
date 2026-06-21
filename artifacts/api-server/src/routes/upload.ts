@@ -12,6 +12,63 @@ const router: IRouter = Router();
 // accepted on the client-supplied mimetype alone.
 const ALLOWED_MIMES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
+// ─── CV / PDF upload (no auth required — submitted before login) ─────────────
+const cvUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("نوع الملف غير مدعوم — PDF فقط"));
+  },
+});
+
+router.post(
+  "/uploads/cv",
+  (req, res, next) => {
+    cvUpload.single("file")(req, res, (err: unknown) => {
+      if (err) {
+        const msg = err instanceof Error ? err.message : "تعذّر رفع الملف";
+        res.status(400).json({ error: msg });
+        return;
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "لم يتم إرسال أي ملف" });
+        return;
+      }
+      if (
+        req.file.buffer.length < 4 ||
+        req.file.buffer.toString("ascii", 0, 4) !== "%PDF"
+      ) {
+        res.status(400).json({ error: "الملف ليس PDF صالحًا" });
+        return;
+      }
+      const svc = new ObjectStorageService();
+      const privateDir = svc.getPrivateObjectDir();
+      const objectId = randomUUID();
+      const fullPath = `${privateDir}/user-uploads/${objectId}.pdf`;
+      const { bucketName, objectName } = parseObjectPath(fullPath);
+      const bucket = (objectStorageClient as Storage).bucket(bucketName);
+      const file = bucket.file(objectName);
+      await file.save(req.file.buffer, {
+        contentType: "application/pdf",
+        resumable: false,
+        public: false,
+        metadata: { cacheControl: "private, max-age=86400" },
+      });
+      const url = `/api/storage/objects/user-uploads/${objectId}.pdf`;
+      res.json({ ok: true, url });
+    } catch (err) {
+      req.log?.error?.({ err }, "cv upload failed");
+      res.status(500).json({ error: "فشل رفع السيرة الذاتية" });
+    }
+  },
+);
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 12 * 1024 * 1024 },

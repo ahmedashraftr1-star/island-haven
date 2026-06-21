@@ -7,6 +7,9 @@
     "hello": "tsx ./src/hello.ts",
     "seed": "tsx ./src/seed.ts",
     "seed:extras": "tsx ./src/seed-extras.ts",
+    "seed:new": "tsx ./src/seed-new-tables.ts",
+    "seed:content": "tsx ./src/seed-real-content.ts",
+    "update:stories": "tsx ./src/update-stories.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

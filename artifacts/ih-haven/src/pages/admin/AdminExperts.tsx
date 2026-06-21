@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Star, CalendarCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 
 interface Row {
@@ -15,7 +15,11 @@ interface Row {
   sortOrder: number;
   acceptingSessions: boolean;
   createdAt: string;
+  approvedAt: string | null;
+  passwordSetAt: string | null;
+  lastLoginAt: string | null;
   sessionsCount: number;
+  ref: string | null;
 }
 
 const STATUS_LABELS: Record<Row["status"], string> = {
@@ -24,10 +28,24 @@ const STATUS_LABELS: Record<Row["status"], string> = {
   hidden: "مخفيّ",
 };
 
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isNeverLoggedIn(r: Row): boolean {
+  if (r.lastLoginAt !== null) return false;
+  if (!r.approvedAt) return false;
+  return Date.now() - new Date(r.approvedAt).getTime() <= SEVEN_DAYS_MS;
+}
+
+type Tab = "active" | "pending" | "hidden";
+
 export default function AdminExperts() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
+  const [tab, setTab] = useState<Tab>("active");
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [resendLoading, setResendLoading] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
   async function reload() {
     try {
@@ -51,6 +69,46 @@ export default function AdminExperts() {
       setError(e instanceof ApiError ? e.message : "تعذّر الحذف");
     }
   }
+
+  async function setStatus(id: number, status: Row["status"]) {
+    setActionLoading(id);
+    try {
+      await api(`/admin/experts/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      void reload();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "تعذّر تحديث الحالة");
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function resendSetupLink(id: number) {
+    setResendLoading(id);
+    setToast(null);
+    try {
+      await api(`/admin/experts/${id}/resend-setup-link`, { method: "POST" });
+      setToast({ kind: "ok", msg: "تمّ إرسال رابط الدخول بنجاح ✓" });
+      setTimeout(() => setToast(null), 4000);
+    } catch (e) {
+      setToast({ kind: "err", msg: e instanceof ApiError ? e.message : "تعذّر الإرسال" });
+      setTimeout(() => setToast(null), 5000);
+    } finally {
+      setResendLoading(null);
+    }
+  }
+
+  const filtered = rows?.filter((r) => r.status === tab) ?? null;
+  const pendingCount = rows?.filter((r) => r.status === "pending").length ?? 0;
+  const neverLoggedInCount = rows?.filter((r) => r.status === "active" && isNeverLoggedIn(r)).length ?? 0;
+
+  const TAB_CONFIG: { id: Tab; label: string; badge?: number; badgeColor?: string }[] = [
+    { id: "active", label: "المُفعَّلون", badge: neverLoggedInCount, badgeColor: "bg-rose-500" },
+    { id: "pending", label: "الطلبات المعلّقة", badge: pendingCount },
+    { id: "hidden", label: "المخفيّون" },
+  ];
 
   return (
     <div className="space-y-5">
@@ -79,12 +137,50 @@ export default function AdminExperts() {
         </div>
       )}
 
+      {toast && (
+        <div
+          className={`rounded-2xl px-4 py-3 text-[13px] border ${
+            toast.kind === "ok"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+              : "bg-rose-50 border-rose-200 text-rose-700"
+          }`}
+        >
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-border">
+        {TAB_CONFIG.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold border-b-2 transition-colors -mb-px ${
+              tab === t.id
+                ? "border-primary text-primary"
+                : "border-transparent text-foreground/50 hover:text-foreground"
+            }`}
+          >
+            {t.label}
+            {t.badge !== undefined && t.badge > 0 && (
+              <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full ${t.badgeColor ?? "bg-amber-500"} text-white text-[10px] font-bold px-1`}>
+                {t.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className="rounded-2xl bg-white border border-border overflow-hidden">
-        {rows === null ? (
+        {filtered === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
-        ) : rows.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-foreground/55 text-[14px]">
-            لم يُضَف أيّ خبير بعد.
+            {tab === "pending"
+              ? "لا توجد طلبات معلّقة حاليًا."
+              : tab === "hidden"
+              ? "لا يوجد خبراء مخفيّون."
+              : "لم يُضَف أيّ خبير بعد."}
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
@@ -92,38 +188,63 @@ export default function AdminExperts() {
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الخبير</th>
                 <th className="text-right px-4 py-3 font-semibold">التخصّص</th>
-                <th className="text-right px-4 py-3 font-semibold">الجلسات</th>
+                {tab !== "pending" && (
+                  <th className="text-right px-4 py-3 font-semibold">الجلسات</th>
+                )}
                 <th className="text-right px-4 py-3 font-semibold">الحالة</th>
                 <th className="text-right px-4 py-3 font-semibold w-1">إجراءات</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {filtered.map((r) => (
                 <tr
                   key={r.id}
                   className="border-t border-border hover:bg-muted/20"
                   data-testid={`admin-expert-row-${r.id}`}
                 >
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 font-semibold text-foreground">
+                    <div className="flex items-center gap-2 font-semibold text-foreground flex-wrap">
                       {r.featured && (
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       )}
                       {r.fullName}
+                      {isNeverLoggedIn(r) && (
+                        <button
+                          onClick={() => setEditing(r)}
+                          title="لم يُسجَّل الدخول منذ الموافقة — انقر للتفاصيل"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10.5px] font-semibold hover:bg-rose-100 transition-colors"
+                        >
+                          لم يسجّل الدخول بعد
+                        </button>
+                      )}
                     </div>
                     <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5">
                       {r.email}
                     </div>
+                    {tab === "pending" && (
+                      <div className="text-[11px] text-foreground/35 mt-0.5">
+                        تقدّم بطلبه {new Date(r.createdAt).toLocaleDateString("ar-EG")}
+                      </div>
+                    )}
+                    {tab === "pending" && r.ref && (
+                      <div className="mt-1">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 text-[10.5px] font-semibold" title="مصدر الإحالة">
+                          المصدر: {r.ref}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-foreground/65">
                     {r.headline || r.expertise || "—"}
                   </td>
-                  <td className="px-4 py-3 text-foreground/65 tabular-nums">
-                    <span className="inline-flex items-center gap-1">
-                      <CalendarCheck className="w-3.5 h-3.5 text-foreground/45" />
-                      {r.sessionsCount}
-                    </span>
-                  </td>
+                  {tab !== "pending" && (
+                    <td className="px-4 py-3 text-foreground/65 tabular-nums">
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarCheck className="w-3.5 h-3.5 text-foreground/45" />
+                        {r.sessionsCount}
+                      </span>
+                    </td>
+                  )}
                   <td className="px-4 py-3">
                     <span
                       className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
@@ -139,20 +260,87 @@ export default function AdminExperts() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setEditing(r)}
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
-                        data-testid={`button-edit-expert-${r.id}`}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onDelete(r.id)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
-                        data-testid={`button-delete-expert-${r.id}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {tab === "pending" ? (
+                        <>
+                          <button
+                            onClick={() => setStatus(r.id, "active")}
+                            disabled={actionLoading === r.id}
+                            title="قبول الطلب وتفعيل الحساب"
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
+                            data-testid={`button-approve-expert-${r.id}`}
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            قبول
+                          </button>
+                          <button
+                            onClick={() => setStatus(r.id, "hidden")}
+                            disabled={actionLoading === r.id}
+                            title="رفض الطلب"
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 disabled:opacity-50 transition-colors"
+                            data-testid={`button-reject-expert-${r.id}`}
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            رفض
+                          </button>
+                          <button
+                            onClick={() => setEditing(r)}
+                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                            data-testid={`button-edit-expert-${r.id}`}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {tab === "hidden" && (
+                            <button
+                              onClick={() => setStatus(r.id, "active")}
+                              disabled={actionLoading === r.id}
+                              title="تفعيل الخبير"
+                              className="p-2 rounded-lg hover:bg-emerald-50 text-foreground/65 hover:text-emerald-600 disabled:opacity-50 transition-colors"
+                              data-testid={`button-activate-expert-${r.id}`}
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {tab === "active" && (
+                            <button
+                              onClick={() => setStatus(r.id, "hidden")}
+                              disabled={actionLoading === r.id}
+                              title="إخفاء الخبير"
+                              className="p-2 rounded-lg hover:bg-amber-50 text-foreground/65 hover:text-amber-600 disabled:opacity-50 transition-colors"
+                            >
+                              <Clock className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {tab === "active" && !r.passwordSetAt && (
+                            <button
+                              onClick={() => resendSetupLink(r.id)}
+                              disabled={resendLoading === r.id}
+                              title="إعادة إرسال رابط الدخول"
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 disabled:opacity-50 transition-colors"
+                              data-testid={`button-resend-link-${r.id}`}
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              {resendLoading === r.id ? "…" : "إعادة إرسال رابط الدخول"}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setEditing(r)}
+                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                            data-testid={`button-edit-expert-${r.id}`}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onDelete(r.id)}
+                            className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                            data-testid={`button-delete-expert-${r.id}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -181,6 +369,7 @@ interface FormState {
   email: string;
   password: string;
   avatarUrl: string;
+  ref: string | null;
   headline: string;
   expertise: string;
   bio: string;
@@ -201,6 +390,7 @@ const EMPTY: FormState = {
   email: "",
   password: "",
   avatarUrl: "",
+  ref: null,
   headline: "",
   expertise: "",
   bio: "",
@@ -238,7 +428,7 @@ function ExpertEditor({
     }
     api<{
       expert: {
-        profile: Omit<FormState, "fullName" | "email" | "password" | "avatarUrl">;
+        profile: Omit<FormState, "fullName" | "email" | "password" | "avatarUrl"> & { ref?: string | null };
         fullName: string;
         email: string;
         avatarUrl: string | null;
@@ -250,6 +440,7 @@ function ExpertEditor({
         email: r.expert.email,
         password: "",
         avatarUrl: r.expert.avatarUrl || "",
+        ref: p.ref ?? null,
         headline: p.headline || "",
         expertise: p.expertise || "",
         bio: p.bio || "",
@@ -303,7 +494,7 @@ function ExpertEditor({
       } else {
         await api(`/admin/experts/${initialId}`, {
           method: "PATCH",
-          body: JSON.stringify(profile),
+          body: JSON.stringify({ ...profile, avatarUrl: form.avatarUrl || null }),
         });
       }
       onSaved();
@@ -385,6 +576,13 @@ function ExpertEditor({
                   />
                 </Field>
               </div>
+            </div>
+          )}
+
+          {!isNew && form.ref && (
+            <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 flex items-center gap-2">
+              <span className="text-[12px] font-semibold text-sky-700/70">مصدر الطلب</span>
+              <span className="text-[13px] font-semibold text-sky-700 dir-ltr" dir="ltr">{form.ref}</span>
             </div>
           )}
 
@@ -512,18 +710,21 @@ function ExpertEditor({
               />
             </Field>
           </div>
-          <Field label="رابط الصورة الشخصيّة (اختياري)" error={issues.avatarUrl}>
-            <input
-              dir="ltr"
+          <div>
+            <label className="block mb-1.5 text-[12px] text-foreground/65 font-semibold">
+              الصورة الشخصيّة (اختياري)
+            </label>
+            <AvatarUploader
               value={form.avatarUrl}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, avatarUrl: e.target.value }))
-              }
-              className="w-full bg-transparent outline-none text-[13.5px]"
-              placeholder="/api/storage/objects/…"
-              maxLength={800}
+              name={form.fullName || "؟"}
+              onChange={(url) => setForm((s) => ({ ...s, avatarUrl: url }))}
             />
-          </Field>
+            {issues.avatarUrl && (
+              <div className="text-[11.5px] text-rose-600 mt-1 px-1">
+                {issues.avatarUrl}
+              </div>
+            )}
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="الحالة" error={issues.status}>
               <select
@@ -599,6 +800,103 @@ function ExpertEditor({
   );
 }
 
+function AvatarUploader({
+  value,
+  name,
+  onChange,
+}: {
+  value: string;
+  name: string;
+  onChange: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const initials = name.trim().charAt(0) || "؟";
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(j.error || "فشل الرفع");
+      }
+      const j = await res.json() as { url: string };
+      onChange(j.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "فشل الرفع");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden text-[18px] font-bold text-primary shrink-0">
+        {value ? (
+          <img src={value} alt={name} className="w-full h-full object-cover" />
+        ) : (
+          initials
+        )}
+      </div>
+      <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border text-[12px] font-semibold text-foreground/75 hover:bg-muted/70 disabled:opacity-50 transition-colors"
+          >
+            {uploading ? (
+              <span className="w-3 h-3 rounded-full border border-t-primary animate-spin" />
+            ) : (
+              <Upload className="w-3 h-3" />
+            )}
+            {uploading ? "جارِ الرفع…" : "رفع صورة"}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="p-1.5 rounded-lg hover:bg-rose-50 text-foreground/45 hover:text-rose-500 transition-colors"
+              title="إزالة الصورة"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+        {value && !uploading && (
+          <div className="flex items-center gap-1 text-[11px] text-foreground/45">
+            <ImageIcon className="w-3 h-3" />
+            <span className="truncate max-w-[200px]">{value}</span>
+          </div>
+        )}
+        {uploadError && (
+          <p className="text-[11px] text-rose-600">{uploadError}</p>
+        )}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFile}
+      />
+    </div>
+  );
+}
+
 function Field({
   label,
   error,
@@ -610,18 +908,18 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block mb-1.5 text-[12px] text-foreground/65 font-semibold">
+      <label className="block mb-1 text-[12px] text-foreground/65 font-semibold">
         {label}
       </label>
       <div
-        className={`rounded-xl px-3 py-2.5 bg-muted/40 border focus-within:bg-muted/60 transition-colors ${
-          error ? "border-rose-300" : "border-border"
+        className={`rounded-xl border px-3 py-2.5 bg-muted/20 transition-colors focus-within:border-primary/50 ${
+          error ? "border-rose-400" : "border-border"
         }`}
       >
         {children}
       </div>
       {error && (
-        <div className="text-[11.5px] text-rose-600 mt-1 px-1">{error}</div>
+        <p className="text-[11.5px] text-rose-600 mt-1 px-0.5">{error}</p>
       )}
     </div>
   );

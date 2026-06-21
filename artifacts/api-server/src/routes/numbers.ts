@@ -48,7 +48,7 @@ router.get("/numbers", async (_req, res) => {
     }
     const [totals] = await db
       .select({
-        members: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active')`,
+        members: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active') + COALESCE((SELECT (value::jsonb->>'members')::int FROM site_settings WHERE key = 'numbers_base'), 0)`,
         freelancers: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'freelancer')`,
         graduates: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'graduate')`,
         students: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active' AND role = 'student')`,

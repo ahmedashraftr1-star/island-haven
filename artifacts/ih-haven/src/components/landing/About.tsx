@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { EditorialHeader, HairlineRow } from "./EditorialHeader";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 const FALLBACK = {
   label: "من نحن",
@@ -22,15 +24,44 @@ const FALLBACK = {
   p2Ar: "رسالتنا",
   p2En: "Mission",
   p2Body:
-    "نُهيّئ بيئة مجّانيّة من مكان وإرشاد وشبكة علاقات، تَنقل صاحب الفكرة إلى صاحب مشروع، وصاحب المشروع إلى صاحب أثَر.",
+    "نُهيّئ بيئة من مكان وإرشاد وشبكة علاقات، تَنقل صاحب الفكرة إلى صاحب مشروع، وصاحب المشروع إلى صاحب أثَر.",
   p3Ar: "لماذا مجتمع؟",
   p3En: "Why community?",
   p3Body:
     "الحاضنة ليست مكاتب — هي ناس. لمّا يجتمع المستقلّ مع المصمّم مع المبرمج مع المرشد في غرفة واحدة، تَلِد المشاريع وتَكبر أسرع.",
 };
 
+const EN_FALLBACK = {
+  label: "About Us",
+  titleA: "A Business",
+  titleAccent: "Incubator",
+  titleB: "in Gaza — from idea to impact.",
+  body: "Island Haven is the tech & entrepreneurship development programme of NasToNas. We support startups, freelancers, and graduates through mentorship, programs, and a partner network.",
+  image: "/photos/IMG_8347.webp",
+  imageBadge: "Open · مفتوح",
+  imageEyebrow: "Inside the Haven",
+  imageCaption: "A corner of Island Haven's open offices — for freelancers, graduates, and students.",
+  quote:
+    "\u201cYes, it\u2019s a place to work. But more than that, it\u2019s a space to connect, learn, and build self-confidence.\u201d",
+  quoteAuthor: "— Founders\u2019 Vision",
+  p1Ar: "Vision",
+  p1En: "Vision",
+  p1Body:
+    "Gaza nurtures its first thousand entrepreneurs by 2030 — building companies that serve people and create jobs from the ground up.",
+  p2Ar: "Mission",
+  p2En: "Mission",
+  p2Body:
+    "We create an environment of space, mentorship, and networks that moves idea-holders into project-owners, and project-owners into change-makers.",
+  p3Ar: "Why community?",
+  p3En: "Why community?",
+  p3Body:
+    "The incubator isn't offices — it's people. When a freelancer, designer, developer, and mentor share a room, projects are born and grow faster.",
+};
+
 export function About() {
-  const c = useContentSection("about", FALLBACK);
+  const { lang } = useLanguage();
+  const cms = useContentSection("about", FALLBACK);
+  const c = lang === "en" ? EN_FALLBACK : cms;
   return (
     <section id="about" className="relative bg-background py-24 lg:py-32">
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">

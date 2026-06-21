@@ -14,6 +14,8 @@ export const NOTIFICATION_TYPES = [
   "program_accepted",
   "session_confirmed",
   "session_requested",
+  "mentor_application",
+  "booking_confirmed",
   "badge_awarded",
   "work_comment",
   "new_follower",

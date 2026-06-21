@@ -7,6 +7,8 @@ import { useAuth } from "@/lib/auth";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { NavRail } from "@/components/nav/NavRail";
 import { NotificationBell } from "@/components/shell/NotificationBell";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LangToggle } from "@/components/nav/LangToggle";
 
 export function PageShell({
   eyebrow,
@@ -27,10 +29,11 @@ export function PageShell({
   active?: string;
 }) {
   const { user, loading } = useAuth();
+  const { dir, lang } = useLanguage();
 
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
@@ -67,6 +70,7 @@ export function PageShell({
             >
               <Search className="w-4 h-4 text-white/70" />
             </Link>
+            <LangToggle tone="onDark" />
             {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (
               <Link
@@ -84,7 +88,7 @@ export function PageShell({
                 data-testid="link-login"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                دخول
+                {lang === "en" ? "Login" : "دخول"}
               </Link>
             ) : null}
           </div>
@@ -161,14 +165,17 @@ export function GlassCard({
   children,
   className = "",
   testId,
+  onClick,
 }: {
   children: ReactNode;
   className?: string;
   testId?: string;
+  onClick?: () => void;
 }) {
   return (
     <div
       data-testid={testId}
+      onClick={onClick}
       className={`relative rounded-[24px] bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.6)] overflow-hidden ${className}`}
     >
       {children}

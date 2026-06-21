@@ -21,6 +21,13 @@ export const DAILY_TYPE_LABELS: Record<DailyType, string> = {
   story: "قصّة",
 };
 
+export const DAILY_TYPE_LABELS_EN: Record<DailyType, string> = {
+  tip: "Tip",
+  news: "News",
+  quote: "Quote",
+  story: "Story",
+};
+
 export type SessionStatus =
   | "requested"
   | "confirmed"
@@ -37,9 +44,22 @@ export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
   cancelled: "ملغاة",
 };
 
+export const SESSION_STATUS_LABELS_EN: Record<SessionStatus, string> = {
+  requested: "Awaiting response",
+  confirmed: "Confirmed",
+  declined: "Declined",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
 export const SESSION_MODE_LABELS: Record<SessionMode, string> = {
   online: "عن بُعد",
   onsite: "في المساحة",
+};
+
+export const SESSION_MODE_LABELS_EN: Record<SessionMode, string> = {
+  online: "Online",
+  onsite: "On-site",
 };
 
 export type ProgramStatus = "draft" | "open" | "in_progress" | "done";
@@ -206,6 +226,20 @@ export function formatArabicDate(iso?: string | null): string {
   try {
     const d = new Date(iso);
     return d.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+export function formatDate(iso?: string | null, lang: "ar" | "en" = "ar"): string {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString(lang === "en" ? "en-GB" : "ar-EG", {
       year: "numeric",
       month: "long",
       day: "numeric",

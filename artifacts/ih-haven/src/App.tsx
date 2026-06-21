@@ -61,6 +61,13 @@ const Resources = lazy(() => import("@/pages/Resources"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const Saved = lazy(() => import("@/pages/Saved"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const Stories = lazy(() => import("@/pages/Stories"));
+const Faq = lazy(() => import("@/pages/Faq"));
+const Process = lazy(() => import("@/pages/Process"));
+const Alumni = lazy(() => import("@/pages/Alumni"));
+const Jobs = lazy(() => import("@/pages/Jobs"));
+const Investors = lazy(() => import("@/pages/Investors"));
+const BecomeMentor = lazy(() => import("@/pages/BecomeMentor"));
 
 const queryClient = new QueryClient();
 
@@ -73,6 +80,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/profile": "ملفّي — Island Haven",
   "/members": "منتسبو المساحة — Island Haven",
   "/experts": "خبراء آيلاند — Island Haven",
+  "/become-mentor": "كُن مرشدًا — Island Haven",
   "/expert": "لوحة الخبير — Island Haven",
   "/programs": "برامج الاحتضان — Island Haven",
   "/ventures": "المشاريع الناشئة — Island Haven",
@@ -85,6 +93,12 @@ const ROUTE_TITLES: Record<string, string> = {
   "/perks": "العروض والامتيازات — Island Haven",
   "/settings": "إعدادات الإشعارات — Island Haven",
   "/numbers": "مُجتمعنا بالأرقام — Island Haven",
+  "/stories": "قصص النجاح — Island Haven",
+  "/faq": "الأسئلة الشائعة — Island Haven",
+  "/process": "عمليّة القبول — Island Haven",
+  "/alumni": "خرّيجو الحاضنة — Island Haven",
+  "/jobs": "لوحة الوظائف — Island Haven",
+  "/investors": "المستثمرون والداعمون — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
   "/team": "فريق آيلاند — Island Haven",
@@ -177,6 +191,14 @@ function Router() {
       <Route path="/events/:id" component={EventDetail} />
       <Route path="/daily" component={Daily} />
       <Route path="/daily/:id" component={DailyDetail} />
+      <Route path="/stories" component={Stories} />
+      <Route path="/faq" component={Faq} />
+      <Route path="/process" component={Process} />
+      <Route path="/alumni" component={Alumni} />
+      <Route path="/jobs" component={Jobs} />
+      <Route path="/investors" component={Investors} />
+      <Route path="/become-mentor" component={BecomeMentor} />
+      <Route path="/notifications" component={NotificationSettings} />
       <Route path="/u/:id" component={PublicProfile} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

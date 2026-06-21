@@ -14,15 +14,17 @@ import {
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { useAuth, type UserRole } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const ROLES: Array<{ id: UserRole; label: string; sub: string; Icon: typeof Briefcase }> = [
-  { id: "freelancer", label: "مستقلّ", sub: "Freelancer", Icon: Briefcase },
-  { id: "graduate", label: "خرّيج", sub: "Graduate", Icon: GraduationCap },
-  { id: "student", label: "طالب", sub: "Student", Icon: BookOpen },
-  { id: "other", label: "غير ذلك", sub: "Other", Icon: Sparkle },
+const ROLES: Array<{ id: UserRole; label: string; en: string; sub: string; Icon: typeof Briefcase }> = [
+  { id: "freelancer", label: "مستقلّ", en: "Freelancer", sub: "Freelancer", Icon: Briefcase },
+  { id: "graduate", label: "خرّيج", en: "Graduate", sub: "Graduate", Icon: GraduationCap },
+  { id: "student", label: "طالب", en: "Student", sub: "Student", Icon: BookOpen },
+  { id: "other", label: "غير ذلك", en: "Other", sub: "Other", Icon: Sparkle },
 ];
 
 export default function Register() {
+  const { lang } = useLanguage();
   const { register, user } = useAuth();
   const [, navigate] = useLocation();
   const [form, setForm] = useState({
@@ -37,8 +39,10 @@ export default function Register() {
   const errRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "إنشاء حساب — آيلاند هيفن";
-  }, []);
+    document.title = lang === "en"
+      ? "Create account — Island Haven"
+      : "إنشاء حساب — آيلاند هيفن";
+  }, [lang]);
 
   useEffect(() => {
     if (user) navigate("/profile");
@@ -64,7 +68,7 @@ export default function Register() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || "تعذّر إنشاء الحساب");
+        setError(d.error || (lang === "en" ? "Could not create account" : "تعذّر إنشاء الحساب"));
         if (Array.isArray(d.issues)) {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;
@@ -73,7 +77,7 @@ export default function Register() {
           if (first) document.getElementById(first)?.focus();
         }
       } else {
-        setError("تعذّر الاتّصال بالخادم");
+        setError(lang === "en" ? "Could not connect to server" : "تعذّر الاتّصال بالخادم");
       }
       setTimeout(() => errRef.current?.focus(), 50);
     } finally {
@@ -89,34 +93,47 @@ export default function Register() {
 
   return (
     <AuthShell
-      eyebrow="حساب جديد · مجّاني"
-      title="انضمّ إلى عائلة"
+      eyebrow={lang === "en" ? "New account · Free" : "حساب جديد · مجّاني"}
+      title={lang === "en" ? "Join the" : "انضمّ إلى عائلة"}
       highlight="آيلاند هيفن"
-      subtitle="أنشئ حسابك خلال دقيقة واحصل على ملفّك الشخصيّ في الجزيرة."
+      subtitle={
+        lang === "en"
+          ? "Create your account in one minute and get your island profile."
+          : "أنشئ حسابك خلال دقيقة واحصل على ملفّك الشخصيّ في الجزيرة."
+      }
       footer={
-        <>
-          لديك حساب؟{" "}
-          <Link href="/login" className="text-primary font-bold hover:underline">
-            سجّل الدخول
-          </Link>
-        </>
+        lang === "en" ? (
+          <>
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary font-bold hover:underline">
+              Sign in
+            </Link>
+          </>
+        ) : (
+          <>
+            لديك حساب؟{" "}
+            <Link href="/login" className="text-primary font-bold hover:underline">
+              سجّل الدخول
+            </Link>
+          </>
+        )
       }
     >
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         <AuthField
           id="fullName"
-          label="الاسم الكامل"
+          label={lang === "en" ? "Full name" : "الاسم الكامل"}
           hint="Full name"
           icon={UserIcon}
           value={form.fullName}
           onChange={(v) => setForm((s) => ({ ...s, fullName: v }))}
-          placeholder="مثال: ياسمين الغزّاوي"
+          placeholder={lang === "en" ? "E.g. Yasmin Al-Ghazzawi" : "مثال: ياسمين الغزّاوي"}
           error={issues.fullName}
           autoComplete="name"
         />
         <AuthField
           id="email"
-          label="البريد الإلكتروني"
+          label={lang === "en" ? "Email address" : "البريد الإلكتروني"}
           hint="Email"
           icon={Mail}
           type="email"
@@ -129,21 +146,23 @@ export default function Register() {
         />
         <AuthField
           id="password"
-          label="كلمة السرّ"
-          hint="Password · 8+"
+          label={lang === "en" ? "Password" : "كلمة السرّ"}
+          hint={lang === "en" ? "Password · 8+ chars" : "Password · 8+"}
           icon={Lock}
           type="password"
           ltr
           value={form.password}
           onChange={(v) => setForm((s) => ({ ...s, password: v }))}
-          placeholder="8 أحرف فأكثر"
+          placeholder={lang === "en" ? "8 characters or more" : "8 أحرف فأكثر"}
           error={issues.password}
           autoComplete="new-password"
         />
 
         <div>
           <div className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]">
-            <span className="text-white/75 font-semibold">ما تصنيفك</span>
+            <span className="text-white/75 font-semibold">
+              {lang === "en" ? "Your category" : "ما تصنيفك"}
+            </span>
             <span className="text-white/35 text-[10px] tracking-[0.16em] uppercase">
               Role
             </span>
@@ -175,10 +194,10 @@ export default function Register() {
                       active ? "text-white" : "text-white/80"
                     }`}
                   >
-                    {r.label}
+                    {lang === "en" ? r.en : r.label}
                   </div>
                   <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/35 mt-0.5">
-                    {r.sub}
+                    {lang === "en" ? r.label : r.sub}
                   </div>
                 </button>
               );
@@ -213,11 +232,11 @@ export default function Register() {
             {submitting ? (
               <>
                 <span className="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                جارٍ الإنشاء…
+                {lang === "en" ? "Creating account…" : "جارٍ الإنشاء…"}
               </>
             ) : (
               <>
-                أنشئ حسابي
+                {lang === "en" ? "Create my account" : "أنشئ حسابي"}
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               </>
             )}

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { NavRail } from "@/components/nav/NavRail";
 import { NAV_ITEMS, NAV_SECONDARY, isNavActive } from "@/components/nav/navConfig";
+import { LangToggle } from "@/components/nav/LangToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   logo: "/logo.png",
@@ -17,7 +19,15 @@ const FALLBACK = {
 };
 
 export function Header() {
-  const c = useContentSection("header", FALLBACK);
+  const { lang } = useLanguage();
+  const cms = useContentSection("header", FALLBACK);
+  const c = {
+    ...cms,
+    tagline: lang === "en" ? "Gaza · Palestine" : cms.tagline,
+    ctaLabel: lang === "en" ? "Apply Now" : cms.ctaLabel,
+    bookCtaLabel: lang === "en" ? "Book a Seat" : cms.bookCtaLabel,
+    menuLabel: lang === "en" ? "Menu" : cms.menuLabel,
+  };
   const [scrolledRaw, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [loc] = useLocation();
@@ -87,6 +97,7 @@ export function Header() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2 shrink-0">
+          <LangToggle tone={scrolled ? "onLight" : "onDark"} />
           <Link
             href="/book"
             className={`inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] ${
@@ -110,9 +121,11 @@ export function Header() {
           </Link>
         </div>
 
+        <div className="xl:hidden flex items-center gap-2">
+          <LangToggle tone={scrolled ? "onLight" : "onDark"} />
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`xl:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
             scrolled
               ? "border border-border bg-white text-foreground"
               : "border border-white/25 bg-white/10 backdrop-blur-md text-white"
@@ -122,6 +135,7 @@ export function Header() {
         >
           {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
         </button>
+        </div>
       </div>
 
       <AnimatePresence>

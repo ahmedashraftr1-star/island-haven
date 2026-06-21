@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   label: "قصّتنا",
@@ -24,8 +25,31 @@ const FALLBACK = {
   stat3V: "100%", stat3L: "مجّانيّ",
 };
 
+const EN_FALLBACK = {
+  label: "Our Story",
+  titleA: "A serious",
+  titleAccent: "attempt",
+  titleB: "to build something sustainable where stability is scarce.",
+  chapter: "Chapter One · The Origin",
+  lead: "Island Haven was born from a belief that the truest investment is in people before anything else.",
+  p1: "We started with a simple conviction: Gazan talent is world-class. What it lacked was a space — physical, professional, and human — to grow.",
+  p2: "Island Haven bridges that gap. From mentorship to cloud credits, from co-working to global payment solutions, we give Gazan entrepreneurs every tool they need to compete on the world stage.",
+  quote: '"We are proving, day by day, that geography is not destiny."',
+  image: "/photos/IMG_8358.webp",
+  creditEyebrow: "A development programme by",
+  creditTitle: "NasToNas — People to People",
+  creditBody: "NasToNas is a solidarity initiative connecting friends of Gaza with real, ground-level projects — making a direct, measurable difference.",
+  creditLink1: "https://nastonas.org",
+  creditLink2: "https://nastonas.org/generalDonations/4/0",
+  stat1V: "2024", stat1L: "Founded",
+  stat2V: "39", stat2L: "seats",
+  stat3V: "100%", stat3L: "free",
+};
+
 export function Story() {
-  const c = useContentSection("story", FALLBACK);
+  const { lang } = useLanguage();
+  const cms = useContentSection("story", FALLBACK);
+  const c = lang === "en" ? EN_FALLBACK : cms;
   const stats = [
     { v: c.stat1V, l: c.stat1L },
     { v: c.stat2V, l: c.stat2L },
@@ -107,7 +131,7 @@ export function Story() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
                   >
-                    {(c.creditLink2 || "").replace(/^https?:\/\//, "")} · للتبرّع
+                    {(c.creditLink2 || "").replace(/^https?:\/\//, "")} · {lang === "en" ? "Donate" : "للتبرّع"}
                     <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                   </a>
                 )}

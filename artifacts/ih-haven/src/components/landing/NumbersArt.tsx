@@ -1,14 +1,20 @@
 import { animate, motion, useInView, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const stats = [
+const STATS_AR = [
   { value: 39, suffix: "", label: "مقعد عمل", note: "في الوقت الواحد" },
   { value: 80, suffix: "", label: "منتسب نشط", note: "أسبوعيّاً، على فترات" },
   { value: 100, suffix: "%", label: "مجّانيّ بالكامل", note: "بدعم من «من الناس إلى الناس»" },
 ];
+const STATS_EN = [
+  { value: 39, suffix: "", label: "Work seats", note: "available simultaneously" },
+  { value: 80, suffix: "", label: "Active members", note: "weekly, on rotation" },
+  { value: 100, suffix: "%", label: "Completely free", note: "supported by Nastonas.org" },
+];
 
-const breakdown = [
+const BREAKDOWN = [
   { value: 40, label: "Freelancers", ar: "مستقلّون" },
   { value: 40, label: "Graduates", ar: "خرّيجون" },
   { value: 20, label: "Students", ar: "طلبة" },
@@ -18,7 +24,7 @@ function CountUp({ to, duration = 1.6 }: { to: number; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15%" });
   const mv = useMotionValue(0);
-  const rounded = useTransform(mv, (v) => Math.round(v).toLocaleString("ar-EG"));
+  const rounded = useTransform(mv, (v) => Math.round(v).toLocaleString("en"));
 
   useEffect(() => {
     if (!inView) return;
@@ -30,6 +36,9 @@ function CountUp({ to, duration = 1.6 }: { to: number; duration?: number }) {
 }
 
 export function NumbersArt() {
+  const { lang } = useLanguage();
+  const stats = lang === "en" ? STATS_EN : STATS_AR;
+
   return (
     <section className="relative bg-muted/40 py-24 lg:py-32 border-y border-border">
       <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
@@ -42,7 +51,7 @@ export function NumbersArt() {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            مجتمعنا بالأرقام
+            {lang === "en" ? "Community by the numbers" : "مجتمعنا بالأرقام"}
           </div>
           <h2
             className="font-bold text-foreground"
@@ -52,16 +61,27 @@ export function NumbersArt() {
               letterSpacing: "-0.02em",
             }}
           >
-            مجتمعٌ يُقاس بأثرٍ،
-            <br />
-            <span className="text-accent-gradient">ويُحكى بأرقام.</span>
+            {lang === "en" ? (
+              <>
+                A community measured by impact,
+                <br />
+                <span className="text-accent-gradient">told in numbers.</span>
+              </>
+            ) : (
+              <>
+                مجتمعٌ يُقاس بأثرٍ،
+                <br />
+                <span className="text-accent-gradient">ويُحكى بأرقام.</span>
+              </>
+            )}
           </h2>
           <p className="mt-6 text-base lg:text-lg text-foreground/65 font-normal leading-relaxed">
-            ليست مجرّد مقاعد، بل وعدٌ بمكانٍ لكلّ من يجدّ ويُتقن.
+            {lang === "en"
+              ? "Not just seats — a promise of a place for everyone who strives and excels."
+              : "ليست مجرّد مقاعد، بل وعدٌ بمكانٍ لكلّ من يجدّ ويُتقن."}
           </p>
         </motion.div>
 
-        {/* Three stat cards — clean, white, calm */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
           {stats.map((s, i) => (
             <motion.div
@@ -95,7 +115,6 @@ export function NumbersArt() {
           ))}
         </div>
 
-        {/* Composition bar — soft indigo segments */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -105,14 +124,14 @@ export function NumbersArt() {
         >
           <div className="flex items-baseline justify-between mb-5">
             <div className="text-[12px] text-foreground/65 font-medium">
-              تركيبة المجتمع
+              {lang === "en" ? "Community composition" : "تركيبة المجتمع"}
             </div>
             <div className="text-[11px] tracking-[0.1em] font-mono text-foreground/45 tabular-nums">
               N=80
             </div>
           </div>
           <div className="flex h-14 lg:h-16 w-full overflow-hidden rounded-xl bg-muted">
-            {breakdown.map((b, i) => (
+            {BREAKDOWN.map((b, i) => (
               <motion.div
                 key={b.label}
                 initial={{ width: 0 }}
@@ -130,13 +149,13 @@ export function NumbersArt() {
                 }}
               >
                 <div className="text-xs lg:text-sm font-bold text-white whitespace-nowrap tabular-nums">
-                  {b.value}٪ · {b.ar}
+                  {b.value}% · {lang === "en" ? b.label : b.ar}
                 </div>
               </motion.div>
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-foreground/60">
-            {breakdown.map((b, i) => (
+            {BREAKDOWN.map((b, i) => (
               <div key={b.label} className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full"
@@ -149,7 +168,7 @@ export function NumbersArt() {
                         : "hsl(354 70% 75%)",
                   }}
                 />
-                {b.ar} · {b.label}
+                {lang === "en" ? b.label : `${b.ar} · ${b.label}`}
               </div>
             ))}
           </div>

@@ -7,9 +7,11 @@ import {
   usersTable,
   expertProfilesTable,
   mentorshipSessionsTable,
+  pendingRemindersTable,
   expertProfileSchema,
   adminExpertProfileSchema,
   createExpertSchema,
+  applyMentorSchema,
   requestSessionSchema,
   SESSION_STATUSES,
   type SessionStatus,
@@ -19,11 +21,21 @@ import {
   requireUser,
   type UserSession,
 } from "../lib/auth";
+import { createResetToken } from "./auth";
+import { schedulePendingReminder } from "../lib/mentorReminderJob";
 import { logger } from "../lib/logger";
-import { sendEmail, sessionConfirmedEmail } from "../lib/email";
+import {
+  sendEmail,
+  sessionConfirmedEmail,
+  mentorApplicationEmail,
+  mentorApplicationApprovedEmail,
+  adminMentorApplicationEmail,
+  mentorPasswordReminderEmail,
+} from "../lib/email";
 import { notify } from "./notifications";
 import { prefAllows } from "./notificationPrefs";
 import { awardBadgeByKey } from "./gamification";
+import { getAdminEmail } from "./adminExtra";
 
 const router: IRouter = Router();
 
@@ -126,6 +138,110 @@ router.get("/experts/:id", async (req, res) => {
   }
 });
 
+// ─── Public: self-apply as mentor ────────────────────────────────────────────
+
+router.post("/experts/apply", async (req, res) => {
+  try {
+    const parsed = applyMentorSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "بيانات غير صحيحة",
+        details: parsed.error.issues.map((i) => ({
+          field: i.path.join("."),
+          message: i.message,
+        })),
+      });
+      return;
+    }
+    const { fullName, email, expertise, yearsExperience, bio, linkedinUrl, ref } =
+      parsed.data;
+
+    if (ref) {
+      logger.info({ ref, applicant: email }, "mentor application from referral");
+    }
+
+    // Generate a random temporary password — the admin will set a proper one
+    // or the applicant can use "forgot password" once approved.
+    const tmpPassword =
+      Math.random().toString(36).slice(2, 10) +
+      Math.random().toString(36).slice(2, 10);
+    const passwordHash = await bcrypt.hash(tmpPassword, 12);
+
+    try {
+      await db.transaction(async (tx) => {
+        const [user] = await tx
+          .insert(usersTable)
+          .values({
+            email,
+            passwordHash,
+            fullName,
+            role: "expert",
+          })
+          .returning();
+        await tx.insert(expertProfilesTable).values({
+          userId: user.id,
+          expertise,
+          yearsExperience,
+          bio,
+          linkedinUrl: linkedinUrl ?? "",
+          status: "pending",
+          acceptingSessions: false,
+          ...(ref ? { ref } : {}),
+        });
+      });
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        res.status(409).json({ error: "هذا البريد مسجّل مسبقًا" });
+        return;
+      }
+      throw err;
+    }
+
+    // Fire-and-forget confirmation email to the applicant
+    const mail = mentorApplicationEmail(fullName);
+    void sendEmail({ to: email, ...mail });
+
+    // Fire-and-forget admin notification
+    const adminEmail = await getAdminEmail();
+    if (adminEmail) {
+      const appUrl =
+        process.env.APP_URL ?? "https://islandhaven.replit.app";
+      const adminMail = adminMentorApplicationEmail(
+        fullName,
+        expertise,
+        `${appUrl}/admin`,
+      );
+      void sendEmail({ to: adminEmail, ...adminMail });
+
+      // In-app bell notification for the admin user (looked up by role, not email)
+      const [adminUser] = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.role, "expert" as any))
+        .limit(0); // Admin users live outside the users table; this is a no-op placeholder
+      if (adminUser) {
+        void notify(adminUser.id, {
+          type: "mentor_application",
+          title: "طلب انضمام مرشد جديد",
+          body: `${fullName} يطلب الانضمام كمرشد (${expertise}).`,
+          link: "/admin",
+        });
+      }
+    } else {
+      logger.warn(
+        { applicant: email },
+        "ADMIN_EMAIL not configured — admin mentor-application notification skipped",
+      );
+    }
+
+
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "POST /experts/apply failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 // ─── Expert self-management ──────────────────────────────────────────────────
 // Resolve the expert profile owned by the logged-in user, or null.
 
@@ -133,6 +249,35 @@ async function myExpertProfile(userId: number) {
   const [row] = await db
     .select()
     .from(expertProfilesTable)
+    .where(eq(expertProfilesTable.userId, userId))
+    .limit(1);
+  return row ?? null;
+}
+
+async function myExpertProfileWithAvatar(userId: number) {
+  const [row] = await db
+    .select({
+      id: expertProfilesTable.id,
+      userId: expertProfilesTable.userId,
+      headline: expertProfilesTable.headline,
+      expertise: expertProfilesTable.expertise,
+      bio: expertProfilesTable.bio,
+      yearsExperience: expertProfilesTable.yearsExperience,
+      languages: expertProfilesTable.languages,
+      sessionMinutes: expertProfilesTable.sessionMinutes,
+      availabilityNote: expertProfilesTable.availabilityNote,
+      acceptingSessions: expertProfilesTable.acceptingSessions,
+      linkedinUrl: expertProfilesTable.linkedinUrl,
+      websiteUrl: expertProfilesTable.websiteUrl,
+      status: expertProfilesTable.status,
+      featured: expertProfilesTable.featured,
+      sortOrder: expertProfilesTable.sortOrder,
+      createdAt: expertProfilesTable.createdAt,
+      updatedAt: expertProfilesTable.updatedAt,
+      avatarUrl: usersTable.avatarUrl,
+    })
+    .from(expertProfilesTable)
+    .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
     .where(eq(expertProfilesTable.userId, userId))
     .limit(1);
   return row ?? null;
@@ -182,7 +327,7 @@ async function notifySessionConfirmed(row: {
 router.get("/experts/me/profile", requireUser, async (req, res) => {
   try {
     const session = sessionOf(req)!;
-    const profile = await myExpertProfile(session.userId);
+    const profile = await myExpertProfileWithAvatar(session.userId);
     if (!profile) {
       res.status(404).json({ error: "لست خبيرًا مسجَّلًا" });
       return;
@@ -190,6 +335,29 @@ router.get("/experts/me/profile", requireUser, async (req, res) => {
     res.json({ profile });
   } catch (err) {
     logger.error({ err }, "GET /experts/me/profile failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+router.patch("/experts/me/avatar", requireUser, async (req, res) => {
+  try {
+    const session = sessionOf(req)!;
+    const profile = await myExpertProfile(session.userId);
+    if (!profile) {
+      res.status(404).json({ error: "لست خبيرًا مسجَّلًا" });
+      return;
+    }
+    const avatarUrl =
+      typeof req.body?.avatarUrl === "string"
+        ? req.body.avatarUrl.trim().slice(0, 800) || null
+        : null;
+    await db
+      .update(usersTable)
+      .set({ avatarUrl, updatedAt: new Date() })
+      .where(eq(usersTable.id, session.userId));
+    res.json({ ok: true, avatarUrl });
+  } catch (err) {
+    logger.error({ err }, "PATCH /experts/me/avatar failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
@@ -443,7 +611,11 @@ router.get("/admin/experts", requireAdmin, async (_req, res) => {
         sortOrder: expertProfilesTable.sortOrder,
         acceptingSessions: expertProfilesTable.acceptingSessions,
         createdAt: expertProfilesTable.createdAt,
+        approvedAt: expertProfilesTable.approvedAt,
+        passwordSetAt: usersTable.passwordSetAt,
+        lastLoginAt: usersTable.lastLoginAt,
         sessionsCount: sql<number>`COALESCE(COUNT(${mentorshipSessionsTable.id}), 0)::int`,
+        ref: expertProfilesTable.ref,
       })
       .from(expertProfilesTable)
       .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
@@ -563,6 +735,10 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    const avatarUrl =
+      typeof req.body?.avatarUrl === "string"
+        ? req.body.avatarUrl.trim().slice(0, 800) || null
+        : undefined;
     const parsed = adminExpertProfileSchema.partial().safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -574,16 +750,89 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
       });
       return;
     }
-    const [row] = await db
-      .update(expertProfilesTable)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(expertProfilesTable.id, id))
-      .returning();
-    if (!row) {
+    const result = await db.transaction(async (tx) => {
+      const [existing] = await tx
+        .select({
+          userId: expertProfilesTable.userId,
+          prevStatus: expertProfilesTable.status,
+        })
+        .from(expertProfilesTable)
+        .where(eq(expertProfilesTable.id, id))
+        .limit(1);
+      if (!existing) return null;
+      if (avatarUrl !== undefined) {
+        await tx
+          .update(usersTable)
+          .set({ avatarUrl, updatedAt: new Date() })
+          .where(eq(usersTable.id, existing.userId));
+      }
+      const [row] = await tx
+        .update(expertProfilesTable)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(expertProfilesTable.id, id))
+        .returning();
+      return { row, userId: existing.userId, prevStatus: existing.prevStatus };
+    });
+    if (!result) {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    res.json({ expert: row });
+    // Send approval email when a pending application is activated for the first time.
+    // A 24-hour password-reset token is minted so the applicant can set their
+    // password immediately without going through the "forgot password" flow.
+    // approvedAt is persisted so the scheduled reminder job can query it.
+    if (
+      result.prevStatus === "pending" &&
+      parsed.data.status === "active"
+    ) {
+      try {
+        const [user] = await db
+          .select({ email: usersTable.email, fullName: usersTable.fullName })
+          .from(usersTable)
+          .where(eq(usersTable.id, result.userId))
+          .limit(1);
+        if (user) {
+          const TTL_24H = 24 * 60 * 60 * 1000;
+          const rawToken = await createResetToken(user.email, TTL_24H);
+          const frontendUrl =
+            process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
+          const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+          const mail = mentorApplicationApprovedEmail(user.fullName, resetUrl);
+          void sendEmail({ to: user.email, ...mail });
+
+          const approvedAt = new Date();
+
+          // Persist approvedAt so the reminder job can find this expert.
+          await db
+            .update(expertProfilesTable)
+            .set({ approvedAt, updatedAt: approvedAt })
+            .where(eq(expertProfilesTable.id, id));
+
+          // Schedule the 20-hour password-setup reminder.
+          // 1. Insert a persistent row so the reminder survives restarts.
+          // 2. Also schedule it in-process via schedulePendingReminder so it
+          //    fires even if the server never restarts before the 20-hour mark.
+          const REMINDER_DELAY_MS = 20 * 60 * 60 * 1000; // 20 h
+          const sendAt = new Date(approvedAt.getTime() + REMINDER_DELAY_MS);
+          const [reminderRow] = await db
+            .insert(pendingRemindersTable)
+            .values({ email: user.email, fullName: user.fullName, sendAt })
+            .onConflictDoNothing()
+            .returning();
+          if (reminderRow) {
+            schedulePendingReminder(reminderRow);
+          } else {
+            logger.info(
+              { email: user.email },
+              "pending reminder already exists for this email — skipping duplicate",
+            );
+          }
+        }
+      } catch (emailErr) {
+        logger.error({ emailErr }, "Failed to send mentor approval email");
+      }
+    }
+    res.json({ expert: result.row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/experts/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -619,6 +868,58 @@ router.delete("/admin/experts/:id", requireAdmin, async (req, res) => {
   } catch (err) {
     logger.error({ err }, "DELETE /admin/experts/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Resend a fresh 24-hour password-setup link to an active expert who hasn't
+// logged in yet (passwordSetAt IS NULL).
+router.post("/admin/experts/:id/resend-setup-link", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // Fetch expert profile + user row
+    const [row] = await db
+      .select({
+        userId: expertProfilesTable.userId,
+        status: expertProfilesTable.status,
+        email: usersTable.email,
+        fullName: usersTable.fullName,
+        passwordSetAt: usersTable.passwordSetAt,
+      })
+      .from(expertProfilesTable)
+      .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .where(eq(expertProfilesTable.id, id))
+      .limit(1);
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    if (row.status !== "active") {
+      res.status(400).json({ error: "الخبير ليس مُفعَّلًا" });
+      return;
+    }
+    if (row.passwordSetAt) {
+      res.status(400).json({ error: "قام هذا المرشد بضبط كلمة السرّ بالفعل" });
+      return;
+    }
+    const TTL_24H = 24 * 60 * 60 * 1000;
+    const rawToken = await createResetToken(row.email, TTL_24H);
+    const frontendUrl = process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
+    const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+    const mail = mentorPasswordReminderEmail(row.fullName, resetUrl);
+    const delivered = await sendEmail({ to: row.email, ...mail });
+    if (!delivered) {
+      res.status(502).json({ error: "تعذّر إرسال البريد الإلكترونيّ — تحقّق من إعدادات البريد وحاول لاحقًا" });
+      return;
+    }
+    logger.info({ expertId: id, email: row.email }, "Resent mentor setup link");
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "POST /admin/experts/:id/resend-setup-link failed");
+    res.status(500).json({ error: "تعذّر إرسال الرابط" });
   }
 });
 

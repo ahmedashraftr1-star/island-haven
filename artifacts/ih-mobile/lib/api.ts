@@ -12,6 +12,8 @@ const _apiOrigin = process.env.EXPO_PUBLIC_API_BASE
     ? `https://${DOMAIN}`
     : "";
 
+export const WEB_BASE = _apiOrigin;
+
 const TOKEN_KEY = "ih_session_token";
 const ADMIN_TOKEN_KEY = "ih_admin_token";
 

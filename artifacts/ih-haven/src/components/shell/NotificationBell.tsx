@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Bell } from "lucide-react";
+import { Bell, UserCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -14,6 +14,13 @@ interface Notif {
   readAt: string | null;
   createdAt: string;
 }
+
+const TYPE_LABELS: Record<string, string> = {
+  mentor_application: "طلبات مرشد",
+  session_requested: "جلسات",
+  booking_confirmed: "حجوزات",
+  generic: "عام",
+};
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -29,6 +36,7 @@ function timeAgo(iso: string): string {
 export function NotificationBell() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [filterType, setFilterType] = useState<string | null>(null);
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const ref = useRef<HTMLDivElement>(null);
@@ -39,10 +47,18 @@ export function NotificationBell() {
     enabled: !!user,
     refetchInterval: 30_000,
   });
-  const listQ = useQuery({
-    queryKey: ["notif-list"],
+
+  const allQ = useQuery({
+    queryKey: ["notif-list", null],
     queryFn: () => api<{ notifications: Notif[] }>("/me/notifications"),
     enabled: !!user && open,
+  });
+
+  const filteredQ = useQuery({
+    queryKey: ["notif-list", filterType],
+    queryFn: () =>
+      api<{ notifications: Notif[] }>(`/me/notifications?type=${filterType}`),
+    enabled: !!user && open && filterType !== null,
   });
 
   useEffect(() => {
@@ -63,7 +79,19 @@ export function NotificationBell() {
 
   if (!user) return null;
   const count = countQ.data?.count ?? 0;
-  const items = listQ.data?.notifications ?? [];
+  const allItems = allQ.data?.notifications ?? [];
+
+  const availableTypes = Array.from(new Set(allItems.map((n) => n.type))).filter(
+    (t) => TYPE_LABELS[t],
+  );
+
+  const items =
+    filterType !== null
+      ? (filteredQ.data?.notifications ?? [])
+      : allItems;
+
+  const isLoading =
+    filterType !== null ? filteredQ.isLoading : allQ.isLoading;
 
   function refresh() {
     qc.invalidateQueries({ queryKey: ["notif-count"] });
@@ -100,7 +128,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute left-0 mt-2 w-[300px] max-h-[420px] overflow-y-auto rounded-2xl bg-[#11162a] border border-white/12 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] z-50 p-2">
+        <div className="absolute left-0 mt-2 w-[310px] max-h-[460px] overflow-y-auto rounded-2xl bg-[#11162a] border border-white/12 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] z-50 p-2">
           <div className="flex items-center justify-between px-2 py-1.5 sticky top-0 bg-[#11162a]">
             <span className="text-white font-bold text-[13px]">الإشعارات</span>
             {count > 0 && (
@@ -112,7 +140,38 @@ export function NotificationBell() {
               </button>
             )}
           </div>
-          {items.length === 0 ? (
+
+          {availableTypes.length > 1 && (
+            <div className="flex items-center gap-1.5 px-1 pb-2 flex-wrap">
+              <button
+                onClick={() => setFilterType(null)}
+                className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
+                  filterType === null
+                    ? "bg-primary/20 text-primary border border-primary/30"
+                    : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
+                }`}
+              >
+                الكلّ
+              </button>
+              {availableTypes.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilterType(filterType === t ? null : t)}
+                  className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
+                    filterType === t
+                      ? "bg-primary/20 text-primary border border-primary/30"
+                      : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
+                  }`}
+                >
+                  {TYPE_LABELS[t] ?? t}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="text-white/35 text-[12px] text-center py-10">جارٍ التحميل…</div>
+          ) : items.length === 0 ? (
             <div className="text-white/45 text-[12.5px] text-center py-10">
               لا إشعارات بعد
             </div>
@@ -126,9 +185,13 @@ export function NotificationBell() {
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  {!n.readAt && (
+                  {n.type === "mentor_application" ? (
+                    <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <UserCheck className="w-3 h-3 text-emerald-400" />
+                    </span>
+                  ) : !n.readAt ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                  )}
+                  ) : null}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-white text-[12.5px] font-semibold">{n.title}</span>

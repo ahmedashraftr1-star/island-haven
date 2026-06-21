@@ -44,6 +44,9 @@ export const expertProfilesTable = pgTable(
       .notNull()
       .$type<ExpertStatus>()
       .default("pending"),
+    ref: varchar("ref", { length: 100 }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -103,6 +106,17 @@ export const createExpertSchema = z.object({
   password: z.string().min(8, "كلمة السرّ 8 أحرف فأكثر").max(200),
   avatarUrl: z.string().trim().max(800).optional().nullable(),
   profile: adminExpertProfileSchema.partial().optional(),
+});
+
+// Public self-application schema — no password required; admin sets one later.
+export const applyMentorSchema = z.object({
+  fullName: safeText(120).min(2, "الاسم قصير جدًّا"),
+  email: z.string().trim().toLowerCase().email("بريد غير صحيح").max(160),
+  expertise: safeText(400).min(2, "أدخل مجالات الخبرة"),
+  yearsExperience: z.number().int().min(0).max(80).default(0),
+  bio: safeText(4000).min(20, "النبذة قصيرة جدًّا"),
+  linkedinUrl: httpUrl(400).default(""),
+  ref: z.string().trim().max(100).optional(),
 });
 
 export type ExpertProfile = typeof expertProfilesTable.$inferSelect;

@@ -6,12 +6,14 @@ import {
   type NextFunction,
 } from "express";
 import { desc, eq, sql, gte, and } from "drizzle-orm";
-import { bookingsTable, db, insertBookingSchema } from "@workspace/db";
+import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable, expertAvailabilitySlotsTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
+import { notify } from "./notifications";
+import { sendEmail, bookingConfirmedExpertEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -162,6 +164,19 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
     // SERIALIZABLE isolation ensures two concurrent bookings cannot each see
     // capacity available and both succeed beyond the cap.
     const result = await db.transaction(async (tx) => {
+      // If a specific expert slot was chosen, lock it first (atomic "first booker
+      // wins") before checking workspace capacity. This prevents two concurrent
+      // bookings from both seeing the slot as available.
+      if (data.slotId != null) {
+        const lockRes = (await tx.execute(
+          sql`SELECT id, status FROM ${expertAvailabilitySlotsTable}
+              WHERE id = ${data.slotId} FOR UPDATE`,
+        )) as unknown as { rows: Array<{ id: number; status: string }> };
+        const locked = lockRes.rows[0];
+        if (!locked) return { kind: "slotNotFound" as const };
+        if (locked.status !== "available") return { kind: "slotTaken" as const };
+      }
+
       const [slotSum] = await tx
         .select({
           n: sql<number>`coalesce(sum(${bookingsTable.attendees}),0)::int`,
@@ -206,11 +221,30 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
           purpose: data.purpose,
           attendees: data.attendees,
           notes: data.notes,
+          expertId: data.expertId ?? null,
+          slotId: data.slotId ?? null,
         })
         .returning({ id: bookingsTable.id });
+
+      // Mark the expert slot as booked now that the booking row exists.
+      if (data.slotId != null) {
+        await tx
+          .update(expertAvailabilitySlotsTable)
+          .set({ status: "booked", updatedAt: new Date() })
+          .where(eq(expertAvailabilitySlotsTable.id, data.slotId));
+      }
+
       return { kind: "ok" as const, id: row!.id };
     });
 
+    if (result.kind === "slotNotFound") {
+      res.status(404).json({ ok: false, error: "الموعد المختار غير موجود." });
+      return;
+    }
+    if (result.kind === "slotTaken") {
+      res.status(409).json({ ok: false, error: "هذا الموعد حُجِز للتوّ — اختَر موعدًا آخر." });
+      return;
+    }
     if (result.kind === "full") {
       res.status(409).json({
         ok: false,
@@ -268,8 +302,35 @@ router.get("/bookings/availability", async (_req, res) => {
 router.get("/admin/bookings", requireAdmin, async (_req, res) => {
   try {
     const rows = await db
-      .select()
+      .select({
+        id: bookingsTable.id,
+        fullName: bookingsTable.fullName,
+        phone: bookingsTable.phone,
+        email: bookingsTable.email,
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+        purpose: bookingsTable.purpose,
+        attendees: bookingsTable.attendees,
+        notes: bookingsTable.notes,
+        expertId: bookingsTable.expertId,
+        slotId: bookingsTable.slotId,
+        status: bookingsTable.status,
+        adminNotes: bookingsTable.adminNotes,
+        createdAt: bookingsTable.createdAt,
+        expertName: usersTable.fullName,
+        slotStartAt: expertAvailabilitySlotsTable.startAt,
+        slotEndAt: expertAvailabilitySlotsTable.endAt,
+      })
       .from(bookingsTable)
+      .leftJoin(
+        expertProfilesTable,
+        eq(expertProfilesTable.id, bookingsTable.expertId),
+      )
+      .leftJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .leftJoin(
+        expertAvailabilitySlotsTable,
+        eq(expertAvailabilitySlotsTable.id, bookingsTable.slotId),
+      )
       .orderBy(desc(bookingsTable.createdAt));
     res.json({ bookings: rows });
   } catch (err) {
@@ -297,6 +358,18 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
     return;
   }
   try {
+    // Read the current row first so we can detect a status transition.
+    const [before] = await db
+      .select({
+        status: bookingsTable.status,
+        expertId: bookingsTable.expertId,
+        fullName: bookingsTable.fullName,
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+      })
+      .from(bookingsTable)
+      .where(eq(bookingsTable.id, id));
+
     const [row] = await db
       .update(bookingsTable)
       .set(parsed.data)
@@ -308,6 +381,65 @@ router.patch("/admin/bookings/:id", requireAdmin, async (req, res) => {
     }
     invalidateNumbersCache();
     res.json({ booking: row });
+
+    // Fire-and-forget: notify the expert when the booking transitions to
+    // 'confirmed' for the first time and the booking names an expert.
+    if (
+      parsed.data.status === "confirmed" &&
+      before?.status !== "confirmed" &&
+      row.expertId
+    ) {
+      (async () => {
+        try {
+          const [expert] = await db
+            .select({
+              userId: expertProfilesTable.userId,
+              expertEmail: usersTable.email,
+              expertFullName: usersTable.fullName,
+            })
+            .from(expertProfilesTable)
+            .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+            .where(eq(expertProfilesTable.id, row.expertId!));
+
+          if (!expert) return;
+
+          const visitorName = row.fullName;
+          const visitDate = row.visitDate;
+          const timeSlot = row.timeSlot;
+
+          const slotLabels: Record<string, string> = {
+            morning: "الصباح",
+            midday: "منتصف النهار",
+            afternoon: "المساء",
+            fullday: "يوم كامل",
+          };
+          const slotLabel = slotLabels[timeSlot] ?? timeSlot;
+
+          await notify(expert.userId, {
+            type: "booking_confirmed",
+            title: "حجز جديد يذكرك",
+            body: `${visitorName} — ${visitDate} (${slotLabel})`,
+          });
+
+          if (expert.expertEmail) {
+            const mail = bookingConfirmedExpertEmail(
+              expert.expertFullName ?? "",
+              visitorName,
+              visitDate,
+              timeSlot,
+            );
+            await sendEmail({
+              to: expert.expertEmail,
+              subject: mail.subject,
+              html: mail.html,
+              text: mail.text,
+            });
+          }
+        } catch (err) {
+          logger.error({ err, bookingId: id }, "expert booking notification failed");
+        }
+      })();
+    }
   } catch (err) {
     logger.error({ err, id }, "Failed to update booking");
     res.status(500).json({ error: "تعذّر التحديث" });
@@ -326,6 +458,7 @@ const adminCreateSchema = z.object({
   notes: z.string().trim().max(2000).regex(/^[^<>]*$/u).default(""),
   status: z.enum(["pending", "confirmed", "cancelled", "completed"]).default("confirmed"),
   adminNotes: z.string().trim().max(4000).regex(/^[^<>]*$/u).default(""),
+  expertId: z.number().int().positive().optional().nullable(),
 });
 
 router.post("/admin/bookings", requireAdmin, async (req, res) => {
@@ -355,10 +488,66 @@ router.post("/admin/bookings", requireAdmin, async (req, res) => {
         notes: d.notes,
         status: d.status,
         adminNotes: d.adminNotes,
+        expertId: d.expertId ?? null,
       })
       .returning();
     invalidateNumbersCache();
     res.json({ booking: row });
+
+    // Fire-and-forget: notify the expert when the booking is created
+    // with status 'confirmed' and an expertId assigned.
+    if (d.status === "confirmed" && row.expertId) {
+      (async () => {
+        try {
+          const [expert] = await db
+            .select({
+              userId: expertProfilesTable.userId,
+              expertEmail: usersTable.email,
+              expertFullName: usersTable.fullName,
+            })
+            .from(expertProfilesTable)
+            .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+            .where(eq(expertProfilesTable.id, row.expertId!));
+
+          if (!expert) return;
+
+          const visitorName = row.fullName;
+          const visitDate = row.visitDate;
+          const timeSlot = row.timeSlot;
+
+          const slotLabels: Record<string, string> = {
+            morning: "الصباح",
+            midday: "منتصف النهار",
+            afternoon: "المساء",
+            fullday: "يوم كامل",
+          };
+          const slotLabel = slotLabels[timeSlot] ?? timeSlot;
+
+          await notify(expert.userId, {
+            type: "booking_confirmed",
+            title: "حجز جديد يذكرك",
+            body: `${visitorName} — ${visitDate} (${slotLabel})`,
+          });
+
+          if (expert.expertEmail) {
+            const mail = bookingConfirmedExpertEmail(
+              expert.expertFullName ?? "",
+              visitorName,
+              visitDate,
+              timeSlot,
+            );
+            await sendEmail({
+              to: expert.expertEmail,
+              subject: mail.subject,
+              html: mail.html,
+              text: mail.text,
+            });
+          }
+        } catch (err) {
+          logger.error({ err }, "expert booking notification failed (admin create)");
+        }
+      })();
+    }
   } catch (err) {
     logger.error({ err }, "admin create booking failed");
     res.status(500).json({ error: "تعذّر الإنشاء" });

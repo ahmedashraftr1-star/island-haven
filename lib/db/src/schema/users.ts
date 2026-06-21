@@ -49,6 +49,8 @@ export const usersTable = pgTable(
       .default("active")
       .notNull()
       .$type<UserStatus>(),
+    passwordSetAt: timestamp("password_set_at", { withTimezone: true }),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     // Bumped on password change/reset to revoke all previously-issued sessions:
     // stateless session tokens embed this epoch and are rejected on mismatch.
     sessionEpoch: integer("session_epoch").default(0).notNull(),
@@ -131,7 +133,7 @@ export const updateProfileSchema = z.object({
     )
     .max(8, "روابط كثيرة")
     .optional(),
-  avatarUrl: z.string().trim().max(800).optional(),
+  avatarUrl: z.string().trim().max(800).nullable().optional(),
 });
 
 export type User = typeof usersTable.$inferSelect;

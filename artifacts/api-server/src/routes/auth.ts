@@ -1,10 +1,12 @@
 import { Router, type IRouter, type Request } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, lt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import {
   db,
   usersTable,
+  successStoriesTable,
+  passwordResetTokensTable,
   registerUserSchema,
   loginUserSchema,
   updateProfileSchema,
@@ -22,21 +24,84 @@ import { sendEmail, passwordResetEmail } from "../lib/email";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
 
-// ─── In-memory password reset tokens ────────────────────────────────────────
-// Single-instance app — in-memory is fine. Tokens expire in 15 minutes.
+// ─── DB-backed password reset tokens ────────────────────────────────────────
+// Tokens are stored in the `password_reset_tokens` table so they survive
+// server restarts. Only the SHA-256 hash of the raw token is persisted —
+// the raw hex token is embedded in the email URL and never written to the DB.
 const RESET_TTL_MS = 15 * 60 * 1000;
-interface ResetEntry { email: string; hash: string; expiresAt: number }
-const resetTokens = new Map<string, ResetEntry>();
 
-function pruneResets() {
-  const now = Date.now();
-  for (const [k, v] of resetTokens) if (v.expiresAt < now) resetTokens.delete(k);
+/** Deletes all expired rows from the tokens table (fire-and-forget). */
+function pruneExpiredTokens(): void {
+  void db
+    .delete(passwordResetTokensTable)
+    .where(lt(passwordResetTokensTable.expiresAt, new Date()));
+}
+
+/**
+ * Creates a password-reset token for the given email, persists its hash to
+ * the DB, and returns the raw token suitable for embedding in a URL.
+ *
+ * @param email   - The account email to bind the token to.
+ * @param ttlMs   - Time-to-live in milliseconds (defaults to 15 min).
+ */
+export async function createResetToken(
+  email: string,
+  ttlMs = RESET_TTL_MS,
+): Promise<string> {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+  const expiresAt = new Date(Date.now() + ttlMs);
+  await db
+    .insert(passwordResetTokensTable)
+    .values({ tokenHash, email, expiresAt })
+    .onConflictDoUpdate({
+      target: passwordResetTokensTable.tokenHash,
+      set: { email, expiresAt },
+    });
+  return rawToken;
+}
+
+/**
+ * Returns true if the given raw token exists in the DB and has not expired.
+ * Used by the mentor-approval reminder to skip sending if the mentor already
+ * clicked the link before the 20-hour reminder fires.
+ */
+export async function isResetTokenValid(rawToken: string): Promise<boolean> {
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+  const [entry] = await db
+    .select({ expiresAt: passwordResetTokensTable.expiresAt })
+    .from(passwordResetTokensTable)
+    .where(eq(passwordResetTokensTable.tokenHash, tokenHash))
+    .limit(1);
+  return !!entry && entry.expiresAt > new Date();
+}
+
+/**
+ * Looks up a raw token in the DB, deletes it (single-use), and returns the
+ * bound email. Returns null if the token is missing or expired.
+ */
+async function consumeResetToken(rawToken: string): Promise<string | null> {
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+  const [entry] = await db
+    .delete(passwordResetTokensTable)
+    .where(eq(passwordResetTokensTable.tokenHash, tokenHash))
+    .returning();
+  if (!entry || entry.expiresAt < new Date()) return null;
+  return entry.email;
 }
 
 // Rate-limit forgot-password: 3 per email per hour
 const forgotAttempts = new Map<string, number[]>();
 function forgotRateLimited(email: string): boolean {
-  pruneResets();
   const HOUR = 60 * 60 * 1000;
   const now = Date.now();
   const arr = (forgotAttempts.get(email) || []).filter(t => now - t < HOUR);
@@ -199,9 +264,14 @@ router.post("/auth/login", async (req, res) => {
       res.status(403).json({ error: "هذا الحساب مُعلَّق" });
       return;
     }
+    const now = new Date();
+    await db
+      .update(usersTable)
+      .set({ lastLoginAt: now, updatedAt: now })
+      .where(eq(usersTable.id, user.id));
     const token = makeUserSessionToken(user.id, user.sessionEpoch);
     setUserSessionCookie(res, token);
-    res.json({ ok: true, user: toPublic(user), token });
+    res.json({ ok: true, user: toPublic({ ...user, lastLoginAt: now, updatedAt: now }), token });
   } catch (err) {
     logger.error({ err }, "login failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -263,6 +333,13 @@ router.patch("/auth/me", requireUser, async (req, res) => {
     if (!user) {
       res.status(404).json({ error: "غير موجود" });
       return;
+    }
+    // Sync avatarUrl to any story submitted by this user
+    if (parsed.data.avatarUrl !== undefined) {
+      await db
+        .update(successStoriesTable)
+        .set({ avatarUrl: parsed.data.avatarUrl ?? null, updatedAt: new Date() })
+        .where(eq(successStoriesTable.submittedByUserId, session.userId));
     }
     res.json({ user: toPublic(user) });
   } catch (err) {
@@ -350,10 +427,8 @@ router.post("/auth/forgot-password", async (req, res) => {
       .from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
     if (user) {
-      const rawToken = crypto.randomBytes(32).toString("hex");
-      const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-      resetTokens.set(tokenHash, { email, hash: tokenHash, expiresAt: Date.now() + RESET_TTL_MS });
-
+      pruneExpiredTokens();
+      const rawToken = await createResetToken(email);
       const resetUrl = `${process.env.FRONTEND_URL ?? "http://localhost:5173"}/reset-password?token=${rawToken}`;
       const { subject, html, text } = passwordResetEmail(resetUrl, user.fullName);
       // Fire-and-forget: never let provider latency/failure leak timing info or
@@ -385,33 +460,32 @@ router.post("/auth/reset-password", async (req, res) => {
       return;
     }
 
-    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-    const entry = resetTokens.get(tokenHash);
+    const email = await consumeResetToken(rawToken);
 
-    if (!entry || entry.expiresAt < Date.now()) {
-      resetTokens.delete(tokenHash);
+    if (!email) {
       res.status(400).json({ error: "الرابط منتهٍ أو غير صحيح" });
       return;
     }
 
     const [user] = await db.select({ id: usersTable.id })
-      .from(usersTable).where(eq(usersTable.email, entry.email)).limit(1);
+      .from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
     if (!user) { res.status(404).json({ error: "الحساب غير موجود" }); return; }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
+    const now = new Date();
     // Bump the session epoch so every session issued before this reset is
     // revoked (the whole point of a password reset after a compromise).
     await db
       .update(usersTable)
       .set({
         passwordHash,
+        passwordSetAt: now,
         sessionEpoch: sql`${usersTable.sessionEpoch} + 1`,
-        updatedAt: new Date(),
+        updatedAt: now,
       })
       .where(eq(usersTable.id, user.id));
 
-    resetTokens.delete(tokenHash);
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "reset-password failed");

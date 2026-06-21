@@ -19,7 +19,8 @@ import { Feather } from "@expo/vector-icons";
 import { T, Card } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
-import type { DailyPost, Numbers, SiteContent } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
+import type { CurrentUser, DailyPost, Numbers, SiteContent } from "@/lib/types";
 
 interface ExpertCard {
   id: number;
@@ -124,12 +125,54 @@ function useCountUp(target: number): number {
   return val;
 }
 
+function ExpertCardSkeleton({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const shimmer = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+    return () => shimmer.stopAnimation();
+  }, [shimmer]);
+  const opacity = shimmer.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.7] });
+  const bg = colors.muted;
+  return (
+    <Animated.View
+      style={{
+        opacity,
+        width: 220,
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: colors.radius + 2,
+        padding: 14,
+        gap: 10,
+      }}
+    >
+      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }} />
+        <View style={{ flex: 1, gap: 6 }}>
+          <View style={{ height: 13, borderRadius: 6, backgroundColor: bg, width: "70%" }} />
+          <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "50%" }} />
+        </View>
+      </View>
+      <View style={{ gap: 5 }}>
+        <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "100%" }} />
+        <View style={{ height: 11, borderRadius: 5, backgroundColor: bg, width: "80%" }} />
+      </View>
+    </Animated.View>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const reduce = useReduceMotion();
   const intro = useRef(new Animated.Value(0)).current;
+  const { user } = useAuth();
 
   const contentQ = useQuery<{ content: SiteContent }>({
     queryKey: ["content"],
@@ -380,68 +423,82 @@ export default function Home() {
           </View>
 
           {/* Featured Experts */}
-          {experts.length > 0 && (
+          {(expertsQ.isLoading || experts.length > 0) && (
             <View style={{ paddingTop: 28 }}>
               <View style={s.sectionHead}>
                 <T size={20} weight="bold">الخبراء والمرشدون</T>
-                <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
-                  <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
-                </Pressable>
-              </View>
-              <FlatList
-                horizontal
-                data={experts}
-                keyExtractor={(e) => String(e.id)}
-                showsHorizontalScrollIndicator={false}
-                inverted
-                contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
-                renderItem={({ item }) => (
-                  <Pressable
-                    onPress={() => router.push(`/expert/${item.id}` as never)}
-                    style={{
-                      width: 220,
-                      backgroundColor: colors.card,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      borderRadius: colors.radius + 2,
-                      padding: 14,
-                      gap: 10,
-                    }}
-                  >
-                    <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
-                      {item.avatarUrl ? (
-                        <Image
-                          source={{ uri: resolveMedia(item.avatarUrl) }}
-                          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.muted }}
-                        />
-                      ) : (
-                        <View
-                          style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 22,
-                            backgroundColor: colors.primarySoft,
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Feather name="user" size={20} color={colors.primary} />
-                        </View>
-                      )}
-                      <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 5 }}>
-                          <T size={14} weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>{item.fullName}</T>
-                          {item.featured ? <Feather name="star" size={12} color={colors.primary} /> : null}
-                        </View>
-                        <T size={12} color={colors.primary} weight="medium" numberOfLines={1}>{item.headline}</T>
-                      </View>
-                    </View>
-                    <T size={12} color={colors.mutedForeground} numberOfLines={2}>
-                      {item.expertise}
-                    </T>
+                {!expertsQ.isLoading && (
+                  <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
+                    <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
                   </Pressable>
                 )}
-              />
+              </View>
+              {expertsQ.isLoading ? (
+                <FlatList
+                  horizontal
+                  data={[0, 1, 2, 3]}
+                  keyExtractor={(i) => String(i)}
+                  showsHorizontalScrollIndicator={false}
+                  inverted
+                  contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+                  renderItem={() => <ExpertCardSkeleton colors={colors} />}
+                />
+              ) : (
+                <FlatList
+                  horizontal
+                  data={experts}
+                  keyExtractor={(e) => String(e.id)}
+                  showsHorizontalScrollIndicator={false}
+                  inverted
+                  contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      onPress={() => router.push(`/expert/${item.id}` as never)}
+                      style={{
+                        width: 220,
+                        backgroundColor: colors.card,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        borderRadius: colors.radius + 2,
+                        padding: 14,
+                        gap: 10,
+                      }}
+                    >
+                      <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
+                        {item.avatarUrl ? (
+                          <Image
+                            source={{ uri: resolveMedia(item.avatarUrl) }}
+                            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.muted }}
+                          />
+                        ) : (
+                          <View
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 22,
+                              backgroundColor: colors.primarySoft,
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Feather name="user" size={20} color={colors.primary} />
+                          </View>
+                        )}
+                        <View style={{ flex: 1 }}>
+                          <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 5 }}>
+                            <T size={14} weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>{item.fullName}</T>
+                            {item.featured ? <Feather name="star" size={12} color={colors.primary} /> : null}
+                          </View>
+                          <T size={12} color={colors.primary} weight="medium" numberOfLines={1}>{item.headline}</T>
+                        </View>
+                      </View>
+                      <T size={12} color={colors.mutedForeground} numberOfLines={2}>
+                        {item.expertise}
+                      </T>
+                    </Pressable>
+                  )}
+                />
+              )}
             </View>
           )}
 
@@ -635,9 +692,140 @@ export default function Home() {
               </View>
             </View>
           )}
+
+          {/* Become a Mentor CTA */}
+          <BecomeMentorBanner user={user} />
         </Animated.View>
       )}
     />
+  );
+}
+
+function BecomeMentorBanner({ user }: { user: CurrentUser | null }) {
+  const colors = useColors();
+  const router = useRouter();
+
+  if (user?.role === "expert") {
+    return (
+      <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
+        <Pressable
+          onPress={() => router.push("/experts" as never)}
+          style={({ pressed }) => ({
+            borderRadius: colors.radius + 4,
+            borderWidth: 1,
+            borderColor: colors.primary + "40",
+            backgroundColor: colors.primarySoft,
+            padding: 20,
+            opacity: pressed ? 0.85 : 1,
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            gap: 14,
+          })}
+          testID="cta-manage-availability"
+        >
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="calendar" size={20} color="#fff" />
+          </View>
+          <View style={{ flex: 1, gap: 3 }}>
+            <T size={15} weight="bold" style={{ textAlign: "right" }}>
+              أنت مرشد في المجتمع
+            </T>
+            <T size={13} color={colors.mutedForeground} style={{ textAlign: "right" }}>
+              تحقّق من ملفّك وأدِر توافرك للجلسات
+            </T>
+          </View>
+          <Feather name="chevron-left" size={18} color={colors.primary} />
+        </Pressable>
+      </View>
+    );
+  }
+
+  const badges = [
+    { icon: "star" as const, label: "شارك خبرتك" },
+    { icon: "clock" as const, label: "ساعة أسبوعيًّا" },
+    { icon: "heart" as const, label: "أثّر في الجيل القادم" },
+  ];
+
+  return (
+    <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
+      <Pressable
+        onPress={() => router.push("/become-mentor" as never)}
+        style={({ pressed }) => ({
+          borderRadius: colors.radius + 4,
+          borderWidth: 1,
+          borderColor: colors.primary + "40",
+          backgroundColor: colors.primarySoft,
+          padding: 20,
+          opacity: pressed ? 0.85 : 1,
+          gap: 12,
+        })}
+        testID="cta-become-mentor"
+      >
+        <View style={{ alignItems: "flex-end" }}>
+          <T size={11} weight="bold" color={colors.primary} style={{ letterSpacing: 1, textTransform: "uppercase" }}>
+            هل أنت خبير؟
+          </T>
+        </View>
+
+        <View style={{ alignItems: "flex-end", gap: 4 }}>
+          <T size={24} weight="bold" style={{ textAlign: "right", lineHeight: 32 }}>
+            انضم كمرشد
+          </T>
+          <T size={13} color={colors.mutedForeground} style={{ textAlign: "right", lineHeight: 20 }}>
+            ساعد رواد الأعمال في غزة بمشاركة خبرتك ووقتك — جلسة واحدة قد تُغيّر مسار مشروع.
+          </T>
+        </View>
+
+        <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 8 }}>
+          {badges.map((b) => (
+            <View
+              key={b.label}
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: colors.primary + "30",
+                backgroundColor: colors.card,
+              }}
+            >
+              <Feather name={b.icon} size={12} color={colors.primary} />
+              <T size={12} weight="medium" color={colors.primary}>{b.label}</T>
+            </View>
+          ))}
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 6,
+            marginTop: 4,
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+            borderRadius: 999,
+            backgroundColor: colors.primary,
+            alignSelf: "flex-end",
+          }}
+        >
+          <Feather name="chevron-left" size={16} color="#fff" />
+          <T size={14} weight="bold" color="#fff">كُن مرشدًا</T>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
@@ -680,4 +868,3 @@ const s = StyleSheet.create({
   },
   numbersGrid: { flexDirection: "row-reverse", flexWrap: "wrap", gap: 10 },
 });
-

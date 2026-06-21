@@ -9,7 +9,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "seed:experts": "export NODE_ENV=development && node ./build.mjs && node --enable-source-maps ./dist/seed/experts.mjs"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
@@ -21,6 +22,7 @@
     "cors": "^2",
     "drizzle-orm": "catalog:",
     "express": "^5",
+    "express-rate-limit": "^8.5.2",
     "google-auth-library": "^10.6.2",
     "helmet": "^8.2.0",
     "multer": "^2.1.1",

@@ -20,26 +20,48 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  Info,
+  X,
+  ExternalLink,
+  Globe,
+  Linkedin,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-type Step = 0 | 1 | 2;
+type Step = 0 | 1 | 2 | 3;
+
+interface ExpertOption {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string;
+  bio: string | null;
+  expertise: string | null;
+  yearsExperience: number | null;
+  languages: string | null;
+  linkedinUrl: string | null;
+  websiteUrl: string | null;
+  acceptingSessions: boolean;
+  sessionMinutes: number | null;
+  availabilityNote: string | null;
+}
 
 const TIME_SLOTS = [
-  { id: "morning", label: "صباحًا", time: "٩ – ١٢", icon: "☕" },
-  { id: "midday", label: "ظهرًا", time: "١٢ – ٣", icon: "☀️" },
-  { id: "afternoon", label: "بعد الظهر", time: "٣ – ٥", icon: "🌅" },
-  { id: "fullday", label: "اليوم الكامل", time: "٩ – ٥", icon: "✨" },
+  { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", icon: "☕" },
+  { id: "midday", label: "ظهرًا", labelEn: "Midday", time: "١٢ – ٣", timeEn: "12 – 3", icon: "☀️" },
+  { id: "afternoon", label: "بعد الظهر", labelEn: "Afternoon", time: "٣ – ٥", timeEn: "3 – 5", icon: "🌅" },
+  { id: "fullday", label: "اليوم الكامل", labelEn: "Full Day", time: "٩ – ٥", timeEn: "9 – 5", icon: "✨" },
 ] as const;
 
 const PURPOSES = [
-  { id: "work", label: "عمل مستقلّ", Icon: Briefcase },
-  { id: "study", label: "دراسة", Icon: GraduationCap },
-  { id: "meeting", label: "اجتماع", Icon: Users },
-  { id: "event", label: "فعّاليّة", Icon: PartyPopper },
-  { id: "tour", label: "زيارة استكشافيّة", Icon: Eye },
-  { id: "other", label: "غير ذلك", Icon: MoreHorizontal },
+  { id: "work", label: "عمل مستقلّ", labelEn: "Freelance work", Icon: Briefcase },
+  { id: "study", label: "دراسة", labelEn: "Study", Icon: GraduationCap },
+  { id: "meeting", label: "اجتماع", labelEn: "Meeting", Icon: Users },
+  { id: "event", label: "فعّاليّة", labelEn: "Event", Icon: PartyPopper },
+  { id: "tour", label: "زيارة استكشافيّة", labelEn: "Exploratory visit", Icon: Eye },
+  { id: "other", label: "غير ذلك", labelEn: "Other", Icon: MoreHorizontal },
 ] as const;
 
 // Asia/Gaza working week: Saturday(6) - Thursday(4); Friday(5) closed.
@@ -73,14 +95,24 @@ function arabicMonth(d: Date) {
 }
 
 const WEEKDAY_LABELS = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"];
+const WEEKDAY_LABELS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Book() {
+  const { lang } = useLanguage();
   const [step, setStep] = useState<Step>(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [monthCursor, setMonthCursor] = useState<Date>(startOfMonth(new Date()));
+  const [experts, setExperts] = useState<ExpertOption[] | null>(null);
+  const [selectedSlotMeta, setSelectedSlotMeta] = useState<AvailableSlot | null>(null);
+
+  useEffect(() => {
+    api<{ experts: ExpertOption[] }>("/experts")
+      .then((r) => setExperts(r.experts))
+      .catch(() => setExperts([]));
+  }, []);
 
   const [form, setForm] = useState({
     visitDate: "",
@@ -88,14 +120,16 @@ export default function Book() {
     purpose: "" as "" | (typeof PURPOSES)[number]["id"],
     attendees: 1,
     notes: "",
+    expertId: null as number | null,
+    slotId: null as number | null,
     fullName: "",
     phone: "",
     email: "",
   });
 
   useEffect(() => {
-    document.title = "احجز مقعدك — آيلاند هيفن";
-  }, []);
+    document.title = lang === "en" ? "Book a seat — Island Haven" : "احجز مقعدك — آيلاند هيفن";
+  }, [lang]);
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -140,6 +174,7 @@ export default function Book() {
 
   const canStep1 = form.visitDate && form.timeSlot;
   const canStep2 = form.purpose && form.attendees >= 1;
+  const canStep3 = true;
   const canSubmit = canStep1 && canStep2 && form.fullName && form.phone;
 
   async function submit() {
@@ -172,11 +207,12 @@ export default function Book() {
     }
   }
 
-  if (done) return <SuccessScreen id={done.id} form={form} />;
+  const selectedExpert = experts?.find((e) => e.id === form.expertId) ?? null;
+  if (done) return <SuccessScreen id={done.id} form={form} expert={selectedExpert} />;
 
   return (
     <div
-      dir="rtl"
+      dir={lang === "en" ? "ltr" : "rtl"}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
     >
       <BackgroundAura />
@@ -202,7 +238,7 @@ export default function Book() {
           href="/"
           className="text-[12.5px] text-white/65 hover:text-white inline-flex items-center gap-1.5 transition"
         >
-          العودة <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+          {lang === "en" ? "Back" : "العودة"} <ArrowLeft className={`w-3.5 h-3.5 ${lang === "en" ? "" : "rotate-180"}`} />
         </Link>
       </header>
 
@@ -210,20 +246,22 @@ export default function Book() {
         <div className="text-center max-w-2xl mx-auto pt-8 lg:pt-12 pb-10 lg:pb-14">
           <div className="inline-flex items-center gap-2 px-3 h-7 rounded-full bg-primary/15 text-primary text-[11px] tracking-[0.2em] font-semibold uppercase mb-5">
             <Sparkles className="w-3 h-3" />
-            احجز مقعدك · مجّاني تمامًا
+            {lang === "en" ? "Book a seat · Completely free" : "احجز مقعدك · مجّاني تمامًا"}
           </div>
           <h1
             className="font-bold leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)" }}
           >
-            تعالَ إلى{" "}
-            <span className="text-accent-gradient">آيلاند هيفن</span>
-            <br />
-            مقعدك ينتظرك.
+            {lang === "en" ? (
+              <>Come to{" "}<span className="text-accent-gradient">Island Haven</span><br />your seat awaits.</>
+            ) : (
+              <>تعالَ إلى{" "}<span className="text-accent-gradient">آيلاند هيفن</span><br />مقعدك ينتظرك.</>
+            )}
           </h1>
           <p className="mt-5 text-white/65 text-[15px] leading-[1.85] max-w-xl mx-auto">
-            اختَر يومًا وفترة، وسنُجهّز لك مساحتك. لا حاجة لتسجيل دخول، ولا
-            رسوم، ولا تعقيدات — فقط ثلاث خطوات.
+            {lang === "en"
+              ? "Pick a day, time slot, and optionally an expert to meet. No login, no fees, no hassle — just four steps."
+              : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه اختياريًّا. لا حاجة لتسجيل دخول، ولا رسوم، ولا تعقيدات — فقط أربع خطوات."}
           </p>
         </div>
 
@@ -248,8 +286,11 @@ export default function Book() {
                   <StepTwo key="s1" form={form} update={update} />
                 )}
                 {step === 2 && (
+                  <StepExpert key="s2" form={form} update={update} experts={experts} visitDate={form.visitDate} onSlotMetaChange={setSelectedSlotMeta} />
+                )}
+                {step === 3 && (
                   <StepThree
-                    key="s2"
+                    key="s3"
                     form={form}
                     update={update}
                     issues={issues}
@@ -270,23 +311,28 @@ export default function Book() {
                   className="h-11 px-5 rounded-full text-[13px] font-medium text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-2"
                   data-testid="button-back"
                 >
-                  <ChevronRight className="w-4 h-4" />
-                  السابق
+                  <ChevronRight className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
+                  {lang === "en" ? "Back" : "السابق"}
                 </button>
-                {step < 2 ? (
+                {step < 3 ? (
                   <button
                     onClick={() =>
-                      setStep((s) => Math.min(2, s + 1) as Step)
+                      setStep((s) => Math.min(3, s + 1) as Step)
                     }
                     disabled={
                       (step === 0 && !canStep1) ||
-                      (step === 1 && !canStep2)
+                      (step === 1 && !canStep2) ||
+                      (step === 2 && !canStep3)
                     }
                     className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-next"
                   >
-                    التالي
-                    <ChevronLeft className="w-4 h-4" />
+                    {step === 2
+                      ? form.expertId
+                        ? lang === "en" ? "Next" : "التالي"
+                        : lang === "en" ? "Skip" : "تخطّ"
+                      : lang === "en" ? "Next" : "التالي"}
+                    <ChevronLeft className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   </button>
                 ) : (
                   <button
@@ -295,7 +341,7 @@ export default function Book() {
                     className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-submit"
                   >
-                    {submitting ? "جارٍ الإرسال..." : "أكِّد الحجز"}
+                    {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
                     <CheckCircle2 className="w-4 h-4" />
                   </button>
                 )}
@@ -304,7 +350,11 @@ export default function Book() {
           </div>
 
           {/* Summary panel */}
-          <SummaryCard form={form} />
+          <SummaryCard
+            form={form}
+            expertName={experts?.find((e) => e.id === form.expertId)?.fullName}
+            selectedSlot={selectedSlotMeta}
+          />
         </div>
       </div>
     </div>
@@ -329,11 +379,10 @@ function GlassPanel({ children }: { children: React.ReactNode }) {
 }
 
 function Stepper({ step }: { step: Step }) {
-  const items = [
-    { n: 1, label: "الموعد" },
-    { n: 2, label: "الهدف" },
-    { n: 3, label: "بياناتك" },
-  ];
+  const { lang } = useLanguage();
+  const items = lang === "en"
+    ? [{ n: 1, label: "Date" }, { n: 2, label: "Purpose" }, { n: 3, label: "Expert" }, { n: 4, label: "Your info" }]
+    : [{ n: 1, label: "الموعد" }, { n: 2, label: "الهدف" }, { n: 3, label: "الخبير" }, { n: 4, label: "بياناتك" }];
   return (
     <div className="flex items-center justify-center gap-2 lg:gap-4">
       {items.map((it, i) => {
@@ -423,10 +472,11 @@ function StepOne({
     label: string;
   }>;
 }) {
+  const { lang } = useLanguage();
   return (
     <StepShell
-      title="اختر يومك وفترتك"
-      hint="مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"
+      title={lang === "en" ? "Pick your day & time slot" : "اختر يومك وفترتك"}
+      hint={lang === "en" ? "Open Sat–Thu · Closed Friday · Gaza time" : "مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"}
     >
       <div className="grid md:grid-cols-2 gap-7">
         {/* Calendar */}
@@ -435,25 +485,27 @@ function StepOne({
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
               className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition"
-              aria-label="الشهر السابق"
+              aria-label={lang === "en" ? "Previous month" : "الشهر السابق"}
               data-testid="button-prev-month"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
             <div className="text-[13.5px] font-semibold tracking-tight">
-              {arabicMonth(monthCursor)}
+              {lang === "en"
+                ? monthCursor.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+                : arabicMonth(monthCursor)}
             </div>
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
               className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition"
-              aria-label="الشهر التالي"
+              aria-label={lang === "en" ? "Next month" : "الشهر التالي"}
               data-testid="button-next-month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
           <div className="grid grid-cols-7 gap-1.5 text-[10px] text-white/40 font-semibold mb-2">
-            {WEEKDAY_LABELS.map((w) => (
+            {(lang === "en" ? WEEKDAY_LABELS_EN : WEEKDAY_LABELS).map((w) => (
               <div key={w} className="text-center">
                 {w}
               </div>
@@ -484,10 +536,10 @@ function StepOne({
           </div>
           <div className="mt-4 flex items-center gap-3 text-[11px] text-white/45">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" /> مختار
+              <span className="w-2 h-2 rounded-full bg-primary" /> {lang === "en" ? "Selected" : "مختار"}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-white/15" /> غير متاح
+              <span className="w-2 h-2 rounded-full bg-white/15" /> {lang === "en" ? "Unavailable" : "غير متاح"}
             </span>
           </div>
         </div>
@@ -496,7 +548,7 @@ function StepOne({
         <div>
           <div className="flex items-center gap-2 mb-4 text-[12.5px] text-white/65">
             <Clock className="w-3.5 h-3.5" />
-            <span>اختر الفترة</span>
+            <span>{lang === "en" ? "Pick a time slot" : "اختر الفترة"}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {TIME_SLOTS.map((s) => {
@@ -506,16 +558,16 @@ function StepOne({
                   key={s.id}
                   onClick={() => update("timeSlot", s.id)}
                   data-testid={`slot-${s.id}`}
-                  className={`relative p-4 rounded-2xl text-right transition group ${
+                  className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition group ${
                     active
                       ? "bg-primary/15 border border-primary/40 shadow-[0_10px_28px_-12px_rgba(220,38,55,0.4)]"
                       : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
                   }`}
                 >
                   <div className="text-[18px] mb-1.5">{s.icon}</div>
-                  <div className="text-[13.5px] font-semibold">{s.label}</div>
+                  <div className="text-[13.5px] font-semibold">{lang === "en" ? s.labelEn : s.label}</div>
                   <div className="text-[11px] text-white/50 mt-0.5 font-mono">
-                    {s.time}
+                    {lang === "en" ? s.timeEn : s.time}
                   </div>
                   {active && (
                     <CheckCircle2 className="absolute top-3 left-3 w-4 h-4 text-primary" />
@@ -537,10 +589,14 @@ function StepTwo({
   form: { purpose: string; attendees: number; notes: string };
   update: (k: any, v: any) => void;
 }) {
+  const { lang } = useLanguage();
   return (
-    <StepShell title="ما الهدف من زيارتك؟" hint="اختياراتك تساعدنا نُجهّز لك المساحة الأنسب">
+    <StepShell
+      title={lang === "en" ? "What's the purpose of your visit?" : "ما الهدف من زيارتك؟"}
+      hint={lang === "en" ? "Your choice helps us prepare the best space for you" : "اختياراتك تساعدنا نُجهّز لك المساحة الأنسب"}
+    >
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {PURPOSES.map(({ id, label, Icon }) => {
+        {PURPOSES.map(({ id, label, labelEn, Icon }) => {
           const active = form.purpose === id;
           return (
             <button
@@ -557,7 +613,7 @@ function StepTwo({
                 className={`w-5 h-5 mb-2.5 ${active ? "text-primary" : "text-white/55"}`}
                 strokeWidth={2}
               />
-              <div className="text-[13px] font-semibold">{label}</div>
+              <div className="text-[13px] font-semibold">{lang === "en" ? labelEn : label}</div>
             </button>
           );
         })}
@@ -566,7 +622,7 @@ function StepTwo({
       <div className="mt-8">
         <div className="flex items-center gap-2 mb-3 text-[12.5px] text-white/65">
           <Users className="w-3.5 h-3.5" />
-          <span>عدد الأشخاص</span>
+          <span>{lang === "en" ? "Number of people" : "عدد الأشخاص"}</span>
         </div>
         <div className="flex items-center gap-2.5">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
@@ -595,20 +651,551 @@ function StepTwo({
           className="block text-[12.5px] text-white/65 mb-2 flex items-center gap-2"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          ملاحظات إضافيّة <span className="text-white/35">(اختياريّ)</span>
+          {lang === "en" ? "Additional notes" : "ملاحظات إضافيّة"} <span className="text-white/35">{lang === "en" ? "(optional)" : "(اختياريّ)"}</span>
         </label>
         <textarea
           id="notes"
           rows={3}
           value={form.notes}
           onChange={(e) => update("notes", e.target.value)}
-          placeholder="مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."
+          placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
           maxLength={1000}
           data-testid="textarea-notes"
           className="w-full px-4 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-[13.5px] placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
         />
       </div>
     </StepShell>
+  );
+}
+
+function ExpertSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="p-4 rounded-2xl bg-white/[0.04] border border-white/10"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl skeleton-shimmer shrink-0" />
+            <div className="min-w-0 flex flex-col gap-1.5 flex-1">
+              <div className="h-3 rounded-md skeleton-shimmer w-4/5" />
+              <div className="h-2.5 rounded-md skeleton-shimmer w-3/5" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface AvailableSlot {
+  id: number;
+  startAt: string;
+  endAt: string;
+  mode: "online" | "onsite";
+}
+
+function formatSlotTime(iso: string, lang: string) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(lang === "en" ? "en-US" : "ar-EG-u-nu-arab", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function splitExpertiseTags(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw.split(",").map((t) => t.trim()).filter(Boolean);
+}
+
+function ExpertProfileModal({
+  expert,
+  isSelected,
+  onPick,
+  onClose,
+  lang,
+}: {
+  expert: ExpertOption;
+  isSelected: boolean;
+  onPick: () => void;
+  onClose: () => void;
+  lang: string;
+}) {
+  const initials = expert.fullName.trim().charAt(0) || "؟";
+  const tags = splitExpertiseTags(expert.expertise);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <motion.div
+        key="expert-modal-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        key="expert-modal-panel"
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 24, scale: 0.97 }}
+        transition={{ duration: 0.26, ease: [0.19, 1, 0.22, 1] }}
+        className="relative z-10 w-full sm:max-w-md bg-[#111418] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        dir={lang === "en" ? "ltr" : "rtl"}
+      >
+        <button
+          onClick={onClose}
+          aria-label={lang === "en" ? "Close" : "إغلاق"}
+          className="absolute top-3.5 end-3.5 w-8 h-8 rounded-full bg-white/[0.07] hover:bg-white/[0.14] flex items-center justify-center transition text-white/50 hover:text-white/80 z-10"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="p-5 pb-2">
+          <div className="flex items-start gap-4">
+            {expert.avatarUrl ? (
+              <img
+                src={expert.avatarUrl}
+                alt={expert.fullName}
+                className="w-16 h-16 rounded-2xl object-cover border border-white/10 shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-2xl font-bold text-white/80 shrink-0">
+                {initials}
+              </div>
+            )}
+            <div className="min-w-0 pt-0.5">
+              <h2 className="text-[16px] font-bold leading-snug text-white">
+                {expert.fullName}
+              </h2>
+              {expert.headline && (
+                <p className="text-[12.5px] text-white/55 mt-0.5 leading-snug">
+                  {expert.headline}
+                </p>
+              )}
+              {expert.yearsExperience != null && expert.yearsExperience > 0 && (
+                <p className="text-[11.5px] text-white/35 mt-1">
+                  {lang === "en"
+                    ? `${expert.yearsExperience} yrs experience`
+                    : `${expert.yearsExperience} سنوات خبرة`}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 space-y-4 max-h-[55vh] overflow-y-auto overscroll-contain">
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary/80 text-[11px] font-medium"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {expert.bio && (
+            <p className="text-[13px] text-white/65 leading-relaxed whitespace-pre-line">
+              {expert.bio}
+            </p>
+          )}
+
+          {(expert.sessionMinutes != null && expert.sessionMinutes > 0) && (
+            <div className="flex items-center gap-2 text-[12px] text-white/45">
+              <Clock className="w-3.5 h-3.5 shrink-0 text-white/30" />
+              <span className="text-white/60">
+                {lang === "en"
+                  ? `${expert.sessionMinutes}-minute session`
+                  : `جلسة مدّتها ${expert.sessionMinutes} دقيقة`}
+              </span>
+            </div>
+          )}
+
+          {expert.languages && (
+            <div className="flex items-center gap-2 text-[12px] text-white/45">
+              <MessageSquare className="w-3.5 h-3.5 shrink-0 text-white/30" />
+              <span>
+                {lang === "en" ? "Languages: " : "اللغات: "}
+                <span className="text-white/60">{expert.languages}</span>
+              </span>
+            </div>
+          )}
+
+          {expert.availabilityNote && (
+            <div className="flex items-start gap-2 text-[12px] text-white/45">
+              <Info className="w-3.5 h-3.5 shrink-0 text-white/30 mt-0.5" />
+              <span className="text-white/55 leading-relaxed">{expert.availabilityNote}</span>
+            </div>
+          )}
+
+          {(expert.linkedinUrl || expert.websiteUrl) && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {expert.linkedinUrl && (
+                <a
+                  href={expert.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/55 hover:text-white/80 text-[12px] transition"
+                >
+                  <Linkedin className="w-3.5 h-3.5" />
+                  LinkedIn
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              )}
+              {expert.websiteUrl && (
+                <a
+                  href={expert.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/55 hover:text-white/80 text-[12px] transition"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  {lang === "en" ? "Website" : "الموقع"}
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="px-5 pb-5 pt-1 border-t border-white/[0.07]">
+          {!expert.acceptingSessions ? (
+            <p className="text-center text-[12.5px] text-white/35 py-2">
+              {lang === "en" ? "Not accepting sessions right now" : "لا يستقبل جلسات حاليًا"}
+            </p>
+          ) : isSelected ? (
+            <button
+              onClick={() => { onPick(); onClose(); }}
+              className="w-full py-2.5 rounded-2xl bg-white/[0.07] border border-white/15 text-white/60 hover:bg-white/[0.11] hover:border-white/25 text-[13.5px] font-medium transition"
+            >
+              {lang === "en" ? "Deselect expert" : "إلغاء اختيار الخبير"}
+            </button>
+          ) : (
+            <button
+              onClick={() => { onPick(); onClose(); }}
+              className="w-full py-2.5 rounded-2xl bg-primary/90 hover:bg-primary text-white text-[13.5px] font-semibold transition shadow-[0_4px_16px_-6px_rgba(220,38,55,0.5)]"
+            >
+              {lang === "en" ? "Pick this expert" : "اختَر هذا الخبير"}
+            </button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function StepExpert({
+  form,
+  update,
+  experts,
+  visitDate,
+  onSlotMetaChange,
+}: {
+  form: { expertId: number | null; slotId: number | null };
+  update: (k: any, v: any) => void;
+  experts: ExpertOption[] | null;
+  visitDate: string;
+  onSlotMetaChange: (slot: AvailableSlot | null) => void;
+}) {
+  const { lang } = useLanguage();
+  const [availableIds, setAvailableIds] = useState<Map<number, number> | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [previewExpert, setPreviewExpert] = useState<ExpertOption | null>(null);
+
+  useEffect(() => {
+    if (!visitDate) {
+      setAvailableIds(null);
+      setAvailabilityLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAvailabilityLoading(true);
+    api<{ available: Array<{ expertId: number; slotCount: number }> }>(`/experts/available-on?date=${visitDate}`)
+      .then((r) => {
+        if (!cancelled) {
+          setAvailableIds(new Map(r.available.map((x) => [x.expertId, x.slotCount])));
+          setAvailabilityLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAvailableIds(null);
+          setAvailabilityLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [visitDate]);
+
+  useEffect(() => {
+    if (!form.expertId || !visitDate) {
+      setDaySlots([]);
+      return;
+    }
+    let cancelled = false;
+    setSlotsLoading(true);
+    api<{ slots: AvailableSlot[] }>(`/experts/${form.expertId}/slots`)
+      .then((r) => {
+        if (cancelled) return;
+        const filtered = r.slots.filter((s) => {
+          const slotDate = new Date(s.startAt);
+          const y = slotDate.getFullYear();
+          const m = String(slotDate.getMonth() + 1).padStart(2, "0");
+          const d = String(slotDate.getDate()).padStart(2, "0");
+          return `${y}-${m}-${d}` === visitDate;
+        });
+        setDaySlots(filtered);
+      })
+      .catch(() => {
+        if (!cancelled) setDaySlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [form.expertId, visitDate]);
+
+  function handlePickExpert(id: number, currentlySelected: boolean) {
+    if (currentlySelected) {
+      update("expertId", null);
+      update("slotId", null);
+      onSlotMetaChange(null);
+    } else {
+      if (form.expertId !== id) {
+        update("slotId", null);
+        onSlotMetaChange(null);
+      }
+      update("expertId", id);
+    }
+  }
+
+  return (
+    <>
+    <StepShell
+      title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
+      hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
+    >
+      <AnimatePresence mode="wait">
+        {experts === null ? (
+          <motion.div
+            key="expert-skeleton"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <ExpertSkeleton />
+          </motion.div>
+        ) : experts.length === 0 ? (
+          <motion.p
+            key="expert-empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="text-white/45 text-[13px]"
+          >
+            {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
+          </motion.p>
+        ) : (
+          <>
+          <motion.div
+            key="expert-grid"
+            layout
+            className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+            initial="hidden"
+            animate="show"
+            variants={{ show: { transition: { staggerChildren: 0.055 } } }}
+          >
+            {[...experts].sort((a, b) => {
+              const rank = (e: ExpertOption) => {
+                if (!e.acceptingSessions) return 2;
+                if (availableIds !== null && (availableIds.get(e.id) ?? 0) > 0) return 0;
+                return 1;
+              };
+              return rank(a) - rank(b);
+            }).map((e) => {
+              const selected = form.expertId === e.id;
+              const initials = e.fullName.trim().charAt(0) || "؟";
+              const slotCount = availableIds !== null && !availabilityLoading ? (availableIds.get(e.id) ?? 0) : null;
+              const hasSlot = slotCount !== null ? slotCount > 0 : null;
+              const unavailable = !e.acceptingSessions || hasSlot === false;
+              return (
+                <motion.div
+                  key={e.id}
+                  layout
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.22, ease: [0.19, 1, 0.22, 1] }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={lang === "en" ? `View ${e.fullName}'s profile` : `عرض ملف ${e.fullName}`}
+                  onClick={() => setPreviewExpert(e)}
+                  onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setPreviewExpert(e); } }}
+                  data-testid={`expert-pick-${e.id}`}
+                  className={`relative p-4 rounded-2xl text-right transition cursor-pointer ${
+                    unavailable && !selected ? "opacity-40" : ""
+                  } ${
+                    selected
+                      ? "bg-primary/15 border border-primary/40 shadow-[0_8px_24px_-10px_rgba(220,38,55,0.4)]"
+                      : hasSlot === true
+                      ? "bg-emerald-500/[0.07] border border-emerald-500/25 hover:bg-emerald-500/[0.12] hover:border-emerald-500/40"
+                      : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
+                  }`}
+                >
+                  {selected && (
+                    <CheckCircle2 className="absolute top-2.5 start-2.5 w-4 h-4 text-primary" />
+                  )}
+                  {!selected && availabilityLoading && e.acceptingSessions && (
+                    <span className="absolute top-2 start-2 h-4 w-10 rounded-full skeleton-shimmer" />
+                  )}
+                  {!selected && hasSlot === true && slotCount !== null && (
+                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-semibold leading-4">
+                      {lang === "en"
+                        ? `${slotCount} slot${slotCount === 1 ? "" : "s"}`
+                        : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
+                    </span>
+                  )}
+                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.09] text-white/30 text-[9.5px] font-medium leading-none pointer-events-none">
+                    <Info className="w-2.5 h-2.5 shrink-0" />
+                    {lang === "en" ? "profile" : "الملف"}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    {e.avatarUrl ? (
+                      <img
+                        src={e.avatarUrl}
+                        alt={e.fullName}
+                        className="w-12 h-12 rounded-2xl object-cover border border-white/10 shrink-0"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center text-lg font-bold text-white/80 shrink-0">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="text-[12.5px] font-semibold leading-snug line-clamp-1">
+                        {e.fullName}
+                      </div>
+                      {e.headline && (
+                        <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
+                          {e.headline}
+                        </div>
+                      )}
+                      {!e.acceptingSessions ? (
+                        <div className="text-[10.5px] text-white/35 mt-0.5">
+                          {lang === "en" ? "Unavailable" : "غير متاح"}
+                        </div>
+                      ) : !availabilityLoading && hasSlot === false ? (
+                        <div className="text-[10.5px] text-white/35 mt-0.5">
+                          {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {form.expertId !== null && (
+            <div className="mt-5 pt-5 border-t border-white/[0.07]">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-3.5 h-3.5 text-white/40 shrink-0" />
+                <span className="text-[12px] text-white/50 font-medium">
+                  {lang === "en" ? "Available slots for this day" : "المواعيد المتاحة لهذا اليوم"}
+                  <span className="text-white/30 ms-1">
+                    {lang === "en" ? "— optional" : "— اختياريّ"}
+                  </span>
+                </span>
+              </div>
+
+              {slotsLoading && (
+                <div className="flex gap-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-8 w-24 rounded-xl skeleton-shimmer" />
+                  ))}
+                </div>
+              )}
+
+              {!slotsLoading && daySlots.length === 0 && (
+                <p className="text-[12px] text-white/30 italic">
+                  {lang === "en"
+                    ? "No specific slots listed for this date — you can still book without a slot."
+                    : "لا توجد مواعيد محدّدة لهذا اليوم — يمكنك الحجز دون تحديد موعد."}
+                </p>
+              )}
+
+              {!slotsLoading && daySlots.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {daySlots.map((slot) => {
+                    const picked = form.slotId === slot.id;
+                    const start = formatSlotTime(slot.startAt, lang);
+                    const end = formatSlotTime(slot.endAt, lang);
+                    const modeLabel =
+                      slot.mode === "online"
+                        ? lang === "en" ? "Online" : "عن بُعد"
+                        : lang === "en" ? "On-site" : "حضوريّ";
+                    return (
+                      <button
+                        key={slot.id}
+                        onClick={() => {
+                          update("slotId", picked ? null : slot.id);
+                          onSlotMetaChange(picked ? null : slot);
+                        }}
+                        data-testid={`slot-pick-${slot.id}`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition border ${
+                          picked
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-200 shadow-[0_4px_12px_-4px_rgba(52,211,153,0.3)]"
+                            : "bg-white/[0.05] border-white/10 text-white/70 hover:bg-white/[0.09] hover:border-white/20"
+                        }`}
+                      >
+                        {picked && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
+                        <span dir="ltr">{start} – {end}</span>
+                        <span className="text-[10px] opacity-60">· {modeLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+      </AnimatePresence>
+    </StepShell>
+
+    <AnimatePresence>
+      {previewExpert && (
+        <ExpertProfileModal
+          expert={previewExpert}
+          isSelected={form.expertId === previewExpert.id}
+          onPick={() => handlePickExpert(previewExpert.id, form.expertId === previewExpert.id)}
+          onClose={() => setPreviewExpert(null)}
+          lang={lang}
+        />
+      )}
+    </AnimatePresence>
+    </>
   );
 }
 
@@ -621,23 +1208,27 @@ function StepThree({
   update: (k: any, v: any) => void;
   issues: Record<string, string>;
 }) {
+  const { lang } = useLanguage();
   return (
-    <StepShell title="بياناتك" hint="نتواصل معك على واتساب لتأكيد الحجز">
+    <StepShell
+      title={lang === "en" ? "Your info" : "بياناتك"}
+      hint={lang === "en" ? "We'll reach you on WhatsApp to confirm your booking" : "نتواصل معك على واتساب لتأكيد الحجز"}
+    >
       <div className="space-y-5">
         <Field
           id="fullName"
-          label="الاسم الكامل"
+          label={lang === "en" ? "Full name" : "الاسم الكامل"}
           icon={UserIcon}
           value={form.fullName}
           onChange={(v) => update("fullName", v)}
           error={issues.fullName}
-          placeholder="مثلًا: لانا الشريف"
+          placeholder={lang === "en" ? "E.g. Lana Al-Sharif" : "مثلًا: لانا الشريف"}
           autoFocus
         />
         <div className="grid md:grid-cols-2 gap-5">
           <Field
             id="phone"
-            label="رقم الواتساب"
+            label={lang === "en" ? "WhatsApp number" : "رقم الواتساب"}
             icon={Phone}
             value={form.phone}
             onChange={(v) => update("phone", v)}
@@ -647,7 +1238,7 @@ function StepThree({
           />
           <Field
             id="email"
-            label="البريد الإلكترونيّ"
+            label={lang === "en" ? "Email address" : "البريد الإلكترونيّ"}
             optional
             icon={Mail}
             value={form.email}
@@ -658,8 +1249,9 @@ function StepThree({
           />
         </div>
         <div className="text-[11.5px] text-white/45 leading-[1.85]">
-          بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض
-          تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث.
+          {lang === "en"
+            ? "By submitting you agree that we may contact you on the selected channel solely for booking confirmation. We will never share your data with third parties."
+            : "بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث."}
         </div>
       </div>
     </StepShell>
@@ -724,6 +1316,8 @@ function Field({
 
 function SummaryCard({
   form,
+  expertName,
+  selectedSlot,
 }: {
   form: {
     visitDate: string;
@@ -731,13 +1325,35 @@ function SummaryCard({
     purpose: string;
     attendees: number;
     fullName: string;
+    expertId: number | null;
   };
+  expertName?: string;
+  selectedSlot?: AvailableSlot | null;
 }) {
+  const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const purposeLabel = PURPOSES.find((p) => p.id === form.purpose);
   const dateObj = form.visitDate
     ? new Date(form.visitDate + "T00:00:00")
     : null;
+  const dateDisplay = dateObj
+    ? lang === "en"
+      ? dateObj.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+      : arabicDay(dateObj)
+    : "—";
+
+  const expertSlotDisplay = selectedSlot
+    ? (() => {
+        const start = formatSlotTime(selectedSlot.startAt, lang);
+        const end = formatSlotTime(selectedSlot.endAt, lang);
+        const modeLabel =
+          selectedSlot.mode === "online"
+            ? lang === "en" ? "Online" : "عن بُعد"
+            : lang === "en" ? "On-site" : "حضوريّ";
+        return `${start} – ${end} · ${modeLabel}`;
+      })()
+    : null;
+
   return (
     <aside className="lg:sticky lg:top-8 self-start">
       <div className="relative rounded-[24px] p-6 bg-white/[0.04] border border-white/10 backdrop-blur-2xl overflow-hidden">
@@ -752,38 +1368,55 @@ function SummaryCard({
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-              ملخّص حجزك
+              {lang === "en" ? "Booking summary" : "ملخّص حجزك"}
             </div>
           </div>
 
           <SummaryRow
             icon={CalendarIcon}
-            label="التاريخ"
-            value={dateObj ? arabicDay(dateObj) : "—"}
+            label={lang === "en" ? "Date" : "التاريخ"}
+            value={dateDisplay}
             placeholder={!dateObj}
           />
           <SummaryRow
             icon={Clock}
-            label="الفترة"
+            label={lang === "en" ? "Time slot" : "الفترة"}
             value={
-              slotLabel ? `${slotLabel.label} · ${slotLabel.time}` : "—"
+              slotLabel
+                ? lang === "en"
+                  ? `${slotLabel.labelEn} · ${slotLabel.timeEn}`
+                  : `${slotLabel.label} · ${slotLabel.time}`
+                : "—"
             }
             placeholder={!slotLabel}
           />
           <SummaryRow
             icon={Briefcase}
-            label="الهدف"
-            value={purposeLabel?.label || "—"}
+            label={lang === "en" ? "Purpose" : "الهدف"}
+            value={(lang === "en" ? purposeLabel?.labelEn : purposeLabel?.label) || "—"}
             placeholder={!purposeLabel}
           />
           <SummaryRow
             icon={Users}
-            label="الأشخاص"
-            value={`${form.attendees}`.replace(/\d/g, (x) => "٠١٢٣٤٥٦٧٨٩"[Number(x)])}
+            label={lang === "en" ? "Attendees" : "الأشخاص"}
+            value={String(form.attendees)}
           />
           <SummaryRow
             icon={UserIcon}
-            label="باسم"
+            label={lang === "en" ? "Expert" : "الخبير"}
+            value={expertName || (lang === "en" ? "None selected" : "لم يُختَر")}
+            placeholder={!form.expertId}
+          />
+          {expertSlotDisplay && (
+            <SummaryRow
+              icon={Clock}
+              label={lang === "en" ? "Session time" : "وقت الجلسة"}
+              value={expertSlotDisplay}
+            />
+          )}
+          <SummaryRow
+            icon={UserIcon}
+            label={lang === "en" ? "Name" : "باسم"}
             value={form.fullName || "—"}
             placeholder={!form.fullName}
           />
@@ -791,7 +1424,7 @@ function SummaryCard({
           <div className="mt-6 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2.5 text-[12px] text-white/55 leading-[1.7]">
               <Coffee className="w-3.5 h-3.5 shrink-0 text-primary" />
-              <span>قهوة وشاي وإنترنت سريع · على حسابنا دائمًا.</span>
+              <span>{lang === "en" ? "Coffee, tea & fast Wi-Fi · always on us." : "قهوة وشاي وإنترنت سريع · على حسابنا دائمًا."}</span>
             </div>
           </div>
         </div>
@@ -852,6 +1485,7 @@ function BackgroundAura() {
 function SuccessScreen({
   id,
   form,
+  expert,
 }: {
   id: number;
   form: {
@@ -859,13 +1493,18 @@ function SuccessScreen({
     timeSlot: string;
     fullName: string;
   };
+  expert: ExpertOption | null;
 }) {
+  const { lang } = useLanguage();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const dateObj = new Date(form.visitDate + "T00:00:00");
   const ref = String(id).padStart(5, "0");
+  const dateDisplay = lang === "en"
+    ? dateObj.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    : arabicDay(dateObj);
   return (
     <div
-      dir="rtl"
+      dir={lang === "en" ? "ltr" : "rtl"}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center px-6 py-16"
     >
       <BackgroundAura />
@@ -894,32 +1533,71 @@ function SuccessScreen({
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-              تمّ بنجاح
+              {lang === "en" ? "Booking confirmed" : "تمّ بنجاح"}
             </div>
             <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
-              مقعدك محجوز يا{" "}
-              <span className="text-accent-gradient">
-                {form.fullName.split(" ")[0]}
-              </span>
+              {lang === "en" ? (
+                <>Your seat is booked,{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span>!</>
+              ) : (
+                <>مقعدك محجوز يا{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span></>
+              )}
             </h1>
-            <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
-              نراك يوم{" "}
-              <span className="text-white font-semibold">
-                {arabicDay(dateObj)}
-              </span>{" "}
-              {slotLabel && (
+            <p className="text-white/65 text-[14px] leading-[1.85] mb-6">
+              {lang === "en" ? (
                 <>
-                  ·{" "}
-                  <span className="text-white font-semibold">
-                    {slotLabel.label}
-                  </span>
+                  See you on{" "}
+                  <span className="text-white font-semibold">{dateDisplay}</span>
+                  {slotLabel && (
+                    <> · <span className="text-white font-semibold">{slotLabel.labelEn}</span></>
+                  )}
+                  .<br />
+                  We'll send you a WhatsApp confirmation shortly.
+                </>
+              ) : (
+                <>
+                  نراك يوم{" "}
+                  <span className="text-white font-semibold">{dateDisplay}</span>
+                  {slotLabel && (
+                    <> · <span className="text-white font-semibold">{slotLabel.label}</span></>
+                  )}
+                  .<br />
+                  سنرسل لك رسالة تأكيد على واتساب قريبًا.
                 </>
               )}
-              .<br />
-              سنرسل لك رسالة تأكيد على واتساب قريبًا.
             </p>
+            {expert && (
+              <div className="mb-6 py-4 px-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center gap-4">
+                <div className="relative shrink-0">
+                  {expert.avatarUrl ? (
+                    <img
+                      src={expert.avatarUrl}
+                      alt={expert.fullName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-primary/40"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center text-primary text-lg font-bold">
+                      {expert.fullName.trim().charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-green-500 border-2 border-[#0A0E1A]" />
+                </div>
+                <div className={`flex-1 min-w-0 text-${lang === "en" ? "left" : "right"}`}>
+                  <p className="text-[10.5px] text-white/45 mb-0.5">
+                    {lang === "en" ? "Your mentor" : "مرشدك"}
+                  </p>
+                  <p className="text-[14px] font-semibold text-white truncate">
+                    {expert.fullName}
+                  </p>
+                  {expert.headline && (
+                    <p className="text-[11px] text-white/50 truncate mt-0.5">
+                      {expert.headline}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/65 mb-7">
-              <span className="text-white/45">رقم الحجز</span>
+              <span className="text-white/45">{lang === "en" ? "Booking ref." : "رقم الحجز"}</span>
               <span className="font-mono font-bold text-white tracking-wider">
                 #{ref}
               </span>
@@ -930,8 +1608,8 @@ function SuccessScreen({
                 className="h-11 px-6 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:brightness-110 transition flex items-center gap-2"
                 data-testid="link-home-success"
               >
-                العودة للرئيسيّة
-                <ArrowLeft className="w-4 h-4 rotate-180" />
+                {lang === "en" ? "Back to home" : "العودة للرئيسيّة"}
+                <ArrowLeft className={`w-4 h-4 ${lang === "en" ? "" : "rotate-180"}`} />
               </Link>
               <Link
                 href="/book"
@@ -939,7 +1617,7 @@ function SuccessScreen({
                 data-testid="link-new-booking"
                 onClick={() => window.location.reload()}
               >
-                حجز آخر
+                {lang === "en" ? "New booking" : "حجز آخر"}
               </Link>
             </div>
           </div>

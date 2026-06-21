@@ -1,18 +1,19 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 
-import { T, Card, Btn, Field } from "@/components/Branded";
+import { T, Card, Btn, Field, SkeletonRow } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, resolveMedia } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mirrors the web booking flow (ih-haven/src/pages/Book.tsx) and the backend
 // contract (api-server/src/routes/bookings.ts → insertBookingSchema):
 //   POST /bookings { fullName, phone, email?, visitDate, timeSlot, purpose,
-//                    attendees, notes }
+//                    attendees, notes, expertId? }
 // The endpoint is public (no auth required) but we prefill from the signed-in
 // user when available. The space is in Asia/Gaza, open Sat–Thu, closed Friday.
 // visitDate MUST be ASCII "YYYY-MM-DD" (the backend regex rejects Arabic digits),
@@ -45,9 +46,7 @@ function toArabicDigits(s: string | number): string {
   return String(s).replace(/\d/g, (d) => AR_DIGITS[Number(d)]!);
 }
 
-// ASCII "YYYY-MM-DD" anchored to the device local calendar day. The backend
-// re-validates against Asia/Gaza, so we generate plenty of forward days and let
-// it reject anything genuinely out of policy.
+// ASCII "YYYY-MM-DD" anchored to the device local calendar day.
 function ymd(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -87,6 +86,15 @@ function buildDays(): DayOption[] {
   return out;
 }
 
+interface ExpertOption {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string;
+  bio: string;
+  acceptingSessions: boolean;
+}
+
 export default function BookScreen() {
   const colors = useColors();
   const router = useRouter();
@@ -98,15 +106,30 @@ export default function BookScreen() {
   const [timeSlot, setTimeSlot] = useState<SlotId | "">("");
   const [purpose, setPurpose] = useState<PurposeId | "">("");
   const [attendees, setAttendees] = useState<number>(1);
+  const [expertId, setExpertId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [fullName, setFullName] = useState(user?.fullName ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
 
+  const [experts, setExperts] = useState<ExpertOption[] | null>(null);
+  const [expertsLoading, setExpertsLoading] = useState(true);
+
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
   const [done, setDone] = useState<{ id: number } | null>(null);
+
+  useEffect(() => {
+    setExpertsLoading(true);
+    api<{ experts: ExpertOption[] }>("/experts")
+      .then((r) => {
+        // Only show experts that are accepting sessions
+        setExperts(r.experts.filter((e) => e.acceptingSessions));
+      })
+      .catch(() => setExperts([]))
+      .finally(() => setExpertsLoading(false));
+  }, []);
 
   const canSubmit =
     !!visitDate &&
@@ -133,6 +156,7 @@ export default function BookScreen() {
           purpose,
           attendees,
           notes: notes.trim(),
+          expertId: expertId ?? undefined,
         },
       });
       setDone({ id: r.id });
@@ -157,6 +181,7 @@ export default function BookScreen() {
   if (done) {
     const slot = TIME_SLOTS.find((s) => s.id === timeSlot);
     const day = days.find((d) => d.iso === visitDate);
+    const chosenExpert = experts?.find((e) => e.id === expertId) ?? null;
     return (
       <ScrollView
         style={{ backgroundColor: colors.background }}
@@ -181,9 +206,64 @@ export default function BookScreen() {
           </T>
           <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 24 }}>
             {day ? `نراك يوم ${day.weekday} ${day.dayNum} ${day.month}` : "استلمنا حجزك"}
-            {slot ? ` · ${slot.label}` : ""}.{"\n"}
-            سنرسل لك رسالة تأكيد على واتساب قريبًا.
+            {slot ? ` · ${slot.label}` : ""}.
+            {"\n"}سنرسل لك رسالة تأكيد على واتساب قريبًا.
           </T>
+
+          {/* Expert mini-card — shown when user selected an expert */}
+          {chosenExpert ? (
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 10,
+                alignSelf: "stretch",
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: colors.radius,
+                backgroundColor: colors.primarySoft,
+                borderWidth: 1,
+                borderColor: colors.primary + "33",
+              }}
+            >
+              {chosenExpert.avatarUrl ? (
+                <Image
+                  source={{ uri: resolveMedia(chosenExpert.avatarUrl) }}
+                  style={{ width: 44, height: 44, borderRadius: 22 }}
+                  contentFit="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 22,
+                    backgroundColor: colors.primary + "22",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <T size={18} weight="bold" color={colors.primary}>
+                    {chosenExpert.fullName.trim().slice(0, 1)}
+                  </T>
+                </View>
+              )}
+              <View style={{ flex: 1, gap: 2 }}>
+                <T size={13} weight="bold" color={colors.primary}>
+                  {chosenExpert.fullName}
+                </T>
+                {chosenExpert.headline ? (
+                  <T size={11.5} color={colors.primary} numberOfLines={1} style={{ opacity: 0.75 }}>
+                    {chosenExpert.headline}
+                  </T>
+                ) : null}
+                <T size={11} color={colors.mutedForeground} style={{ marginTop: 1 }}>
+                  سنُعلمه بموعدك
+                </T>
+              </View>
+            </View>
+          ) : null}
+
           <View
             style={{
               paddingHorizontal: 14,
@@ -364,9 +444,160 @@ export default function BookScreen() {
         ) : null}
       </Card>
 
-      {/* 05 · Your details */}
+      {/* 05 · Expert (optional) */}
+      <Card style={{ gap: 12 }}>
+        <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+          <T size={12} color={colors.primary} weight="bold">٠٥ · هل تودّ لقاء خبير؟</T>
+          <View
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 3,
+              borderRadius: 999,
+              backgroundColor: colors.muted,
+            }}
+          >
+            <T size={11} color={colors.mutedForeground}>اختياريّ</T>
+          </View>
+        </View>
+        <T size={12.5} color={colors.mutedForeground} style={{ lineHeight: 19 }}>
+          اختَر خبيرًا متاحًا تودّ التواصل معه خلال زيارتك، أو اتركه فارغًا للعمل المستقلّ.
+        </T>
+
+        {expertsLoading ? (
+          <View style={{ gap: 10 }}>
+            <SkeletonRow />
+            <SkeletonRow />
+          </View>
+        ) : !experts || experts.length === 0 ? (
+          <View
+            style={{
+              padding: 16,
+              borderRadius: colors.radius,
+              backgroundColor: colors.muted,
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Feather name="users" size={22} color={colors.mutedForeground} />
+            <T size={13} color={colors.mutedForeground} align="center">
+              لا يوجد خبراء متاحون حاليًا
+            </T>
+          </View>
+        ) : (
+          <View style={{ gap: 8 }}>
+            {experts.map((e) => {
+              const active = expertId === e.id;
+              return (
+                <Pressable
+                  key={e.id}
+                  onPress={() => setExpertId(active ? null : e.id)}
+                  style={({ pressed }) => ({
+                    flexDirection: "row-reverse",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: 12,
+                    borderRadius: colors.radius,
+                    borderWidth: 1,
+                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.primarySoft : "transparent",
+                    opacity: pressed ? 0.85 : 1,
+                  })}
+                >
+                  {/* Avatar */}
+                  {e.avatarUrl ? (
+                    <Image
+                      source={{ uri: resolveMedia(e.avatarUrl) }}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 14,
+                        backgroundColor: colors.muted,
+                      }}
+                    />
+                  ) : (
+                    <View
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 14,
+                        backgroundColor: colors.primarySoft,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <T size={20} weight="bold" color={colors.primary}>
+                        {e.fullName.trim().slice(0, 1)}
+                      </T>
+                    </View>
+                  )}
+
+                  {/* Info */}
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <T size={14.5} weight="bold" color={active ? colors.primary : colors.foreground}>
+                      {e.fullName}
+                    </T>
+                    {e.headline ? (
+                      <T size={12} color={active ? colors.primary : colors.mutedForeground} numberOfLines={1}>
+                        {e.headline}
+                      </T>
+                    ) : null}
+                    {e.bio ? (
+                      <T size={12} color={colors.mutedForeground} numberOfLines={2} style={{ lineHeight: 18, marginTop: 2 }}>
+                        {e.bio}
+                      </T>
+                    ) : null}
+                  </View>
+
+                  {/* Checkmark / indicator */}
+                  <View
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: 11,
+                      borderWidth: 1.5,
+                      borderColor: active ? colors.primary : colors.border,
+                      backgroundColor: active ? colors.primary : "transparent",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {active ? (
+                      <Feather name="check" size={13} color={colors.primaryForeground} />
+                    ) : null}
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Show selected expert summary */}
+        {expertId ? (
+          <View
+            style={{
+              flexDirection: "row-reverse",
+              alignItems: "center",
+              gap: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: colors.radius,
+              backgroundColor: colors.primarySoft,
+            }}
+          >
+            <Feather name="check-circle" size={15} color={colors.primary} />
+            <T size={12.5} weight="medium" color={colors.primary} style={{ flex: 1 }}>
+              اخترتَ {experts?.find((e) => e.id === expertId)?.fullName ?? "خبيرًا"} — سنُعلمه بموعدك
+            </T>
+            <Pressable onPress={() => setExpertId(null)}>
+              <Feather name="x" size={16} color={colors.primary} />
+            </Pressable>
+          </View>
+        ) : null}
+      </Card>
+
+      {/* 06 · Your details */}
       <Card style={{ gap: 14 }}>
-        <T size={12} color={colors.primary} weight="bold">٠٥ · بياناتك</T>
+        <T size={12} color={colors.primary} weight="bold">٠٦ · بياناتك</T>
         <Field
           label="الاسم الكامل"
           value={fullName}

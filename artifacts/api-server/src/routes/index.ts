@@ -37,6 +37,9 @@ import ventureMilestonesRouter from "./ventureMilestones";
 import expertAvailabilityRouter from "./expertAvailability";
 import resourcesRouter from "./resources";
 import searchRouter from "./search";
+import jobsRouter from "./jobs";
+import newsletterRouter from "./newsletter";
+import investorsRouter from "./investors";
 
 const router: IRouter = Router();
 
@@ -59,6 +62,7 @@ router.use(membersRouter);
 router.use(numbersRouter);
 router.use(galleryRouter);
 router.use(pushRouter);
+router.use(expertAvailabilityRouter);
 router.use(expertsRouter);
 router.use(notificationsRouter);
 router.use(programsRouter);
@@ -75,8 +79,10 @@ router.use(partnersRouter);
 router.use(teamMembersRouter);
 router.use(cohortsRouter);
 router.use(ventureMilestonesRouter);
-router.use(expertAvailabilityRouter);
 router.use(resourcesRouter);
 router.use(searchRouter);
+router.use(jobsRouter);
+router.use(newsletterRouter);
+router.use(investorsRouter);
 
 export default router;

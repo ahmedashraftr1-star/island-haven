@@ -4,15 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { HavenMark } from "./HavenMark";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
   title1: "نَحضن أحلامك،",
   title2: "في قلب غزّة.",
   subtitle:
-    "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء. مجّاناً تماماً.",
-  backedByLabel: "بدعمٍ من",
-  backedByBrand: "من النّاس إلى النّاس",
+    "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء.",
+  backedByLabel: "بُني في غزّة",
+  backedByBrand: "Made in Gaza",
   ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
   ctaSecondary: "تحدّث معنا",
@@ -33,6 +34,42 @@ const FALLBACK = {
   stat2Label: "منتسب",
   stat3Value: "١٠٠٪",
   stat3Label: "مجّانيّ",
+  image1: "/photos/IMG_8357.webp",
+  image2: "/photos/IMG_8347.webp",
+  image3: "/photos/IMG_8358.webp",
+  image4: "/photos/IMG_8341.webp",
+  image5: "/photos/IMG_8352.webp",
+  image6: "/photos/IMG_8300.webp",
+};
+
+const EN_FALLBACK = {
+  eyebrow: "Gaza's leading tech incubator & startup community",
+  title1: "We prepare you",
+  title2: "for the world.",
+  subtitle:
+    "Gaza's business incubator. We take your idea from paper to product, and from product to market — through mentorship, incubation programs, and a global network of experts and partners.",
+  backedByLabel: "Built in Gaza",
+  backedByBrand: "Made in Gaza",
+  ctaPrimary: "Apply to Island Haven",
+  ctaPrimaryHref: "/apply",
+  ctaSecondary: "Chat with us",
+  ctaSecondaryHref: "https://wa.me/972567536815",
+  topRight: "Season · 2026 · open",
+  onAirLabel: "On Air · Gaza",
+  bookCtaLabel: "Book a Seat",
+  scrollLabel: "Scroll",
+  greetingMorning: "Good Morning",
+  greetingNoon: "Good Afternoon",
+  greetingEvening: "Good Evening",
+  greetingNight: "Good Night",
+  estLabel: "Est · 2024",
+  placeLabel: "Gaza · Palestine",
+  stat1Value: "39",
+  stat1Label: "seats",
+  stat2Value: "80+",
+  stat2Label: "members",
+  stat3Value: "100%",
+  stat3Label: "free",
   image1: "/photos/IMG_8357.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
@@ -65,7 +102,9 @@ function KineticLine({
 }
 
 export function Hero() {
-  const c = useContentSection("hero", FALLBACK);
+  const { lang } = useLanguage();
+  const cms = useContentSection("hero", FALLBACK);
+  const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);

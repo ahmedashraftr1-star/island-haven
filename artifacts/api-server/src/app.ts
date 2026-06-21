@@ -3,6 +3,7 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -25,6 +26,27 @@ app.use(
   }),
 );
 
+// ─── Rate limiting ────────────────────────────────────────────────────────────
+// Strict limiter on auth endpoints (login, register, password reset) to block
+// brute-force and credential-stuffing attacks.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+  skipSuccessfulRequests: false,
+});
+
+// General limiter for all other API routes — prevents DDoS / scraping.
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 300,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+});
+
 app.use(
   pinoHttp({
     logger,
@@ -44,6 +66,7 @@ app.use(
     },
   }),
 );
+
 // Restrict credentialed CORS to the explicit set of known app origins.
 // Reflecting arbitrary origins back (origin: true) would let any third-party
 // website make credentialed cross-origin requests to public write endpoints.
@@ -93,9 +116,17 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(cookieParser());
+// Tight JSON/body limits to prevent oversized payload attacks (text posts and
+// comments are small; image/CV uploads go through multipart/multer, not JSON).
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+
+// Apply strict rate limiting to auth routes, general limiter to everything else.
+app.use("/api/auth", authLimiter);
+app.use("/api/admin/auth", authLimiter);
+app.use("/api", generalLimiter);
 
 app.use("/api", router);
 

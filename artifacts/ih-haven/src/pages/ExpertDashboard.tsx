@@ -378,8 +378,11 @@ function ProfilePanel({
         </div>
       )}
       <div className="space-y-4">
-        <DField label="المسمّى التعريفيّ (مثال: مستشار ريادة أعمال)">
+        <DField label="المسمّى التعريفيّ / الشعار (مثال: مستشار ريادة أعمال)">
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
+          <p className="mt-1 text-[11.5px] text-white/40 leading-relaxed">
+            يظهر هذا النصّ أسفل اسمك على بطاقة الحجز وقائمة الخبراء.
+          </p>
         </DField>
         <DField label="مجالات الخبرة (افصل بينها بفاصلة)">
           <Input

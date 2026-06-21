@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { EditorialHeader } from "./EditorialHeader";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { I18N } from "@/lib/i18n";
 
 const FALLBACK = {
   label: "الفئات والمعايير",
@@ -22,8 +24,30 @@ const FALLBACK = {
   seg3C3: "",
 };
 
+const EN_FALLBACK = {
+  label: "Who Is It For?",
+  titleA: "Finding",
+  titleAccent: "your",
+  titleB: "place here",
+  sub: "We allocate seats across three main groups with clear ratios, using a distributed schedule so the maximum number of members benefit without compromising the quality of the experience.",
+  seg1Ar: "Freelancers", seg1En: "Freelancers", seg1Pct: "40", seg1Tag: "Independent professionals", seg1Image: "/photos/IMG_8347.webp",
+  seg1C1: "Active freelance or professional practice.",
+  seg1C2: "A clear, demonstrable skill set with at least 3 years of experience.",
+  seg1C3: "Willingness to contribute to the community through follow-up, training, or knowledge sharing.",
+  seg2Ar: "Graduates", seg2En: "Graduates", seg2Pct: "40", seg2Tag: "Recent graduates 2020 — 2025", seg2Image: "/photos/IMG_8358.webp",
+  seg2C1: "Graduated between 2020 and 2025.",
+  seg2C2: "Possessing a skill or actively pursuing a professional or technical skill.",
+  seg2C3: "Willingness to engage and work within a collaborative environment.",
+  seg3Ar: "Students", seg3En: "Students", seg3Pct: "20", seg3Tag: "Final-year university students", seg3Image: "/photos/IMG_8341.webp",
+  seg3C1: "Currently in the final year of university.",
+  seg3C2: "Possessing a skill or actively developing a market-relevant one.",
+  seg3C3: "",
+};
+
 export function Audience() {
-  const c = useContentSection("audience", FALLBACK);
+  const { lang } = useLanguage();
+  const cms = useContentSection("audience", FALLBACK);
+  const c = lang === "en" ? EN_FALLBACK : cms;
   const segments = [
     {
       no: "01", ar: c.seg1Ar, en: c.seg1En, pct: Number(c.seg1Pct) || 0,
@@ -60,11 +84,11 @@ export function Audience() {
         >
           <div className="flex items-center gap-3 mb-5">
             <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/45 font-semibold">
-              توزيع المقاعد · Seat allocation
+              {lang === "en" ? "Seat allocation" : "توزيع المقاعد · Seat allocation"}
             </span>
             <span className="flex-1 h-[1px] bg-foreground/10" />
             <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold tabular-nums">
-              ٪١٠٠
+              {lang === "en" ? "100%" : "٪١٠٠"}
             </span>
           </div>
           <div className="h-3 w-full rounded-full bg-foreground/5 overflow-hidden flex">
@@ -89,7 +113,7 @@ export function Audience() {
             {segments.map((s) => (
               <div key={s.no} className="flex items-center gap-1.5">
                 <span className="text-foreground font-bold">{s.pct}٪</span>
-                <span className="text-foreground/45">· {s.ar}</span>
+                <span className="text-foreground/45">· {lang === "en" ? s.en : s.ar}</span>
               </div>
             ))}
           </div>
@@ -142,7 +166,7 @@ export function Audience() {
                     </span>
                     <span className="h-[1px] w-12 bg-foreground/15" />
                     <span className="text-[11px] tracking-[0.2em] uppercase text-primary font-semibold">
-                      Audience · فئة
+                      {lang === "en" ? "Audience" : "Audience · فئة"}
                     </span>
                   </div>
 
@@ -153,7 +177,7 @@ export function Audience() {
                   >
                     <span>{seg.pct}</span>
                     <span className="text-primary text-[0.5em]">%</span>
-                    <span className="text-foreground/35 text-[0.4em] mr-3 lg:mr-5">من المقاعد</span>
+                    <span className="text-foreground/35 text-[0.4em] mr-3 lg:mr-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
                   </div>
 
                   <h3
@@ -164,7 +188,7 @@ export function Audience() {
                   </h3>
 
                   <div className="text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold mb-4">
-                    معايير القبول · Admission criteria
+                    {lang === "en" ? "Admission criteria" : "معايير القبول · Admission criteria"}
                   </div>
                   <ul className="space-y-3.5 max-w-xl">
                     {seg.criteria.map((cc, j) => (

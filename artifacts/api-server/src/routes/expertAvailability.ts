@@ -57,6 +57,36 @@ router.get("/experts/me/slots", requireUser, async (req, res) => {
   }
 });
 
+// Public — which experts have available slots on a given date, and how many?
+// Must be declared before "/experts/:id/slots" so "available-on" isn't
+// swallowed by the :id param.
+router.get("/experts/available-on", async (req, res) => {
+  const date = req.query.date as string | undefined;
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    res.status(400).json({ error: "date query param required (YYYY-MM-DD)" });
+    return;
+  }
+  try {
+    const rows = await db
+      .select({
+        expertId: expertAvailabilitySlotsTable.expertId,
+        slotCount: sql<number>`COUNT(*)::int`,
+      })
+      .from(expertAvailabilitySlotsTable)
+      .where(
+        and(
+          eq(expertAvailabilitySlotsTable.status, "available"),
+          sql`DATE(${expertAvailabilitySlotsTable.startAt}) = ${date}::date`,
+        ),
+      )
+      .groupBy(expertAvailabilitySlotsTable.expertId);
+    res.json({ available: rows });
+  } catch (err) {
+    logger.error({ err }, "GET /experts/available-on failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 // Public — upcoming available slots for one expert.
 router.get("/experts/:id/slots", async (req, res) => {
   try {

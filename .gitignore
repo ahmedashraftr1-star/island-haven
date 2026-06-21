@@ -51,3 +51,10 @@ Thumbs.db
 # Local env secrets
 .env
 artifacts/**/.env
+
+# Merge noise / replit-agent artifacts
+.agents/
+attached_assets/
+exports/
+ih-haven-export.tar.gz
+*.tar.gz

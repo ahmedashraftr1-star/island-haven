@@ -1,4 +1,4 @@
-export type UserRole = "freelancer" | "graduate" | "student" | "other";
+export type UserRole = "freelancer" | "graduate" | "student" | "other" | "expert" | "admin";
 
 export interface ExtraLink {
   label: string;
@@ -37,6 +37,19 @@ export interface Work {
   status: "draft" | "published";
   createdAt: string;
   authorName?: string;
+  authorAvatarUrl?: string | null;
+}
+
+export interface WorkAuthor {
+  id: number;
+  fullName: string;
+  role: string;
+  avatarUrl: string | null;
+}
+
+export interface WorkListItem {
+  work: Work;
+  author: WorkAuthor;
 }
 
 export interface DailyPost {

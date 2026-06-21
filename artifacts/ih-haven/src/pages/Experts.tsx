@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { ArrowLeft, Star, Clock, Users } from "lucide-react";
+import { ArrowLeft, Star, Clock, Users, Search, X, UserPlus, Briefcase } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
@@ -94,6 +94,8 @@ export default function Experts() {
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
   const [groups, setGroups] = useState<Map<string, string>>(new Map());
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
@@ -122,11 +124,41 @@ export default function Experts() {
     };
   }, []);
 
-  // Partition experts into their teams (by name → group from /team), preserving
-  // the API's featured/sortOrder ordering. Unmatched experts fall to the end.
+  // Top expertise tags by frequency (across all experts, unfiltered).
+  const allTags = useMemo(() => {
+    if (!rows) return [];
+    const freq: Record<string, number> = {};
+    for (const e of rows)
+      for (const t of splitTags(e.expertise)) freq[t] = (freq[t] ?? 0) + 1;
+    return Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([t]) => t);
+  }, [rows]);
+
+  // Apply live search + active-tag filter to the expert list BEFORE partitioning
+  // into team sections, so each section only shows matching experts.
+  const filtered = useMemo(() => {
+    if (!rows) return null;
+    const q = query.trim().toLowerCase();
+    return rows.filter((e) => {
+      const matchQuery =
+        !q ||
+        e.fullName.toLowerCase().includes(q) ||
+        (e.headline ?? "").toLowerCase().includes(q) ||
+        (e.expertise ?? "").toLowerCase().includes(q);
+      const matchTag = !activeTag || splitTags(e.expertise).includes(activeTag);
+      return matchQuery && matchTag;
+    });
+  }, [rows, query, activeTag]);
+
+  const isFiltering = query.trim().length > 0 || activeTag !== null;
+
+  // Partition the filtered experts into their teams (by name → group from /team),
+  // preserving the API's featured/sortOrder ordering. Unmatched fall to the end.
   const buckets: Record<string, ExpertCard[]> = {};
   const extra: ExpertCard[] = [];
-  for (const e of rows ?? []) {
+  for (const e of filtered ?? []) {
     const g = groups.get(e.fullName.trim());
     if (g && TEAMS.some((t) => t.key === g)) {
       (buckets[g] ??= []).push(e);
@@ -141,8 +173,9 @@ export default function Experts() {
     })),
     ...(extra.length ? [{ team: FALLBACK_TEAM, experts: extra }] : []),
   ];
-  const teamCount = sections.length;
   const total = rows?.length ?? 0;
+  const availableCount = rows?.filter((e) => e.acceptingSessions).length ?? 0;
+  const featuredCount = rows?.filter((e) => e.featured).length ?? 0;
 
   return (
     <PageShell
@@ -165,36 +198,175 @@ export default function Experts() {
         />
       ) : (
         <>
+          {/* Stats bar — total / available now / featured */}
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-wrap items-center gap-2.5 mb-14 sm:mb-16"
+            transition={{ duration: 0.45 }}
+            className="flex flex-wrap items-center gap-3 mb-6"
           >
-            <Chip>{toArabicNum(total)} خبيرًا ومرشدًا</Chip>
-            <Chip>{toArabicNum(teamCount)} فِرَق متخصّصة</Chip>
-            <Chip>جلسات إرشاد مَجّانيّة</Chip>
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
+              <Briefcase className="w-3.5 h-3.5 text-primary" />
+              <span className="text-[13px] text-white/70">
+                <span className="text-white font-bold tabular-nums">
+                  {toArabicNum(total)}
+                </span>{" "}
+                خبيرًا
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
+              <span className="relative flex h-2 w-2">
+                {!reduce && (
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/70 animate-ping" />
+                )}
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <span className="text-[13px] text-white/70">
+                <span className="text-emerald-300 font-bold tabular-nums">
+                  {toArabicNum(availableCount)}
+                </span>{" "}
+                يستقبل جلسات الآن
+              </span>
+            </div>
+            {featuredCount > 0 && (
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span className="text-[13px] text-white/70">
+                  <span className="text-amber-300 font-bold tabular-nums">
+                    {toArabicNum(featuredCount)}
+                  </span>{" "}
+                  خبير مميّز
+                </span>
+              </div>
+            )}
           </motion.div>
 
-          {sections.map(({ team, experts }) => (
-            <TeamSection
-              key={team.key}
-              team={team}
-              experts={experts}
-              reduce={!!reduce}
+          {/* Search + expertise filter chips */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+            className="mb-12 sm:mb-14 space-y-4"
+          >
+            <div className="relative max-w-md">
+              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="ابحث عن خبير…"
+                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-all"
+                dir="rtl"
+                data-testid="expert-search"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="مسح البحث"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {allTags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTag(null)}
+                  className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
+                    !activeTag
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
+                  }`}
+                >
+                  الكلّ
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                    className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
+                      activeTag === tag
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Empty state when search/filter matches nothing */}
+          {isFiltering && (filtered?.length ?? 0) === 0 ? (
+            <EmptyState
+              title="لا يوجد خبراء مطابقون"
+              hint="جرّب بحثًا أو تصفيةً مختلفة."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setActiveTag(null);
+                  }}
+                  className="mt-2 text-primary text-[13px] underline underline-offset-2"
+                >
+                  مسح الفلاتر
+                </button>
+              }
             />
-          ))}
+          ) : (
+            sections.map(({ team, experts }) => (
+              <TeamSection
+                key={team.key}
+                team={team}
+                experts={experts}
+                reduce={!!reduce}
+              />
+            ))
+          )}
+
+          {/* Become a Mentor CTA */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{ duration: 0.55 }}
+            className="mt-16 sm:mt-20"
+          >
+            <div className="relative overflow-hidden rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-white/[0.02] to-primary/[0.04] p-8 sm:p-12">
+              <div className="pointer-events-none absolute -top-16 -start-16 w-64 h-64 rounded-full bg-primary/10 blur-3xl" />
+              <div className="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-center sm:text-start">
+                <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center">
+                  <UserPlus className="w-7 h-7 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold text-[20px] mb-2">
+                    كن مرشداً في آيلاند
+                  </h3>
+                  <p className="text-white/50 text-[14.5px] leading-relaxed max-w-lg">
+                    شارك خبرتك مع الجيل القادم من روّاد الأعمال — انضمّ إلى شبكة
+                    المرشدين، واترك أثرًا يبقى.
+                  </p>
+                </div>
+                <Link
+                  href="/become-mentor"
+                  data-testid="become-mentor-cta"
+                  className="flex-shrink-0 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-8px_rgba(201,54,58,0.5)] transition-all"
+                >
+                  كن مرشداً
+                  <ArrowLeft className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </motion.div>
         </>
       )}
     </PageShell>
-  );
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
-      {children}
-    </span>
   );
 }
 
@@ -331,7 +503,7 @@ function ExpertCardView({
                 {initials}
               </div>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h3
                 className={`text-white font-bold leading-snug truncate ${
                   isLead ? "text-[18px]" : "text-[16px]"
@@ -356,6 +528,19 @@ function ExpertCardView({
                 </div>
               )}
             </div>
+            {e.yearsExperience > 0 && (
+              <div className="shrink-0 text-center self-start">
+                <div
+                  className={`font-black text-white/80 ${isLead ? "text-[22px]" : "text-[18px]"}`}
+                  style={{ letterSpacing: "-0.04em" }}
+                >
+                  {toArabicNum(e.yearsExperience)}+
+                </div>
+                <div className="text-[9px] tracking-widest text-white/35 font-bold -mt-0.5">
+                  سنة خبرة
+                </div>
+              </div>
+            )}
           </div>
 
           {isLead && e.bio && (
