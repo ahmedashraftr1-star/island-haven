@@ -31,7 +31,7 @@ app.use(
 // brute-force and credential-stuffing attacks.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,
+  max: Number(process.env.RATE_LIMIT_AUTH_MAX ?? 20),
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
@@ -39,9 +39,12 @@ const authLimiter = rateLimit({
 });
 
 // General limiter for all other API routes — prevents DDoS / scraping.
+// NOTE: the default store is in-memory (per-process). When running multiple
+// API instances, back this with a shared store (Redis) via RATE_LIMIT_* so the
+// limit is global — see DEPLOY-SCALE.md.
 const generalLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 300,
+  windowMs: Number(process.env.RATE_LIMIT_GENERAL_WINDOW_MS ?? 60 * 1000),
+  max: Number(process.env.RATE_LIMIT_GENERAL_MAX ?? 300),
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
@@ -127,6 +130,31 @@ app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use("/api/auth", authLimiter);
 app.use("/api/admin/auth", authLimiter);
 app.use("/api", generalLimiter);
+
+// ─── Edge/browser caching for ANONYMOUS public reads ─────────────────────────
+// The biggest scale lever without new infra: let a CDN/browser absorb the read
+// traffic for non-personalized public list endpoints. Only set on GETs from
+// unauthenticated clients (no session cookie) so personalized/admin responses
+// are never cached or leaked across users. Authenticated requests stay fresh.
+const PUBLIC_CACHE_RE =
+  /^\/api\/(content|numbers|stats|gallery|partners|team|programs|cohorts|resources|jobs|investors|opportunities|perks|stories|daily|ventures|courses|experts|members|search)(\/|$)/;
+const PUBLIC_CACHE_MAX_AGE = Number(process.env.PUBLIC_CACHE_MAX_AGE ?? 60);
+app.use((req, res, next) => {
+  if (
+    req.method === "GET" &&
+    !req.path.includes("/me/") &&
+    !req.path.includes("/admin/") &&
+    !req.cookies?.["ih_user"] &&
+    !req.cookies?.["ih_admin"] &&
+    PUBLIC_CACHE_RE.test(req.path)
+  ) {
+    res.set(
+      "Cache-Control",
+      `public, max-age=${PUBLIC_CACHE_MAX_AGE}, stale-while-revalidate=300`,
+    );
+  }
+  next();
+});
 
 app.use("/api", router);
 
