@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, Star, Clock, Users, Search, X, UserPlus, Briefcase } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 
@@ -35,42 +36,56 @@ interface TeamMember {
 
 type Variant = "lead" | "compact";
 
-const TEAMS: {
+interface Team {
   key: string;
-  index: string;
-  title: string;
-  blurb: string;
+  index: number;
+  title: { ar: string; en: string };
+  blurb: { ar: string; en: string };
   variant: Variant;
-}[] = [
+}
+
+const TEAMS: Team[] = [
   {
     key: "leadership",
-    index: "٠١",
-    title: "القيادة",
-    blurb: "الفريق المؤسّس الذي يقود الحاضنة، ويرافقك من الفكرة الأولى إلى الأثر.",
+    index: 1,
+    title: { ar: "القيادة", en: "Leadership" },
+    blurb: {
+      ar: "الفريق المؤسّس الذي يقود الحاضنة, ويرافقك من الفكرة الأولى إلى الأثر.",
+      en: "The founding team steering the incubator — with you from first idea to lasting impact.",
+    },
     variant: "lead",
   },
   {
     key: "mentors",
-    index: "٠٢",
-    title: "الإرشاد التقنيّ والمنتج",
-    blurb: "مرشدون يبنون معك المنتج — هندسةً وتصميمًا ونموًّا.",
+    index: 2,
+    title: { ar: "الإرشاد التقنيّ والمنتج", en: "Tech & Product Mentors" },
+    blurb: {
+      ar: "مرشدون يبنون معك المنتج — هندسةً وتصميمًا ونموًّا.",
+      en: "Mentors who build the product with you — engineering, design, and growth.",
+    },
     variant: "compact",
   },
   {
     key: "advisors",
-    index: "٠٣",
-    title: "الاستشارات والأعمال",
-    blurb: "مستشارون يفتحون لك أبواب التمويل والقانون والاستراتيجيّة.",
+    index: 3,
+    title: { ar: "الاستشارات والأعمال", en: "Business Advisors" },
+    blurb: {
+      ar: "مستشارون يفتحون لك أبواب التمويل والقانون والاستراتيجيّة.",
+      en: "Advisors who open doors to funding, legal, and strategy.",
+    },
     variant: "compact",
   },
 ];
 
-const FALLBACK_TEAM = {
+const FALLBACK_TEAM: Team = {
   key: "_other",
-  index: "٠٤",
-  title: "خبراء آخرون",
-  blurb: "نخبة إضافيّة من المرشدين في شبكة آيلاند.",
-  variant: "compact" as Variant,
+  index: 4,
+  title: { ar: "خبراء آخرون", en: "More Experts" },
+  blurb: {
+    ar: "نخبة إضافيّة من المرشدين في شبكة آيلاند.",
+    en: "An additional roster of mentors across the Island Haven network.",
+  },
+  variant: "compact",
 };
 
 const stagger: Variants = {
@@ -89,8 +104,17 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Two-digit section index (٠١ / 01).
+function idx(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n).padStart(2, "٠") : String(n).padStart(2, "0");
+}
 
 export default function Experts() {
+  const { lang, dir, t } = useLanguage();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
   const [groups, setGroups] = useState<Map<string, string>>(new Map());
   const [error, setError] = useState<string | null>(null);
@@ -99,8 +123,9 @@ export default function Experts() {
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "خبراء آيلاند — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar" ? "خبراء آيلاند — Island Haven" : "Experts — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,23 +142,29 @@ export default function Experts() {
       })
       .catch((e) => {
         if (!cancelled)
-          setError(e instanceof ApiError ? e.message : "تعذّر تحميل الخبراء");
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر تحميل الخبراء"
+                : "Couldn't load experts",
+          );
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   // Top expertise tags by frequency (across all experts, unfiltered).
   const allTags = useMemo(() => {
     if (!rows) return [];
     const freq: Record<string, number> = {};
     for (const e of rows)
-      for (const t of splitTags(e.expertise)) freq[t] = (freq[t] ?? 0) + 1;
+      for (const tg of splitTags(e.expertise)) freq[tg] = (freq[tg] ?? 0) + 1;
     return Object.entries(freq)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
-      .map(([t]) => t);
+      .map(([tg]) => tg);
   }, [rows]);
 
   // Apply live search + active-tag filter to the expert list BEFORE partitioning
@@ -160,16 +191,16 @@ export default function Experts() {
   const extra: ExpertCard[] = [];
   for (const e of filtered ?? []) {
     const g = groups.get(e.fullName.trim());
-    if (g && TEAMS.some((t) => t.key === g)) {
+    if (g && TEAMS.some((tm) => tm.key === g)) {
       (buckets[g] ??= []).push(e);
     } else {
       extra.push(e);
     }
   }
   const sections = [
-    ...TEAMS.filter((t) => (buckets[t.key]?.length ?? 0) > 0).map((t) => ({
-      team: t,
-      experts: buckets[t.key],
+    ...TEAMS.filter((tm) => (buckets[tm.key]?.length ?? 0) > 0).map((tm) => ({
+      team: tm,
+      experts: buckets[tm.key],
     })),
     ...(extra.length ? [{ team: FALLBACK_TEAM, experts: extra }] : []),
   ];
@@ -180,10 +211,16 @@ export default function Experts() {
   return (
     <PageShell
       active="experts"
-      eyebrow="شبكة الخبراء · إرشاد فرديّ مَجّانيّ"
-      title="خبراء"
-      highlight="آيلاند"
-      subtitle="ثلاثة فِرَق من المرشدين وروّاد الأعمال والمتخصّصين — يرافقونك جلسةً بعد جلسة، حتّى تتحوّل الفكرة إلى مشروع، والمشروع إلى أثر."
+      eyebrow={t({
+        ar: "شبكة الخبراء · إرشاد فرديّ مَجّانيّ",
+        en: "Expert Network · Free 1:1 Mentorship",
+      })}
+      title={t({ ar: "خبراء", en: "Island Haven" })}
+      highlight={t({ ar: "آيلاند", en: "Experts" })}
+      subtitle={t({
+        ar: "ثلاثة فِرَق من المرشدين وروّاد الأعمال والمتخصّصين — يرافقونك جلسةً بعد جلسة، حتّى تتحوّل الفكرة إلى مشروع، والمشروع إلى أثر.",
+        en: "Three teams of mentors, founders, and specialists — with you session after session, turning ideas into ventures and ventures into impact.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -193,8 +230,11 @@ export default function Experts() {
         <SkeletonExperts />
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="سيُعلَن عن الخبراء قريبًا"
-          hint="نُجهّز شبكة من أفضل المرشدين لمجتمع آيلاند."
+          title={t({ ar: "سيُعلَن عن الخبراء قريبًا", en: "Experts coming soon" })}
+          hint={t({
+            ar: "نُجهّز شبكة من أفضل المرشدين لمجتمع آيلاند.",
+            en: "We're assembling a network of top mentors for the Island Haven community.",
+          })}
         />
       ) : (
         <>
@@ -209,9 +249,9 @@ export default function Experts() {
               <Briefcase className="w-3.5 h-3.5 text-primary" />
               <span className="text-[13px] text-white/70">
                 <span className="text-white font-bold tabular-nums">
-                  {toArabicNum(total)}
+                  {num(total, lang)}
                 </span>{" "}
-                خبيرًا
+                {t({ ar: "خبيرًا", en: "experts" })}
               </span>
             </div>
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
@@ -223,9 +263,9 @@ export default function Experts() {
               </span>
               <span className="text-[13px] text-white/70">
                 <span className="text-emerald-300 font-bold tabular-nums">
-                  {toArabicNum(availableCount)}
+                  {num(availableCount, lang)}
                 </span>{" "}
-                يستقبل جلسات الآن
+                {t({ ar: "يستقبل جلسات الآن", en: "available now" })}
               </span>
             </div>
             {featuredCount > 0 && (
@@ -233,9 +273,9 @@ export default function Experts() {
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span className="text-[13px] text-white/70">
                   <span className="text-amber-300 font-bold tabular-nums">
-                    {toArabicNum(featuredCount)}
+                    {num(featuredCount, lang)}
                   </span>{" "}
-                  خبير مميّز
+                  {t({ ar: "خبير مميّز", en: "featured" })}
                 </span>
               </div>
             )}
@@ -253,16 +293,16 @@ export default function Experts() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="ابحث عن خبير…"
+                placeholder={t({ ar: "ابحث عن خبير…", en: "Search experts…" })}
                 className="w-full bg-white/[0.05] border border-white/10 rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-all"
-                dir="rtl"
+                dir={dir}
                 data-testid="expert-search"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  aria-label="مسح البحث"
+                  aria-label={t({ ar: "مسح البحث", en: "Clear search" })}
                   className="absolute end-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -281,7 +321,7 @@ export default function Experts() {
                       : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
                   }`}
                 >
-                  الكلّ
+                  {t({ ar: "الكلّ", en: "All" })}
                 </button>
                 {allTags.map((tag) => (
                   <button
@@ -304,8 +344,11 @@ export default function Experts() {
           {/* Empty state when search/filter matches nothing */}
           {isFiltering && (filtered?.length ?? 0) === 0 ? (
             <EmptyState
-              title="لا يوجد خبراء مطابقون"
-              hint="جرّب بحثًا أو تصفيةً مختلفة."
+              title={t({ ar: "لا يوجد خبراء مطابقون", en: "No matching experts" })}
+              hint={t({
+                ar: "جرّب بحثًا أو تصفيةً مختلفة.",
+                en: "Try a different search or filter.",
+              })}
               action={
                 <button
                   type="button"
@@ -315,7 +358,7 @@ export default function Experts() {
                   }}
                   className="mt-2 text-primary text-[13px] underline underline-offset-2"
                 >
-                  مسح الفلاتر
+                  {t({ ar: "مسح الفلاتر", en: "Clear filters" })}
                 </button>
               }
             />
@@ -346,11 +389,16 @@ export default function Experts() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-white font-bold text-[20px] mb-2">
-                    كن مرشداً في آيلاند
+                    {t({
+                      ar: "كن مرشداً في آيلاند",
+                      en: "Become a Mentor at Island Haven",
+                    })}
                   </h3>
                   <p className="text-white/50 text-[14.5px] leading-relaxed max-w-lg">
-                    شارك خبرتك مع الجيل القادم من روّاد الأعمال — انضمّ إلى شبكة
-                    المرشدين، واترك أثرًا يبقى.
+                    {t({
+                      ar: "شارك خبرتك مع الجيل القادم من روّاد الأعمال — انضمّ إلى شبكة المرشدين، واترك أثرًا يبقى.",
+                      en: "Share your expertise with the next generation of founders — join the mentor network and leave a lasting impact.",
+                    })}
                   </p>
                 </div>
                 <Link
@@ -358,8 +406,8 @@ export default function Experts() {
                   data-testid="become-mentor-cta"
                   className="flex-shrink-0 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-8px_rgba(201,54,58,0.5)] transition-all"
                 >
-                  كن مرشداً
-                  <ArrowLeft className="w-4 h-4" />
+                  {t({ ar: "كن مرشداً", en: "Become a Mentor" })}
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
                 </Link>
               </div>
             </div>
@@ -375,10 +423,11 @@ function TeamSection({
   experts,
   reduce,
 }: {
-  team: (typeof TEAMS)[number];
+  team: Team;
   experts: ExpertCard[];
   reduce: boolean;
 }) {
+  const { lang, t } = useLanguage();
   const isLead = team.variant === "lead";
   return (
     <section className="relative mb-16 sm:mb-24 last:mb-0">
@@ -393,7 +442,7 @@ function TeamSection({
             color: "transparent",
           }}
         >
-          {team.index}
+          {idx(team.index, lang)}
         </span>
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
@@ -401,15 +450,15 @@ function TeamSection({
               className="text-white font-bold"
               style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
             >
-              {team.title}
+              {t(team.title)}
             </h2>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/10 border border-primary/25">
               <Users className="w-3 h-3" />
-              {toArabicNum(experts.length)}
+              {num(experts.length, lang)}
             </span>
           </div>
           <p className="text-white/50 text-[13.5px] leading-[1.8] max-w-xl">
-            {team.blurb}
+            {t(team.blurb)}
           </p>
         </div>
       </div>
@@ -447,6 +496,7 @@ function ExpertCardView({
   variant: Variant;
   reduce: boolean;
 }) {
+  const { lang, t } = useLanguage();
   const isLead = variant === "lead";
   const areas = splitTags(e.expertise).slice(0, isLead ? 4 : 3);
   const initials = e.fullName.trim().charAt(0) || "؟";
@@ -480,7 +530,8 @@ function ExpertCardView({
 
           {e.featured && (
             <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
+              <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+              {t({ ar: "خبير مميّز", en: "Featured" })}
             </div>
           )}
 
@@ -523,7 +574,7 @@ function ExpertCardView({
                     {e.ratingAvg?.toFixed(1)}
                   </span>
                   <span className="text-[10.5px] text-white/40">
-                    ({toArabicNum(e.ratingCount)})
+                    ({num(e.ratingCount, lang)})
                   </span>
                 </div>
               )}
@@ -534,10 +585,10 @@ function ExpertCardView({
                   className={`font-black text-white/80 ${isLead ? "text-[22px]" : "text-[18px]"}`}
                   style={{ letterSpacing: "-0.04em" }}
                 >
-                  {toArabicNum(e.yearsExperience)}+
+                  {num(e.yearsExperience, lang)}+
                 </div>
                 <div className="text-[9px] tracking-widest text-white/35 font-bold -mt-0.5">
-                  سنة خبرة
+                  {t({ ar: "سنة خبرة", en: "yrs exp" })}
                 </div>
               </div>
             )}
@@ -571,16 +622,17 @@ function ExpertCardView({
                   )}
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
-                متاح للحجز
+                {t({ ar: "متاح للحجز", en: "Available" })}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-[11.5px] text-white/45">
-                <Clock className="w-3.5 h-3.5" /> غير متاح حاليًا
+                <Clock className="w-3.5 h-3.5" />{" "}
+                {t({ ar: "غير متاح حاليًا", en: "Unavailable" })}
               </span>
             )}
             <span className="inline-flex items-center gap-1 text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
-              الملف الكامل
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              {t({ ar: "الملف الكامل", en: "Full profile" })}
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </span>
           </div>
         </GlassCard>
