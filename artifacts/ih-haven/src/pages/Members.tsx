@@ -15,11 +15,13 @@ import {
   GlassCard,
   EmptyState,
 } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
 
+// Arabic chrome — also the editable CMS fallback ("pageMembers" section).
 const FALLBACK = {
   eyebrow: "من نحن",
   title: "منتسبو المساحة",
@@ -34,6 +36,23 @@ const FALLBACK = {
   worksLabel: "عمل",
   emptyTitle: "لا توجد نتائج",
   emptyHint: "جرّب فلترًا آخر أو كلمة بحث مختلفة.",
+};
+
+// English chrome.
+const EN: typeof FALLBACK = {
+  eyebrow: "About Us",
+  title: "Community Members",
+  subtitle:
+    "A community of freelancers, graduates, and students building their work from the heart of Gaza. Meet them — and explore what they've made.",
+  searchPlaceholder: "Search by name, field, or skill…",
+  filterAll: "All",
+  filterFreelancer: "Freelancers",
+  filterGraduate: "Graduates",
+  filterStudent: "Students",
+  filterOther: "Members",
+  worksLabel: "works",
+  emptyTitle: "No results",
+  emptyHint: "Try a different filter or search term.",
 };
 
 interface Member {
@@ -53,6 +72,7 @@ interface Member {
 }
 
 export default function Members() {
+  const { lang, t } = useLanguage();
   const [role, setRole] = useState<"" | UserRole>("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
@@ -60,7 +80,9 @@ export default function Members() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const c = useContentSection("pageMembers", FALLBACK);
+  // Arabic chrome comes from CMS (with FALLBACK); English from the static EN map.
+  const ar = useContentSection("pageMembers", FALLBACK);
+  const c = lang === "en" ? EN : ar;
 
   const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
     { key: "", label: c.filterAll },
@@ -71,8 +93,11 @@ export default function Members() {
   ];
 
   useEffect(() => {
-    document.title = "منتسبو المساحة — آيلاند هيفن";
-  }, []);
+    document.title = t({
+      ar: "منتسبو المساحة — آيلاند هيفن",
+      en: "Community Members — Island Haven",
+    });
+  }, [lang, t]);
 
   // Reset page on filter/search change
   useEffect(() => { setPage(1); }, [role, q]);
@@ -95,7 +120,11 @@ export default function Members() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        );
       });
     return () => { cancelled = true; };
   }, [role, q, page]);
@@ -136,7 +165,7 @@ export default function Members() {
                 <span>{f.label}</span>
                 {active && total !== null && (
                   <span className="text-[10.5px] text-white/55 tabular-nums">
-                    {total}
+                    {total.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
                   </span>
                 )}
               </button>
@@ -207,6 +236,7 @@ export default function Members() {
 }
 
 function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
+  const { lang, t } = useLanguage();
   const initials = m.fullName.split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
   const skills = splitTags(m.skills).slice(0, 5);
 
@@ -249,7 +279,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
           </p>
         ) : (
           <p className="text-white/35 text-[13px] italic mb-4 flex-1">
-            لا توجد نبذة بعد.
+            {t({ ar: "لا توجد نبذة بعد.", en: "No bio yet." })}
           </p>
         )}
 
@@ -270,7 +300,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
           <div className="flex items-center gap-2 text-white/55">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums">
-              {m.worksCount.toLocaleString("ar-EG")}
+              {m.worksCount.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
             </span>
             <span className="text-white/45">{worksLabel}</span>
           </div>

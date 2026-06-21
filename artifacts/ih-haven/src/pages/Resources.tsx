@@ -16,6 +16,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   RESOURCE_CATEGORY_LABELS,
@@ -36,6 +37,16 @@ interface ResourceCard {
   featured: boolean;
 }
 
+// English counterparts to the Arabic-only RESOURCE_CATEGORY_LABELS in @/lib/labels.
+const RESOURCE_CATEGORY_LABELS_EN: Record<ResourceCategory, string> = {
+  template: "Template",
+  guide: "Guide",
+  tool: "Tool",
+  perk: "Perk",
+  recording: "Recording",
+  legal: "Legal",
+};
+
 const CATEGORY_ICONS: Record<ResourceCategory, typeof BookOpen> = {
   template: FileText,
   guide: BookOpen,
@@ -45,13 +56,13 @@ const CATEGORY_ICONS: Record<ResourceCategory, typeof BookOpen> = {
   legal: Scale,
 };
 
-const FILTERS: Array<{ key: "" | ResourceCategory; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "guide", label: "أدلّة" },
-  { key: "template", label: "قوالب" },
-  { key: "tool", label: "أدوات" },
-  { key: "perk", label: "حوافز" },
-  { key: "recording", label: "تسجيلات" },
+const FILTERS: Array<{ key: "" | ResourceCategory; label: { ar: string; en: string } }> = [
+  { key: "", label: { ar: "الكلّ", en: "All" } },
+  { key: "guide", label: { ar: "أدلّة", en: "Guides" } },
+  { key: "template", label: { ar: "قوالب", en: "Templates" } },
+  { key: "tool", label: { ar: "أدوات", en: "Tools" } },
+  { key: "perk", label: { ar: "حوافز", en: "Perks" } },
+  { key: "recording", label: { ar: "تسجيلات", en: "Recordings" } },
 ];
 
 const stagger: Variants = {
@@ -66,8 +77,19 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Category label localised by language.
+function categoryLabel(category: ResourceCategory, lang: Lang): string {
+  return lang === "ar"
+    ? RESOURCE_CATEGORY_LABELS[category]
+    : RESOURCE_CATEGORY_LABELS_EN[category];
+}
 
 export default function Resources() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<ResourceCard[] | null>(null);
   const [gated, setGated] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,8 +97,9 @@ export default function Resources() {
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "دليل الرّائد — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar" ? "دليل الرّائد — Island Haven" : "Resources — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,12 +112,18 @@ export default function Resources() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load resources",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   const base = filter ? (rows ?? []).filter((r) => r.category === filter) : rows ?? [];
   const filtered = [...base].sort((a, b) => Number(b.featured) - Number(a.featured));
@@ -102,34 +131,40 @@ export default function Resources() {
 
   return (
     <PageShell
-      eyebrow="دليل الرّائد · The Playbook"
-      title="موارد"
-      highlight="الحاضنة"
-      subtitle="أدلّة، قوالب، أدوات، وحوافز انتقيناها لتسريع مشروعك — من فكرة على ورقة إلى إطلاق إلى نموّ. المحتوى الموسَّع للمنتسبين فقط."
+      eyebrow={t({ ar: "دليل الرّائد · The Playbook", en: "The Founder's Playbook" })}
+      title={t({ ar: "موارد", en: "Incubator" })}
+      highlight={t({ ar: "الحاضنة", en: "Resources" })}
+      subtitle={t({
+        ar: "أدلّة، قوالب، أدوات، وحوافز انتقيناها لتسريع مشروعك — من فكرة على ورقة إلى إطلاق إلى نموّ. المحتوى الموسَّع للمنتسبين فقط.",
+        en: "Guides, templates, tools, and perks handpicked to accelerate your venture — from an idea on paper to launch to growth. Extended content is for members only.",
+      })}
     >
       {gated && (
         <GlassCard className="p-5 mb-7 flex items-start gap-3 border-amber-400/30 bg-amber-400/[0.04]">
           <Lock className="w-5 h-5 text-amber-300 mt-0.5 shrink-0" />
           <div className="flex-1">
             <div className="text-white font-bold text-[14px] mb-1">
-              معظم الموارد للمنتسبين فقط
+              {t({ ar: "معظم الموارد للمنتسبين فقط", en: "Most resources are for members only" })}
             </div>
             <p className="text-white/65 text-[13px] leading-[1.85] mb-3">
-              سجّل دخولك أو انتسب للمساحة لتفتح القوالب، الأدلّة، وحوافز الشّركاء.
+              {t({
+                ar: "سجّل دخولك أو انتسب للمساحة لتفتح القوالب، الأدلّة، وحوافز الشّركاء.",
+                en: "Log in or join the space to unlock templates, guides, and partner perks.",
+              })}
             </p>
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 href="/login"
                 className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-semibold"
               >
-                تسجيل الدخول
+                {t({ ar: "تسجيل الدخول", en: "Log in" })}
                 <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               </Link>
               <Link
                 href="/apply"
                 className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold hover:bg-white/[0.1]"
               >
-                قدّم على الانتساب
+                {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
               </Link>
             </div>
           </div>
@@ -155,14 +190,14 @@ export default function Resources() {
                     : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
                 }`}
               >
-                {f.label}
+                {t(f.label)}
               </button>
             );
           })}
         </div>
         {!!total && (
           <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
-            {toArabicNum(total)} موردًا
+            {num(total, lang)} {t({ ar: "موردًا", en: "resources" })}
           </span>
         )}
       </div>
@@ -178,11 +213,17 @@ export default function Resources() {
         </div>
       ) : filtered && filtered.length === 0 ? (
         <EmptyState
-          title="لا موارد بعد"
+          title={t({ ar: "لا موارد بعد", en: "No resources yet" })}
           hint={
             gated
-              ? "بعد تسجيل دخولك ستظهر أدلّة المنتسبين."
-              : "نُجهّز أوّل دفعة من القوالب والأدلّة."
+              ? t({
+                  ar: "بعد تسجيل دخولك ستظهر أدلّة المنتسبين.",
+                  en: "Members' guides will appear once you log in.",
+                })
+              : t({
+                  ar: "نُجهّز أوّل دفعة من القوالب والأدلّة.",
+                  en: "We're preparing the first batch of templates and guides.",
+                })
           }
         />
       ) : (
@@ -203,6 +244,7 @@ export default function Resources() {
 }
 
 function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   const Icon = CATEGORY_ICONS[r.category];
   const href = r.externalUrl || r.fileUrl;
   return (
@@ -235,7 +277,7 @@ function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
-                  {RESOURCE_CATEGORY_LABELS[r.category]}
+                  {categoryLabel(r.category, lang)}
                 </span>
                 {r.featured && (
                   <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
@@ -255,18 +297,18 @@ function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
             {r.visibility === "members" ? (
               <span className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/85">
                 <Lock className="w-3 h-3" />
-                للمنتسبين
+                {t({ ar: "للمنتسبين", en: "Members" })}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-200/85">
                 <Sparkles className="w-3 h-3" />
-                للجميع
+                {t({ ar: "للجميع", en: "Everyone" })}
               </span>
             )}
             {href && (
               <span className="inline-flex items-center gap-1.5">
                 {r.externalUrl ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-                فتح
+                {t({ ar: "فتح", en: "Open" })}
               </span>
             )}
           </div>

@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Calendar, MapPin, Users, ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   COURSE_TYPE_LABELS,
@@ -27,10 +28,22 @@ interface CourseRow {
   enrolled: number;
 }
 
-const FILTERS: Array<{ key: "" | CourseType; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "course", label: "الكورسات" },
-  { key: "workshop", label: "الورشات" },
+const COURSE_TYPE_LABELS_EN: Record<CourseType, string> = {
+  course: "Course",
+  workshop: "Workshop",
+};
+
+const COURSE_STATUS_LABELS_EN: Record<CourseStatus, string> = {
+  draft: "Draft",
+  open: "Registration open",
+  closed: "Full",
+  done: "Ended",
+};
+
+const FILTERS: Array<{ key: "" | CourseType; label: { ar: string; en: string } }> = [
+  { key: "", label: { ar: "الكلّ", en: "All" } },
+  { key: "course", label: { ar: "الكورسات", en: "Courses" } },
+  { key: "workshop", label: { ar: "الورشات", en: "Workshops" } },
 ];
 
 const stagger: Variants = {
@@ -45,6 +58,26 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Localised date-time: Arabic-EG in AR, English-GB in EN.
+function formatDateTime(iso: string | null | undefined, lang: Lang): string {
+  if (lang === "ar") return formatArabicDateTime(iso);
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
 
 function Dot() {
   return (
@@ -56,14 +89,18 @@ function Dot() {
 }
 
 export default function Courses() {
+  const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<"" | CourseType>("");
   const [rows, setRows] = useState<CourseRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "الكورسات والورشات — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "الكورسات والورشات — آيلاند هيفن"
+        : "Courses & Workshops — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,12 +112,18 @@ export default function Courses() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر تحميل القائمة");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : lang === "ar"
+              ? "تعذّر تحميل القائمة"
+              : "Couldn't load the list",
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [filter]);
+  }, [filter, lang]);
 
   const openCount = (rows ?? []).filter(
     (c) => c.status === "open" && !(c.capacity > 0 && c.enrolled >= c.capacity),
@@ -94,10 +137,13 @@ export default function Courses() {
   return (
     <PageShell
       active="courses"
-      eyebrow="تَعلّم · شارِك · انْمُ"
-      title="الكورسات و"
-      highlight="الورشات"
-      subtitle="فرص تَدريبيّة متجدّدة في آيلاند هيفن — مَجّانًا، صُمِّمَت لتُمَكِّنَك من تحويل المعرفة إلى دخل وأثَر."
+      eyebrow={t({ ar: "تَعلّم · شارِك · انْمُ", en: "Learn · Share · Grow" })}
+      title={t({ ar: "الكورسات و", en: "Courses & " })}
+      highlight={t({ ar: "الورشات", en: "Workshops" })}
+      subtitle={t({
+        ar: "فرص تَدريبيّة متجدّدة في آيلاند هيفن — مَجّانًا، صُمِّمَت لتُمَكِّنَك من تحويل المعرفة إلى دخل وأثَر.",
+        en: "Ever-renewing training opportunities at Island Haven — free, designed to help you turn knowledge into income and impact.",
+      })}
     >
       <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
@@ -115,7 +161,7 @@ export default function Courses() {
                 }`}
                 data-testid={`filter-${f.key || "all"}`}
               >
-                {f.label}
+                {t(f.label)}
               </button>
             );
           })}
@@ -123,7 +169,7 @@ export default function Courses() {
         {openCount > 0 && (
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-emerald-200 bg-emerald-500/10 border border-emerald-500/25">
             <Dot />
-            {toArabicNum(openCount)} تسجيل مفتوح
+            {num(openCount, lang)} {t({ ar: "تسجيل مفتوح", en: "open for registration" })}
           </span>
         )}
       </div>
@@ -143,8 +189,11 @@ export default function Courses() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا توجد فعاليّات منشورة بعد"
-          hint="ترقّب الإعلان عن أوّل دفعة قريبًا."
+          title={t({ ar: "لا توجد فعاليّات منشورة بعد", en: "No events published yet" })}
+          hint={t({
+            ar: "ترقّب الإعلان عن أوّل دفعة قريبًا.",
+            en: "Stay tuned — our first batch will be announced soon.",
+          })}
         />
       ) : (
         <motion.div
@@ -164,9 +213,17 @@ export default function Courses() {
 }
 
 function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   const isFull = c.capacity > 0 && c.enrolled >= c.capacity;
   const isOpen = c.status === "open" && !isFull;
   const pct = c.capacity > 0 ? Math.min(100, Math.round((c.enrolled / c.capacity) * 100)) : 0;
+  const typeLabel =
+    lang === "ar" ? COURSE_TYPE_LABELS[c.type] : COURSE_TYPE_LABELS_EN[c.type];
+  const statusLabel = isFull
+    ? t({ ar: "مكتمل العدد", en: "Full" })
+    : lang === "ar"
+      ? COURSE_STATUS_LABELS[c.status]
+      : COURSE_STATUS_LABELS_EN[c.status];
   return (
     <motion.div
       variants={reduce ? undefined : rise}
@@ -206,7 +263,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
           <div className="relative p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-2 mb-2.5">
               <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-                {COURSE_TYPE_LABELS[c.type]}
+                {typeLabel}
               </span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold border ${
@@ -216,7 +273,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
                 }`}
               >
                 {isOpen && <Dot />}
-                {isFull ? "مكتمل العدد" : COURSE_STATUS_LABELS[c.status]}
+                {statusLabel}
               </span>
             </div>
             <h3 className="text-white font-bold text-[17px] leading-snug mb-1.5 line-clamp-2">
@@ -231,7 +288,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
               {c.startsAt && (
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary/80" />
-                  <span>{formatArabicDateTime(c.startsAt)}</span>
+                  <span>{formatDateTime(c.startsAt, lang)}</span>
                 </div>
               )}
               {c.location && (
@@ -243,11 +300,11 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-primary/80" />
                 <span>
-                  {toArabicNum(c.enrolled)}
-                  {c.capacity > 0 ? ` / ${toArabicNum(c.capacity)}` : ""} مشترك
+                  {num(c.enrolled, lang)}
+                  {c.capacity > 0 ? ` / ${num(c.capacity, lang)}` : ""} {t({ ar: "مشترك", en: "enrolled" })}
                   {isOpen && c.capacity > 0 && c.capacity - c.enrolled <= 5 && (
                     <span className="text-emerald-300/90">
-                      {" "}· {toArabicNum(c.capacity - c.enrolled)} مقعد متبقٍّ
+                      {" "}· {num(c.capacity - c.enrolled, lang)} {t({ ar: "مقعد متبقٍّ", en: "seats left" })}
                     </span>
                   )}
                 </span>
@@ -268,8 +325,8 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
           </div>
           <div className="relative px-5 pb-5">
             <div className="flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
-              <span>{isOpen ? "سجّل الآن" : "عرض التفاصيل"}</span>
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <span>{isOpen ? t({ ar: "سجّل الآن", en: "Register now" }) : t({ ar: "عرض التفاصيل", en: "View details" })}</span>
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </GlassCard>

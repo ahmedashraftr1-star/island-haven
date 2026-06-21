@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Globe, Linkedin, Mail, Sparkles, Users } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
 type RoleGroup = "leadership" | "mentors" | "advisors" | "support";
@@ -21,42 +22,54 @@ interface TeamMember {
 
 const GROUPS: {
   key: RoleGroup;
-  index: string;
+  index: number;
   ar: string;
   en: string;
-  blurb: string;
+  blurb: { ar: string; en: string };
   variant: "lead" | "compact";
 }[] = [
   {
     key: "leadership",
-    index: "٠١",
+    index: 1,
     ar: "القيادة",
     en: "Leadership",
-    blurb: "الفريق المؤسّس الذي يبني الحاضنة، ويرسم رؤيتها، ويقف خلف كلّ رائد.",
+    blurb: {
+      ar: "الفريق المؤسّس الذي يبني الحاضنة، ويرسم رؤيتها, ويقف خلف كلّ رائد.",
+      en: "The founding team building the incubator, shaping its vision, and standing behind every founder.",
+    },
     variant: "lead",
   },
   {
     key: "mentors",
-    index: "٠٢",
+    index: 2,
     ar: "المرشدون",
     en: "Mentors",
-    blurb: "خبراء يرافقون الفرق في رحلتها التقنيّة وبناء المنتج خطوةً بخطوة.",
+    blurb: {
+      ar: "خبراء يرافقون الفرق في رحلتها التقنيّة وبناء المنتج خطوةً بخطوة.",
+      en: "Experts who walk with teams through their technical journey and build the product step by step.",
+    },
     variant: "compact",
   },
   {
     key: "advisors",
-    index: "٠٣",
+    index: 3,
     ar: "المستشارون",
     en: "Advisors",
-    blurb: "مستشارو الأعمال والتمويل والقانون الذين يفتحون الأبواب الصعبة.",
+    blurb: {
+      ar: "مستشارو الأعمال والتمويل والقانون الذين يفتحون الأبواب الصعبة.",
+      en: "Business, finance, and legal advisors who open the doors that are hardest to open.",
+    },
     variant: "compact",
   },
   {
     key: "support",
-    index: "٠٤",
+    index: 4,
     ar: "الدّعم والتشغيل",
     en: "Support",
-    blurb: "الفريق الذي يُبقي المجتمع يعمل يومًا بيوم، خلف الكواليس.",
+    blurb: {
+      ar: "الفريق الذي يُبقي المجتمع يعمل يومًا بيوم، خلف الكواليس.",
+      en: "The team that keeps the community running day by day, behind the scenes.",
+    },
     variant: "compact",
   },
 ];
@@ -77,15 +90,27 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Two-digit section index (٠١ / 01).
+function idx(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n).padStart(2, "٠") : String(n).padStart(2, "0");
+}
 
 export default function Team() {
+  const { lang, t } = useLanguage();
   const [team, setTeam] = useState<TeamMember[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "فريق آيلاند — حاضنة أعمال غزّة";
-  }, []);
+    document.title = t({
+      ar: "فريق آيلاند — حاضنة أعمال غزّة",
+      en: "The Island Haven Team — Gaza Business Incubator",
+    });
+  }, [lang, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,12 +119,18 @@ export default function Team() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر تحميل الفريق"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر تحميل الفريق"
+                : "Couldn't load the team",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   const grouped = (team ?? []).reduce<Record<RoleGroup, TeamMember[]>>(
     (acc, m) => {
@@ -113,10 +144,13 @@ export default function Team() {
 
   return (
     <PageShell
-      eyebrow="من يقف خلف الحاضنة · The Team"
-      title="فريق"
-      highlight="آيلاند"
-      subtitle="حاضنة أعمال يقودها فريق غزّاويّ-دوليّ يؤمن بأنّ المواهب هنا تستحقّ بيئة عمل، إرشادًا، ودعمًا حقيقيّاً. نَنمو معكم، خطوة بخطوة."
+      eyebrow={t({ ar: "من يقف خلف الحاضنة · The Team", en: "Who Stands Behind the Incubator · The Team" })}
+      title={t({ ar: "فريق", en: "The Island Haven" })}
+      highlight={t({ ar: "آيلاند", en: "Team" })}
+      subtitle={t({
+        ar: "حاضنة أعمال يقودها فريق غزّاويّ-دوليّ يؤمن بأنّ المواهب هنا تستحقّ بيئة عمل، إرشادًا، ودعمًا حقيقيّاً. نَنمو معكم، خطوة بخطوة.",
+        en: "A business incubator led by a Gazan-international team that believes the talent here deserves a real workplace, mentorship, and genuine support. We grow with you, step by step.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -126,8 +160,11 @@ export default function Team() {
         <SkeletonTeam />
       ) : team && team.length === 0 ? (
         <EmptyState
-          title="سيُعلَن عن الفريق قريبًا"
-          hint="نُجهّز ملفّات الفريق والمرشدين — تابعنا."
+          title={t({ ar: "سيُعلَن عن الفريق قريبًا", en: "Team coming soon" })}
+          hint={t({
+            ar: "نُجهّز ملفّات الفريق والمرشدين — تابعنا.",
+            en: "We're preparing the team and mentor profiles — stay tuned.",
+          })}
         />
       ) : (
         <>
@@ -137,9 +174,19 @@ export default function Team() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex flex-wrap items-center gap-2.5 mb-14 sm:mb-16"
           >
-            <Chip>{toArabicNum(total)} عضوًا في الفريق</Chip>
-            <Chip>{toArabicNum(sections.length)} فِرَق</Chip>
-            <Chip>بدعمٍ من · من النّاس إلى النّاس</Chip>
+            <Chip>
+              {num(total, lang)}{" "}
+              {t({ ar: "عضوًا في الفريق", en: "team members" })}
+            </Chip>
+            <Chip>
+              {num(sections.length, lang)} {t({ ar: "فِرَق", en: "teams" })}
+            </Chip>
+            <Chip>
+              {t({
+                ar: "بدعمٍ من · من النّاس إلى النّاس",
+                en: "Supported by · NasToNas",
+              })}
+            </Chip>
           </motion.div>
 
           {sections.map((g) => (
@@ -168,18 +215,20 @@ export default function Team() {
             <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <h3 className="text-white font-bold text-[19px] sm:text-[21px] mb-2.5">
-            هل تريد الانضمام إلى الفريق؟
+            {t({ ar: "هل تريد الانضمام إلى الفريق؟", en: "Want to join the team?" })}
           </h3>
           <p className="text-white/55 text-[14px] leading-[1.9] max-w-md mx-auto mb-6">
-            نَبحث دائماً عن مرشدين، وخبراء قطاع، ومتطوّعين يُؤمنون بريادة الأعمال
-            في غزّة. راسلنا وقُل لنا كيف تُريد أن تُساهم.
+            {t({
+              ar: "نَبحث دائماً عن مرشدين، وخبراء قطاع, ومتطوّعين يُؤمنون بريادة الأعمال في غزّة. راسلنا وقُل لنا كيف تُريد أن تُساهم.",
+              en: "We're always looking for mentors, industry experts, and volunteers who believe in entrepreneurship in Gaza. Write to us and tell us how you'd like to contribute.",
+            })}
           </p>
           <a
             href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
           >
             <Mail className="w-4 h-4" />
-            راسلنا
+            {t({ ar: "راسلنا", en: "Email Us" })}
           </a>
         </div>
       </div>
@@ -204,6 +253,7 @@ function TeamSection({
   members: TeamMember[];
   reduce: boolean;
 }) {
+  const { lang, t } = useLanguage();
   const isLead = group.variant === "lead";
   return (
     <section className="relative mb-16 sm:mb-24">
@@ -217,7 +267,7 @@ function TeamSection({
             color: "transparent",
           }}
         >
-          {group.index}
+          {idx(group.index, lang)}
         </span>
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
@@ -225,18 +275,18 @@ function TeamSection({
               className="text-white font-bold"
               style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
             >
-              {group.ar}
+              {t({ ar: group.ar, en: group.en })}
             </h2>
             <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/35 font-bold">
               {group.en}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/10 border border-primary/25">
               <Users className="w-3 h-3" />
-              {toArabicNum(members.length)}
+              {num(members.length, lang)}
             </span>
           </div>
           <p className="text-white/50 text-[13.5px] leading-[1.8] max-w-xl">
-            {group.blurb}
+            {t(group.blurb)}
           </p>
         </div>
       </div>
@@ -269,6 +319,7 @@ function TeamCard({
   variant: "lead" | "compact";
   reduce: boolean;
 }) {
+  const { t } = useLanguage();
   const isLead = variant === "lead";
   const initials = m.fullName.trim().charAt(0) || "؟";
   return (
@@ -294,7 +345,7 @@ function TeamCard({
 
         {m.featured && (
           <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-            <Sparkles className="w-3 h-3" /> مميَّز
+            <Sparkles className="w-3 h-3" /> {t({ ar: "مميَّز", en: "Featured" })}
           </div>
         )}
 
@@ -361,16 +412,16 @@ function TeamCard({
                 href={m.websiteUrl}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="الموقع"
+                aria-label={t({ ar: "الموقع", en: "Website" })}
                 className="inline-flex items-center gap-1.5 text-[12px] text-white/65 hover:text-primary transition-colors"
               >
-                <Globe className="w-3.5 h-3.5" /> الموقع
+                <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
               </a>
             )}
             {m.email && (
               <a
                 href={`mailto:${m.email}`}
-                aria-label="البريد"
+                aria-label={t({ ar: "البريد", en: "Email" })}
                 className="inline-flex items-center gap-1.5 text-[12px] text-white/65 hover:text-primary transition-colors"
               >
                 <Mail className="w-3.5 h-3.5" />

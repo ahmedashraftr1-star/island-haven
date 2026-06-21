@@ -3,13 +3,14 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, MapPin, Briefcase, Star, Clock } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   OPPORTUNITY_TYPE_LABELS,
   OPPORTUNITY_LOCATION_LABELS,
   type OpportunityType,
   type OpportunityLocation,
-  formatArabicDate,
+  formatDate,
   splitTags,
 } from "@/lib/labels";
 
@@ -27,13 +28,27 @@ interface Opportunity {
   featured: boolean;
 }
 
-const FILTERS: { key: "all" | OpportunityType; label: string }[] = [
-  { key: "all", label: "الكلّ" },
-  { key: "job", label: OPPORTUNITY_TYPE_LABELS.job },
-  { key: "internship", label: OPPORTUNITY_TYPE_LABELS.internship },
-  { key: "freelance", label: OPPORTUNITY_TYPE_LABELS.freelance },
-  { key: "gig", label: OPPORTUNITY_TYPE_LABELS.gig },
-  { key: "volunteer", label: OPPORTUNITY_TYPE_LABELS.volunteer },
+// English variants of the Arabic-only label maps in @/lib/labels.
+const OPPORTUNITY_TYPE_LABELS_EN: Record<OpportunityType, string> = {
+  job: "Job",
+  internship: "Internship",
+  freelance: "Freelance",
+  gig: "Short gig",
+  volunteer: "Volunteer",
+};
+const OPPORTUNITY_LOCATION_LABELS_EN: Record<OpportunityLocation, string> = {
+  onsite: "On-site",
+  remote: "Remote",
+  hybrid: "Hybrid",
+};
+
+const TYPE_FILTERS: ("all" | OpportunityType)[] = [
+  "all",
+  "job",
+  "internship",
+  "freelance",
+  "gig",
+  "volunteer",
 ];
 
 const stagger: Variants = {
@@ -48,16 +63,24 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 export default function Opportunities() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Opportunity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | OpportunityType>("all");
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "الفرص والوظائف — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "الفرص والوظائف — Island Haven"
+        : "Opportunities — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,7 +92,11 @@ export default function Opportunities() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : t({ ar: "تعذّر التحميل", en: "Couldn't load opportunities" }),
+          ),
       );
     return () => {
       cancelled = true;
@@ -80,34 +107,49 @@ export default function Opportunities() {
   const total = rows?.length ?? 0;
   const featuredCount = (rows ?? []).filter((o) => o.featured).length;
 
+  // Filter chip labels — Arabic from the shared label map, English inline.
+  function filterLabel(key: "all" | OpportunityType): string {
+    if (key === "all") return t({ ar: "الكلّ", en: "All" });
+    return t({ ar: OPPORTUNITY_TYPE_LABELS[key], en: OPPORTUNITY_TYPE_LABELS_EN[key] });
+  }
+
   return (
     <PageShell
       active="opportunities"
-      eyebrow="جسرك لسوق العمل · Opportunities"
-      title="الفرص"
-      highlight="والوظائف"
-      subtitle="وظائف، تدريب، وأعمال حرّة من شركائنا والمشاريع الناشئة — مختارة لتقرّبك خطوة من سوق العمل، محليًّا وعالميًّا."
+      eyebrow={t({
+        ar: "جسرك لسوق العمل · Opportunities",
+        en: "Your bridge to the job market · Opportunities",
+      })}
+      title={t({ ar: "الفرص", en: "Opportunities" })}
+      highlight={t({ ar: "والوظائف", en: "& Jobs" })}
+      subtitle={t({
+        ar: "وظائف، تدريب، وأعمال حرّة من شركائنا والمشاريع الناشئة — مختارة لتقرّبك خطوة من سوق العمل، محليًّا وعالميًّا.",
+        en: "Jobs, internships, and freelance work from our partners and startups — curated to bring you one step closer to the job market, locally and globally.",
+      })}
     >
       <div className="flex items-center justify-between gap-3 mb-7 flex-wrap">
         <div className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => (
+          {TYPE_FILTERS.map((key) => (
             <button
-              key={f.key}
+              key={key}
               type="button"
-              onClick={() => setFilter(f.key)}
+              onClick={() => setFilter(key)}
               className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
-                filter === f.key
+                filter === key
                   ? "bg-primary text-white border-primary"
                   : "bg-white/[0.04] text-white/65 border-white/10 hover:border-white/25"
               }`}
             >
-              {f.label}
+              {filterLabel(key)}
             </button>
           ))}
         </div>
         {!!total && (
           <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
-            {toArabicNum(total)} فرصة{featuredCount > 0 ? ` · ${toArabicNum(featuredCount)} مميّزة` : ""}
+            {num(total, lang)} {t({ ar: "فرصة", en: "opportunities" })}
+            {featuredCount > 0
+              ? ` · ${num(featuredCount, lang)} ${t({ ar: "مميّزة", en: "featured" })}`
+              : ""}
           </span>
         )}
       </div>
@@ -127,8 +169,14 @@ export default function Opportunities() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا فرص ضمن هذا التصنيف حاليًّا"
-          hint="نضيف فرصًا جديدة باستمرار — تابعنا أو جرّب تصنيفًا آخر."
+          title={t({
+            ar: "لا فرص ضمن هذا التصنيف حاليًّا",
+            en: "No opportunities in this category right now",
+          })}
+          hint={t({
+            ar: "نضيف فرصًا جديدة باستمرار — تابعنا أو جرّب تصنيفًا آخر.",
+            en: "We add new opportunities all the time — stay tuned or try another category.",
+          })}
         />
       ) : (
         <motion.div
@@ -148,6 +196,7 @@ export default function Opportunities() {
 }
 
 function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   const tags = splitTags(o.skills).slice(0, 4);
   return (
     <motion.div
@@ -176,11 +225,15 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-primary/15 text-primary border border-primary/30">
                   <Briefcase className="w-3 h-3" />
-                  {OPPORTUNITY_TYPE_LABELS[o.type]}
+                  {t({
+                    ar: OPPORTUNITY_TYPE_LABELS[o.type],
+                    en: OPPORTUNITY_TYPE_LABELS_EN[o.type],
+                  })}
                 </span>
                 {o.featured && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-                    <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> مميّزة
+                    <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+                    {t({ ar: "مميّزة", en: "Featured" })}
                   </span>
                 )}
               </div>
@@ -203,12 +256,12 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
 
           {tags.length > 0 && (
             <div className="relative flex flex-wrap gap-1.5 mb-3">
-              {tags.map((t) => (
+              {tags.map((tag) => (
                 <span
-                  key={t}
+                  key={tag}
                   className="px-2 py-0.5 rounded-md text-[11px] bg-white/[0.05] text-white/60 border border-white/[0.08]"
                 >
-                  {t}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -218,18 +271,21 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
             <span className="inline-flex items-center gap-3 min-w-0">
               <span className="inline-flex items-center gap-1 truncate">
                 <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0" />
-                {OPPORTUNITY_LOCATION_LABELS[o.locationType]}
+                {t({
+                  ar: OPPORTUNITY_LOCATION_LABELS[o.locationType],
+                  en: OPPORTUNITY_LOCATION_LABELS_EN[o.locationType],
+                })}
                 {o.city ? ` · ${o.city}` : ""}
               </span>
               {o.deadline && (
                 <span className="inline-flex items-center gap-1 text-amber-200/80 shrink-0">
                   <Clock className="w-3.5 h-3.5" />
-                  {formatArabicDate(o.deadline)}
+                  {formatDate(o.deadline, lang)}
                 </span>
               )}
             </span>
             <span className="inline-flex items-center gap-1 text-white/65 group-hover:text-primary transition-colors font-semibold shrink-0">
-              التفاصيل
+              {t({ ar: "التفاصيل", en: "Details" })}
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             </span>
           </div>

@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Gift, Star, Tag, ExternalLink, Copy, Check } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   PERK_CATEGORY_LABELS,
@@ -21,25 +22,39 @@ interface Perk {
   featured: boolean;
 }
 
-const FILTERS: { key: "all" | PerkCategory; label: string }[] = [
-  { key: "all", label: "الكلّ" },
-  { key: "tool", label: PERK_CATEGORY_LABELS.tool },
-  { key: "course", label: PERK_CATEGORY_LABELS.course },
-  { key: "cloud", label: PERK_CATEGORY_LABELS.cloud },
-  { key: "design", label: PERK_CATEGORY_LABELS.design },
-  { key: "finance", label: PERK_CATEGORY_LABELS.finance },
-  { key: "other", label: PERK_CATEGORY_LABELS.other },
+// English variants of the Arabic-only PERK_CATEGORY_LABELS map in @/lib/labels.
+const PERK_CATEGORY_LABELS_EN: Record<PerkCategory, string> = {
+  tool: "Tool",
+  course: "Course",
+  cloud: "Cloud hosting",
+  design: "Design",
+  finance: "Finance",
+  other: "Other",
+};
+
+const CATEGORY_FILTERS: ("all" | PerkCategory)[] = [
+  "all",
+  "tool",
+  "course",
+  "cloud",
+  "design",
+  "finance",
+  "other",
 ];
 
 export default function Perks() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<Perk[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | PerkCategory>("all");
   const [copied, setCopied] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = "العروض والامتيازات — Island Haven";
-  }, []);
+    document.title = t({
+      ar: "العروض والامتيازات — Island Haven",
+      en: "Perks & Benefits — Island Haven",
+    });
+  }, [t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +66,11 @@ export default function Perks() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : t({ ar: "تعذّر التحميل", en: "Couldn't load perks" }),
+          ),
       );
     return () => {
       cancelled = true;
@@ -65,27 +84,36 @@ export default function Perks() {
     });
   }
 
+  // Filter chip labels — Arabic from the shared label map, English inline.
+  function filterLabel(key: "all" | PerkCategory): string {
+    if (key === "all") return t({ ar: "الكلّ", en: "All" });
+    return t({ ar: PERK_CATEGORY_LABELS[key], en: PERK_CATEGORY_LABELS_EN[key] });
+  }
+
   return (
     <PageShell
       active="perks"
-      eyebrow="امتيازات المنتسبين"
-      title="العروض"
-      highlight="والامتيازات"
-      subtitle="خصومات وأرصدة وعروض حصريّة من شركائنا — أدوات، كورسات، استضافة، وتصميم — مختارة لتوفّر على مشروعك وتسرّع نموّك."
+      eyebrow={t({ ar: "امتيازات المنتسبين", en: "Member Perks" })}
+      title={t({ ar: "العروض", en: "Perks" })}
+      highlight={t({ ar: "والامتيازات", en: "& Benefits" })}
+      subtitle={t({
+        ar: "خصومات وأرصدة وعروض حصريّة من شركائنا — أدوات، كورسات، استضافة، وتصميم — مختارة لتوفّر على مشروعك وتسرّع نموّك.",
+        en: "Discounts, credits, and exclusive offers from our partners — tools, courses, hosting, and design — curated to save your venture money and speed up its growth.",
+      })}
     >
       {/* Category filter chips */}
       <div className="flex flex-wrap gap-2 mb-7">
-        {FILTERS.map((f) => (
+        {CATEGORY_FILTERS.map((key) => (
           <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
+            key={key}
+            onClick={() => setFilter(key)}
             className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
-              filter === f.key
+              filter === key
                 ? "bg-primary text-white border-primary"
                 : "bg-white/[0.04] text-white/65 border-white/10 hover:border-white/25"
             }`}
           >
-            {f.label}
+            {filterLabel(key)}
           </button>
         ))}
       </div>
@@ -105,8 +133,14 @@ export default function Perks() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا عروض ضمن هذا التصنيف حاليًّا"
-          hint="نضيف عروضًا جديدة باستمرار — تابعنا أو جرّب تصنيفًا آخر."
+          title={t({
+            ar: "لا عروض ضمن هذا التصنيف حاليًّا",
+            en: "No perks in this category right now",
+          })}
+          hint={t({
+            ar: "نضيف عروضًا جديدة باستمرار — تابعنا أو جرّب تصنيفًا آخر.",
+            en: "We add new perks all the time — stay tuned or try another category.",
+          })}
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-5">
@@ -126,7 +160,10 @@ export default function Perks() {
                     <div className="flex items-center gap-1.5">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-primary/15 text-primary border border-primary/30">
                         <Tag className="w-3 h-3" />
-                        {PERK_CATEGORY_LABELS[p.category]}
+                        {t({
+                          ar: PERK_CATEGORY_LABELS[p.category],
+                          en: PERK_CATEGORY_LABELS_EN[p.category],
+                        })}
                       </span>
                       {p.featured && (
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
@@ -173,11 +210,11 @@ export default function Perks() {
                     </span>
                     {copied === p.id ? (
                       <span className="inline-flex items-center gap-1 text-[11px] text-emerald-300 shrink-0">
-                        <Check className="w-3.5 h-3.5" /> نُسخ
+                        <Check className="w-3.5 h-3.5" /> {t({ ar: "نُسخ", en: "Copied" })}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] text-white/55 group-hover/code:text-primary transition-colors shrink-0">
-                        <Copy className="w-3.5 h-3.5" /> نسخ
+                        <Copy className="w-3.5 h-3.5" /> {t({ ar: "نسخ", en: "Copy" })}
                       </span>
                     )}
                   </button>
@@ -193,19 +230,22 @@ export default function Perks() {
                       data-testid={`perk-claim-${p.id}`}
                     >
                       <Gift className="w-3.5 h-3.5" />
-                      احصل على العرض
+                      {t({ ar: "احصل على العرض", en: "Claim offer" })}
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : (
                     <span className="text-[12px] text-white/45">
-                      تواصل مع الفريق للحصول على العرض.
+                      {t({
+                        ar: "تواصل مع الفريق للحصول على العرض.",
+                        en: "Contact the team to claim this offer.",
+                      })}
                     </span>
                   )}
                   <Link
                     href={`/perks/${p.id}`}
                     className="group inline-flex items-center gap-1 text-[12px] text-white/65 hover:text-primary transition-colors font-semibold shrink-0"
                   >
-                    التفاصيل
+                    {t({ ar: "التفاصيل", en: "Details" })}
                     <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                   </Link>
                 </div>

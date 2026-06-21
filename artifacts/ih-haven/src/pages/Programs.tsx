@@ -3,9 +3,10 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, Clock, Users, CalendarDays } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
-  formatArabicDate,
+  formatDate,
   splitTags,
   PROGRAM_STATUS_LABELS,
   type ProgramStatus,
@@ -25,6 +26,13 @@ export interface ProgramRow {
   applicants: number;
 }
 
+const PROGRAM_STATUS_LABELS_EN: Record<ProgramStatus, string> = {
+  draft: "Draft",
+  open: "Applications open",
+  in_progress: "In progress",
+  done: "Completed",
+};
+
 const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
@@ -37,15 +45,23 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 export default function Programs() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<ProgramRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "برامج الاحتضان — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "برامج الاحتضان — Island Haven"
+        : "Incubation Programs — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,12 +70,18 @@ export default function Programs() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load programs",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   // Open-for-application programs first — they're the actionable ones.
   const sorted = [...(rows ?? [])].sort(
@@ -71,10 +93,13 @@ export default function Programs() {
   return (
     <PageShell
       active="programs"
-      eyebrow="احتضان · تسريع · نموّ"
-      title="برامج"
-      highlight="الاحتضان"
-      subtitle="مسارات احتضان وتسريع منظَّمة تأخذ مشروعك من الفكرة إلى الإطلاق — إرشاد، موارد، وشبكة علاقات في قلب غزّة."
+      eyebrow={t({ ar: "احتضان · تسريع · نموّ", en: "Incubate · Accelerate · Grow" })}
+      title={t({ ar: "برامج", en: "Incubation" })}
+      highlight={t({ ar: "الاحتضان", en: "Programs" })}
+      subtitle={t({
+        ar: "مسارات احتضان وتسريع منظَّمة تأخذ مشروعك من الفكرة إلى الإطلاق — إرشاد، موارد، وشبكة علاقات في قلب غزّة.",
+        en: "Structured incubation and acceleration tracks that take your venture from idea to launch — mentorship, resources, and a network at the heart of Gaza.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -84,8 +109,11 @@ export default function Programs() {
         <SkeletonPrograms />
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا توجد برامج منشورة بعد"
-          hint="ترقّب الإعلان عن أوّل دفعة احتضان قريبًا."
+          title={t({ ar: "لا توجد برامج منشورة بعد", en: "No programs published yet" })}
+          hint={t({
+            ar: "ترقّب الإعلان عن أوّل دفعة احتضان قريبًا.",
+            en: "Stay tuned — our first incubation cohort will be announced soon.",
+          })}
         />
       ) : (
         <>
@@ -95,11 +123,13 @@ export default function Programs() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex flex-wrap items-center gap-2.5 mb-12 sm:mb-14"
           >
-            <Chip>{toArabicNum(total)} برامج</Chip>
+            <Chip>
+              {num(total, lang)} {t({ ar: "برامج", en: "programs" })}
+            </Chip>
             {openCount > 0 && (
               <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-emerald-200 bg-emerald-500/10 border border-emerald-500/25">
                 <Dot />
-                {toArabicNum(openCount)} مفتوحة للتقديم
+                {num(openCount, lang)} {t({ ar: "مفتوحة للتقديم", en: "open for applications" })}
               </span>
             )}
           </motion.div>
@@ -139,7 +169,10 @@ function Dot() {
 }
 
 function ProgramCard({ p, reduce }: { p: ProgramRow; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   const open = p.status === "open";
+  const statusLabel =
+    lang === "ar" ? PROGRAM_STATUS_LABELS[p.status] : PROGRAM_STATUS_LABELS_EN[p.status];
   return (
     <motion.div
       variants={reduce ? undefined : rise}
@@ -187,7 +220,7 @@ function ProgramCard({ p, reduce }: { p: ProgramRow; reduce: boolean }) {
                 }`}
               >
                 {open && <Dot />}
-                {PROGRAM_STATUS_LABELS[p.status]}
+                {statusLabel}
               </span>
             </div>
             <h3 className="text-white font-bold text-[18px] leading-snug mb-2 line-clamp-2">
@@ -214,23 +247,23 @@ function ProgramCard({ p, reduce }: { p: ProgramRow; reduce: boolean }) {
               {p.durationWeeks > 0 && (
                 <span className="inline-flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-primary/80" />
-                  {toArabicNum(p.durationWeeks)} أسبوع
+                  {num(p.durationWeeks, lang)} {t({ ar: "أسبوع", en: "weeks" })}
                 </span>
               )}
               <span className="inline-flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-primary/80" />
-                {toArabicNum(p.applicants)} متقدّم
+                {num(p.applicants, lang)} {t({ ar: "متقدّم", en: "applicants" })}
               </span>
               {p.applyDeadline && (
                 <span className="inline-flex items-center gap-1.5 col-span-2">
                   <CalendarDays className="w-3.5 h-3.5 text-primary/80" />
-                  آخر موعد: {formatArabicDate(p.applyDeadline)}
+                  {t({ ar: "آخر موعد:", en: "Deadline:" })} {formatDate(p.applyDeadline, lang)}
                 </span>
               )}
             </div>
             <div className="mt-4 flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
-              <span>{open ? "قدّم الآن" : "التفاصيل"}</span>
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <span>{open ? t({ ar: "قدّم الآن", en: "Apply now" }) : t({ ar: "التفاصيل", en: "Details" })}</span>
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </GlassCard>

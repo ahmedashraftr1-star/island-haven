@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, Users, Star, Sparkles, Calendar } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 
@@ -22,6 +23,14 @@ interface Venture {
   featured: boolean;
 }
 
+// English counterparts to the Arabic-only VENTURE_STAGE_LABELS in @/lib/labels.
+const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
+  idea: "Idea",
+  mvp: "MVP",
+  launched: "Launched",
+  scaling: "Scaling",
+};
+
 const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
@@ -34,15 +43,25 @@ const rise: Variants = {
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Stage label localised by language.
+function stageLabel(stage: VentureStage, lang: Lang): string {
+  return lang === "ar" ? VENTURE_STAGE_LABELS[stage] : VENTURE_STAGE_LABELS_EN[stage];
+}
 
 export default function Ventures() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Venture[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title = "المشاريع الناشئة — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar" ? "المشاريع الناشئة — Island Haven" : "Ventures — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,12 +70,18 @@ export default function Ventures() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load ventures",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   const featured = (rows ?? []).filter((v) => v.featured);
   const rest = (rows ?? []).filter((v) => !v.featured);
@@ -65,10 +90,13 @@ export default function Ventures() {
   return (
     <PageShell
       active="ventures"
-      eyebrow="صُنِع في آيلاند · Made in Gaza"
-      title="المشاريع"
-      highlight="الناشئة"
-      subtitle="مشاريع وُلدت ونمت داخل مساحتنا — من فكرة على ورقة إلى منتجات تخدم النّاس وتصنع فرص عمل في غزّة."
+      eyebrow={t({ ar: "صُنِع في آيلاند · Made in Gaza", en: "Made in Island Haven · Made in Gaza" })}
+      title={t({ ar: "المشاريع", en: "Our" })}
+      highlight={t({ ar: "الناشئة", en: "Ventures" })}
+      subtitle={t({
+        ar: "مشاريع وُلدت ونمت داخل مساحتنا — من فكرة على ورقة إلى منتجات تخدم النّاس وتصنع فرص عمل في غزّة.",
+        en: "Ventures born and grown inside our space — from an idea on paper to products that serve people and create jobs in Gaza.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -78,8 +106,11 @@ export default function Ventures() {
         <SkeletonVentures />
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="قريبًا — أوّل دفعة مشاريع"
-          hint="نعمل مع روّاد الأعمال على إطلاق مشاريعهم. تابعنا."
+          title={t({ ar: "قريبًا — أوّل دفعة مشاريع", en: "Coming soon — our first cohort of ventures" })}
+          hint={t({
+            ar: "نعمل مع روّاد الأعمال على إطلاق مشاريعهم. تابعنا.",
+            en: "We're working with founders to launch their ventures. Stay tuned.",
+          })}
         />
       ) : (
         <>
@@ -89,16 +120,21 @@ export default function Ventures() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex flex-wrap items-center gap-2.5 mb-12 sm:mb-14"
           >
-            <Chip>{toArabicNum(total)} مشروعًا ناشئًا</Chip>
-            <Chip>صُنعت داخل الحاضنة</Chip>
+            <Chip>
+              {num(total, lang)} {t({ ar: "مشروعًا ناشئًا", en: "ventures" })}
+            </Chip>
+            <Chip>{t({ ar: "صُنعت داخل الحاضنة", en: "Built inside the incubator" })}</Chip>
           </motion.div>
 
           {featured.length > 0 && (
             <section className="mb-14 sm:mb-16">
               <SectionHeader
-                index="٠١"
-                title="في الواجهة"
-                blurb="مشاريع تركت أثرًا — قصص بدأت بفكرة وانتهت بمنتج حيّ."
+                index={num(1, lang).padStart(2, lang === "ar" ? "٠" : "0")}
+                title={t({ ar: "في الواجهة", en: "In the Spotlight" })}
+                blurb={t({
+                  ar: "مشاريع تركت أثرًا — قصص بدأت بفكرة وانتهت بمنتج حيّ.",
+                  en: "Ventures that left a mark — stories that began with an idea and ended in a living product.",
+                })}
               />
               <motion.div
                 variants={reduce ? undefined : stagger}
@@ -118,9 +154,12 @@ export default function Ventures() {
             <section>
               {featured.length > 0 && (
                 <SectionHeader
-                  index="٠٢"
-                  title="كلّ المشاريع"
-                  blurb="المحفظة الكاملة للمشاريع التي تنمو في آيلاند."
+                  index={num(2, lang).padStart(2, lang === "ar" ? "٠" : "0")}
+                  title={t({ ar: "كلّ المشاريع", en: "All Ventures" })}
+                  blurb={t({
+                    ar: "المحفظة الكاملة للمشاريع التي تنمو في آيلاند.",
+                    en: "The full portfolio of ventures growing at Island Haven.",
+                  })}
                 />
               )}
               <motion.div
@@ -178,6 +217,7 @@ function SectionHeader({ index, title, blurb }: { index: string; title: string; 
 }
 
 function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   return (
     <motion.div
       variants={reduce ? undefined : rise}
@@ -211,7 +251,8 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
               }}
             />
             <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/15 text-amber-100 border border-amber-300/30 backdrop-blur-sm">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> مشروع مميّز
+              <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+              {t({ ar: "مشروع مميّز", en: "Featured" })}
             </div>
 
             <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
@@ -226,7 +267,7 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                 <div className="min-w-0">
                   <h3 className="text-white font-bold text-[20px] leading-tight truncate">{v.name}</h3>
                   <span className="text-[12px] text-primary font-semibold">
-                    {VENTURE_STAGE_LABELS[v.stage]}
+                    {stageLabel(v.stage, lang)}
                     {v.sector ? ` · ${v.sector}` : ""}
                   </span>
                 </div>
@@ -238,18 +279,18 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                 <span className="inline-flex items-center gap-3">
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-primary" />
-                    {toArabicNum(v.teamSize)} في الفريق
+                    {num(v.teamSize, lang)} {t({ ar: "في الفريق", en: "on the team" })}
                   </span>
                   {v.foundedYear ? (
                     <span className="inline-flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-primary" />
-                      {toArabicNum(v.foundedYear)}
+                      {num(v.foundedYear, lang)}
                     </span>
                   ) : null}
                 </span>
                 <span className="inline-flex items-center gap-1 text-white group-hover:text-primary transition-colors font-bold">
-                  القصّة الكاملة
-                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                  {t({ ar: "القصّة الكاملة", en: "Full story" })}
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
                 </span>
               </div>
             </div>
@@ -261,6 +302,7 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
 }
 
 function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
+  const { lang, t } = useLanguage();
   return (
     <motion.div
       variants={reduce ? undefined : rise}
@@ -298,7 +340,7 @@ function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
               <div className="min-w-0 flex-1">
                 <h3 className="text-white font-bold text-[16px] truncate">{v.name}</h3>
                 <span className="text-[11px] text-primary/90 font-medium">
-                  {VENTURE_STAGE_LABELS[v.stage]}
+                  {stageLabel(v.stage, lang)}
                   {v.sector ? ` · ${v.sector}` : ""}
                 </span>
               </div>
@@ -312,12 +354,12 @@ function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
             <div className="mt-auto flex items-center justify-between text-[12px] text-white/55 pt-3 border-t border-white/[0.06]">
               <span className="inline-flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-primary/80" />
-                {toArabicNum(v.teamSize)} في الفريق
-                {v.foundedYear ? ` · ${toArabicNum(v.foundedYear)}` : ""}
+                {num(v.teamSize, lang)} {t({ ar: "في الفريق", en: "on the team" })}
+                {v.foundedYear ? ` · ${num(v.foundedYear, lang)}` : ""}
               </span>
               <span className="inline-flex items-center gap-1 text-white/65 group-hover:text-primary transition-colors font-semibold">
-                التفاصيل
-                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                {t({ ar: "التفاصيل", en: "Details" })}
+                <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
               </span>
             </div>
           </div>
