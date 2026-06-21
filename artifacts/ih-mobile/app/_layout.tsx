@@ -114,11 +114,6 @@ function RootLayoutNav() {
       <Stack.Screen name="book" options={{ title: "احجز مقعدك", presentation: "modal" }} />
       <Stack.Screen name="about" options={{ title: "من نحن" }} />
       <Stack.Screen name="numbers" options={{ title: "أرقامنا" }} />
-      <Stack.Screen name="book" options={{ title: "حجز جلسة إرشاد", presentation: "modal" }} />
-      <Stack.Screen name="expert-dashboard" options={{ title: "لوحة الخبير" }} />
-      <Stack.Screen name="work/edit" options={{ title: "تحرير العمل", presentation: "modal" }} />
-      <Stack.Screen name="search" options={{ title: "البحث" }} />
-      <Stack.Screen name="sessions/[id]/rate" options={{ title: "تقييم الجلسة", presentation: "modal" }} />
       <Stack.Screen name="become-mentor" options={{ title: "انضم كمرشد", presentation: "modal" }} />
       <Stack.Screen name="story-form" options={{ title: "قصتي", presentation: "modal" }} />
       <Stack.Screen name="leaderboard" options={{ title: "لوحة الصدارة" }} />
