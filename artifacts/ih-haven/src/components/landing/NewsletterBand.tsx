@@ -2,8 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function NewsletterBand() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -23,7 +25,9 @@ export function NewsletterBand() {
     } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(
-        err instanceof Error ? err.message : "تعذّر الاشتراك. حاول مجدّداً."
+        err instanceof Error
+          ? err.message
+          : t({ ar: "تعذّر الاشتراك. حاول مجدّداً.", en: "Couldn't subscribe. Please try again." })
       );
     }
   }
@@ -47,14 +51,17 @@ export function NewsletterBand() {
           </div>
 
           <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-2">
-            Newsletter · النشرة الإخبارية
+            {t({ ar: "النشرة الإخبارية", en: "Newsletter" })}
           </div>
 
           <h2 className="text-[26px] sm:text-[30px] font-black text-white leading-tight mb-3">
-            ابقَ على اطّلاع دائم
+            {t({ ar: "ابقَ على اطّلاع دائم", en: "Stay in the loop" })}
           </h2>
           <p className="text-[14px] text-white/45 leading-relaxed mb-8 max-w-md mx-auto">
-            أخبار الحاضنة، فرص التقديم، فعاليّات مجتمعيّة، وقصص ملهمة — مرّة في الشهر إلى بريدك مباشرة.
+            {t({
+              ar: "أخبار الحاضنة، فرص التقديم، فعاليّات مجتمعيّة، وقصص ملهمة — مرّة في الشهر إلى بريدك مباشرة.",
+              en: "Incubator news, application openings, community events, and inspiring stories — once a month, straight to your inbox.",
+            })}
           </p>
 
           {status === "success" ? (
@@ -65,7 +72,7 @@ export function NewsletterBand() {
             >
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <span className="text-[15px] font-semibold text-emerald-300">
-                تمّ الاشتراك! أهلاً في مجتمع آيلاند.
+                {t({ ar: "تمّ الاشتراك! أهلاً في مجتمع آيلاند.", en: "You're subscribed! Welcome to the Island community." })}
               </span>
             </motion.div>
           ) : (
@@ -74,7 +81,7 @@ export function NewsletterBand() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="اسمك (اختياري)"
+                placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
                 className="w-full h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors text-right"
               />
               <div className="flex gap-2">
@@ -83,7 +90,7 @@ export function NewsletterBand() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="بريدك الإلكتروني"
+                  placeholder={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
                   className="flex-1 h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors text-right"
                 />
                 <button
@@ -95,7 +102,7 @@ export function NewsletterBand() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      اشترك
+                      {t({ ar: "اشترك", en: "Subscribe" })}
                       <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                     </>
                   )}
@@ -105,7 +112,10 @@ export function NewsletterBand() {
                 <p className="text-[13px] text-rose-400 text-right">{errorMsg}</p>
               )}
               <p className="text-[11px] text-white/25 text-center">
-                لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أي وقت.
+                {t({
+                  ar: "لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أي وقت.",
+                  en: "No spam. Unsubscribe anytime.",
+                })}
               </p>
             </form>
           )}

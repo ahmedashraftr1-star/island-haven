@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   image: "/photos/IMG_8347.webp",
@@ -20,6 +21,7 @@ const FALLBACK = {
 };
 
 export function Voices() {
+  const { t } = useLanguage();
   const c = useContentSection("voices", FALLBACK);
   const voices = useMemo(
     () =>
@@ -70,7 +72,7 @@ export function Voices() {
           <div className="flex items-center gap-3">
             <span className="h-[1px] w-10 bg-white/40" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
-              Voices · بكلماتنا
+              {t({ ar: "Voices · بكلماتنا", en: "Voices · In Our Words" })}
             </span>
           </div>
           <div className="text-[11px] font-mono text-white/40 tabular-nums tracking-wider">
@@ -131,7 +133,7 @@ export function Voices() {
               <button
                 key={i}
                 onClick={() => setIdx(i)}
-                aria-label={`اقتباس ${i + 1}`}
+                aria-label={t({ ar: `اقتباس ${i + 1}`, en: `Quote ${i + 1}` })}
                 className={`h-2 rounded-full transition-all duration-500 ${
                   i === safe ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
                 }`}

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { ArrowLeft, Users, Briefcase, GraduationCap, CalendarCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 
 const FALLBACK = {
   eyebrow: "الحاضنة بالأرقام · By the numbers",
@@ -34,7 +35,7 @@ interface Numbers {
   applications: number;
 }
 
-function CountUp({ value }: { value: number }) {
+function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [n, setN] = useState(0);
@@ -55,9 +56,10 @@ function CountUp({ value }: { value: number }) {
     return () => cancelAnimationFrame(raf);
   }, [inView, value]);
 
+  // Localised numeral: Arabic-Indic in AR, Western digits in EN.
   return (
     <span ref={ref} className="tabular-nums">
-      {n.toLocaleString("ar-EG")}
+      {n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
     </span>
   );
 }
@@ -69,6 +71,7 @@ function CountUp({ value }: { value: number }) {
  * hard-coded.
  */
 export function NumbersBand() {
+  const { lang, t } = useLanguage();
   const [n, setN] = useState<Numbers | null>(null);
   const c = useContentSection("numbersBand", FALLBACK);
 
@@ -79,10 +82,30 @@ export function NumbersBand() {
   }, []);
 
   const tiles = [
-    { value: n?.members ?? 0, label: c.tile1Label, en: c.tile1En, icon: Users },
-    { value: n?.works ?? 0, label: c.tile2Label, en: c.tile2En, icon: Briefcase },
-    { value: n?.enrollments ?? 0, label: c.tile3Label, en: c.tile3En, icon: GraduationCap },
-    { value: n?.seatsHosted ?? 0, label: c.tile4Label, en: c.tile4En, icon: CalendarCheck },
+    {
+      value: n?.members ?? 0,
+      label: t({ ar: c.tile1Label, en: "Members of the community" }),
+      en: c.tile1En,
+      icon: Users,
+    },
+    {
+      value: n?.works ?? 0,
+      label: t({ ar: c.tile2Label, en: "Works in the showcase" }),
+      en: c.tile2En,
+      icon: Briefcase,
+    },
+    {
+      value: n?.enrollments ?? 0,
+      label: t({ ar: c.tile3Label, en: "Program enrollments" }),
+      en: c.tile3En,
+      icon: GraduationCap,
+    },
+    {
+      value: n?.seatsHosted ?? 0,
+      label: t({ ar: c.tile4Label, en: "Seats we've hosted" }),
+      en: c.tile4En,
+      icon: CalendarCheck,
+    },
   ];
 
   return (
@@ -95,7 +118,7 @@ export function NumbersBand() {
           <div className="lg:col-span-7">
             <div className="flex items-center gap-3 mb-3">
               <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold">
-                {c.eyebrow}
+                {t({ ar: c.eyebrow, en: "By the numbers" })}
               </div>
               <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-wider">
                 <span className="relative flex h-1.5 w-1.5">
@@ -109,21 +132,27 @@ export function NumbersBand() {
               className="font-bold text-foreground tracking-tight leading-[1.08]"
               style={{ fontSize: "clamp(1.95rem, 4.4vw, 3.1rem)" }}
             >
-              {c.titleA}
+              {t({ ar: c.titleA, en: "Not slogans." })}
               <br />
-              <span className="text-accent-gradient">{c.titleAccent}</span> {c.titleB}
+              <span className="text-accent-gradient">
+                {t({ ar: c.titleAccent, en: "Real numbers" })}
+              </span>{" "}
+              {t({ ar: c.titleB, en: "from our database." })}
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-end">
             <p className="text-[15px] text-foreground/65 leading-relaxed mb-5 max-w-md lg:ms-auto">
-              {c.sub}
+              {t({
+                ar: c.sub,
+                en: "Every figure here mirrors the incubator right now — updating automatically with each member, each project, and each mentorship seat.",
+              })}
             </p>
             <Link
               href="/numbers"
               className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
               data-testid="link-numbers-more"
             >
-              {c.ctaLabel}
+              {t({ ar: c.ctaLabel, en: "View all" })}
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             </Link>
           </div>
@@ -154,7 +183,7 @@ export function NumbersBand() {
                     className="font-bold text-foreground leading-none mb-2.5 tabular-nums"
                     style={{ fontSize: "clamp(2.2rem, 5vw, 3.2rem)", letterSpacing: "-0.03em" }}
                   >
-                    {n ? <CountUp value={t.value} /> : "—"}
+                    {n ? <CountUp value={t.value} lang={lang} /> : "—"}
                   </div>
                   <div className="text-[14px] font-semibold text-foreground/75">
                     {t.label}

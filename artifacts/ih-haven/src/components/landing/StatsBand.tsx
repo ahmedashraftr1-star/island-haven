@@ -9,6 +9,7 @@ import {
   FileText,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Stats {
   users: number;
@@ -22,24 +23,50 @@ interface Stats {
 
 const ITEMS: Array<{
   key: keyof Stats;
-  label: string;
+  label: { ar: string; en: string };
   hint: string;
   icon: typeof Users;
 }> = [
-  { key: "users", label: "عضو في المجتمع", hint: "Members", icon: Users },
-  { key: "courses", label: "كورس وورشة", hint: "Courses", icon: GraduationCap },
+  {
+    key: "users",
+    label: { ar: "عضو في المجتمع", en: "members in the community" },
+    hint: "Members",
+    icon: Users,
+  },
+  {
+    key: "courses",
+    label: { ar: "كورس وورشة", en: "courses & workshops" },
+    hint: "Courses",
+    icon: GraduationCap,
+  },
   {
     key: "enrollments",
-    label: "تَسجيل في الفعاليّات",
+    label: { ar: "تَسجيل في الفعاليّات", en: "event enrollments" },
     hint: "Enrollments",
     icon: Sparkles,
   },
-  { key: "works", label: "عمل منشور", hint: "Works", icon: Briefcase },
-  { key: "bookings", label: "حَجزَ مَقعَدًا", hint: "Bookings", icon: CalendarCheck },
-  { key: "applications", label: "طَلبَ الانتساب", hint: "Applications", icon: FileText },
+  {
+    key: "works",
+    label: { ar: "عمل منشور", en: "published works" },
+    hint: "Works",
+    icon: Briefcase,
+  },
+  {
+    key: "bookings",
+    label: { ar: "حَجزَ مَقعَدًا", en: "seats booked" },
+    hint: "Bookings",
+    icon: CalendarCheck,
+  },
+  {
+    key: "applications",
+    label: { ar: "طَلبَ الانتساب", en: "membership applications" },
+    hint: "Applications",
+    icon: FileText,
+  },
 ];
 
 export function StatsBand() {
+  const { lang, t } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
@@ -63,7 +90,7 @@ export function StatsBand() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/20 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-              مَجتمَعنا بالأرقام
+              {t({ ar: "مَجتمَعنا بالأرقام", en: "Our community by the numbers" })}
             </span>
           </div>
           <h2
@@ -73,10 +100,16 @@ export function StatsBand() {
               letterSpacing: "-0.025em",
             }}
           >
-            أرقام حقيقيّة من قَلب المساحة
+            {t({
+              ar: "أرقام حقيقيّة من قَلب المساحة",
+              en: "Real numbers from the heart of the space",
+            })}
           </h2>
           <p className="text-foreground/55 text-[14px] sm:text-[15px] leading-[1.85] mt-3 max-w-2xl mx-auto">
-            تُحدَّث لحظيًّا — كلّ رقم هنا يَحكي قصّة شَخص اختار أن يَنتمي.
+            {t({
+              ar: "تُحدَّث لحظيًّا — كلّ رقم هنا يَحكي قصّة شَخص اختار أن يَنتمي.",
+              en: "Updated in real time — every number here tells the story of someone who chose to belong.",
+            })}
           </p>
         </div>
 
@@ -98,10 +131,12 @@ export function StatsBand() {
                 className="text-[28px] lg:text-[32px] font-bold text-foreground tabular-nums"
                 style={{ letterSpacing: "-0.03em", lineHeight: 1 }}
               >
-                {stats ? stats[item.key].toLocaleString("ar-EG") : "—"}
+                {stats
+                  ? stats[item.key].toLocaleString(lang === "ar" ? "ar-EG" : "en-US")
+                  : "—"}
               </div>
               <div className="text-[12px] text-foreground/65 mt-2 font-medium leading-tight">
-                {item.label}
+                {t(item.label)}
               </div>
               <div className="text-[9.5px] tracking-[0.16em] uppercase text-foreground/35 mt-1">
                 {item.hint}

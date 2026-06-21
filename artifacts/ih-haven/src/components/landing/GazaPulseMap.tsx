@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * "Where we are" — a hand-drawn stylised SVG of the Gaza Strip's coastline
@@ -10,6 +11,7 @@ import { motion } from "framer-motion";
  * heartbeat pulse at the haven's pin.
  */
 export function GazaPulseMap({ className = "" }: { className?: string }) {
+  const { t } = useLanguage();
   return (
     <div className={`relative ${className}`}>
       <svg
@@ -17,7 +19,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-full"
-        aria-label="خريطة قطاع غزّة"
+        aria-label={t({ ar: "خريطة قطاع غزّة", en: "Map of the Gaza Strip" })}
       >
         {/* Sea ripple background — three soft horizontal lines */}
         <g stroke="hsl(354 70% 75%)" strokeWidth="1" strokeLinecap="round" opacity="0.35">
@@ -112,7 +114,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           viewport={{ once: true }}
           transition={{ delay: 1.6, duration: 0.6 }}
         >
-          غزّة · GAZA
+          {t({ ar: "غزّة · GAZA", en: "GAZA" })}
         </motion.text>
 
         {/* Haven pin with concentric pulse */}

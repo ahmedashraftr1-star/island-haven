@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
 
 interface Story {
@@ -14,6 +15,7 @@ interface Story {
 }
 
 export function SuccessStories() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Story[] | null>(null);
 
   useEffect(() => {
@@ -35,13 +37,23 @@ export function SuccessStories() {
     >
       <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
         <EditorialHeader
-          label="قصص نجاح"
+          label={t({ ar: "قصص نجاح", en: "Success Stories" })}
           title={
-            <>
-              من <span className="text-accent-gradient">آيلاند</span> إلى العالم
-            </>
+            lang === "ar" ? (
+              <>
+                من <span className="text-accent-gradient">آيلاند</span> إلى العالم
+              </>
+            ) : (
+              <>
+                From <span className="text-accent-gradient">Island Haven</span> to
+                the World
+              </>
+            )
           }
-          sub="حكايات أعضاء وروّاد بدؤوا من مقعد في مساحتنا، وصنعوا أثرًا يُلهم الجيل القادم."
+          sub={t({
+            ar: "حكايات أعضاء وروّاد بدؤوا من مقعد في مساحتنا، وصنعوا أثرًا يُلهم الجيل القادم.",
+            en: "Stories of members and founders who started from a seat in our space and made an impact that inspires the next generation.",
+          })}
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">

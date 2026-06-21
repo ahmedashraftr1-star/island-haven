@@ -3,20 +3,7 @@ import { EditorialHeader } from "./EditorialHeader";
 import { GazaPulseMap } from "./GazaPulseMap";
 import { OpeningHours } from "./OpeningHours";
 import { useContentSection } from "@/hooks/use-content";
-
-const FALLBACK = {
-  label: "كل الأبواب مفتوحة",
-  titleA: "زرنا.",
-  titleB: "اعرف أين",
-  titleAccent: "نحن.",
-  sub: "ساعات العمل، الموقع، وكلّ ما تحتاج معرفته قبل أن تأتي.",
-  locationEyebrow: "Where we are · أين نحن",
-  locationTitle: "في قلب غزّة، على ضفّة المتوسّط.",
-  locationBody:
-    "المساحة في موقع آمن ومركزيّ نُرسله عبر الرسائل الخاصّة بعد تأكيد الانتساب.",
-  locationStatus: "مفتوح الآن للزوّار بموعد مسبق",
-  locationCoords: "٣١.٥٠° ش · ٣٤.٤٧° شرق",
-};
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * HoursLocation — single composite section that frames the "ساعات العمل"
@@ -24,6 +11,36 @@ const FALLBACK = {
  * removed from this surface; they live exclusively in the footer now.
  */
 export function HoursLocation() {
+  const { t } = useLanguage();
+
+  const FALLBACK = {
+    label: t({ ar: "كل الأبواب مفتوحة", en: "Every door is open" }),
+    titleA: t({ ar: "زرنا.", en: "Visit us." }),
+    titleB: t({ ar: "اعرف أين", en: "Find out where" }),
+    titleAccent: t({ ar: "نحن.", en: "we are." }),
+    sub: t({
+      ar: "ساعات العمل، الموقع، وكلّ ما تحتاج معرفته قبل أن تأتي.",
+      en: "Opening hours, our location, and everything you need to know before you come.",
+    }),
+    locationEyebrow: t({ ar: "Where we are · أين نحن", en: "Where we are · أين نحن" }),
+    locationTitle: t({
+      ar: "في قلب غزّة، على ضفّة المتوسّط.",
+      en: "In the heart of Gaza, on the Mediterranean shore.",
+    }),
+    locationBody: t({
+      ar: "المساحة في موقع آمن ومركزيّ نُرسله عبر الرسائل الخاصّة بعد تأكيد الانتساب.",
+      en: "The space sits in a safe, central location we share by private message once your membership is confirmed.",
+    }),
+    locationStatus: t({
+      ar: "مفتوح الآن للزوّار بموعد مسبق",
+      en: "Open now for visitors with an appointment",
+    }),
+    locationCoords: t({
+      ar: "٣١.٥٠° ش · ٣٤.٤٧° شرق",
+      en: "31.50° N · 34.47° E",
+    }),
+  };
+
   const c = useContentSection("hours", FALLBACK);
 
   return (
