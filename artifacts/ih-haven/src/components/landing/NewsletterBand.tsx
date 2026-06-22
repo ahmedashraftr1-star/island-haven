@@ -33,10 +33,9 @@ export function NewsletterBand() {
   }
 
   return (
-    <section className="relative py-20 px-5 sm:px-8 overflow-hidden">
+    <section className="relative py-24 px-5 sm:px-8 overflow-hidden bg-[#0A0E1A] text-white">
       {/* background glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.04] to-transparent pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-primary/[0.06] blur-[80px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[320px] rounded-full bg-primary/[0.14] blur-[90px] pointer-events-none" />
 
       <div className="relative max-w-2xl mx-auto text-center">
         <motion.div

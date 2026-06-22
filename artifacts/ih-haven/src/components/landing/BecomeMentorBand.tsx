@@ -16,11 +16,11 @@ export function BecomeMentorBand() {
 
   return (
     <section
-      className="relative py-20 px-5 sm:px-8 overflow-hidden"
+      className="relative py-24 sm:py-28 px-5 sm:px-8 overflow-hidden bg-gradient-to-br from-[#0A0E1A] via-[#0E1426] to-[#0A0E1A] text-white"
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.04] to-transparent pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[320px] rounded-full bg-primary/[0.07] blur-[90px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[360px] rounded-full bg-primary/20 blur-[100px] pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")" }} />
 
       <div className="relative max-w-3xl mx-auto">
         <motion.div
@@ -28,7 +28,7 @@ export function BecomeMentorBand() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="rounded-3xl border border-primary/20 bg-white/[0.03] backdrop-blur-sm p-8 sm:p-12 text-center"
+          className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-8 sm:p-12 text-center"
         >
           <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-4">
             {t(s.eyebrow)}
