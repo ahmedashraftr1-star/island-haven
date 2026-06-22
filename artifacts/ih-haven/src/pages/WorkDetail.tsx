@@ -22,6 +22,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags, formatArabicDate } from "@/lib/labels";
@@ -107,6 +108,7 @@ export default function WorkDetail() {
   const [, params] = useRoute("/works/:id");
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const id = params?.id;
   const [data, setData] = useState<DetailResp | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -154,7 +156,12 @@ export default function WorkDetail() {
         setSaved(d.savedByMe);
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        if (!cancelled)
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : t({ ar: "تعذّر التحميل", en: "Couldn't load this work" }),
+          );
       });
     api<{ comments: WorkComment[] }>(`/works/${id}/comments`)
       .then((r) => {
@@ -230,7 +237,11 @@ export default function WorkDetail() {
       setCommentsCount((c) => c + 1);
       setCommentText("");
     } catch (err) {
-      setCommentError(err instanceof ApiError ? err.message : "تعذّر النشر");
+      setCommentError(
+        err instanceof ApiError
+          ? err.message
+          : t({ ar: "تعذّر النشر", en: "Couldn't post" }),
+      );
     } finally {
       setPosting(false);
     }
@@ -261,7 +272,11 @@ export default function WorkDetail() {
       setReplyText("");
       setReplyingTo(null);
     } catch (err) {
-      setComposerError(err instanceof ApiError ? err.message : "تعذّر النشر");
+      setComposerError(
+        err instanceof ApiError
+          ? err.message
+          : t({ ar: "تعذّر النشر", en: "Couldn't post" }),
+      );
     } finally {
       setReplyPosting(false);
     }
@@ -295,7 +310,11 @@ export default function WorkDetail() {
       setEditingId(null);
       setEditText("");
     } catch (err) {
-      setComposerError(err instanceof ApiError ? err.message : "تعذّر الحفظ");
+      setComposerError(
+        err instanceof ApiError
+          ? err.message
+          : t({ ar: "تعذّر الحفظ", en: "Couldn't save" }),
+      );
     } finally {
       setEditBusy(false);
     }
@@ -363,19 +382,34 @@ export default function WorkDetail() {
 
   async function onDelete() {
     if (!id) return;
-    if (!window.confirm("هل تريد حذف هذا العمل نهائيًا؟")) return;
+    if (
+      !window.confirm(
+        t({
+          ar: "هل تريد حذف هذا العمل نهائيًا؟",
+          en: "Permanently delete this work?",
+        }),
+      )
+    )
+      return;
     try {
       await api(`/works/${id}`, { method: "DELETE" });
       navigate("/works");
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الحذف");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الحذف", en: "Couldn't delete" }),
+      );
     }
   }
 
   if (error && !data) {
     return (
       <PageShell active="works">
-        <BackLink href="/works" label="عودة للمعرض" />
+        <BackLink
+          href="/works"
+          label={t({ ar: "عودة للمعرض", en: "Back to gallery" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -398,11 +432,15 @@ export default function WorkDetail() {
   if (data.author.githubUrl)
     authorLinks.push({ label: "GitHub", url: data.author.githubUrl, Icon: Github });
   if (data.author.portfolioUrl)
-    authorLinks.push({ label: "الموقع", url: data.author.portfolioUrl, Icon: Globe });
+    authorLinks.push({
+      label: t({ ar: "الموقع", en: "Website" }),
+      url: data.author.portfolioUrl,
+      Icon: Globe,
+    });
 
   return (
     <PageShell active="works">
-      <BackLink href="/works" label="كلّ الأعمال" />
+      <BackLink href="/works" label={t({ ar: "كلّ الأعمال", en: "All works" })} />
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
         <div className="space-y-6">
         <GlassCard>
@@ -439,12 +477,12 @@ export default function WorkDetail() {
             )}
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-6">
-                {tags.map((t) => (
+                {tags.map((tag) => (
                   <span
-                    key={t}
+                    key={tag}
                     className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11.5px] font-semibold border border-primary/30"
                   >
-                    {t}
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -466,7 +504,7 @@ export default function WorkDetail() {
               >
                 <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
                 <span className="tabular-nums">{likesCount}</span>
-                <span className="sr-only">إعجاب</span>
+                <span className="sr-only">{t({ ar: "إعجاب", en: "Like" })}</span>
               </button>
               <a
                 href="#comments"
@@ -474,7 +512,7 @@ export default function WorkDetail() {
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="tabular-nums">{commentsCount}</span>
-                <span className="sr-only">تعليق</span>
+                <span className="sr-only">{t({ ar: "تعليق", en: "Comment" })}</span>
               </a>
               <button
                 type="button"
@@ -489,7 +527,11 @@ export default function WorkDetail() {
                 data-testid="button-save-work"
               >
                 <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
-                <span>{saved ? "محفوظ" : "حفظ"}</span>
+                <span>
+                  {saved
+                    ? t({ ar: "محفوظ", en: "Saved" })
+                    : t({ ar: "حفظ", en: "Save" })}
+                </span>
               </button>
             </div>
 
@@ -503,7 +545,7 @@ export default function WorkDetail() {
             {embed && (
               <div className="mt-7">
                 <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3 flex items-center gap-2">
-                  <Youtube className="w-4 h-4" /> فيديو
+                  <Youtube className="w-4 h-4" /> {t({ ar: "فيديو", en: "Video" })}
                 </div>
                 <div className="rounded-2xl overflow-hidden border border-white/10 bg-black aspect-video">
                   <iframe
@@ -535,7 +577,7 @@ export default function WorkDetail() {
             {gallery.length > 0 && (
               <div className="mt-7">
                 <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-                  معرض الصّور — {gallery.length}
+                  {t({ ar: "معرض الصّور", en: "Gallery" })} — {gallery.length}
                 </div>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {gallery.map((url, i) => (
@@ -578,7 +620,7 @@ export default function WorkDetail() {
         <div id="comments">
           <GlassCard className="p-6 sm:p-8">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" /> التعليقات — {commentsCount}
+              <MessageCircle className="w-4 h-4" /> {t({ ar: "التعليقات", en: "Comments" })} — {commentsCount}
             </div>
 
             {user ? (
@@ -588,8 +630,11 @@ export default function WorkDetail() {
                   onChange={(e) => setCommentText(e.target.value)}
                   rows={3}
                   maxLength={1000}
-                  aria-label="تعليقك"
-                  placeholder="شاركنا رأيك في هذا العمل…"
+                  aria-label={t({ ar: "تعليقك", en: "Your comment" })}
+                  placeholder={t({
+                    ar: "شاركنا رأيك في هذا العمل…",
+                    en: "Share your thoughts on this work…",
+                  })}
                   className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/35"
                   data-testid="input-comment"
                 />
@@ -608,7 +653,7 @@ export default function WorkDetail() {
                     ) : (
                       <Send className="w-4 h-4" />
                     )}
-                    نشر
+                    {t({ ar: "نشر", en: "Post" })}
                   </button>
                 </div>
               </form>
@@ -617,13 +662,19 @@ export default function WorkDetail() {
                 href="/login"
                 className="block mb-6 text-center py-3 rounded-2xl bg-white/[0.05] border border-white/12 text-white/70 text-[13px] font-semibold hover:bg-white/[0.08] transition-colors"
               >
-                سجّل الدخول للمشاركة بتعليق
+                {t({
+                  ar: "سجّل الدخول للمشاركة بتعليق",
+                  en: "Sign in to join the conversation",
+                })}
               </Link>
             )}
 
             {comments.length === 0 ? (
               <p className="text-white/45 text-[13.5px] text-center py-6">
-                لا توجد تعليقات بعد — كن أول من يعلّق.
+                {t({
+                  ar: "لا توجد تعليقات بعد — كن أول من يعلّق.",
+                  en: "No comments yet — be the first to comment.",
+                })}
               </p>
             ) : (
               <div className="space-y-5">
@@ -660,7 +711,9 @@ export default function WorkDetail() {
                               {formatArabicDate(c.createdAt)}
                             </span>
                             {c.editedAt && (
-                              <span className="text-white/30 text-[10.5px]">(عُدّل)</span>
+                              <span className="text-white/30 text-[10.5px]">
+                                {t({ ar: "(عُدّل)", en: "(edited)" })}
+                              </span>
                             )}
                             <div className="ms-auto flex items-center gap-2">
                               {c.canEdit && (
@@ -668,7 +721,7 @@ export default function WorkDetail() {
                                   type="button"
                                   onClick={() => startEdit(c)}
                                   className="text-white/35 hover:text-primary transition-colors"
-                                  aria-label="تعديل التعليق"
+                                  aria-label={t({ ar: "تعديل التعليق", en: "Edit comment" })}
                                   data-testid={`edit-comment-${c.id}`}
                                 >
                                   <Pencil className="w-3.5 h-3.5" />
@@ -679,7 +732,7 @@ export default function WorkDetail() {
                                   type="button"
                                   onClick={() => deleteComment(c.id)}
                                   className="text-white/35 hover:text-red-300 transition-colors"
-                                  aria-label="حذف التعليق"
+                                  aria-label={t({ ar: "حذف التعليق", en: "Delete comment" })}
                                   data-testid={`delete-comment-${c.id}`}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -713,7 +766,7 @@ export default function WorkDetail() {
                                   className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
                                   data-testid={`reply-comment-${c.id}`}
                                 >
-                                  <Reply className="w-3 h-3" /> رد
+                                  <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
                                 </button>
                               )}
                             </>
@@ -754,7 +807,9 @@ export default function WorkDetail() {
                                     {formatArabicDate(rep.createdAt)}
                                   </span>
                                   {rep.editedAt && (
-                                    <span className="text-white/30 text-[10px]">(عُدّل)</span>
+                                    <span className="text-white/30 text-[10px]">
+                                      {t({ ar: "(عُدّل)", en: "(edited)" })}
+                                    </span>
                                   )}
                                   <div className="ms-auto flex items-center gap-2">
                                     {rep.canEdit && (
@@ -762,7 +817,7 @@ export default function WorkDetail() {
                                         type="button"
                                         onClick={() => startEdit(rep)}
                                         className="text-white/35 hover:text-primary transition-colors"
-                                        aria-label="تعديل الرد"
+                                        aria-label={t({ ar: "تعديل الرد", en: "Edit reply" })}
                                         data-testid={`edit-comment-${rep.id}`}
                                       >
                                         <Pencil className="w-3 h-3" />
@@ -773,7 +828,7 @@ export default function WorkDetail() {
                                         type="button"
                                         onClick={() => deleteComment(rep.id, c.id)}
                                         className="text-white/35 hover:text-red-300 transition-colors"
-                                        aria-label="حذف الرد"
+                                        aria-label={t({ ar: "حذف الرد", en: "Delete reply" })}
                                         data-testid={`delete-comment-${rep.id}`}
                                       >
                                         <Trash2 className="w-3 h-3" />
@@ -807,7 +862,7 @@ export default function WorkDetail() {
                                         className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
                                         data-testid={`reply-comment-${rep.id}`}
                                       >
-                                        <Reply className="w-3 h-3" /> رد
+                                        <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
                                       </button>
                                     )}
                                   </>
@@ -827,7 +882,7 @@ export default function WorkDetail() {
                             <input
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              placeholder="اكتب ردًّا…"
+                              placeholder={t({ ar: "اكتب ردًّا…", en: "Write a reply…" })}
                               autoFocus
                               maxLength={1000}
                               className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
@@ -850,7 +905,7 @@ export default function WorkDetail() {
                               onClick={() => { setReplyingTo(null); setComposerError(null); }}
                               className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
                             >
-                              إلغاء
+                              {t({ ar: "إلغاء", en: "Cancel" })}
                             </button>
                           </form>
                           {composerError && (
@@ -870,7 +925,7 @@ export default function WorkDetail() {
         <div className="space-y-5">
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-              صاحب العمل
+              {t({ ar: "صاحب العمل", en: "Author" })}
             </div>
             <Link
               href={`/u/${data.author.id}`}
@@ -930,7 +985,7 @@ export default function WorkDetail() {
                 rel="noreferrer"
                 className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-[13px] font-semibold hover:bg-emerald-500/15 transition-colors"
               >
-                <Phone className="w-3.5 h-3.5" /> تواصل واتساب
+                <Phone className="w-3.5 h-3.5" /> {t({ ar: "تواصل واتساب", en: "Contact on WhatsApp" })}
               </a>
             )}
           </GlassCard>
@@ -938,21 +993,22 @@ export default function WorkDetail() {
           {data.isOwner && (
             <GlassCard className="p-6 space-y-2.5">
               <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
-                إدارة
+                {t({ ar: "إدارة", en: "Manage" })}
               </div>
               <Link
                 href={`/works/${data.work.id}/edit`}
                 className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-semibold text-[13px] hover:bg-white/[0.1] transition-colors"
                 data-testid="button-edit-work"
               >
-                <Pencil className="w-3.5 h-3.5" /> تعديل
+                <Pencil className="w-3.5 h-3.5" /> {t({ ar: "تعديل", en: "Edit" })}
               </Link>
               <button
+                type="button"
                 onClick={onDelete}
                 className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-white/[0.04] border border-white/10 text-white/65 font-semibold text-[13px] hover:bg-red-500/15 hover:text-red-200 hover:border-red-500/30 transition-colors"
                 data-testid="button-delete-work"
               >
-                <Trash2 className="w-3.5 h-3.5" /> حذف
+                <Trash2 className="w-3.5 h-3.5" /> {t({ ar: "حذف", en: "Delete" })}
               </button>
             </GlassCard>
           )}
@@ -976,7 +1032,7 @@ export default function WorkDetail() {
             type="button"
             onClick={() => setLightbox(null)}
             className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-            aria-label="إغلاق"
+            aria-label={t({ ar: "إغلاق", en: "Close" })}
           >
             <X className="w-4 h-4" />
           </button>
@@ -991,7 +1047,7 @@ export default function WorkDetail() {
                   );
                 }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-                aria-label="السابق"
+                aria-label={t({ ar: "السابق", en: "Previous" })}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -1002,7 +1058,7 @@ export default function WorkDetail() {
                   setLightbox((i) => (i === null ? 0 : Math.max(0, i - 1)));
                 }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-                aria-label="التالي"
+                aria-label={t({ ar: "التالي", en: "Next" })}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -1032,6 +1088,7 @@ function CommentEditForm({
   busy: boolean;
   error?: string | null;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mt-1.5">
       <form onSubmit={onSubmit} className="flex items-center gap-2">
@@ -1056,7 +1113,7 @@ function CommentEditForm({
           onClick={onCancel}
           className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
         >
-          إلغاء
+          {t({ ar: "إلغاء", en: "Cancel" })}
         </button>
       </form>
       {error && <p className="text-red-300 text-[12px] mt-1.5">{error}</p>}

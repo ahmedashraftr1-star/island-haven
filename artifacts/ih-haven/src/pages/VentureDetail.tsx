@@ -12,9 +12,24 @@ import {
   FileText,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
+
+const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
+  idea: "Idea",
+  mvp: "MVP",
+  launched: "Launched",
+  scaling: "Scaling",
+};
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 interface Venture {
   id: number;
@@ -35,6 +50,7 @@ interface Venture {
 const STAGE_STEPS: VentureStage[] = ["idea", "mvp", "launched", "scaling"];
 
 export default function VentureDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/ventures/:id");
   const id = params?.id;
   const [v, setV] = useState<Venture | null>(null);
@@ -57,12 +73,18 @@ export default function VentureDetail() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, lang]);
 
   usePageMeta({
     title: v?.name,
@@ -74,7 +96,10 @@ export default function VentureDetail() {
   if (error && !v) {
     return (
       <PageShell active="ventures">
-        <BackLink href="/ventures" label="عودة للمشاريع" />
+        <BackLink
+          href="/ventures"
+          label={t({ ar: "عودة للمشاريع", en: "Back to ventures" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -91,7 +116,10 @@ export default function VentureDetail() {
 
   return (
     <PageShell active="ventures">
-      <BackLink href="/ventures" label="كلّ المشاريع" />
+      <BackLink
+        href="/ventures"
+        label={t({ ar: "كلّ المشاريع", en: "All ventures" })}
+      />
 
       <GlassCard className="overflow-hidden">
         {/* Cover band */}
@@ -104,7 +132,8 @@ export default function VentureDetail() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent" />
           {v.featured && (
             <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-100 border border-amber-400/30 backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5" /> مشروع مميّز
+              <Sparkles className="w-3.5 h-3.5" />{" "}
+              {t({ ar: "مشروع مميّز", en: "Featured venture" })}
             </div>
           )}
         </div>
@@ -124,7 +153,10 @@ export default function VentureDetail() {
             )}
             <div className="pb-1">
               <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-primary/15 text-primary border border-primary/30 mb-1.5">
-                {VENTURE_STAGE_LABELS[v.stage]}
+                {t({
+                  ar: VENTURE_STAGE_LABELS[v.stage],
+                  en: VENTURE_STAGE_LABELS_EN[v.stage],
+                })}
               </span>
               <h1
                 className="font-bold text-white leading-tight"
@@ -157,7 +189,10 @@ export default function VentureDetail() {
                       i === stageIx ? "text-primary" : "text-white/40"
                     }`}
                   >
-                    {VENTURE_STAGE_LABELS[s]}
+                    {t({
+                      ar: VENTURE_STAGE_LABELS[s],
+                      en: VENTURE_STAGE_LABELS_EN[s],
+                    })}
                   </div>
                 </div>
               ))}
@@ -172,17 +207,44 @@ export default function VentureDetail() {
 
           {/* Facts grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-7">
-            <Fact icon={Layers} label="المرحلة" value={VENTURE_STAGE_LABELS[v.stage]} />
-            {v.sector && <Fact icon={Building2} label="القطاع" value={v.sector} />}
-            {v.foundedYear > 0 && (
-              <Fact icon={CalendarDays} label="التأسيس" value={String(v.foundedYear)} />
+            <Fact
+              icon={Layers}
+              label={t({ ar: "المرحلة", en: "Stage" })}
+              value={t({
+                ar: VENTURE_STAGE_LABELS[v.stage],
+                en: VENTURE_STAGE_LABELS_EN[v.stage],
+              })}
+            />
+            {v.sector && (
+              <Fact
+                icon={Building2}
+                label={t({ ar: "القطاع", en: "Sector" })}
+                value={v.sector}
+              />
             )}
-            <Fact icon={Users} label="الفريق" value={`${v.teamSize} أعضاء`} />
+            {v.foundedYear > 0 && (
+              <Fact
+                icon={CalendarDays}
+                label={t({ ar: "التأسيس", en: "Founded" })}
+                value={num(v.foundedYear, lang)}
+              />
+            )}
+            <Fact
+              icon={Users}
+              label={t({ ar: "الفريق", en: "Team" })}
+              value={
+                lang === "ar"
+                  ? `${num(v.teamSize, lang)} أعضاء`
+                  : `${num(v.teamSize, lang)} ${v.teamSize === 1 ? "member" : "members"}`
+              }
+            />
           </div>
 
           {v.founderName && (
             <div className="text-[13px] text-white/55 mb-6">
-              <span className="text-white/40">المؤسِّس: </span>
+              <span className="text-white/40">
+                {t({ ar: "المؤسِّس: ", en: "Founder: " })}
+              </span>
               <span className="text-white/85 font-semibold">{v.founderName}</span>
             </div>
           )}
@@ -195,7 +257,7 @@ export default function VentureDetail() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
               >
-                زيارة المشروع
+                {t({ ar: "زيارة المشروع", en: "Visit venture" })}
                 <ExternalLink className="w-4 h-4" />
               </a>
             )}
@@ -207,7 +269,7 @@ export default function VentureDetail() {
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
               >
                 <FileText className="w-4 h-4 text-primary" />
-                ملفّ العرض (Pitch Deck)
+                {t({ ar: "ملفّ العرض (Pitch Deck)", en: "Pitch Deck" })}
               </a>
             )}
           </div>
@@ -255,7 +317,21 @@ const MILESTONE_LABELS: Record<Milestone["type"], string> = {
   other: "حدث",
 };
 
+const MILESTONE_LABELS_EN: Record<Milestone["type"], string> = {
+  idea: "Idea",
+  mvp: "MVP",
+  launch: "Launch",
+  first_customer: "First customer",
+  first_revenue: "First revenue",
+  funding: "Funding",
+  team_grew: "Team grew",
+  press: "Press",
+  partnership: "Partnership",
+  other: "Milestone",
+};
+
 function MilestoneTimeline({ ventureId }: { ventureId: number }) {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Milestone[] | null>(null);
   useEffect(() => {
     api<{ milestones: Milestone[] }>(`/ventures/${ventureId}/milestones`)
@@ -268,15 +344,18 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
   return (
     <div className="mt-10">
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5">
-        الرّحلة · Timeline
+        {t({ ar: "الرّحلة · Timeline", en: "Timeline" })}
       </div>
       <GlassCard className="p-6 sm:p-8">
         <ol className="relative">
           {rows.map((m, i) => {
-            const date = new Date(m.achievedAt).toLocaleDateString("ar-EG", {
-              year: "numeric",
-              month: "long",
-            });
+            const date = new Date(m.achievedAt).toLocaleDateString(
+              lang === "ar" ? "ar-EG" : "en-GB",
+              {
+                year: "numeric",
+                month: "long",
+              },
+            );
             return (
               <li key={m.id} className="relative ps-8 pb-7 last:pb-0">
                 {i < rows.length - 1 && (
@@ -291,7 +370,10 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                 />
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-                    {MILESTONE_LABELS[m.type]}
+                    {t({
+                      ar: MILESTONE_LABELS[m.type],
+                      en: MILESTONE_LABELS_EN[m.type],
+                    })}
                   </span>
                   <span className="text-[11.5px] text-white/45 font-medium">
                     {date}
@@ -315,7 +397,10 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                     ) : null}
                     {m.metricValue ? (
                       <span className="text-white/60 tabular-nums">
-                        قيمة: {m.metricValue.toLocaleString("ar-EG")}
+                        {t({ ar: "قيمة:", en: "Value:" })}{" "}
+                        {m.metricValue.toLocaleString(
+                          lang === "ar" ? "ar-EG" : "en-US",
+                        )}
                       </span>
                     ) : null}
                     {m.link && (
@@ -325,7 +410,7 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 text-primary hover:underline"
                       >
-                        رابط
+                        {t({ ar: "رابط", en: "Link" })}
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
@@ -359,6 +444,7 @@ function Fact({
 }
 
 function OtherVentures({ excludeId }: { excludeId: number }) {
+  const { t } = useLanguage();
   const [rows, setRows] = useState<Venture[] | null>(null);
   useEffect(() => {
     api<{ ventures: Venture[] }>("/ventures")
@@ -371,7 +457,7 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
   return (
     <div className="mt-8">
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-        مشاريع أخرى
+        {t({ ar: "مشاريع أخرى", en: "Other ventures" })}
       </div>
       <div className="grid sm:grid-cols-3 gap-4">
         {rows.map((o, i) => (
@@ -396,7 +482,12 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
                 <div className="font-bold text-white text-[13.5px] truncate">{o.name}</div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-primary/80">{VENTURE_STAGE_LABELS[o.stage]}</span>
+                <span className="text-[11px] text-primary/80">
+                  {t({
+                    ar: VENTURE_STAGE_LABELS[o.stage],
+                    en: VENTURE_STAGE_LABELS_EN[o.stage],
+                  })}
+                </span>
                 <ArrowLeft className="w-3.5 h-3.5 text-white/40 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
               </div>
             </Link>

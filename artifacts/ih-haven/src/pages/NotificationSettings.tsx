@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Bell, CalendarCheck, GraduationCap, Mail, Smartphone } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/lib/auth";
 import { api, ApiError } from "@/lib/api";
 
@@ -25,36 +26,49 @@ const DEFAULT_PREFS: Prefs = {
 const TOGGLES: {
   key: PrefKey;
   icon: React.ElementType;
-  title: string;
-  hint: string;
+  title: { ar: string; en: string };
+  hint: { ar: string; en: string };
 }[] = [
   {
     key: "emailSessions",
     icon: CalendarCheck,
-    title: "بريد جلسات الإرشاد",
-    hint: "إشعار عند تأكيد أو تغيير مواعيد جلساتك مع الخبراء.",
+    title: { ar: "بريد جلسات الإرشاد", en: "Mentorship session emails" },
+    hint: {
+      ar: "إشعار عند تأكيد أو تغيير مواعيد جلساتك مع الخبراء.",
+      en: "Get notified when your sessions with experts are confirmed or rescheduled.",
+    },
   },
   {
     key: "emailPrograms",
     icon: GraduationCap,
-    title: "بريد البرامج والاحتضان",
-    hint: "تحديثات قبولك في البرامج ومستجدّات دفعتك.",
+    title: { ar: "بريد البرامج والاحتضان", en: "Program & incubation emails" },
+    hint: {
+      ar: "تحديثات قبولك في البرامج ومستجدّات دفعتك.",
+      en: "Updates on your program acceptances and the latest from your cohort.",
+    },
   },
   {
     key: "emailDaily",
     icon: Mail,
-    title: "النّشرة اليوميّة",
-    hint: "ملخّص يوميّ بأهمّ الفرص والأخبار — يصل صباحًا.",
+    title: { ar: "النّشرة اليوميّة", en: "Daily digest" },
+    hint: {
+      ar: "ملخّص يوميّ بأهمّ الفرص والأخبار — يصل صباحًا.",
+      en: "A morning summary of the top opportunities and news.",
+    },
   },
   {
     key: "pushEnabled",
     icon: Smartphone,
-    title: "إشعارات الجهاز (Push)",
-    hint: "تنبيهات فوريّة على متصفّحك وتطبيقك عند وصول جديد.",
+    title: { ar: "إشعارات الجهاز (Push)", en: "Push notifications" },
+    hint: {
+      ar: "تنبيهات فوريّة على متصفّحك وتطبيقك عند وصول جديد.",
+      en: "Instant alerts on your browser and app whenever something new arrives.",
+    },
   },
 ];
 
 export default function NotificationSettings() {
+  const { lang, t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [prefs, setPrefs] = useState<Prefs | null>(null);
@@ -62,8 +76,11 @@ export default function NotificationSettings() {
   const [saving, setSaving] = useState<PrefKey | null>(null);
 
   useEffect(() => {
-    document.title = "إعدادات الإشعارات — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "إعدادات الإشعارات — Island Haven"
+        : "Notification Settings — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -77,12 +94,18 @@ export default function NotificationSettings() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load your settings",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user]);
+  }, [authLoading, user, lang]);
 
   async function toggle(key: PrefKey) {
     if (!prefs || saving) return;
@@ -99,7 +122,13 @@ export default function NotificationSettings() {
       setPrefs(r.prefs);
     } catch (e) {
       setPrefs(prev); // revert on failure
-      setError(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : lang === "ar"
+            ? "تعذّر الحفظ"
+            : "Couldn't save",
+      );
     } finally {
       setSaving(null);
     }
@@ -110,10 +139,13 @@ export default function NotificationSettings() {
 
   return (
     <PageShell
-      eyebrow="حسابك"
-      title="إعدادات"
-      highlight="الإشعارات"
-      subtitle="تحكّم في القنوات التي نصلك من خلالها — يُحفظ كلّ تغيير فور تبديله."
+      eyebrow={t({ ar: "حسابك", en: "Your account" })}
+      title={t({ ar: "إعدادات", en: "Notification" })}
+      highlight={t({ ar: "الإشعارات", en: "Settings" })}
+      subtitle={t({
+        ar: "تحكّم في القنوات التي نصلك من خلالها — يُحفظ كلّ تغيير فور تبديله.",
+        en: "Control the channels we reach you through — every change is saved the moment you flip it.",
+      })}
       maxWidth="max-w-2xl"
     >
       {error && (
@@ -133,12 +165,12 @@ export default function NotificationSettings() {
         </div>
       ) : (
         <div className="space-y-3">
-          {TOGGLES.map((t, i) => {
-            const Icon = t.icon;
-            const on = view[t.key];
+          {TOGGLES.map((tag, i) => {
+            const Icon = tag.icon;
+            const on = view[tag.key];
             return (
               <motion.div
-                key={t.key}
+                key={tag.key}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.04 }}
@@ -150,17 +182,17 @@ export default function NotificationSettings() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-white font-bold text-[15px] leading-snug">
-                        {t.title}
+                        {t(tag.title)}
                       </span>
                       <span className="block text-white/45 text-[12.5px] leading-[1.7] mt-0.5">
-                        {t.hint}
+                        {t(tag.hint)}
                       </span>
                     </span>
                     <Toggle
                       on={on}
-                      busy={saving === t.key}
-                      onToggle={() => toggle(t.key)}
-                      label={t.title}
+                      busy={saving === tag.key}
+                      onToggle={() => toggle(tag.key)}
+                      label={t(tag.title)}
                     />
                   </label>
                 </GlassCard>
@@ -170,8 +202,10 @@ export default function NotificationSettings() {
 
           <p className="flex items-center gap-2 text-white/40 text-[12px] pt-2 px-1">
             <Bell className="w-3.5 h-3.5 text-primary/70 shrink-0" />
-            نُرسل دائمًا الرّسائل الأساسيّة المتعلّقة بأمان حسابك بصرف النّظر عن
-            هذه الإعدادات.
+            {t({
+              ar: "نُرسل دائمًا الرّسائل الأساسيّة المتعلّقة بأمان حسابك بصرف النّظر عن هذه الإعدادات.",
+              en: "We always send essential messages about your account security, regardless of these settings.",
+            })}
           </p>
         </div>
       )}

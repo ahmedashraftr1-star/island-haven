@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Trophy, Award, Briefcase, Medal, Crown } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
 interface LeaderRow {
@@ -17,27 +18,35 @@ interface LeaderRow {
 // Top-3 medal treatment — gold / silver / bronze.
 const MEDALS: Record<
   number,
-  { ring: string; chip: string; Icon: typeof Crown; label: string }
+  { ring: string; chip: string; Icon: typeof Crown; label: { ar: string; en: string } }
 > = {
   0: {
     ring: "ring-amber-400/60",
     chip: "bg-amber-400/15 text-amber-200 border-amber-400/40",
     Icon: Crown,
-    label: "الأوّل",
+    label: { ar: "الأوّل", en: "1st" },
   },
   1: {
     ring: "ring-slate-300/50",
     chip: "bg-slate-300/10 text-slate-200 border-slate-300/30",
     Icon: Medal,
-    label: "الثاني",
+    label: { ar: "الثاني", en: "2nd" },
   },
   2: {
     ring: "ring-orange-400/50",
     chip: "bg-orange-400/12 text-orange-200 border-orange-400/30",
     Icon: Medal,
-    label: "الثالث",
+    label: { ar: "الثالث", en: "3rd" },
   },
 };
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 function initials(name: string): string {
   return name
@@ -49,12 +58,14 @@ function initials(name: string): string {
 }
 
 export default function Leaderboard() {
+  const { lang, t } = useLanguage();
   const [rows, setRows] = useState<LeaderRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "الصدارة — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar" ? "الصدارة — Island Haven" : "Leaderboard — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,20 +74,29 @@ export default function Leaderboard() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load the leaderboard",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   return (
     <PageShell
       active="leaderboard"
-      eyebrow="مجتمع يصنع الفرق"
-      title="لوحة"
-      highlight="الصدارة"
-      subtitle="أكثر المنتسبين تأثيرًا في المجتمع — تُحتسب الصدارة من أعمالهم المنشورة والشارات التي حصدوها. انشر عملك واصنع أثرك لتصعد."
+      eyebrow={t({ ar: "مجتمع يصنع الفرق", en: "A community making a difference" })}
+      title={t({ ar: "لوحة", en: "Community" })}
+      highlight={t({ ar: "الصدارة", en: "Leaderboard" })}
+      subtitle={t({
+        ar: "أكثر المنتسبين تأثيرًا في المجتمع — تُحتسب الصدارة من أعمالهم المنشورة والشارات التي حصدوها. انشر عملك واصنع أثرك لتصعد.",
+        en: "The community's most impactful members — ranked by their published work and the badges they've earned. Publish your work, make your mark, and rise.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -93,8 +113,11 @@ export default function Leaderboard() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا متصدّرين بعد"
-          hint="كن أوّل من ينشر عملًا ويحصد شارة — وستظهر في الصدارة."
+          title={t({ ar: "لا متصدّرين بعد", en: "No leaders yet" })}
+          hint={t({
+            ar: "كن أوّل من ينشر عملًا ويحصد شارة — وستظهر في الصدارة.",
+            en: "Be the first to publish work and earn a badge — and you'll appear on the leaderboard.",
+          })}
         />
       ) : (
         <div className="space-y-3">
@@ -131,7 +154,7 @@ export default function Leaderboard() {
                         />
                       ) : (
                         <span className="text-white/45 font-bold text-[15px] tabular-nums">
-                          {i + 1}
+                          {num(i + 1, lang)}
                         </span>
                       )}
                     </div>
@@ -166,18 +189,20 @@ export default function Leaderboard() {
                           <span
                             className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${medal.chip}`}
                           >
-                            {medal.label}
+                            {t(medal.label)}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-[12px] text-white/50">
                         <span className="inline-flex items-center gap-1">
                           <Briefcase className="w-3.5 h-3.5 text-primary/75" />
-                          {r.worksCount} عمل
+                          {num(r.worksCount, lang)}{" "}
+                          {t({ ar: "عمل", en: "works" })}
                         </span>
                         <span className="inline-flex items-center gap-1">
                           <Award className="w-3.5 h-3.5 text-amber-300/80" />
-                          {r.badgeCount} شارة
+                          {num(r.badgeCount, lang)}{" "}
+                          {t({ ar: "شارة", en: "badges" })}
                         </span>
                       </div>
                     </div>
@@ -187,11 +212,11 @@ export default function Leaderboard() {
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/12 border border-primary/25">
                         <Trophy className="w-3.5 h-3.5 text-primary" />
                         <span className="text-white font-extrabold text-[15px] tabular-nums">
-                          {r.score}
+                          {num(r.score, lang)}
                         </span>
                       </div>
                       <div className="text-[10px] text-white/35 text-center mt-1 tracking-wide">
-                        نقطة
+                        {t({ ar: "نقطة", en: "points" })}
                       </div>
                     </div>
                   </GlassCard>
@@ -205,7 +230,10 @@ export default function Leaderboard() {
       {/* Scoring note */}
       {rows && rows.length > 0 && (
         <p className="text-center text-white/35 text-[12px] mt-8">
-          النقاط = عدد الأعمال + (عدد الشارات × ٣)
+          {t({
+            ar: "النقاط = عدد الأعمال + (عدد الشارات × ٣)",
+            en: "Points = number of works + (number of badges × 3)",
+          })}
         </p>
       )}
     </PageShell>

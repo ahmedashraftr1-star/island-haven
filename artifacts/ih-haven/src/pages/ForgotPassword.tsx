@@ -3,9 +3,11 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
 export default function ForgotPassword() {
+  const { lang, t } = useLanguage();
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -13,8 +15,11 @@ export default function ForgotPassword() {
   const errRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "نسيت كلمة السرّ — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "نسيت كلمة السرّ — آيلاند هيفن"
+        : "Forgot Password — Island Haven";
+  }, [lang]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +33,14 @@ export default function ForgotPassword() {
       });
       setDone(true);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الإرسال، حاول مجدّدًا");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({
+              ar: "تعذّر الإرسال، حاول مجدّدًا",
+              en: "Couldn't send, please try again",
+            }),
+      );
       setTimeout(() => errRef.current?.focus(), 50);
     } finally {
       setSubmitting(false);
@@ -37,15 +49,18 @@ export default function ForgotPassword() {
 
   return (
     <AuthShell
-      eyebrow="استعادة الوصول"
-      title="نسيت كلمة"
-      highlight="السرّ؟"
-      subtitle="أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين."
+      eyebrow={t({ ar: "استعادة الوصول", en: "Recover access" })}
+      title={t({ ar: "نسيت كلمة", en: "Forgot your" })}
+      highlight={t({ ar: "السرّ؟", en: "password?" })}
+      subtitle={t({
+        ar: "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.",
+        en: "Enter your email and we'll send you a reset link.",
+      })}
       footer={
         <p className="text-[13px] text-white/45 text-center mt-4">
-          تذكّرت؟{" "}
+          {t({ ar: "تذكّرت؟", en: "Remembered it?" })}{" "}
           <Link href="/login" className="text-primary hover:underline font-semibold">
-            سجّل الدخول
+            {t({ ar: "سجّل الدخول", en: "Log in" })}
           </Link>
         </p>
       }
@@ -62,17 +77,22 @@ export default function ForgotPassword() {
               <CheckCircle2 className="w-7 h-7 text-emerald-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-[15px]">تم الإرسال</p>
+              <p className="text-white font-semibold text-[15px]">
+                {t({ ar: "تم الإرسال", en: "Sent" })}
+              </p>
               <p className="text-white/55 text-[13px] mt-1 leading-relaxed">
-                إذا كان هذا البريد مسجّلاً لدينا، ستصلك تعليمات إعادة التعيين قريبًا.
+                {t({
+                  ar: "إذا كان هذا البريد مسجّلاً لدينا، ستصلك تعليمات إعادة التعيين قريبًا.",
+                  en: "If this email is registered with us, you'll receive reset instructions shortly.",
+                })}
               </p>
             </div>
             <Link
               href="/login"
               className="inline-flex items-center gap-2 text-[13px] text-primary hover:underline font-semibold"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              العودة لتسجيل الدخول
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              {t({ ar: "العودة لتسجيل الدخول", en: "Back to login" })}
             </Link>
           </motion.div>
         ) : (
@@ -101,7 +121,7 @@ export default function ForgotPassword() {
 
             <AuthField
               id="email"
-              label="البريد الإلكتروني"
+              label={t({ ar: "البريد الإلكتروني", en: "Email address" })}
               hint="Email"
               icon={Mail}
               type="email"
@@ -116,7 +136,9 @@ export default function ForgotPassword() {
               disabled={submitting || !email.trim()}
               className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
-              {submitting ? "جارٍ الإرسال…" : "إرسال رابط الاستعادة"}
+              {submitting
+                ? t({ ar: "جارٍ الإرسال…", en: "Sending…" })
+                : t({ ar: "إرسال رابط الاستعادة", en: "Send recovery link" })}
             </button>
           </motion.form>
         )}

@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import {
@@ -21,6 +22,32 @@ import {
   formatArabicDate,
   splitTags,
 } from "@/lib/labels";
+
+const OPPORTUNITY_TYPE_LABELS_EN: Record<OpportunityType, string> = {
+  job: "Job",
+  internship: "Internship",
+  freelance: "Freelance",
+  gig: "Gig",
+  volunteer: "Volunteer",
+};
+
+const OPPORTUNITY_LOCATION_LABELS_EN: Record<OpportunityLocation, string> = {
+  onsite: "On-site",
+  remote: "Remote",
+  hybrid: "Hybrid",
+};
+
+// Localised date: Arabic-Indic in AR, Western in EN.
+function fmtDate(iso: string | null | undefined, lang: Lang): string {
+  if (!iso) return "";
+  return lang === "ar"
+    ? formatArabicDate(iso)
+    : new Date(iso).toLocaleDateString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+}
 
 interface Opportunity {
   id: number;
@@ -39,6 +66,7 @@ interface Opportunity {
 }
 
 export default function OpportunityDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/opportunities/:id");
   const id = params?.id;
   const [o, setO] = useState<Opportunity | null>(null);
@@ -52,12 +80,18 @@ export default function OpportunityDetail() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, lang]);
 
   usePageMeta({
     title: o?.title,
@@ -68,7 +102,10 @@ export default function OpportunityDetail() {
   if (error && !o) {
     return (
       <PageShell active="opportunities">
-        <BackLink href="/opportunities" label="عودة للفرص" />
+        <BackLink
+          href="/opportunities"
+          label={t({ ar: "عودة للفرص", en: "Back to opportunities" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -85,22 +122,31 @@ export default function OpportunityDetail() {
   const applyHref = o.applyUrl
     ? o.applyUrl
     : o.applyEmail
-      ? `mailto:${o.applyEmail}?subject=${encodeURIComponent("تقديم على: " + o.title)}`
+      ? `mailto:${o.applyEmail}?subject=${encodeURIComponent(
+          t({ ar: "تقديم على: ", en: "Application for: " }) + o.title,
+        )}`
       : null;
 
   return (
     <PageShell active="opportunities">
-      <BackLink href="/opportunities" label="كلّ الفرص" />
+      <BackLink
+        href="/opportunities"
+        label={t({ ar: "كلّ الفرص", en: "All opportunities" })}
+      />
 
       <GlassCard className="p-6 sm:p-9">
         <div className="flex items-center gap-2 flex-wrap mb-3">
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] tracking-[0.1em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
             <Briefcase className="w-3.5 h-3.5" />
-            {OPPORTUNITY_TYPE_LABELS[o.type]}
+            {t({
+              ar: OPPORTUNITY_TYPE_LABELS[o.type],
+              en: OPPORTUNITY_TYPE_LABELS_EN[o.type],
+            })}
           </span>
           {o.featured && (
             <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-100 border border-amber-400/30">
-              <Sparkles className="w-3.5 h-3.5" /> فرصة مميّزة
+              <Sparkles className="w-3.5 h-3.5" />{" "}
+              {t({ ar: "فرصة مميّزة", en: "Featured opportunity" })}
             </span>
           )}
         </div>
@@ -122,25 +168,42 @@ export default function OpportunityDetail() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-7">
           <Fact
             icon={MapPin}
-            label="مكان العمل"
+            label={t({ ar: "مكان العمل", en: "Work location" })}
             value={
-              OPPORTUNITY_LOCATION_LABELS[o.locationType] +
-              (o.city ? ` · ${o.city}` : "")
+              t({
+                ar: OPPORTUNITY_LOCATION_LABELS[o.locationType],
+                en: OPPORTUNITY_LOCATION_LABELS_EN[o.locationType],
+              }) + (o.city ? ` · ${o.city}` : "")
             }
           />
-          <Fact icon={Briefcase} label="النوع" value={OPPORTUNITY_TYPE_LABELS[o.type]} />
+          <Fact
+            icon={Briefcase}
+            label={t({ ar: "النوع", en: "Type" })}
+            value={t({
+              ar: OPPORTUNITY_TYPE_LABELS[o.type],
+              en: OPPORTUNITY_TYPE_LABELS_EN[o.type],
+            })}
+          />
           {o.compensation && (
-            <Fact icon={Coins} label="المقابل" value={o.compensation} />
+            <Fact
+              icon={Coins}
+              label={t({ ar: "المقابل", en: "Compensation" })}
+              value={o.compensation}
+            />
           )}
           {o.deadline && (
             <Fact
               icon={Clock}
-              label="آخر موعد"
-              value={formatArabicDate(o.deadline)}
+              label={t({ ar: "آخر موعد", en: "Deadline" })}
+              value={fmtDate(o.deadline, lang)}
             />
           )}
           {o.organization && (
-            <Fact icon={Building2} label="الجهة" value={o.organization} />
+            <Fact
+              icon={Building2}
+              label={t({ ar: "الجهة", en: "Organization" })}
+              value={o.organization}
+            />
           )}
         </div>
 
@@ -153,15 +216,15 @@ export default function OpportunityDetail() {
         {tags.length > 0 && (
           <div className="mb-8">
             <div className="text-[10.5px] tracking-[0.18em] uppercase text-white/40 font-bold mb-2.5">
-              المهارات المطلوبة
+              {t({ ar: "المهارات المطلوبة", en: "Required skills" })}
             </div>
             <div className="flex flex-wrap gap-2">
-              {tags.map((t) => (
+              {tags.map((tag) => (
                 <span
-                  key={t}
+                  key={tag}
                   className="px-3 py-1 rounded-lg text-[12.5px] bg-white/[0.05] text-white/70 border border-white/[0.08]"
                 >
-                  {t}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -176,7 +239,7 @@ export default function OpportunityDetail() {
             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-white font-bold text-[15px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
             data-testid="link-apply"
           >
-            قدّم الآن
+            {t({ ar: "قدّم الآن", en: "Apply now" })}
             {o.applyUrl ? (
               <ExternalLink className="w-4 h-4" />
             ) : (
@@ -185,7 +248,10 @@ export default function OpportunityDetail() {
           </a>
         ) : (
           <div className="inline-flex items-center px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-white/55 text-[13.5px]">
-            للتقديم، تواصل مع فريق آيلاند هيفن.
+            {t({
+              ar: "للتقديم، تواصل مع فريق آيلاند هيفن.",
+              en: "To apply, get in touch with the Island Haven team.",
+            })}
           </div>
         )}
       </GlassCard>

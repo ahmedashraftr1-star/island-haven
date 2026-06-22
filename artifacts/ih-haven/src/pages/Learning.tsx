@@ -10,14 +10,28 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/lib/auth";
 import { api, ApiError } from "@/lib/api";
 import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import {
   COURSE_TYPE_LABELS,
-  formatArabicDate,
+  formatDate,
   type CourseType,
 } from "@/lib/labels";
+
+const COURSE_TYPE_LABELS_EN: Record<CourseType, string> = {
+  course: "Course",
+  workshop: "Workshop",
+};
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 interface ProgressRow {
   id: number;
@@ -49,12 +63,14 @@ interface LearnItem {
 }
 
 export default function Learning() {
+  const { lang, dir, t } = useLanguage();
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    document.title = "التعلّم — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar" ? "التعلّم — Island Haven" : "Learning — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -63,13 +79,13 @@ export default function Learning() {
   if (loading || !user) {
     return (
       <div
-        dir="rtl"
+        dir={dir}
         className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center"
       >
         <AuthBackgroundAura />
         <div className="relative z-10 flex items-center gap-3 text-white/55">
           <span className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-primary animate-spin" />
-          جارٍ التحميل…
+          {t({ ar: "جارٍ التحميل…", en: "Loading…" })}
         </div>
       </div>
     );
@@ -79,6 +95,7 @@ export default function Learning() {
 }
 
 function LearningInner() {
+  const { lang, t } = useLanguage();
   const [items, setItems] = useState<LearnItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<number | null>(null);
@@ -115,7 +132,13 @@ function LearningInner() {
         [...byId.values()].sort((a, b) => b.percent - a.percent),
       );
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : lang === "ar"
+            ? "تعذّر التحميل"
+            : "Couldn't load your progress",
+      );
     }
   }
 
@@ -156,7 +179,13 @@ function LearningInner() {
           : rows,
       );
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : lang === "ar"
+            ? "تعذّر الحفظ"
+            : "Couldn't save",
+      );
       void reload();
     } finally {
       setSavingId(null);
@@ -166,10 +195,13 @@ function LearningInner() {
   return (
     <PageShell
       active="learning"
-      eyebrow="مسارك التَّعليميّ"
-      title="التعلّم"
-      highlight="وتتبّع التقدّم"
-      subtitle="تابع تقدّمك في الكورسات والورشات التي انضممت إليها، وحدّث نسبة إنجازك خطوةً بخطوة — وعند الإكمال احصل على شهادتك."
+      eyebrow={t({ ar: "مسارك التَّعليميّ", en: "Your learning journey" })}
+      title={t({ ar: "التعلّم", en: "Learning" })}
+      highlight={t({ ar: "وتتبّع التقدّم", en: "& Progress Tracking" })}
+      subtitle={t({
+        ar: "تابع تقدّمك في الكورسات والورشات التي انضممت إليها، وحدّث نسبة إنجازك خطوةً بخطوة — وعند الإكمال احصل على شهادتك.",
+        en: "Track your progress across the courses and workshops you've joined, and update your completion step by step — earn your certificate when you finish.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 mb-5 text-red-200 text-center">{error}</GlassCard>
@@ -186,15 +218,18 @@ function LearningInner() {
         </div>
       ) : items && items.length === 0 ? (
         <EmptyState
-          title="لم تبدأ أيّ مسار بعد"
-          hint="انضمّ إلى كورس أو ورشة لتبدأ بتتبّع تقدّمك."
+          title={t({ ar: "لم تبدأ أيّ مسار بعد", en: "You haven't started any path yet" })}
+          hint={t({
+            ar: "انضمّ إلى كورس أو ورشة لتبدأ بتتبّع تقدّمك.",
+            en: "Join a course or workshop to start tracking your progress.",
+          })}
           action={
             <Link
               href="/courses"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-semibold text-[13.5px] hover:-translate-y-px transition-transform"
             >
               <GraduationCap className="w-4 h-4" />
-              استعرض البرنامج التَّدريبيّ
+              {t({ ar: "استعرض البرنامج التَّدريبيّ", en: "Browse the training program" })}
             </Link>
           }
         />
@@ -229,6 +264,7 @@ function ProgressCard({
   saving: boolean;
   onSave: (percent: number) => void;
 }) {
+  const { lang, t } = useLanguage();
   const done = item.percent >= 100;
 
   return (
@@ -240,11 +276,13 @@ function ProgressCard({
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="px-2 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-              {COURSE_TYPE_LABELS[item.courseType]}
+              {lang === "ar"
+                ? COURSE_TYPE_LABELS[item.courseType]
+                : COURSE_TYPE_LABELS_EN[item.courseType]}
             </span>
             {done && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/15 text-emerald-200 border border-emerald-500/30">
-                <CheckCircle2 className="w-3 h-3" /> مكتمل
+                <CheckCircle2 className="w-3 h-3" /> {t({ ar: "مكتمل", en: "Completed" })}
               </span>
             )}
           </div>
@@ -256,13 +294,14 @@ function ProgressCard({
           </Link>
           {done && item.completedAt && item.completedAt !== "now" && (
             <p className="text-white/45 text-[12px] mt-1">
-              أُكمِل في {formatArabicDate(item.completedAt)}
+              {t({ ar: "أُكمِل في", en: "Completed on" })}{" "}
+              {formatDate(item.completedAt, lang)}
             </p>
           )}
         </div>
         <div className="text-left shrink-0">
           <div className="text-[26px] font-bold text-white tabular-nums leading-none">
-            {item.percent}
+            {num(item.percent, lang)}
             <span className="text-[14px] text-white/45">%</span>
           </div>
         </div>
@@ -287,7 +326,7 @@ function ProgressCard({
         value={item.percent}
         disabled={saving}
         onChange={(e) => onSave(Number(e.target.value))}
-        aria-label="نسبة الإنجاز"
+        aria-label={t({ ar: "نسبة الإنجاز", en: "Completion percentage" })}
         className="w-full accent-primary cursor-pointer disabled:opacity-50 mb-4"
         data-testid={`learn-slider-${item.courseId}`}
       />
@@ -299,7 +338,7 @@ function ProgressCard({
           className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-white/[0.05] border border-white/10 text-white/75 text-[12.5px] font-semibold hover:bg-white/[0.08] disabled:opacity-40 transition-colors"
           data-testid={`learn-dec-${item.courseId}`}
         >
-          <Minus className="w-3.5 h-3.5" /> 10٪
+          <Minus className="w-3.5 h-3.5" /> {t({ ar: "10٪", en: "10%" })}
         </button>
         <button
           onClick={() => onSave(item.percent + 10)}
@@ -307,7 +346,7 @@ function ProgressCard({
           className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-white/[0.05] border border-white/10 text-white/75 text-[12.5px] font-semibold hover:bg-white/[0.08] disabled:opacity-40 transition-colors"
           data-testid={`learn-inc-${item.courseId}`}
         >
-          <Plus className="w-3.5 h-3.5" /> 10٪
+          <Plus className="w-3.5 h-3.5" /> {t({ ar: "10٪", en: "10%" })}
         </button>
 
         {!done ? (
@@ -317,7 +356,7 @@ function ProgressCard({
             className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-[12.5px] font-bold hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
             data-testid={`learn-complete-${item.courseId}`}
           >
-            <CheckCircle2 className="w-4 h-4" /> تمّ الإكمال
+            <CheckCircle2 className="w-4 h-4" /> {t({ ar: "تمّ الإكمال", en: "Mark complete" })}
           </button>
         ) : (
           <Link
@@ -325,7 +364,7 @@ function ProgressCard({
             className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all mr-auto"
             data-testid={`learn-certificate-${item.courseId}`}
           >
-            <Award className="w-4 h-4" /> شهادة الإكمال
+            <Award className="w-4 h-4" /> {t({ ar: "شهادة الإكمال", en: "Completion certificate" })}
             <ArrowLeft className="w-3.5 h-3.5" />
           </Link>
         )}

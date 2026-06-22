@@ -12,13 +12,22 @@ import {
   Star,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 const STEPS = [
-  { id: "identity", label: "هويّتك", labelEn: "Identity" },
-  { id: "expertise", label: "خبرتك", labelEn: "Expertise" },
-  { id: "about", label: "نبذة عنك", labelEn: "About you" },
+  { id: "identity", label: { ar: "هويّتك", en: "Identity" } },
+  { id: "expertise", label: { ar: "خبرتك", en: "Expertise" } },
+  { id: "about", label: { ar: "نبذة عنك", en: "About you" } },
 ];
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 interface FormState {
   fullName: string;
@@ -39,6 +48,7 @@ const EMPTY: FormState = {
 };
 
 export default function BecomeMentor() {
+  const { lang, dir, t } = useLanguage();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [referral, setReferral] = useState<string | null>(null);
@@ -68,22 +78,34 @@ export default function BecomeMentor() {
     const errs: Record<string, string> = {};
     if (s === 0) {
       if (!form.fullName.trim() || form.fullName.trim().length < 2)
-        errs.fullName = "أدخل الاسم الكامل";
+        errs.fullName = t({ ar: "أدخل الاسم الكامل", en: "Enter your full name" });
       if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-        errs.email = "أدخل بريدًا إلكترونيًّا صحيحًا";
+        errs.email = t({
+          ar: "أدخل بريدًا إلكترونيًّا صحيحًا",
+          en: "Enter a valid email address",
+        });
     }
     if (s === 1) {
       if (!form.expertise.trim() || form.expertise.trim().length < 2)
-        errs.expertise = "أدخل مجالات خبرتك";
+        errs.expertise = t({
+          ar: "أدخل مجالات خبرتك",
+          en: "Enter your areas of expertise",
+        });
     }
     if (s === 2) {
       if (!form.bio.trim() || form.bio.trim().length < 20)
-        errs.bio = "النبذة قصيرة جدًّا (20 حرفًا فأكثر)";
+        errs.bio = t({
+          ar: "النبذة قصيرة جدًّا (20 حرفًا فأكثر)",
+          en: "Your bio is too short (20 characters or more)",
+        });
       if (
         form.linkedinUrl.trim() &&
         !/^https?:\/\//i.test(form.linkedinUrl.trim())
       )
-        errs.linkedinUrl = "الرابط يجب أن يبدأ بـ https://";
+        errs.linkedinUrl = t({
+          ar: "الرابط يجب أن يبدأ بـ https://",
+          en: "The link must start with https://",
+        });
     }
     return errs;
   }
@@ -128,7 +150,9 @@ export default function BecomeMentor() {
           error?: string;
           details?: Array<{ field: string; message: string }>;
         };
-        setError(d.error || "تعذّر إرسال الطلب");
+        setError(
+          d.error || t({ ar: "تعذّر إرسال الطلب", en: "Couldn't send your request" }),
+        );
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};
           for (const i of d.details) m[i.field] = i.message;
@@ -138,7 +162,12 @@ export default function BecomeMentor() {
           else if (m.expertise || m.yearsExperience) setStep(1);
         }
       } else {
-        setError("تعذّر الاتّصال بالخادم. حاول مجدّدًا بعد قليل.");
+        setError(
+          t({
+            ar: "تعذّر الاتّصال بالخادم. حاول مجدّدًا بعد قليل.",
+            en: "Couldn't reach the server. Please try again in a moment.",
+          }),
+        );
       }
     } finally {
       setSubmitting(false);
@@ -146,8 +175,9 @@ export default function BecomeMentor() {
   }
 
   if (done) {
+    const firstName = form.fullName.split(" ")[0];
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6" dir={dir}>
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -160,22 +190,25 @@ export default function BecomeMentor() {
           </div>
           <div>
             <p className="text-[13px] font-semibold text-primary/80 mb-2 tracking-wide">
-              وصل طلبك
+              {t({ ar: "وصل طلبك", en: "Your application arrived" })}
             </p>
             <h1 className="text-[28px] font-bold text-foreground leading-tight mb-3">
-              شكرًا لك يا{" "}
-              <span className="text-primary">{form.fullName.split(" ")[0]}</span>
+              {t({ ar: "شكرًا لك يا ", en: "Thank you, " })}
+              <span className="text-primary">{firstName}</span>
             </h1>
             <p className="text-[15px] text-foreground/65 leading-[1.85]">
-              استلمنا طلبك بأمان وسيراجعه فريقنا قريبًا. ستصلك رسالة تأكيد على بريدك الإلكترونيّ، وسنتواصل معك بمجرّد البتّ في الطلب.
+              {t({
+                ar: "استلمنا طلبك بأمان وسيراجعه فريقنا قريبًا. ستصلك رسالة تأكيد على بريدك الإلكترونيّ، وسنتواصل معك بمجرّد البتّ في الطلب.",
+                en: "We've safely received your application and our team will review it soon. A confirmation email is on its way, and we'll reach out as soon as a decision is made.",
+              })}
             </p>
           </div>
           <Link
             href="/experts"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:shadow-soft-hover transition-shadow"
           >
-            تصفّح الخبراء
-            <ArrowLeft className="w-4 h-4" />
+            {t({ ar: "تصفّح الخبراء", en: "Browse experts" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
           </Link>
         </motion.div>
       </div>
@@ -183,19 +216,19 @@ export default function BecomeMentor() {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-background/90 backdrop-blur border-b border-border px-5 py-3 flex items-center justify-between">
         <Link
           href="/experts"
           className="flex items-center gap-1.5 text-[13px] text-foreground/55 hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          العودة
+          <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+          {t({ ar: "العودة", en: "Back" })}
         </Link>
         <HavenMark className="h-7 w-auto" />
-        <span className="text-[13px] text-foreground/40 select-none">
-          {step + 1} / {STEPS.length}
+        <span className="text-[13px] text-foreground/40 select-none tabular-nums">
+          {num(step + 1, lang)} / {num(STEPS.length, lang)}
         </span>
       </div>
 
@@ -224,7 +257,7 @@ export default function BecomeMentor() {
                   : "bg-muted text-foreground/35 cursor-default"
               }`}
             >
-              {s.label}
+              {t(s.label)}
             </button>
           ))}
         </div>
@@ -241,27 +274,40 @@ export default function BecomeMentor() {
             >
               <div>
                 <h1 className="text-[26px] font-bold text-foreground mb-1">
-                  كُن مرشدًا في{" "}
-                  <span className="text-primary">آيلاند هيفن</span>
+                  {t({ ar: "كُن مرشدًا في ", en: "Become a mentor at " })}
+                  <span className="text-primary">
+                    {t({ ar: "آيلاند هيفن", en: "Island Haven" })}
+                  </span>
                 </h1>
                 <p className="text-[14px] text-foreground/55 leading-[1.8]">
-                  شارك خبرتك مع رواد الأعمال الشباب في غزّة. طلبك سيُراجَع ونتواصل معك قريبًا.
+                  {t({
+                    ar: "شارك خبرتك مع رواد الأعمال الشباب في غزّة. طلبك سيُراجَع ونتواصل معك قريبًا.",
+                    en: "Share your expertise with young founders in Gaza. We'll review your application and reach out soon.",
+                  })}
                 </p>
               </div>
 
-              <FormField label="الاسم الكامل" icon={<UserIcon className="w-4 h-4" />} error={fieldErrors.fullName}>
+              <FormField
+                label={t({ ar: "الاسم الكامل", en: "Full name" })}
+                icon={<UserIcon className="w-4 h-4" />}
+                error={fieldErrors.fullName}
+              >
                 <input
                   type="text"
                   value={form.fullName}
                   onChange={(e) => set("fullName", e.target.value)}
-                  placeholder="مثال: أحمد الفرّا"
+                  placeholder={t({ ar: "مثال: أحمد الفرّا", en: "e.g. Ahmad Al-Farra" })}
                   maxLength={120}
                   className="w-full bg-transparent outline-none text-[14px] placeholder:text-foreground/30"
                   autoFocus
                 />
               </FormField>
 
-              <FormField label="البريد الإلكترونيّ" icon={<Mail className="w-4 h-4" />} error={fieldErrors.email}>
+              <FormField
+                label={t({ ar: "البريد الإلكترونيّ", en: "Email address" })}
+                icon={<Mail className="w-4 h-4" />}
+                error={fieldErrors.email}
+              >
                 <input
                   type="email"
                   dir="ltr"
@@ -278,7 +324,7 @@ export default function BecomeMentor() {
                 onClick={nextStep}
                 className="w-full h-12 rounded-full bg-primary text-white font-semibold text-[14px] hover:shadow-soft-hover transition-shadow"
               >
-                التالي ←
+                {t({ ar: "التالي ←", en: "Next →" })}
               </button>
             </motion.div>
           )}
@@ -294,16 +340,24 @@ export default function BecomeMentor() {
             >
               <div>
                 <h1 className="text-[26px] font-bold text-foreground mb-1">
-                  ما هي{" "}
-                  <span className="text-primary">تخصّصاتك؟</span>
+                  {t({ ar: "ما هي ", en: "What are your " })}
+                  <span className="text-primary">
+                    {t({ ar: "تخصّصاتك؟", en: "specialties?" })}
+                  </span>
                 </h1>
                 <p className="text-[14px] text-foreground/55 leading-[1.8]">
-                  أخبرنا بمجالات خبرتك حتى نضعك في المكان الصحيح.
+                  {t({
+                    ar: "أخبرنا بمجالات خبرتك حتى نضعك في المكان الصحيح.",
+                    en: "Tell us your areas of expertise so we can place you in the right team.",
+                  })}
                 </p>
               </div>
 
               <FormField
-                label="مجالات الخبرة (مفصولة بفاصلة)"
+                label={t({
+                  ar: "مجالات الخبرة (مفصولة بفاصلة)",
+                  en: "Areas of expertise (comma-separated)",
+                })}
                 icon={<Briefcase className="w-4 h-4" />}
                 error={fieldErrors.expertise}
               >
@@ -311,7 +365,10 @@ export default function BecomeMentor() {
                   type="text"
                   value={form.expertise}
                   onChange={(e) => set("expertise", e.target.value)}
-                  placeholder="مثال: ريادة أعمال، تسويق رقميّ، تصميم"
+                  placeholder={t({
+                    ar: "مثال: ريادة أعمال، تسويق رقميّ، تصميم",
+                    en: "e.g. Entrepreneurship, digital marketing, design",
+                  })}
                   maxLength={400}
                   className="w-full bg-transparent outline-none text-[14px] placeholder:text-foreground/30"
                   autoFocus
@@ -319,7 +376,7 @@ export default function BecomeMentor() {
               </FormField>
 
               <FormField
-                label="سنوات الخبرة"
+                label={t({ ar: "سنوات الخبرة", en: "Years of experience" })}
                 icon={<Star className="w-4 h-4" />}
                 error={fieldErrors.yearsExperience}
               >
@@ -341,14 +398,14 @@ export default function BecomeMentor() {
                   onClick={() => setStep(0)}
                   className="h-12 px-6 rounded-full bg-muted text-foreground/65 font-semibold text-[14px] hover:bg-muted/70 transition-colors"
                 >
-                  → السابق
+                  {t({ ar: "→ السابق", en: "← Back" })}
                 </button>
                 <button
                   type="button"
                   onClick={nextStep}
                   className="flex-1 h-12 rounded-full bg-primary text-white font-semibold text-[14px] hover:shadow-soft-hover transition-shadow"
                 >
-                  التالي ←
+                  {t({ ar: "التالي ←", en: "Next →" })}
                 </button>
               </div>
             </motion.div>
@@ -365,16 +422,21 @@ export default function BecomeMentor() {
               <form onSubmit={onSubmit} noValidate className="space-y-6">
                 <div>
                   <h1 className="text-[26px] font-bold text-foreground mb-1">
-                    أخبرنا{" "}
-                    <span className="text-primary">عن نفسك</span>
+                    {t({ ar: "أخبرنا ", en: "Tell us " })}
+                    <span className="text-primary">
+                      {t({ ar: "عن نفسك", en: "about yourself" })}
+                    </span>
                   </h1>
                   <p className="text-[14px] text-foreground/55 leading-[1.8]">
-                    نبذة عن تجربتك وما يمكنك تقديمه للمنتسبين.
+                    {t({
+                      ar: "نبذة عن تجربتك وما يمكنك تقديمه للمنتسبين.",
+                      en: "A short note on your experience and what you can offer members.",
+                    })}
                   </p>
                 </div>
 
                 <FormField
-                  label="نبذة تعريفيّة"
+                  label={t({ ar: "نبذة تعريفيّة", en: "About you" })}
                   icon={<BookOpen className="w-4 h-4" />}
                   error={fieldErrors.bio}
                 >
@@ -382,7 +444,10 @@ export default function BecomeMentor() {
                     rows={5}
                     value={form.bio}
                     onChange={(e) => set("bio", e.target.value)}
-                    placeholder="ماذا تعمل؟ ما الذي يمكنك مساعدة الرياديّين به؟ ما الذي جعلك خبيرًا في مجالك؟"
+                    placeholder={t({
+                      ar: "ماذا تعمل؟ ما الذي يمكنك مساعدة الرياديّين به؟ ما الذي جعلك خبيرًا في مجالك؟",
+                      en: "What do you do? How can you help founders? What makes you an expert in your field?",
+                    })}
                     maxLength={4000}
                     className="w-full bg-transparent outline-none text-[14px] resize-none leading-[1.85] placeholder:text-foreground/30"
                     autoFocus
@@ -390,7 +455,7 @@ export default function BecomeMentor() {
                 </FormField>
 
                 <FormField
-                  label="رابط LinkedIn (اختياريّ)"
+                  label={t({ ar: "رابط LinkedIn (اختياريّ)", en: "LinkedIn URL (optional)" })}
                   icon={<Linkedin className="w-4 h-4" />}
                   error={fieldErrors.linkedinUrl}
                 >
@@ -417,19 +482,24 @@ export default function BecomeMentor() {
                     onClick={() => setStep(1)}
                     className="h-12 px-6 rounded-full bg-muted text-foreground/65 font-semibold text-[14px] hover:bg-muted/70 transition-colors"
                   >
-                    → السابق
+                    {t({ ar: "→ السابق", en: "← Back" })}
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
                     className="flex-1 h-12 rounded-full bg-primary text-white font-semibold text-[14px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
                   >
-                    {submitting ? "جارِ الإرسال…" : "أرسل الطلب"}
+                    {submitting
+                      ? t({ ar: "جارِ الإرسال…", en: "Sending…" })
+                      : t({ ar: "أرسل الطلب", en: "Submit application" })}
                   </button>
                 </div>
 
                 <p className="text-[11.5px] text-foreground/40 text-center leading-[1.8]">
-                  بإرسالك الطلب توافق على أن نتواصل معك بشأنه فقط.
+                  {t({
+                    ar: "بإرسالك الطلب توافق على أن نتواصل معك بشأنه فقط.",
+                    en: "By submitting, you agree that we may contact you only about this application.",
+                  })}
                 </p>
               </form>
             </motion.div>

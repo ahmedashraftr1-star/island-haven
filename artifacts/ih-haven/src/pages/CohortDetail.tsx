@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import {
@@ -20,6 +21,40 @@ import {
   type CohortStatus,
   type CohortVentureStatus,
 } from "@/lib/labels";
+
+const COHORT_STATUS_LABELS_EN: Record<CohortStatus, string> = {
+  announced: "Announced",
+  open: "Applications open",
+  in_progress: "In progress",
+  demo_day: "Demo Day",
+  completed: "Completed",
+};
+
+const COHORT_VENTURE_STATUS_LABELS_EN: Record<CohortVentureStatus, string> = {
+  active: "Active",
+  graduated: "Graduated",
+  paused: "Paused",
+  dropped: "Dropped",
+};
+
+// Localised date: Arabic-Indic month/day in AR, Western in EN.
+function fmtDate(iso: string | null | undefined, lang: Lang): string {
+  if (!iso) return "";
+  return lang === "ar"
+    ? formatArabicDate(iso)
+    : new Date(iso).toLocaleDateString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+}
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 interface Cohort {
   id: number;
@@ -64,6 +99,7 @@ interface VentureRow {
 }
 
 export default function CohortDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/cohorts/:slug");
   const slug = params?.slug;
   const [data, setData] = useState<{
@@ -83,12 +119,18 @@ export default function CohortDetail() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, lang]);
 
   usePageMeta({
     title: data?.cohort?.name,
@@ -100,7 +142,10 @@ export default function CohortDetail() {
   if (error && !data) {
     return (
       <PageShell>
-        <BackLink href="/cohorts" label="عودة للدّفعات" />
+        <BackLink
+          href="/cohorts"
+          label={t({ ar: "عودة للدّفعات", en: "Back to cohorts" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -118,7 +163,10 @@ export default function CohortDetail() {
 
   return (
     <PageShell>
-      <BackLink href="/cohorts" label="كلّ الدّفعات" />
+      <BackLink
+        href="/cohorts"
+        label={t({ ar: "كلّ الدّفعات", en: "All cohorts" })}
+      />
 
       <GlassCard className="overflow-hidden">
         <div className="relative h-48 sm:h-64">
@@ -145,7 +193,10 @@ export default function CohortDetail() {
                       : "bg-primary/20 text-white border-primary/40"
                 }`}
               >
-                {COHORT_STATUS_LABELS[c.status]}
+                {t({
+                  ar: COHORT_STATUS_LABELS[c.status],
+                  en: COHORT_STATUS_LABELS_EN[c.status],
+                })}
               </span>
               <Link
                 href={`/programs/${data.program.id}`}
@@ -177,15 +228,31 @@ export default function CohortDetail() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {c.startsAt && (
-              <Fact icon={CalendarDays} label="البداية" value={formatArabicDate(c.startsAt)} />
+              <Fact
+                icon={CalendarDays}
+                label={t({ ar: "البداية", en: "Starts" })}
+                value={fmtDate(c.startsAt, lang)}
+              />
             )}
             {c.endsAt && (
-              <Fact icon={CalendarDays} label="النهاية" value={formatArabicDate(c.endsAt)} />
+              <Fact
+                icon={CalendarDays}
+                label={t({ ar: "النهاية", en: "Ends" })}
+                value={fmtDate(c.endsAt, lang)}
+              />
             )}
             {c.demoDayAt && (
-              <Fact icon={Sparkles} label="يوم العرض" value={formatArabicDate(c.demoDayAt)} />
+              <Fact
+                icon={Sparkles}
+                label={t({ ar: "يوم العرض", en: "Demo Day" })}
+                value={fmtDate(c.demoDayAt, lang)}
+              />
             )}
-            <Fact icon={Users} label="عدد المشاريع" value={String(data.ventures.length)} />
+            <Fact
+              icon={Users}
+              label={t({ ar: "عدد المشاريع", en: "Ventures" })}
+              value={num(data.ventures.length, lang)}
+            />
           </div>
 
           {c.demoDayAt && (
@@ -194,7 +261,7 @@ export default function CohortDetail() {
               className="inline-flex items-center gap-2 mt-6 me-3 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
             >
               <Sparkles className="w-4 h-4" />
-              صفحة يوم العرض
+              {t({ ar: "صفحة يوم العرض", en: "Demo Day page" })}
             </Link>
           )}
 
@@ -206,7 +273,7 @@ export default function CohortDetail() {
               className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
             >
               <ExternalLink className="w-4 h-4 text-primary" />
-              البثّ المباشر
+              {t({ ar: "البثّ المباشر", en: "Live stream" })}
             </a>
           )}
 
@@ -221,11 +288,14 @@ export default function CohortDetail() {
 
       <div className="mt-10">
         <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-          مشاريع الدّفعة
+          {t({ ar: "مشاريع الدّفعة", en: "Cohort ventures" })}
         </div>
         {data.ventures.length === 0 ? (
           <GlassCard className="p-8 text-center text-white/55">
-            لم يلتحق أيّ مشروع بالدّفعة بعد.
+            {t({
+              ar: "لم يلتحق أيّ مشروع بالدّفعة بعد.",
+              en: "No venture has joined this cohort yet.",
+            })}
           </GlassCard>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -265,6 +335,7 @@ interface Update {
 }
 
 function CohortJourney({ slug }: { slug: string }) {
+  const { lang, t } = useLanguage();
   const [weeks, setWeeks] = useState<Week[] | null>(null);
   const [updates, setUpdates] = useState<Update[]>([]);
 
@@ -282,7 +353,7 @@ function CohortJourney({ slug }: { slug: string }) {
   return (
     <div className="mt-10">
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-5">
-        رحلة الدفعة
+        {t({ ar: "رحلة الدفعة", en: "Cohort journey" })}
       </div>
 
       {weeks.length > 0 && (
@@ -302,7 +373,7 @@ function CohortJourney({ slug }: { slug: string }) {
                 <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
-                      الأسبوع {w.weekNumber}
+                      {t({ ar: "الأسبوع", en: "Week" })} {num(w.weekNumber, lang)}
                     </span>
                     <h3 className="text-white font-bold text-[14.5px]">{w.title}</h3>
                   </div>
@@ -320,7 +391,9 @@ function CohortJourney({ slug }: { slug: string }) {
 
       {updates.length > 0 && (
         <div>
-          <h3 className="text-white font-bold text-[15px] mb-3">آخر التحديثات</h3>
+          <h3 className="text-white font-bold text-[15px] mb-3">
+            {t({ ar: "آخر التحديثات", en: "Latest updates" })}
+          </h3>
           <div className="space-y-2.5">
             {updates.map((u) => (
               <div
@@ -330,14 +403,14 @@ function CohortJourney({ slug }: { slug: string }) {
                 <div className="flex items-center gap-2 mb-1">
                   {u.weekNumber !== null && (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60">
-                      أسبوع {u.weekNumber}
+                      {t({ ar: "أسبوع", en: "Week" })} {num(u.weekNumber, lang)}
                     </span>
                   )}
                   <span className="text-white font-semibold text-[13.5px]">
                     {u.title}
                   </span>
                   <span className="text-white/35 text-[11px] ms-auto">
-                    {formatArabicDate(u.postedAt)}
+                    {fmtDate(u.postedAt, lang)}
                   </span>
                 </div>
                 {u.body && (
@@ -373,6 +446,7 @@ function Fact({
 }
 
 function VentureMini({ row }: { row: VentureRow }) {
+  const { t } = useLanguage();
   const v = row.venture;
   return (
     <Link
@@ -391,7 +465,10 @@ function VentureMini({ row }: { row: VentureRow }) {
           <div className="min-w-0">
             <div className="text-white font-bold text-[15px] truncate">{v.name}</div>
             <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 border border-white/10">
-              {COHORT_VENTURE_STATUS_LABELS[row.membership.status]}
+              {t({
+                ar: COHORT_VENTURE_STATUS_LABELS[row.membership.status],
+                en: COHORT_VENTURE_STATUS_LABELS_EN[row.membership.status],
+              })}
             </span>
           </div>
         </div>

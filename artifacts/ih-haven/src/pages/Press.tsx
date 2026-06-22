@@ -12,6 +12,7 @@ import {
   Copy,
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // A self-contained press / media kit page. Everything here is drawn from
 // confirmed, public facts so it's safe to put in front of journalists and an
@@ -19,20 +20,51 @@ import { PageShell, GlassCard } from "@/components/shell/PageShell";
 
 const PRESS_EMAIL = "island-haven@nastonas.org";
 
-const BOILERPLATE =
-  "آيلاند هيفن حاضنة أعمال غزّاويّة مجّانيّة تابعة لمبادرة «من النّاس إلى النّاس» (NasToNas). نَحتضن المشاريع الناشئة والمستقلّين والخرّيجين عبر الإرشاد، وبرامج الاحتضان (Cohorts)، ومكتبة موارد، وشبكة من الخبراء والشركاء. يحصل كلّ منتسب على مساحة عمل، وجلسات إرشاد فرديّة (Office Hours)، ووصول إلى playbook من القوالب والأدلّة وحوافز الشركاء، ومشاركة في دفعات احتضان مكثّفة تنتهي بـ Demo Day. رؤيتنا: تمكين الشباب واختصار المسافة بينهم وبين سوق العمل العالميّ عبر الاقتصاد الرقميّ — عقولٌ تقهر الركام.";
+const BOILERPLATE = {
+  ar: "آيلاند هيفن حاضنة أعمال غزّاويّة مجّانيّة تابعة لمبادرة «من النّاس إلى النّاس» (NasToNas). نَحتضن المشاريع الناشئة والمستقلّين والخرّيجين عبر الإرشاد، وبرامج الاحتضان (Cohorts)، ومكتبة موارد، وشبكة من الخبراء والشركاء. يحصل كلّ منتسب على مساحة عمل، وجلسات إرشاد فرديّة (Office Hours)، ووصول إلى playbook من القوالب والأدلّة وحوافز الشركاء، ومشاركة في دفعات احتضان مكثّفة تنتهي بـ Demo Day. رؤيتنا: تمكين الشباب واختصار المسافة بينهم وبين سوق العمل العالميّ عبر الاقتصاد الرقميّ — عقولٌ تقهر الركام.",
+  en: "Island Haven is a free Gaza-based business incubator under the “People to People” (NasToNas) initiative. We support startups, freelancers, and graduates through mentorship, incubation cohorts, a resource library, and a network of experts and partners. Every member gets a workspace, one-on-one office hours, access to a playbook of templates, guides, and partner perks, and a place in intensive cohorts that culminate in a Demo Day. Our vision: empower young people and close the distance between them and the global job market through the digital economy — minds that rise above the rubble.",
+};
 
-const FACTS = [
-  { icon: Lightbulb, value: "١٥", label: "فكرة ريادية بُنيت في هاكثون البنّائين" },
-  { icon: Users, value: "١٠٠٪", label: "مجّانيّ للمنتسبين" },
-  { icon: Building2, value: "غزّة", label: "في قلب فلسطين · تأسّس ٢٠٢٤" },
-  { icon: Sparkles, value: "٣", label: "شركاء: Replit · عوالم · ناس تو ناس" },
+const FACTS: Array<{
+  icon: typeof Lightbulb;
+  value: { ar: string; en: string };
+  label: { ar: string; en: string };
+}> = [
+  {
+    icon: Lightbulb,
+    value: { ar: "١٥", en: "15" },
+    label: {
+      ar: "فكرة ريادية بُنيت في هاكثون البنّائين",
+      en: "startup ideas built at the Builders' Hackathon",
+    },
+  },
+  {
+    icon: Users,
+    value: { ar: "١٠٠٪", en: "100%" },
+    label: { ar: "مجّانيّ للمنتسبين", en: "free for members" },
+  },
+  {
+    icon: Building2,
+    value: { ar: "غزّة", en: "Gaza" },
+    label: {
+      ar: "في قلب فلسطين · تأسّس ٢٠٢٤",
+      en: "in the heart of Palestine · founded 2024",
+    },
+  },
+  {
+    icon: Sparkles,
+    value: { ar: "٣", en: "3" },
+    label: {
+      ar: "شركاء: Replit · عوالم · ناس تو ناس",
+      en: "partners: Replit · Awalem · NasToNas",
+    },
+  },
 ];
 
 const NAME_SPELLINGS = [
-  "آيلاند هيفن (العربيّة)",
-  "Island Haven (English)",
-  "@ih_haven (Instagram)",
+  { ar: "آيلاند هيفن (العربيّة)", en: "آيلاند هيفن (Arabic)" },
+  { ar: "Island Haven (English)", en: "Island Haven (English)" },
+  { ar: "@ih_haven (Instagram)", en: "@ih_haven (Instagram)" },
 ];
 
 const BRAND_COLORS = [
@@ -42,11 +74,12 @@ const BRAND_COLORS = [
 ];
 
 function Copyable({ text }: { text: string }) {
+  const { t } = useLanguage();
   return (
     <button
       type="button"
       onClick={() => navigator.clipboard?.writeText(text)}
-      title="نسخ"
+      title={t({ ar: "نسخ", en: "Copy" })}
       className="inline-flex items-center gap-1.5 text-white/45 hover:text-primary transition-colors"
     >
       <Copy className="w-3.5 h-3.5" />
@@ -55,28 +88,36 @@ function Copyable({ text }: { text: string }) {
 }
 
 export default function Press() {
+  const { t } = useLanguage();
   usePageMeta({
-    title: "المركز الإعلاميّ",
-    description:
-      "حقائق واقتباسات وهويّة بصريّة وجهة تواصل — كلّ ما تحتاجه لتغطية قصّة آيلاند هيفن.",
+    title: t({ ar: "المركز الإعلاميّ", en: "Press & Media Center" }),
+    description: t({
+      ar: "حقائق واقتباسات وهويّة بصريّة وجهة تواصل — كلّ ما تحتاجه لتغطية قصّة آيلاند هيفن.",
+      en: "Facts, quotes, brand assets, and a contact — everything you need to cover the Island Haven story.",
+    }),
   });
 
   return (
     <PageShell
       active="about"
       eyebrow="Press & Media"
-      title="المركز"
-      highlight="الإعلاميّ"
-      subtitle="كلّ ما تحتاجه لتغطية قصّة آيلاند هيفن — حقائق، اقتباسات، هويّة بصريّة، وجهة تواصل."
+      title={t({ ar: "المركز", en: "Press &" })}
+      highlight={t({ ar: "الإعلاميّ", en: "Media" })}
+      subtitle={t({
+        ar: "كلّ ما تحتاجه لتغطية قصّة آيلاند هيفن — حقائق، اقتباسات، هويّة بصريّة، وجهة تواصل.",
+        en: "Everything you need to cover the Island Haven story — facts, quotes, brand assets, and a contact.",
+      })}
     >
       {/* Boilerplate */}
       <GlassCard className="p-6 sm:p-8 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Newspaper className="w-4 h-4 text-primary" />
-          <h2 className="text-white font-bold text-[16px]">نبذة للنشر</h2>
-          <Copyable text={BOILERPLATE} />
+          <h2 className="text-white font-bold text-[16px]">
+            {t({ ar: "نبذة للنشر", en: "Boilerplate" })}
+          </h2>
+          <Copyable text={t(BOILERPLATE)} />
         </div>
-        <p className="text-white/75 text-[14.5px] leading-[1.95]">{BOILERPLATE}</p>
+        <p className="text-white/75 text-[14.5px] leading-[1.95]">{t(BOILERPLATE)}</p>
       </GlassCard>
 
       {/* Fast facts */}
@@ -92,9 +133,9 @@ export default function Press() {
           >
             <f.icon className="w-5 h-5 text-primary mb-3" />
             <div className="text-white font-bold text-[26px] leading-none mb-1.5 tabular-nums">
-              {f.value}
+              {t(f.value)}
             </div>
-            <div className="text-white/55 text-[12px] leading-snug">{f.label}</div>
+            <div className="text-white/55 text-[12px] leading-snug">{t(f.label)}</div>
           </motion.div>
         ))}
       </div>
@@ -104,17 +145,28 @@ export default function Press() {
         <Quote className="absolute -top-2 -right-2 w-24 h-24 text-primary/10" />
         <div className="relative">
           <p className="text-white text-[17px] sm:text-[19px] font-semibold leading-[1.8] mb-4">
-            «تنظيم فعاليّة بهذا الحجم تحت هذه الظروف يمثّل تحدّيًا كبيرًا ومباشرًا —
-            عقولٌ تقهر الركام وتبني مستقبلًا رقميًّا لغزّة.»
+            {t({
+              ar: "«تنظيم فعاليّة بهذا الحجم تحت هذه الظروف يمثّل تحدّيًا كبيرًا ومباشرًا — عقولٌ تقهر الركام وتبني مستقبلًا رقميًّا لغزّة.»",
+              en: "“Organizing an event of this scale under these conditions is a direct and immense challenge — minds that rise above the rubble and build a digital future for Gaza.”",
+            })}
           </p>
-          <div className="text-primary font-bold text-[14px]">مهنّد جندية</div>
-          <div className="text-white/45 text-[12.5px]">المدير ومؤسّس آيلاند هيفن</div>
+          <div className="text-primary font-bold text-[14px]">
+            {t({ ar: "مهنّد جندية", en: "Muhannad Jundiyya" })}
+          </div>
+          <div className="text-white/45 text-[12.5px]">
+            {t({
+              ar: "المدير ومؤسّس آيلاند هيفن",
+              en: "Director & Founder of Island Haven",
+            })}
+          </div>
         </div>
       </GlassCard>
 
       {/* In the media */}
       <GlassCard className="p-6 sm:p-8 mb-6">
-        <h2 className="text-white font-bold text-[16px] mb-4">في الإعلام</h2>
+        <h2 className="text-white font-bold text-[16px] mb-4">
+          {t({ ar: "في الإعلام", en: "In the media" })}
+        </h2>
         <a
           href="https://felesteen.news/post/181271"
           target="_blank"
@@ -123,9 +175,14 @@ export default function Press() {
         >
           <div className="min-w-0">
             <div className="text-white font-semibold text-[13.5px] truncate">
-              عقولٌ تقهر الركام.. شباب غزّة يطلقون «هاكثون البنّائين»
+              {t({
+                ar: "عقولٌ تقهر الركام.. شباب غزّة يطلقون «هاكثون البنّائين»",
+                en: "Minds that rise above the rubble.. Gaza's youth launch the “Builders' Hackathon”",
+              })}
             </div>
-            <div className="text-white/45 text-[11.5px]">فلسطين أون لاين</div>
+            <div className="text-white/45 text-[11.5px]">
+              {t({ ar: "فلسطين أون لاين", en: "Felesteen Online" })}
+            </div>
           </div>
           <ExternalLink className="w-4 h-4 text-white/40 group-hover:text-primary shrink-0" />
         </a>
@@ -134,21 +191,25 @@ export default function Press() {
       {/* Brand assets */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         <GlassCard className="p-6 sm:p-8">
-          <h2 className="text-white font-bold text-[16px] mb-4">الاسم الرسميّ</h2>
+          <h2 className="text-white font-bold text-[16px] mb-4">
+            {t({ ar: "الاسم الرسميّ", en: "Official name" })}
+          </h2>
           <ul className="space-y-2.5">
             {NAME_SPELLINGS.map((n) => (
               <li
-                key={n}
+                key={n.en}
                 className="flex items-center justify-between gap-3 text-white/80 text-[13.5px]"
               >
-                <span>{n}</span>
-                <Copyable text={n} />
+                <span>{t(n)}</span>
+                <Copyable text={t(n)} />
               </li>
             ))}
           </ul>
         </GlassCard>
         <GlassCard className="p-6 sm:p-8">
-          <h2 className="text-white font-bold text-[16px] mb-4">ألوان الهويّة</h2>
+          <h2 className="text-white font-bold text-[16px] mb-4">
+            {t({ ar: "ألوان الهويّة", en: "Brand colors" })}
+          </h2>
           <div className="flex flex-wrap gap-3">
             {BRAND_COLORS.map((c) => (
               <button
@@ -156,7 +217,7 @@ export default function Press() {
                 type="button"
                 onClick={() => navigator.clipboard?.writeText(c.hex)}
                 className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-colors"
-                title="نسخ"
+                title={t({ ar: "نسخ", en: "Copy" })}
               >
                 <span
                   className="w-6 h-6 rounded-md border border-white/15"
@@ -179,9 +240,14 @@ export default function Press() {
       {/* Press contact */}
       <GlassCard className="p-6 sm:p-8 text-center">
         <Mail className="w-7 h-7 text-primary mx-auto mb-3" />
-        <h2 className="text-white font-bold text-[17px] mb-1">للاستفسارات الإعلاميّة</h2>
+        <h2 className="text-white font-bold text-[17px] mb-1">
+          {t({ ar: "للاستفسارات الإعلاميّة", en: "Press inquiries" })}
+        </h2>
         <p className="text-white/55 text-[13px] mb-4">
-          فريقنا جاهز لتزويدك بالمعلومات والمقابلات والصور عالية الدقّة.
+          {t({
+            ar: "فريقنا جاهز لتزويدك بالمعلومات والمقابلات والصور عالية الدقّة.",
+            en: "Our team is ready to provide information, interviews, and high-resolution images.",
+          })}
         </p>
         <a
           href={`mailto:${PRESS_EMAIL}`}

@@ -12,6 +12,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 
@@ -53,7 +54,7 @@ interface Numbers {
   events: number;
 }
 
-function CountUp({ value }: { value: number }) {
+function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [n, setN] = useState(0);
@@ -63,8 +64,8 @@ function CountUp({ value }: { value: number }) {
     const start = performance.now();
     const dur = 1300;
     let raf = 0;
-    const tick = (t: number) => {
-      const k = Math.min(1, (t - start) / dur);
+    const tick = (timer: number) => {
+      const k = Math.min(1, (timer - start) / dur);
       const eased = 1 - Math.pow(1 - k, 3);
       setN(Math.round(value * eased));
       if (k < 1) raf = requestAnimationFrame(tick);
@@ -75,55 +76,70 @@ function CountUp({ value }: { value: number }) {
 
   return (
     <span ref={ref} className="tabular-nums">
-      {n.toLocaleString("ar-EG")}
+      {n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
     </span>
   );
 }
 
 export default function Numbers() {
+  const { lang, t } = useLanguage();
   const [n, setN] = useState<Numbers | null>(null);
   const [error, setError] = useState<string | null>(null);
   const c = useContentSection("pageNumbers", FALLBACK);
 
   useEffect(() => {
-    document.title = "مُجتمعنا بالأرقام — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "مُجتمعنا بالأرقام — آيلاند هيفن"
+        : "Our Community by the Numbers — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     api<{ numbers: Numbers }>("/numbers")
       .then((r) => setN(r.numbers))
-      .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
-  }, []);
+      .catch((e) =>
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : lang === "ar"
+              ? "تعذّر التحميل"
+              : "Couldn't load the numbers",
+        ),
+      );
+  }, [lang]);
 
   return (
     <PageShell
-      eyebrow={c.eyebrow}
-      title={c.title}
-      subtitle={c.subtitle}
+      eyebrow={t({ ar: c.eyebrow, en: "By the numbers" })}
+      title={t({ ar: c.title, en: "Our Community by the Numbers" })}
+      subtitle={t({
+        ar: c.subtitle,
+        en: "Nothing here is written by hand. Every number is computed live from our database — updating automatically with each new member, every published work, and each booked seat.",
+      })}
     >
       {error && (
         <GlassCard className="p-6 text-center text-red-200 mb-8">{error}</GlassCard>
       )}
 
       <div className="space-y-10">
-        <Group title={c.group1Title} en={c.group1En}>
-          <Tile icon={Users} value={n?.members} label={c.tMembers} en="Active members" big />
-          <Tile icon={Briefcase} value={n?.freelancers} label={c.tFreelancers} en="Freelancers" />
-          <Tile icon={GraduationCap} value={n?.graduates} label={c.tGraduates} en="Graduates" />
-          <Tile icon={Sparkles} value={n?.students} label={c.tStudents} en="Students" />
+        <Group title={t({ ar: c.group1Title, en: c.group1En })} en={c.group1En} lang={lang}>
+          <Tile icon={Users} value={n?.members} label={t({ ar: c.tMembers, en: "Active members" })} en="Active members" lang={lang} big />
+          <Tile icon={Briefcase} value={n?.freelancers} label={t({ ar: c.tFreelancers, en: "Freelancers" })} en="Freelancers" lang={lang} />
+          <Tile icon={GraduationCap} value={n?.graduates} label={t({ ar: c.tGraduates, en: "Graduates" })} en="Graduates" lang={lang} />
+          <Tile icon={Sparkles} value={n?.students} label={t({ ar: c.tStudents, en: "Students" })} en="Students" lang={lang} />
         </Group>
 
-        <Group title={c.group2Title} en={c.group2En}>
-          <Tile icon={Briefcase} value={n?.works} label={c.tWorks} en="Published works" big />
-          <Tile icon={BookOpen} value={n?.courses} label={c.tCourses} en="Programs" />
-          <Tile icon={GraduationCap} value={n?.enrollments} label={c.tEnrollments} en="Enrollments" />
+        <Group title={t({ ar: c.group2Title, en: c.group2En })} en={c.group2En} lang={lang}>
+          <Tile icon={Briefcase} value={n?.works} label={t({ ar: c.tWorks, en: "Published works" })} en="Published works" lang={lang} big />
+          <Tile icon={BookOpen} value={n?.courses} label={t({ ar: c.tCourses, en: "Programs" })} en="Programs" lang={lang} />
+          <Tile icon={GraduationCap} value={n?.enrollments} label={t({ ar: c.tEnrollments, en: "Enrollments" })} en="Enrollments" lang={lang} />
         </Group>
 
-        <Group title={c.group3Title} en={c.group3En}>
-          <Tile icon={CalendarCheck} value={n?.bookings} label={c.tBookings} en="Bookings" />
-          <Tile icon={Users} value={n?.seatsHosted} label={c.tSeats} en="Seats hosted" big />
-          <Tile icon={Inbox} value={n?.applications} label={c.tApplications} en="Applications" />
-          <Tile icon={TrendingUp} value={n?.events} label={c.tEvents} en="Posts & events" />
+        <Group title={t({ ar: c.group3Title, en: c.group3En })} en={c.group3En} lang={lang}>
+          <Tile icon={CalendarCheck} value={n?.bookings} label={t({ ar: c.tBookings, en: "Bookings" })} en="Bookings" lang={lang} />
+          <Tile icon={Users} value={n?.seatsHosted} label={t({ ar: c.tSeats, en: "Seats hosted" })} en="Seats hosted" lang={lang} big />
+          <Tile icon={Inbox} value={n?.applications} label={t({ ar: c.tApplications, en: "Applications" })} en="Applications" lang={lang} />
+          <Tile icon={TrendingUp} value={n?.events} label={t({ ar: c.tEvents, en: "Posts & events" })} en="Posts & events" lang={lang} />
         </Group>
       </div>
     </PageShell>
@@ -133,19 +149,23 @@ export default function Numbers() {
 function Group({
   title,
   en,
+  lang,
   children,
 }: {
   title: string;
   en: string;
+  lang: Lang;
   children: React.ReactNode;
 }) {
   return (
     <section>
       <div className="flex items-baseline gap-3 mb-5">
         <h2 className="text-white font-bold text-[20px] tracking-tight">{title}</h2>
-        <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/40 font-bold">
-          {en}
-        </span>
+        {lang === "ar" && (
+          <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/40 font-bold">
+            {en}
+          </span>
+        )}
         <span className="flex-1 h-px bg-white/10" />
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
@@ -160,12 +180,14 @@ function Tile({
   value,
   label,
   en,
+  lang,
   big = false,
 }: {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   value: number | undefined;
   label: string;
   en: string;
+  lang: Lang;
   big?: boolean;
 }) {
   return (
@@ -183,9 +205,11 @@ function Tile({
         <span className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
           <Icon className="w-4 h-4" strokeWidth={2.2} />
         </span>
-        <span className="text-[10.5px] tracking-[0.18em] uppercase font-bold">
-          {en}
-        </span>
+        {lang === "ar" && (
+          <span className="text-[10.5px] tracking-[0.18em] uppercase font-bold">
+            {en}
+          </span>
+        )}
       </div>
       <div
         className="font-bold text-white leading-none mb-2 tabular-nums"
@@ -197,7 +221,7 @@ function Tile({
         {value === undefined ? (
           <span className="text-white/25">—</span>
         ) : (
-          <CountUp value={value} />
+          <CountUp value={value} lang={lang} />
         )}
       </div>
       <div className="text-[13.5px] font-semibold text-white/75">{label}</div>

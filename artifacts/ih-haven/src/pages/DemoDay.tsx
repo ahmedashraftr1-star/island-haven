@@ -10,6 +10,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import {
@@ -17,6 +18,40 @@ import {
   formatArabicDateTime,
   type VentureStage,
 } from "@/lib/labels";
+
+const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
+  idea: "Idea",
+  mvp: "MVP",
+  launched: "Launched",
+  scaling: "Scaling",
+};
+
+// Localised date-time: Arabic-Indic in AR, Western in EN.
+function fmtDateTime(iso: string | null | undefined, lang: Lang): string {
+  if (!iso) return "";
+  return lang === "ar"
+    ? formatArabicDateTime(iso)
+    : new Date(iso).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+}
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+// Two-digit countdown value (٠٢ / 02).
+function pad2(n: number, lang: Lang): string {
+  return lang === "ar"
+    ? toArabicNum(n).padStart(2, "٠")
+    : String(n).padStart(2, "0");
+}
 
 interface CohortResp {
   cohort: {
@@ -47,8 +82,8 @@ function useCountdown(target: string | null) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!target) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, [target]);
   if (!target) return null;
   const diff = new Date(target).getTime() - now;
@@ -63,6 +98,7 @@ function useCountdown(target: string | null) {
 }
 
 export default function DemoDay() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/cohorts/:slug/demo-day");
   const slug = params?.slug;
   const [data, setData] = useState<CohortResp | null>(null);
@@ -76,12 +112,18 @@ export default function DemoDay() {
       .catch(
         (e) =>
           !cancelled &&
-          setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+          setError(
+            e instanceof ApiError
+              ? e.message
+              : lang === "ar"
+                ? "تعذّر التحميل"
+                : "Couldn't load",
+          ),
       );
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, lang]);
 
   const cd = useCountdown(data?.cohort.demoDayAt ?? null);
 
@@ -94,7 +136,10 @@ export default function DemoDay() {
   if (error && !data) {
     return (
       <PageShell active="cohorts">
-        <BackLink href="/cohorts" label="عودة للدفعات" />
+        <BackLink
+          href="/cohorts"
+          label={t({ ar: "عودة للدفعات", en: "Back to cohorts" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -128,7 +173,7 @@ export default function DemoDay() {
               className="font-bold text-white leading-tight mb-3"
               style={{ fontSize: "clamp(1.9rem, 5vw, 3rem)" }}
             >
-              يوم العرض — {c.name}
+              {t({ ar: "يوم العرض", en: "Demo Day" })} — {c.name}
             </h1>
             {c.summary && (
               <p className="text-white/60 text-[14.5px] leading-[1.85] max-w-2xl mx-auto">
@@ -140,17 +185,17 @@ export default function DemoDay() {
             {cd && !cd.done && (
               <div className="flex items-center justify-center gap-2.5 sm:gap-4 mt-8">
                 {[
-                  { v: cd.d, l: "يوم" },
-                  { v: cd.h, l: "ساعة" },
-                  { v: cd.m, l: "دقيقة" },
-                  { v: cd.s, l: "ثانية" },
+                  { v: cd.d, l: t({ ar: "يوم", en: "days" }) },
+                  { v: cd.h, l: t({ ar: "ساعة", en: "hrs" }) },
+                  { v: cd.m, l: t({ ar: "دقيقة", en: "min" }) },
+                  { v: cd.s, l: t({ ar: "ثانية", en: "sec" }) },
                 ].map((u, i) => (
                   <div
                     key={i}
                     className="min-w-[64px] rounded-2xl bg-white/[0.05] border border-white/10 px-3 py-3"
                   >
                     <div className="text-white font-bold text-[26px] sm:text-[32px] tabular-nums leading-none">
-                      {String(u.v).padStart(2, "0")}
+                      {pad2(u.v, lang)}
                     </div>
                     <div className="text-white/45 text-[10.5px] mt-1">{u.l}</div>
                   </div>
@@ -159,7 +204,7 @@ export default function DemoDay() {
             )}
             {cd?.done && (
               <div className="mt-7 text-primary font-bold text-[15px]">
-                انطلق العرض! 🎉
+                {t({ ar: "انطلق العرض! 🎉", en: "Demo Day is live! 🎉" })}
               </div>
             )}
 
@@ -168,7 +213,7 @@ export default function DemoDay() {
               {c.demoDayAt && (
                 <span className="inline-flex items-center gap-2">
                   <CalendarDays className="w-4 h-4 text-primary" />
-                  {formatArabicDateTime(c.demoDayAt)}
+                  {fmtDateTime(c.demoDayAt, lang)}
                 </span>
               )}
               {c.demoDayLocation && (
@@ -184,7 +229,8 @@ export default function DemoDay() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
                 >
-                  <Video className="w-4 h-4" /> بثّ مباشر
+                  <Video className="w-4 h-4" />{" "}
+                  {t({ ar: "بثّ مباشر", en: "Live stream" })}
                 </a>
               )}
             </div>
@@ -195,10 +241,20 @@ export default function DemoDay() {
       {/* Participating ventures */}
       <div className="mb-8">
         <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-          المشاريع العارِضة ({showcased.length})
+          {t({ ar: "المشاريع العارِضة", en: "Showcasing ventures" })} (
+          {num(showcased.length, lang)})
         </div>
         {showcased.length === 0 ? (
-          <EmptyState title="ستُعلن المشاريع قريبًا" hint="تابعنا لمعرفة فرق هذه الدفعة." />
+          <EmptyState
+            title={t({
+              ar: "ستُعلن المشاريع قريبًا",
+              en: "Ventures announced soon",
+            })}
+            hint={t({
+              ar: "تابعنا لمعرفة فرق هذه الدفعة.",
+              en: "Stay tuned to meet this cohort's teams.",
+            })}
+          />
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {showcased.map((row, i) => {
@@ -231,7 +287,10 @@ export default function DemoDay() {
                           {v.name}
                         </div>
                         <div className="text-primary/80 text-[11px]">
-                          {VENTURE_STAGE_LABELS[v.stage]}
+                          {t({
+                            ar: VENTURE_STAGE_LABELS[v.stage],
+                            en: VENTURE_STAGE_LABELS_EN[v.stage],
+                          })}
                           {v.sector ? ` · ${v.sector}` : ""}
                         </div>
                       </div>
@@ -242,7 +301,7 @@ export default function DemoDay() {
                       </p>
                     )}
                     <div className="mt-3 inline-flex items-center gap-1 text-white/45 group-hover:text-primary transition-colors text-[12px] font-semibold">
-                      التفاصيل
+                      {t({ ar: "التفاصيل", en: "Details" })}
                       <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                     </div>
                   </Link>
@@ -260,6 +319,7 @@ export default function DemoDay() {
 }
 
 function RsvpForm({ slug }: { slug: string }) {
+  const { t } = useLanguage();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [attendees, setAttendees] = useState(1);
@@ -280,7 +340,11 @@ function RsvpForm({ slug }: { slug: string }) {
       });
       setDone(true);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الإرسال");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الإرسال", en: "Couldn't submit" }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -295,25 +359,31 @@ function RsvpForm({ slug }: { slug: string }) {
         <div className="text-center py-6">
           <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
           <div className="text-white font-bold text-[17px] mb-1">
-            سُجِّل حضورك! 🎉
+            {t({ ar: "سُجِّل حضورك! 🎉", en: "You're on the list! 🎉" })}
           </div>
           <div className="text-white/55 text-[13.5px]">
-            نراك في يوم العرض. ستصلك التفاصيل قريبًا.
+            {t({
+              ar: "نراك في يوم العرض. ستصلك التفاصيل قريبًا.",
+              en: "See you at Demo Day. We'll send the details soon.",
+            })}
           </div>
         </div>
       ) : (
         <>
           <h2 className="text-white font-bold text-[18px] mb-1">
-            احجز مقعدك في يوم العرض
+            {t({ ar: "احجز مقعدك في يوم العرض", en: "Reserve your Demo Day seat" })}
           </h2>
           <p className="text-white/55 text-[13px] mb-5">
-            انضمّ إلينا لتشهد إطلاق مشاريع الدفعة أمام المجتمع والمستثمرين.
+            {t({
+              ar: "انضمّ إلينا لتشهد إطلاق مشاريع الدفعة أمام المجتمع والمستثمرين.",
+              en: "Join us to watch the cohort's ventures launch before the community and investors.",
+            })}
           </p>
           <form onSubmit={submit} className="grid sm:grid-cols-2 gap-3">
             <input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="الاسم الكامل"
+              placeholder={t({ ar: "الاسم الكامل", en: "Full name" })}
               required
               maxLength={120}
               className={inp}
@@ -321,7 +391,7 @@ function RsvpForm({ slug }: { slug: string }) {
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="البريد الإلكترونيّ"
+              placeholder={t({ ar: "البريد الإلكترونيّ", en: "Email address" })}
               type="email"
               dir="ltr"
               required
@@ -330,7 +400,7 @@ function RsvpForm({ slug }: { slug: string }) {
             />
             <label className="block">
               <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-                عدد الحضور
+                {t({ ar: "عدد الحضور", en: "Number of attendees" })}
               </span>
               <input
                 type="number"
@@ -343,7 +413,7 @@ function RsvpForm({ slug }: { slug: string }) {
             </label>
             <label className="block">
               <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-                ملاحظة (اختياري)
+                {t({ ar: "ملاحظة (اختياري)", en: "Note (optional)" })}
               </span>
               <input
                 value={note}
@@ -362,7 +432,9 @@ function RsvpForm({ slug }: { slug: string }) {
               disabled={submitting}
               className="sm:col-span-2 h-12 rounded-full bg-primary text-white font-bold text-[14px] disabled:opacity-50 hover:-translate-y-px transition-transform"
             >
-              {submitting ? "جارِ الإرسال…" : "أكّد حضوري"}
+              {submitting
+                ? t({ ar: "جارِ الإرسال…", en: "Submitting…" })
+                : t({ ar: "أكّد حضوري", en: "Confirm my RSVP" })}
             </button>
           </form>
         </>

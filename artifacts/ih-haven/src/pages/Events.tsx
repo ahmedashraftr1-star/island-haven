@@ -14,10 +14,12 @@ import {
   BackLink,
   EmptyState,
 } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   DAILY_TYPE_LABELS,
-  formatArabicDate,
+  DAILY_TYPE_LABELS_EN,
+  formatDate,
   type DailyType,
 } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
@@ -37,6 +39,23 @@ const FALLBACK = {
   detailsLabel: "التفاصيل",
 };
 
+// English equivalents of the CMS fallback. When the language is English we use
+// these defaults; admin-provided AR overrides only apply in the AR view.
+const FALLBACK_EN: typeof FALLBACK = {
+  eyebrow: "Events · What's happening",
+  title: "Island Haven Events",
+  subtitle:
+    "Our schedule, news, and weekly tips — everything happening in the space, in one place.",
+  filterAll: "All",
+  filterNews: "News",
+  filterTip: "Tips",
+  filterStory: "Stories",
+  filterQuote: "Quotes",
+  emptyTitle: "No events yet",
+  emptyHint: "Our upcoming events will appear here — follow us soon.",
+  detailsLabel: "Details",
+};
+
 interface Post {
   id: number;
   type: DailyType;
@@ -47,12 +66,18 @@ interface Post {
 }
 
 export default function Events() {
+  const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<"" | DailyType>("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Post[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const c = useContentSection("pageEvents", FALLBACK);
+  // CMS overrides are authored in Arabic; in English we fall back to the
+  // English defaults rather than showing the raw Arabic copy.
+  const c = useContentSection(
+    "pageEvents",
+    lang === "ar" ? FALLBACK : FALLBACK_EN,
+  );
 
   const FILTERS: Array<{ key: "" | DailyType; label: string }> = [
     { key: "", label: c.filterAll },
@@ -63,8 +88,11 @@ export default function Events() {
   ];
 
   useEffect(() => {
-    document.title = "فعاليّات آيلاند — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "فعاليّات آيلاند — آيلاند هيفن"
+        : "Island Haven Events — Island Haven";
+  }, [lang]);
 
   useEffect(() => { setPage(1); }, [filter]);
 
@@ -85,10 +113,14 @@ export default function Events() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        );
       });
     return () => { cancelled = true; };
-  }, [filter, page]);
+  }, [filter, page, lang]);
 
   return (
     <PageShell
@@ -136,7 +168,7 @@ export default function Events() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: i * 0.04 }}
             >
-              <EventCard post={p} detailsLabel={c.detailsLabel} />
+              <EventCard post={p} detailsLabel={c.detailsLabel} lang={lang} />
             </motion.div>
           ))}
         </div>
@@ -165,7 +197,15 @@ export default function Events() {
   );
 }
 
-function EventCard({ post, detailsLabel }: { post: Post; detailsLabel: string }) {
+function EventCard({
+  post,
+  detailsLabel,
+  lang,
+}: {
+  post: Post;
+  detailsLabel: string;
+  lang: "ar" | "en";
+}) {
   return (
     <Link
       href={`/events/${post.id}`}
@@ -191,10 +231,12 @@ function EventCard({ post, detailsLabel }: { post: Post; detailsLabel: string })
           <div className="p-5 sm:p-6">
             <div className="flex items-center gap-2.5 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-                {DAILY_TYPE_LABELS[post.type]}
+                {lang === "ar"
+                  ? DAILY_TYPE_LABELS[post.type]
+                  : DAILY_TYPE_LABELS_EN[post.type]}
               </span>
               <span className="text-white/45 text-[11.5px]">
-                {formatArabicDate(post.publishedAt)}
+                {formatDate(post.publishedAt, lang)}
               </span>
             </div>
             <h3 className="text-white font-bold text-[18px] leading-snug mb-2 line-clamp-2">
@@ -207,7 +249,7 @@ function EventCard({ post, detailsLabel }: { post: Post; detailsLabel: string })
             )}
             <div className="mt-3 flex items-center gap-2 text-[12.5px] text-white/55 group-hover:text-primary font-semibold transition-colors">
               <span>{detailsLabel}</span>
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </div>
@@ -217,6 +259,7 @@ function EventCard({ post, detailsLabel }: { post: Post; detailsLabel: string })
 }
 
 export function EventDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/events/:id");
   const id = params?.id;
   const [post, setPost] = useState<Post | null>(null);
@@ -226,8 +269,14 @@ export function EventDetail() {
     if (!id) return;
     api<{ post: Post }>(`/daily/${id}`)
       .then((r) => setPost(r.post))
-      .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
-  }, [id]);
+      .catch((e) =>
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        ),
+      );
+  }, [id, lang]);
 
   usePageMeta({
     title: post?.title,
@@ -239,7 +288,7 @@ export function EventDetail() {
   if (error && !post) {
     return (
       <PageShell active="events">
-        <BackLink href="/events" label="الفعاليّات" />
+        <BackLink href="/events" label={t({ ar: "الفعاليّات", en: "Events" })} />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -254,7 +303,10 @@ export function EventDetail() {
 
   return (
     <PageShell active="events" maxWidth="max-w-3xl">
-      <BackLink href="/events" label="كلّ الفعاليّات" />
+      <BackLink
+        href="/events"
+        label={t({ ar: "كلّ الفعاليّات", en: "All events" })}
+      />
       <GlassCard>
         {post.coverUrl && (
           <div className="aspect-[16/9] overflow-hidden bg-black/30">
@@ -268,10 +320,12 @@ export function EventDetail() {
         <div className="p-6 sm:p-10">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-              {DAILY_TYPE_LABELS[post.type]}
+              {lang === "ar"
+                ? DAILY_TYPE_LABELS[post.type]
+                : DAILY_TYPE_LABELS_EN[post.type]}
             </span>
             <span className="text-white/45 text-[11.5px]">
-              {formatArabicDate(post.publishedAt)}
+              {formatDate(post.publishedAt, lang)}
             </span>
           </div>
           <h1

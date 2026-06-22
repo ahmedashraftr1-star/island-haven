@@ -13,9 +13,19 @@ import {
   UserCheck,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
+
+// English equivalents of the Arabic ROLE_LABELS for the EN view.
+const ROLE_LABELS_EN: Record<UserRole, string> = {
+  freelancer: "Freelancer",
+  graduate: "University graduate",
+  student: "University student",
+  other: "Member",
+  expert: "Expert / Mentor",
+};
 
 interface Resp {
   user: {
@@ -66,6 +76,7 @@ const BehanceMark = ({ className = "" }: { className?: string }) => (
 );
 
 export default function PublicProfile() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/u/:id");
   const id = params?.id;
   const { user, loading: authLoading } = useAuth();
@@ -84,8 +95,14 @@ export default function PublicProfile() {
         setFollowing(Boolean(d.followedByMe));
         setFollowers(d.followersCount ?? 0);
       })
-      .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
-  }, [id]);
+      .catch((e) =>
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        ),
+      );
+  }, [id, lang]);
 
   async function toggleFollow() {
     if (!id || followBusy) return;
@@ -125,7 +142,10 @@ export default function PublicProfile() {
   if (error && !data) {
     return (
       <PageShell active="members">
-        <BackLink href="/members" label="عودة للمنتسبين" />
+        <BackLink
+          href="/members"
+          label={t({ ar: "عودة للمنتسبين", en: "Back to members" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -147,11 +167,19 @@ export default function PublicProfile() {
   if (u.linkedinUrl) externalLinks.push({ label: "LinkedIn", url: u.linkedinUrl, Icon: Linkedin });
   if (u.behanceUrl) externalLinks.push({ label: "Behance", url: u.behanceUrl, Icon: BehanceMark });
   if (u.githubUrl) externalLinks.push({ label: "GitHub", url: u.githubUrl, Icon: Github });
-  if (u.portfolioUrl) externalLinks.push({ label: "الموقع", url: u.portfolioUrl, Icon: Globe });
+  if (u.portfolioUrl)
+    externalLinks.push({
+      label: t({ ar: "الموقع", en: "Website" }),
+      url: u.portfolioUrl,
+      Icon: Globe,
+    });
 
   return (
     <PageShell active="members" maxWidth="max-w-5xl">
-      <BackLink href="/members" label="كلّ المنتسبين" />
+      <BackLink
+        href="/members"
+        label={t({ ar: "كلّ المنتسبين", en: "All members" })}
+      />
       <GlassCard className="p-6 sm:p-10 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">
           <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
@@ -163,7 +191,7 @@ export default function PublicProfile() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
-              {ROLE_LABELS[u.role]}
+              {lang === "ar" ? ROLE_LABELS[u.role] : ROLE_LABELS_EN[u.role]}
             </div>
             <h1
               className="font-bold text-white leading-tight mb-2"
@@ -180,10 +208,12 @@ export default function PublicProfile() {
             )}
             <div className="flex items-center gap-4 justify-center sm:justify-start mb-4 text-[13px]">
               <span className="text-white/70" data-testid="text-followers-count">
-                <b className="text-white font-bold">{followers}</b> متابِع
+                <b className="text-white font-bold">{followers}</b>{" "}
+                {t({ ar: "متابِع", en: "followers" })}
               </span>
               <span className="text-white/70" data-testid="text-following-count">
-                <b className="text-white font-bold">{data.followingCount ?? 0}</b> يتابِع
+                <b className="text-white font-bold">{data.followingCount ?? 0}</b>{" "}
+                {t({ ar: "يتابِع", en: "following" })}
               </span>
             </div>
             {u.bio && (
@@ -220,11 +250,11 @@ export default function PublicProfile() {
               >
                 {following ? (
                   <>
-                    <UserCheck className="w-3.5 h-3.5" /> متابَع
+                    <UserCheck className="w-3.5 h-3.5" /> {t({ ar: "متابَع", en: "Following" })}
                   </>
                 ) : (
                   <>
-                    <UserPlus className="w-3.5 h-3.5" /> متابعة
+                    <UserPlus className="w-3.5 h-3.5" /> {t({ ar: "متابعة", en: "Follow" })}
                   </>
                 )}
               </button>
@@ -236,7 +266,7 @@ export default function PublicProfile() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-[12.5px] font-semibold hover:bg-emerald-500/15 transition-colors"
               >
-                <Phone className="w-3.5 h-3.5" /> واتساب
+                <Phone className="w-3.5 h-3.5" /> {t({ ar: "واتساب", en: "WhatsApp" })}
               </a>
             )}
           </div>
@@ -276,7 +306,7 @@ export default function PublicProfile() {
       {data.badges && data.badges.length > 0 && (
         <div className="mb-6">
           <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-            الإنجازات — {data.badges.length}
+            {t({ ar: "الإنجازات", en: "Achievements" })} — {data.badges.length}
           </div>
           <div className="flex flex-wrap gap-2">
             {data.badges.map((b) => (
@@ -295,11 +325,16 @@ export default function PublicProfile() {
       )}
 
       <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-        الأعمال — {data.works.length}
+        {t({ ar: "الأعمال", en: "Work" })} — {data.works.length}
       </div>
 
       {data.works.length === 0 ? (
-        <EmptyState title="لا توجد أعمال منشورة بعد" />
+        <EmptyState
+          title={t({
+            ar: "لا توجد أعمال منشورة بعد",
+            en: "No published work yet",
+          })}
+        />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {data.works.map((w) => (

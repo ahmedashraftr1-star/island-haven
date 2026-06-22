@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ExternalLink, Plus, Heart, MessageCircle, Search } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth, ROLE_LABELS, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
@@ -27,22 +28,23 @@ interface WorkRow {
   commentsCount?: number;
 }
 
-const ROLE_FILTERS: Array<{ key: "" | UserRole; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "freelancer", label: "المستقلّون" },
-  { key: "graduate", label: "الخرّيجون" },
-  { key: "student", label: "الطلّاب" },
+const ROLE_FILTERS: Array<{ key: "" | UserRole; label: { ar: string; en: string } }> = [
+  { key: "", label: { ar: "الكلّ", en: "All" } },
+  { key: "freelancer", label: { ar: "المستقلّون", en: "Freelancers" } },
+  { key: "graduate", label: { ar: "الخرّيجون", en: "Graduates" } },
+  { key: "student", label: { ar: "الطلّاب", en: "Students" } },
 ];
 
 type SortKey = "newest" | "popular" | "discussed";
-const SORT_OPTIONS: Array<{ key: SortKey; label: string }> = [
-  { key: "newest", label: "الأحدث" },
-  { key: "popular", label: "الأكثر إعجابًا" },
-  { key: "discussed", label: "الأكثر نقاشًا" },
+const SORT_OPTIONS: Array<{ key: SortKey; label: { ar: string; en: string } }> = [
+  { key: "newest", label: { ar: "الأحدث", en: "Newest" } },
+  { key: "popular", label: { ar: "الأكثر إعجابًا", en: "Most liked" } },
+  { key: "discussed", label: { ar: "الأكثر نقاشًا", en: "Most discussed" } },
 ];
 
 export default function Works() {
   const { user } = useAuth();
+  const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<"" | UserRole>("");
   const [sort, setSort] = useState<SortKey>("newest");
   const [q, setQ] = useState("");
@@ -53,8 +55,11 @@ export default function Works() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "أعمال المستقلّين — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "أعمال المستقلّين — آيلاند هيفن"
+        : "Freelancer Works — Island Haven";
+  }, [lang]);
 
   // Reset page when filter, sort, query, or feed scope changes
   useEffect(() => { setPage(1); }, [filter, sort, q, followingFeed]);
@@ -78,7 +83,11 @@ export default function Works() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load works" }),
+        );
       });
     return () => { cancelled = true; };
   }, [filter, sort, q, followingFeed, page]);
@@ -86,17 +95,23 @@ export default function Works() {
   return (
     <PageShell
       active="works"
-      eyebrow="معرض المجتمع"
-      title="أعمال"
-      highlight="مستقلّينا"
-      subtitle="مشاريع وأعمال أنجزها أعضاء آيلاند هيفن — تَصفَّح، تواصل، أو شارك أنت أيضًا."
+      eyebrow={t({ ar: "معرض المجتمع", en: "Community Showcase" })}
+      title={t({ ar: "أعمال", en: "Works by" })}
+      highlight={t({ ar: "مستقلّينا", en: "Our Freelancers" })}
+      subtitle={t({
+        ar: "مشاريع وأعمال أنجزها أعضاء آيلاند هيفن — تَصفَّح، تواصل، أو شارك أنت أيضًا.",
+        en: "Projects and work made by Island Haven members — browse, connect, or share your own.",
+      })}
     >
       <div className="relative mb-5">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="ابحث في الأعمال بالعنوان أو الوصف أو الوسوم…"
+          placeholder={t({
+            ar: "ابحث في الأعمال بالعنوان أو الوصف أو الوسوم…",
+            en: "Search works by title, summary, or tags…",
+          })}
           className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
           data-testid="input-search-works"
         />
@@ -114,7 +129,7 @@ export default function Works() {
               }`}
               data-testid={`filter-${f.key || "all"}`}
             >
-              {f.label}
+              {t(f.label)}
             </button>
           ))}
         </div>
@@ -125,20 +140,22 @@ export default function Works() {
             data-testid="button-add-work"
           >
             <Plus className="w-4 h-4" />
-            أضف عملًا
+            {t({ ar: "أضف عملًا", en: "Add work" })}
           </Link>
         ) : (
           <Link
             href="/login?next=/works/new"
             className="text-[12.5px] text-white/55 hover:text-primary font-semibold transition-colors"
           >
-            سجّل دخولك لإضافة أعمالك
+            {t({ ar: "سجّل دخولك لإضافة أعمالك", en: "Sign in to add your work" })}
           </Link>
         )}
       </div>
 
       <div className="flex items-center gap-2 flex-wrap mb-8 -mt-4">
-        <span className="text-white/40 text-[12px] font-semibold me-1">ترتيب:</span>
+        <span className="text-white/40 text-[12px] font-semibold me-1">
+          {t({ ar: "ترتيب:", en: "Sort:" })}
+        </span>
         {SORT_OPTIONS.map((o) => (
           <button
             key={o.key}
@@ -150,7 +167,7 @@ export default function Works() {
             }`}
             data-testid={`sort-${o.key}`}
           >
-            {o.label}
+            {t(o.label)}
           </button>
         ))}
         {user && (
@@ -164,14 +181,16 @@ export default function Works() {
             }`}
             data-testid="toggle-following-feed"
           >
-            أتابِعهم
+            {t({ ar: "أتابِعهم", en: "Following" })}
           </button>
         )}
       </div>
       {followingFeed && rows !== null && rows.length === 0 && !error && (
         <GlassCard className="p-6 text-center text-white/65 text-[13.5px] mb-6">
-          لا توجد أعمال من الأعضاء الذين تتابِعهم بعد — تابِع أعضاء من صفحاتهم لترى
-          أعمالهم هنا.
+          {t({
+            ar: "لا توجد أعمال من الأعضاء الذين تتابِعهم بعد — تابِع أعضاء من صفحاتهم لترى أعمالهم هنا.",
+            en: "No works yet from members you follow — follow members from their profiles to see their work here.",
+          })}
         </GlassCard>
       )}
 
@@ -192,7 +211,13 @@ export default function Works() {
         // In following-feed mode the tailored card above already explains the
         // empty state — don't also show the generic "be the first" prompt.
         followingFeed ? null : (
-          <EmptyState title="لا توجد أعمال بعد" hint="كن أوّل من يشارك عمله." />
+          <EmptyState
+            title={t({ ar: "لا توجد أعمال بعد", en: "No works yet" })}
+            hint={t({
+              ar: "كن أوّل من يشارك عمله.",
+              en: "Be the first to share your work.",
+            })}
+          />
         )
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -256,6 +281,7 @@ export default function Works() {
 }
 
 function WorkCard({ row }: { row: WorkRow }) {
+  const { t } = useLanguage();
   const tags = splitTags(row.work.tags);
   return (
     <Link
@@ -276,7 +302,7 @@ function WorkCard({ row }: { row: WorkRow }) {
         ) : (
           <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
             <div className="text-white/30 text-[12px] tracking-[0.22em] uppercase">
-              لا توجد صورة
+              {t({ ar: "لا توجد صورة", en: "No image" })}
             </div>
           </div>
         )}
@@ -291,12 +317,12 @@ function WorkCard({ row }: { row: WorkRow }) {
           )}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
-              {tags.slice(0, 4).map((t) => (
+              {tags.slice(0, 4).map((tag) => (
                 <span
-                  key={t}
+                  key={tag}
                   className="px-2 py-0.5 rounded-full bg-white/[0.05] text-white/55 text-[11px] border border-white/10"
                 >
-                  {t}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -314,11 +340,17 @@ function WorkCard({ row }: { row: WorkRow }) {
               </div>
             </div>
             <div className="ms-auto flex items-center gap-3 text-white/45 text-[11.5px] tabular-nums shrink-0">
-              <span className="inline-flex items-center gap-1" title="إعجابات">
+              <span
+                className="inline-flex items-center gap-1"
+                title={t({ ar: "إعجابات", en: "Likes" })}
+              >
                 <Heart className="w-3.5 h-3.5" />
                 {row.likesCount ?? 0}
               </span>
-              <span className="inline-flex items-center gap-1" title="تعليقات">
+              <span
+                className="inline-flex items-center gap-1"
+                title={t({ ar: "تعليقات", en: "Comments" })}
+              >
                 <MessageCircle className="w-3.5 h-3.5" />
                 {row.commentsCount ?? 0}
               </span>

@@ -3,8 +3,9 @@ import { useRoute } from "wouter";
 import { Printer, Award } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
-import { formatArabicDate } from "@/lib/labels";
+import { formatDate } from "@/lib/labels";
 
 interface CertificateData {
   course: { title: string };
@@ -13,14 +14,18 @@ interface CertificateData {
 }
 
 export default function Certificate() {
+  const { lang, dir, t } = useLanguage();
   const [, params] = useRoute("/certificate/:courseId");
   const courseId = params?.courseId;
   const [data, setData] = useState<CertificateData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "شهادة الإكمال — Island Haven";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "شهادة الإكمال — Island Haven"
+        : "Certificate of Completion — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     if (!courseId) return;
@@ -31,18 +36,23 @@ export default function Certificate() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError ? e.message : "تعذّر تحميل الشهادة",
+            e instanceof ApiError
+              ? e.message
+              : t({ ar: "تعذّر تحميل الشهادة", en: "Couldn't load the certificate" }),
           ),
       );
     return () => {
       cancelled = true;
     };
-  }, [courseId]);
+  }, [courseId, lang]);
 
   if (error && !data) {
     return (
       <PageShell active="learning">
-        <BackLink href="/learning" label="عودة للتعلّم" />
+        <BackLink
+          href="/learning"
+          label={t({ ar: "عودة للتعلّم", en: "Back to learning" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -74,13 +84,16 @@ export default function Certificate() {
       `}</style>
 
       <div className="no-print">
-        <BackLink href="/learning" label="عودة للتعلّم" />
+        <BackLink
+          href="/learning"
+          label={t({ ar: "عودة للتعلّم", en: "Back to learning" })}
+        />
       </div>
 
       {/* The printable sheet */}
       <div
         id="certificate-sheet"
-        dir="rtl"
+        dir={dir}
         className="relative mx-auto max-w-3xl rounded-[28px] overflow-hidden bg-[#0B1020] border border-white/10 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)] print:bg-white print:text-[#0B1020]"
         style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
         data-testid="certificate-sheet"
@@ -114,11 +127,14 @@ export default function Certificate() {
           </div>
 
           <div className="text-[11px] tracking-[0.3em] uppercase text-primary font-bold mb-3">
-            شهادة إكمال
+            {t({ ar: "شهادة إكمال", en: "Certificate of Completion" })}
           </div>
 
           <p className="text-white/55 text-[14px] mb-2 print:text-[#0B1020]/60">
-            تشهد آيلاند هيفن بأنّ
+            {t({
+              ar: "تشهد آيلاند هيفن بأنّ",
+              en: "Island Haven hereby certifies that",
+            })}
           </p>
 
           <h1
@@ -130,7 +146,7 @@ export default function Certificate() {
           </h1>
 
           <p className="text-white/55 text-[14px] mb-2 print:text-[#0B1020]/60">
-            قد أكمل بنجاح
+            {t({ ar: "قد أكمل بنجاح", en: "has successfully completed" })}
           </p>
 
           <h2
@@ -144,14 +160,17 @@ export default function Certificate() {
           <div className="h-px w-40 mx-auto bg-gradient-to-r from-transparent via-white/20 to-transparent mb-7 print:via-[#0B1020]/20" />
 
           <p className="text-white/60 text-[13.5px] print:text-[#0B1020]/65">
-            بتاريخ{" "}
+            {t({ ar: "بتاريخ", en: "on" })}{" "}
             <span className="text-white font-semibold print:text-[#0B1020]">
-              {formatArabicDate(data.completedAt) || "—"}
+              {formatDate(data.completedAt, lang) || "—"}
             </span>
           </p>
 
           <p className="text-white/35 text-[11px] tracking-[0.16em] uppercase mt-8 print:text-[#0B1020]/45">
-            Island Haven · حاضنة أعمال في غزّة
+            {t({
+              ar: "Island Haven · حاضنة أعمال في غزّة",
+              en: "Island Haven · A business incubator in Gaza",
+            })}
           </p>
         </div>
       </div>
@@ -164,7 +183,7 @@ export default function Certificate() {
           data-testid="button-print"
         >
           <Printer className="w-4 h-4" />
-          اطبع الشهادة
+          {t({ ar: "اطبع الشهادة", en: "Print certificate" })}
         </button>
       </div>
     </PageShell>

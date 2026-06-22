@@ -14,19 +14,38 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import { useAuth } from "@/lib/auth";
-import { splitTags, SESSION_MODE_LABELS, type SessionMode } from "@/lib/labels";
+import {
+  splitTags,
+  SESSION_MODE_LABELS,
+  SESSION_MODE_LABELS_EN,
+  type SessionMode,
+} from "@/lib/labels";
 import type { ExpertCard } from "./Experts";
 
-const TEAM_LABELS: Record<string, string> = {
-  leadership: "فريق القيادة",
-  mentors: "فريق الإرشاد التقنيّ والمنتج",
-  advisors: "فريق الاستشارات والأعمال",
+// Bilingual team labels keyed by group, resolved via t() at the call site.
+const TEAM_LABELS: Record<string, { ar: string; en: string }> = {
+  leadership: { ar: "فريق القيادة", en: "Leadership team" },
+  mentors: { ar: "فريق الإرشاد التقنيّ والمنتج", en: "Tech & Product Mentors" },
+  advisors: { ar: "فريق الاستشارات والأعمال", en: "Business Advisors" },
 };
 
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+// Localised numeral: Arabic-Indic in AR, Western digits in EN.
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
+function sessionModeLabel(mode: SessionMode, lang: Lang): string {
+  return (lang === "ar" ? SESSION_MODE_LABELS : SESSION_MODE_LABELS_EN)[mode];
+}
+
 export default function ExpertDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/experts/:id");
   const [, navigate] = useLocation();
   const id = params?.id;
@@ -34,7 +53,7 @@ export default function ExpertDetail() {
   const reduce = useReducedMotion();
 
   const [expert, setExpert] = useState<ExpertCard | null>(null);
-  const [teamLabel, setTeamLabel] = useState<string | null>(null);
+  const [teamGroup, setTeamGroup] = useState<string | null>(null);
   const [rating, setRating] = useState<{ average: number | null; count: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +75,11 @@ export default function ExpertDetail() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        );
       });
     api<{ average: number | null; count: number }>(`/experts/${id}/rating`)
       .then((r) => {
@@ -77,8 +100,10 @@ export default function ExpertDetail() {
     api<{ team: { fullName: string; group: string }[] }>("/team")
       .then((r) => {
         if (cancelled) return;
-        const m = r.team.find((t) => t.fullName.trim() === expert.fullName.trim());
-        setTeamLabel(m ? TEAM_LABELS[m.group] ?? null : null);
+        const m = r.team.find(
+          (member) => member.fullName.trim() === expert.fullName.trim(),
+        );
+        setTeamGroup(m && TEAM_LABELS[m.group] ? m.group : null);
       })
       .catch(() => {});
     return () => {
@@ -101,7 +126,12 @@ export default function ExpertDetail() {
     }
     if (busy) return;
     if (topic.trim().length < 3) {
-      setFormError("اكتب موضوع الجلسة (3 أحرف فأكثر).");
+      setFormError(
+        t({
+          ar: "اكتب موضوع الجلسة (3 أحرف فأكثر).",
+          en: "Add a session topic (3 characters or more).",
+        }),
+      );
       return;
     }
     setBusy(true);
@@ -123,7 +153,11 @@ export default function ExpertDetail() {
       setMessage("");
       setPreferredAt("");
     } catch (e) {
-      setFormError(e instanceof ApiError ? e.message : "تعذّر إرسال الطلب");
+      setFormError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر إرسال الطلب", en: "Couldn't send your request" }),
+      );
     } finally {
       setBusy(false);
     }
@@ -132,7 +166,10 @@ export default function ExpertDetail() {
   if (error && !expert) {
     return (
       <PageShell active="experts">
-        <BackLink href="/experts" label="عودة للخبراء" />
+        <BackLink
+          href="/experts"
+          label={t({ ar: "عودة للخبراء", en: "Back to experts" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -140,7 +177,10 @@ export default function ExpertDetail() {
   if (!expert) {
     return (
       <PageShell active="experts">
-        <BackLink href="/experts" label="كلّ الخبراء" />
+        <BackLink
+          href="/experts"
+          label={t({ ar: "كلّ الخبراء", en: "All experts" })}
+        />
         <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
           <div className="h-[420px] rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
           <div className="h-[420px] rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
@@ -164,7 +204,10 @@ export default function ExpertDetail() {
 
   return (
     <PageShell active="experts">
-      <BackLink href="/experts" label="كلّ الخبراء" />
+      <BackLink
+        href="/experts"
+        label={t({ ar: "كلّ الخبراء", en: "All experts" })}
+      />
 
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 items-start">
         {/* ── Profile — cinematic editorial header ── */}
@@ -194,7 +237,8 @@ export default function ExpertDetail() {
             <div className="relative">
               {expert.featured && (
                 <div className="inline-flex items-center gap-1.5 mb-5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" /> خبير مميّز
+                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+                  {t({ ar: "خبير مميّز", en: "Featured" })}
                 </div>
               )}
 
@@ -230,15 +274,18 @@ export default function ExpertDetail() {
                       {expert.headline}
                     </p>
                   )}
-                  {teamLabel && (
+                  {teamGroup && TEAM_LABELS[teamGroup] && (
                     <span className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25">
-                      <Users className="w-3 h-3" /> {teamLabel}
+                      <Users className="w-3 h-3" /> {t(TEAM_LABELS[teamGroup])}
                     </span>
                   )}
                   {rating && rating.count > 0 && (
                     <div
                       className="flex items-center gap-1.5 mt-2.5"
-                      title={`${rating.average?.toFixed(1)} من 5 — ${rating.count} تقييم`}
+                      title={t({
+                        ar: `${rating.average?.toFixed(1)} من 5 — ${num(rating.count, lang)} تقييم`,
+                        en: `${rating.average?.toFixed(1)} out of 5 — ${rating.count} reviews`,
+                      })}
                       data-testid="expert-rating"
                     >
                       <div className="flex items-center gap-0.5">
@@ -257,7 +304,10 @@ export default function ExpertDetail() {
                         {rating.average?.toFixed(1)}
                       </span>
                       <span className="text-white/40 text-[11.5px]">
-                        ({rating.count} تقييم)
+                        {t({
+                          ar: `(${num(rating.count, lang)} تقييم)`,
+                          en: `(${rating.count} reviews)`,
+                        })}
                       </span>
                     </div>
                   )}
@@ -273,7 +323,7 @@ export default function ExpertDetail() {
               {areas.length > 0 && (
                 <div className="mb-6">
                   <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-                    مجالات الخبرة
+                    {t({ ar: "مجالات الخبرة", en: "Areas of expertise" })}
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {areas.map((a) => (
@@ -291,16 +341,22 @@ export default function ExpertDetail() {
               <div className="flex flex-wrap gap-2.5">
                 {expert.yearsExperience > 0 && (
                   <Stat icon={<Award className="w-4 h-4 text-primary" />}>
-                    {expert.yearsExperience}+ سنة خبرة
+                    {t({
+                      ar: `${num(expert.yearsExperience, lang)}+ سنة خبرة`,
+                      en: `${expert.yearsExperience}+ years experience`,
+                    })}
                   </Stat>
                 )}
                 {langs.length > 0 && (
                   <Stat icon={<LanguagesIcon className="w-4 h-4 text-primary" />}>
-                    {langs.join("، ")}
+                    {langs.join(lang === "ar" ? "، " : ", ")}
                   </Stat>
                 )}
                 <Stat icon={<Clock className="w-4 h-4 text-primary" />}>
-                  جلسة ~{expert.sessionMinutes} دقيقة
+                  {t({
+                    ar: `جلسة ~${num(expert.sessionMinutes, lang)} دقيقة`,
+                    en: `~${expert.sessionMinutes} min session`,
+                  })}
                 </Stat>
               </div>
 
@@ -323,7 +379,7 @@ export default function ExpertDetail() {
                       rel="noreferrer"
                       className="inline-flex items-center gap-2 text-[12.5px] text-white/65 hover:text-primary transition-colors"
                     >
-                      <Globe className="w-4 h-4" /> الموقع
+                      <Globe className="w-4 h-4" /> {t({ ar: "الموقع", en: "Website" })}
                     </a>
                   )}
                 </div>
@@ -342,7 +398,7 @@ export default function ExpertDetail() {
 
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-2">
-              احجز جلسة إرشاد
+              {t({ ar: "احجز جلسة إرشاد", en: "Request a mentorship session" })}
             </div>
             {expert.availabilityNote && (
               <p className="text-white/55 text-[12.5px] leading-[1.7] mb-4">
@@ -360,17 +416,19 @@ export default function ExpertDetail() {
                 >
                   <CheckCircle2 className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
                   <div className="text-white font-bold text-[15px] mb-1">
-                    تمّ إرسال طلبك
+                    {t({ ar: "تمّ إرسال طلبك", en: "Your request was sent" })}
                   </div>
                   <p className="text-white/55 text-[13px] leading-[1.7]">
-                    سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من صفحة
-                    ملفّك.
+                    {t({
+                      ar: "سيراجع الخبير طلبك ويؤكّد موعد الجلسة. تابع حالتها من صفحة ملفّك.",
+                      en: "The expert will review your request and confirm a time. Track its status from your profile page.",
+                    })}
                   </p>
                   <Link
                     href="/profile"
                     className="inline-block mt-4 text-[12.5px] text-primary font-semibold hover:underline"
                   >
-                    عرض جلساتي
+                    {t({ ar: "عرض جلساتي", en: "View my sessions" })}
                   </Link>
                 </motion.div>
               ) : !expert.acceptingSessions ? (
@@ -380,7 +438,10 @@ export default function ExpertDetail() {
                   animate={{ opacity: 1 }}
                   className="text-white/55 text-[13px] text-center py-4 leading-[1.8]"
                 >
-                  هذا الخبير لا يستقبل طلبات جلسات حاليًا. تابعه لاحقًا.
+                  {t({
+                    ar: "هذا الخبير لا يستقبل طلبات جلسات حاليًا. تابعه لاحقًا.",
+                    en: "This expert isn't accepting session requests right now. Check back later.",
+                  })}
                 </motion.div>
               ) : !user ? (
                 <motion.div
@@ -389,13 +450,16 @@ export default function ExpertDetail() {
                   animate={{ opacity: 1 }}
                 >
                   <p className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
-                    سجّل دخولك لحجز جلسة إرشاد مَجّانيّة مع {expert.fullName}.
+                    {t({
+                      ar: `سجّل دخولك لحجز جلسة إرشاد مَجّانيّة مع ${expert.fullName}.`,
+                      en: `Sign in to book a free mentorship session with ${expert.fullName}.`,
+                    })}
                   </p>
                   <Link
                     href={`/login?next=/experts/${id}`}
                     className="block text-center w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                   >
-                    تسجيل الدخول للحجز
+                    {t({ ar: "تسجيل الدخول للحجز", en: "Sign in to book" })}
                   </Link>
                 </motion.div>
               ) : (
@@ -406,17 +470,25 @@ export default function ExpertDetail() {
                   onSubmit={submit}
                   className="space-y-3.5"
                 >
-                  <Field label="موضوع الجلسة">
+                  <Field label={t({ ar: "موضوع الجلسة", en: "Session topic" })}>
                     <input
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
                       maxLength={200}
-                      placeholder="مثال: مراجعة نموذج عمل مشروعي"
+                      placeholder={t({
+                        ar: "مثال: مراجعة نموذج عمل مشروعي",
+                        en: "e.g. Review my startup's business model",
+                      })}
                       className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
                       data-testid="input-session-topic"
                     />
                   </Field>
-                  <Field label="نبذة عمّا تحتاجه (اختياري)">
+                  <Field
+                    label={t({
+                      ar: "نبذة عمّا تحتاجه (اختياري)",
+                      en: "A bit about what you need (optional)",
+                    })}
+                  >
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -426,7 +498,7 @@ export default function ExpertDetail() {
                       data-testid="input-session-message"
                     />
                   </Field>
-                  <Field label="نوع الجلسة">
+                  <Field label={t({ ar: "نوع الجلسة", en: "Session type" })}>
                     <div className="flex gap-2">
                       {(["online", "onsite"] as SessionMode[]).map((m) => (
                         <button
@@ -439,12 +511,12 @@ export default function ExpertDetail() {
                               : "bg-white/[0.04] text-white/60 border-white/10 hover:text-white"
                           }`}
                         >
-                          {SESSION_MODE_LABELS[m]}
+                          {sessionModeLabel(m, lang)}
                         </button>
                       ))}
                     </div>
                   </Field>
-                  <Field label="الوقت المفضّل (اختياري)">
+                  <Field label={t({ ar: "الوقت المفضّل (اختياري)", en: "Preferred time (optional)" })}>
                     <input
                       type="datetime-local"
                       value={preferredAt}
@@ -465,10 +537,13 @@ export default function ExpertDetail() {
                     data-testid="button-request-session"
                   >
                     <Sparkles className="w-4 h-4" />
-                    {busy ? "…" : "إرسال طلب الجلسة"}
+                    {busy ? "…" : t({ ar: "إرسال طلب الجلسة", en: "Send session request" })}
                   </button>
                   <p className="text-white/40 text-[11.5px] text-center leading-[1.6]">
-                    مَجّاني تمامًا — الخبير يؤكّد الموعد بعد المراجعة.
+                    {t({
+                      ar: "مَجّاني تمامًا — الخبير يؤكّد الموعد بعد المراجعة.",
+                      en: "Completely free — the expert confirms the time after reviewing.",
+                    })}
                   </p>
                 </motion.form>
               )}
@@ -509,6 +584,7 @@ function OfficeHoursPicker({
   expertName: string;
   reduce: boolean;
 }) {
+  const { lang, t } = useLanguage();
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const [slots, setSlots] = useState<Slot[] | null>(null);
@@ -539,7 +615,12 @@ function OfficeHoursPicker({
     }
     if (!picked) return;
     if (topic.trim().length < 3) {
-      setError("اكتب موضوع الجلسة (3 أحرف فأكثر).");
+      setError(
+        t({
+          ar: "اكتب موضوع الجلسة (3 أحرف فأكثر).",
+          en: "Add a session topic (3 characters or more).",
+        }),
+      );
       return;
     }
     setBusy(true);
@@ -551,7 +632,11 @@ function OfficeHoursPicker({
       });
       setDone(true);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الحجز");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الحجز", en: "Couldn't book" }),
+      );
       void reload();
     } finally {
       setBusy(false);
@@ -572,11 +657,14 @@ function OfficeHoursPicker({
   for (const s of slots) {
     const d = new Date(s.startAt);
     const key = d.toISOString().slice(0, 10);
-    const label = d.toLocaleDateString("ar-EG-u-ca-gregory", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    });
+    const label = d.toLocaleDateString(
+      lang === "ar" ? "ar-EG-u-ca-gregory" : "en-GB",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      },
+    );
     let day = days.find((x) => x.key === key);
     if (!day) {
       day = { key, label, slots: [] };
@@ -590,25 +678,33 @@ function OfficeHoursPicker({
       <div className="flex items-center gap-2 mb-1">
         <CalendarDays className="w-4 h-4 text-primary" />
         <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-          مواعيد متاحة · Office Hours
+          {t({ ar: "مواعيد متاحة · Office Hours", en: "Office Hours · Open Slots" })}
         </div>
       </div>
       <p className="text-white/55 text-[12.5px] mb-4">
-        احجز فورًا فترةً مفتوحة من تقويم {expertName}.
+        {t({
+          ar: `احجز فورًا فترةً مفتوحة من تقويم ${expertName}.`,
+          en: `Instantly book an open slot from ${expertName}'s calendar.`,
+        })}
       </p>
 
       {done ? (
         <div className="text-center py-6">
           <CheckCircle2 className="w-11 h-11 text-emerald-300 mx-auto mb-3" />
-          <div className="text-white font-bold text-[14.5px] mb-1">تمّ الحجز ✓</div>
+          <div className="text-white font-bold text-[14.5px] mb-1">
+            {t({ ar: "تمّ الحجز ✓", en: "Booked ✓" })}
+          </div>
           <p className="text-white/55 text-[12.5px] leading-[1.85]">
-            ستصلك رسالة بريدية بتفاصيل الجلسة.
+            {t({
+              ar: "ستصلك رسالة بريدية بتفاصيل الجلسة.",
+              en: "You'll get an email with the session details.",
+            })}
           </p>
           <Link
             href="/profile"
             className="inline-block mt-3 text-[12.5px] text-primary font-semibold hover:underline"
           >
-            عرض جلساتي
+            {t({ ar: "عرض جلساتي", en: "View my sessions" })}
           </Link>
         </div>
       ) : (
@@ -622,10 +718,13 @@ function OfficeHoursPicker({
                 <div className="flex flex-wrap gap-2">
                   {day.slots.map((s) => {
                     const start = new Date(s.startAt);
-                    const timeLabel = start.toLocaleTimeString("ar-EG", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    });
+                    const timeLabel = start.toLocaleTimeString(
+                      lang === "ar" ? "ar-EG" : "en-GB",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    );
                     const isPicked = picked?.id === s.id;
                     return (
                       <button
@@ -641,7 +740,7 @@ function OfficeHoursPicker({
                       >
                         <span className="block text-[13px] font-semibold">{timeLabel}</span>
                         <span className="block text-[10px] text-white/45">
-                          {s.mode === "online" ? "عن بُعد" : "في المساحة"}
+                          {sessionModeLabel(s.mode, lang)}
                         </span>
                       </button>
                     );
@@ -664,19 +763,22 @@ function OfficeHoursPicker({
                 <div className="space-y-3 pt-3 border-t border-white/[0.06]">
                   <label className="block">
                     <span className="block text-[11.5px] text-white/55 mb-1.5">
-                      موضوع الجلسة
+                      {t({ ar: "موضوع الجلسة", en: "Session topic" })}
                     </span>
                     <input
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
                       maxLength={200}
-                      placeholder="ماذا تريد أن نناقش؟"
+                      placeholder={t({
+                        ar: "ماذا تريد أن نناقش؟",
+                        en: "What would you like to discuss?",
+                      })}
                       className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
                     />
                   </label>
                   <label className="block">
                     <span className="block text-[11.5px] text-white/55 mb-1.5">
-                      تفاصيل إضافيّة (اختياري)
+                      {t({ ar: "تفاصيل إضافيّة (اختياري)", en: "Extra details (optional)" })}
                     </span>
                     <textarea
                       value={message}
@@ -696,10 +798,13 @@ function OfficeHoursPicker({
                     className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
-                    {busy ? "…" : "تأكيد الحجز"}
+                    {busy ? "…" : t({ ar: "تأكيد الحجز", en: "Confirm booking" })}
                   </button>
                   <p className="text-white/40 text-[11px] text-center">
-                    مَجّاني — يَصلك إيميل التأكيد فورًا.
+                    {t({
+                      ar: "مَجّاني — يَصلك إيميل التأكيد فورًا.",
+                      en: "Free — a confirmation email arrives instantly.",
+                    })}
                   </p>
                 </div>
               </motion.div>

@@ -12,17 +12,53 @@ import {
   Clock,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
   formatArabicDateTime,
   SESSION_STATUS_LABELS,
+  SESSION_STATUS_LABELS_EN,
   SESSION_MODE_LABELS,
+  SESSION_MODE_LABELS_EN,
   SLOT_STATUS_LABELS,
   type SessionStatus,
   type SessionMode,
   type SlotStatus,
 } from "@/lib/labels";
+
+// Localised date-time: Arabic-EG in AR, English-GB in EN.
+function formatDateTime(iso: string | null | undefined, lang: Lang): string {
+  if (lang === "ar") return formatArabicDateTime(iso);
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
+
+// Localised label maps for status/mode (Arabic-only maps live in labels.ts).
+function sessionStatusLabel(status: SessionStatus, lang: Lang): string {
+  return (lang === "ar" ? SESSION_STATUS_LABELS : SESSION_STATUS_LABELS_EN)[status];
+}
+function sessionModeLabel(mode: SessionMode, lang: Lang): string {
+  return (lang === "ar" ? SESSION_MODE_LABELS : SESSION_MODE_LABELS_EN)[mode];
+}
+const SLOT_STATUS_LABELS_EN: Record<SlotStatus, string> = {
+  available: "Available",
+  booked: "Booked",
+  cancelled: "Cancelled",
+};
+function slotStatusLabel(status: SlotStatus, lang: Lang): string {
+  return (lang === "ar" ? SLOT_STATUS_LABELS : SLOT_STATUS_LABELS_EN)[status];
+}
 
 interface ExpertProfile {
   id: number;
@@ -55,6 +91,7 @@ interface SessionRow {
 }
 
 export default function ExpertDashboard() {
+  const { t } = useLanguage();
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
   const [tab, setTab] = useState<"sessions" | "officehours" | "profile">(
@@ -96,19 +133,22 @@ export default function ExpertDashboard() {
     return (
       <PageShell
         active="experts"
-        eyebrow="لوحة الخبير"
-        title="هذه اللوحة"
-        highlight="للخبراء فقط"
+        eyebrow={t({ ar: "لوحة الخبير", en: "Expert Dashboard" })}
+        title={t({ ar: "هذه اللوحة", en: "This dashboard is" })}
+        highlight={t({ ar: "للخبراء فقط", en: "for experts only" })}
       >
         <EmptyState
-          title="حسابك ليس حساب خبير"
-          hint="إن كنت ترغب بالانضمام كخبير/مرشد في آيلاند، تواصل مع الإدارة."
+          title={t({ ar: "حسابك ليس حساب خبير", en: "Your account isn't an expert account" })}
+          hint={t({
+            ar: "إن كنت ترغب بالانضمام كخبير/مرشد في آيلاند، تواصل مع الإدارة.",
+            en: "If you'd like to join Island Haven as an expert or mentor, reach out to the team.",
+          })}
           action={
             <Link
               href="/experts"
               className="inline-block px-5 py-2.5 rounded-full bg-primary text-white text-[13px] font-semibold"
             >
-              تصفّح الخبراء
+              {t({ ar: "تصفّح الخبراء", en: "Browse experts" })}
             </Link>
           }
         />
@@ -119,29 +159,35 @@ export default function ExpertDashboard() {
   return (
     <PageShell
       active="experts"
-      eyebrow={`أهلًا ${user?.fullName ?? ""}`}
-      title="لوحة"
-      highlight="الخبير"
-      subtitle="أدِر ملفّك الإرشاديّ وتابع طلبات الجلسات الواردة من المجتمع."
+      eyebrow={t({
+        ar: `أهلًا ${user?.fullName ?? ""}`,
+        en: `Welcome, ${user?.fullName ?? ""}`,
+      })}
+      title={t({ ar: "لوحة", en: "Expert" })}
+      highlight={t({ ar: "الخبير", en: "Dashboard" })}
+      subtitle={t({
+        ar: "أدِر ملفّك الإرشاديّ وتابع طلبات الجلسات الواردة من المجتمع.",
+        en: "Manage your mentor profile and keep up with session requests from the community.",
+      })}
     >
       <div className="flex items-center gap-2 mb-7">
         {(
           [
-            { k: "sessions", label: "طلبات الجلسات" },
-            { k: "officehours", label: "مواعيدي (Office Hours)" },
-            { k: "profile", label: "ملفّي الإرشاديّ" },
+            { k: "sessions", label: { ar: "طلبات الجلسات", en: "Session requests" } },
+            { k: "officehours", label: { ar: "مواعيدي (Office Hours)", en: "My office hours" } },
+            { k: "profile", label: { ar: "ملفّي الإرشاديّ", en: "My mentor profile" } },
           ] as const
-        ).map((t) => (
+        ).map((item) => (
           <button
-            key={t.k}
-            onClick={() => setTab(t.k)}
+            key={item.k}
+            onClick={() => setTab(item.k)}
             className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
-              tab === t.k
+              tab === item.k
                 ? "bg-primary/20 text-white border-primary/40"
                 : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white"
             }`}
           >
-            {t.label}
+            {t(item.label)}
           </button>
         ))}
       </div>
@@ -166,6 +212,7 @@ function SessionsPanel({
   sessions: SessionRow[] | null;
   onChanged: () => Promise<void>;
 }) {
+  const { lang, t } = useLanguage();
   const [busyId, setBusyId] = useState<number | null>(null);
 
   async function act(id: number, status: SessionStatus) {
@@ -196,8 +243,11 @@ function SessionsPanel({
   if (sessions.length === 0) {
     return (
       <EmptyState
-        title="لا توجد طلبات بعد"
-        hint="ستظهر هنا طلبات الجلسات من أعضاء المجتمع."
+        title={t({ ar: "لا توجد طلبات بعد", en: "No requests yet" })}
+        hint={t({
+          ar: "ستظهر هنا طلبات الجلسات من أعضاء المجتمع.",
+          en: "Session requests from community members will appear here.",
+        })}
       />
     );
   }
@@ -234,7 +284,7 @@ function SessionsPanel({
                       {row.menteeName}
                     </div>
                     <div className="text-white/45 text-[11.5px]">
-                      {formatArabicDateTime(s.createdAt)}
+                      {formatDateTime(s.createdAt, lang)}
                     </div>
                   </div>
                 </div>
@@ -250,9 +300,14 @@ function SessionsPanel({
                 </p>
               )}
               <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[12px] text-white/55 mb-3">
-                <span>النوع: {SESSION_MODE_LABELS[s.mode]}</span>
+                <span>
+                  {t({ ar: "النوع:", en: "Type:" })} {sessionModeLabel(s.mode, lang)}
+                </span>
                 {s.preferredAt && (
-                  <span>الوقت المقترح: {formatArabicDateTime(s.preferredAt)}</span>
+                  <span>
+                    {t({ ar: "الوقت المقترح:", en: "Preferred time:" })}{" "}
+                    {formatDateTime(s.preferredAt, lang)}
+                  </span>
                 )}
               </div>
 
@@ -265,14 +320,16 @@ function SessionsPanel({
                         disabled={busyId === s.id}
                         className="px-4 py-2 rounded-xl bg-emerald-500/15 text-emerald-200 border border-emerald-500/30 text-[12.5px] font-semibold hover:bg-emerald-500/25 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> تأكيد
+                        <CheckCircle2 className="w-3.5 h-3.5" />{" "}
+                        {t({ ar: "تأكيد", en: "Confirm" })}
                       </button>
                       <button
                         onClick={() => act(s.id, "declined")}
                         disabled={busyId === s.id}
                         className="px-4 py-2 rounded-xl bg-white/[0.05] text-white/70 border border-white/10 text-[12.5px] font-semibold hover:bg-red-500/10 hover:text-red-200 hover:border-red-500/30 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                       >
-                        <XCircle className="w-3.5 h-3.5" /> رفض
+                        <XCircle className="w-3.5 h-3.5" />{" "}
+                        {t({ ar: "رفض", en: "Decline" })}
                       </button>
                     </>
                   )}
@@ -282,7 +339,8 @@ function SessionsPanel({
                       disabled={busyId === s.id}
                       className="px-4 py-2 rounded-xl bg-primary/15 text-primary border border-primary/30 text-[12.5px] font-semibold hover:bg-primary/25 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                     >
-                      <CalendarCheck className="w-3.5 h-3.5" /> تمّت الجلسة
+                      <CalendarCheck className="w-3.5 h-3.5" />{" "}
+                      {t({ ar: "تمّت الجلسة", en: "Mark completed" })}
                     </button>
                   )}
                 </div>
@@ -296,6 +354,7 @@ function SessionsPanel({
 }
 
 function StatusBadge({ status }: { status: SessionStatus }) {
+  const { lang } = useLanguage();
   const styles: Record<SessionStatus, string> = {
     requested: "bg-amber-400/10 text-amber-200 border-amber-400/30",
     confirmed: "bg-emerald-500/10 text-emerald-200 border-emerald-500/30",
@@ -307,7 +366,7 @@ function StatusBadge({ status }: { status: SessionStatus }) {
     <span
       className={`px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.12em] uppercase font-semibold border ${styles[status]}`}
     >
-      {SESSION_STATUS_LABELS[status]}
+      {sessionStatusLabel(status, lang)}
     </span>
   );
 }
@@ -321,6 +380,7 @@ function ProfilePanel({
   profile: ExpertProfile | null;
   onSaved: (p: ExpertProfile) => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState<ExpertProfile | null>(profile);
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
@@ -361,10 +421,14 @@ function ProfilePanel({
         }),
       });
       onSaved(r.profile);
-      setFlash("تمّ حفظ ملفّك.");
+      setFlash(t({ ar: "تمّ حفظ ملفّك.", en: "Your profile has been saved." }));
       setTimeout(() => setFlash(null), 3000);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الحفظ");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الحفظ", en: "Couldn't save" }),
+      );
     } finally {
       setBusy(false);
     }
@@ -374,25 +438,44 @@ function ProfilePanel({
     <GlassCard className="p-6 sm:p-8 max-w-2xl">
       {form.status !== "active" && (
         <div className="mb-5 rounded-xl px-4 py-3 bg-amber-400/10 border border-amber-400/30 text-amber-100 text-[12.5px] leading-[1.7]">
-          ملفّك قيد المراجعة من الإدارة ولن يظهر للعامّة حتى يُفعَّل.
+          {t({
+            ar: "ملفّك قيد المراجعة من الإدارة ولن يظهر للعامّة حتى يُفعَّل.",
+            en: "Your profile is under review and won't be public until it's activated.",
+          })}
         </div>
       )}
       <div className="space-y-4">
-        <DField label="المسمّى التعريفيّ / الشعار (مثال: مستشار ريادة أعمال)">
+        <DField
+          label={t({
+            ar: "المسمّى التعريفيّ / الشعار (مثال: مستشار ريادة أعمال)",
+            en: "Headline / tagline (e.g. Startup advisor)",
+          })}
+        >
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
           <p className="mt-1 text-[11.5px] text-white/40 leading-relaxed">
-            يظهر هذا النصّ أسفل اسمك على بطاقة الحجز وقائمة الخبراء.
+            {t({
+              ar: "يظهر هذا النصّ أسفل اسمك على بطاقة الحجز وقائمة الخبراء.",
+              en: "This appears under your name on your booking card and in the experts list.",
+            })}
           </p>
         </DField>
-        <DField label="مجالات الخبرة (افصل بينها بفاصلة)">
+        <DField
+          label={t({
+            ar: "مجالات الخبرة (افصل بينها بفاصلة)",
+            en: "Areas of expertise (comma-separated)",
+          })}
+        >
           <Input
             value={form.expertise}
             onChange={(v) => set("expertise", v)}
             max={400}
-            placeholder="ريادة أعمال، تسويق رقميّ، تصميم منتجات"
+            placeholder={t({
+              ar: "ريادة أعمال، تسويق رقميّ، تصميم منتجات",
+              en: "Entrepreneurship, digital marketing, product design",
+            })}
           />
         </DField>
-        <DField label="نبذة تعريفيّة">
+        <DField label={t({ ar: "نبذة تعريفيّة", en: "About you" })}>
           <textarea
             value={form.bio}
             onChange={(e) => set("bio", e.target.value)}
@@ -402,7 +485,7 @@ function ProfilePanel({
           />
         </DField>
         <div className="grid grid-cols-2 gap-4">
-          <DField label="سنوات الخبرة">
+          <DField label={t({ ar: "سنوات الخبرة", en: "Years of experience" })}>
             <input
               type="number"
               min={0}
@@ -412,7 +495,7 @@ function ProfilePanel({
               className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white focus:border-primary/50 focus:outline-none"
             />
           </DField>
-          <DField label="مدّة الجلسة (دقيقة)">
+          <DField label={t({ ar: "مدّة الجلسة (دقيقة)", en: "Session length (minutes)" })}>
             <input
               type="number"
               min={10}
@@ -423,22 +506,30 @@ function ProfilePanel({
             />
           </DField>
         </div>
-        <DField label="اللغات (افصل بينها بفاصلة)">
-          <Input value={form.languages} onChange={(v) => set("languages", v)} max={160} placeholder="العربية، الإنجليزية" />
+        <DField label={t({ ar: "اللغات (افصل بينها بفاصلة)", en: "Languages (comma-separated)" })}>
+          <Input
+            value={form.languages}
+            onChange={(v) => set("languages", v)}
+            max={160}
+            placeholder={t({ ar: "العربية، الإنجليزية", en: "Arabic, English" })}
+          />
         </DField>
-        <DField label="ملاحظة عن التوفّر (اختياري)">
+        <DField label={t({ ar: "ملاحظة عن التوفّر (اختياري)", en: "Availability note (optional)" })}>
           <Input
             value={form.availabilityNote}
             onChange={(v) => set("availabilityNote", v)}
             max={300}
-            placeholder="متاح مساء الأحد والثلاثاء"
+            placeholder={t({
+              ar: "متاح مساء الأحد والثلاثاء",
+              en: "Available Sunday and Tuesday evenings",
+            })}
           />
         </DField>
         <div className="grid grid-cols-2 gap-4">
-          <DField label="رابط LinkedIn">
+          <DField label={t({ ar: "رابط LinkedIn", en: "LinkedIn URL" })}>
             <Input value={form.linkedinUrl} onChange={(v) => set("linkedinUrl", v)} max={400} placeholder="https://" />
           </DField>
-          <DField label="رابط الموقع">
+          <DField label={t({ ar: "رابط الموقع", en: "Website URL" })}>
             <Input value={form.websiteUrl} onChange={(v) => set("websiteUrl", v)} max={400} placeholder="https://" />
           </DField>
         </div>
@@ -451,7 +542,10 @@ function ProfilePanel({
             className="w-4 h-4 accent-primary"
           />
           <span className="text-[13.5px] text-white/75">
-            أستقبل طلبات جلسات إرشاد جديدة
+            {t({
+              ar: "أستقبل طلبات جلسات إرشاد جديدة",
+              en: "I'm accepting new mentorship session requests",
+            })}
           </span>
         </label>
 
@@ -469,7 +563,7 @@ function ProfilePanel({
           data-testid="button-save-expert-profile"
         >
           <Save className="w-4 h-4" />
-          {busy ? "…" : "حفظ الملف"}
+          {busy ? "…" : t({ ar: "حفظ الملف", en: "Save profile" })}
         </button>
       </div>
     </GlassCard>
@@ -537,6 +631,7 @@ const inputCls =
   "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none";
 
 function OfficeHoursPanel() {
+  const { lang, t } = useLanguage();
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
@@ -577,7 +672,10 @@ function OfficeHoursPanel() {
     setSubmitting(true);
     setError(null);
     try {
-      if (!startAt || !endAt) throw new Error("اختر وقت البداية والنهاية");
+      if (!startAt || !endAt)
+        throw new Error(
+          t({ ar: "اختر وقت البداية والنهاية", en: "Pick a start and end time" }),
+        );
       await api("/experts/me/slots", {
         method: "POST",
         body: JSON.stringify({
@@ -599,7 +697,7 @@ function OfficeHoursPanel() {
           ? e.message
           : e instanceof Error
             ? e.message
-            : "تعذّر الإضافة",
+            : t({ ar: "تعذّر الإضافة", en: "Couldn't add" }),
       );
     } finally {
       setSubmitting(false);
@@ -607,12 +705,17 @@ function OfficeHoursPanel() {
   }
 
   async function remove(id: number) {
-    if (!window.confirm("حذف هذا الموعد؟")) return;
+    if (!window.confirm(t({ ar: "حذف هذا الموعد؟", en: "Delete this slot?" })))
+      return;
     try {
       await api(`/experts/me/slots/${id}`, { method: "DELETE" });
       await load();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الحذف");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الحذف", en: "Couldn't delete" }),
+      );
     }
   }
 
@@ -621,12 +724,14 @@ function OfficeHoursPanel() {
       <GlassCard className="p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Clock className="w-4 h-4 text-primary" />
-          <h3 className="text-white font-bold text-[15px]">أضِف موعدًا متاحًا</h3>
+          <h3 className="text-white font-bold text-[15px]">
+            {t({ ar: "أضِف موعدًا متاحًا", en: "Add an available slot" })}
+          </h3>
         </div>
         <form onSubmit={add} className="grid sm:grid-cols-2 gap-3">
           <label className="block">
             <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-              من
+              {t({ ar: "من", en: "From" })}
             </span>
             <input
               type="datetime-local"
@@ -637,7 +742,7 @@ function OfficeHoursPanel() {
           </label>
           <label className="block">
             <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-              إلى
+              {t({ ar: "إلى", en: "To" })}
             </span>
             <input
               type="datetime-local"
@@ -648,34 +753,34 @@ function OfficeHoursPanel() {
           </label>
           <label className="block">
             <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-              النّوع
+              {t({ ar: "النّوع", en: "Type" })}
             </span>
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as SessionMode)}
               className={inputCls}
             >
-              <option value="online">{SESSION_MODE_LABELS.online}</option>
-              <option value="onsite">{SESSION_MODE_LABELS.onsite}</option>
+              <option value="online">{sessionModeLabel("online", lang)}</option>
+              <option value="onsite">{sessionModeLabel("onsite", lang)}</option>
             </select>
           </label>
           {mode === "onsite" && (
             <label className="block">
               <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-                المكان
+                {t({ ar: "المكان", en: "Location" })}
               </span>
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 maxLength={400}
-                placeholder="آيلاند هيفن — غزّة"
+                placeholder={t({ ar: "آيلاند هيفن — غزّة", en: "Island Haven — Gaza" })}
                 className={inputCls}
               />
             </label>
           )}
           <label className="block sm:col-span-2">
             <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
-              ملاحظة (اختياري)
+              {t({ ar: "ملاحظة (اختياري)", en: "Note (optional)" })}
             </span>
             <input
               value={note}
@@ -695,21 +800,28 @@ function OfficeHoursPanel() {
             className="sm:col-span-2 inline-flex items-center justify-center gap-2 h-11 rounded-full bg-primary text-white font-semibold text-[13.5px] disabled:opacity-50 hover:-translate-y-px transition-transform"
           >
             <Plus className="w-4 h-4" />
-            {submitting ? "جارِ الإضافة…" : "إضافة الموعد"}
+            {submitting
+              ? t({ ar: "جارِ الإضافة…", en: "Adding…" })
+              : t({ ar: "إضافة الموعد", en: "Add slot" })}
           </button>
         </form>
       </GlassCard>
 
       <div>
-        <h3 className="text-white font-bold text-[15px] mb-3">مواعيدي</h3>
+        <h3 className="text-white font-bold text-[15px] mb-3">
+          {t({ ar: "مواعيدي", en: "My slots" })}
+        </h3>
         {slots === null ? (
           <div className="text-white/45 text-[13px] py-8 text-center">
-            جارِ التحميل…
+            {t({ ar: "جارِ التحميل…", en: "Loading…" })}
           </div>
         ) : slots.length === 0 ? (
           <EmptyState
-            title="لا مواعيد بعد"
-            hint="أضف أوّل موعد متاح ليحجزه المنتسبون."
+            title={t({ ar: "لا مواعيد بعد", en: "No slots yet" })}
+            hint={t({
+              ar: "أضف أوّل موعد متاح ليحجزه المنتسبون.",
+              en: "Add your first available slot for members to book.",
+            })}
           />
         ) : (
           <div className="space-y-2.5">
@@ -720,10 +832,10 @@ function OfficeHoursPanel() {
               >
                 <div className="min-w-0">
                   <div className="text-white text-[13.5px] font-semibold">
-                    {formatArabicDateTime(s.startAt)}
+                    {formatDateTime(s.startAt, lang)}
                   </div>
                   <div className="text-white/45 text-[11.5px] truncate">
-                    {SESSION_MODE_LABELS[s.mode]}
+                    {sessionModeLabel(s.mode, lang)}
                     {s.location ? ` · ${s.location}` : ""}
                     {s.note ? ` · ${s.note}` : ""}
                   </div>
@@ -732,13 +844,13 @@ function OfficeHoursPanel() {
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.1em] uppercase font-semibold border ${SLOT_BADGE[s.status]}`}
                   >
-                    {SLOT_STATUS_LABELS[s.status]}
+                    {slotStatusLabel(s.status, lang)}
                   </span>
                   {s.status !== "booked" && (
                     <button
                       onClick={() => remove(s.id)}
                       className="text-white/35 hover:text-red-300 transition-colors"
-                      title="حذف"
+                      title={t({ ar: "حذف", en: "Delete" })}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

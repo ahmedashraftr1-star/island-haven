@@ -14,6 +14,7 @@ import {
   GlassCard,
   BackLink,
 } from "@/components/shell/PageShell";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -23,6 +24,39 @@ import {
   type CourseType,
   type CourseStatus,
 } from "@/lib/labels";
+
+const COURSE_TYPE_LABELS_EN: Record<CourseType, string> = {
+  course: "Course",
+  workshop: "Workshop",
+};
+
+const COURSE_STATUS_LABELS_EN: Record<CourseStatus, string> = {
+  draft: "Draft",
+  open: "Registration open",
+  closed: "Fully booked",
+  done: "Ended",
+};
+
+// Localised date-time: Arabic-Indic in AR, Western in EN.
+function fmtDateTime(iso: string | null | undefined, lang: Lang): string {
+  if (!iso) return "";
+  return lang === "ar"
+    ? formatArabicDateTime(iso)
+    : new Date(iso).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+}
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+}
+function num(n: number, lang: Lang): string {
+  return lang === "ar" ? toArabicNum(n) : String(n);
+}
 
 interface CourseFull {
   id: number;
@@ -47,6 +81,7 @@ interface DetailResp {
 }
 
 export default function CourseDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/courses/:id");
   const [, navigate] = useLocation();
   const id = params?.id;
@@ -62,7 +97,11 @@ export default function CourseDetail() {
       const r = await api<DetailResp>(`/courses/${id}`);
       setData(r);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+      );
     }
   }
 
@@ -73,9 +112,11 @@ export default function CourseDetail() {
 
   useEffect(() => {
     if (data?.course?.title) {
-      document.title = `${data.course.title} — آيلاند هيفن`;
+      document.title = `${data.course.title} — ${
+        lang === "ar" ? "آيلاند هيفن" : "Island Haven"
+      }`;
     }
-  }, [data?.course?.title]);
+  }, [data?.course?.title, lang]);
 
   async function onEnroll() {
     if (!user) {
@@ -87,10 +128,19 @@ export default function CourseDetail() {
     setError(null);
     try {
       await api(`/courses/${id}/enroll`, { method: "POST" });
-      setFlash("تمّ تسجيلك. سنتواصل معك لتأكيد المقعد.");
+      setFlash(
+        t({
+          ar: "تمّ تسجيلك. سنتواصل معك لتأكيد المقعد.",
+          en: "You're enrolled. We'll be in touch to confirm your seat.",
+        }),
+      );
       await refresh();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر التسجيل");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر التسجيل", en: "Couldn't enroll" }),
+      );
     } finally {
       setBusy(false);
       setTimeout(() => setFlash(null), 3500);
@@ -99,14 +149,26 @@ export default function CourseDetail() {
 
   async function onCancel() {
     if (busy) return;
-    if (!window.confirm("هل تريد إلغاء تسجيلك؟")) return;
+    if (
+      !window.confirm(
+        t({
+          ar: "هل تريد إلغاء تسجيلك؟",
+          en: "Cancel your enrollment?",
+        }),
+      )
+    )
+      return;
     setBusy(true);
     try {
       await api(`/courses/${id}/enroll`, { method: "DELETE" });
-      setFlash("تمّ إلغاء التسجيل.");
+      setFlash(t({ ar: "تمّ إلغاء التسجيل.", en: "Enrollment cancelled." }));
       await refresh();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر الإلغاء");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر الإلغاء", en: "Couldn't cancel" }),
+      );
     } finally {
       setBusy(false);
       setTimeout(() => setFlash(null), 3500);
@@ -116,7 +178,10 @@ export default function CourseDetail() {
   if (error && !data) {
     return (
       <PageShell active="courses">
-        <BackLink href="/courses" label="عودة للقائمة" />
+        <BackLink
+          href="/courses"
+          label={t({ ar: "عودة للقائمة", en: "Back to list" })}
+        />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -134,7 +199,10 @@ export default function CourseDetail() {
 
   return (
     <PageShell active="courses">
-      <BackLink href="/courses" label="كلّ الكورسات والورشات" />
+      <BackLink
+        href="/courses"
+        label={t({ ar: "كلّ الكورسات والورشات", en: "All courses & workshops" })}
+      />
 
       <AnimatePresence>
         {flash && (
@@ -166,10 +234,16 @@ export default function CourseDetail() {
           <div className="p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-                {COURSE_TYPE_LABELS[c.type]}
+                {t({
+                  ar: COURSE_TYPE_LABELS[c.type],
+                  en: COURSE_TYPE_LABELS_EN[c.type],
+                })}
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold bg-white/[0.05] text-white/60 border border-white/10">
-                {COURSE_STATUS_LABELS[c.status]}
+                {t({
+                  ar: COURSE_STATUS_LABELS[c.status],
+                  en: COURSE_STATUS_LABELS_EN[c.status],
+                })}
               </span>
             </div>
             <h1
@@ -195,7 +269,7 @@ export default function CourseDetail() {
         <div className="space-y-5">
           <GlassCard className="p-6">
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-              التفاصيل
+              {t({ ar: "التفاصيل", en: "Details" })}
             </div>
             <ul className="space-y-3 text-[13.5px] text-white/75">
               {c.instructor && (
@@ -203,7 +277,7 @@ export default function CourseDetail() {
                   <UserIcon className="w-4 h-4 text-primary mt-0.5" />
                   <div>
                     <div className="text-white/45 text-[11px] tracking-wide">
-                      المُدرِّب
+                      {t({ ar: "المُدرِّب", en: "Instructor" })}
                     </div>
                     <div className="text-white font-semibold">{c.instructor}</div>
                   </div>
@@ -214,14 +288,15 @@ export default function CourseDetail() {
                   <Calendar className="w-4 h-4 text-primary mt-0.5" />
                   <div>
                     <div className="text-white/45 text-[11px] tracking-wide">
-                      يبدأ
+                      {t({ ar: "يبدأ", en: "Starts" })}
                     </div>
                     <div className="text-white font-semibold">
-                      {formatArabicDateTime(c.startsAt)}
+                      {fmtDateTime(c.startsAt, lang)}
                     </div>
                     {c.endsAt && (
                       <div className="text-white/55 text-[12px] mt-0.5">
-                        ينتهي: {formatArabicDateTime(c.endsAt)}
+                        {t({ ar: "ينتهي:", en: "Ends:" })}{" "}
+                        {fmtDateTime(c.endsAt, lang)}
                       </div>
                     )}
                   </div>
@@ -232,7 +307,7 @@ export default function CourseDetail() {
                   <MapPin className="w-4 h-4 text-primary mt-0.5" />
                   <div>
                     <div className="text-white/45 text-[11px] tracking-wide">
-                      المكان
+                      {t({ ar: "المكان", en: "Location" })}
                     </div>
                     <div className="text-white font-semibold">{c.location}</div>
                   </div>
@@ -242,11 +317,13 @@ export default function CourseDetail() {
                 <Users className="w-4 h-4 text-primary mt-0.5" />
                 <div>
                   <div className="text-white/45 text-[11px] tracking-wide">
-                    المُسجَّلون
+                    {t({ ar: "المُسجَّلون", en: "Enrolled" })}
                   </div>
                   <div className="text-white font-semibold">
-                    {c.enrolled}
-                    {c.capacity > 0 ? ` من أصل ${c.capacity}` : ""}
+                    {num(c.enrolled, lang)}
+                    {c.capacity > 0
+                      ? ` ${t({ ar: "من أصل", en: "of" })} ${num(c.capacity, lang)}`
+                      : ""}
                   </div>
                 </div>
               </li>
@@ -257,30 +334,36 @@ export default function CourseDetail() {
             {!user ? (
               <>
                 <div className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
-                  سجّل دخولك لحجز مقعدك في هذه الفعاليّة.
+                  {t({
+                    ar: "سجّل دخولك لحجز مقعدك في هذه الفعاليّة.",
+                    en: "Sign in to reserve your seat at this event.",
+                  })}
                 </div>
                 <Link
                   href={`/login?next=/courses/${id}`}
                   className="block text-center w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                   data-testid="button-login-to-enroll"
                 >
-                  تسجيل الدخول للحجز
+                  {t({ ar: "تسجيل الدخول للحجز", en: "Sign in to reserve" })}
                 </Link>
                 <Link
                   href={`/register?next=/courses/${id}`}
                   className="block text-center mt-2 text-[12.5px] text-white/55 hover:text-primary transition-colors"
                 >
-                  ليس لديك حساب؟ أنشئ واحدًا
+                  {t({
+                    ar: "ليس لديك حساب؟ أنشئ واحدًا",
+                    en: "No account? Create one",
+                  })}
                 </Link>
               </>
             ) : data.isEnrolled ? (
               <>
                 <div className="flex items-center gap-2 text-emerald-300 text-[13.5px] mb-4 font-semibold">
                   <CheckCircle2 className="w-4 h-4" />
-                  أنت مسجَّل
+                  {t({ ar: "أنت مسجَّل", en: "You're enrolled" })}
                   {data.myEnrollmentStatus === "confirmed"
-                    ? " (مؤكَّد)"
-                    : " (بانتظار التأكيد)"}
+                    ? t({ ar: " (مؤكَّد)", en: " (confirmed)" })
+                    : t({ ar: " (بانتظار التأكيد)", en: " (awaiting confirmation)" })}
                 </div>
                 <button
                   onClick={onCancel}
@@ -289,21 +372,27 @@ export default function CourseDetail() {
                   data-testid="button-cancel-enrollment"
                 >
                   <XCircle className="w-4 h-4 inline ml-1.5" />
-                  إلغاء الحجز
+                  {t({ ar: "إلغاء الحجز", en: "Cancel reservation" })}
                 </button>
               </>
             ) : c.status === "done" ? (
               <div className="text-white/55 text-[13.5px] text-center py-2">
-                هذه الفعاليّة منتهية.
+                {t({ ar: "هذه الفعاليّة منتهية.", en: "This event has ended." })}
               </div>
             ) : isFull || c.status === "closed" ? (
               <div className="text-white/55 text-[13.5px] text-center py-2">
-                اكتمل العدد. ترقّب الدفعة القادمة.
+                {t({
+                  ar: "اكتمل العدد. ترقّب الدفعة القادمة.",
+                  en: "Fully booked. Watch for the next round.",
+                })}
               </div>
             ) : (
               <>
                 <div className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
-                  مَجّاني تمامًا — احجز مقعدك الآن.
+                  {t({
+                    ar: "مَجّاني تمامًا — احجز مقعدك الآن.",
+                    en: "Completely free — reserve your seat now.",
+                  })}
                 </div>
                 <button
                   onClick={onEnroll}
@@ -311,7 +400,7 @@ export default function CourseDetail() {
                   className="w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50"
                   data-testid="button-enroll"
                 >
-                  {busy ? "…" : "احجز مقعدي"}
+                  {busy ? "…" : t({ ar: "احجز مقعدي", en: "Reserve my seat" })}
                 </button>
               </>
             )}

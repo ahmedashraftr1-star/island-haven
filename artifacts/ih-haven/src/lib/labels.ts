@@ -265,6 +265,25 @@ export function formatArabicDateTime(iso?: string | null): string {
   }
 }
 
+export function formatDateTime(
+  iso?: string | null,
+  lang: "ar" | "en" = "ar",
+): string {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString(lang === "en" ? "en-GB" : "ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
+
 export function splitTags(s: string | null | undefined): string[] {
   return (s || "")
     .split(/[,،]/)

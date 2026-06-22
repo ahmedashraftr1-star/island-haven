@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { Image as ImageIcon, Loader2, X, Plus, Youtube } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -35,6 +36,7 @@ export default function WorkEditor() {
   const id = paramsEdit?.id;
   const [, navigate] = useLocation();
   const { user, loading } = useAuth();
+  const { lang, t } = useLanguage();
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
@@ -45,8 +47,11 @@ export default function WorkEditor() {
   const galleryFileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    document.title = (editing ? "تعديل عمل" : "إضافة عمل جديد") + " — آيلاند هيفن";
-  }, [editing]);
+    document.title =
+      lang === "ar"
+        ? (editing ? "تعديل عمل" : "إضافة عمل جديد") + " — آيلاند هيفن"
+        : (editing ? "Edit Work" : "Add New Work") + " — Island Haven";
+  }, [editing, lang]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login?next=/works/new");
@@ -80,7 +85,11 @@ export default function WorkEditor() {
         });
       })
       .catch((e) =>
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل"),
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load this work" }),
+        ),
       );
   }, [editing, id]);
 
@@ -93,7 +102,8 @@ export default function WorkEditor() {
       body: fd,
     });
     const data = (await res.json()) as { url?: string; error?: string };
-    if (!res.ok || !data.url) throw new Error(data.error || "فشل الرفع");
+    if (!res.ok || !data.url)
+      throw new Error(data.error || t({ ar: "فشل الرفع", en: "Upload failed" }));
     return data.url;
   }
 
@@ -105,7 +115,11 @@ export default function WorkEditor() {
       const url = await uploadOne(file);
       setForm((s) => ({ ...s, coverUrl: url }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "فشل الرفع");
+      setError(
+        e instanceof Error
+          ? e.message
+          : t({ ar: "فشل الرفع", en: "Upload failed" }),
+      );
     } finally {
       setUploading(null);
     }
@@ -126,7 +140,11 @@ export default function WorkEditor() {
       }
       setForm((s) => ({ ...s, galleryUrls: [...s.galleryUrls, ...urls] }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "فشل الرفع");
+      setError(
+        e instanceof Error
+          ? e.message
+          : t({ ar: "فشل الرفع", en: "Upload failed" }),
+      );
     } finally {
       setUploading(null);
     }
@@ -159,14 +177,16 @@ export default function WorkEditor() {
           error?: string;
           details?: Array<{ field: string; message: string }>;
         };
-        setError(d.error || "تعذّر الحفظ");
+        setError(d.error || t({ ar: "تعذّر الحفظ", en: "Couldn't save" }));
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};
           for (const i of d.details) m[i.field] = i.message;
           setIssues(m);
         }
       } else {
-        setError("تعذّر الاتّصال بالخادم");
+        setError(
+          t({ ar: "تعذّر الاتّصال بالخادم", en: "Couldn't reach the server" }),
+        );
       }
     } finally {
       setSubmitting(false);
@@ -186,17 +206,35 @@ export default function WorkEditor() {
   return (
     <PageShell
       active="works"
-      eyebrow={editing ? "تحرير" : "إضافة جديدة"}
-      title={editing ? "عدّل عملك" : "أضف عملًا جديدًا"}
-      subtitle="شارك مشروعك حتى يراه المجتمع — أضف صورة وعنوانًا واصفًا، معرضًا اختياريًّا للصّور، ورابطًا أو فيديو."
+      eyebrow={
+        editing
+          ? t({ ar: "تحرير", en: "Editing" })
+          : t({ ar: "إضافة جديدة", en: "New Entry" })
+      }
+      title={
+        editing
+          ? t({ ar: "عدّل عملك", en: "Edit your work" })
+          : t({ ar: "أضف عملًا جديدًا", en: "Add a new work" })
+      }
+      subtitle={t({
+        ar: "شارك مشروعك حتى يراه المجتمع — أضف صورة وعنوانًا واصفًا، معرضًا اختياريًّا للصّور، ورابطًا أو فيديو.",
+        en: "Share your project with the community — add a cover, a clear title, an optional image gallery, and a link or video.",
+      })}
       maxWidth="max-w-3xl"
     >
-      <BackLink href={editing && id ? `/works/${id}` : "/works"} label="رجوع" />
+      <BackLink
+        href={editing && id ? `/works/${id}` : "/works"}
+        label={t({ ar: "رجوع", en: "Back" })}
+      />
 
       <form onSubmit={onSubmit} noValidate>
         <GlassCard className="p-6 sm:p-8 space-y-6">
           {/* Cover */}
-          <Field label="الصورة الرئيسيّة" hint="Cover" error={issues.coverUrl}>
+          <Field
+            label={t({ ar: "الصورة الرئيسيّة", en: "Cover image" })}
+            hint="Cover"
+            error={issues.coverUrl}
+          >
             {form.coverUrl ? (
               <div className="relative rounded-2xl overflow-hidden border border-white/10">
                 <img
@@ -224,16 +262,21 @@ export default function WorkEditor() {
                 {uploading === "cover" ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                    <span className="text-[13px]">جارٍ الرفع…</span>
+                    <span className="text-[13px]">
+                      {t({ ar: "جارٍ الرفع…", en: "Uploading…" })}
+                    </span>
                   </>
                 ) : (
                   <>
                     <ImageIcon className="w-6 h-6" />
                     <span className="text-[13px] font-semibold">
-                      اسحب صورتك هنا أو اضغط للاختيار
+                      {t({
+                        ar: "اسحب صورتك هنا أو اضغط للاختيار",
+                        en: "Drag an image here or click to choose",
+                      })}
                     </span>
                     <span className="text-[11px] text-white/35">
-                      حتّى ٥ ميجابايت
+                      {t({ ar: "حتّى ٥ ميجابايت", en: "Up to 5 MB" })}
                     </span>
                   </>
                 )}
@@ -254,9 +297,12 @@ export default function WorkEditor() {
 
           {/* Gallery */}
           <Field
-            label="معرض صور إضافيّ"
+            label={t({ ar: "معرض صور إضافيّ", en: "Extra image gallery" })}
             hint="Gallery"
-            note={`اختياريّ · حتّى ${MAX_GALLERY} صور`}
+            note={t({
+              ar: `اختياريّ · حتّى ${MAX_GALLERY} صور`,
+              en: `Optional · up to ${MAX_GALLERY} images`,
+            })}
             error={issues.galleryUrls}
           >
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -289,7 +335,9 @@ export default function WorkEditor() {
                   ) : (
                     <>
                       <Plus className="w-4 h-4" />
-                      <span className="text-[10.5px] font-semibold">إضافة</span>
+                      <span className="text-[10.5px] font-semibold">
+                        {t({ ar: "إضافة", en: "Add" })}
+                      </span>
                     </>
                   )}
                 </button>
@@ -309,32 +357,46 @@ export default function WorkEditor() {
             />
           </Field>
 
-          <Field label="العنوان" hint="Title" error={issues.title}>
+          <Field
+            label={t({ ar: "العنوان", en: "Title" })}
+            hint="Title"
+            error={issues.title}
+          >
             <input
               value={form.title}
               onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
               className="w-full bg-transparent outline-none text-white text-[15px] py-1"
-              placeholder="مثال: تطبيق متجر إلكتروني لمتجر العائلة"
+              placeholder={t({
+                ar: "مثال: تطبيق متجر إلكتروني لمتجر العائلة",
+                en: "e.g. An online store app for the family shop",
+              })}
               data-testid="input-title"
               maxLength={200}
             />
           </Field>
 
-          <Field label="ملخّص" hint="Summary" error={issues.summary}>
+          <Field
+            label={t({ ar: "ملخّص", en: "Summary" })}
+            hint="Summary"
+            error={issues.summary}
+          >
             <input
               value={form.summary}
               onChange={(e) =>
                 setForm((s) => ({ ...s, summary: e.target.value }))
               }
               className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
-              placeholder="جملة وصفيّة قصيرة"
+              placeholder={t({
+                ar: "جملة وصفيّة قصيرة",
+                en: "A short descriptive sentence",
+              })}
               data-testid="input-summary"
               maxLength={400}
             />
           </Field>
 
           <Field
-            label="الوصف الكامل"
+            label={t({ ar: "الوصف الكامل", en: "Full description" })}
             hint="Description"
             error={issues.description}
           >
@@ -345,16 +407,19 @@ export default function WorkEditor() {
               }
               rows={6}
               className="w-full bg-transparent outline-none text-white text-[14.5px] leading-[1.85] py-1 resize-none"
-              placeholder="ما الذي تنجزه؟ ما الأدوات والتقنيّات؟"
+              placeholder={t({
+                ar: "ما الذي تنجزه؟ ما الأدوات والتقنيّات؟",
+                en: "What does it do? Which tools and technologies?",
+              })}
               data-testid="input-description"
               maxLength={8000}
             />
           </Field>
 
           <Field
-            label="فيديو يوتيوب"
+            label={t({ ar: "فيديو يوتيوب", en: "YouTube video" })}
             hint="YouTube"
-            note="اختياريّ"
+            note={t({ ar: "اختياريّ", en: "Optional" })}
             error={issues.videoUrl}
           >
             <div className="flex items-center gap-2">
@@ -374,7 +439,11 @@ export default function WorkEditor() {
           </Field>
 
           <div className="grid sm:grid-cols-2 gap-5">
-            <Field label="رابط العمل" hint="Link" error={issues.link}>
+            <Field
+              label={t({ ar: "رابط العمل", en: "Work link" })}
+              hint="Link"
+              error={issues.link}
+            >
               <input
                 dir="ltr"
                 value={form.link}
@@ -388,10 +457,10 @@ export default function WorkEditor() {
               />
             </Field>
             <Field
-              label="الوسوم"
+              label={t({ ar: "الوسوم", en: "Tags" })}
               hint="Tags"
               error={issues.tags}
-              note="افصل بفاصلة"
+              note={t({ ar: "افصل بفاصلة", en: "Separate with commas" })}
             >
               <input
                 value={form.tags}
@@ -399,7 +468,10 @@ export default function WorkEditor() {
                   setForm((s) => ({ ...s, tags: e.target.value }))
                 }
                 className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
-                placeholder="React, تصميم, موبايل"
+                placeholder={t({
+                  ar: "React, تصميم, موبايل",
+                  en: "React, Design, Mobile",
+                })}
                 data-testid="input-tags"
                 maxLength={400}
               />
@@ -419,14 +491,18 @@ export default function WorkEditor() {
               className="flex-1 min-w-[180px] py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-45"
               data-testid="button-save-work"
             >
-              {submitting ? "جارٍ الحفظ…" : editing ? "حفظ التعديلات" : "نشر العمل"}
+              {submitting
+                ? t({ ar: "جارٍ الحفظ…", en: "Saving…" })
+                : editing
+                  ? t({ ar: "حفظ التعديلات", en: "Save changes" })
+                  : t({ ar: "نشر العمل", en: "Publish work" })}
             </button>
             <button
               type="button"
               onClick={() => navigate(editing && id ? `/works/${id}` : "/works")}
               className="px-6 py-3.5 rounded-2xl bg-white/[0.05] border border-white/10 text-white/75 font-semibold text-[14px] hover:bg-white/[0.08] transition-colors"
             >
-              إلغاء
+              {t({ ar: "إلغاء", en: "Cancel" })}
             </button>
           </div>
         </GlassCard>

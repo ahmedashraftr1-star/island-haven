@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 
@@ -17,6 +18,19 @@ const FALLBACK = {
   openWork: "افتح العمل",
 };
 
+// English equivalents of the CMS fallback. Admin AR overrides apply only in
+// the Arabic view; English readers see these defaults.
+const FALLBACK_EN: typeof FALLBACK = {
+  eyebrow: "Gallery",
+  title: "Gallery",
+  subtitle:
+    "Highlights from members' work, and moments from life in the space. Tap any image to view it full-size.",
+  emptyTitle: "No images yet",
+  emptyHint: "They'll appear here automatically with every new work.",
+  byAuthor: "By",
+  openWork: "Open work",
+};
+
 interface Item {
   id: string;
   url: string;
@@ -29,20 +43,33 @@ interface Item {
 }
 
 export default function Gallery() {
+  const { lang, t } = useLanguage();
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<Item | null>(null);
-  const c = useContentSection("pageGallery", FALLBACK);
+  // CMS overrides are authored in Arabic; in English we fall back to the
+  // English defaults rather than showing the raw Arabic copy.
+  const c = useContentSection(
+    "pageGallery",
+    lang === "ar" ? FALLBACK : FALLBACK_EN,
+  );
 
   useEffect(() => {
-    document.title = "معرض الصّور — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar" ? "معرض الصّور — آيلاند هيفن" : "Gallery — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     api<{ items: Item[] }>("/gallery")
       .then((r) => setItems(r.items))
-      .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
-  }, []);
+      .catch((e) =>
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        ),
+      );
+  }, [lang]);
 
   // Esc closes lightbox
   useEffect(() => {
@@ -163,7 +190,7 @@ export default function Gallery() {
                     type="button"
                     onClick={() => setActive(null)}
                     className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/15 transition-colors"
-                    aria-label="إغلاق"
+                    aria-label={t({ ar: "إغلاق", en: "Close" })}
                   >
                     <X className="w-4 h-4" />
                   </button>

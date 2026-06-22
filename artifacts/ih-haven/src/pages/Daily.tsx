@@ -3,10 +3,12 @@ import { Link, useLocation, useRoute } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Quote } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
   DAILY_TYPE_LABELS,
-  formatArabicDate,
+  DAILY_TYPE_LABELS_EN,
+  formatDate,
   type DailyType,
 } from "@/lib/labels";
 
@@ -19,22 +21,24 @@ interface Post {
   publishedAt: string;
 }
 
-const FILTERS: Array<{ key: "" | DailyType; label: string }> = [
-  { key: "", label: "الكلّ" },
-  { key: "tip", label: "نصائح" },
-  { key: "news", label: "أخبار" },
-  { key: "quote", label: "اقتباسات" },
-  { key: "story", label: "قصص" },
+const FILTERS: Array<{ key: "" | DailyType; label: { ar: string; en: string } }> = [
+  { key: "", label: { ar: "الكلّ", en: "All" } },
+  { key: "tip", label: { ar: "نصائح", en: "Tips" } },
+  { key: "news", label: { ar: "أخبار", en: "News" } },
+  { key: "quote", label: { ar: "اقتباسات", en: "Quotes" } },
+  { key: "story", label: { ar: "قصص", en: "Stories" } },
 ];
 
 export default function Daily() {
+  const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<"" | DailyType>("");
   const [rows, setRows] = useState<Post[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "اليوميّات — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar" ? "اليوميّات — آيلاند هيفن" : "Daily — Island Haven";
+  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,19 +50,26 @@ export default function Daily() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [filter]);
+  }, [filter, lang]);
 
   return (
     <PageShell
       active="daily"
-      eyebrow="نَبضُ المساحة"
-      title="اليوميّات"
-      subtitle="نَصائح، أخبار، قَصص واقتباسات نَشاركها يوميًا — لِنُلهِم بعضنا بعضًا."
+      eyebrow={t({ ar: "نَبضُ المساحة", en: "The Space's Pulse" })}
+      title={t({ ar: "اليوميّات", en: "Daily" })}
+      subtitle={t({
+        ar: "نَصائح، أخبار، قَصص واقتباسات نَشاركها يوميًا — لِنُلهِم بعضنا بعضًا.",
+        en: "Tips, news, stories, and quotes we share daily — to inspire one another.",
+      })}
     >
       <div className="flex items-center gap-2 mb-8 flex-wrap">
         {FILTERS.map((f) => (
@@ -72,7 +83,7 @@ export default function Daily() {
             }`}
             data-testid={`filter-${f.key || "all"}`}
           >
-            {f.label}
+            {t(f.label)}
           </button>
         ))}
       </div>
@@ -91,7 +102,13 @@ export default function Daily() {
           ))}
         </div>
       ) : rows && rows.length === 0 ? (
-        <EmptyState title="لا توجد مَنشورات بعد" hint="عُد قريبًا — هناك جديد كلّ يوم." />
+        <EmptyState
+          title={t({ ar: "لا توجد مَنشورات بعد", en: "No posts yet" })}
+          hint={t({
+            ar: "عُد قريبًا — هناك جديد كلّ يوم.",
+            en: "Check back soon — there's something new every day.",
+          })}
+        />
       ) : (
         <div className="space-y-5">
           {rows?.map((p, i) => (
@@ -111,6 +128,7 @@ export default function Daily() {
 }
 
 function DailyCard({ post }: { post: Post }) {
+  const { lang, t } = useLanguage();
   return (
     <Link
       href={`/daily/${post.id}`}
@@ -136,10 +154,12 @@ function DailyCard({ post }: { post: Post }) {
           <div className="p-5 sm:p-6">
             <div className="flex items-center gap-2.5 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-                {DAILY_TYPE_LABELS[post.type]}
+                {lang === "ar"
+                  ? DAILY_TYPE_LABELS[post.type]
+                  : DAILY_TYPE_LABELS_EN[post.type]}
               </span>
               <span className="text-white/45 text-[11.5px]">
-                {formatArabicDate(post.publishedAt)}
+                {formatDate(post.publishedAt, lang)}
               </span>
             </div>
             <h3 className="text-white font-bold text-[18px] leading-snug mb-2">
@@ -151,8 +171,8 @@ function DailyCard({ post }: { post: Post }) {
               </p>
             )}
             <div className="mt-3 flex items-center gap-2 text-[12.5px] text-white/55 group-hover:text-primary font-semibold transition-colors">
-              <span>اقرأ المزيد</span>
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <span>{t({ ar: "اقرأ المزيد", en: "Read more" })}</span>
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </div>
@@ -162,6 +182,7 @@ function DailyCard({ post }: { post: Post }) {
 }
 
 export function DailyDetail() {
+  const { lang, t } = useLanguage();
   const [, params] = useRoute("/daily/:id");
   const id = params?.id;
   const [post, setPost] = useState<Post | null>(null);
@@ -171,17 +192,26 @@ export function DailyDetail() {
     if (!id) return;
     api<{ post: Post }>(`/daily/${id}`)
       .then((r) => setPost(r.post))
-      .catch((e) => setError(e instanceof ApiError ? e.message : "تعذّر التحميل"));
-  }, [id]);
+      .catch((e) =>
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        ),
+      );
+  }, [id, lang]);
 
   useEffect(() => {
-    if (post?.title) document.title = `${post.title} — آيلاند هيفن`;
-  }, [post?.title]);
+    if (post?.title)
+      document.title = `${post.title} — ${
+        lang === "ar" ? "آيلاند هيفن" : "Island Haven"
+      }`;
+  }, [post?.title, lang]);
 
   if (error && !post) {
     return (
       <PageShell active="daily">
-        <BackLink href="/daily" label="عودة" />
+        <BackLink href="/daily" label={t({ ar: "عودة", en: "Back" })} />
         <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
       </PageShell>
     );
@@ -196,7 +226,7 @@ export function DailyDetail() {
 
   return (
     <PageShell active="daily" maxWidth="max-w-3xl">
-      <BackLink href="/daily" label="كلّ اليوميّات" />
+      <BackLink href="/daily" label={t({ ar: "كلّ اليوميّات", en: "All daily" })} />
       <GlassCard>
         {post.coverUrl && (
           <div className="aspect-[16/9] overflow-hidden bg-black/30">
@@ -210,10 +240,12 @@ export function DailyDetail() {
         <div className="p-6 sm:p-10">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
-              {DAILY_TYPE_LABELS[post.type]}
+              {lang === "ar"
+                ? DAILY_TYPE_LABELS[post.type]
+                : DAILY_TYPE_LABELS_EN[post.type]}
             </span>
             <span className="text-white/45 text-[11.5px]">
-              {formatArabicDate(post.publishedAt)}
+              {formatDate(post.publishedAt, lang)}
             </span>
           </div>
           <h1

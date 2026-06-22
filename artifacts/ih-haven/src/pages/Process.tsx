@@ -10,16 +10,20 @@ import {
   Clock,
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
 
 const STEPS = [
   {
     num: "01",
     icon: FileText,
-    title: "تقدّم بطلبك",
+    title: { ar: "تقدّم بطلبك", en: "Apply" },
     en: "Apply",
-    desc: "أكمل نموذج التقديم الإلكتروني. سيستغرق ما بين 15 و30 دقيقة. كن صريحاً في وصف فكرتك وتحدياتها — نُقدّر الصراحة.",
-    time: "15–30 دقيقة",
+    desc: {
+      ar: "أكمل نموذج التقديم الإلكتروني. سيستغرق ما بين 15 و30 دقيقة. كن صريحاً في وصف فكرتك وتحدياتها — نُقدّر الصراحة.",
+      en: "Complete the online application. It takes 15–30 minutes. Be candid about your idea and its challenges — we value honesty.",
+    },
+    time: { ar: "15–30 دقيقة", en: "15–30 minutes" },
     color: "from-blue-500/20 to-blue-600/5",
     accent: "text-blue-400",
     border: "border-blue-500/20",
@@ -27,10 +31,13 @@ const STEPS = [
   {
     num: "02",
     icon: Search,
-    title: "المراجعة الأوليّة",
+    title: { ar: "المراجعة الأوليّة", en: "Initial Review" },
     en: "Initial Review",
-    desc: "يراجع فريقنا طلبك خلال 5–7 أيام عمل. نتحقق من جدّية الفكرة، ومدى توافقها مع معايير الحاضنة، وإمكانية التنفيذ.",
-    time: "5–7 أيام",
+    desc: {
+      ar: "يراجع فريقنا طلبك خلال 5–7 أيام عمل. نتحقق من جدّية الفكرة، ومدى توافقها مع معايير الحاضنة، وإمكانية التنفيذ.",
+      en: "Our team reviews your application within 5–7 business days. We assess the idea's seriousness, fit with the incubator's criteria, and feasibility.",
+    },
+    time: { ar: "5–7 أيام", en: "5–7 days" },
     color: "from-violet-500/20 to-violet-600/5",
     accent: "text-violet-400",
     border: "border-violet-500/20",
@@ -38,10 +45,13 @@ const STEPS = [
   {
     num: "03",
     icon: Users,
-    title: "المقابلة",
+    title: { ar: "المقابلة", en: "Interview" },
     en: "Interview",
-    desc: "إذا اجتزت المرحلة الأوليّة، ستُدعى لمقابلة مع لجنة من الحاضنة. الجلسة تستمرّ 30–45 دقيقة وتكون مباشرة أو عبر الإنترنت.",
-    time: "30–45 دقيقة",
+    desc: {
+      ar: "إذا اجتزت المرحلة الأوليّة، ستُدعى لمقابلة مع لجنة من الحاضنة. الجلسة تستمرّ 30–45 دقيقة وتكون مباشرة أو عبر الإنترنت.",
+      en: "If you pass the first stage, you'll be invited to an interview with an incubator panel. The session lasts 30–45 minutes, in person or online.",
+    },
+    time: { ar: "30–45 دقيقة", en: "30–45 minutes" },
     color: "from-amber-500/20 to-amber-600/5",
     accent: "text-amber-400",
     border: "border-amber-500/20",
@@ -49,10 +59,13 @@ const STEPS = [
   {
     num: "04",
     icon: CheckCircle2,
-    title: "قرار القبول",
+    title: { ar: "قرار القبول", en: "Decision" },
     en: "Decision",
-    desc: "يصدر القرار خلال أسبوع من المقابلة. سواء قُبِلت أو لم تُقبَل، ستحصل على تغذية راجعة واضحة تساعدك على التطوير.",
-    time: "5–7 أيام",
+    desc: {
+      ar: "يصدر القرار خلال أسبوع من المقابلة. سواء قُبِلت أو لم تُقبَل، ستحصل على تغذية راجعة واضحة تساعدك على التطوير.",
+      en: "A decision is issued within a week of the interview. Whether accepted or not, you'll receive clear feedback to help you grow.",
+    },
+    time: { ar: "5–7 أيام", en: "5–7 days" },
     color: "from-emerald-500/20 to-emerald-600/5",
     accent: "text-emerald-400",
     border: "border-emerald-500/20",
@@ -60,10 +73,13 @@ const STEPS = [
   {
     num: "05",
     icon: Rocket,
-    title: "الاستقبال والتوجيه",
+    title: { ar: "الاستقبال والتوجيه", en: "Onboarding" },
     en: "Onboarding",
-    desc: "أسبوع توجيهيّ مكثّف تتعرّف فيه على الفريق والخبراء والأعضاء. تُوضع خارطة طريق واضحة لمشروعك خلال مدة البرنامج.",
-    time: "أسبوع كامل",
+    desc: {
+      ar: "أسبوع توجيهيّ مكثّف تتعرّف فيه على الفريق والخبراء والأعضاء. تُوضع خارطة طريق واضحة لمشروعك خلال مدة البرنامج.",
+      en: "An intensive orientation week where you meet the team, experts, and members. A clear roadmap is set for your project across the program.",
+    },
+    time: { ar: "أسبوع كامل", en: "A full week" },
     color: "from-primary/20 to-primary/5",
     accent: "text-primary",
     border: "border-primary/20",
@@ -71,10 +87,13 @@ const STEPS = [
   {
     num: "06",
     icon: Trophy,
-    title: "الانطلاق",
+    title: { ar: "الانطلاق", en: "Launch" },
     en: "Launch",
-    desc: "ابدأ رحلتك رسمياً ضمن دُفعتك. متابعة أسبوعية، ورشات شهريّة، وإرشاد مباشر — وفي نهاية البرنامج تعرض مشروعك في Demo Day.",
-    time: "3–6 أشهر",
+    desc: {
+      ar: "ابدأ رحلتك رسمياً ضمن دُفعتك. متابعة أسبوعية، ورشات شهريّة، وإرشاد مباشر — وفي نهاية البرنامج تعرض مشروعك في Demo Day.",
+      en: "Officially begin your journey within your cohort. Weekly check-ins, monthly workshops, and direct mentorship — and at the end you present at Demo Day.",
+    },
+    time: { ar: "3–6 أشهر", en: "3–6 months" },
     color: "from-rose-500/20 to-rose-600/5",
     accent: "text-rose-400",
     border: "border-rose-500/20",
@@ -82,17 +101,45 @@ const STEPS = [
 ];
 
 const FAQS = [
-  { q: "هل يمكنني التقديم أكثر من مرة؟", a: "نعم. إذا لم تُقبَل في دورة، يمكنك التقديم للدورة التالية مع تطوير طلبك بناءً على التغذية الراجعة." },
-  { q: "هل هناك حدّ أدنى لعمر المتقدم؟", a: "لا يوجد حدّ أدنى رسمي للعمر، لكن معظم المتقدمين فوق الـ 18. إذا كنت أصغر ولديك مشروع جدّي، تواصل معنا مباشرة." },
-  { q: "هل أحتاج إلى شريك في المشروع للتقديم؟", a: "لا. يمكنك التقديم بمفردك. بعض المشاريع تبدأ فردية وتجد شركاءها داخل الحاضنة لاحقاً." },
+  {
+    q: { ar: "هل يمكنني التقديم أكثر من مرة؟", en: "Can I apply more than once?" },
+    a: {
+      ar: "نعم. إذا لم تُقبَل في دورة، يمكنك التقديم للدورة التالية مع تطوير طلبك بناءً على التغذية الراجعة.",
+      en: "Yes. If you aren't accepted in one round, you can apply for the next one, improving your application based on the feedback.",
+    },
+  },
+  {
+    q: { ar: "هل هناك حدّ أدنى لعمر المتقدم؟", en: "Is there a minimum applicant age?" },
+    a: {
+      ar: "لا يوجد حدّ أدنى رسمي للعمر، لكن معظم المتقدمين فوق الـ 18. إذا كنت أصغر ولديك مشروع جدّي، تواصل معنا مباشرة.",
+      en: "There's no official minimum age, but most applicants are over 18. If you're younger and have a serious project, reach out to us directly.",
+    },
+  },
+  {
+    q: {
+      ar: "هل أحتاج إلى شريك في المشروع للتقديم؟",
+      en: "Do I need a co-founder to apply?",
+    },
+    a: {
+      ar: "لا. يمكنك التقديم بمفردك. بعض المشاريع تبدأ فردية وتجد شركاءها داخل الحاضنة لاحقاً.",
+      en: "No. You can apply on your own. Some projects start solo and find their partners inside the incubator later.",
+    },
+  },
 ];
 
 export default function Process() {
+  const { t } = useLanguage();
   return (
     <PageShell
-      eyebrow="Application Process · عمليّة القبول"
-      title="طريقك إلى آيلاند"
-      subtitle="6 خطوات واضحة — من تقديم طلبك إلى إطلاق مشروعك."
+      eyebrow={t({
+        ar: "Application Process · عمليّة القبول",
+        en: "Application Process",
+      })}
+      title={t({ ar: "طريقك إلى آيلاند", en: "Your path to Island Haven" })}
+      subtitle={t({
+        ar: "6 خطوات واضحة — من تقديم طلبك إلى إطلاق مشروعك.",
+        en: "6 clear steps — from submitting your application to launching your project.",
+      })}
     >
       <div className="space-y-14">
         {/* Timeline */}
@@ -126,11 +173,11 @@ export default function Process() {
                             </span>
                             <span className="text-[11px] text-white/30 font-medium">{step.en}</span>
                           </div>
-                          <h3 className="text-[17px] font-bold text-white mb-2">{step.title}</h3>
-                          <p className="text-[13.5px] text-white/55 leading-relaxed">{step.desc}</p>
+                          <h3 className="text-[17px] font-bold text-white mb-2">{t(step.title)}</h3>
+                          <p className="text-[13.5px] text-white/55 leading-relaxed">{t(step.desc)}</p>
                           <div className="flex items-center gap-1.5 mt-3">
                             <Clock className={`w-3.5 h-3.5 ${step.accent} opacity-60`} />
-                            <span className={`text-[12px] font-medium ${step.accent} opacity-75`}>{step.time}</span>
+                            <span className={`text-[12px] font-medium ${step.accent} opacity-75`}>{t(step.time)}</span>
                           </div>
                         </div>
                       </div>
@@ -151,12 +198,14 @@ export default function Process() {
 
         {/* FAQs */}
         <div>
-          <h2 className="text-[20px] font-bold text-white mb-5">أسئلة شائعة عن التقديم</h2>
+          <h2 className="text-[20px] font-bold text-white mb-5">
+            {t({ ar: "أسئلة شائعة عن التقديم", en: "Frequently asked questions" })}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {FAQS.map((faq, i) => (
               <GlassCard key={i} className="p-5">
-                <h3 className="text-[14px] font-bold text-white mb-2">{faq.q}</h3>
-                <p className="text-[13px] text-white/50 leading-relaxed">{faq.a}</p>
+                <h3 className="text-[14px] font-bold text-white mb-2">{t(faq.q)}</h3>
+                <p className="text-[13px] text-white/50 leading-relaxed">{t(faq.a)}</p>
               </GlassCard>
             ))}
           </div>
@@ -169,13 +218,20 @@ export default function Process() {
           viewport={{ once: true }}
           className="text-center py-8 rounded-3xl border border-primary/20 bg-primary/[0.05]"
         >
-          <h3 className="text-[22px] font-bold text-white mb-2">مستعدّ للبدء؟</h3>
-          <p className="text-white/45 text-[14px] mb-6">خصّص 20 دقيقة وقدّم طلبك الآن — فكرتك تستحق.</p>
+          <h3 className="text-[22px] font-bold text-white mb-2">
+            {t({ ar: "مستعدّ للبدء؟", en: "Ready to begin?" })}
+          </h3>
+          <p className="text-white/45 text-[14px] mb-6">
+            {t({
+              ar: "خصّص 20 دقيقة وقدّم طلبك الآن — فكرتك تستحق.",
+              en: "Set aside 20 minutes and apply now — your idea deserves it.",
+            })}
+          </p>
           <Link
             href="/apply"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-white font-semibold text-[15px] hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
           >
-            قدّم طلب الانتساب
+            {t({ ar: "قدّم طلب الانتساب", en: "Submit your application" })}
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
           </Link>
           <div className="mt-4">
@@ -183,7 +239,10 @@ export default function Process() {
               href="/faq"
               className="text-[13px] text-white/35 hover:text-white/60 transition-colors underline underline-offset-2"
             >
-              عندك أسئلة؟ راجع الأسئلة الشائعة
+              {t({
+                ar: "عندك أسئلة؟ راجع الأسئلة الشائعة",
+                en: "Have questions? Check the FAQ",
+              })}
             </Link>
           </div>
         </motion.div>

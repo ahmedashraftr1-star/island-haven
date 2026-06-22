@@ -3,9 +3,11 @@ import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, CheckCircle2, AlertCircle } from "lucide-react";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
 export default function ResetPassword() {
+  const { lang, t } = useLanguage();
   const [, navigate] = useLocation();
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
 
@@ -17,17 +19,23 @@ export default function ResetPassword() {
   const errRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = "إعادة تعيين كلمة السرّ — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar"
+        ? "إعادة تعيين كلمة السرّ — آيلاند هيفن"
+        : "Reset Password — Island Haven";
+  }, [lang]);
 
   // If no token in URL, invalid link
   if (!token) {
     return (
       <AuthShell
-        eyebrow="رابط غير صالح"
-        title="الرابط"
-        highlight="منتهٍ"
-        subtitle="هذا الرابط غير صالح أو انتهت صلاحيته."
+        eyebrow={t({ ar: "رابط غير صالح", en: "Invalid link" })}
+        title={t({ ar: "الرابط", en: "Link" })}
+        highlight={t({ ar: "منتهٍ", en: "expired" })}
+        subtitle={t({
+          ar: "هذا الرابط غير صالح أو انتهت صلاحيته.",
+          en: "This link is invalid or has expired.",
+        })}
         footer={null}
       >
         <div className="text-center space-y-4 py-4">
@@ -35,13 +43,16 @@ export default function ResetPassword() {
             <AlertCircle className="w-7 h-7 text-rose-400" />
           </div>
           <p className="text-white/55 text-[13px]">
-            اطلب رابطًا جديدًا من صفحة نسيان كلمة السرّ.
+            {t({
+              ar: "اطلب رابطًا جديدًا من صفحة نسيان كلمة السرّ.",
+              en: "Request a new link from the forgot-password page.",
+            })}
           </p>
           <Link
             href="/forgot-password"
             className="inline-flex items-center gap-2 text-[13px] text-primary hover:underline font-semibold"
           >
-            طلب رابط جديد
+            {t({ ar: "طلب رابط جديد", en: "Request a new link" })}
           </Link>
         </div>
       </AuthShell>
@@ -54,11 +65,18 @@ export default function ResetPassword() {
     setError(null);
 
     if (newPassword !== confirm) {
-      setError("كلمتا السرّ غير متطابقتين");
+      setError(
+        t({ ar: "كلمتا السرّ غير متطابقتين", en: "Passwords don't match" }),
+      );
       return;
     }
     if (newPassword.length < 8) {
-      setError("كلمة السرّ يجب أن تكون 8 أحرف فأكثر");
+      setError(
+        t({
+          ar: "كلمة السرّ يجب أن تكون 8 أحرف فأكثر",
+          en: "Password must be at least 8 characters",
+        }),
+      );
       return;
     }
 
@@ -71,7 +89,11 @@ export default function ResetPassword() {
       setDone(true);
       setTimeout(() => navigate("/login"), 3000);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "تعذّر إعادة التعيين");
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : t({ ar: "تعذّر إعادة التعيين", en: "Couldn't reset password" }),
+      );
       setTimeout(() => errRef.current?.focus(), 50);
     } finally {
       setSubmitting(false);
@@ -80,10 +102,13 @@ export default function ResetPassword() {
 
   return (
     <AuthShell
-      eyebrow="تعيين كلمة سرّ جديدة"
-      title="كلمة سرّ"
-      highlight="جديدة"
-      subtitle="اختر كلمة سرّ قوية لا تقلّ عن 8 أحرف."
+      eyebrow={t({ ar: "تعيين كلمة سرّ جديدة", en: "Set a new password" })}
+      title={t({ ar: "كلمة سرّ", en: "New" })}
+      highlight={t({ ar: "جديدة", en: "password" })}
+      subtitle={t({
+        ar: "اختر كلمة سرّ قوية لا تقلّ عن 8 أحرف.",
+        en: "Choose a strong password of at least 8 characters.",
+      })}
       footer={null}
     >
       <AnimatePresence mode="wait">
@@ -98,9 +123,14 @@ export default function ResetPassword() {
               <CheckCircle2 className="w-7 h-7 text-emerald-400" />
             </div>
             <div>
-              <p className="text-white font-semibold text-[15px]">تمّ بنجاح</p>
+              <p className="text-white font-semibold text-[15px]">
+                {t({ ar: "تمّ بنجاح", en: "Done" })}
+              </p>
               <p className="text-white/55 text-[13px] mt-1">
-                ستنتقل إلى صفحة تسجيل الدخول خلال ثوانٍ…
+                {t({
+                  ar: "ستنتقل إلى صفحة تسجيل الدخول خلال ثوانٍ…",
+                  en: "You'll be redirected to the login page in a few seconds…",
+                })}
               </p>
             </div>
           </motion.div>
@@ -130,26 +160,29 @@ export default function ResetPassword() {
 
             <AuthField
               id="newPassword"
-              label="كلمة السرّ الجديدة"
+              label={t({ ar: "كلمة السرّ الجديدة", en: "New password" })}
               hint="New password"
               icon={Lock}
               type="password"
               autoComplete="new-password"
               value={newPassword}
               onChange={(v) => setNewPassword(v)}
-              placeholder="٨ أحرف فأكثر"
+              placeholder={t({ ar: "٨ أحرف فأكثر", en: "8 characters or more" })}
             />
 
             <AuthField
               id="confirm"
-              label="تأكيد كلمة السرّ"
+              label={t({ ar: "تأكيد كلمة السرّ", en: "Confirm password" })}
               hint="Confirm password"
               icon={Lock}
               type="password"
               autoComplete="new-password"
               value={confirm}
               onChange={(v) => setConfirm(v)}
-              placeholder="أعد كتابة كلمة السرّ"
+              placeholder={t({
+                ar: "أعد كتابة كلمة السرّ",
+                en: "Re-type your password",
+              })}
             />
 
             <button
@@ -157,7 +190,9 @@ export default function ResetPassword() {
               disabled={submitting || !newPassword || !confirm}
               className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
-              {submitting ? "جارٍ الحفظ…" : "تعيين كلمة السرّ"}
+              {submitting
+                ? t({ ar: "جارٍ الحفظ…", en: "Saving…" })
+                : t({ ar: "تعيين كلمة السرّ", en: "Set password" })}
             </button>
           </motion.form>
         )}
