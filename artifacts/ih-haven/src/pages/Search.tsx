@@ -65,7 +65,7 @@ export default function Search() {
       return;
     }
     setLoading(true);
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       let cancelled = false;
       api<Results & { q: string }>(`/search?q=${encodeURIComponent(term)}`)
         .then((r) => {
@@ -87,7 +87,7 @@ export default function Search() {
         cancelled = true;
       };
     }, 300);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [q]);
 
   const total = results
