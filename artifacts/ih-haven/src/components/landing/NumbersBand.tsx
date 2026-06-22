@@ -180,8 +180,8 @@ export function NumbersBand() {
                     <Icon className="w-5 h-5" strokeWidth={2.2} />
                   </div>
                   <div
-                    className="font-bold text-foreground leading-none mb-2.5 tabular-nums"
-                    style={{ fontSize: "clamp(2.2rem, 5vw, 3.2rem)", letterSpacing: "-0.03em" }}
+                    className="font-display font-extrabold text-foreground leading-none mb-2.5 tabular-nums"
+                    style={{ fontSize: "clamp(2.6rem, 6vw, 4rem)", letterSpacing: "-0.04em" }}
                   >
                     {n ? <CountUp value={t.value} lang={lang} /> : "—"}
                   </div>
