@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Search as SearchIcon, ArrowLeft, Award, Rocket, Layers, BookOpen, Users } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
 interface Hit {
@@ -22,20 +23,21 @@ interface Results {
 
 const CATEGORIES: {
   key: keyof Results;
-  label: string;
+  label: { ar: string; en: string };
   icon: typeof Award;
   to: (h: Hit) => string;
 }[] = [
-  { key: "experts", label: "الخبراء", icon: Award, to: (h) => `/experts/${h.id}` },
-  { key: "ventures", label: "المشاريع", icon: Rocket, to: (h) => `/ventures/${h.id}` },
-  { key: "programs", label: "البرامج", icon: Layers, to: (h) => `/programs/${h.id}` },
-  { key: "courses", label: "الكورسات والورشات", icon: BookOpen, to: (h) => `/courses/${h.id}` },
-  { key: "members", label: "المنتسبون", icon: Users, to: (h) => `/u/${h.id}` },
+  { key: "experts", label: { ar: "الخبراء", en: "Experts" }, icon: Award, to: (h) => `/experts/${h.id}` },
+  { key: "ventures", label: { ar: "المشاريع", en: "Ventures" }, icon: Rocket, to: (h) => `/ventures/${h.id}` },
+  { key: "programs", label: { ar: "البرامج", en: "Programs" }, icon: Layers, to: (h) => `/programs/${h.id}` },
+  { key: "courses", label: { ar: "الكورسات والورشات", en: "Courses & Workshops" }, icon: BookOpen, to: (h) => `/courses/${h.id}` },
+  { key: "members", label: { ar: "المنتسبون", en: "Members" }, icon: Users, to: (h) => `/u/${h.id}` },
 ];
 
 const EMPTY: Results = { experts: [], ventures: [], programs: [], courses: [], members: [] };
 
 export default function Search() {
+  const { lang, t } = useLanguage();
   const [q, setQ] = useState(() => {
     try {
       return new URLSearchParams(window.location.search).get("q") ?? "";
@@ -49,9 +51,9 @@ export default function Search() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    document.title = "بحث — آيلاند هيفن";
+    document.title = lang === "ar" ? "بحث — آيلاند هيفن" : "Search — Island Haven";
     inputRef.current?.focus();
-  }, []);
+  }, [lang]);
 
   // Debounced search.
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function Search() {
           setError(null);
         })
         .catch((e) => {
-          if (!cancelled) setError(e instanceof ApiError ? e.message : "تعذّر البحث");
+          if (!cancelled) setError(e instanceof ApiError ? e.message : t({ ar: "تعذّر البحث", en: "Search failed" }));
         })
         .finally(() => !cancelled && setLoading(false));
       return () => {
@@ -95,10 +97,13 @@ export default function Search() {
 
   return (
     <PageShell
-      eyebrow="ابحث في الحاضنة · Search"
-      title="بحث"
-      highlight="شامل"
-      subtitle="ابحث في الخبراء، المشاريع، البرامج، الكورسات، والمنتسبين — كلّ شيء من مكان واحد."
+      eyebrow={t({ ar: "ابحث في الحاضنة · Search", en: "Search the incubator" })}
+      title={t({ ar: "بحث", en: "Global" })}
+      highlight={t({ ar: "شامل", en: "Search" })}
+      subtitle={t({
+        ar: "ابحث في الخبراء، المشاريع، البرامج، الكورسات، والمنتسبين — كلّ شيء من مكان واحد.",
+        en: "Search experts, ventures, programs, courses, and members — all from one place.",
+      })}
       maxWidth="max-w-3xl"
     >
       <div className="relative mb-8">
@@ -107,7 +112,7 @@ export default function Search() {
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="اكتب اسمًا، مهارة، أو موضوعًا…"
+          placeholder={t({ ar: "اكتب اسمًا، مهارة، أو موضوعًا…", en: "Type a name, skill, or topic…" })}
           className="w-full h-14 pe-12 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[15px] placeholder-white/40 outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-colors"
           data-testid="input-global-search"
         />
@@ -116,7 +121,10 @@ export default function Search() {
       {error && <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>}
 
       {q.trim().length < 2 ? (
-        <EmptyState title="ابدأ البحث" hint="اكتب حرفين على الأقلّ لعرض النتائج." />
+        <EmptyState
+          title={t({ ar: "ابدأ البحث", en: "Start searching" })}
+          hint={t({ ar: "اكتب حرفين على الأقلّ لعرض النتائج.", en: "Type at least two characters to see results." })}
+        />
       ) : loading && !results ? (
         <div className="space-y-3">
           {[0, 1, 2, 3].map((i) => (
@@ -124,7 +132,14 @@ export default function Search() {
           ))}
         </div>
       ) : results && total === 0 ? (
-        <EmptyState title="لا نتائج" hint={`لم نجد شيئًا لـ «${q.trim()}». جرّب كلمة أخرى.`} />
+        <EmptyState
+          title={t({ ar: "لا نتائج", en: "No results" })}
+          hint={
+            lang === "ar"
+              ? `لم نجد شيئًا لـ «${q.trim()}». جرّب كلمة أخرى.`
+              : `Nothing found for “${q.trim()}”. Try another term.`
+          }
+        />
       ) : (
         <div className="space-y-9">
           {CATEGORIES.map((c) => {
@@ -135,7 +150,7 @@ export default function Search() {
               <section key={c.key}>
                 <div className="flex items-center gap-2.5 mb-3">
                   <Icon className="w-4 h-4 text-primary" />
-                  <h2 className="text-white font-bold text-[15.5px]">{c.label}</h2>
+                  <h2 className="text-white font-bold text-[15.5px]">{t(c.label)}</h2>
                   <span className="text-white/40 text-[12px] tabular-nums">({items.length})</span>
                 </div>
                 <div className="space-y-2.5">

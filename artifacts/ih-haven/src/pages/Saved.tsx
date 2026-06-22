@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, MessageCircle, Bookmark } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth, type UserRole } from "@/lib/auth";
 
@@ -23,6 +24,7 @@ interface SavedRow {
 }
 
 export default function Saved() {
+  const { lang, t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [rows, setRows] = useState<SavedRow[] | null>(null);
@@ -31,8 +33,9 @@ export default function Saved() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "المحفوظات — آيلاند هيفن";
-  }, []);
+    document.title =
+      lang === "ar" ? "المحفوظات — آيلاند هيفن" : "Saved — Island Haven";
+  }, [lang]);
 
   // Saved works require a signed-in member; send guests to login (and back).
   useEffect(() => {
@@ -52,7 +55,11 @@ export default function Saved() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof ApiError ? e.message : "تعذّر التحميل");
+        setError(
+          e instanceof ApiError
+            ? e.message
+            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+        );
       });
     return () => { cancelled = true; };
   }, [user, page]);
@@ -60,10 +67,13 @@ export default function Saved() {
   return (
     <PageShell
       active="works"
-      eyebrow="مكتبتك"
-      title="الأعمال"
-      highlight="المحفوظة"
-      subtitle="الأعمال التي حفظتها للرجوع إليها لاحقًا — قائمة خاصّة بك."
+      eyebrow={t({ ar: "مكتبتك", en: "Your library" })}
+      title={t({ ar: "الأعمال", en: "Saved" })}
+      highlight={t({ ar: "المحفوظة", en: "Works" })}
+      subtitle={t({
+        ar: "الأعمال التي حفظتها للرجوع إليها لاحقًا — قائمة خاصّة بك.",
+        en: "Works you've saved to revisit later — your private list.",
+      })}
     >
       {error && (
         <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
@@ -80,8 +90,11 @@ export default function Saved() {
         </div>
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title="لا توجد أعمال محفوظة بعد"
-          hint="اضغط «حفظ» على أيّ عمل يعجبك ليظهر هنا."
+          title={t({ ar: "لا توجد أعمال محفوظة بعد", en: "No saved works yet" })}
+          hint={t({
+            ar: "اضغط «حفظ» على أيّ عمل يعجبك ليظهر هنا.",
+            en: "Tap “Save” on any work you like and it'll show up here.",
+          })}
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
