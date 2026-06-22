@@ -46,13 +46,13 @@ export function Voices() {
 
   return (
     <section className="relative bg-[#0A0E1A] text-white py-28 lg:py-40 overflow-hidden">
-      <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">
-        <img src={imageUrl(c.image)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+      <div aria-hidden className="absolute inset-0 opacity-[0.42] pointer-events-none">
+        <img src={imageUrl(c.image)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover saturate-[1.05]" />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.55) 50%, rgba(10,14,26,0.95) 100%)",
+              "linear-gradient(180deg, rgba(10,14,26,0.72) 0%, rgba(10,14,26,0.38) 50%, rgba(10,14,26,0.88) 100%)",
           }}
         />
       </div>

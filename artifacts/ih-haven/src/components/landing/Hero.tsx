@@ -186,7 +186,7 @@ export function Hero() {
               opacity: { duration: 1.6, ease: [0.16, 1, 0.3, 1] },
               scale: { duration: 7, ease: "linear" },
             }}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover saturate-[1.08] contrast-[1.03]"
             loading={i === 0 ? "eager" : "lazy"}
             decoding="async"
             {...(i === 0 ? { fetchPriority: "high" as any } : {})}
@@ -199,15 +199,24 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,14,26,0.55) 0%, rgba(10,14,26,0.18) 30%, rgba(10,14,26,0.45) 65%, rgba(10,14,26,0.92) 100%)",
+              "linear-gradient(180deg, rgba(10,14,26,0.38) 0%, rgba(10,14,26,0.06) 34%, rgba(10,14,26,0.30) 62%, rgba(10,14,26,0.82) 100%)",
+          }}
+        />
+        {/* Focused scrim behind the headline (right side, RTL) so text stays
+            crisp while the rest of the photo breathes. */}
+        <div
+          className="absolute inset-y-0 right-0 w-full lg:w-[68%]"
+          style={{
+            background:
+              "linear-gradient(270deg, rgba(10,14,26,0.62) 0%, rgba(10,14,26,0.30) 38%, transparent 72%)",
           }}
         />
         <div
-          className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[55vh]"
+          className="absolute top-[42%] right-[20%] -translate-y-1/2 w-[60vw] h-[55vh]"
           style={{
             background:
-              "radial-gradient(ellipse at center, hsl(354 100% 65% / 0.28) 0%, transparent 65%)",
-            filter: "blur(60px)",
+              "radial-gradient(ellipse at center, hsl(354 100% 62% / 0.22) 0%, transparent 65%)",
+            filter: "blur(70px)",
           }}
         />
         <div
@@ -310,7 +319,7 @@ export function Hero() {
             <a
               href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-8 rounded-full bg-primary text-primary-foreground font-semibold text-[14px] tracking-[-0.005em] hover:scale-[1.025] transition-all duration-500 shadow-[0_20px_60px_-15px_rgba(220,68,84,0.55)]"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.03] transition-all duration-500 shadow-[0_24px_70px_-12px_rgba(220,68,84,0.7)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />

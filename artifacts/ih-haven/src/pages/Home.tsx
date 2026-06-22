@@ -8,7 +8,10 @@ import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { NewsSlider } from "@/components/landing/NewsSlider";
 import { NumbersBand } from "@/components/landing/NumbersBand";
-import { StatsBand } from "@/components/landing/StatsBand";
+import { Marquee } from "@/components/landing/Marquee";
+import { Scrollytelling } from "@/components/landing/Scrollytelling";
+import { WordWindow } from "@/components/landing/WordWindow";
+import { SpotlightReveal } from "@/components/landing/SpotlightReveal";
 import { ExpertsBand } from "@/components/landing/ExpertsBand";
 import { Voices } from "@/components/landing/Voices";
 import { SuccessStories } from "@/components/landing/SuccessStories";
@@ -40,11 +43,14 @@ export default function Home() {
       <Header />
       <div className="relative z-10">
         <Hero />
-        <NewsSlider />
+        <Marquee />
         <NumbersBand />
-        <StatsBand />
+        <NewsSlider />
+        <Scrollytelling />
         <Audience />
+        <WordWindow />
         <ExpertsBand />
+        <SpotlightReveal />
         <Voices />
         <SuccessStories />
         <GazaPulseMap />

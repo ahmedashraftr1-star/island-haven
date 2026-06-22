@@ -77,7 +77,7 @@ export function Campaign() {
             <img
               src={`${import.meta.env.BASE_URL}photos/IMG_8300.webp`}
               alt="Island Haven workspace in Gaza"
-              className="w-full aspect-[4/5] object-cover grayscale-[10%]"
+              className="w-full aspect-[4/5] object-cover saturate-[1.06]"
             />
             <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] tracking-[0.3em] uppercase font-bold px-3 py-2">
               {lang === "en" ? "Open now · Live" : "مفتوحة الآن · Live"}
