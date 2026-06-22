@@ -26,6 +26,7 @@ import {
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useContentSection } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type CategoryId = "freelancer" | "graduate" | "student" | "other";
 
@@ -121,8 +122,104 @@ const FALLBACK = {
 };
 type ApplyContent = typeof FALLBACK;
 
+// English counterpart — keyed identically to FALLBACK. The Arabic strings live in
+// FALLBACK (and are CMS-overridable); English UI chrome is resolved from here.
+const FALLBACK_EN: ApplyContent = {
+  backLabel: "Back",
+  brandLatin: "Island Haven",
+  brandArabic: "Island Haven",
+  eyebrow: "Join a circle of future-makers · entirely free",
+  titleLead: "Join",
+  titleAccent: "Island Haven",
+  subtitle:
+    "An exceptional tech incubator in the heart of Gaza, open to those who refuse to be defined by circumstance. Show us you're ready — and we'll be in touch within days.",
+  sec1Title: "Identity",
+  sec1Sub: "Identity",
+  fullNameLabel: "Full name",
+  fullNameHint: "Full name",
+  fullNamePlaceholder: "e.g. Yasmine Al-Ghazzawi",
+  emailLabel: "Email address",
+  emailHint: "Email",
+  emailPlaceholder: "name@example.com",
+  phoneLabel: "WhatsApp number",
+  phoneHint: "WhatsApp",
+  phonePlaceholder: "+970 …",
+  sec2Title: "Your track",
+  sec2Sub: "Your Track",
+  cat1Label: "Freelancer",
+  cat1Sub: "Freelancer",
+  cat2Label: "Graduate",
+  cat2Sub: "Graduate",
+  cat3Label: "Student",
+  cat3Sub: "Student",
+  cat4Label: "Other",
+  cat4Sub: "Other",
+  sec3Title: "Your story",
+  sec3Sub: "Your Story",
+  bioLabel: "About you and your field",
+  bioHint: "Bio",
+  bioPlaceholder: "What do you do or study? What do you want to achieve, and what sets you apart?",
+  motivationLabel: "Why Island Haven?",
+  motivationHint: "Motivation",
+  motivationPlaceholder: "Make the case — why do you, specifically, belong in the Island community? What will you bring, and what do you hope to achieve?",
+  sec4Title: "Your expertise",
+  sec4Sub: "Expertise",
+  skillsLabel: "Your technical skills",
+  skillsHint: "Skills",
+  skillsPlaceholder: "e.g. React, Node.js, Figma, Python — everything you're great at …",
+  specializationLabel: "Academic major / university",
+  specializationHint: "Academic",
+  specializationPlaceholder: "e.g. Computer Engineering — Islamic University",
+  yearsLabel: "Years of experience",
+  sec5Title: "Your digital presence",
+  sec5Sub: "Digital Presence",
+  linkedinLabel: "LinkedIn URL",
+  linkedinHint: "LinkedIn",
+  linkedinPlaceholder: "https://linkedin.com/in/username",
+  portfolioLabel: "GitHub / Portfolio / personal site",
+  portfolioHint: "Portfolio",
+  portfolioPlaceholder: "https://github.com/username",
+  sec6Title: "Your achievements",
+  sec6Sub: "Achievements",
+  previousWorkLabel: "Projects or work you're proud of",
+  previousWorkHint: "Projects",
+  previousWorkPlaceholder: "Tell us about a project you shipped or work you're proud of — or drop a link to your portfolio. This is your space to prove yourself …",
+  sec7Title: "Your commitment",
+  sec7Sub: "Commitment",
+  weeklyHoursLabel: "Hours available per week",
+  employedLabel: "Your current employment status",
+  employedYes: "Currently working",
+  employedNo: "Looking for an opportunity",
+  sec8Title: "Your full profile",
+  sec8Sub: "CV / Résumé",
+  cvUploadLabel: "Your CV (PDF, up to 10 MB)",
+  cvUploadHint: "Optional, but it strengthens your application",
+  cvUploadBtn: "Upload a PDF",
+  cvUploadLoading: "Uploading…",
+  cvUploadDone: "Uploaded successfully",
+  cvUploadRemove: "Remove",
+  submitLabel: "Submit my application",
+  submitLoading: "Submitting…",
+  consentLine: "By submitting, you agree that we may contact you about your application only.",
+  trustLabel: "Powered by",
+  trustBrand: "People to People",
+  errFallback: "We couldn't submit your application. Please try again.",
+  errNetwork: "We couldn't reach the server. Check your connection and try again.",
+  successEyebrow: "Your application is with the team",
+  successThanksLead: "Thank you,",
+  successFallbackName: "friend",
+  successBody:
+    "We've received your application and the team will review it carefully. We'll reach out on WhatsApp within days.\nWelcome to the Island Haven family — the future starts here.",
+  successRefLabel: "Application no.",
+  successCta: "Back to home",
+  docTitle: "Join Island Haven",
+};
+
 export default function Apply() {
-  const c = useContentSection("applyForm", FALLBACK);
+  const { lang, dir, t } = useLanguage();
+  // Arabic content (CMS-overridable); English UI chrome from FALLBACK_EN.
+  const arContent = useContentSection("applyForm", FALLBACK);
+  const c: ApplyContent = lang === "en" ? FALLBACK_EN : arContent;
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -151,7 +248,7 @@ export default function Apply() {
 
   async function uploadCv(file: File) {
     if (file.size > 10 * 1024 * 1024) {
-      setError("حجم الملف أكبر من 10 ميغا");
+      setError(t({ ar: "حجم الملف أكبر من 10 ميغا", en: "File is larger than 10 MB" }));
       return;
     }
     setCvUploading(true);
@@ -160,11 +257,11 @@ export default function Apply() {
       fd.append("file", file);
       const resp = await fetch("/api/uploads/cv", { method: "POST", body: fd });
       const json = await resp.json();
-      if (!resp.ok) throw new Error(json.error || "فشل رفع الملف");
+      if (!resp.ok) throw new Error(json.error || t({ ar: "فشل رفع الملف", en: "File upload failed" }));
       setCvUrl(json.url);
       setCvFileName(file.name);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "تعذّر رفع السيرة الذاتية");
+      setError(e instanceof Error ? e.message : t({ ar: "تعذّر رفع السيرة الذاتية", en: "We couldn't upload your CV" }));
     } finally {
       setCvUploading(false);
     }
@@ -248,7 +345,7 @@ export default function Apply() {
 
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
@@ -486,7 +583,7 @@ export default function Apply() {
                           <span className="text-[10px] tracking-[0.16em] uppercase">Experience</span>
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-2" dir="rtl">
+                      <div className="flex flex-wrap gap-2" dir={dir}>
                         {([0, 1, 2, 3, 5, 7, 10, 15] as const).map((yr) => {
                           const active = yearsExperience === yr;
                           return (
@@ -500,7 +597,11 @@ export default function Apply() {
                                   : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
                               }`}
                             >
-                              {yr === 0 ? "أقل من سنة" : yr === 15 ? "+15 سنة" : `${yr}+`}
+                              {yr === 0
+                                ? t({ ar: "أقل من سنة", en: "< 1 year" })
+                                : yr === 15
+                                  ? t({ ar: "+15 سنة", en: "15+ years" })
+                                  : `${yr}+`}
                             </button>
                           );
                         })}
@@ -575,7 +676,7 @@ export default function Apply() {
                           <span className="text-[10px] tracking-[0.16em] uppercase">hrs/week</span>
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-2" dir="rtl">
+                      <div className="flex flex-wrap gap-2" dir={dir}>
                         {([5, 10, 15, 20, 30, 40] as const).map((h) => {
                           const active = weeklyHours === h;
                           return (
@@ -589,7 +690,7 @@ export default function Apply() {
                                   : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
                               }`}
                             >
-                              {h}+ س/أسبوع
+                              {h}+ {t({ ar: "س/أسبوع", en: "hrs/wk" })}
                             </button>
                           );
                         })}
@@ -604,7 +705,7 @@ export default function Apply() {
                           <span className="text-[10px] tracking-[0.16em] uppercase">Employment</span>
                         </span>
                       </div>
-                      <div className="flex gap-3" dir="rtl">
+                      <div className="flex gap-3" dir={dir}>
                         {([{ v: true, l: c.employedYes }, { v: false, l: c.employedNo }] as const).map((opt) => {
                           const active = isEmployed === opt.v;
                           return (
@@ -675,7 +776,7 @@ export default function Apply() {
                       <div className="space-y-1.5">
                         <FileUp className="w-6 h-6 text-white/30 mx-auto" />
                         <div className="text-[13.5px] text-white/55">{c.cvUploadLabel}</div>
-                        <div className="text-[11px] text-white/30">{c.cvUploadHint} · اسحب الملف هنا أو</div>
+                        <div className="text-[11px] text-white/30">{c.cvUploadHint} · {t({ ar: "اسحب الملف هنا أو", en: "drag a file here or" })}</div>
                         <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/70 hover:text-white transition-colors">
                           {c.cvUploadBtn}
                         </div>
@@ -896,11 +997,12 @@ function BackgroundAura() {
 }
 
 function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c: ApplyContent }) {
+  const { dir } = useLanguage();
   const ref = String(id).padStart(5, "0");
   const bodyLines = c.successBody.split("\n");
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center px-6 py-16"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
