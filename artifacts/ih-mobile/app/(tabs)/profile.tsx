@@ -8,6 +8,36 @@ import * as ImagePicker from "expo-image-picker";
 
 import { T, Card, Btn } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
+import { useLanguage } from "@/lib/i18n";
+
+/** Compact language toggle pill (AR ⇄ EN). */
+function LangPill() {
+  const { lang, toggleLang } = useLanguage();
+  const colors = useColors();
+  return (
+    <TouchableOpacity
+      onPress={toggleLang}
+      accessibilityRole="button"
+      accessibilityLabel={lang === "ar" ? "التبديل إلى الإنجليزية" : "Switch to Arabic"}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
+        backgroundColor: colors.primarySoft,
+        borderWidth: 1,
+        borderColor: colors.primary + "40",
+      }}
+    >
+      <Feather name="globe" size={13} color={colors.primary} />
+      <T size={12} weight="bold" color={colors.primary}>
+        {lang === "ar" ? "English" : "العربية"}
+      </T>
+    </TouchableOpacity>
+  );
+}
 import { useAuth } from "@/lib/auth-context";
 import { resolveMedia, api, ApiError, API_BASE, getToken } from "@/lib/api";
 import type { CurrentUser } from "@/lib/types";
@@ -45,6 +75,7 @@ interface MyStoryData {
 
 export default function ProfileScreen() {
   const colors = useColors();
+  const { lang } = useLanguage();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, loading, signOut, refresh } = useAuth();
@@ -175,7 +206,10 @@ export default function ProfileScreen() {
         style={{ backgroundColor: colors.background }}
         contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, gap: 16 }}
       >
-        <T size={26} weight="bold">حسابي</T>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <T size={26} weight="bold">{lang === "ar" ? "حسابي" : "Account"}</T>
+          <LangPill />
+        </View>
         <Card style={{ alignItems: "center", paddingVertical: 32, gap: 14 }}>
           <View
             style={{
@@ -210,6 +244,9 @@ export default function ProfileScreen() {
       contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, paddingBottom: 120, gap: 16 }}
     >
       <View style={{ alignItems: "center", gap: 12 }}>
+        <View style={{ position: "absolute", top: 0, right: 0, zIndex: 5 }}>
+          <LangPill />
+        </View>
         <TouchableOpacity
           onPress={() => router.push("/edit-profile" as never)}
           style={{
