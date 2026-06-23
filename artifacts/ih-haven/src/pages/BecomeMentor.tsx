@@ -528,7 +528,7 @@ function FormField({
         {label}
       </label>
       <div
-        className={`flex items-start gap-2 rounded-xl border px-4 py-3 bg-muted/30 transition-colors focus-within:border-primary/50 focus-within:bg-white ${
+        className={`flex items-start gap-2 rounded-xl border px-4 py-3 bg-muted/30 transition-colors focus-within:border-primary/50 focus-within:bg-card ${
           error ? "border-rose-400 bg-rose-50/40" : "border-border"
         }`}
       >

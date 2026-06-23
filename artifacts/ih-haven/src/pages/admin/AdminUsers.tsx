@@ -103,14 +103,14 @@ export default function AdminUsers() {
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && reload()}
             placeholder="ابحث بالاسم أو البريد…"
-            className="w-full h-10 pr-10 pl-3 rounded-xl bg-white border border-border text-[13.5px] outline-none focus:border-primary/50"
+            className="w-full h-10 pr-10 pl-3 rounded-xl bg-card border border-border text-[13.5px] outline-none focus:border-primary/50"
             data-testid="input-search-users"
           />
         </div>
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-white border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
         >
           <option value="">كل الفئات</option>
           <option value="freelancer">مستقلّ</option>
@@ -121,7 +121,7 @@ export default function AdminUsers() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-white border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
         >
           <option value="">كل الحالات</option>
           <option value="active">نشط</option>
@@ -141,7 +141,7 @@ export default function AdminUsers() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -296,7 +296,7 @@ function UserEditor({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-6">
-      <div className="bg-white rounded-3xl border border-border w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div className="bg-card rounded-3xl border border-border w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="text-[16px] font-bold text-foreground">
             تعديل حساب — {initial.email}

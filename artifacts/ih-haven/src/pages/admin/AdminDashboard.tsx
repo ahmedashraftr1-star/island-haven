@@ -181,7 +181,7 @@ export default function AdminDashboard() {
   return (
     <div dir="rtl" className="min-h-screen bg-muted/40 flex">
       {/* Sidebar */}
-      <aside className="hidden lg:flex w-[240px] shrink-0 border-l border-border bg-white flex-col h-screen sticky top-0">
+      <aside className="hidden lg:flex w-[240px] shrink-0 border-l border-border bg-card flex-col h-screen sticky top-0">
         <div className="px-6 pt-7 pb-6 border-b border-border">
           <div className="flex items-center gap-3">
             <HavenMark size={36} className="text-primary" delay={0} />

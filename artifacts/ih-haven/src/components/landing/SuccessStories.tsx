@@ -65,7 +65,7 @@ export function SuccessStories() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.05 }}
-                className="rounded-3xl p-6 bg-white border border-foreground/8 shadow-soft flex flex-col"
+                className="rounded-3xl p-6 bg-card border border-foreground/8 shadow-soft flex flex-col"
               >
                 <Quote className="w-7 h-7 text-primary/30 mb-3" />
                 <blockquote className="text-foreground/80 text-[14.5px] leading-[1.9] flex-1">

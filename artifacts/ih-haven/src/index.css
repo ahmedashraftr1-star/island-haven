@@ -56,43 +56,45 @@
    space, real photography, and disciplined typography.
    ============================================================ */
 :root {
-  --button-outline: hsl(225 20% 88%);
-  --badge-outline: hsl(225 20% 92%);
+  /* ── Dark cinematic theme (matches PageShell #0A0E1A). Image-forward,
+     deep navy-black, warm red brand, subtle light borders. ── */
+  --button-outline: hsl(225 18% 22%);
+  --badge-outline: hsl(225 18% 20%);
 
-  /* Bright, slightly cool white. */
-  --background: 0 0% 100%;
-  --foreground: 225 22% 10%;
-  --border: 225 20% 92%;
+  /* Deep navy-black canvas (≈ #0A0E1A). */
+  --background: 225 39% 7%;
+  --foreground: 210 20% 97%;
+  --border: 225 18% 17%;
 
-  /* Subtle off-white sections */
-  --card: 0 0% 100%;
-  --card-foreground: 225 22% 10%;
-  --card-border: 225 20% 92%;
+  /* Slightly lifted dark surfaces for cards/sections. */
+  --card: 225 30% 10%;
+  --card-foreground: 210 20% 97%;
+  --card-border: 225 18% 17%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 225 22% 10%;
-  --popover-border: 225 20% 92%;
+  --popover: 225 30% 10%;
+  --popover-foreground: 210 20% 97%;
+  --popover-border: 225 18% 17%;
 
-  /* Confident Indigo — single brand color */
-  --primary: 354 70% 52%;
+  /* Confident warm red — single brand color (reads well on dark). */
+  --primary: 354 78% 56%;
   --primary-foreground: 0 0% 100%;
-  --primary-soft: 354 100% 96%;
+  --primary-soft: 354 50% 18%;
 
-  --secondary: 225 15% 25%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 225 18% 16%;
+  --secondary-foreground: 210 20% 97%;
 
-  /* Soft cool surface */
-  --muted: 225 30% 97%;
-  --muted-foreground: 225 12% 42%;
+  /* Soft dark surface + readable muted text. */
+  --muted: 225 24% 12%;
+  --muted-foreground: 220 14% 64%;
 
-  --accent: 225 30% 97%;
-  --accent-foreground: 225 22% 10%;
+  --accent: 225 24% 14%;
+  --accent-foreground: 210 20% 97%;
 
-  --destructive: 0 72% 50%;
+  --destructive: 0 72% 52%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 225 20% 90%;
-  --ring: 354 70% 52%;
+  --input: 225 18% 16%;
+  --ring: 354 78% 56%;
 
   /* Typography — IBM Plex Sans Arabic stays primary for Arabic.
      Inter is the Latin display partner (matches Galata, modern, neutral).
@@ -107,8 +109,8 @@
 }
 
 .dark {
-  --background: 0 0% 100%;
-  --foreground: 225 22% 10%;
+  --background: 225 39% 7%;
+  --foreground: 210 20% 97%;
 }
 
 @layer base {

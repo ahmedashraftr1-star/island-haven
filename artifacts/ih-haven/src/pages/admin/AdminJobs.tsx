@@ -147,7 +147,7 @@ export default function AdminJobs() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -219,12 +219,12 @@ export default function AdminJobs() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="نوع الوظيفة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-white" value={form.type} onChange={(e) => set("type")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
                   {Object.entries(JOB_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </Field>
               <Field label="التصنيف">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-white" value={form.category} onChange={(e) => set("category")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.category} onChange={(e) => set("category")(e.target.value)}>
                   {Object.entries(JOB_CAT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </Field>
@@ -251,7 +251,7 @@ export default function AdminJobs() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="الحالة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-white" value={form.status} onChange={(e) => set("status")(e.target.value as Row["status"])}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.status} onChange={(e) => set("status")(e.target.value as Row["status"])}>
                   <option value="draft">مسودة</option>
                   <option value="active">نشطة</option>
                   <option value="closed">مغلقة</option>

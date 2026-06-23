@@ -168,7 +168,7 @@ export function NumbersBand() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.55, delay: i * 0.07 }}
-                className="relative bg-white border border-border rounded-3xl p-6 lg:p-8 shadow-soft hover:shadow-soft-hover transition-all duration-500 hover:-translate-y-1 group overflow-hidden"
+                className="relative bg-card border border-border rounded-3xl p-6 lg:p-8 shadow-soft hover:shadow-soft-hover transition-all duration-500 hover:-translate-y-1 group overflow-hidden"
                 data-testid={`numbers-tile-${t.en.toLowerCase()}`}
               >
                 <div

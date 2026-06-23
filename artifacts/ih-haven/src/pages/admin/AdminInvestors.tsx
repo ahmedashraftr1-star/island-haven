@@ -108,7 +108,7 @@ export default function AdminInvestors() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -179,7 +179,7 @@ export default function AdminInvestors() {
               <input className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30" value={form.name} onChange={(e) => set("name")(e.target.value)} />
             </Field>
             <Field label="نوع المستثمر">
-              <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-white" value={form.type} onChange={(e) => set("type")(e.target.value)}>
+              <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
                 {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </Field>
@@ -197,7 +197,7 @@ export default function AdminInvestors() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="الحالة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-white" value={form.status} onChange={(e) => set("status")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.status} onChange={(e) => set("status")(e.target.value)}>
                   <option value="visible">ظاهر</option>
                   <option value="hidden">مخفيّ</option>
                 </select>

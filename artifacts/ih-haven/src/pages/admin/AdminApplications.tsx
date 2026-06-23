@@ -115,11 +115,11 @@ export default function AdminApplications() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث بالاسم، البريد، أو الهاتف..."
-            className="pr-10 h-10 rounded-xl bg-white border-border"
+            className="pr-10 h-10 rounded-xl bg-card border-border"
           />
         </div>
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-44 h-10 rounded-xl bg-white border-border">
+          <SelectTrigger className="w-44 h-10 rounded-xl bg-card border-border">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -136,7 +136,7 @@ export default function AdminApplications() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-foreground/45 bg-white rounded-2xl border border-border">
+        <div className="text-center py-20 text-foreground/45 bg-card rounded-2xl border border-border">
           لا توجد طلبات تطابق البحث.
         </div>
       ) : (
@@ -147,7 +147,7 @@ export default function AdminApplications() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.35 }}
-              className="bg-white rounded-2xl border border-border shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all overflow-hidden"
+              className="bg-card rounded-2xl border border-border shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all overflow-hidden"
               data-testid={`application-${app.id}`}
             >
               <div className="p-5 flex items-start gap-4 flex-wrap lg:flex-nowrap">
@@ -195,7 +195,7 @@ export default function AdminApplications() {
                     value={app.status}
                     onValueChange={(v) => updateMut.mutate({ id: app.id, status: v })}
                   >
-                    <SelectTrigger className="w-36 h-9 rounded-lg bg-white border-border text-[13px]">
+                    <SelectTrigger className="w-36 h-9 rounded-lg bg-card border-border text-[13px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

@@ -110,7 +110,7 @@ export default function AdminPrograms() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -362,7 +362,7 @@ function ApplicationsModal({ program, onClose }: { program: { id: number; title:
                 <select
                   value={a.application.status}
                   onChange={(e) => setStatus(a.application.id, e.target.value as ProgramApplicationStatus)}
-                  className="rounded-lg border border-border bg-white px-2.5 py-1.5 text-[12.5px] font-semibold"
+                  className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-[12.5px] font-semibold"
                 >
                   {(Object.keys(PROGRAM_APPLICATION_STATUS_LABELS) as ProgramApplicationStatus[]).map((s) => (
                     <option key={s} value={s}>{PROGRAM_APPLICATION_STATUS_LABELS[s]}</option>

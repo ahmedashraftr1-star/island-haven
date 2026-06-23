@@ -75,15 +75,15 @@ export default function AdminNewsletter() {
       {/* Summary cards */}
       {rows !== null && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-2xl bg-white border border-border p-5">
+          <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{active.length}</div>
             <div className="text-[12px] text-foreground/50 mt-1">مشترك نشط</div>
           </div>
-          <div className="rounded-2xl bg-white border border-border p-5">
+          <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{rows.filter(r => r.status === "unsubscribed").length}</div>
             <div className="text-[12px] text-foreground/50 mt-1">ألغى الاشتراك</div>
           </div>
-          <div className="rounded-2xl bg-white border border-border p-5">
+          <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{total}</div>
             <div className="text-[12px] text-foreground/50 mt-1">إجمالي السجلات</div>
           </div>
@@ -96,7 +96,7 @@ export default function AdminNewsletter() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (

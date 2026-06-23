@@ -236,7 +236,7 @@ function SectionCard({
   return (
     <div
       id={`section-${section.key}`}
-      className="bg-white rounded-2xl border border-border shadow-soft overflow-hidden scroll-mt-24"
+      className="bg-card rounded-2xl border border-border shadow-soft overflow-hidden scroll-mt-24"
       data-testid={`section-${section.key}`}
     >
       <button
@@ -489,7 +489,7 @@ export default function AdminContent() {
     <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
       {/* Sticky side navigator */}
       <aside className="hidden lg:block">
-        <div className="sticky top-4 bg-white rounded-2xl border border-border shadow-soft p-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div className="sticky top-4 bg-card rounded-2xl border border-border shadow-soft p-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
           <div className="flex items-center gap-2 mb-3 text-[12px] font-bold text-foreground/85">
             <PanelLeft className="w-3.5 h-3.5" />
             الأقسام
@@ -610,7 +610,7 @@ export default function AdminContent() {
 
         {/* Sections */}
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-border p-10 text-center">
+          <div className="bg-card rounded-2xl border border-border p-10 text-center">
             <p className="text-foreground/55 text-sm">لا توجد نتائج مطابقة.</p>
             {(query || modifiedOnly) && (
               <Button

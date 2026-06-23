@@ -46,7 +46,7 @@ export default function AdminPush() {
       </div>
 
       {/* Stats */}
-      <div className="rounded-2xl bg-white border border-border p-5 flex items-center gap-4">
+      <div className="rounded-2xl bg-card border border-border p-5 flex items-center gap-4">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
           <Smartphone className="w-5 h-5 text-primary" />
         </div>
@@ -59,7 +59,7 @@ export default function AdminPush() {
       </div>
 
       {/* Form */}
-      <form onSubmit={send} className="rounded-2xl bg-white border border-border p-6 space-y-4">
+      <form onSubmit={send} className="rounded-2xl bg-card border border-border p-6 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Bell className="w-4 h-4 text-primary" />
           <h3 className="text-[15px] font-bold text-foreground">إرسال إشعار</h3>
@@ -86,7 +86,7 @@ export default function AdminPush() {
             placeholder="مثال: فعالية جديدة في آيلاند هيفن"
             maxLength={120}
             required
-            className="w-full h-11 px-4 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-white transition-all"
+            className="w-full h-11 px-4 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-card transition-all"
             data-testid="push-title"
           />
         </div>
@@ -100,7 +100,7 @@ export default function AdminPush() {
             maxLength={500}
             rows={3}
             required
-            className="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-white transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-card transition-all resize-none"
             data-testid="push-body"
           />
         </div>
@@ -114,7 +114,7 @@ export default function AdminPush() {
             onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
             placeholder="https://... أو /events/42"
             maxLength={400}
-            className="w-full h-11 px-4 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-white transition-all"
+            className="w-full h-11 px-4 rounded-xl bg-muted/40 border border-border text-[13.5px] text-foreground outline-none focus:border-primary/50 focus:bg-card transition-all"
             data-testid="push-url"
           />
         </div>

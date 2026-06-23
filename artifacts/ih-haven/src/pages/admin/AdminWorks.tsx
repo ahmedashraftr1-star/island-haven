@@ -102,13 +102,13 @@ export default function AdminWorks() {
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && reload()}
             placeholder="ابحث بعنوان العمل أو اسم صاحبه…"
-            className="w-full h-10 pr-10 pl-3 rounded-xl bg-white border border-border text-[13.5px] outline-none focus:border-primary/50"
+            className="w-full h-10 pr-10 pl-3 rounded-xl bg-card border border-border text-[13.5px] outline-none focus:border-primary/50"
           />
         </div>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-white border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
         >
           <option value="">كل الحالات</option>
           <option value="visible">ظاهر</option>
@@ -129,7 +129,7 @@ export default function AdminWorks() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (

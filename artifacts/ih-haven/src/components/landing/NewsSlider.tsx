@@ -100,14 +100,14 @@ export function NewsSlider() {
             <button
               onClick={() => scrollBy(1)}
               aria-label={c.prevAria}
-              className="w-11 h-11 rounded-full border border-border bg-white text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => scrollBy(-1)}
               aria-label={c.nextAria}
-              className="w-11 h-11 rounded-full border border-border bg-white text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -156,7 +156,7 @@ export function NewsSlider() {
               >
                 <Link
                   href={`/events/${p.id}`}
-                  className="group block rounded-3xl bg-white border border-border overflow-hidden shadow-soft hover:shadow-soft-hover hover:-translate-y-1 transition-all duration-500"
+                  className="group block rounded-3xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-soft-hover hover:-translate-y-1 transition-all duration-500"
                   data-testid={`event-card-${p.id}`}
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">

@@ -171,7 +171,7 @@ export default function AdminExperts() {
         ))}
       </div>
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {filtered === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : filtered.length === 0 ? (
@@ -520,8 +520,8 @@ function ExpertEditor({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-6">
-      <div className="bg-white rounded-3xl border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white z-10">
+      <div className="bg-card rounded-3xl border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-card z-10">
           <h3 className="text-[16px] font-bold text-foreground">
             {isNew ? "خبير جديد" : "تعديل الخبير"}
           </h3>

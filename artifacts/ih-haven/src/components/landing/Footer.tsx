@@ -120,7 +120,7 @@ export function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.label}
-                      className="w-10 h-10 rounded-full bg-white border border-border flex items-center justify-center text-foreground/65 hover:text-primary hover:border-primary/30 transition-colors"
+                      className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground/65 hover:text-primary hover:border-primary/30 transition-colors"
                     >
                       <Icon className="w-4 h-4" />
                     </a>

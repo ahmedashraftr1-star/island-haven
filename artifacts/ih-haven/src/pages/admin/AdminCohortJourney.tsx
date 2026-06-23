@@ -162,7 +162,7 @@ export default function AdminCohortJourney() {
 
       <div className="grid lg:grid-cols-2 gap-5">
         {/* Weeks */}
-        <div className="rounded-2xl bg-white border border-border p-5">
+        <div className="rounded-2xl bg-card border border-border p-5">
           <h3 className="font-bold text-foreground text-[15px] mb-3">
             الأسابيع ({weeks.length})
           </h3>
@@ -231,7 +231,7 @@ export default function AdminCohortJourney() {
         </div>
 
         {/* Updates */}
-        <div className="rounded-2xl bg-white border border-border p-5">
+        <div className="rounded-2xl bg-card border border-border p-5">
           <h3 className="font-bold text-foreground text-[15px] mb-3">
             التحديثات ({updates.length})
           </h3>
@@ -305,7 +305,7 @@ export default function AdminCohortJourney() {
       </div>
 
       {/* Demo Day RSVPs */}
-      <div className="rounded-2xl bg-white border border-border p-5">
+      <div className="rounded-2xl bg-card border border-border p-5">
         <h3 className="font-bold text-foreground text-[15px] mb-3">
           حجوزات يوم العرض (Demo Day) ({rsvps.length})
         </h3>

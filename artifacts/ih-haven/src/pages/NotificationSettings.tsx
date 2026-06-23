@@ -241,7 +241,7 @@ function Toggle({
         layout
         transition={{ type: "spring", stiffness: 500, damping: 32 }}
         // RTL: "on" sits at the start (right), "off" at the end (left).
-        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow ${
+        className={`absolute top-1 h-5 w-5 rounded-full bg-card shadow ${
           on ? "right-1" : "left-1"
         }`}
       />

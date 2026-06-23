@@ -86,7 +86,7 @@ export default function AdminSessions() {
             className={`px-3.5 h-9 rounded-full text-[12.5px] font-semibold border transition-colors ${
               filter === f.key
                 ? "bg-primary text-primary-foreground border-primary"
-                : "bg-white text-foreground/65 border-border hover:bg-muted/50"
+                : "bg-card text-foreground/65 border-border hover:bg-muted/50"
             }`}
           >
             {f.label}
@@ -100,7 +100,7 @@ export default function AdminSessions() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -152,7 +152,7 @@ export default function AdminSessions() {
                       onChange={(e) =>
                         setStatus(r.session.id, e.target.value as SessionStatus)
                       }
-                      className="rounded-lg border border-border bg-white px-2.5 py-1.5 text-[12.5px] font-semibold text-foreground/75 outline-none focus:border-primary"
+                      className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-[12.5px] font-semibold text-foreground/75 outline-none focus:border-primary"
                       data-testid={`select-session-status-${r.session.id}`}
                     >
                       {STATUSES.map((s) => (

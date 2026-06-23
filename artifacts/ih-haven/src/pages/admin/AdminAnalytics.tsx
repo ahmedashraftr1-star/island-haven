@@ -65,7 +65,7 @@ export default function AdminAnalytics() {
         <Stat label="طلبات جديدة" value={newApps} Icon={Inbox} highlight />
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+      <div className="bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-[15px] font-bold text-foreground">
@@ -120,7 +120,7 @@ export default function AdminAnalytics() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4 lg:gap-6">
-        <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+        <div className="bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
           <h3 className="text-[15px] font-bold text-foreground mb-4">
             الصفحات الأكثر زيارة
           </h3>
@@ -154,7 +154,7 @@ export default function AdminAnalytics() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+        <div className="bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
           <h3 className="text-[15px] font-bold text-foreground mb-4">
             الطلبات حسب الحالة
           </h3>
@@ -200,7 +200,7 @@ function Stat({
       className={`rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${
         highlight
           ? "bg-primary text-primary-foreground border-primary shadow-soft-hover"
-          : "bg-white border-border shadow-soft hover:shadow-soft-hover"
+          : "bg-card border-border shadow-soft hover:shadow-soft-hover"
       }`}
     >
       <div

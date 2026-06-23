@@ -82,7 +82,7 @@ export default function AdminResources() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-border overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
@@ -327,7 +327,7 @@ function ResourceEditor({
             />
           </Field>
           <Field label="مميَّز">
-            <label className="inline-flex items-center gap-2 h-10 px-3 rounded-xl border border-border bg-white cursor-pointer">
+            <label className="inline-flex items-center gap-2 h-10 px-3 rounded-xl border border-border bg-card cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.featured}

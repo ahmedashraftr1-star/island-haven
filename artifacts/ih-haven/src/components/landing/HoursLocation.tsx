@@ -68,7 +68,7 @@ export function HoursLocation() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center bg-white border border-border rounded-3xl p-6 lg:p-10 shadow-soft overflow-hidden"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center bg-card border border-border rounded-3xl p-6 lg:p-10 shadow-soft overflow-hidden"
         >
           <div className="lg:col-span-7 order-2 lg:order-1">
             <GazaPulseMap className="w-full max-w-[480px] mx-auto aspect-square" />

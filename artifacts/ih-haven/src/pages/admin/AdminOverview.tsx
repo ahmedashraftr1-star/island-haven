@@ -125,7 +125,7 @@ export default function AdminOverview({
               className={`relative rounded-2xl p-5 lg:p-6 border transition-all duration-300 hover:-translate-y-0.5 ${
                 primary
                   ? "bg-primary text-primary-foreground border-primary shadow-soft-hover"
-                  : "bg-white border-border shadow-soft hover:shadow-soft-hover"
+                  : "bg-card border-border shadow-soft hover:shadow-soft-hover"
               }`}
             >
               <div className="flex items-start justify-between mb-4">
@@ -172,7 +172,7 @@ export default function AdminOverview({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Visits chart */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+        <div className="lg:col-span-7 bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-[15px] font-bold text-foreground">
@@ -233,7 +233,7 @@ export default function AdminOverview({
         </div>
 
         {/* Funnel */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+        <div className="lg:col-span-5 bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
           <h3 className="text-[15px] font-bold text-foreground mb-1">
             مسار الانتساب
           </h3>
@@ -276,7 +276,7 @@ export default function AdminOverview({
       </div>
 
       {/* Recent applications */}
-      <div className="bg-white rounded-2xl border border-border shadow-soft overflow-hidden">
+      <div className="bg-card rounded-2xl border border-border shadow-soft overflow-hidden">
         <div className="flex items-center justify-between p-5 lg:p-7 pb-4">
           <div className="flex items-center gap-2.5">
             <Users className="w-4 h-4 text-primary" />
@@ -350,7 +350,7 @@ function RecentActivity() {
   const items = q.data?.activity ?? [];
 
   return (
-    <div className="bg-white rounded-2xl border border-border shadow-soft p-5 lg:p-7">
+    <div className="bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
       <h3 className="text-[15px] font-bold text-foreground mb-4">آخر النشاط</h3>
       {items.length === 0 ? (
         <div className="text-foreground/45 text-[13px] py-6 text-center">

@@ -161,7 +161,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
         </div>
       )}
 
-      <section className="rounded-2xl bg-white border border-border divide-y divide-border">
+      <section className="rounded-2xl bg-card border border-border divide-y divide-border">
         {items === null ? (
           <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
         ) : (
@@ -188,7 +188,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                 aria-pressed={s.value}
               >
                 <span
-                  className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all ${
+                  className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow transition-all ${
                     s.value ? "translate-x-0 inset-inline-end-0.5" : "inset-inline-start-0.5"
                   }`}
                   style={{
@@ -202,7 +202,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
         )}
       </section>
 
-      <section className="rounded-2xl bg-white border border-border p-5">
+      <section className="rounded-2xl bg-card border border-border p-5">
         <div className="flex items-center gap-2 mb-4">
           <Mail className="w-4 h-4 text-foreground/55" />
           <h3 className="text-[14px] font-bold text-foreground">بريد الإشعارات الإداريّة</h3>
@@ -283,7 +283,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
       </section>
 
       {totals && (
-        <section className="rounded-2xl bg-white border border-border p-5">
+        <section className="rounded-2xl bg-card border border-border p-5">
           <div className="flex items-center gap-2 mb-3">
             <Database className="w-4 h-4 text-foreground/55" />
             <h3 className="text-[14px] font-bold text-foreground">إحصاءات قاعدة البيانات</h3>
@@ -308,7 +308,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
         </section>
       )}
 
-      <section className="rounded-2xl bg-white border border-rose-200 p-5">
+      <section className="rounded-2xl bg-card border border-rose-200 p-5">
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">

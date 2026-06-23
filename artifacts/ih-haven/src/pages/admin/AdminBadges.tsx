@@ -86,7 +86,7 @@ export default function AdminBadges() {
           </div>
         )}
 
-        <div className="rounded-2xl bg-white border border-border overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
           {rows === null ? (
             <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
           ) : rows.length === 0 ? (
@@ -240,7 +240,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
   }
 
   return (
-    <div className="rounded-2xl bg-white border border-border p-5 space-y-4">
+    <div className="rounded-2xl bg-card border border-border p-5 space-y-4">
       <div>
         <h3 className="text-[16px] font-bold text-foreground">
           منح / سحب شارة
