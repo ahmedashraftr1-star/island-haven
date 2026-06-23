@@ -1,28 +1,23 @@
 import { useEffect, lazy, Suspense } from "react";
-// Above-the-fold: keep eager so the hero paints immediately.
+// Above-the-fold: eager so the hero paints immediately.
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
 import { SmoothScroll } from "@/components/landing/SmoothScroll";
-import { Marquee } from "@/components/landing/Marquee";
 import { NumbersBand } from "@/components/landing/NumbersBand";
 
-// Below-the-fold: code-split so they don't block first paint. They're all
-// scroll-revealed, so a null fallback is invisible to the user.
+// Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
 const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: K) =>
   p.then((m) => ({ default: m[k] }));
-const NewsSlider = lazy(() => named(import("@/components/landing/NewsSlider"), "NewsSlider"));
-const Scrollytelling = lazy(() => named(import("@/components/landing/Scrollytelling"), "Scrollytelling"));
-const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
-const WordWindow = lazy(() => named(import("@/components/landing/WordWindow"), "WordWindow"));
+const Partners = lazy(() => named(import("@/components/landing/Partners"), "Partners"));
+const WhatYouGet = lazy(() => named(import("@/components/landing/WhatYouGet"), "WhatYouGet"));
+const VenturesBand = lazy(() => named(import("@/components/landing/VenturesBand"), "VenturesBand"));
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
-const SpotlightReveal = lazy(() => named(import("@/components/landing/SpotlightReveal"), "SpotlightReveal"));
-const Voices = lazy(() => named(import("@/components/landing/Voices"), "Voices"));
+const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
 const SuccessStories = lazy(() => named(import("@/components/landing/SuccessStories"), "SuccessStories"));
-const GazaPulseMap = lazy(() => named(import("@/components/landing/GazaPulseMap"), "GazaPulseMap"));
+const NewsSlider = lazy(() => named(import("@/components/landing/NewsSlider"), "NewsSlider"));
 const HoursLocation = lazy(() => named(import("@/components/landing/HoursLocation"), "HoursLocation"));
 const Campaign = lazy(() => named(import("@/components/landing/Campaign"), "Campaign"));
-const Partners = lazy(() => named(import("@/components/landing/Partners"), "Partners"));
 const BecomeMentorBand = lazy(() => named(import("@/components/landing/BecomeMentorBand"), "BecomeMentorBand"));
 const NewsletterBand = lazy(() => named(import("@/components/landing/NewsletterBand"), "NewsletterBand"));
 const Footer = lazy(() => named(import("@/components/landing/Footer"), "Footer"));
@@ -48,22 +43,20 @@ export default function Home() {
       <ScrollProgress />
       <Header />
       <div className="relative z-10">
+        {/* World-class incubator IA: promise → proof → what you get → portfolio
+            → mentors → who it's for → stories → news → location → support → apply */}
         <Hero />
-        <Marquee />
         <NumbersBand />
         <Suspense fallback={null}>
-          <NewsSlider />
-          <Scrollytelling />
-          <Audience />
-          <WordWindow />
+          <Partners />
+          <WhatYouGet />
+          <VenturesBand />
           <ExpertsBand />
-          <SpotlightReveal />
-          <Voices />
+          <Audience />
           <SuccessStories />
-          <GazaPulseMap />
+          <NewsSlider />
           <HoursLocation />
           <Campaign />
-          <Partners />
           <BecomeMentorBand />
           <NewsletterBand />
         </Suspense>
