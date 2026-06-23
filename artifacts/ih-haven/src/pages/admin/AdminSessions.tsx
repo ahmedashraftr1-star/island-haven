@@ -82,6 +82,7 @@ export default function AdminSessions() {
         {FILTERS.map((f) => (
           <button
             key={f.key}
+            type="button"
             onClick={() => setFilter(f.key)}
             className={`px-3.5 h-9 rounded-full text-[12.5px] font-semibold border transition-colors ${
               filter === f.key
@@ -95,7 +96,7 @@ export default function AdminSessions() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}

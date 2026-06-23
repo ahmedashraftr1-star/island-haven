@@ -120,18 +120,20 @@ export default function AdminNewsletter() {
                   <td className="px-4 py-3 text-foreground/60">{row.name || "—"}</td>
                   <td className="px-4 py-3 text-foreground/50">{fmt(row.subscribedAt)}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                       row.status === "active"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : "bg-muted text-foreground/55 border-border"
                     }`}>
                       {row.status === "active" ? "نشط" : "ألغى الاشتراك"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <button
+                      type="button"
+                      aria-label="حذف المشترك"
                       onClick={() => onDelete(row.id)}
-                      className="p-1.5 rounded-lg text-foreground/30 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/15 hover:text-rose-400 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

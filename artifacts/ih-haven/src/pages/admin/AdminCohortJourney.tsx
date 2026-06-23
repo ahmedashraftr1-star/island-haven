@@ -138,7 +138,7 @@ export default function AdminCohortJourney() {
         </p>
       </div>
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -221,7 +221,7 @@ export default function AdminCohortJourney() {
                   type="button"
                   aria-label="حذف الأسبوع"
                   onClick={() => delWeek(w.id)}
-                  className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-600 hover:bg-rose-50"
+                  className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-400 hover:bg-rose-500/15 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -294,7 +294,7 @@ export default function AdminCohortJourney() {
                   type="button"
                   aria-label="حذف التحديث"
                   onClick={() => delUpdate(u.id)}
-                  className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-600 hover:bg-rose-50 shrink-0"
+                  className="p-1.5 rounded-lg text-foreground/55 hover:text-rose-400 hover:bg-rose-500/15 shrink-0 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

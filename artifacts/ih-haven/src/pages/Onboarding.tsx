@@ -135,6 +135,7 @@ export default function Onboarding() {
                     value={jobTitle}
                     onChange={e => setJobTitle(e.target.value)}
                     placeholder={t({ ar: "مثال: مصمّم جرافيك مستقلّ", en: "e.g. Freelance graphic designer" })}
+                    aria-label={t({ ar: "المسمّى الوظيفيّ", en: "Job title" })}
                     maxLength={120}
                     className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all"
                   />
@@ -146,6 +147,7 @@ export default function Onboarding() {
                     value={bio}
                     onChange={e => setBio(e.target.value)}
                     placeholder={t({ ar: "حدّثنا عن مجال عملك وما تطمح لتحقيقه…", en: "Tell us about your field and what you hope to achieve…" })}
+                    aria-label={t({ ar: "نبذة عنك", en: "Bio" })}
                     maxLength={500}
                     rows={4}
                     className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all resize-none leading-relaxed"
@@ -178,6 +180,7 @@ export default function Onboarding() {
                     value={skills}
                     onChange={e => setSkills(e.target.value)}
                     placeholder={t({ ar: "مثال: تصميم، React، تصوير، تسويق", en: "e.g. Design, React, Photography, Marketing" })}
+                    aria-label={t({ ar: "المهارات", en: "Skills" })}
                     maxLength={400}
                     className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 transition-all"
                   />
@@ -195,18 +198,19 @@ export default function Onboarding() {
                 )}
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 h-12 rounded-xl bg-white/[0.07] border border-white/15 text-white/60 text-[13px] font-semibold flex items-center justify-center gap-1.5">
-                    <ChevronRight className="w-4 h-4" /> {t({ ar: "السابق", en: "Back" })}
+                  <button type="button" onClick={() => setStep(1)} className="flex-1 h-12 rounded-xl bg-white/[0.07] border border-white/15 text-white/60 text-[13px] font-semibold flex items-center justify-center gap-1.5">
+                    <ChevronRight className="w-4 h-4" aria-hidden="true" /> {t({ ar: "السابق", en: "Back" })}
                   </button>
                   <button
+                    type="button"
                     onClick={finish}
                     disabled={saving}
                     className="flex-[2] h-12 rounded-xl bg-emerald-500 text-white font-bold text-[14px] flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {saving ? t({ ar: "جارٍ الحفظ…", en: "Saving…" }) : <><CheckCircle2 className="w-4 h-4" /> {t({ ar: "أنهِ الإعداد", en: "Finish setup" })}</>}
+                    {saving ? t({ ar: "جارٍ الحفظ…", en: "Saving…" }) : <><CheckCircle2 className="w-4 h-4" aria-hidden="true" /> {t({ ar: "أنهِ الإعداد", en: "Finish setup" })}</>}
                   </button>
                 </div>
-                <button onClick={() => navigate("/profile")} className="w-full text-center text-[12px] text-white/35 hover:text-white/55 transition-colors">
+                <button type="button" onClick={() => navigate("/profile")} className="w-full text-center text-[12px] text-white/35 hover:text-white/55 transition-colors">
                   {t({ ar: "تخطّى", en: "Skip" })}
                 </button>
               </motion.div>

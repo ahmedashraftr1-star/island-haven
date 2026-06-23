@@ -78,6 +78,7 @@ export default function AdminMilestones() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing("new")}
           disabled={ventures.length === 0}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow disabled:opacity-50"
@@ -86,7 +87,7 @@ export default function AdminMilestones() {
         </button>
       </div>
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -139,7 +140,7 @@ export default function AdminMilestones() {
                         type="button"
                         aria-label="حذف المحطّة"
                         onClick={() => onDelete(r.id)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                        className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -338,7 +339,7 @@ function MilestoneEditor({
           />
         </Field>
         {error && (
-          <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
             {error}
           </div>
         )}

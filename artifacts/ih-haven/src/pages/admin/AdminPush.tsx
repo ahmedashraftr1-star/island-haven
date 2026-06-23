@@ -66,14 +66,14 @@ export default function AdminPush() {
         </div>
 
         {result && (
-          <div className="rounded-xl px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[13px]">
+          <div className="rounded-xl px-4 py-3 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[13px]">
             ✅ تم الإرسال — وصل لـ <strong>{result.sent}</strong> جهاز
             {result.failed > 0 && ` · فشل: ${result.failed}`}
           </div>
         )}
 
         {error && (
-          <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
             {error}
           </div>
         )}

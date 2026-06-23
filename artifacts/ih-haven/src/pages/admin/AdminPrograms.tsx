@@ -96,6 +96,7 @@ export default function AdminPrograms() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing("new")}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           data-testid="button-new-program"
@@ -105,7 +106,7 @@ export default function AdminPrograms() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -137,6 +138,7 @@ export default function AdminPrograms() {
                   </td>
                   <td className="px-4 py-3">
                     <button
+                      type="button"
                       onClick={() => setViewing(r)}
                       className="inline-flex items-center gap-1 text-foreground/65 hover:text-primary tabular-nums"
                     >
@@ -147,7 +149,7 @@ export default function AdminPrograms() {
                     <span
                       className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                         r.status === "open"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : r.status === "draft"
                           ? "bg-muted text-foreground/55 border border-border"
                           : "bg-foreground/[0.04] text-foreground/65 border border-border"
@@ -158,13 +160,13 @@ export default function AdminPrograms() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setViewing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary" title="الطلبات">
+                      <button type="button" onClick={() => setViewing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary" title="الطلبات" aria-label="عرض الطلبات">
                         <Inbox className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary">
+                      <button type="button" aria-label="تعديل البرنامج" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600">
+                      <button type="button" aria-label="حذف البرنامج" onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -303,7 +305,7 @@ function ProgramEditor({
             <input dir="ltr" value={form.coverUrl} onChange={(e) => setForm((s) => ({ ...s, coverUrl: e.target.value }))} className="inp" maxLength={800} placeholder="/api/storage/…" />
           </Field>
         </div>
-        {error && <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{error}</div>}
+        {error && <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">{error}</div>}
         <SaveBar submitting={submitting} isNew={isNew} onClose={onClose} />
       </form>
     </Modal>

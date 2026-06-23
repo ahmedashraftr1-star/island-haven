@@ -78,6 +78,7 @@ export default function AdminDaily() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing("new")}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           data-testid="button-new-daily"
@@ -88,7 +89,7 @@ export default function AdminDaily() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -134,15 +135,19 @@ export default function AdminDaily() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
                         onClick={() => setEditing(p)}
+                        aria-label="تعديل المنشور"
                         className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                         data-testid={`button-edit-daily-${p.id}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => onDelete(p.id)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                        aria-label="حذف المنشور"
+                        className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                         data-testid={`button-delete-daily-${p.id}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -243,7 +248,9 @@ function DailyEditor({
             {initial ? "تعديل منشور" : "منشور جديد"}
           </h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="إغلاق"
             className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
           >
             <X className="w-4 h-4" />
@@ -311,7 +318,7 @@ function DailyEditor({
           </Field>
 
           {error && (
-            <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+            <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
               {error}
             </div>
           )}
@@ -355,13 +362,13 @@ function Field({
       </label>
       <div
         className={`rounded-xl px-3 py-2.5 bg-muted/40 border focus-within:bg-muted/60 transition-colors ${
-          error ? "border-rose-300" : "border-border"
+          error ? "border-rose-500/50" : "border-border"
         }`}
       >
         {children}
       </div>
       {error && (
-        <div className="text-[11.5px] text-rose-600 mt-1 px-1">{error}</div>
+        <div className="text-[11.5px] text-rose-400 mt-1 px-1">{error}</div>
       )}
     </div>
   );

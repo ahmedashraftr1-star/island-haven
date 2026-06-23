@@ -150,25 +150,29 @@ export default function Saved() {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10" dir="ltr">
+        <nav className="flex items-center justify-center gap-2 mt-10" dir="ltr" aria-label={t({ ar: "ترقيم الصفحات", en: "Pagination" })}>
           <button
+            type="button"
             onClick={() => { setPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
+            aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           <span className="text-white/55 text-[13px] tabular-nums px-2">
             {page} / {totalPages}
           </span>
           <button
+            type="button"
             onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
+            aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
-            →
+            <span aria-hidden="true">→</span>
           </button>
-        </div>
+        </nav>
       )}
     </PageShell>
   );

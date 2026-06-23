@@ -70,6 +70,7 @@ export default function AdminResources() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing("new")}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
@@ -77,7 +78,7 @@ export default function AdminResources() {
         </button>
       </div>
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -124,14 +125,18 @@ export default function AdminResources() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
                         onClick={() => setEditing(r)}
+                        aria-label="تعديل المورد"
                         className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => onDelete(r.id)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                        aria-label="حذف المورد"
+                        className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -340,7 +345,7 @@ function ResourceEditor({
           </Field>
         </div>
         {error && (
-          <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
             {error}
           </div>
         )}

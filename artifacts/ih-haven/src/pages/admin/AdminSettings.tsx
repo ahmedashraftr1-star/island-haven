@@ -179,6 +179,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => toggle(s)}
                 disabled={busyKey === s.key}
                 data-testid={`toggle-${s.key}`}
@@ -186,6 +187,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                   s.value ? "bg-primary" : "bg-foreground/15"
                 }`}
                 aria-pressed={s.value}
+                aria-label={s.label}
               >
                 <span
                   className={`absolute top-0.5 w-6 h-6 rounded-full bg-card shadow transition-all ${
