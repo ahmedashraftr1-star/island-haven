@@ -115,8 +115,11 @@ export function NotificationBell() {
   return (
     <div ref={ref} className="relative">
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={`الإشعارات${count ? ` (${count} غير مقروءة)` : ""}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className="relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
       >
         <Bell className="w-4 h-4 text-white/80" />
@@ -133,6 +136,7 @@ export function NotificationBell() {
             <span className="text-white font-bold text-[13px]">الإشعارات</span>
             {count > 0 && (
               <button
+                type="button"
                 onClick={markAll}
                 className="text-primary text-[11px] font-semibold hover:underline"
               >
@@ -144,6 +148,7 @@ export function NotificationBell() {
           {availableTypes.length > 1 && (
             <div className="flex items-center gap-1.5 px-1 pb-2 flex-wrap">
               <button
+                type="button"
                 onClick={() => setFilterType(null)}
                 className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
                   filterType === null
@@ -153,19 +158,23 @@ export function NotificationBell() {
               >
                 الكلّ
               </button>
-              {availableTypes.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setFilterType(filterType === t ? null : t)}
-                  className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
-                    filterType === t
-                      ? "bg-primary/20 text-primary border border-primary/30"
-                      : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
-                  }`}
-                >
-                  {TYPE_LABELS[t] ?? t}
-                </button>
-              ))}
+              {availableTypes.map((t) => {
+                const isActive = filterType === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setFilterType(isActive ? null : t)}
+                    className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
+                      isActive
+                        ? "bg-primary/20 text-primary border border-primary/30"
+                        : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
+                    }`}
+                  >
+                    {TYPE_LABELS[t] ?? t}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -179,6 +188,7 @@ export function NotificationBell() {
             items.map((n) => (
               <button
                 key={n.id}
+                type="button"
                 onClick={() => openItem(n)}
                 className={`w-full text-right rounded-xl px-3 py-2.5 mb-1 transition-colors ${
                   n.readAt ? "hover:bg-white/[0.04]" : "bg-primary/10 hover:bg-primary/[0.16]"

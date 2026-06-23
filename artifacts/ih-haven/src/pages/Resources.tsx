@@ -184,6 +184,7 @@ export default function Resources() {
                 key={f.key}
                 type="button"
                 onClick={() => setFilter(f.key)}
+                aria-pressed={isActive ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                   isActive
                     ? "bg-primary/20 text-white border-primary/40"

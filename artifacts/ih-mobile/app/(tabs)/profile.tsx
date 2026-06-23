@@ -207,7 +207,7 @@ export default function ProfileScreen() {
         contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, gap: 16 }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <T size={26} weight="bold">{lang === "ar" ? "حسابي" : "Account"}</T>
+          <T size={26} weight="bold" accessibilityRole="header">{lang === "ar" ? "حسابي" : "Account"}</T>
           <LangPill />
         </View>
         <Card style={{ alignItems: "center", paddingVertical: 32, gap: 14 }}>
@@ -263,6 +263,7 @@ export default function ProfileScreen() {
             borderColor: colors.border,
             backgroundColor: colors.background,
           }}
+          accessibilityRole="button"
           accessibilityLabel="تعديل الملف الشخصي"
         >
           <Feather name="edit-2" size={13} color={colors.mutedForeground} />
@@ -273,7 +274,9 @@ export default function ProfileScreen() {
             onPress={handleAvatarUpload}
             disabled={avatarUploading || avatarDeleting}
             activeOpacity={0.8}
+            accessibilityRole="button"
             accessibilityLabel="تغيير الصورة الشخصيّة"
+            accessibilityState={{ disabled: avatarUploading || avatarDeleting }}
           >
             {user.avatarUrl ? (
               <Image source={{ uri: resolveMedia(user.avatarUrl) }} style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: colors.muted }} />
@@ -319,7 +322,9 @@ export default function ProfileScreen() {
                 justifyContent: "center",
                 opacity: avatarDeleting ? 0.5 : 1,
               }}
+              accessibilityRole="button"
               accessibilityLabel="حذف الصورة الشخصيّة"
+              accessibilityState={{ disabled: avatarDeleting || avatarUploading }}
             >
               {avatarDeleting ? (
                 <ActivityIndicator size="small" color="#ef4444" style={{ transform: [{ scale: 0.6 }] }} />
@@ -364,6 +369,8 @@ export default function ProfileScreen() {
           <TouchableOpacity
             key={item.route}
             onPress={() => router.push(item.route as never)}
+            accessibilityRole="button"
+            accessibilityLabel={item.label}
             style={{
               flexDirection: "row-reverse",
               alignItems: "center",
@@ -481,12 +488,13 @@ const STATUS_LABEL: Record<string, string> = {
   deleted: "محذوفة من قِبَل الإدارة",
 };
 
+// Lighter text tones so badges read on the dark cinematic surfaces.
 const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
-  draft: { bg: "#f59e0b20", text: "#f59e0b" },
-  published: { bg: "#10b98120", text: "#10b981" },
-  hidden: { bg: "#6b728020", text: "#6b7280" },
-  rejected: { bg: "#ef444420", text: "#ef4444" },
-  deleted: { bg: "#6b728020", text: "#6b7280" },
+  draft: { bg: "#f59e0b22", text: "#fbbf24" },
+  published: { bg: "#10b98122", text: "#34d399" },
+  hidden: { bg: "#94a3b822", text: "#94a3b8" },
+  rejected: { bg: "#ef444422", text: "#f87171" },
+  deleted: { bg: "#94a3b822", text: "#94a3b8" },
 };
 
 function MyStorySection() {
@@ -599,8 +607,8 @@ function MyStorySection() {
       ) : isPublished ? (
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-            <Feather name="check-circle" size={14} color="#10b981" />
-            <T size={13} color="#10b981">قصّتك منشورة في صفحة قصص النجاح</T>
+            <Feather name="check-circle" size={14} color="#34d399" />
+            <T size={13} color="#34d399">قصّتك منشورة في صفحة قصص النجاح</T>
           </View>
           <View
             style={{
@@ -727,8 +735,8 @@ function MyStorySection() {
               }}
             >
               <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6 }}>
-                <Feather name="x-circle" size={14} color="#ef4444" />
-                <T size={13} weight="medium" color="#ef4444">لم تُقبَل قصّتك هذه المرّة</T>
+                <Feather name="x-circle" size={14} color="#f87171" />
+                <T size={13} weight="medium" color="#f87171">لم تُقبَل قصّتك هذه المرّة</T>
               </View>
               {story.rejectionNote ? (
                 <T size={12} color={colors.mutedForeground} style={{ lineHeight: 20 }}>
@@ -830,12 +838,14 @@ const SESSION_STATUS_AR: Record<SessionStatus, string> = {
   cancelled: "ملغاة",
 };
 
+// Text tones chosen to read on the dark cinematic surfaces (lighter than the
+// web's dark-on-light variants); backgrounds stay translucent tints.
 const SESSION_STATUS_COLOR: Record<SessionStatus, { bg: string; text: string }> = {
-  requested: { bg: "rgba(251,191,36,0.14)", text: "#b45309" },
-  confirmed: { bg: "rgba(16,185,129,0.14)", text: "#059669" },
-  completed: { bg: "rgba(99,102,241,0.12)", text: "#6366f1" },
-  declined: { bg: "rgba(107,114,128,0.12)", text: "#6b7280" },
-  cancelled: { bg: "rgba(107,114,128,0.12)", text: "#6b7280" },
+  requested: { bg: "rgba(251,191,36,0.16)", text: "#fbbf24" },
+  confirmed: { bg: "rgba(16,185,129,0.16)", text: "#34d399" },
+  completed: { bg: "rgba(129,140,248,0.16)", text: "#a5b4fc" },
+  declined: { bg: "rgba(148,163,184,0.16)", text: "#94a3b8" },
+  cancelled: { bg: "rgba(148,163,184,0.16)", text: "#94a3b8" },
 };
 
 function fmtSessionDate(iso: string): string {
@@ -1036,6 +1046,8 @@ function ContactRow({ email, colors }: { email: string | null; colors: ReturnTyp
       disabled={!tappable}
       onPress={() => tappable ? Linking.openURL(`mailto:${email}`) : undefined}
       activeOpacity={tappable ? 0.7 : 1}
+      accessibilityRole={tappable ? "link" : "text"}
+      accessibilityLabel={tappable ? `تواصل معنا: ${email}` : "تواصل معنا"}
       style={{
         flexDirection: "row-reverse",
         alignItems: "center",

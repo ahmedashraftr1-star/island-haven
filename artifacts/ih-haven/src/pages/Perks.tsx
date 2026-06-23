@@ -106,7 +106,9 @@ export default function Perks() {
         {CATEGORY_FILTERS.map((key) => (
           <button
             key={key}
+            type="button"
             onClick={() => setFilter(key)}
+            aria-pressed={filter === key ? "true" : "false"}
             className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
               filter === key
                 ? "bg-primary text-white border-primary"

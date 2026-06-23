@@ -10,6 +10,7 @@ import { Image } from "expo-image";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 
 import { T, Card, Empty, SkeletonBlock } from "@/components/Branded";
 import { useColors } from "@/hooks/useColors";
@@ -21,6 +22,10 @@ interface WorksPage {
   total: number;
   page: number;
   totalPages: number;
+}
+
+function toArabicNum(n: number): string {
+  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
 
 export default function WorksScreen() {
@@ -56,9 +61,12 @@ export default function WorksScreen() {
           paddingHorizontal: 20,
         }}
       >
-        <T size={26} weight="bold">أعمال المنتسبين</T>
+        <T size={11} weight="bold" color={colors.primary} style={{ letterSpacing: 1, marginBottom: 4 }}>
+          إبداعات · Works
+        </T>
+        <T size={26} weight="bold" accessibilityRole="header">أعمال المنتسبين</T>
         <T size={13} color={colors.mutedForeground}>
-          {total} عمل منشور
+          {toArabicNum(total)} عمل منشور
         </T>
       </View>
 
@@ -111,7 +119,12 @@ export default function WorksScreen() {
             const { work, author } = item;
             const initial = (author.fullName || "·").trim().slice(0, 1);
             return (
-              <Pressable onPress={() => router.push(`/work/${work.id}` as never)}>
+              <Pressable
+                onPress={() => router.push(`/work/${work.id}` as never)}
+                accessibilityRole="button"
+                accessibilityLabel={[work.title, author.fullName].filter(Boolean).join("، ")}
+                style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.99 : 1 }], opacity: pressed ? 0.92 : 1 })}
+              >
                 <Card style={{ padding: 0, overflow: "hidden" }}>
                   {work.coverUrl ? (
                     <Image
@@ -127,10 +140,14 @@ export default function WorksScreen() {
                     <View
                       style={{
                         width: "100%",
-                        height: 80,
+                        height: 120,
                         backgroundColor: colors.primarySoft,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
-                    />
+                    >
+                      <Feather name="layers" size={30} color={colors.primary} />
+                    </View>
                   )}
 
                   <View style={{ padding: 14, gap: 10 }}>

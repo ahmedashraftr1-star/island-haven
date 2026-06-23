@@ -65,13 +65,17 @@ export function SuccessStories() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.05 }}
-                className="rounded-3xl p-6 bg-card border border-foreground/8 shadow-soft flex flex-col"
+                className="group relative rounded-3xl p-6 lg:p-7 bg-card border border-border shadow-[0_18px_44px_-22px_rgba(0,0,0,0.7)] hover:border-primary/25 hover:shadow-[0_28px_64px_-20px_rgba(220,68,84,0.28)] hover:-translate-y-1 transition-all duration-500 flex flex-col overflow-hidden"
               >
-                <Quote className="w-7 h-7 text-primary/30 mb-3" />
-                <blockquote className="text-foreground/80 text-[14.5px] leading-[1.9] flex-1">
+                <div
+                  aria-hidden
+                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                />
+                <Quote className="relative w-8 h-8 text-primary/40 mb-3" />
+                <blockquote className="relative text-foreground/80 text-[14.5px] leading-[1.9] flex-1">
                   {s.quote}
                 </blockquote>
-                <figcaption className="flex items-center gap-3 mt-5 pt-5 border-t border-foreground/8">
+                <figcaption className="relative flex items-center gap-3 mt-5 pt-5 border-t border-border">
                   {s.avatarUrl ? (
                     <img
                       src={s.avatarUrl}
@@ -97,7 +101,7 @@ export function SuccessStories() {
             ) : (
               <div
                 key={i}
-                className="h-56 rounded-3xl bg-foreground/[0.03] border border-foreground/8 animate-pulse"
+                className="h-56 rounded-3xl bg-foreground/[0.03] border border-border animate-pulse"
               />
             ),
           )}

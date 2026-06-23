@@ -134,8 +134,17 @@ app.use("/api", generalLimiter);
 // ─── Edge/browser caching for ANONYMOUS public reads ─────────────────────────
 // The biggest scale lever without new infra: let a CDN/browser absorb the read
 // traffic for non-personalized public list endpoints. Only set on GETs from
-// unauthenticated clients (no session cookie) so personalized/admin responses
-// are never cached or leaked across users. Authenticated requests stay fresh.
+// unauthenticated clients (no session cookie AND no Authorization header) so
+// personalized/admin responses are never cached or leaked across users.
+// Authenticated requests stay fresh.
+//
+// NOTE: several of these endpoints use `optionalUser` and personalize the
+// response (e.g. /works/:id exposes the author phone + likedByMe/savedByMe only
+// to a signed-in viewer). Authenticated clients may present their session via a
+// Bearer token instead of a cookie (the mobile app does exactly this), so it is
+// NOT enough to check cookies — we must also bail out when an Authorization
+// header is present, or a shared cache could serve one member's personalized
+// response (including contact info) to another visitor.
 const PUBLIC_CACHE_RE =
   /^\/api\/(content|numbers|stats|gallery|partners|team|programs|cohorts|resources|jobs|investors|opportunities|perks|stories|daily|ventures|courses|experts|members|search)(\/|$)/;
 const PUBLIC_CACHE_MAX_AGE = Number(process.env.PUBLIC_CACHE_MAX_AGE ?? 60);
@@ -144,6 +153,7 @@ app.use((req, res, next) => {
     req.method === "GET" &&
     !req.path.includes("/me/") &&
     !req.path.includes("/admin/") &&
+    !req.headers.authorization &&
     !req.cookies?.["ih_user"] &&
     !req.cookies?.["ih_admin"] &&
     PUBLIC_CACHE_RE.test(req.path)

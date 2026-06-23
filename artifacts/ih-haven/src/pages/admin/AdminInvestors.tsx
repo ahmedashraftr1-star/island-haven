@@ -95,6 +95,7 @@ export default function AdminInvestors() {
           <p className="text-[13px] text-foreground/55 mt-1">أبرز الجهات الداعمة والمستثمرة في آيلاند هيفن.</p>
         </div>
         <button
+          type="button"
           onClick={openNew}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
@@ -103,7 +104,7 @@ export default function AdminInvestors() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -149,18 +150,18 @@ export default function AdminInvestors() {
                   <td className="px-4 py-3">
                     <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
                       row.status === "visible"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-emerald-500/15 text-emerald-300"
+                        : "bg-muted text-foreground/55"
                     }`}>
                       {row.status === "visible" ? "ظاهر" : "مخفيّ"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
-                      <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل ${row.name}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button onClick={() => onDelete(row.id)} className="p-1.5 rounded-lg text-foreground/40 hover:bg-red-50 hover:text-red-600 transition-colors">
+                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف ${row.name}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

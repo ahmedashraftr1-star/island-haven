@@ -75,7 +75,7 @@ export default function EventsScreen() {
         <T size={11} weight="bold" color={colors.primary} style={{ letterSpacing: 1, marginBottom: 4 }}>
           ما الجديد · Updates
         </T>
-        <T size={26} weight="bold">فعاليّات آيلاند</T>
+        <T size={26} weight="bold" accessibilityRole="header">فعاليّات آيلاند</T>
         <T size={13} color={colors.mutedForeground}>أحدث الأنشطة والأخبار والقصص</T>
       </View>
 
@@ -92,14 +92,19 @@ export default function EventsScreen() {
             return (
               <Pressable
                 onPress={() => setType(f.key)}
-                style={{
+                accessibilityRole="button"
+                accessibilityLabel={f.label}
+                accessibilityState={{ selected: active }}
+                hitSlop={4}
+                style={({ pressed }) => ({
                   paddingHorizontal: 14,
                   paddingVertical: 7,
                   borderRadius: 999,
                   borderWidth: 1,
                   borderColor: active ? colors.primary : colors.border,
                   backgroundColor: active ? colors.primarySoft : "transparent",
-                }}
+                  opacity: pressed ? 0.7 : 1,
+                })}
               >
                 <T size={12} weight="medium" color={active ? colors.primary : colors.foreground}>
                   {f.label}

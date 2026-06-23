@@ -32,9 +32,9 @@ const STATUS_LABEL: Record<WorkStatus, string> = {
   featured: "مميَّز",
 };
 const STATUS_PILL: Record<WorkStatus, string> = {
-  visible: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  visible: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
   hidden: "bg-foreground/5 text-foreground/55 border border-border",
-  featured: "bg-amber-50 text-amber-700 border border-amber-200",
+  featured: "bg-amber-400/15 text-amber-300 border border-amber-400/30",
 };
 
 export default function AdminWorks() {
@@ -116,6 +116,7 @@ export default function AdminWorks() {
           <option value="hidden">مخفيّ</option>
         </select>
         <button
+          type="button"
           onClick={() => reload()}
           className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
@@ -124,7 +125,7 @@ export default function AdminWorks() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -184,49 +185,60 @@ export default function AdminWorks() {
                         rel="noreferrer"
                         className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                         title="افتح في الموقع"
+                        aria-label="افتح العمل في الموقع"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                       {work.status !== "featured" ? (
                         <button
+                          type="button"
                           onClick={() => setWorkStatus(work.id, "featured")}
-                          className="p-2 rounded-lg hover:bg-amber-50 text-foreground/65 hover:text-amber-600"
+                          className="p-2 rounded-lg hover:bg-amber-400/15 text-foreground/65 hover:text-amber-400"
                           title="ميّز"
+                          aria-label="ميّز العمل"
                           data-testid={`button-feature-work-${work.id}`}
                         >
                           <Star className="w-3.5 h-3.5" />
                         </button>
                       ) : (
                         <button
+                          type="button"
                           onClick={() => setWorkStatus(work.id, "visible")}
-                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-amber-600"
+                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-amber-400"
                           title="إلغاء التمييز"
+                          aria-label="إلغاء تمييز العمل"
                         >
                           <Star className="w-3.5 h-3.5 fill-current" />
                         </button>
                       )}
                       {work.status !== "hidden" ? (
                         <button
+                          type="button"
                           onClick={() => setWorkStatus(work.id, "hidden")}
                           className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-foreground"
                           title="إخفاء"
+                          aria-label="إخفاء العمل"
                           data-testid={`button-hide-work-${work.id}`}
                         >
                           <EyeOff className="w-3.5 h-3.5" />
                         </button>
                       ) : (
                         <button
+                          type="button"
                           onClick={() => setWorkStatus(work.id, "visible")}
-                          className="p-2 rounded-lg hover:bg-emerald-50 text-foreground/65 hover:text-emerald-600"
+                          className="p-2 rounded-lg hover:bg-emerald-500/15 text-foreground/65 hover:text-emerald-400"
                           title="إظهار"
+                          aria-label="إظهار العمل"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                       )}
                       <button
+                        type="button"
                         onClick={() => onDelete(work.id, work.title)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                        className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                         title="حذف"
+                        aria-label="حذف العمل"
                         data-testid={`button-delete-work-${work.id}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />

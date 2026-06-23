@@ -21,7 +21,9 @@ const LIMIT = 5;
 
 router.get("/search", async (req, res) => {
   try {
-    const q = String(req.query.q ?? "").trim();
+    // Cap the term length (parity with /members) so a pathologically long
+    // query can't build an oversized ILIKE pattern across five tables.
+    const q = String(req.query.q ?? "").trim().slice(0, 80);
     if (q.length < 2) {
       res.json({ q, experts: [], ventures: [], programs: [], courses: [], members: [] });
       return;

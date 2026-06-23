@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, X, ExternalLink, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -23,6 +23,16 @@ interface Story {
 }
 
 function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
+  const { t } = useLanguage();
+  // Esc closes the modal (parity with the gallery lightbox).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -31,6 +41,9 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label={story.personName}
       >
         <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
         <motion.div
@@ -50,10 +63,12 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
           )}
 
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t({ ar: "إغلاق", en: "Close" })}
             className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
 
           <div className="px-7 pb-8 -mt-8 relative">
@@ -97,6 +112,7 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
 }
 
 function StoryCard({ story, featured, index }: { story: Story; featured: boolean; index: number }) {
+  const { lang } = useLanguage();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -104,9 +120,24 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.06, duration: 0.5 }}
+        role="button"
+        tabIndex={0}
+        aria-haspopup="dialog"
+        aria-label={
+          lang === "en"
+            ? `Read ${story.personName}'s story`
+            : `اقرأ قصة ${story.personName}`
+        }
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className={`rounded-[24px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${featured ? "md:col-span-2" : ""}`}
       >
         <GlassCard
-          className={`group cursor-pointer hover:border-primary/30 transition-all duration-300 overflow-hidden flex flex-col ${featured ? "md:col-span-2" : ""}`}
+          className="group cursor-pointer hover:border-primary/30 transition-all duration-300 overflow-hidden flex flex-col h-full"
           onClick={() => setOpen(true)}
         >
           {story.coverUrl && (
@@ -115,7 +146,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#15171F]" />
               {story.featured && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur text-[11px] font-bold text-white">
-                  <Star className="w-3 h-3 fill-current" /> مميّز
+                  <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {lang === "en" ? "Featured" : "مميّز"}
                 </div>
               )}
             </div>
@@ -143,7 +174,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
             )}
 
             <div className="flex items-center gap-1.5 text-primary text-[12px] font-semibold group-hover:gap-2.5 transition-all">
-              اقرأ القصة كاملة <ExternalLink className="w-3.5 h-3.5" />
+              {lang === "en" ? "Read the full story" : "اقرأ القصة كاملة"} <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </div>
           </div>
         </GlassCard>

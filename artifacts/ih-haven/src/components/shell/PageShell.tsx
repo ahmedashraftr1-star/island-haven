@@ -193,9 +193,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="text-center py-16 sm:py-24">
-      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border border-primary/30 mb-5">
-        <span className="text-primary text-2xl">·</span>
+    <div className="relative text-center py-16 sm:py-24">
+      <div className="ambient-grid absolute inset-0 -z-10" aria-hidden />
+      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border border-primary/30 mb-5 ring-edge">
+        <span className="block w-2 h-2 rounded-full bg-primary" aria-hidden />
       </div>
       <div className="text-white/85 text-[16px] font-semibold mb-1">{title}</div>
       {hint && <div className="text-white/45 text-[13.5px]">{hint}</div>}

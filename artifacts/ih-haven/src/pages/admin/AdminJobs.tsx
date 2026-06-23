@@ -22,9 +22,9 @@ const JOB_CAT_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
-  closed: "bg-red-100 text-red-600",
-  draft: "bg-gray-100 text-gray-600",
+  active: "bg-emerald-500/15 text-emerald-300",
+  closed: "bg-rose-500/15 text-rose-300",
+  draft: "bg-muted text-foreground/60",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -134,6 +134,7 @@ export default function AdminJobs() {
           <p className="text-[13px] text-foreground/55 mt-1">وظائف من مشاريع وشركاء آيلاند هيفن.</p>
         </div>
         <button
+          type="button"
           onClick={openNew}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
@@ -142,7 +143,7 @@ export default function AdminJobs() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -187,16 +188,19 @@ export default function AdminJobs() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
                       <button
+                        type="button"
                         onClick={() => toggleFeatured(row)}
                         title={row.featured ? "إلغاء التمييز" : "تمييز"}
-                        className={`p-1.5 rounded-lg transition-colors ${row.featured ? "text-amber-500 hover:bg-amber-50" : "text-foreground/30 hover:bg-muted"}`}
+                        aria-label={row.featured ? "إلغاء تمييز الوظيفة" : "تمييز الوظيفة"}
+                        aria-pressed={row.featured ? "true" : "false"}
+                        className={`p-1.5 rounded-lg transition-colors ${row.featured ? "text-amber-400 hover:bg-amber-500/10" : "text-foreground/30 hover:bg-muted"}`}
                       >
                         <Star className="w-4 h-4" fill={row.featured ? "currentColor" : "none"} />
                       </button>
-                      <button onClick={() => openEdit(row)} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button onClick={() => onDelete(row.id)} className="p-1.5 rounded-lg text-foreground/40 hover:bg-red-50 hover:text-red-600 transition-colors">
+                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

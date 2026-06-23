@@ -105,13 +105,14 @@ export default function Onboarding() {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setStep(1)}
                   className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] flex items-center justify-center gap-2"
                 >
                   {t({ ar: "ابدأ الآن", en: "Get started" })}
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 </button>
-                <button onClick={() => navigate("/profile")} className="text-[12px] text-white/35 hover:text-white/55 transition-colors">
+                <button type="button" onClick={() => navigate("/profile")} className="text-[12px] text-white/35 hover:text-white/55 transition-colors">
                   {t({ ar: "تخطّى، سأكمل لاحقًا", en: "Skip — I'll finish later" })}
                 </button>
               </motion.div>
@@ -153,11 +154,11 @@ export default function Onboarding() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(0)} className="flex-1 h-12 rounded-xl bg-white/[0.07] border border-white/15 text-white/60 text-[13px] font-semibold flex items-center justify-center gap-1.5">
-                    <ChevronRight className="w-4 h-4" /> {t({ ar: "السابق", en: "Back" })}
+                  <button type="button" onClick={() => setStep(0)} className="flex-1 h-12 rounded-xl bg-white/[0.07] border border-white/15 text-white/60 text-[13px] font-semibold flex items-center justify-center gap-1.5">
+                    <ChevronRight className="w-4 h-4" aria-hidden="true" /> {t({ ar: "السابق", en: "Back" })}
                   </button>
-                  <button onClick={() => setStep(2)} className="flex-[2] h-12 rounded-xl bg-primary text-white font-bold text-[14px] flex items-center justify-center gap-2">
-                    {t({ ar: "التالي", en: "Next" })} <ChevronLeft className="w-4 h-4" />
+                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-12 rounded-xl bg-primary text-white font-bold text-[14px] flex items-center justify-center gap-2">
+                    {t({ ar: "التالي", en: "Next" })} <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </motion.div>

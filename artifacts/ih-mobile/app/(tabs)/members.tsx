@@ -87,7 +87,7 @@ export default function MembersScreen() {
           مجتمع آيلاند · Members
         </T>
         <View style={{ flexDirection: "row-reverse", alignItems: "baseline", gap: 8 }}>
-          <T size={26} weight="bold">منتسبو المساحة</T>
+          <T size={26} weight="bold" accessibilityRole="header">منتسبو المساحة</T>
           {totalCount > 0 ? (
             <T size={13} color={colors.mutedForeground}>{toArabicNum(totalCount)} عضوًا</T>
           ) : null}
@@ -107,14 +107,19 @@ export default function MembersScreen() {
             return (
               <Pressable
                 onPress={() => setRole(f.key)}
-                style={{
+                accessibilityRole="button"
+                accessibilityLabel={f.label}
+                accessibilityState={{ selected: active }}
+                hitSlop={4}
+                style={({ pressed }) => ({
                   paddingHorizontal: 14,
                   paddingVertical: 7,
                   borderRadius: 999,
                   borderWidth: 1,
                   borderColor: active ? colors.primary : colors.border,
                   backgroundColor: active ? colors.primarySoft : "transparent",
-                }}
+                  opacity: pressed ? 0.7 : 1,
+                })}
               >
                 <T size={12} weight="medium" color={active ? colors.primary : colors.foreground}>
                   {f.label}
@@ -179,8 +184,14 @@ function MemberCard({
 }) {
   const skills = splitTags(m.skills).slice(0, 3);
   const hasSocial = !!(m.linkedinUrl || m.githubUrl || m.portfolioUrl || m.behanceUrl);
+  const a11yLabel = [ROLE_AR[m.role] || "عضو", m.fullName, m.jobTitle].filter(Boolean).join("، ");
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.99 : 1 }] })}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.99 : 1 }], opacity: pressed ? 0.92 : 1 })}
+    >
       <Card style={{ gap: 12 }}>
         <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 12 }}>
           {m.avatarUrl ? (

@@ -49,7 +49,7 @@ function highlight(text: string, q: string): React.ReactNode {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-amber-200/70 text-foreground rounded px-0.5">
+      <mark className="bg-amber-400/25 text-amber-200 rounded px-0.5">
         {text.slice(idx, idx + q.length)}
       </mark>
       {text.slice(idx + q.length)}
@@ -249,14 +249,14 @@ function SectionCard({
             {highlight(section.label, query)}
           </h3>
           {isOverridden && (
-            <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-semibold">
-              <span className="w-1 h-1 rounded-full bg-amber-500" />
+            <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-amber-400/15 text-amber-300 text-[10px] font-semibold">
+              <span className="w-1 h-1 rounded-full bg-amber-400" />
               معدّل
             </span>
           )}
           {dirtyCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold">
-              <span className="w-1 h-1 rounded-full bg-blue-500" />
+            <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-blue-500/15 text-blue-300 text-[10px] font-semibold">
+              <span className="w-1 h-1 rounded-full bg-blue-400" />
               {dirtyCount} غير محفوظ
             </span>
           )}
@@ -541,13 +541,13 @@ export default function AdminContent() {
               {overrideCount > 0 && (
                 <>
                   <span>·</span>
-                  <span className="text-amber-700">{overrideCount} معدّل</span>
+                  <span className="text-amber-300">{overrideCount} معدّل</span>
                 </>
               )}
               {totalDirty > 0 && (
                 <>
                   <span>·</span>
-                  <span className="text-blue-700 font-bold">{totalDirty} غير محفوظ</span>
+                  <span className="text-blue-300 font-bold">{totalDirty} غير محفوظ</span>
                 </>
               )}
             </div>
@@ -555,7 +555,7 @@ export default function AdminContent() {
         </div>
 
         {/* Search bar */}
-        <div className="sticky top-2 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-border shadow-soft p-3 lg:p-4">
+        <div className="sticky top-2 z-20 bg-card/95 backdrop-blur-md rounded-2xl border border-border shadow-soft p-3 lg:p-4">
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />

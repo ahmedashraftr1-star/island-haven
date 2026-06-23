@@ -8,6 +8,7 @@ import {
   View,
   type PressableProps,
   type TextInputProps,
+  type TextProps,
   type TextStyle,
   type ViewStyle,
 } from "react-native";
@@ -15,7 +16,8 @@ import * as Haptics from "expo-haptics";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 
-const ARABIC_FONT = "IBMPlexSansArabic_500Medium";
+const ARABIC_FONT_REGULAR = "IBMPlexSansArabic_400Regular";
+const ARABIC_FONT_MEDIUM = "IBMPlexSansArabic_500Medium";
 const ARABIC_FONT_BOLD = "IBMPlexSansArabic_700Bold";
 
 interface TProps {
@@ -26,19 +28,41 @@ interface TProps {
   align?: TextStyle["textAlign"];
   style?: TextStyle | TextStyle[];
   numberOfLines?: number;
+  /** Screen-reader role; pass "header" for section titles. */
+  accessibilityRole?: TextProps["accessibilityRole"];
+  /** Hide purely decorative text from the accessibility tree. */
+  accessible?: boolean;
 }
-export function T({ children, size = 15, weight = "regular", color, align = "right", style, numberOfLines }: TProps) {
+export function T({
+  children,
+  size = 15,
+  weight = "regular",
+  color,
+  align = "right",
+  style,
+  numberOfLines,
+  accessibilityRole,
+  accessible,
+}: TProps) {
   const colors = useColors();
   return (
     <Text
       numberOfLines={numberOfLines}
+      accessibilityRole={accessibilityRole}
+      accessible={accessible}
+      maxFontSizeMultiplier={1.6}
       style={[
         {
           fontSize: size,
           color: color ?? colors.foreground,
           textAlign: align,
           writingDirection: "rtl",
-          fontFamily: weight === "bold" ? ARABIC_FONT_BOLD : ARABIC_FONT,
+          fontFamily:
+            weight === "bold"
+              ? ARABIC_FONT_BOLD
+              : weight === "medium"
+                ? ARABIC_FONT_MEDIUM
+                : ARABIC_FONT_REGULAR,
           fontWeight: weight === "bold" ? "700" : weight === "medium" ? "500" : "400",
         },
         style as TextStyle,
@@ -67,6 +91,8 @@ export function Btn({ title, variant = "primary", loading, fullWidth, onPress, d
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: !!disabled, busy: !!loading }}
       {...rest}
       disabled={disabled || loading}
       onPress={(e) => {
@@ -119,6 +145,7 @@ export function Field({ label, hint, error, ...rest }: FieldProps) {
     <View style={{ gap: 6 }}>
       {label ? <T size={13} weight="medium" color={colors.mutedForeground}>{label}</T> : null}
       <TextInput
+        accessibilityLabel={label ?? rest.placeholder}
         {...rest}
         placeholderTextColor={colors.mutedForeground}
         style={{
@@ -131,10 +158,14 @@ export function Field({ label, hint, error, ...rest }: FieldProps) {
           color: colors.foreground,
           textAlign: "right",
           writingDirection: "rtl",
-          fontFamily: ARABIC_FONT,
+          fontFamily: ARABIC_FONT_REGULAR,
         }}
       />
-      {error ? <T size={12} color={colors.destructive}>{error}</T> : hint ? <T size={12} color={colors.mutedForeground}>{hint}</T> : null}
+      {error ? (
+        <T size={12} color={colors.destructive} accessibilityRole="alert">{error}</T>
+      ) : hint ? (
+        <T size={12} color={colors.mutedForeground}>{hint}</T>
+      ) : null}
     </View>
   );
 }
@@ -176,14 +207,16 @@ export function Empty({
           width: 72,
           height: 72,
           borderRadius: 36,
-          backgroundColor: colors.muted,
+          backgroundColor: colors.primarySoft,
+          borderWidth: 1,
+          borderColor: colors.primary + "33",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        {icon ? <Feather name={icon} size={30} color={colors.mutedForeground} /> : null}
+        {icon ? <Feather name={icon} size={30} color={colors.primary} /> : null}
       </View>
-      <T size={17} weight="bold" align="center">{title}</T>
+      <T size={17} weight="bold" align="center" accessibilityRole="header">{title}</T>
       {hint ? (
         <T size={14} color={colors.mutedForeground} align="center" style={{ lineHeight: 22, maxWidth: 320 }}>
           {hint}

@@ -132,6 +132,7 @@ export function Voices() {
             {voices.map((_, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setIdx(i)}
                 aria-label={t({ ar: `اقتباس ${i + 1}`, en: `Quote ${i + 1}` })}
                 className={`h-2 rounded-full transition-all duration-500 ${

@@ -75,6 +75,8 @@ const FAQ_DATA: FaqSection[] = [
 
 function FaqItem({ item, index }: { item: FaqItem; index: number }) {
   const [open, setOpen] = useState(false);
+  const panelId = `faq-panel-${index}`;
+  const btnId = `faq-btn-${index}`;
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -83,24 +85,32 @@ function FaqItem({ item, index }: { item: FaqItem; index: number }) {
       className="border-b border-white/[0.07] last:border-0"
     >
       <button
+        type="button"
+        id={btnId}
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-4 py-4 text-right"
+        aria-expanded={open ? "true" : "false"}
+        aria-controls={panelId}
+        className="w-full flex items-center justify-between gap-4 py-4 text-right rounded-lg hover:opacity-90 transition-opacity"
       >
         <span className={`text-[14.5px] font-semibold leading-snug transition-colors ${open ? "text-primary" : "text-white/85"}`}>
           {item.q}
         </span>
-        <motion.div
+        <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.25 }}
+          aria-hidden="true"
           className="flex-shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center"
         >
           <ChevronDown className="w-3.5 h-3.5 text-white/50" />
-        </motion.div>
+        </motion.span>
       </button>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
             key="content"
+            id={panelId}
+            role="region"
+            aria-labelledby={btnId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -135,7 +145,9 @@ export default function Faq() {
           {FAQ_DATA.map((sec, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => setActiveSection(i)}
+              aria-pressed={activeSection === i ? "true" : "false"}
               className={`shrink-0 text-right px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
                 activeSection === i
                   ? "bg-primary text-white shadow-lg shadow-primary/20"

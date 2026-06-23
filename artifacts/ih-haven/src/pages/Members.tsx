@@ -139,11 +139,13 @@ export default function Members() {
     >
       <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-8 items-center">
         <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
           <input
+            type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={c.searchPlaceholder}
+            aria-label={c.searchPlaceholder}
             className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
             data-testid="input-search-members"
           />
@@ -154,7 +156,9 @@ export default function Members() {
             return (
               <button
                 key={f.key}
+                type="button"
                 onClick={() => setRole(f.key)}
+                aria-pressed={active ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border flex items-center gap-1.5 ${
                   active
                     ? "bg-primary/20 text-white border-primary/40"
@@ -206,12 +210,14 @@ export default function Members() {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10" dir="ltr">
+        <nav className="flex items-center justify-center gap-2 mt-10" dir="ltr" aria-label={t({ ar: "ترقيم الصفحات", en: "Pagination" })}>
           <button
+            type="button"
             onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
+            aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
-          >←</button>
+          ><span aria-hidden="true">←</span></button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
             .reduce<(number | "…")[]>((acc, p, i, arr) => {
@@ -220,16 +226,20 @@ export default function Members() {
             }, [])
             .map((p, i) => p === "…"
               ? <span key={`e${i}`} className="text-white/30 text-[13px] px-1">…</span>
-              : <button key={p} onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                  aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
+                  aria-current={p === page ? "page" : undefined}
                   className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-white/[0.07] border border-white/15 text-white/70 hover:bg-white/[0.11]"}`}
                 >{p}</button>
             )}
           <button
+            type="button"
             onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
+            aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
-          >→</button>
-        </div>
+          ><span aria-hidden="true">→</span></button>
+        </nav>
       )}
     </PageShell>
   );

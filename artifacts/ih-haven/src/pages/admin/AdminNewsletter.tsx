@@ -64,6 +64,7 @@ export default function AdminNewsletter() {
           </p>
         </div>
         <button
+          type="button"
           onClick={exportCsv}
           disabled={!rows || active.length === 0}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border text-foreground/70 text-[13px] font-medium hover:bg-muted transition-colors disabled:opacity-40"
@@ -91,7 +92,7 @@ export default function AdminNewsletter() {
       )}
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
           {error}
         </div>
       )}

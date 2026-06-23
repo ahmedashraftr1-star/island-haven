@@ -280,7 +280,7 @@ export default function Home() {
             <T size={13} weight="medium" color="rgba(255,255,255,0.85)">
               {g.eyebrow}
             </T>
-            <T size={31} weight="bold" color="#fff" style={{ marginTop: 6, lineHeight: 40 }}>
+            <T size={31} weight="bold" color="#fff" style={{ marginTop: 6, lineHeight: 40 }} accessibilityRole="header">
               {g.title}
             </T>
             <T size={15} color="rgba(255,255,255,0.92)" style={{ marginTop: 10, lineHeight: 24 }}>
@@ -289,7 +289,9 @@ export default function Home() {
             <View style={{ flexDirection: "row-reverse", gap: 10, marginTop: 18 }}>
               <Pressable
                 onPress={() => router.push("/apply" as never)}
-                style={{
+                accessibilityRole="button"
+                accessibilityLabel="انتسب الآن"
+                style={({ pressed }) => ({
                   flexDirection: "row-reverse",
                   alignItems: "center",
                   gap: 6,
@@ -297,14 +299,17 @@ export default function Home() {
                   paddingVertical: 11,
                   borderRadius: 999,
                   backgroundColor: "#fff",
-                }}
+                  opacity: pressed ? 0.85 : 1,
+                })}
               >
                 <Feather name="user-plus" size={15} color={colors.primary} />
                 <T size={13.5} weight="bold" color={colors.primary}>انتسب الآن</T>
               </Pressable>
               <Pressable
                 onPress={() => router.push("/programs" as never)}
-                style={{
+                accessibilityRole="button"
+                accessibilityLabel="استكشف البرامج"
+                style={({ pressed }) => ({
                   flexDirection: "row-reverse",
                   alignItems: "center",
                   gap: 6,
@@ -313,7 +318,8 @@ export default function Home() {
                   borderRadius: 999,
                   borderWidth: 1,
                   borderColor: "rgba(255,255,255,0.5)",
-                }}
+                  opacity: pressed ? 0.7 : 1,
+                })}
               >
                 <T size={13.5} weight="bold" color="#fff">استكشف البرامج</T>
               </Pressable>
@@ -349,7 +355,9 @@ export default function Home() {
                 <Pressable
                   onPress={() => router.push(`/${item.key}` as never)}
                   hitSlop={6}
-                  style={{
+                  accessibilityRole="button"
+                  accessibilityLabel={item.label}
+                  style={({ pressed }) => ({
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     borderRadius: 999,
@@ -359,7 +367,8 @@ export default function Home() {
                     flexDirection: "row-reverse",
                     alignItems: "center",
                     gap: 6,
-                  }}
+                    opacity: pressed ? 0.7 : 1,
+                  })}
                 >
                   <Feather name={item.icon} size={14} color={colors.primary} />
                   <T size={13} weight="medium">{item.label}</T>
@@ -371,8 +380,13 @@ export default function Home() {
           {/* News slider */}
           <View style={{ paddingTop: 24 }}>
             <View style={s.sectionHead}>
-              <T size={20} weight="bold">آخر الأخبار</T>
-              <Pressable onPress={() => router.push("/events")} hitSlop={8}>
+              <T size={20} weight="bold" accessibilityRole="header">آخر الأخبار</T>
+              <Pressable
+                onPress={() => router.push("/events")}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="عرض المزيد من الأخبار"
+              >
                 <T size={13} color={colors.primary} weight="medium">عرض المزيد</T>
               </Pressable>
             </View>
@@ -394,14 +408,18 @@ export default function Home() {
                 contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
                 renderItem={({ item }) => (
                   <Pressable
-                    style={{
+                    onPress={() => router.push("/events")}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.title}
+                    style={({ pressed }) => ({
                       width: 280,
                       borderRadius: colors.radius + 2,
                       overflow: "hidden",
                       backgroundColor: colors.card,
                       borderWidth: 1,
                       borderColor: colors.border,
-                    }}
+                      opacity: pressed ? 0.9 : 1,
+                    })}
                   >
                     {item.imageUrl ? (
                       <Image
@@ -426,9 +444,14 @@ export default function Home() {
           {(expertsQ.isLoading || experts.length > 0) && (
             <View style={{ paddingTop: 28 }}>
               <View style={s.sectionHead}>
-                <T size={20} weight="bold">الخبراء والمرشدون</T>
+                <T size={20} weight="bold" accessibilityRole="header">الخبراء والمرشدون</T>
                 {!expertsQ.isLoading && (
-                  <Pressable onPress={() => router.push("/experts" as never)} hitSlop={8}>
+                  <Pressable
+                    onPress={() => router.push("/experts" as never)}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="عرض كلّ الخبراء"
+                  >
                     <T size={13} color={colors.primary} weight="medium">عرض الكلّ</T>
                   </Pressable>
                 )}
@@ -454,7 +477,9 @@ export default function Home() {
                   renderItem={({ item }) => (
                     <Pressable
                       onPress={() => router.push(`/expert/${item.id}` as never)}
-                      style={{
+                      accessibilityRole="button"
+                      accessibilityLabel={[item.fullName, item.headline].filter(Boolean).join("، ")}
+                      style={({ pressed }) => ({
                         width: 220,
                         backgroundColor: colors.card,
                         borderWidth: 1,
@@ -462,7 +487,8 @@ export default function Home() {
                         borderRadius: colors.radius + 2,
                         padding: 14,
                         gap: 10,
-                      }}
+                        opacity: pressed ? 0.9 : 1,
+                      })}
                     >
                       <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 10 }}>
                         {item.avatarUrl ? (
@@ -506,7 +532,7 @@ export default function Home() {
           {stories.length > 0 && (
             <View style={{ paddingTop: 28 }}>
               <View style={s.sectionHead}>
-                <T size={20} weight="bold">قصص نجاح</T>
+                <T size={20} weight="bold" accessibilityRole="header">قصص نجاح</T>
               </View>
               <FlatList
                 horizontal
@@ -567,8 +593,13 @@ export default function Home() {
           {/* Numbers */}
           <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
             <View style={s.sectionHead2}>
-              <T size={20} weight="bold">مجتمعنا بالأرقام</T>
-              <Pressable onPress={() => router.push("/members")} hitSlop={8}>
+              <T size={20} weight="bold" accessibilityRole="header">مجتمعنا بالأرقام</T>
+              <Pressable
+                onPress={() => router.push("/members")}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="عرض المنتسبين"
+              >
                 <T size={13} color={colors.primary} weight="medium">عرض المزيد</T>
               </Pressable>
             </View>
@@ -582,7 +613,7 @@ export default function Home() {
 
           {/* Audience */}
           <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
-            <T size={20} weight="bold">لمن المساحة</T>
+            <T size={20} weight="bold" accessibilityRole="header">لمن المساحة</T>
             <View style={{ marginTop: 12, gap: 10 }}>
               {[
                 { icon: "briefcase", t: "للفريلانسرز", b: "إنترنت ثابت ومكاتب جاهزة." },
@@ -613,7 +644,7 @@ export default function Home() {
 
           {/* Hours & location */}
           <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
-            <T size={20} weight="bold">الساعات والموقع</T>
+            <T size={20} weight="bold" accessibilityRole="header">الساعات والموقع</T>
             <Card style={{ marginTop: 12, gap: 10 }}>
               <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 8 }}>
                 <Feather name="clock" size={18} color={colors.primary} />
@@ -629,7 +660,7 @@ export default function Home() {
           {/* Partners */}
           {partners.length > 0 && (
             <View style={{ paddingTop: 28, paddingHorizontal: 20 }}>
-              <T size={20} weight="bold">شركاؤنا</T>
+              <T size={20} weight="bold" accessibilityRole="header">شركاؤنا</T>
               <View style={{ marginTop: 12, gap: 10 }}>
                 {partners.map((p) => (
                   <Card

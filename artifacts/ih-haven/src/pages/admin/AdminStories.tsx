@@ -46,9 +46,9 @@ const STATUS_LABELS: Record<Row["status"], string> = {
 
 const STATUS_COLORS: Record<Row["status"], string> = {
   draft: "bg-muted text-foreground/55 border border-border",
-  published: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  published: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
   hidden: "bg-muted text-foreground/55 border border-border",
-  rejected: "bg-rose-50 text-rose-700 border border-rose-200",
+  rejected: "bg-rose-500/15 text-rose-300 border border-rose-500/30",
 };
 
 export default function AdminStories() {
@@ -124,18 +124,18 @@ export default function AdminStories() {
           <h2 className="text-[20px] font-bold text-foreground flex items-center gap-2">
             قصص النجاح
             {pendingCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[11px] font-bold">
                 {pendingCount} طلب جديد
               </span>
             )}
           </h2>
           <p className="text-[13px] text-foreground/55 mt-1">شهادات وقصص ملهمة من مجتمع آيلاند.</p>
         </div>
-        <button onClick={() => setEditing("new")} className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow">
+        <button type="button" onClick={() => setEditing("new")} className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow">
           <Plus className="w-4 h-4" /> قصّة جديدة
         </button>
       </div>
-      {error && <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{error}</div>}
+      {error && <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">{error}</div>}
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
@@ -158,7 +158,7 @@ export default function AdminStories() {
                   key={r.id}
                   className={`border-t border-border hover:bg-muted/20 ${
                     r.submittedByUserId !== null && r.status === "draft"
-                      ? "bg-amber-50/60"
+                      ? "bg-amber-400/[0.07]"
                       : ""
                   }`}
                 >
@@ -167,7 +167,7 @@ export default function AdminStories() {
                       {r.featured && <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />}
                       {r.submittedByUserId !== null && (
                         <span title="مقدَّمة من عضو">
-                          <UserCheck className="w-3.5 h-3.5 text-blue-500" />
+                          <UserCheck className="w-3.5 h-3.5 text-blue-400" />
                         </span>
                       )}
                       {r.personName}
@@ -195,7 +195,7 @@ export default function AdminStories() {
                         {STATUS_LABELS[r.status]}
                       </span>
                       {r.submittedByUserId !== null && (
-                        <span className="text-[10.5px] text-blue-600 font-semibold">من عضو</span>
+                        <span className="text-[10.5px] text-blue-300 font-semibold">من عضو</span>
                       )}
                     </div>
                   </td>
@@ -204,21 +204,23 @@ export default function AdminStories() {
                       {r.submittedByUserId !== null && r.status === "draft" && (
                         <>
                           <button
+                            type="button"
                             onClick={() => onPublish(r)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold hover:bg-emerald-100 transition-colors"
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold hover:bg-emerald-500/25 transition-colors"
                           >
                             نشر
                           </button>
                           <button
+                            type="button"
                             onClick={() => { setRejectTarget(r); setRejectReason(""); }}
-                            className="px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold hover:bg-rose-100 transition-colors"
+                            className="px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] font-semibold hover:bg-rose-500/25 transition-colors"
                           >
                             رفض
                           </button>
                         </>
                       )}
-                      <button onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => { setDeleteTarget(r); setDeleteReason(""); }} className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button type="button" aria-label="تعديل القصّة" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button type="button" aria-label="حذف القصّة" onClick={() => { setDeleteTarget(r); setDeleteReason(""); }} className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -232,9 +234,9 @@ export default function AdminStories() {
       {rejectTarget && (
         <Modal title="رفض القصّة" onClose={() => setRejectTarget(null)}>
           <div className="p-6 space-y-4">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200">
-              <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <p className="text-[13px] text-rose-700">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-500/15 border border-rose-500/30">
+              <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-rose-300">
                 سيُرسَل إشعار برفض القصّة إلى العضو تلقائيًّا بالبريد الإلكتروني.
               </p>
             </div>
@@ -250,6 +252,7 @@ export default function AdminStories() {
             </Field>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={onReject}
                 disabled={rejectBusy}
                 className="flex-1 h-11 rounded-full bg-rose-600 text-white font-semibold text-[13.5px] hover:bg-rose-700 disabled:opacity-50 transition-colors"
@@ -257,6 +260,7 @@ export default function AdminStories() {
                 {rejectBusy ? "جارِ الرفض…" : "تأكيد الرفض"}
               </button>
               <button
+                type="button"
                 onClick={() => setRejectTarget(null)}
                 className="px-6 h-11 rounded-full bg-muted text-foreground/75 font-semibold text-[13.5px] hover:bg-muted/70 transition-colors"
               >
@@ -271,9 +275,9 @@ export default function AdminStories() {
       {deleteTarget && (
         <Modal title="حذف القصّة" onClose={() => setDeleteTarget(null)}>
           <div className="p-6 space-y-4">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200">
-              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <p className="text-[13px] text-rose-700">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-500/15 border border-rose-500/30">
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-rose-300">
                 {deleteTarget.submittedByUserId !== null
                   ? "سيُحذف هذا المحتوى وسيصلُ إشعارٌ بالحذف إلى العضو تلقائيًّا بالبريد الإلكتروني."
                   : "سيُحذف هذا المحتوى نهائيًّا."}
@@ -293,6 +297,7 @@ export default function AdminStories() {
             )}
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={onDelete}
                 disabled={deleteBusy}
                 className="flex-1 h-11 rounded-full bg-rose-600 text-white font-semibold text-[13.5px] hover:bg-rose-700 disabled:opacity-50 transition-colors"
@@ -300,6 +305,7 @@ export default function AdminStories() {
                 {deleteBusy ? "جارِ الحذف…" : "تأكيد الحذف"}
               </button>
               <button
+                type="button"
                 onClick={() => setDeleteTarget(null)}
                 className="px-6 h-11 rounded-full bg-muted text-foreground/75 font-semibold text-[13.5px] hover:bg-muted/70 transition-colors"
               >
@@ -355,7 +361,7 @@ function StoryEditor({ initial, onClose, onSaved }: { initial: Row; onClose: () 
     <Modal title={isNew ? "قصّة جديدة" : "تعديل القصّة"} onClose={onClose}>
       <form onSubmit={onSubmit} noValidate className="p-6 space-y-4">
         {initial.submittedByUserId !== null && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-[13px]">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[13px]">
             <UserCheck className="w-4 h-4 shrink-0" />
             هذه القصّة مقدَّمة من أحد الأعضاء — يمكنك تعديلها ثمّ نشرها.
           </div>
@@ -401,7 +407,7 @@ function StoryEditor({ initial, onClose, onSaved }: { initial: Row; onClose: () 
           <input type="checkbox" checked={form.featured} onChange={(e) => setForm((s) => ({ ...s, featured: e.target.checked }))} className="w-4 h-4 accent-primary" />
           قصّة مميّزة
         </label>
-        {error && <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{error}</div>}
+        {error && <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">{error}</div>}
         <SaveBar submitting={submitting} isNew={isNew} onClose={onClose} />
       </form>
     </Modal>

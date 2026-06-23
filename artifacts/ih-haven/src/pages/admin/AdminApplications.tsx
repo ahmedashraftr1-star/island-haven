@@ -42,9 +42,9 @@ const STATUS_DOTS: Record<string, string> = {
 
 const STATUS_PILL: Record<string, string> = {
   new: "bg-primary-soft text-primary",
-  reviewing: "bg-amber-50 text-amber-700",
-  accepted: "bg-emerald-50 text-emerald-700",
-  rejected: "bg-rose-50 text-rose-700",
+  reviewing: "bg-amber-500/15 text-amber-300",
+  accepted: "bg-emerald-500/15 text-emerald-300",
+  rejected: "bg-rose-500/15 text-rose-300",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -206,10 +206,13 @@ export default function AdminApplications() {
                     </SelectContent>
                   </Select>
                   <Button
+                    type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => toggle(app.id)}
                     className="h-9 px-3 rounded-lg"
+                    aria-label={expanded.has(app.id) ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                    aria-expanded={expanded.has(app.id)}
                   >
                     <ChevronDown
                       className={`w-4 h-4 transition-transform ${expanded.has(app.id) ? "rotate-180" : ""}`}
@@ -254,9 +257,10 @@ export default function AdminApplications() {
                       </div>
                       <div className="flex justify-end">
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
-                          className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 gap-1.5"
+                          className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-1.5"
                           onClick={() => {
                             if (confirm("حذف هذا الطلب نهائياً؟")) deleteMut.mutate(app.id);
                           }}

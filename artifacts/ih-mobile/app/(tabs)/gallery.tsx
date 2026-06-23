@@ -70,6 +70,9 @@ export default function GalleryScreen() {
     if (it.workId) router.push(`/work/${it.workId}` as never);
     else if (it.authorId) router.push(`/member/${it.authorId}` as never);
   }
+  function canOpen(it: GalleryItem) {
+    return !!(it.workId || it.authorId);
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -77,7 +80,7 @@ export default function GalleryScreen() {
         <T size={11} weight="bold" color={colors.primary} style={{ letterSpacing: 1, marginBottom: 4 }}>
           لقطات · Gallery
         </T>
-        <T size={26} weight="bold">معرض الصور</T>
+        <T size={26} weight="bold" accessibilityRole="header">معرض الصور</T>
         <T size={13} color={colors.mutedForeground}>لقطات من المساحة وأعمال المنتسبين</T>
       </View>
 
@@ -100,7 +103,13 @@ export default function GalleryScreen() {
           refreshControl={<RefreshControl refreshing={q.isFetching} onRefresh={() => q.refetch()} tintColor={colors.primary} />}
           renderItem={({ item, index }) => (
             <Tile index={index} reduce={reduce}>
-              <Pressable onPress={() => open(item)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+              <Pressable
+                onPress={() => open(item)}
+                disabled={!canOpen(item)}
+                accessibilityRole={canOpen(item) ? "button" : "image"}
+                accessibilityLabel={item.title || (item.kind === "work" ? "عمل" : "صورة")}
+                style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+              >
                 {failed[item.id] ? (
                   <View
                     style={{

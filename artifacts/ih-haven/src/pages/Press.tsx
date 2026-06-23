@@ -80,9 +80,10 @@ function Copyable({ text }: { text: string }) {
       type="button"
       onClick={() => navigator.clipboard?.writeText(text)}
       title={t({ ar: "نسخ", en: "Copy" })}
+      aria-label={t({ ar: "نسخ", en: "Copy" })}
       className="inline-flex items-center gap-1.5 text-white/45 hover:text-primary transition-colors"
     >
-      <Copy className="w-3.5 h-3.5" />
+      <Copy className="w-3.5 h-3.5" aria-hidden="true" />
     </button>
   );
 }

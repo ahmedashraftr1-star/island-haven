@@ -7,33 +7,44 @@ import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
+import { useLanguage } from "@/lib/i18n";
+
+const TAB_LABELS = {
+  index: { ar: "الرئيسية", en: "Home" },
+  members: { ar: "المنتسبون", en: "Members" },
+  events: { ar: "فعاليات", en: "Events" },
+  works: { ar: "الأعمال", en: "Works" },
+  gallery: { ar: "الصور", en: "Gallery" },
+  profile: { ar: "حسابي", en: "Account" },
+} as const;
 
 function NativeTabLayout() {
+  const { t } = useLanguage();
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>الرئيسية</Label>
+        <Label>{t(TAB_LABELS.index)}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="members">
         <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
-        <Label>المنتسبون</Label>
+        <Label>{t(TAB_LABELS.members)}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="events">
         <Icon sf={{ default: "calendar", selected: "calendar" }} />
-        <Label>فعاليات</Label>
+        <Label>{t(TAB_LABELS.events)}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="works">
         <Icon sf={{ default: "briefcase", selected: "briefcase.fill" }} />
-        <Label>الأعمال</Label>
+        <Label>{t(TAB_LABELS.works)}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="gallery">
         <Icon sf={{ default: "photo.on.rectangle", selected: "photo.fill.on.rectangle.fill" }} />
-        <Label>الصور</Label>
+        <Label>{t(TAB_LABELS.gallery)}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf={{ default: "person.crop.circle", selected: "person.crop.circle.fill" }} />
-        <Label>حسابي</Label>
+        <Label>{t(TAB_LABELS.profile)}</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -41,6 +52,7 @@ function NativeTabLayout() {
 
 function ClassicTabLayout() {
   const colors = useColors();
+  const { t } = useLanguage();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
@@ -75,42 +87,42 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "الرئيسية",
+          title: t(TAB_LABELS.index),
           tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="members"
         options={{
-          title: "المنتسبون",
+          title: t(TAB_LABELS.members),
           tabBarIcon: ({ color }) => <Feather name="users" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="events"
         options={{
-          title: "فعاليات",
+          title: t(TAB_LABELS.events),
           tabBarIcon: ({ color }) => <Feather name="calendar" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="works"
         options={{
-          title: "الأعمال",
+          title: t(TAB_LABELS.works),
           tabBarIcon: ({ color }) => <Feather name="briefcase" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="gallery"
         options={{
-          title: "الصور",
+          title: t(TAB_LABELS.gallery),
           tabBarIcon: ({ color }) => <Feather name="image" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "حسابي",
+          title: t(TAB_LABELS.profile),
           tabBarIcon: ({ color }) => <Feather name="user" size={22} color={color} />,
         }}
       />

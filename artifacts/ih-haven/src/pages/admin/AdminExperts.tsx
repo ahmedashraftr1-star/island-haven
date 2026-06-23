@@ -122,6 +122,7 @@ export default function AdminExperts() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setEditing("new")}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           data-testid="button-new-expert"
@@ -132,7 +133,7 @@ export default function AdminExperts() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -141,8 +142,8 @@ export default function AdminExperts() {
         <div
           className={`rounded-2xl px-4 py-3 text-[13px] border ${
             toast.kind === "ok"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-              : "bg-rose-50 border-rose-200 text-rose-700"
+              ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+              : "bg-rose-500/15 border-rose-500/30 text-rose-300"
           }`}
         >
           {toast.msg}
@@ -154,6 +155,7 @@ export default function AdminExperts() {
         {TAB_CONFIG.map((t) => (
           <button
             key={t.id}
+            type="button"
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold border-b-2 transition-colors -mb-px ${
               tab === t.id
@@ -210,9 +212,10 @@ export default function AdminExperts() {
                       {r.fullName}
                       {isNeverLoggedIn(r) && (
                         <button
+                          type="button"
                           onClick={() => setEditing(r)}
                           title="لم يُسجَّل الدخول منذ الموافقة — انقر للتفاصيل"
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10.5px] font-semibold hover:bg-rose-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10.5px] font-semibold hover:bg-rose-500/25 transition-colors"
                         >
                           لم يسجّل الدخول بعد
                         </button>
@@ -228,7 +231,7 @@ export default function AdminExperts() {
                     )}
                     {tab === "pending" && r.ref && (
                       <div className="mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 text-[10.5px] font-semibold" title="مصدر الإحالة">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[10.5px] font-semibold" title="مصدر الإحالة">
                           المصدر: {r.ref}
                         </span>
                       </div>
@@ -249,9 +252,9 @@ export default function AdminExperts() {
                     <span
                       className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                         r.status === "active"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : r.status === "pending"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
+                          ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
                           : "bg-muted text-foreground/55 border border-border"
                       }`}
                     >
@@ -263,27 +266,31 @@ export default function AdminExperts() {
                       {tab === "pending" ? (
                         <>
                           <button
+                            type="button"
                             onClick={() => setStatus(r.id, "active")}
                             disabled={actionLoading === r.id}
                             title="قبول الطلب وتفعيل الحساب"
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50 transition-colors"
                             data-testid={`button-approve-expert-${r.id}`}
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             قبول
                           </button>
                           <button
+                            type="button"
                             onClick={() => setStatus(r.id, "hidden")}
                             disabled={actionLoading === r.id}
                             title="رفض الطلب"
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 disabled:opacity-50 transition-colors"
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 hover:bg-rose-500/25 disabled:opacity-50 transition-colors"
                             data-testid={`button-reject-expert-${r.id}`}
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             رفض
                           </button>
                           <button
+                            type="button"
                             onClick={() => setEditing(r)}
+                            aria-label="تعديل الخبير"
                             className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                             data-testid={`button-edit-expert-${r.id}`}
                           >
@@ -294,10 +301,12 @@ export default function AdminExperts() {
                         <>
                           {tab === "hidden" && (
                             <button
+                              type="button"
                               onClick={() => setStatus(r.id, "active")}
                               disabled={actionLoading === r.id}
                               title="تفعيل الخبير"
-                              className="p-2 rounded-lg hover:bg-emerald-50 text-foreground/65 hover:text-emerald-600 disabled:opacity-50 transition-colors"
+                              aria-label="تفعيل الخبير"
+                              className="p-2 rounded-lg hover:bg-emerald-500/15 text-foreground/65 hover:text-emerald-400 disabled:opacity-50 transition-colors"
                               data-testid={`button-activate-expert-${r.id}`}
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -305,20 +314,23 @@ export default function AdminExperts() {
                           )}
                           {tab === "active" && (
                             <button
+                              type="button"
                               onClick={() => setStatus(r.id, "hidden")}
                               disabled={actionLoading === r.id}
                               title="إخفاء الخبير"
-                              className="p-2 rounded-lg hover:bg-amber-50 text-foreground/65 hover:text-amber-600 disabled:opacity-50 transition-colors"
+                              aria-label="إخفاء الخبير"
+                              className="p-2 rounded-lg hover:bg-amber-400/15 text-foreground/65 hover:text-amber-400 disabled:opacity-50 transition-colors"
                             >
                               <Clock className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {tab === "active" && !r.passwordSetAt && (
                             <button
+                              type="button"
                               onClick={() => resendSetupLink(r.id)}
                               disabled={resendLoading === r.id}
                               title="إعادة إرسال رابط الدخول"
-                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 disabled:opacity-50 transition-colors"
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25 disabled:opacity-50 transition-colors"
                               data-testid={`button-resend-link-${r.id}`}
                             >
                               <Mail className="w-3.5 h-3.5" />
@@ -326,15 +338,19 @@ export default function AdminExperts() {
                             </button>
                           )}
                           <button
+                            type="button"
                             onClick={() => setEditing(r)}
+                            aria-label="تعديل الخبير"
                             className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                             data-testid={`button-edit-expert-${r.id}`}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
+                            type="button"
                             onClick={() => onDelete(r.id)}
-                            className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                            aria-label="حذف الخبير"
+                            className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                             data-testid={`button-delete-expert-${r.id}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -526,7 +542,9 @@ function ExpertEditor({
             {isNew ? "خبير جديد" : "تعديل الخبير"}
           </h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="إغلاق"
             className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
           >
             <X className="w-4 h-4" />
@@ -580,9 +598,9 @@ function ExpertEditor({
           )}
 
           {!isNew && form.ref && (
-            <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 flex items-center gap-2">
-              <span className="text-[12px] font-semibold text-sky-700/70">مصدر الطلب</span>
-              <span className="text-[13px] font-semibold text-sky-700 dir-ltr" dir="ltr">{form.ref}</span>
+            <div className="rounded-xl border border-sky-500/30 bg-sky-500/15 px-4 py-3 flex items-center gap-2">
+              <span className="text-[12px] font-semibold text-sky-300/80">مصدر الطلب</span>
+              <span className="text-[13px] font-semibold text-sky-300 dir-ltr" dir="ltr">{form.ref}</span>
             </div>
           )}
 
@@ -720,7 +738,7 @@ function ExpertEditor({
               onChange={(url) => setForm((s) => ({ ...s, avatarUrl: url }))}
             />
             {issues.avatarUrl && (
-              <div className="text-[11.5px] text-rose-600 mt-1 px-1">
+              <div className="text-[11.5px] text-rose-400 mt-1 px-1">
                 {issues.avatarUrl}
               </div>
             )}
@@ -772,7 +790,7 @@ function ExpertEditor({
           </div>
 
           {error && (
-            <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+            <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
               {error}
             </div>
           )}
@@ -869,8 +887,9 @@ function AvatarUploader({
             <button
               type="button"
               onClick={() => onChange("")}
-              className="p-1.5 rounded-lg hover:bg-rose-50 text-foreground/45 hover:text-rose-500 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-rose-500/15 text-foreground/45 hover:text-rose-400 transition-colors"
               title="إزالة الصورة"
+              aria-label="إزالة الصورة"
             >
               <X className="w-3 h-3" />
             </button>
@@ -883,7 +902,7 @@ function AvatarUploader({
           </div>
         )}
         {uploadError && (
-          <p className="text-[11px] text-rose-600">{uploadError}</p>
+          <p className="text-[11px] text-rose-400">{uploadError}</p>
         )}
       </div>
       <input
@@ -919,7 +938,7 @@ function Field({
         {children}
       </div>
       {error && (
-        <p className="text-[11.5px] text-rose-600 mt-1 px-0.5">{error}</p>
+        <p className="text-[11.5px] text-rose-400 mt-1 px-0.5">{error}</p>
       )}
     </div>
   );

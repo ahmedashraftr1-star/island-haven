@@ -104,13 +104,18 @@ export default function Works() {
       })}
     >
       <div className="relative mb-5">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" />
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
         <input
+          type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t({
             ar: "ابحث في الأعمال بالعنوان أو الوصف أو الوسوم…",
             en: "Search works by title, summary, or tags…",
+          })}
+          aria-label={t({
+            ar: "ابحث في الأعمال بالعنوان أو الوصف أو الوسوم",
+            en: "Search works by title, summary, or tags",
           })}
           className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
           data-testid="input-search-works"
@@ -121,7 +126,9 @@ export default function Works() {
           {ROLE_FILTERS.map((f) => (
             <button
               key={f.key}
+              type="button"
               onClick={() => setFilter(f.key)}
+              aria-pressed={filter === f.key ? "true" : "false"}
               className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                 filter === f.key
                   ? "bg-primary/20 text-white border-primary/40"
@@ -159,7 +166,9 @@ export default function Works() {
         {SORT_OPTIONS.map((o) => (
           <button
             key={o.key}
+            type="button"
             onClick={() => setSort(o.key)}
+            aria-pressed={sort === o.key ? "true" : "false"}
             className={`px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               sort === o.key
                 ? "bg-primary/15 text-primary border-primary/35"
@@ -172,8 +181,9 @@ export default function Works() {
         ))}
         {user && (
           <button
+            type="button"
             onClick={() => setFollowingFeed((v) => !v)}
-            aria-pressed={followingFeed}
+            aria-pressed={followingFeed ? "true" : "false"}
             className={`ms-1 px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               followingFeed
                 ? "bg-primary text-white border-primary"
@@ -235,13 +245,15 @@ export default function Works() {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10" dir="ltr">
+        <nav className="flex items-center justify-center gap-2 mt-10" dir="ltr" aria-label={t({ ar: "ترقيم الصفحات", en: "Pagination" })}>
           <button
+            type="button"
             onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
+            aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -256,7 +268,10 @@ export default function Works() {
               ) : (
                 <button
                   key={p}
+                  type="button"
                   onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                  aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
+                  aria-current={p === page ? "page" : undefined}
                   className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${
                     p === page
                       ? "bg-primary text-white shadow-[0_4px_14px_-3px_rgba(220,38,55,0.5)]"
@@ -268,13 +283,15 @@ export default function Works() {
               )
             )}
           <button
+            type="button"
             onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
+            aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
             className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
-            →
+            <span aria-hidden="true">→</span>
           </button>
-        </div>
+        </nav>
       )}
     </PageShell>
   );

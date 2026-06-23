@@ -184,8 +184,8 @@ export default function BecomeMentor() {
           className="max-w-md w-full text-center space-y-6"
         >
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            <div className="w-20 h-20 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-400" />
             </div>
           </div>
           <div>
@@ -248,12 +248,15 @@ export default function BecomeMentor() {
           {STEPS.map((s, i) => (
             <button
               key={s.id}
+              type="button"
               onClick={() => i < step && setStep(i)}
+              disabled={i >= step}
+              aria-current={i === step ? "step" : undefined}
               className={`flex-1 py-1.5 rounded-full text-[11.5px] font-semibold transition-colors ${
                 i === step
                   ? "bg-primary text-white"
                   : i < step
-                  ? "bg-primary/15 text-primary cursor-pointer"
+                  ? "bg-primary/15 text-primary cursor-pointer hover:bg-primary/25"
                   : "bg-muted text-foreground/35 cursor-default"
               }`}
             >
@@ -471,7 +474,10 @@ export default function BecomeMentor() {
                 </FormField>
 
                 {error && (
-                  <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+                  <div
+                    role="alert"
+                    className="rounded-xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]"
+                  >
                     {error}
                   </div>
                 )}
@@ -529,13 +535,13 @@ function FormField({
       </label>
       <div
         className={`flex items-start gap-2 rounded-xl border px-4 py-3 bg-muted/30 transition-colors focus-within:border-primary/50 focus-within:bg-card ${
-          error ? "border-rose-400 bg-rose-50/40" : "border-border"
+          error ? "border-rose-500/50 bg-rose-500/[0.07]" : "border-border"
         }`}
       >
         {children}
       </div>
       {error && (
-        <p className="text-[11.5px] text-rose-600 px-1">{error}</p>
+        <p className="text-[11.5px] text-rose-300 px-1">{error}</p>
       )}
     </div>
   );

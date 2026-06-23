@@ -156,7 +156,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -225,12 +225,13 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                   className={`w-full h-10 px-3 rounded-xl bg-muted/40 border text-[13px] outline-none focus:border-primary/50 transition-colors ${isDirty ? "border-amber-400/60" : "border-border"}`}
                 />
                 {isDirty && (
-                  <span className="absolute inset-inline-end-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full pointer-events-none">
+                  <span className="absolute inset-inline-end-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-amber-300 bg-amber-400/15 border border-amber-400/30 px-1.5 py-0.5 rounded-full pointer-events-none">
                     غير محفوظ
                   </span>
                 )}
               </div>
               <button
+                type="button"
                 onClick={saveAdminEmail}
                 disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}
                 className="h-10 px-5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
@@ -246,21 +247,22 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                     {adminEmail}
                   </span>
                   {adminEmailSource === "env" ? (
-                    <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">
+                    <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
                       من متغيّر البيئة
                     </span>
                   ) : (
-                    <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                       <Database className="w-3 h-3" />
                       محفوظ في قاعدة البيانات
                     </span>
                   )}
                   {adminEmailSource === "db" && (
                     <button
+                      type="button"
                       onClick={clearAdminEmail}
                       disabled={adminEmailBusy}
                       title="استعادة متغيّر البيئة"
-                      className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-colors disabled:opacity-40"
+                      className="shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 hover:bg-rose-500/25 transition-colors disabled:opacity-40"
                     >
                       <X className="w-3 h-3" />
                       مسح
@@ -276,7 +278,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
           </>
         )}
         {adminEmailMsg && (
-          <p className={`text-[12.5px] mt-2 ${adminEmailMsg === "تم الحفظ" || adminEmailMsg === "تمّت استعادة متغيّر البيئة" ? "text-emerald-700" : "text-rose-600"}`}>
+          <p className={`text-[12.5px] mt-2 ${adminEmailMsg === "تم الحفظ" || adminEmailMsg === "تمّت استعادة متغيّر البيئة" ? "text-emerald-300" : "text-rose-300"}`}>
             {adminEmailMsg}
           </p>
         )}
@@ -308,9 +310,9 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
         </section>
       )}
 
-      <section className="rounded-2xl bg-card border border-rose-200 p-5">
+      <section className="rounded-2xl bg-rose-500/[0.06] border border-rose-500/30 p-5">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
+          <AlertTriangle className="w-5 h-5 text-rose-400 mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
             <h3 className="text-[14px] font-bold text-foreground">منطقة الخطر</h3>
             <p className="text-[12.5px] text-foreground/65 mt-1 leading-relaxed">
@@ -330,6 +332,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
               />
               <span className="text-[12.5px] text-foreground/65">يومًا</span>
               <button
+                type="button"
                 onClick={prune}
                 className="h-10 px-4 rounded-xl bg-rose-600 text-white text-[13px] font-semibold hover:bg-rose-700 transition-colors"
                 data-testid="button-prune-page-views"
@@ -338,7 +341,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
               </button>
             </div>
             {pruneMsg && (
-              <div className="text-[12.5px] text-emerald-700 mt-3">{pruneMsg}</div>
+              <div className="text-[12.5px] text-emerald-300 mt-3">{pruneMsg}</div>
             )}
           </div>
         </div>

@@ -120,10 +120,10 @@ export function NumbersBand() {
               <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold">
                 {t({ ar: c.eyebrow, en: "By the numbers" })}
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold tracking-wider">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
                 </span>
                 LIVE
               </span>
@@ -168,7 +168,7 @@ export function NumbersBand() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.55, delay: i * 0.07 }}
-                className="relative bg-card border border-border rounded-3xl p-6 lg:p-8 shadow-soft hover:shadow-soft-hover transition-all duration-500 hover:-translate-y-1 group overflow-hidden"
+                className="relative bg-card border border-border rounded-3xl p-6 lg:p-8 shadow-[0_18px_44px_-22px_rgba(0,0,0,0.7)] hover:border-primary/25 hover:shadow-[0_28px_64px_-20px_rgba(220,68,84,0.28)] transition-all duration-500 hover:-translate-y-1 group overflow-hidden"
                 data-testid={`numbers-tile-${t.en.toLowerCase()}`}
               >
                 <div

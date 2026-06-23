@@ -74,6 +74,7 @@ export default function AdminBadges() {
             </p>
           </div>
           <button
+            type="button"
             onClick={() => setEditing("new")}
             className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           >
@@ -81,7 +82,7 @@ export default function AdminBadges() {
           </button>
         </div>
         {error && (
-          <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          <div className="rounded-2xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
             {error}
           </div>
         )}
@@ -139,14 +140,18 @@ export default function AdminBadges() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button
+                          type="button"
                           onClick={() => setEditing(r)}
+                          aria-label={`تعديل شارة ${r.name}`}
                           className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => onDelete(r.id)}
-                          className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                          aria-label={`حذف شارة ${r.name}`}
+                          className="p-2 rounded-lg hover:bg-rose-500/10 text-foreground/65 hover:text-rose-400"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -288,7 +293,9 @@ function AwardSection({ badges }: { badges: Badge[] }) {
               return (
                 <button
                   key={u.id}
+                  type="button"
                   onClick={() => setSelectedUser(u)}
+                  aria-pressed={active ? "true" : "false"}
                   className={`inline-flex items-center gap-2 px-3 h-9 rounded-full text-[12.5px] font-semibold border transition-colors ${
                     active
                       ? "bg-primary text-primary-foreground border-primary"
@@ -307,7 +314,9 @@ function AwardSection({ badges }: { badges: Badge[] }) {
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 text-[12.5px] text-foreground/80 font-semibold">
           المنتسب: {selectedUser.fullName}
           <button
+            type="button"
             onClick={() => setSelectedUser(null)}
+            aria-label="إلغاء اختيار المنتسب"
             className="text-foreground/45 hover:text-foreground"
           >
             <X className="w-3.5 h-3.5" />
@@ -334,6 +343,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
           </select>
         </Field>
         <button
+          type="button"
           onClick={() => void award()}
           disabled={!canAward}
           className="h-11 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-[13px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
@@ -341,21 +351,22 @@ function AwardSection({ badges }: { badges: Badge[] }) {
           منح
         </button>
         <button
+          type="button"
           onClick={() => void revoke()}
           disabled={!canAward}
-          className="h-11 px-5 rounded-full bg-rose-50 text-rose-600 font-semibold text-[13px] enabled:hover:bg-rose-100 transition-colors disabled:opacity-50"
+          className="h-11 px-5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/25 font-semibold text-[13px] enabled:hover:bg-rose-500/20 transition-colors disabled:opacity-50"
         >
           سحب
         </button>
       </div>
 
       {msg && (
-        <div className="rounded-xl px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[13px]">
+        <div className="rounded-xl px-4 py-3 bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[13px]">
           {msg}
         </div>
       )}
       {err && (
-        <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
           {err}
         </div>
       )}
@@ -470,7 +481,7 @@ function BadgeEditor({
           </select>
         </Field>
         {error && (
-          <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+          <div className="rounded-xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[13px]">
             {error}
           </div>
         )}

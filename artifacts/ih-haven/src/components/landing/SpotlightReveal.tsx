@@ -42,8 +42,18 @@ export function SpotlightReveal() {
   return (
     <section
       ref={ref}
-      className="relative bg-foreground text-background overflow-hidden py-32 lg:py-40"
+      className="relative bg-[#06080F] text-white overflow-hidden py-32 lg:py-40"
     >
+      {/* Ambient depth — faint brand nebula so the ink panel breathes */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(70% 60% at 50% 40%, hsl(354 78% 56% / 0.07) 0%, transparent 70%)",
+        }}
+      />
+
       {/* meta */}
       <div className="container mx-auto px-6 lg:px-10 max-w-7xl mb-16 lg:mb-24 flex items-end justify-between gap-6 flex-wrap relative z-10">
         <div>
@@ -51,16 +61,16 @@ export function SpotlightReveal() {
             [ N°11 — البيان ]
           </div>
           <div
-            className="font-bold text-background/90 leading-tight"
+            className="font-bold text-white/90 leading-tight"
             style={{
               fontSize: "clamp(1.25rem, 2.4vw, 2rem)",
             }}
           >
             أربعة بياناتٍ نقف خلفها.
-            <span className="hidden md:inline text-background/55 font-light"> — مرّر مؤشّرك ليُضاء أحدها.</span>
+            <span className="hidden md:inline text-white/55 font-light"> — مرّر مؤشّرك ليُضاء أحدها.</span>
           </div>
         </div>
-        <div className="text-[10px] tracking-[0.4em] uppercase text-background/40 font-bold">
+        <div className="text-[10px] tracking-[0.4em] uppercase text-white/40 font-bold">
           Spotlight · Move your cursor
         </div>
       </div>
@@ -80,7 +90,7 @@ export function SpotlightReveal() {
           {lines.map((l, i) => (
             <div
               key={i}
-              className="grid grid-cols-[auto_1fr] gap-x-6 lg:gap-x-10 items-baseline mb-6 lg:mb-8 border-t border-background/10 pt-5 lg:pt-7"
+              className="grid grid-cols-[auto_1fr] gap-x-6 lg:gap-x-10 items-baseline mb-6 lg:mb-8 border-t border-white/10 pt-5 lg:pt-7"
             >
               <span
                 className="text-[10px] tracking-[0.4em] font-bold text-primary/80 pt-3"
@@ -144,13 +154,13 @@ export function SpotlightReveal() {
             width: size * 0.14,
             height: size * 0.14,
             background:
-              "radial-gradient(circle, rgba(199,87,67,0.55) 0%, transparent 70%)",
+              "radial-gradient(circle, hsl(354 78% 56% / 0.55) 0%, transparent 70%)",
           }}
         />
       </div>
 
       {/* signature */}
-      <div className="container mx-auto px-6 lg:px-10 max-w-6xl mt-20 lg:mt-32 flex items-center justify-between text-[11px] tracking-[0.3em] uppercase font-bold text-background/60 relative z-10">
+      <div className="container mx-auto px-6 lg:px-10 max-w-6xl mt-20 lg:mt-32 flex items-center justify-between text-[11px] tracking-[0.3em] uppercase font-bold text-white/55 relative z-10">
         <span>— Island Haven Manifesto · 2024</span>
         <span className="hidden md:inline">N°11 · 04 statements</span>
       </div>

@@ -384,6 +384,7 @@ function RsvpForm({ slug }: { slug: string }) {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder={t({ ar: "الاسم الكامل", en: "Full name" })}
+              aria-label={t({ ar: "الاسم الكامل", en: "Full name" })}
               required
               maxLength={120}
               className={inp}
@@ -392,6 +393,7 @@ function RsvpForm({ slug }: { slug: string }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t({ ar: "البريد الإلكترونيّ", en: "Email address" })}
+              aria-label={t({ ar: "البريد الإلكترونيّ", en: "Email address" })}
               type="email"
               dir="ltr"
               required
@@ -423,7 +425,7 @@ function RsvpForm({ slug }: { slug: string }) {
               />
             </label>
             {error && (
-              <div className="sm:col-span-2 text-red-300 text-[12.5px]">
+              <div role="alert" className="sm:col-span-2 text-red-300 text-[12.5px]">
                 {error}
               </div>
             )}

@@ -13,6 +13,7 @@ export function LangToggle({ tone = "onDark" }: LangToggleProps) {
 
   return (
     <button
+      type="button"
       onClick={toggleLang}
       aria-label={ariaLabel}
       title={ariaLabel}

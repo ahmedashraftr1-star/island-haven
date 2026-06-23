@@ -53,9 +53,9 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_PILL: Record<string, string> = {
   pending: "bg-primary-soft text-primary",
-  confirmed: "bg-emerald-50 text-emerald-700",
-  completed: "bg-sky-50 text-sky-700",
-  cancelled: "bg-rose-50 text-rose-700",
+  confirmed: "bg-emerald-500/15 text-emerald-300",
+  completed: "bg-sky-500/15 text-sky-300",
+  cancelled: "bg-rose-500/15 text-rose-300",
 };
 
 const SLOT_LABELS: Record<string, string> = {
@@ -235,7 +235,7 @@ export default function AdminBookings() {
                       </span>
                     )}
                     {b.slotStartAt && b.slotEndAt && (
-                      <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium" dir="ltr">
+                      <span className="inline-flex items-center gap-1.5 text-emerald-300 font-medium" dir="ltr">
                         <Clock className="w-3.5 h-3.5" />
                         {fmtSlotTime(b.slotStartAt, b.slotEndAt)}
                       </span>
@@ -259,10 +259,13 @@ export default function AdminBookings() {
                     </SelectContent>
                   </Select>
                   <Button
+                    type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => toggle(b.id)}
                     className="h-9 px-3 rounded-lg"
+                    aria-label={expanded.has(b.id) ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                    aria-expanded={expanded.has(b.id)}
                   >
                     <ChevronDown
                       className={`w-4 h-4 transition-transform ${expanded.has(b.id) ? "rotate-180" : ""}`}
@@ -316,9 +319,10 @@ export default function AdminBookings() {
                       </div>
                       <div className="flex justify-end">
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
-                          className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 gap-1.5"
+                          className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-1.5"
                           onClick={() => {
                             if (confirm("حذف هذا الحجز نهائياً؟")) deleteMut.mutate(b.id);
                           }}

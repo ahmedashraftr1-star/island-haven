@@ -47,10 +47,10 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         </g>
 
         {/* Compass rose, top-right */}
-        <g transform="translate(280, 40)" opacity="0.55">
-          <circle cx="0" cy="0" r="14" stroke="hsl(354 30% 60%)" strokeWidth="0.8" fill="none" />
-          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(354 30% 60%)" strokeWidth="0.8" />
-          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(354 30% 50%)" fontWeight="600">N</text>
+        <g transform="translate(280, 40)" opacity="0.6">
+          <circle cx="0" cy="0" r="14" stroke="hsl(354 50% 72%)" strokeWidth="0.8" fill="none" />
+          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(354 50% 72%)" strokeWidth="0.8" />
+          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(354 60% 78%)" fontWeight="600">N</text>
         </g>
 
         {/* Gaza Strip silhouette — stylised, coastal, NE→SW.
@@ -76,12 +76,13 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             L 198 140
             Z
           "
-          fill="hsl(354 70% 96%)"
-          stroke="hsl(354 70% 52%)"
+          fill="hsl(354 60% 50%)"
+          fillOpacity="0.16"
+          stroke="hsl(354 78% 60%)"
           strokeWidth="1.5"
           strokeLinejoin="round"
           initial={{ pathLength: 0, fillOpacity: 0 }}
-          whileInView={{ pathLength: 1, fillOpacity: 1 }}
+          whileInView={{ pathLength: 1, fillOpacity: 0.16 }}
           viewport={{ once: true }}
           transition={{
             pathLength: { duration: 2, ease: [0.16, 1, 0.3, 1] },
@@ -106,7 +107,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           y="266"
           textAnchor="middle"
           fontSize="11"
-          fill="hsl(354 30% 35%)"
+          fill="hsl(210 20% 90%)"
           fontWeight="700"
           letterSpacing="0.5"
           initial={{ opacity: 0 }}
@@ -153,7 +154,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             x="14"
             y="4"
             fontSize="10.5"
-            fill="hsl(354 70% 30%)"
+            fill="hsl(354 78% 72%)"
             fontWeight="700"
             initial={{ opacity: 0, x: 8 }}
             whileInView={{ opacity: 1, x: 14 }}

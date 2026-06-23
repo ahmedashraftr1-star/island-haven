@@ -283,6 +283,7 @@ export default function AdminOverview({
             <h3 className="text-[15px] font-bold text-foreground">آخر الطلبات</h3>
           </div>
           <button
+            type="button"
             onClick={() => onJump("applications")}
             className="text-[12.5px] text-primary font-semibold hover:gap-2 inline-flex items-center gap-1 transition-all"
           >

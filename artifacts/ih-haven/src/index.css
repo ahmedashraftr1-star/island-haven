@@ -251,15 +251,84 @@
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }
 
-/* Subtle elevation for cards */
+/* ── Elevation, tuned for the DARK canvas ──
+   On #0A0E1A a faint black shadow is invisible, so depth comes from a
+   deep cast shadow PLUS a 1px top inset highlight that reads as a lit edge. */
 @utility shadow-soft {
   box-shadow:
-    0 1px 2px hsl(225 25% 10% / 0.04),
-    0 4px 12px hsl(225 25% 10% / 0.04);
+    0 1px 0 0 hsl(0 0% 100% / 0.04) inset,
+    0 1px 2px hsl(225 60% 2% / 0.4),
+    0 8px 24px -8px hsl(225 60% 2% / 0.55);
 }
 
 @utility shadow-soft-hover {
   box-shadow:
-    0 2px 4px hsl(354 70% 30% / 0.06),
-    0 12px 32px hsl(354 70% 30% / 0.08);
+    0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
+    0 2px 6px hsl(225 60% 2% / 0.45),
+    0 18px 44px -12px hsl(354 78% 30% / 0.35);
+}
+
+/* ============================================================
+   Reusable ambient / elevation utilities (DARK system).
+   Documented helpers other areas may apply directly:
+
+   .ambient-aura        — soft radial brand glow background layer
+                          (place on an absolute/fixed full-bleed div behind content)
+   .ambient-grid        — faint dotted grid texture overlay for empty/hero areas
+   .surface-1 / -2 / -3 — graduated lifted dark surfaces with edge-light + depth,
+                          use instead of bare bg-card when you want a panel to read
+                          as raised off the page (surface-3 = most elevated, modals)
+   .ring-edge           — 1px lit hairline ring for glass/dark panels
+   .focus-ring          — consistent brand focus ring on custom interactive elements
+   ============================================================ */
+
+/* Soft brand glow — a single warm radial that lifts dark sections. */
+@utility ambient-aura {
+  background:
+    radial-gradient(60% 60% at 50% 0%, hsl(354 78% 56% / 0.10) 0%, transparent 70%),
+    radial-gradient(50% 50% at 100% 100%, hsl(225 60% 30% / 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Faint dotted grid for hero / empty canvases. */
+@utility ambient-grid {
+  background-image: radial-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: center;
+  pointer-events: none;
+  mask-image: radial-gradient(70% 70% at 50% 40%, black 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, black 0%, transparent 100%);
+}
+
+/* Lit hairline ring for panels sitting on the dark canvas. */
+@utility ring-edge {
+  box-shadow: 0 0 0 1px hsl(0 0% 100% / 0.07) inset;
+}
+
+/* Graduated raised surfaces. Each lifts the fill a touch and adds depth so
+   panels never sit flush with the #0A0E1A page (the flat-on-flat dark bug). */
+@utility surface-1 {
+  background-color: hsl(225 30% 10%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.04) inset,
+    0 8px 24px -10px hsl(225 60% 2% / 0.5);
+}
+@utility surface-2 {
+  background-color: hsl(225 28% 12%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
+    0 12px 36px -12px hsl(225 60% 2% / 0.6);
+}
+@utility surface-3 {
+  background-color: hsl(225 26% 14%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
+    0 24px 60px -16px hsl(225 60% 1% / 0.7);
+}
+
+/* Consistent brand focus ring for custom interactive elements that aren't
+   native <button>/<a> (those already get the global :focus-visible ring). */
+@utility focus-ring {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }

@@ -202,6 +202,7 @@ export default function AdminDashboard() {
             return (
               <button
                 key={id}
+                type="button"
                 onClick={() => navigateTo(id)}
                 data-testid={`tab-${id}`}
                 className={`w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13.5px] font-medium transition-all ${
@@ -235,9 +236,10 @@ export default function AdminDashboard() {
             العودة إلى الموقع
           </a>
           <button
+            type="button"
             onClick={logout}
             data-testid="button-logout"
-            className="w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition-all"
+            className="w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 transition-all"
           >
             <LogOut className="w-4 h-4" strokeWidth={2.2} />
             تسجيل الخروج
@@ -246,7 +248,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 inset-x-0 z-30 bg-white/90 backdrop-blur-xl border-b border-border">
+      <div className="lg:hidden fixed top-0 inset-x-0 z-30 bg-card/90 backdrop-blur-xl border-b border-border">
         <div className="px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <HavenMark size={28} className="text-primary" delay={0} />
@@ -255,8 +257,9 @@ export default function AdminDashboard() {
             </div>
           </div>
           <button
+            type="button"
             onClick={logout}
-            className="text-[12px] text-rose-600 font-semibold"
+            className="text-[12px] text-rose-400 font-semibold hover:text-rose-300 transition-colors"
           >
             خروج
           </button>
@@ -267,6 +270,7 @@ export default function AdminDashboard() {
             return (
               <button
                 key={id}
+                type="button"
                 onClick={() => navigateTo(id)}
                 className={`shrink-0 flex items-center gap-2 px-3.5 h-9 rounded-full text-[12.5px] font-medium transition-all ${
                   active
@@ -293,7 +297,7 @@ export default function AdminDashboard() {
 
       {/* Content */}
       <div className="flex-1 min-w-0 pt-[110px] lg:pt-0">
-        <header className="hidden lg:flex items-center justify-between px-8 lg:px-10 h-16 border-b border-border bg-white/70 backdrop-blur-xl sticky top-0 z-20">
+        <header className="hidden lg:flex items-center justify-between px-8 lg:px-10 h-16 border-b border-border bg-card/70 backdrop-blur-xl sticky top-0 z-20">
           <div>
             <h1 className="text-[18px] font-bold text-foreground tracking-tight">
               {TABS.find((t) => t.id === tab)?.label}

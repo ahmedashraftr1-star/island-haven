@@ -153,6 +153,10 @@ export default function Jobs() {
       j.description.toLowerCase().includes(q);
     return matchCat && matchSearch;
   });
+  // Featured roles surface first, preserving original order within each group.
+  const ordered = [...filtered].sort(
+    (a, b) => Number(b.featured) - Number(a.featured),
+  );
 
   const categories = ["all", ...Array.from(new Set(jobs.map((j) => j.category)))];
 
@@ -167,12 +171,13 @@ export default function Jobs() {
         {/* Search + Filters */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t(jp.searchPlaceholder)}
+              aria-label={t(jp.searchPlaceholder)}
               className="w-full h-12 pr-11 pl-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
             />
           </div>
@@ -181,7 +186,9 @@ export default function Jobs() {
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setActiveCategory(cat)}
+                aria-pressed={activeCategory === cat ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
@@ -225,9 +232,9 @@ export default function Jobs() {
         )}
 
         {/* Jobs */}
-        {!isLoading && filtered.length > 0 && (
+        {!isLoading && ordered.length > 0 && (
           <div className="space-y-3">
-            {filtered.map((job, i) => (
+            {ordered.map((job, i) => (
               <JobCard key={job.id} job={job} index={i} />
             ))}
           </div>

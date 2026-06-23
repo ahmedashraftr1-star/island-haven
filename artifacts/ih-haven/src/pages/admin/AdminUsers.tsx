@@ -26,8 +26,8 @@ interface Row {
 }
 
 const STATUS_PILL: Record<Status, string> = {
-  active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  banned: "bg-rose-50 text-rose-700 border border-rose-200",
+  active: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+  banned: "bg-rose-500/15 text-rose-300 border border-rose-500/30",
 };
 const STATUS_LABEL: Record<Status, string> = {
   active: "نشط",
@@ -128,6 +128,7 @@ export default function AdminUsers() {
           <option value="banned">مُعلَّق</option>
         </select>
         <button
+          type="button"
           onClick={() => reload()}
           className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
@@ -136,7 +137,7 @@ export default function AdminUsers() {
       </div>
 
       {error && (
-        <div className="rounded-2xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+        <div className="rounded-2xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
           {error}
         </div>
       )}
@@ -192,21 +193,25 @@ export default function AdminUsers() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
                         onClick={() => setEditing(u)}
                         className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
                         title="تعديل"
+                        aria-label="تعديل المستخدم"
                         data-testid={`button-edit-user-${u.id}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => toggleBan(u)}
                         className={`p-2 rounded-lg ${
                           u.status === "banned"
-                            ? "hover:bg-emerald-50 text-foreground/65 hover:text-emerald-600"
-                            : "hover:bg-amber-50 text-foreground/65 hover:text-amber-600"
+                            ? "hover:bg-emerald-500/15 text-foreground/65 hover:text-emerald-400"
+                            : "hover:bg-amber-400/15 text-foreground/65 hover:text-amber-400"
                         }`}
                         title={u.status === "banned" ? "إلغاء التعليق" : "تعليق الحساب"}
+                        aria-label={u.status === "banned" ? "إلغاء تعليق الحساب" : "تعليق الحساب"}
                         data-testid={`button-ban-user-${u.id}`}
                       >
                         {u.status === "banned" ? (
@@ -216,9 +221,11 @@ export default function AdminUsers() {
                         )}
                       </button>
                       <button
+                        type="button"
                         onClick={() => onDelete(u.id, u.fullName)}
-                        className="p-2 rounded-lg hover:bg-rose-50 text-foreground/65 hover:text-rose-600"
+                        className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"
                         title="حذف"
+                        aria-label="حذف المستخدم"
                         data-testid={`button-delete-user-${u.id}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -301,7 +308,7 @@ function UserEditor({
           <h3 className="text-[16px] font-bold text-foreground">
             تعديل حساب — {initial.email}
           </h3>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-foreground/[0.04]">
+          <button type="button" onClick={onClose} aria-label="إغلاق" className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -377,7 +384,7 @@ function UserEditor({
           </Field>
 
           {error && (
-            <div className="rounded-xl px-4 py-3 bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">
+            <div className="rounded-xl px-4 py-3 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[13px]">
               {error}
             </div>
           )}

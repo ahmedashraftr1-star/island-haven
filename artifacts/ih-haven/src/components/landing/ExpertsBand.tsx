@@ -17,13 +17,16 @@ interface ExpertCard {
   featured: boolean;
 }
 
+// Brand-aligned accent family — every avatar plate stays within the warm-red
+// system (--primary 354°). Subtle shifts in hue/depth keep the cards from
+// feeling monotone while reading as one cohesive, on-brand palette.
 const ACCENT_PALETTES = [
-  { from: "from-[#c9363a]", to: "to-[#7a1a1c]", ring: "ring-[#c9363a]/30", badge: "bg-[#c9363a]/15 text-[#ff9a9b]" },
-  { from: "from-[#1a6cff]", to: "to-[#0a3080]", ring: "ring-[#1a6cff]/30", badge: "bg-[#1a6cff]/15 text-[#90b8ff]" },
-  { from: "from-[#0aad6e]", to: "to-[#065c3a]", ring: "ring-[#0aad6e]/30", badge: "bg-[#0aad6e]/15 text-[#80ffcc]" },
-  { from: "from-[#8b5cf6]", to: "to-[#4c1d95]", ring: "ring-[#8b5cf6]/30", badge: "bg-[#8b5cf6]/15 text-[#d4b4ff]" },
-  { from: "from-[#f59e0b]", to: "to-[#78350f]", ring: "ring-[#f59e0b]/30", badge: "bg-[#f59e0b]/15 text-[#ffd97a]" },
-  { from: "from-[#06b6d4]", to: "to-[#0e4058]", ring: "ring-[#06b6d4]/30", badge: "bg-[#06b6d4]/15 text-[#7de8ff]" },
+  { from: "from-[#dc4454]", to: "to-[#5e1418]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ff9aa3]" },
+  { from: "from-[#b32733]", to: "to-[#3d0e12]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ff9aa3]" },
+  { from: "from-[#e0656a]", to: "to-[#6b1a1d]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ffb0b6]" },
+  { from: "from-[#a51f2c]", to: "to-[#2c0a0d]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ff9aa3]" },
+  { from: "from-[#c9363a]", to: "to-[#4a1316]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ffa6ab]" },
+  { from: "from-[#d04d57]", to: "to-[#561217]", ring: "ring-primary/30", badge: "bg-primary/15 text-[#ffb0b6]" },
 ];
 
 export function ExpertsBand() {
@@ -108,15 +111,19 @@ export function ExpertsBand() {
           {/* Scroll arrows */}
           <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
             <button
+              type="button"
               onClick={() => scroll("right")}
               disabled={!canScrollLeft}
+              aria-label={lang === "en" ? "Previous experts" : "الخبراء السابقون"}
               className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 disabled:opacity-25 transition-all"
             >
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
+              type="button"
               onClick={() => scroll("left")}
               disabled={!canScrollRight}
+              aria-label={lang === "en" ? "Next experts" : "الخبراء التاليون"}
               className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 disabled:opacity-25 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />

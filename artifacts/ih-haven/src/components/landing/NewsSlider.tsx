@@ -36,11 +36,14 @@ interface Post {
   publishedAt: string;
 }
 
+// Dark-native placeholder accents: deep, brand-leaning tints that sit on the
+// dark canvas. Each carries a faint warm/cool bias for variety, but stays
+// within the cinematic palette (no light pastels).
 const TYPE_ACCENT: Record<DailyType, { from: string; to: string; mark: string }> = {
-  tip: { from: "from-amber-100", to: "to-rose-100", mark: "✦" },
-  news: { from: "from-sky-100", to: "to-indigo-100", mark: "◇" },
-  quote: { from: "from-violet-100", to: "to-fuchsia-100", mark: "❝" },
-  story: { from: "from-emerald-100", to: "to-cyan-100", mark: "✿" },
+  tip: { from: "from-primary/25", to: "to-[#1a1018]", mark: "✦" },
+  news: { from: "from-[#1a6cff]/20", to: "to-[#0b1020]", mark: "◇" },
+  quote: { from: "from-[#8b5cf6]/22", to: "to-[#120e22]", mark: "❝" },
+  story: { from: "from-emerald-500/18", to: "to-[#0a1614]", mark: "✿" },
 };
 
 function trimExcerpt(s: string, n = 110): string {
@@ -98,16 +101,18 @@ export function NewsSlider() {
           </div>
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <button
+              type="button"
               onClick={() => scrollBy(1)}
               aria-label={c.prevAria}
-              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors flex items-center justify-center"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
+              type="button"
               onClick={() => scrollBy(-1)}
               aria-label={c.nextAria}
-              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-foreground/[0.04] transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors flex items-center justify-center"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -156,7 +161,7 @@ export function NewsSlider() {
               >
                 <Link
                   href={`/events/${p.id}`}
-                  className="group block rounded-3xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-soft-hover hover:-translate-y-1 transition-all duration-500"
+                  className="group block rounded-3xl bg-card border border-border overflow-hidden shadow-[0_18px_44px_-22px_rgba(0,0,0,0.7)] hover:border-primary/25 hover:shadow-[0_28px_64px_-20px_rgba(220,68,84,0.28)] hover:-translate-y-1 transition-all duration-500"
                   data-testid={`event-card-${p.id}`}
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
@@ -175,9 +180,9 @@ export function NewsSlider() {
                         className={`w-full h-full bg-gradient-to-br ${TYPE_ACCENT[p.type].from} ${TYPE_ACCENT[p.type].to} relative overflow-hidden`}
                       >
                         {/* Decorative editorial pattern — sparse marks, large date numerals */}
-                        <div className="absolute inset-0 opacity-[0.07]" aria-hidden>
+                        <div className="absolute inset-0 opacity-[0.12]" aria-hidden>
                           <div
-                            className="absolute -top-6 -right-6 text-[160px] leading-none font-bold text-foreground select-none"
+                            className="absolute -top-6 -right-6 text-[160px] leading-none font-bold text-white select-none"
                             style={{ letterSpacing: "-0.04em" }}
                           >
                             {new Date(p.publishedAt).toLocaleDateString("ar-EG", { day: "2-digit" })}
@@ -185,22 +190,22 @@ export function NewsSlider() {
                         </div>
                         <div className="absolute inset-0 flex flex-col items-center justify-center p-5 text-center">
                           <div
-                            className="text-[40px] leading-none mb-3 text-foreground/55 group-hover:text-primary group-hover:scale-110 transition-all duration-500"
+                            className="text-[40px] leading-none mb-3 text-white/70 group-hover:text-primary group-hover:scale-110 transition-all duration-500"
                             aria-hidden
                           >
                             {TYPE_ACCENT[p.type].mark}
                           </div>
                           {p.body && (
-                            <p className="text-[13px] leading-relaxed text-foreground/75 line-clamp-3 max-w-[26ch]">
+                            <p className="text-[13px] leading-relaxed text-white/80 line-clamp-3 max-w-[26ch]">
                               {trimExcerpt(p.body, 130)}
                             </p>
                           )}
                         </div>
                         {/* subtle decorative arabesque dots in corners */}
-                        <div className="absolute bottom-3 left-3 flex gap-1 opacity-30" aria-hidden>
-                          <span className="w-1 h-1 rounded-full bg-foreground" />
-                          <span className="w-1 h-1 rounded-full bg-foreground" />
-                          <span className="w-1 h-1 rounded-full bg-foreground" />
+                        <div className="absolute bottom-3 left-3 flex gap-1 opacity-40" aria-hidden>
+                          <span className="w-1 h-1 rounded-full bg-white" />
+                          <span className="w-1 h-1 rounded-full bg-white" />
+                          <span className="w-1 h-1 rounded-full bg-white" />
                         </div>
                       </div>
                     )}

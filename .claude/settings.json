@@ -24,7 +24,35 @@
       "Bash(du -sh --exclude=node_modules --exclude=.git .)",
       "Bash(du -sh .)",
       "Bash(git push *)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(git remote *)",
+      "Bash(git config *)",
+      "Bash(rm -f ~/Downloads/island-haven.zip)",
+      "Bash(zip -rqX ~/Downloads/island-haven.zip . -x '*node_modules/*' '*/.git/*' '.git/*' 'artifacts/ih-mobile/ios/*' '*/.expo/*' '*/dist/*' '*.DS_Store' '*/.DS_Store')",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(awk '{print \"الحجم:\", $5}')",
+      "Bash(unzip -l island-haven.zip)",
+      "Bash(sed -n '4,18p')",
+      "Bash(lsof -ti:3001 -ti:5180 -ti:8082)",
+      "Bash(git --version)",
+      "Bash(echo \"git version: $\\(git --version\\)\")",
+      "Bash(git merge-tree *)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(grep -v '^$')",
+      "Bash(git diff *)",
+      "Bash(git grep *)",
+      "Bash(git ls-tree *)",
+      "Bash(grep -iE \"\\\\.ts$\")",
+      "Bash(grep -iE \"saved|المحفوظات|rate|قيّم|sessions/\\\\$\\\\{s.id\\\\}/rate|Bookmark\")",
+      "Bash(grep -iE \"saved|المحفوظات|rate|قيّم|sessions/\\\\$\\\\{s.id\\\\}/rate|Bookmark|MyStorySection|uploads/image|handleAvatar\")",
+      "Bash(grep -niE \"saved|المحفوظات|قيّم|sessions/\\\\$\\\\{s.id\\\\}/rate\")",
+      "Bash(grep -l \"formatArabicDate\" Events.tsx Daily.tsx Certificate.tsx)",
+      "Bash(grep -nE \"\\\\b\\(const|let|var\\)\\\\s+t\\\\b\\\\s*=\" Events.tsx Daily.tsx Gallery.tsx Press.tsx Process.tsx Alumni.tsx PublicProfile.tsx Certificate.tsx ForgotPassword.tsx ResetPassword.tsx)",
+      "Bash(grep -nE \"\\\\.map\\\\\\(\\\\\\(t\\\\b|=> *\\\\{.*\\\\bt\\\\b *=>\" Events.tsx Daily.tsx Gallery.tsx Press.tsx Process.tsx Alumni.tsx PublicProfile.tsx Certificate.tsx ForgotPassword.tsx ResetPassword.tsx)",
+      "Bash(timeout 180000 pnpm run typecheck)"
+    ],
+    "additionalDirectories": [
+      "/Users/ahmedashraf/Downloads"
     ]
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useRoute } from "wouter";
+import { Link, useRoute } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Quote } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
@@ -75,7 +75,9 @@ export default function Daily() {
         {FILTERS.map((f) => (
           <button
             key={f.key}
+            type="button"
             onClick={() => setFilter(f.key)}
+            aria-pressed={filter === f.key ? "true" : "false"}
             className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
               filter === f.key
                 ? "bg-primary/20 text-white border-primary/40"
