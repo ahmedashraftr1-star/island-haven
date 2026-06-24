@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Rubik:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -112,8 +112,9 @@
   --app-font-sans: 'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --app-font-serif: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
   --app-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  /* Bold cinematic display face for big headlines (Latin + Arabic). */
-  --app-font-display: 'Rubik', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  /* Display face — Inter for precise, sophisticated Latin headlines (Linear/Stripe
+     register); Arabic glyphs fall back per-glyph to IBM Plex Sans Arabic. */
+  --app-font-display: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
 
   --radius: 0.875rem;
 }
@@ -135,8 +136,8 @@
     @apply font-sans antialiased text-foreground;
     background: hsl(var(--background));
     line-height: 1.65;
-    letter-spacing: 0;
-    font-feature-settings: "kern", "calt", "ss01";
+    letter-spacing: 0.003em;
+    font-feature-settings: "kern", "calt", "ss01", "liga";
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -152,10 +153,10 @@
     font-family: var(--app-font-display);
     font-weight: 800;
   }
-  h1 { line-height: 1.02; letter-spacing: -0.03em !important; }
-  h2 { line-height: 1.06; letter-spacing: -0.025em !important; }
+  h1 { line-height: 1.05; letter-spacing: -0.022em !important; }
+  h2 { line-height: 1.08; letter-spacing: -0.016em !important; }
   .font-display { font-family: var(--app-font-display); }
-  p { line-height: 1.7; letter-spacing: 0; }
+  p { line-height: 1.7; letter-spacing: 0.003em; }
 
   html { scroll-behavior: smooth; }
 
@@ -229,6 +230,18 @@
 /* Soft icon tile — Galata's signature feature card */
 @utility tile-soft {
   background: hsl(var(--primary-soft));
+  color: hsl(var(--primary));
+}
+
+/* Unified eyebrow / section kicker — one treatment everywhere (kills the
+   per-section size/tracking drift). Color defaults to brand; override if needed. */
+@utility eyebrow {
+  font-size: 0.6875rem;        /* 11px */
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-feature-settings: "kern", "calt", "ss01";
   color: hsl(var(--primary));
 }
 
