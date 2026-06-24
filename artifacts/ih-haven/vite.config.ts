@@ -50,11 +50,56 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Split rarely-changing vendor libs into their own long-cached chunks
-        // (separate from app code, which redeploys often).
-        manualChunks: {
-          "react-vendor": ["react", "react-dom", "wouter"],
-          motion: ["framer-motion"],
-          query: ["@tanstack/react-query"],
+        // (separate from app code, which redeploys often). A function form is
+        // used so we can also peel heavy, admin-only libraries (recharts/d3)
+        // and the shared icon set out of the big admin chunk, and group the
+        // ~30 admin pages together instead of inlining them into one 670KB
+        // module via AdminDashboard's static imports.
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            // Order matters: most-specific vendor buckets first.
+            if (
+              /[\\/]node_modules[\\/](react|react-dom|scheduler|wouter)[\\/]/.test(
+                id,
+              )
+            ) {
+              return "react-vendor";
+            }
+            if (id.includes("framer-motion")) return "motion";
+            if (id.includes("@tanstack")) return "query";
+            // Tiny class-name utils shared by app, admin AND recharts. Giving
+            // them their own vendor chunk keeps clsx out of the `admin` chunk,
+            // which would otherwise create a charts -> admin -> charts cycle
+            // (recharts imports clsx). Long-cached, ~1KB.
+            if (
+              /[\\/]node_modules[\\/](clsx|tailwind-merge|class-variance-authority)[\\/]/.test(
+                id,
+              )
+            ) {
+              return "utils";
+            }
+            // recharts (admin-only, ~380KB) plus its EXCLUSIVE deps — d3-*,
+            // victory-vendor, react-smooth, recharts-scale, internmap,
+            // eventemitter3, tiny-invariant. Keeping the whole recharts subtree
+            // in one chunk avoids a charts<->admin circular split. Shared libs
+            // (react, react-dom, react-is, clsx, lodash) are intentionally NOT
+            // listed here so they stay in their own/natural chunks.
+            if (
+              /[\\/]node_modules[\\/](recharts|recharts-scale|react-smooth|victory-vendor|d3-[a-z]+|internmap|eventemitter3|tiny-invariant|fast-equals|decimal\.js|lodash)[\\/]/.test(
+                id,
+              )
+            ) {
+              return "charts";
+            }
+            // lucide is imported by ~120 files; its own long-cached chunk
+            // keeps it out of every page/admin chunk.
+            if (id.includes("lucide-react")) return "icons";
+            return undefined;
+          }
+          // Group all admin pages into one lazily-loaded chunk that is fully
+          // separate from the public app's `index` chunk.
+          if (id.includes("/src/pages/admin/")) return "admin";
+          return undefined;
         },
       },
     },

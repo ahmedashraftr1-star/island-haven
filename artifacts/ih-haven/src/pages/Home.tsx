@@ -17,6 +17,7 @@ const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audi
 const SuccessStories = lazy(() => named(import("@/components/landing/SuccessStories"), "SuccessStories"));
 const NewsSlider = lazy(() => named(import("@/components/landing/NewsSlider"), "NewsSlider"));
 const HoursLocation = lazy(() => named(import("@/components/landing/HoursLocation"), "HoursLocation"));
+const ApplyProcess = lazy(() => named(import("@/components/landing/ApplyProcess"), "ApplyProcess"));
 const Campaign = lazy(() => named(import("@/components/landing/Campaign"), "Campaign"));
 const BecomeMentorBand = lazy(() => named(import("@/components/landing/BecomeMentorBand"), "BecomeMentorBand"));
 const NewsletterBand = lazy(() => named(import("@/components/landing/NewsletterBand"), "NewsletterBand"));
@@ -44,7 +45,7 @@ export default function Home() {
       <Header />
       <div className="relative z-10">
         {/* World-class incubator IA: promise → proof → what you get → portfolio
-            → mentors → who it's for → stories → news → location → support → apply */}
+            → mentors → who it's for → stories → news → location → how to join → support → apply */}
         <Hero />
         <NumbersBand />
         <Suspense fallback={null}>
@@ -56,6 +57,7 @@ export default function Home() {
           <SuccessStories />
           <NewsSlider />
           <HoursLocation />
+          <ApplyProcess />
           <Campaign />
           <BecomeMentorBand />
           <NewsletterBand />

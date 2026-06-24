@@ -12,7 +12,18 @@ const _apiOrigin = process.env.EXPO_PUBLIC_API_BASE
     ? `https://${DOMAIN}`
     : "";
 
-export const WEB_BASE = _apiOrigin;
+// The web app (Vite) serves static public assets such as /photos/* and
+// /images/* from the *web* origin, not the API server. In production the web
+// and API share a host, so WEB_BASE === _apiOrigin and nothing changes. For
+// local dev the API runs on :3001 (which has no /photos route) while the web
+// runs on a different port, so EXPO_PUBLIC_WEB_BASE lets you point web-only
+// assets at the Vite origin (e.g. http://localhost:5180).
+export const WEB_BASE =
+  process.env.EXPO_PUBLIC_WEB_BASE?.replace(/\/$/, "") || _apiOrigin;
+
+// Path prefixes for assets served by the web origin's public/ dir rather than
+// the API server. resolveMedia routes these to WEB_BASE.
+const WEB_ASSET_PREFIXES = ["/photos/", "/images/"];
 
 const TOKEN_KEY = "ih_session_token";
 const ADMIN_TOKEN_KEY = "ih_admin_token";
@@ -96,6 +107,13 @@ export async function api<T = unknown>(path: string, opts: ApiOpts = {}): Promis
 export function resolveMedia(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
   if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return _apiOrigin ? `${_apiOrigin}${url}` : url;
+  if (url.startsWith("/")) {
+    // Web-only public assets (/photos/*, /images/*) live on the web origin,
+    // which has no /api prefix and may differ from the API host in local dev.
+    if (WEB_ASSET_PREFIXES.some((p) => url.startsWith(p))) {
+      return WEB_BASE ? `${WEB_BASE}${url}` : url;
+    }
+    return _apiOrigin ? `${_apiOrigin}${url}` : url;
+  }
   return url;
 }

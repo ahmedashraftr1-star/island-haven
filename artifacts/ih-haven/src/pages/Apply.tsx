@@ -22,6 +22,10 @@ import {
   Loader2,
   FolderOpen,
   BriefcaseBusiness,
+  FileText,
+  Search,
+  Rocket,
+  Trophy,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
@@ -400,6 +404,10 @@ export default function Apply() {
               {c.subtitle}
             </p>
           </motion.div>
+
+          {/* What happens after you apply — a short, honest timeline so applicants
+              know the journey before they invest in the form below. */}
+          <ProcessStrip />
 
           <motion.form
             onSubmit={onSubmit}
@@ -855,6 +863,65 @@ export default function Apply() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Reusable atoms
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ProcessStrip — a compact "what happens next" timeline shown above the form.
+// Mirrors the four landing steps (Apply → Review → Onboard → Demo Day) so an
+// applicant sees the full journey before committing to the form.
+function ProcessStrip() {
+  const { t } = useLanguage();
+  const steps = [
+    { no: "01", Icon: FileText, label: t({ ar: "تقدّم", en: "Apply" }), meta: t({ ar: "أنت هنا", en: "You're here" }) },
+    { no: "02", Icon: Search, label: t({ ar: "مراجعة ومقابلة", en: "Review & interview" }), meta: t({ ar: "خلال أيّام", en: "Within days" }) },
+    { no: "03", Icon: Rocket, label: t({ ar: "انضمام إلى دفعة", en: "Onboard into a cohort" }), meta: t({ ar: "3–6 أشهر", en: "3–6 months" }) },
+    { no: "04", Icon: Trophy, label: t({ ar: "يوم العرض", en: "Demo Day" }), meta: t({ ar: "أمام الشبكة", en: "To the network" }) },
+  ];
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      aria-label={t({ ar: "ماذا يحدث بعد التقديم", en: "What happens after you apply" })}
+      className="mb-9 sm:mb-12"
+    >
+      <div className="flex items-center justify-between mb-3.5 px-1">
+        <span className="text-[10px] tracking-[0.22em] uppercase text-white/40 font-semibold">
+          {t({ ar: "ماذا بعد التقديم", en: "What happens next" })}
+        </span>
+        <Link
+          href="/process"
+          className="text-[10.5px] tracking-[0.12em] uppercase text-white/40 hover:text-primary transition-colors font-semibold"
+        >
+          {t({ ar: "التفاصيل الكاملة", en: "Full process" })} →
+        </Link>
+      </div>
+      <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        {steps.map(({ no, Icon, label, meta }, i) => (
+          <li
+            key={no}
+            className={`relative rounded-2xl p-3.5 border backdrop-blur-md ${
+              i === 0
+                ? "bg-primary/[0.10] border-primary/35"
+                : "bg-white/[0.035] border-white/10"
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-white/45"}`} strokeWidth={2} />
+              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-white/30 tabular-nums">
+                {no}
+              </span>
+            </div>
+            <div className={`text-[12px] font-semibold leading-snug ${i === 0 ? "text-white" : "text-white/75"}`}>
+              {label}
+            </div>
+            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary/85" : "text-white/35"}`}>
+              {meta}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </motion.section>
+  );
+}
 
 function SectionHeader({
   index,

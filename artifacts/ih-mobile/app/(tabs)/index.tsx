@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 
 import { T, Card } from "@/components/Branded";
+import { WhatYouGet, VenturesPreview } from "@/components/HomeBlocks";
 import { useColors } from "@/hooks/useColors";
 import { api, resolveMedia } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -377,6 +378,9 @@ export default function Home() {
             />
           </View>
 
+          {/* What you get — the incubator's core promise (parity with web) */}
+          <WhatYouGet />
+
           {/* News slider */}
           <View style={{ paddingTop: 24 }}>
             <View style={s.sectionHead}>
@@ -527,6 +531,9 @@ export default function Home() {
               )}
             </View>
           )}
+
+          {/* Ventures (portfolio) preview — proof the program works */}
+          <VenturesPreview />
 
           {/* Success Stories */}
           {stories.length > 0 && (
