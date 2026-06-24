@@ -83,7 +83,7 @@ export function Partners() {
             return (
               <motion.div
                 key={p.id}
-                initial={{ y: 16 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
@@ -131,7 +131,7 @@ export function Partners() {
 
         {/* CTA */}
         <motion.div
-          initial={{ y: 10 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}

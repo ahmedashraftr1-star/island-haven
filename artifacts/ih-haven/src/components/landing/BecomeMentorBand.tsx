@@ -24,7 +24,7 @@ export function BecomeMentorBand() {
 
       <div className="relative max-w-3xl mx-auto">
         <motion.div
-          initial={{ y: 24 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}

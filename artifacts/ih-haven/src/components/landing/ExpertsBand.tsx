@@ -154,7 +154,7 @@ export function ExpertsBand() {
             return (
               <motion.div
                 key={e.id}
-                initial={{ y: 20 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.55, delay: i * 0.06 }}

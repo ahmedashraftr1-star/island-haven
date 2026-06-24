@@ -68,7 +68,7 @@ export function Campaign() {
 
         <div className="grid grid-cols-12 gap-6 lg:gap-10">
           <motion.div
-            initial={{ y: 20 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8 }}
@@ -133,7 +133,7 @@ export function Campaign() {
                 {TIERS_AR.map((t, i) => (
                   <motion.div
                     key={t.no}
-                    initial={{ y: 12 }}
+                    initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.6, delay: i * 0.08 }}
