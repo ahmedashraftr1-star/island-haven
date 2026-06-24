@@ -5,7 +5,6 @@ import { About as AboutSection } from "@/components/landing/About";
 import { Story } from "@/components/landing/Story";
 import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
-import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function About() {
@@ -17,7 +16,6 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
-      <SmoothScroll />
       <ScrollProgress />
       <Header />
       <div className="relative z-10 pt-20">

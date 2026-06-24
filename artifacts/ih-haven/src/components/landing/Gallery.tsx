@@ -182,7 +182,7 @@ export function Gallery() {
               <div className="flex items-end justify-between gap-6 flex-wrap">
                 <motion.div
                   key={`cap-${idx}`}
-                  initial={{ opacity: 0, y: 18 }}
+                  initial={{ y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   className="max-w-3xl"
@@ -254,7 +254,7 @@ export function Gallery() {
           {mosaic.map((p, i) => (
             <motion.figure
               key={p.src + i}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.7, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
@@ -390,7 +390,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
 
           <motion.figure
             key={idx}
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative text-white max-w-[1300px]"
@@ -403,7 +403,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
             </div>
 
             <motion.figcaption
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.35 }}
               className="block mt-10 lg:mt-14 text-[13px] tracking-[0.16em] uppercase text-white/55 font-semibold"

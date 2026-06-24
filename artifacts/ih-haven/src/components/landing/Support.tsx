@@ -65,7 +65,7 @@ export function Support() {
         </div>
 
         <motion.h2
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -78,7 +78,7 @@ export function Support() {
         </motion.h2>
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, delay: 0.15 }}
@@ -92,7 +92,7 @@ export function Support() {
             href={c.donateHref || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -158,7 +158,7 @@ export function Support() {
                   href={s.href}
                   target={external ? "_blank" : undefined}
                   rel={external ? "noopener noreferrer" : undefined}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.7, delay: 0.2 + i * 0.08 }}

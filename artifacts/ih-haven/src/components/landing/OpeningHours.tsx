@@ -105,7 +105,7 @@ export function OpeningHours() {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-12%" }}
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -188,7 +188,7 @@ export function OpeningHours() {
             }}
           >
             <motion.span
-              initial={{ y: "100%", opacity: 0 }}
+              initial={{ y: "100%" }}
               animate={inView ? { y: 0, opacity: 1 } : {}}
               transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="block"
@@ -203,7 +203,7 @@ export function OpeningHours() {
               aria-hidden
             />
             <motion.span
-              initial={{ y: "100%", opacity: 0 }}
+              initial={{ y: "100%" }}
               animate={inView ? { y: 0, opacity: 1 } : {}}
               transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
               className="block"
@@ -419,7 +419,7 @@ export function OpeningHours() {
               />
 
               <motion.g
-                initial={{ scale: 0, opacity: 0 }}
+                initial={{ scale: 0 }}
                 animate={inView ? { scale: 1, opacity: 1 } : {}}
                 transition={{ duration: 0.5, delay: 0.45 }}
                 style={{ transformOrigin: `${start.x}px ${start.y}px` }}
@@ -429,7 +429,7 @@ export function OpeningHours() {
               </motion.g>
 
               <motion.g
-                initial={{ scale: 0, opacity: 0 }}
+                initial={{ scale: 0 }}
                 animate={inView ? { scale: 1, opacity: 1 } : {}}
                 transition={{ duration: 0.5, delay: 1.85 }}
                 style={{ transformOrigin: `${end.x}px ${end.y}px` }}
@@ -439,7 +439,7 @@ export function OpeningHours() {
               </motion.g>
 
               <motion.g
-                initial={{ opacity: 0 }}
+                initial={{  }}
                 animate={inView ? { opacity: 1 } : {}}
                 transition={{ duration: 0.6, delay: 2.1 }}
               >

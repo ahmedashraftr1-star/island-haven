@@ -39,7 +39,7 @@ export function NewsletterBand() {
 
       <div className="relative max-w-2xl mx-auto text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -65,7 +65,7 @@ export function NewsletterBand() {
 
           {status === "success" ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20"
             >

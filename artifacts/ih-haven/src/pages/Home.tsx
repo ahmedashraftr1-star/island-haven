@@ -3,8 +3,8 @@ import { useEffect, lazy, Suspense } from "react";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
-import { SmoothScroll } from "@/components/landing/SmoothScroll";
 import { NumbersBand } from "@/components/landing/NumbersBand";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
 // Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
 const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: K) =>
@@ -40,7 +40,6 @@ export default function Home() {
   }, []);
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
-      <SmoothScroll />
       <ScrollProgress />
       <Header />
       <div className="relative z-10">
@@ -48,25 +47,29 @@ export default function Home() {
             → mentors → who it's for → stories → news → location → how to join → support → apply */}
         <Hero />
         <NumbersBand />
-        <Suspense fallback={null}>
-          <Partners />
-          <WhatYouGet />
-          <VenturesBand />
-          <ExpertsBand />
-          <Audience />
-          <SuccessStories />
-          <NewsSlider />
-          <HoursLocation />
-          <ApplyProcess />
-          <Campaign />
-          <BecomeMentorBand />
-          <NewsletterBand />
-        </Suspense>
+        <SectionErrorBoundary>
+          <Suspense fallback={null}>
+            <Partners />
+            <WhatYouGet />
+            <VenturesBand />
+            <ExpertsBand />
+            <Audience />
+            <SuccessStories />
+            <NewsSlider />
+            <HoursLocation />
+            <ApplyProcess />
+            <Campaign />
+            <BecomeMentorBand />
+            <NewsletterBand />
+          </Suspense>
+        </SectionErrorBoundary>
       </div>
-      <Suspense fallback={null}>
-        <Footer />
-        <AdminShortcut />
-      </Suspense>
+      <SectionErrorBoundary>
+        <Suspense fallback={null}>
+          <Footer />
+          <AdminShortcut />
+        </Suspense>
+      </SectionErrorBoundary>
     </div>
   );
 }

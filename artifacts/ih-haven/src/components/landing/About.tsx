@@ -79,7 +79,7 @@ export function About() {
 
         <div className="grid grid-cols-12 gap-6 lg:gap-14">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -119,7 +119,7 @@ export function About() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: 0.1 }}

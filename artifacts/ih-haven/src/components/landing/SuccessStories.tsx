@@ -61,7 +61,7 @@ export function SuccessStories() {
             s ? (
               <motion.figure
                 key={s.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.05 }}

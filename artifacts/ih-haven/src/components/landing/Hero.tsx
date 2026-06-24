@@ -229,7 +229,7 @@ export function Hero() {
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.8, ease: EASE_OUT_EXPO }}
         className="absolute top-24 lg:top-28 inset-x-0 z-20 px-6 lg:px-12"
@@ -243,7 +243,7 @@ export function Hero() {
             {greeting && (
               <motion.div
                 key={greeting}
-                initial={{ opacity: 0, x: 8 }}
+                initial={{ x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
                 className="hidden sm:inline-flex items-center h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/95"
@@ -267,7 +267,7 @@ export function Hero() {
       >
         <div className="container mx-auto max-w-[1500px] px-6 lg:px-12 w-full">
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
             className="mb-6 lg:mb-8 flex items-center gap-3"
@@ -291,7 +291,7 @@ export function Hero() {
           </h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.25, duration: 0.9, ease: EASE_OUT_EXPO }}
             className="mt-7 lg:mt-9 max-w-2xl text-base lg:text-xl text-white/80 font-normal leading-relaxed whitespace-pre-line"
@@ -300,7 +300,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.35, duration: 0.8, ease: EASE_OUT_EXPO }}
             className="mt-6 lg:mt-7 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/85"
@@ -311,7 +311,7 @@ export function Hero() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.45, duration: 0.9, ease: EASE_OUT_EXPO }}
             className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
@@ -348,7 +348,7 @@ export function Hero() {
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.7, duration: 1, ease: EASE_OUT_EXPO }}
         className="absolute bottom-0 inset-x-0 z-10 px-6 lg:px-12 pb-7 lg:pb-9"

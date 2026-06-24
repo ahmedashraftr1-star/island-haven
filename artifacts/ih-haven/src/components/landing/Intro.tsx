@@ -46,7 +46,7 @@ export function Intro() {
           <div className="relative text-center px-6">
             {/* numbering tag */}
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-[10px] tracking-[0.5em] uppercase text-background/60 font-bold mb-8"
@@ -83,7 +83,7 @@ export function Intro() {
 
             {/* subtitle */}
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={{  }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 1.2 }}
               className="mt-10 flex items-center justify-center gap-4 text-background/70 text-xs tracking-[0.4em] uppercase"

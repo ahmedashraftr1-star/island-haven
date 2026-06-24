@@ -41,7 +41,9 @@ const stagger: Variants = {
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
 };
 const rise: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  // Visible by default (y-only) so content never stays hidden if the scroll
+  // reveal fails to fire; the rise still animates as enhancement when it does.
+  hidden: { y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
 
@@ -268,7 +270,7 @@ export function ApplyProcess() {
 
         {/* CTA row */}
         <motion.div
-          initial={reduce ? false : { opacity: 0, y: 16 }}
+          initial={reduce ? false : { y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.6 }}

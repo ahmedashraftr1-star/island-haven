@@ -138,7 +138,7 @@ export function CommunityWall() {
                   key={i}
                   onMouseEnter={() => setHover(i)}
                   onMouseLeave={() => setHover(null)}
-                  initial={{ opacity: 0, scale: 0 }}
+                  initial={{ scale: 0 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{

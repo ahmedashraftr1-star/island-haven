@@ -66,7 +66,7 @@ export function Programs() {
         />
 
         <motion.article
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8 }}
@@ -135,7 +135,7 @@ export function Programs() {
           {secondary.map((card, i) => (
             <motion.div
               key={card.ar}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7, delay: i * 0.08 }}
