@@ -67,7 +67,7 @@ export function Audience() {
   ];
 
   return (
-    <section id="audience" className="relative bg-background py-24 lg:py-36 overflow-hidden">
+    <section id="audience" className="relative bg-background py-20 lg:py-28 overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
         <EditorialHeader
           label={c.label}
@@ -80,7 +80,7 @@ export function Audience() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-20 lg:mb-28"
+          className="mb-12 lg:mb-16"
         >
           <div className="flex items-center gap-3 mb-5">
             <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/55 font-semibold">
@@ -119,7 +119,7 @@ export function Audience() {
           </div>
         </motion.div>
 
-        <div className="space-y-24 lg:space-y-32">
+        <div className="space-y-14 lg:space-y-20">
           {segments.map((seg, i) => {
             const reverse = i % 2 === 1;
             return (
@@ -137,7 +137,7 @@ export function Audience() {
                       src={seg.photo}
                       alt={seg.ar}
                       loading="lazy"
-                      className="w-full aspect-[4/5] object-cover transition-transform duration-[2200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                      className="w-full aspect-[5/4] object-cover transition-transform duration-[2200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                     />
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/15 to-transparent pointer-events-none" />
                     <div className="absolute top-5 left-5 right-5 flex items-start justify-between text-white">
@@ -173,7 +173,7 @@ export function Audience() {
                   <div
                     dir="ltr"
                     className="flex items-baseline gap-2 mb-3 font-bold text-foreground tabular-nums"
-                    style={{ fontSize: "clamp(4.5rem, 9vw, 8rem)", letterSpacing: "-0.045em", lineHeight: 0.9 }}
+                    style={{ fontSize: "clamp(3.25rem, 6vw, 5.5rem)", letterSpacing: "-0.045em", lineHeight: 0.9 }}
                   >
                     <span>{seg.pct}</span>
                     <span className="text-primary text-[0.5em]">%</span>

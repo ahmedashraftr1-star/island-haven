@@ -38,7 +38,7 @@ export function Campaign() {
   const { lang } = useLanguage();
 
   return (
-    <section id="campaign" className="relative bg-background py-24 lg:py-32 border-t border-foreground/10 overflow-hidden">
+    <section id="campaign" className="relative bg-background py-20 lg:py-28 border-t border-foreground/10 overflow-hidden">
       <div className="container mx-auto px-6 lg:px-10 max-w-7xl">
         <EditorialHeader
           no="13"
@@ -77,7 +77,7 @@ export function Campaign() {
             <img
               src={`${import.meta.env.BASE_URL}photos/IMG_8300.webp`}
               alt="Island Haven workspace in Gaza"
-              className="w-full aspect-[4/5] object-cover saturate-[1.06]"
+              className="w-full aspect-[5/4] object-cover saturate-[1.06]"
             />
             <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] tracking-[0.3em] uppercase font-bold px-3 py-2">
               {lang === "en" ? "Open now · Live" : "مفتوحة الآن · Live"}
@@ -113,14 +113,14 @@ export function Campaign() {
               )}
             </h3>
 
-            <p className="text-base lg:text-lg text-foreground/75 font-light leading-relaxed mb-10 max-w-xl">
+            <p className="text-base lg:text-lg text-foreground/75 font-light leading-relaxed mb-7 max-w-xl">
               {lang === "en"
                 ? "With growing demand for our community, expansion has become a real necessity — not a luxury. We're not asking for a number; we're opening the door for you to become part of this place — in whatever way you can. Every contribution translates directly into tangible impact."
                 : "مع تزايد الإقبال على المجتمع، أصبح التوسّع ضرورةً حقيقيّة لا رفاهية. لسنا نطلب رقماً، بل نفتح الباب لأن تصير جزءاً من المكان — بأيّ قدر تستطيع. كلّ مساهمة تُترجَم مباشرةً إلى أثرٍ ملموس."}
             </p>
 
             <div className="border-t border-foreground/15">
-              <div className="flex items-baseline justify-between py-5">
+              <div className="flex items-baseline justify-between py-4">
                 <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/60 font-bold">
                   {lang === "en" ? "What your contribution unlocks" : "ماذا تُحدِث مساهمتك"}
                 </div>
@@ -137,7 +137,7 @@ export function Campaign() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.6, delay: i * 0.08 }}
-                    className="grid grid-cols-12 gap-4 items-baseline py-5 border-b border-foreground/12"
+                    className="grid grid-cols-12 gap-4 items-baseline py-4 border-b border-foreground/12"
                   >
                     <div dir="ltr" className="col-span-2 sm:col-span-1 text-[11px] tracking-[0.3em] font-bold text-primary">
                       {t.no}

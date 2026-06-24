@@ -171,7 +171,7 @@ export function ApplyProcess() {
   return (
     <section
       id="how-to-join"
-      className="relative bg-background py-24 lg:py-32 border-t border-foreground/10 overflow-hidden"
+      className="relative bg-background py-20 lg:py-28 border-t border-foreground/10 overflow-hidden"
     >
       {/* Cinematic backdrop glow */}
       <div

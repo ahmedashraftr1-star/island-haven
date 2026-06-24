@@ -144,7 +144,7 @@ export function ExpertsBand() {
               return (
                 <div
                   key={i}
-                  className="flex-none w-72 h-80 rounded-[28px] bg-white/[0.03] border border-white/[0.06] animate-pulse"
+                  className="flex-none w-72 h-80 rounded-3xl bg-white/[0.03] border border-white/[0.06] animate-pulse"
                   style={{ scrollSnapAlign: "start" }}
                 />
               );
@@ -163,7 +163,7 @@ export function ExpertsBand() {
               >
                 <Link
                   href={`/experts/${e.id}`}
-                  className="group relative block h-full rounded-[28px] overflow-hidden border border-white/[0.08] hover:border-white/20 transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.8)]"
+                  className="group relative block h-full rounded-3xl overflow-hidden border border-white/[0.08] hover:border-white/20 transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.8)]"
                   data-testid={`home-expert-${e.id}`}
                 >
                   {/* Card top — gradient avatar area */}
@@ -222,7 +222,7 @@ export function ExpertsBand() {
                   </div>
 
                   {/* Card bottom — info */}
-                  <div className="p-5 bg-[#0d1020]">
+                  <div className="p-5 bg-card">
                     <h3 className="text-white font-bold text-[15.5px] leading-snug mb-0.5">
                       {e.fullName}
                     </h3>
@@ -258,7 +258,7 @@ export function ExpertsBand() {
           <div className="flex-none w-64" style={{ scrollSnapAlign: "start" }}>
             <Link
               href="/experts"
-              className="group flex flex-col items-center justify-center h-full min-h-[22rem] rounded-[28px] border border-dashed border-white/15 hover:border-primary/40 bg-white/[0.02] hover:bg-primary/[0.04] transition-all text-center px-6"
+              className="group flex flex-col items-center justify-center h-full min-h-[22rem] rounded-3xl border border-dashed border-white/15 hover:border-primary/40 bg-white/[0.02] hover:bg-primary/[0.04] transition-all text-center px-6"
             >
               <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-5 h-5 text-primary" />

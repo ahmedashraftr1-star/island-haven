@@ -33,7 +33,7 @@ export function SuccessStories() {
   return (
     <section
       id="stories"
-      className="relative bg-foreground/[0.02] py-24 lg:py-32 overflow-hidden"
+      className="relative bg-foreground/[0.02] py-20 lg:py-28 overflow-hidden"
     >
       <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
         <EditorialHeader

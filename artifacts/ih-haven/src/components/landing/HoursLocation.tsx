@@ -46,7 +46,7 @@ export function HoursLocation() {
   return (
     <section
       id="visit"
-      className="relative bg-muted/40 py-24 lg:py-32 border-t border-border"
+      className="relative bg-muted/40 py-20 lg:py-28 border-t border-border"
     >
       <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
         <EditorialHeader
