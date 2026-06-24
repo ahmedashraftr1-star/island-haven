@@ -220,7 +220,7 @@ export function VenturesPreview() {
           {!q.isLoading && (
             <Pressable
               onPress={() => router.push("/ventures" as never)}
-              hitSlop={8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               accessibilityRole="button"
               accessibilityLabel="عرض كلّ المشاريع الناشئة"
             >

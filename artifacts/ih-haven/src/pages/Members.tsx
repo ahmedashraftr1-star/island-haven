@@ -146,7 +146,7 @@ export default function Members() {
             onChange={(e) => setQ(e.target.value)}
             placeholder={c.searchPlaceholder}
             aria-label={c.searchPlaceholder}
-            className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
+            className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
             data-testid="input-search-members"
           />
         </div>
@@ -288,7 +288,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
             {m.bio}
           </p>
         ) : (
-          <p className="text-white/35 text-[13px] italic mb-4 flex-1">
+          <p className="text-white/55 text-[13px] italic mb-4 flex-1">
             {t({ ar: "لا توجد نبذة بعد.", en: "No bio yet." })}
           </p>
         )}
@@ -312,7 +312,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
             <span className="font-semibold tabular-nums">
               {m.worksCount.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
             </span>
-            <span className="text-white/45">{worksLabel}</span>
+            <span className="text-white/60">{worksLabel}</span>
           </div>
           <div className="flex items-center gap-2">
             {m.linkedinUrl && (

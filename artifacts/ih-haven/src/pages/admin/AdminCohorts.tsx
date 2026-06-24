@@ -90,7 +90,7 @@ export default function AdminCohorts() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">دفعات الاحتضان</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             كلّ برنامج له دفعات (Winter 2026 ...) — هنا تُدير الدّفعات والمشاريع المنضمّة لكلّ منها.
           </p>
         </div>
@@ -110,14 +110,14 @@ export default function AdminCohorts() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا دفعات بعد — أنشئ أوّل دفعة.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الدّفعة</th>
                 <th className="text-right px-4 py-3 font-semibold">البرنامج</th>
@@ -131,13 +131,13 @@ export default function AdminCohorts() {
                 <tr key={r.id} className="border-t border-border hover:bg-muted/20">
                   <td className="px-4 py-3">
                     <div className="font-semibold text-foreground">{r.name}</div>
-                    <div className="text-foreground/55 text-[12px]" dir="ltr">/cohorts/{r.slug}</div>
+                    <div className="text-foreground/65 text-[12px]" dir="ltr">/cohorts/{r.slug}</div>
                   </td>
                   <td className="px-4 py-3 text-foreground/70">{r.programTitle}</td>
                   <td className="px-4 py-3 text-foreground/65">
                     {COHORT_STATUS_LABELS[r.status]}
                   </td>
-                  <td className="px-4 py-3 text-foreground/55 tabular-nums">
+                  <td className="px-4 py-3 text-foreground/65 tabular-nums">
                     {r.ventureCount}
                   </td>
                   <td className="px-4 py-3">
@@ -147,7 +147,7 @@ export default function AdminCohorts() {
                         onClick={() => setManaging(r)}
                         title="إدارة المشاريع"
                         aria-label="إدارة المشاريع"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                       >
                         <Users className="w-3.5 h-3.5" />
                       </button>
@@ -155,7 +155,7 @@ export default function AdminCohorts() {
                         type="button"
                         onClick={() => setEditing(r)}
                         aria-label="تعديل الدفعة"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
@@ -524,7 +524,7 @@ function CohortVenturesManager({
 
         <div className="rounded-xl border border-border overflow-hidden">
           {memberships.length === 0 ? (
-            <div className="p-8 text-center text-foreground/55 text-[13px]">
+            <div className="p-8 text-center text-foreground/65 text-[13px]">
               لا مشاريع في هذه الدّفعة بعد.
             </div>
           ) : (
@@ -538,7 +538,7 @@ function CohortVenturesManager({
                     <div className="font-semibold text-foreground">
                       {row.venture.name}
                     </div>
-                    <div className="text-[12px] text-foreground/55">
+                    <div className="text-[12px] text-foreground/65">
                       {row.membership.status === "active"
                         ? "نشط"
                         : row.membership.status === "graduated"

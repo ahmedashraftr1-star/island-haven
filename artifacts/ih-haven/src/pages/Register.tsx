@@ -163,7 +163,7 @@ export default function Register() {
             <span className="text-white/75 font-semibold">
               {lang === "en" ? "Your category" : "ما تصنيفك"}
             </span>
-            <span className="text-white/35 text-[10px] tracking-[0.16em] uppercase">
+            <span className="text-white/55 text-[10px] tracking-[0.16em] uppercase">
               Role
             </span>
           </div>
@@ -196,7 +196,7 @@ export default function Register() {
                   >
                     {lang === "en" ? r.en : r.label}
                   </div>
-                  <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/35 mt-0.5">
+                  <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/55 mt-0.5">
                     {lang === "en" ? r.label : r.sub}
                   </div>
                 </button>

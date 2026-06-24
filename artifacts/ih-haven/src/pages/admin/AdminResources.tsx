@@ -65,7 +65,7 @@ export default function AdminResources() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">دليل الرّائد</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             أدلّة، قوالب، أدوات، وحوافز شركاء — مع تحكّم بالظهور (عام / للمنتسبين / للإدارة).
           </p>
         </div>
@@ -85,14 +85,14 @@ export default function AdminResources() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا موارد بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">المورد</th>
                 <th className="text-right px-4 py-3 font-semibold">التصنيف</th>
@@ -111,7 +111,7 @@ export default function AdminResources() {
                       )}
                     </div>
                     {r.summary && (
-                      <div className="text-foreground/55 text-[12px] line-clamp-1 max-w-md">
+                      <div className="text-foreground/65 text-[12px] line-clamp-1 max-w-md">
                         {r.summary}
                       </div>
                     )}
@@ -128,7 +128,7 @@ export default function AdminResources() {
                         type="button"
                         onClick={() => setEditing(r)}
                         aria-label="تعديل المورد"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>

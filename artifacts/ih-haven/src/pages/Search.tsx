@@ -113,7 +113,7 @@ export default function Search() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t({ ar: "اكتب اسمًا، مهارة، أو موضوعًا…", en: "Type a name, skill, or topic…" })}
-          className="w-full h-14 pe-12 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[15px] placeholder-white/40 outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-colors"
+          className="w-full h-14 pe-12 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[15px] placeholder-white/50 outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-colors"
           data-testid="input-global-search"
         />
       </div>
@@ -151,7 +151,7 @@ export default function Search() {
                 <div className="flex items-center gap-2.5 mb-3">
                   <Icon className="w-4 h-4 text-primary" />
                   <h2 className="text-white font-bold text-[15.5px]">{t(c.label)}</h2>
-                  <span className="text-white/40 text-[12px] tabular-nums">({items.length})</span>
+                  <span className="text-white/60 text-[12px] tabular-nums">({items.length})</span>
                 </div>
                 <div className="space-y-2.5">
                   {items.map((h, i) => (
@@ -181,7 +181,7 @@ export default function Search() {
                             <div className="text-white/50 text-[12.5px] truncate">{h.subtitle}</div>
                           ) : null}
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-white/35 group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
+                        <ArrowLeft className="w-4 h-4 text-white/55 group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
                       </Link>
                     </motion.div>
                   ))}

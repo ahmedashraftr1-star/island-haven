@@ -81,7 +81,7 @@ function Copyable({ text }: { text: string }) {
       onClick={() => navigator.clipboard?.writeText(text)}
       title={t({ ar: "نسخ", en: "Copy" })}
       aria-label={t({ ar: "نسخ", en: "Copy" })}
-      className="inline-flex items-center gap-1.5 text-white/45 hover:text-primary transition-colors"
+      className="inline-flex items-center gap-1.5 text-white/55 hover:text-primary transition-colors"
     >
       <Copy className="w-3.5 h-3.5" aria-hidden="true" />
     </button>
@@ -154,7 +154,7 @@ export default function Press() {
           <div className="text-primary font-bold text-[14px]">
             {t({ ar: "مهنّد جندية", en: "Muhannad Jundiyya" })}
           </div>
-          <div className="text-white/45 text-[12.5px]">
+          <div className="text-white/65 text-[12.5px]">
             {t({
               ar: "المدير ومؤسّس آيلاند هيفن",
               en: "Director & Founder of Island Haven",
@@ -181,11 +181,11 @@ export default function Press() {
                 en: "Minds that rise above the rubble.. Gaza's youth launch the “Builders' Hackathon”",
               })}
             </div>
-            <div className="text-white/45 text-[11.5px]">
+            <div className="text-white/60 text-[11.5px]">
               {t({ ar: "فلسطين أون لاين", en: "Felesteen Online" })}
             </div>
           </div>
-          <ExternalLink className="w-4 h-4 text-white/40 group-hover:text-primary shrink-0" />
+          <ExternalLink className="w-4 h-4 text-white/55 group-hover:text-primary shrink-0" />
         </a>
       </GlassCard>
 
@@ -228,7 +228,7 @@ export default function Press() {
                   <div className="text-white text-[12px] font-semibold">
                     {c.name}
                   </div>
-                  <div className="text-white/45 text-[10.5px] font-mono tabular-nums">
+                  <div className="text-white/60 text-[10.5px] font-mono tabular-nums">
                     {c.hex}
                   </div>
                 </div>

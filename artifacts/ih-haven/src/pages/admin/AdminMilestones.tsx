@@ -73,7 +73,7 @@ export default function AdminMilestones() {
           <h2 className="text-[20px] font-bold text-foreground">
             محطّات المشاريع (Milestones)
           </h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             الخطّ الزمنيّ لإنجازات كلّ مشروع — يظهر في صفحة المشروع.
           </p>
         </div>
@@ -94,14 +94,14 @@ export default function AdminMilestones() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا محطّات بعد — أضف أوّل محطّة لمشروع.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">المشروع</th>
                 <th className="text-right px-4 py-3 font-semibold">المحطّة</th>
@@ -123,7 +123,7 @@ export default function AdminMilestones() {
                   <td className="px-4 py-3 text-foreground/65">
                     {VENTURE_MILESTONE_TYPE_LABELS[r.type]}
                   </td>
-                  <td className="px-4 py-3 text-foreground/55 tabular-nums">
+                  <td className="px-4 py-3 text-foreground/65 tabular-nums">
                     {new Date(r.achievedAt).toLocaleDateString("ar-EG")}
                   </td>
                   <td className="px-4 py-3">
@@ -132,7 +132,7 @@ export default function AdminMilestones() {
                         type="button"
                         aria-label="تعديل المحطّة"
                         onClick={() => setEditing(r)}
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>

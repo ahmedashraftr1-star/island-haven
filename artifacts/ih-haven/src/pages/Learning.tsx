@@ -293,7 +293,7 @@ function ProgressCard({
             {item.courseTitle}
           </Link>
           {done && item.completedAt && item.completedAt !== "now" && (
-            <p className="text-white/45 text-[12px] mt-1">
+            <p className="text-white/60 text-[12px] mt-1">
               {t({ ar: "أُكمِل في", en: "Completed on" })}{" "}
               {formatDate(item.completedAt, lang)}
             </p>
@@ -302,7 +302,7 @@ function ProgressCard({
         <div className="text-left shrink-0">
           <div className="text-[26px] font-bold text-white tabular-nums leading-none">
             {num(item.percent, lang)}
-            <span className="text-[14px] text-white/45">%</span>
+            <span className="text-[14px] text-white/65">%</span>
           </div>
         </div>
       </div>

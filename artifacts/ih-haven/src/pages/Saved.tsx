@@ -117,7 +117,7 @@ export default function Saved() {
                   </div>
                 ) : (
                   <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
-                    <Bookmark className="w-6 h-6 text-white/25" />
+                    <Bookmark className="w-6 h-6 text-white/45" />
                   </div>
                 )}
                 <div className="p-4 flex-1 flex flex-col">
@@ -129,7 +129,7 @@ export default function Saved() {
                       {row.work.summary}
                     </p>
                   )}
-                  <div className="mt-auto pt-3 flex items-center gap-4 text-white/45 text-[12px]">
+                  <div className="mt-auto pt-3 flex items-center gap-4 text-white/60 text-[12px]">
                     <span className="inline-flex items-center gap-1">
                       <Heart className="w-3.5 h-3.5" />
                       <span className="tabular-nums">{row.likesCount ?? 0}</span>

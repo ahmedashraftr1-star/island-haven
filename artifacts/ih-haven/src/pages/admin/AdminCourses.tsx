@@ -91,7 +91,7 @@ export default function AdminCourses() {
           <h2 className="text-[20px] font-bold text-foreground">
             الكورسات والورشات
           </h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             أنشئ وأدِر فعاليّات آيلاند هيفن — وراقب التسجيلات.
           </p>
         </div>
@@ -114,14 +114,14 @@ export default function AdminCourses() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لم تُضَف أيّ فعاليّة بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">العنوان</th>
                 <th className="text-right px-4 py-3 font-semibold">النوع</th>
@@ -141,7 +141,7 @@ export default function AdminCourses() {
                   <td className="px-4 py-3 font-semibold text-foreground">
                     {r.title}
                     {r.instructor && (
-                      <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5">
+                      <div className="text-[11.5px] text-foreground/60 font-normal mt-0.5">
                         {r.instructor}
                       </div>
                     )}
@@ -154,7 +154,7 @@ export default function AdminCourses() {
                   </td>
                   <td className="px-4 py-3 text-foreground/65 tabular-nums">
                     <span className="inline-flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-foreground/45" />
+                      <Users className="w-3.5 h-3.5 text-foreground/60" />
                       {r.enrolled}
                       {r.capacity > 0 ? ` / ${r.capacity}` : ""}
                     </span>
@@ -165,7 +165,7 @@ export default function AdminCourses() {
                         r.status === "open"
                           ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : r.status === "draft"
-                          ? "bg-muted text-foreground/55 border border-border"
+                          ? "bg-muted text-foreground/70 border border-border"
                           : "bg-foreground/[0.04] text-foreground/65 border border-border"
                       }`}
                     >
@@ -178,7 +178,7 @@ export default function AdminCourses() {
                         type="button"
                         onClick={() => setEditing(r)}
                         aria-label="تعديل الكورس"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         data-testid={`button-edit-course-${r.id}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -303,7 +303,7 @@ function CourseEditor({
             type="button"
             onClick={onClose}
             aria-label="إغلاق"
-            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
+            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

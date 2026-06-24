@@ -215,7 +215,7 @@ export default function OpportunityDetail() {
 
         {tags.length > 0 && (
           <div className="mb-8">
-            <div className="text-[10.5px] tracking-[0.18em] uppercase text-white/40 font-bold mb-2.5">
+            <div className="text-[10.5px] tracking-[0.18em] uppercase text-white/60 font-bold mb-2.5">
               {t({ ar: "المهارات المطلوبة", en: "Required skills" })}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -271,7 +271,7 @@ function Fact({
   return (
     <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/40 text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
       <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );

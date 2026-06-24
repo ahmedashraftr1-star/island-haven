@@ -69,7 +69,7 @@ export default function AdminBadges() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-[20px] font-bold text-foreground">الشّارات</h2>
-            <p className="text-[13px] text-foreground/55 mt-1">
+            <p className="text-[13px] text-foreground/65 mt-1">
               شارات تقدير تُمنح للمنتسبين وتُحسب في لوحة الصدارة.
             </p>
           </div>
@@ -89,14 +89,14 @@ export default function AdminBadges() {
 
         <div className="rounded-2xl bg-card border border-border overflow-hidden">
           {rows === null ? (
-            <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+            <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
           ) : rows.length === 0 ? (
-            <div className="p-12 text-center text-foreground/55 text-[14px]">
+            <div className="p-12 text-center text-foreground/65 text-[14px]">
               لا شارات بعد.
             </div>
           ) : (
             <table className="w-full text-[13.5px]">
-              <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+              <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
                 <tr>
                   <th className="text-right px-4 py-3 font-semibold">الشّارة</th>
                   <th className="text-right px-4 py-3 font-semibold">المُعرّف</th>
@@ -118,7 +118,7 @@ export default function AdminBadges() {
                         {r.name}
                       </div>
                       {r.description && (
-                        <div className="text-[11.5px] text-foreground/45 mt-0.5">
+                        <div className="text-[11.5px] text-foreground/60 mt-0.5">
                           {r.description}
                         </div>
                       )}
@@ -143,7 +143,7 @@ export default function AdminBadges() {
                           type="button"
                           onClick={() => setEditing(r)}
                           aria-label={`تعديل شارة ${r.name}`}
-                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
@@ -151,7 +151,7 @@ export default function AdminBadges() {
                           type="button"
                           onClick={() => onDelete(r.id)}
                           aria-label={`حذف شارة ${r.name}`}
-                          className="p-2 rounded-lg hover:bg-rose-500/10 text-foreground/65 hover:text-rose-400"
+                          className="p-2 rounded-lg hover:bg-rose-500/10 text-foreground/65 hover:text-rose-400 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -250,7 +250,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
         <h3 className="text-[16px] font-bold text-foreground">
           منح / سحب شارة
         </h3>
-        <p className="text-[12.5px] text-foreground/55 mt-1">
+        <p className="text-[12.5px] text-foreground/65 mt-1">
           ابحث عن منتسب، اختر شارة، ثم امنحها أو اسحبها.
         </p>
       </div>
@@ -264,7 +264,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
         className="flex gap-2"
       >
         <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2.5 bg-muted/40 border border-border focus-within:bg-muted/60 transition-colors">
-          <Search className="w-4 h-4 text-foreground/45 shrink-0" />
+          <Search className="w-4 h-4 text-foreground/60 shrink-0" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -284,7 +284,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
       {users !== null && (
         <div className="flex flex-wrap gap-2">
           {users.length === 0 ? (
-            <span className="text-[12.5px] text-foreground/45">
+            <span className="text-[12.5px] text-foreground/60">
               لا نتائج مطابقة.
             </span>
           ) : (
@@ -317,7 +317,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
             type="button"
             onClick={() => setSelectedUser(null)}
             aria-label="إلغاء اختيار المنتسب"
-            className="text-foreground/45 hover:text-foreground"
+            className="text-foreground/60 hover:text-foreground"
           >
             <X className="w-3.5 h-3.5" />
           </button>

@@ -241,7 +241,7 @@ function EventCard({
                   ? DAILY_TYPE_LABELS[post.type]
                   : DAILY_TYPE_LABELS_EN[post.type]}
               </span>
-              <span className="text-white/45 text-[11.5px]">
+              <span className="text-white/60 text-[11.5px]">
                 {formatDate(post.publishedAt, lang)}
               </span>
             </div>
@@ -330,7 +330,7 @@ export function EventDetail() {
                 ? DAILY_TYPE_LABELS[post.type]
                 : DAILY_TYPE_LABELS_EN[post.type]}
             </span>
-            <span className="text-white/45 text-[11.5px]">
+            <span className="text-white/60 text-[11.5px]">
               {formatDate(post.publishedAt, lang)}
             </span>
           </div>

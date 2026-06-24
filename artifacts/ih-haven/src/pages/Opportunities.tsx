@@ -250,7 +250,7 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
           </div>
 
           {o.description && (
-            <p className="relative text-white/45 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
+            <p className="relative text-white/65 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
               {o.description}
             </p>
           )}

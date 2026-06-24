@@ -40,7 +40,7 @@ export default function AdminPush() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">إشعارات الجوّال</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           أرسل إشعار فوري لجميع الأجهزة المسجّلة.
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function AdminPush() {
           <div className="text-[22px] font-bold text-foreground tabular-nums">
             {stats?.tokens ?? "—"}
           </div>
-          <div className="text-[12.5px] text-foreground/55">جهاز مسجّل للإشعارات</div>
+          <div className="text-[12.5px] text-foreground/65">جهاز مسجّل للإشعارات</div>
         </div>
       </div>
 
@@ -107,7 +107,7 @@ export default function AdminPush() {
 
         <div className="space-y-1">
           <label className="text-[12.5px] font-semibold text-foreground/70">
-            رابط عند النقر <span className="text-foreground/40 font-normal">(اختياري)</span>
+            رابط عند النقر <span className="text-foreground/65 font-normal">(اختياري)</span>
           </label>
           <input
             value={form.url}

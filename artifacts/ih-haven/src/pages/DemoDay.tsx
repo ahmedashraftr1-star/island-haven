@@ -197,7 +197,7 @@ export default function DemoDay() {
                     <div className="text-white font-bold text-[26px] sm:text-[32px] tabular-nums leading-none">
                       {pad2(u.v, lang)}
                     </div>
-                    <div className="text-white/45 text-[10.5px] mt-1">{u.l}</div>
+                    <div className="text-white/60 text-[10.5px] mt-1">{u.l}</div>
                   </div>
                 ))}
               </div>
@@ -300,7 +300,7 @@ export default function DemoDay() {
                         {v.tagline}
                       </p>
                     )}
-                    <div className="mt-3 inline-flex items-center gap-1 text-white/45 group-hover:text-primary transition-colors text-[12px] font-semibold">
+                    <div className="mt-3 inline-flex items-center gap-1 text-white/60 group-hover:text-primary transition-colors text-[12px] font-semibold">
                       {t({ ar: "التفاصيل", en: "Details" })}
                       <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                     </div>
@@ -351,7 +351,7 @@ function RsvpForm({ slug }: { slug: string }) {
   }
 
   const inp =
-    "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none";
+    "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none";
 
   return (
     <GlassCard className="p-6 sm:p-8">

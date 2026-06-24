@@ -108,7 +108,7 @@ export default function Alumni() {
                 <GlassCard className="p-6 text-center">
                   <Icon className="w-6 h-6 text-primary/60 mx-auto mb-2" />
                   <div className="text-[32px] font-black text-white leading-none mb-1">{t(stat.value)}</div>
-                  <div className="text-[12px] text-white/45 font-medium">{t(stat.label)}</div>
+                  <div className="text-[12px] text-white/65 font-medium">{t(stat.label)}</div>
                 </GlassCard>
               </motion.div>
             );
@@ -125,7 +125,7 @@ export default function Alumni() {
                   {t({ ar: "الدُّفعات المكتملة", en: "Completed cohorts" })}
                 </h2>
               </div>
-              <Link href="/cohorts" className="text-[13px] text-white/40 hover:text-primary transition-colors flex items-center gap-1.5">
+              <Link href="/cohorts" className="text-[13px] text-white/60 hover:text-primary transition-colors flex items-center gap-1.5">
                 {t({ ar: "كل الدُّفعات", en: "All cohorts" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               </Link>
             </div>
@@ -148,7 +148,7 @@ export default function Alumni() {
                         </span>
                       </div>
                       <h3 className="text-[15px] font-bold text-white mt-3 mb-1">{cohort.name}</h3>
-                      <p className="text-[12px] text-white/40 line-clamp-2">{cohort.description}</p>
+                      <p className="text-[12px] text-white/60 line-clamp-2">{cohort.description}</p>
                       <div className="mt-3 flex items-center gap-1.5 text-primary text-[12px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                         {t({ ar: "عرض الدُّفعة", en: "View cohort" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                       </div>
@@ -170,7 +170,7 @@ export default function Alumni() {
                   {t({ ar: "مشاريع الخرّيجين", en: "Alumni ventures" })}
                 </h2>
               </div>
-              <Link href="/ventures" className="text-[13px] text-white/40 hover:text-primary transition-colors flex items-center gap-1.5">
+              <Link href="/ventures" className="text-[13px] text-white/60 hover:text-primary transition-colors flex items-center gap-1.5">
                 {t({ ar: "كل المشاريع", en: "All ventures" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               </Link>
             </div>
@@ -187,12 +187,12 @@ export default function Alumni() {
                       <img src={v.logoUrl} alt={v.name} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
-                        <span className="text-lg font-bold text-white/40">{v.name[0]}</span>
+                        <span className="text-lg font-bold text-white/60">{v.name[0]}</span>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="text-[14px] font-bold text-white leading-tight">{v.name}</div>
-                      <div className="text-[12px] text-white/40 mt-0.5 truncate">{v.tagline}</div>
+                      <div className="text-[12px] text-white/60 mt-0.5 truncate">{v.tagline}</div>
                       {v.website && (
                         <a
                           href={v.website}
@@ -221,7 +221,7 @@ export default function Alumni() {
                   {t({ ar: "بكلماتهم", en: "In their words" })}
                 </h2>
               </div>
-              <Link href="/stories" className="text-[13px] text-white/40 hover:text-primary transition-colors flex items-center gap-1.5">
+              <Link href="/stories" className="text-[13px] text-white/60 hover:text-primary transition-colors flex items-center gap-1.5">
                 {t({ ar: "كل القصص", en: "All stories" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               </Link>
             </div>
@@ -245,7 +245,7 @@ export default function Alumni() {
                       )}
                       <div>
                         <div className="text-[13px] font-bold text-white">{s.personName}</div>
-                        <div className="text-[11px] text-white/40">{s.role} · {s.ventureName}</div>
+                        <div className="text-[11px] text-white/60">{s.role} · {s.ventureName}</div>
                       </div>
                     </div>
                   </GlassCard>
@@ -260,7 +260,7 @@ export default function Alumni() {
           <h3 className="text-[20px] font-bold text-white mb-2">
             {t({ ar: "أنت التالي؟", en: "Are you next?" })}
           </h3>
-          <p className="text-white/40 text-[14px] mb-5">
+          <p className="text-white/65 text-[14px] mb-5">
             {t({
               ar: "انضم لمجتمع خرّيجي آيلاند هيفن وابدأ مشروعك.",
               en: "Join the Island Haven alumni community and start your venture.",

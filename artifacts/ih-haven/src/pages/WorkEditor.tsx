@@ -275,7 +275,7 @@ export default function WorkEditor() {
                         en: "Drag an image here or click to choose",
                       })}
                     </span>
-                    <span className="text-[11px] text-white/35">
+                    <span className="text-[11px] text-white/55">
                       {t({ ar: "حتّى ٥ ميجابايت", en: "Up to 5 MB" })}
                     </span>
                   </>
@@ -528,7 +528,7 @@ function Field({
     <div>
       <label className="flex items-center justify-between mb-2 text-[11.5px]">
         <span className="text-white/75 font-semibold">{label}</span>
-        <span className="text-[10px] tracking-[0.16em] uppercase text-white/35">
+        <span className="text-[10px] tracking-[0.16em] uppercase text-white/55">
           {hint}
           {note ? ` · ${note}` : ""}
         </span>

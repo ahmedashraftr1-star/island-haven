@@ -504,7 +504,7 @@ export default function Apply() {
                           >
                             {cat.label}
                           </div>
-                          <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/35 mt-0.5">
+                          <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/55 mt-0.5">
                             {cat.sub}
                           </div>
                         </button>
@@ -531,10 +531,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.bioPlaceholder}
-                        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                         data-testid="input-bio"
                       />
-                      <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.bio.length}/2000</div>
+                      <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.bio.length}/2000</div>
                     </FieldWrap>
                     <FieldWrap
                       id="motivation"
@@ -550,10 +550,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.motivationPlaceholder}
-                        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                         data-testid="input-motivation"
                       />
-                      <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
+                      <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
                     </FieldWrap>
                   </div>
                 </div>
@@ -586,7 +586,7 @@ export default function Apply() {
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
                         <span className="text-white/75 font-semibold">{c.yearsLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                        <span className="inline-flex items-center gap-1.5 text-white/55">
                           <Clock className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">Experience</span>
                         </span>
@@ -664,10 +664,10 @@ export default function Apply() {
                       rows={3}
                       maxLength={1000}
                       placeholder={c.previousWorkPlaceholder}
-                      className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                      className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                       data-testid="input-previousWork"
                     />
-                    <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
+                    <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
                   </FieldWrap>
                 </div>
 
@@ -679,7 +679,7 @@ export default function Apply() {
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
                         <span className="text-white/75 font-semibold">{c.weeklyHoursLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                        <span className="inline-flex items-center gap-1.5 text-white/55">
                           <Clock className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">hrs/week</span>
                         </span>
@@ -708,7 +708,7 @@ export default function Apply() {
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
                         <span className="text-white/75 font-semibold">{c.employedLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/35">
+                        <span className="inline-flex items-center gap-1.5 text-white/55">
                           <BriefcaseBusiness className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">Employment</span>
                         </span>
@@ -775,16 +775,16 @@ export default function Apply() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setCvUrl(""); setCvFileName(""); }}
-                          className="text-[11px] text-white/40 hover:text-red-300 transition-colors underline underline-offset-2 mr-1"
+                          className="text-[11px] text-white/60 hover:text-red-300 transition-colors underline underline-offset-2 mr-1"
                         >
                           {c.cvUploadRemove}
                         </button>
                       </div>
                     ) : (
                       <div className="space-y-1.5">
-                        <FileUp className="w-6 h-6 text-white/30 mx-auto" />
-                        <div className="text-[13.5px] text-white/55">{c.cvUploadLabel}</div>
-                        <div className="text-[11px] text-white/30">{c.cvUploadHint} · {t({ ar: "اسحب الملف هنا أو", en: "drag a file here or" })}</div>
+                        <FileUp className="w-6 h-6 text-white/50 mx-auto" />
+                        <div className="text-[13.5px] text-white/60">{c.cvUploadLabel}</div>
+                        <div className="text-[11px] text-white/60">{c.cvUploadHint} · {t({ ar: "اسحب الملف هنا أو", en: "drag a file here or" })}</div>
                         <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/70 hover:text-white transition-colors">
                           {c.cvUploadBtn}
                         </div>
@@ -842,7 +842,7 @@ export default function Apply() {
                       }}
                     />
                   </button>
-                  <p className="text-[11.5px] text-center text-white/35 mt-3.5 leading-relaxed">
+                  <p className="text-[11.5px] text-center text-white/60 mt-3.5 leading-relaxed">
                     {c.consentLine}
                   </p>
                 </div>
@@ -851,7 +851,7 @@ export default function Apply() {
           </motion.form>
 
           {/* Footer trust line */}
-          <div className="mt-10 text-center text-[11px] text-white/35 tracking-[0.16em] uppercase">
+          <div className="mt-10 text-center text-[11px] text-white/55 tracking-[0.16em] uppercase">
             {c.trustLabel} <span className="text-white/65 font-semibold">{c.trustBrand}</span>
           </div>
         </div>
@@ -884,12 +884,12 @@ function ProcessStrip() {
       className="mb-9 sm:mb-12"
     >
       <div className="flex items-center justify-between mb-3.5 px-1">
-        <span className="text-[10px] tracking-[0.22em] uppercase text-white/40 font-semibold">
+        <span className="text-[10px] tracking-[0.22em] uppercase text-white/60 font-semibold">
           {t({ ar: "ماذا بعد التقديم", en: "What happens next" })}
         </span>
         <Link
           href="/process"
-          className="text-[10.5px] tracking-[0.12em] uppercase text-white/40 hover:text-primary transition-colors font-semibold"
+          className="text-[10.5px] tracking-[0.12em] uppercase text-white/60 hover:text-primary transition-colors font-semibold"
         >
           {t({ ar: "التفاصيل الكاملة", en: "Full process" })} →
         </Link>
@@ -905,15 +905,15 @@ function ProcessStrip() {
             }`}
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-white/45"}`} strokeWidth={2} />
-              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-white/30 tabular-nums">
+              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-white/60"}`} strokeWidth={2} />
+              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-white/55 tabular-nums">
                 {no}
               </span>
             </div>
             <div className={`text-[12px] font-semibold leading-snug ${i === 0 ? "text-white" : "text-white/75"}`}>
               {label}
             </div>
-            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary/85" : "text-white/35"}`}>
+            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary/85" : "text-white/60"}`}>
               {meta}
             </div>
           </li>
@@ -939,7 +939,7 @@ function SectionHeader({
       </div>
       <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
       <div className="text-[11px] tracking-[0.18em] uppercase text-white/50 font-semibold">
-        {title} <span className="text-white/30">· {sub}</span>
+        {title} <span className="text-white/55">· {sub}</span>
       </div>
     </div>
   );
@@ -967,7 +967,7 @@ function FieldWrap({
         className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]"
       >
         <span className="text-white/75 font-semibold">{label}</span>
-        <span className="inline-flex items-center gap-1.5 text-white/35">
+        <span className="inline-flex items-center gap-1.5 text-white/55">
           <Icon className="w-3 h-3" />
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
         </span>
@@ -1033,7 +1033,7 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "auto"}
         autoComplete={autoComplete}
-        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] outline-none px-1 py-0.5"
+        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] outline-none px-1 py-0.5"
         data-testid={`input-${id}`}
       />
     </FieldWrap>

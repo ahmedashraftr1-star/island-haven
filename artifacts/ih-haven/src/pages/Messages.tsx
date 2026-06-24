@@ -337,7 +337,7 @@ function Thread({
           <div className="text-white font-bold text-[14.5px] truncate">
             {conversation.otherFullName}
           </div>
-          <div className="text-white/40 text-[11.5px]">
+          <div className="text-white/60 text-[11.5px]">
             {t({ ar: "منتسب · Island Haven", en: "Member · Island Haven" })}
           </div>
         </div>
@@ -360,7 +360,7 @@ function Thread({
             ))}
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-white/40 text-[13px]">
+          <div className="h-full flex items-center justify-center text-white/65 text-[13px]">
             {t({
               ar: "لا رسائل بعد — اكتب أوّل رسالة في الأسفل.",
               en: "No messages yet — write the first one below.",
@@ -387,7 +387,7 @@ function Thread({
                   {m.body}
                   <div
                     className={`mt-1 text-[10px] ${
-                      mine ? "text-white/60" : "text-white/35"
+                      mine ? "text-white/75" : "text-white/55"
                     }`}
                   >
                     {formatDateTime(m.createdAt, lang)}
@@ -416,7 +416,7 @@ function Thread({
           rows={1}
           maxLength={4000}
           placeholder={t({ ar: "اكتب رسالتك…", en: "Write your message…" })}
-          className="flex-1 resize-none rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-2.5 text-[13.5px] text-white placeholder:text-white/35 focus:outline-none focus:border-primary/50 leading-[1.7] max-h-32"
+          className="flex-1 resize-none rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 leading-[1.7] max-h-32"
           data-testid="input-message"
         />
         <button
@@ -502,7 +502,7 @@ function NewMessageModal({
 
           <div className="p-4 border-b border-white/[0.07]">
             <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -510,7 +510,7 @@ function NewMessageModal({
                   ar: "ابحث عن منتسب بالاسم أو المهارة…",
                   en: "Search a member by name or skill…",
                 })}
-                className="w-full rounded-2xl bg-white/[0.05] border border-white/12 ps-10 pe-4 py-2.5 text-[13.5px] text-white placeholder:text-white/35 focus:outline-none focus:border-primary/50"
+                className="w-full rounded-2xl bg-white/[0.05] border border-white/12 ps-10 pe-4 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50"
                 data-testid="input-member-search"
                 autoFocus
               />
@@ -547,7 +547,7 @@ function NewMessageModal({
                           </span>
                         )}
                       </span>
-                      <ArrowRight className="w-4 h-4 text-white/35 -scale-x-100 rtl:scale-x-100" />
+                      <ArrowRight className="w-4 h-4 text-white/50 -scale-x-100 rtl:scale-x-100" />
                     </button>
                   </li>
                 ))}

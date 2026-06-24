@@ -20,7 +20,7 @@ export function Modal({
           <h3 className="text-[16px] font-bold text-foreground">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
+            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

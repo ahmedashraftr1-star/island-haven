@@ -163,7 +163,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               )}
               <div className="min-w-0">
                 <div className="text-[15px] font-bold text-white leading-tight">{story.personName}</div>
-                <div className="text-[12px] text-white/45 mt-0.5 truncate">{story.role} · {story.ventureName}</div>
+                <div className="text-[12px] text-white/60 mt-0.5 truncate">{story.role} · {story.ventureName}</div>
               </div>
             </div>
 
@@ -214,7 +214,7 @@ export default function Stories() {
         {!isLoading && stories.length === 0 && (
           <div className="text-center py-24">
             <Quote className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/40 text-[15px]">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
+            <p className="text-white/75 text-[15px] font-semibold">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
           </div>
         )}
 
@@ -225,7 +225,7 @@ export default function Stories() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
-                  <span className="text-[13px] font-semibold text-white/50 tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
+                  <span className="text-[13px] font-semibold text-white/60 tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {stories.filter(s => s.featured).map((s, i) => (
@@ -240,7 +240,7 @@ export default function Stories() {
               {stories.some(s => s.featured) && (
                 <div className="flex items-center gap-3 mb-5">
                   <div className="h-px flex-1 bg-white/10" />
-                  <span className="text-[13px] font-semibold text-white/40 tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
+                  <span className="text-[13px] font-semibold text-white/60 tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
               )}
@@ -255,7 +255,7 @@ export default function Stories() {
 
         {/* CTA */}
         <div className="text-center py-8">
-          <p className="text-white/40 text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
+          <p className="text-white/65 text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
           <Link
             href="/apply"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"

@@ -160,7 +160,7 @@ export default function AdminOverview({
               </div>
               <div
                 className={`text-[11.5px] mt-2 ${
-                  primary ? "text-white/65" : "text-foreground/45"
+                  primary ? "text-white/65" : "text-foreground/60"
                 }`}
               >
                 {c.hint}
@@ -178,7 +178,7 @@ export default function AdminOverview({
               <h3 className="text-[15px] font-bold text-foreground">
                 نبض الزيارات
               </h3>
-              <p className="text-[12px] text-foreground/55 mt-0.5">
+              <p className="text-[12px] text-foreground/65 mt-0.5">
                 آخر ٣٠ يوماً
               </p>
             </div>
@@ -225,7 +225,7 @@ export default function AdminOverview({
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-[13px] text-foreground/45">
+              <div className="h-full flex items-center justify-center text-[13px] text-foreground/60">
                 لا توجد بيانات بعد.
               </div>
             )}
@@ -237,11 +237,11 @@ export default function AdminOverview({
           <h3 className="text-[15px] font-bold text-foreground mb-1">
             مسار الانتساب
           </h3>
-          <p className="text-[12px] text-foreground/55 mb-5">
+          <p className="text-[12px] text-foreground/65 mb-5">
             الطلبات حسب الحالة
           </p>
           {apps.length === 0 ? (
-            <div className="text-[13px] text-foreground/45 py-8 text-center">
+            <div className="text-[13px] text-foreground/60 py-8 text-center">
               لا طلبات بعد.
             </div>
           ) : (
@@ -292,7 +292,7 @@ export default function AdminOverview({
           </button>
         </div>
         {recent.length === 0 ? (
-          <div className="px-7 pb-8 text-[13px] text-foreground/45">لا طلبات بعد.</div>
+          <div className="px-7 pb-8 text-[13px] text-foreground/60">لا طلبات بعد.</div>
         ) : (
           <div className="divide-y divide-border">
             {recent.map((a) => (
@@ -307,18 +307,18 @@ export default function AdminOverview({
                   <div className="text-[14px] font-semibold text-foreground truncate">
                     {a.fullName}
                   </div>
-                  <div className="text-[12px] text-foreground/55 truncate" dir="ltr">
+                  <div className="text-[12px] text-foreground/65 truncate" dir="ltr">
                     {a.email}
                   </div>
                 </div>
-                <div className="hidden sm:block text-[11.5px] text-foreground/55">
+                <div className="hidden sm:block text-[11.5px] text-foreground/65">
                   {CATEGORY_LABELS[a.category] ?? a.category}
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-foreground/75">
                   <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[a.status]}`} />
                   {STATUS_LABELS[a.status] ?? a.status}
                 </span>
-                <div className="hidden md:block text-[11px] text-foreground/45 tabular-nums">
+                <div className="hidden md:block text-[11px] text-foreground/60 tabular-nums">
                   {new Date(a.createdAt).toLocaleDateString("ar-EG", {
                     day: "numeric",
                     month: "short",
@@ -354,7 +354,7 @@ function RecentActivity() {
     <div className="bg-card rounded-2xl border border-border shadow-soft p-5 lg:p-7">
       <h3 className="text-[15px] font-bold text-foreground mb-4">آخر النشاط</h3>
       {items.length === 0 ? (
-        <div className="text-foreground/45 text-[13px] py-6 text-center">
+        <div className="text-foreground/60 text-[13px] py-6 text-center">
           لا نشاط بعد.
         </div>
       ) : (
@@ -370,7 +370,7 @@ function RecentActivity() {
                   <span className="text-foreground/70 text-[13px] mr-2">{a.detail}</span>
                 ) : null}
               </div>
-              <span className="text-foreground/40 text-[11px] shrink-0 tabular-nums">
+              <span className="text-foreground/65 text-[11px] shrink-0 tabular-nums">
                 {new Date(a.at).toLocaleDateString("ar-EG", {
                   day: "numeric",
                   month: "short",

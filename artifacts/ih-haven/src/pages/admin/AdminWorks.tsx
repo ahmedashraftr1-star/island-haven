@@ -33,7 +33,7 @@ const STATUS_LABEL: Record<WorkStatus, string> = {
 };
 const STATUS_PILL: Record<WorkStatus, string> = {
   visible: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
-  hidden: "bg-foreground/5 text-foreground/55 border border-border",
+  hidden: "bg-foreground/10 text-foreground/70 border border-border",
   featured: "bg-amber-400/15 text-amber-300 border border-amber-400/30",
 };
 
@@ -89,14 +89,14 @@ export default function AdminWorks() {
     <div className="space-y-5">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">أعمال المجتمع</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           راجع وأدِر الأعمال التي يرفعها المنتسبون — أخفِ، ميِّز، أو احذف.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
         <div className="flex-1 min-w-[220px] relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/45" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/60" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -108,7 +108,7 @@ export default function AdminWorks() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
         >
           <option value="">كل الحالات</option>
           <option value="visible">ظاهر</option>
@@ -132,14 +132,14 @@ export default function AdminWorks() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا توجد أعمال.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">العمل</th>
                 <th className="text-right px-4 py-3 font-semibold">صاحبه</th>
@@ -158,14 +158,14 @@ export default function AdminWorks() {
                   <td className="px-4 py-3">
                     <div className="font-semibold text-foreground">{work.title}</div>
                     {work.summary && (
-                      <div className="text-[11.5px] text-foreground/55 mt-0.5 line-clamp-1">
+                      <div className="text-[11.5px] text-foreground/65 mt-0.5 line-clamp-1">
                         {work.summary}
                       </div>
                     )}
                   </td>
                   <td className="px-4 py-3 text-foreground/65">
                     <div>{author.fullName}</div>
-                    <div className="text-[11.5px] text-foreground/45" dir="ltr">
+                    <div className="text-[11.5px] text-foreground/60" dir="ltr">
                       {author.email}
                     </div>
                   </td>
@@ -174,7 +174,7 @@ export default function AdminWorks() {
                       {STATUS_LABEL[work.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-foreground/55 text-[12px] tabular-nums">
+                  <td className="px-4 py-3 text-foreground/65 text-[12px] tabular-nums">
                     {new Date(work.createdAt).toLocaleDateString("ar-EG")}
                   </td>
                   <td className="px-4 py-3">
@@ -183,7 +183,7 @@ export default function AdminWorks() {
                         href={`${import.meta.env.BASE_URL}works/${work.id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         title="افتح في الموقع"
                         aria-label="افتح العمل في الموقع"
                       >
@@ -193,7 +193,7 @@ export default function AdminWorks() {
                         <button
                           type="button"
                           onClick={() => setWorkStatus(work.id, "featured")}
-                          className="p-2 rounded-lg hover:bg-amber-400/15 text-foreground/65 hover:text-amber-400"
+                          className="p-2 rounded-lg hover:bg-amber-400/15 text-foreground/65 hover:text-amber-400 transition-colors"
                           title="ميّز"
                           aria-label="ميّز العمل"
                           data-testid={`button-feature-work-${work.id}`}
@@ -204,7 +204,7 @@ export default function AdminWorks() {
                         <button
                           type="button"
                           onClick={() => setWorkStatus(work.id, "visible")}
-                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-amber-400"
+                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-amber-400 transition-colors"
                           title="إلغاء التمييز"
                           aria-label="إلغاء تمييز العمل"
                         >
@@ -215,7 +215,7 @@ export default function AdminWorks() {
                         <button
                           type="button"
                           onClick={() => setWorkStatus(work.id, "hidden")}
-                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-foreground"
+                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-foreground transition-colors"
                           title="إخفاء"
                           aria-label="إخفاء العمل"
                           data-testid={`button-hide-work-${work.id}`}
@@ -226,7 +226,7 @@ export default function AdminWorks() {
                         <button
                           type="button"
                           onClick={() => setWorkStatus(work.id, "visible")}
-                          className="p-2 rounded-lg hover:bg-emerald-500/15 text-foreground/65 hover:text-emerald-400"
+                          className="p-2 rounded-lg hover:bg-emerald-500/15 text-foreground/65 hover:text-emerald-400 transition-colors"
                           title="إظهار"
                           aria-label="إظهار العمل"
                         >

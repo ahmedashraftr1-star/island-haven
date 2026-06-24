@@ -83,7 +83,7 @@ export default function AdminSlots() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">مواعيد الخبراء</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             Office Hours — افتح فترات محدّدة على تقويم كلّ خبير، والروّاد يحجزون فورًا.
           </p>
         </div>
@@ -103,14 +103,14 @@ export default function AdminSlots() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا مواعيد بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الخبير</th>
                 <th className="text-right px-4 py-3 font-semibold">الموعد</th>
@@ -136,7 +136,7 @@ export default function AdminSlots() {
                           month: "long",
                         })}
                       </div>
-                      <div className="text-foreground/55 text-[12px] tabular-nums" dir="ltr">
+                      <div className="text-foreground/65 text-[12px] tabular-nums" dir="ltr">
                         {start.toLocaleTimeString("ar-EG", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -160,7 +160,7 @@ export default function AdminSlots() {
                           type="button"
                           onClick={() => setEditing({ ...r.slot })}
                           aria-label="تعديل الموعد"
-                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                          className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>

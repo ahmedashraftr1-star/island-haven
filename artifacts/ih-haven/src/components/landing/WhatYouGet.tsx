@@ -101,7 +101,7 @@ export function WhatYouGet() {
                   <h3 className="text-foreground font-bold text-[17px] mb-2 leading-snug">
                     {p.title}
                   </h3>
-                  <p className="text-foreground/55 text-[13.5px] leading-relaxed flex-1">
+                  <p className="text-foreground/65 text-[13.5px] leading-relaxed flex-1">
                     {p.body}
                   </p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-primary group-hover:gap-2.5 transition-all">

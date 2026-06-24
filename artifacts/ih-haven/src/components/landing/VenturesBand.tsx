@@ -149,7 +149,7 @@ export function VenturesBand() {
                       </h3>
                     </div>
                     {v.tagline && (
-                      <p className="text-foreground/55 text-[13px] leading-relaxed line-clamp-2 mb-4">
+                      <p className="text-foreground/65 text-[13px] leading-relaxed line-clamp-2 mb-4">
                         {v.tagline}
                       </p>
                     )}

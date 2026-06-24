@@ -91,7 +91,7 @@ export function Footer() {
               {c.signOffB}
             </h2>
           </div>
-          <div className="col-span-12 lg:col-span-3 lg:text-right text-[12px] text-foreground/55 font-medium flex items-end lg:justify-end">
+          <div className="col-span-12 lg:col-span-3 lg:text-end text-[12px] text-foreground/65 font-medium flex items-end lg:justify-end">
             <div>
               {c.estLabel}
               <br />
@@ -130,7 +130,7 @@ export function Footer() {
             )}
             {(contact.email || contact.phone || contact.whatsapp) && (
               <div className="space-y-2.5 text-[14px]">
-                <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-2">
+                <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/55 font-semibold mb-2">
                   {c.contactLabel}
                 </div>
                 {contact.email && (
@@ -174,7 +174,7 @@ export function Footer() {
           </div>
 
           <div className="col-span-6 lg:col-span-3">
-            <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-4">
+            <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/55 font-semibold mb-4">
               {c.indexLabel}
             </div>
             <ul className="space-y-2.5 text-[14px]">
@@ -192,7 +192,7 @@ export function Footer() {
           </div>
 
           <div className="col-span-6 lg:col-span-4">
-            <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/45 font-semibold mb-4">
+            <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/55 font-semibold mb-4">
               {c.programmeLabel}
             </div>
             <div className="text-xl font-bold text-foreground mb-2">{c.programmeTitle}</div>

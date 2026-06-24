@@ -133,7 +133,7 @@ export default function AdminCohortJourney() {
     <div className="space-y-5">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">رحلة الدفعة</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           المنهج الأسبوعيّ وتحديثات التقدّم — تظهر في صفحة الدفعة.
         </p>
       </div>
@@ -212,7 +212,7 @@ export default function AdminCohortJourney() {
                     {w.title}
                   </span>
                   {w.theme && (
-                    <div className="text-foreground/55 text-[12px] truncate">
+                    <div className="text-foreground/65 text-[12px] truncate">
                       {w.theme}
                     </div>
                   )}
@@ -277,7 +277,7 @@ export default function AdminCohortJourney() {
               >
                 <div className="min-w-0">
                   {u.weekNumber !== null && (
-                    <span className="text-[10px] font-bold text-foreground/55 me-1.5">
+                    <span className="text-[10px] font-bold text-foreground/65 me-1.5">
                       أسبوع {u.weekNumber}
                     </span>
                   )}
@@ -285,7 +285,7 @@ export default function AdminCohortJourney() {
                     {u.title}
                   </span>
                   {u.body && (
-                    <div className="text-foreground/55 text-[12px] line-clamp-2">
+                    <div className="text-foreground/65 text-[12px] line-clamp-2">
                       {u.body}
                     </div>
                   )}
@@ -310,10 +310,10 @@ export default function AdminCohortJourney() {
           حجوزات يوم العرض (Demo Day) ({rsvps.length})
         </h3>
         {rsvps.length === 0 ? (
-          <p className="text-foreground/55 text-[13px]">لا حجوزات بعد لهذه الدفعة.</p>
+          <p className="text-foreground/65 text-[13px]">لا حجوزات بعد لهذه الدفعة.</p>
         ) : (
           <table className="w-full text-[13px]">
-            <thead className="text-foreground/55 text-[11.5px] uppercase tracking-[0.05em]">
+            <thead className="text-foreground/65 text-[11.5px] uppercase tracking-[0.05em]">
               <tr>
                 <th className="text-right py-2 font-semibold">الاسم</th>
                 <th className="text-right py-2 font-semibold">البريد</th>
@@ -329,7 +329,7 @@ export default function AdminCohortJourney() {
                     {r.email}
                   </td>
                   <td className="py-2 text-foreground/65 tabular-nums">{r.attendees}</td>
-                  <td className="py-2 text-foreground/55">{r.note || "—"}</td>
+                  <td className="py-2 text-foreground/65">{r.note || "—"}</td>
                 </tr>
               ))}
             </tbody>

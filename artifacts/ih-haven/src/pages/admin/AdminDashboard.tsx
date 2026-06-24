@@ -166,7 +166,7 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground/45 text-sm">جارِ التحميل...</div>
+        <div className="text-foreground/60 text-sm">جارِ التحميل...</div>
       </div>
     );
   }
@@ -189,7 +189,7 @@ export default function AdminDashboard() {
               <div className="text-[14px] font-bold text-foreground tracking-tight">
                 Island Haven
               </div>
-              <div className="text-[10.5px] text-foreground/55 font-medium">
+              <div className="text-[10.5px] text-foreground/65 font-medium">
                 لوحة الإدارة
               </div>
             </div>
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
               {TABS.find((t) => t.id === tab)?.label}
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-foreground/55">
+          <div className="flex items-center gap-2 text-[12px] text-foreground/65">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             متّصل بالخادم
           </div>

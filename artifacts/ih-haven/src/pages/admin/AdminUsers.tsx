@@ -90,14 +90,14 @@ export default function AdminUsers() {
     <div className="space-y-5">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">المستخدمون</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           أدِر الحسابات المسجَّلة — تعديل، تعليق، حذف.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
         <div className="flex-1 min-w-[220px] relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/45" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/60" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -110,7 +110,7 @@ export default function AdminUsers() {
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
         >
           <option value="">كل الفئات</option>
           <option value="freelancer">مستقلّ</option>
@@ -121,7 +121,7 @@ export default function AdminUsers() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none"
+          className="h-10 px-3 rounded-xl bg-card border border-border text-[13px] outline-none focus:border-primary/50 transition-colors"
         >
           <option value="">كل الحالات</option>
           <option value="active">نشط</option>
@@ -144,14 +144,14 @@ export default function AdminUsers() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا توجد نتائج.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الاسم</th>
                 <th className="text-right px-4 py-3 font-semibold">البريد</th>
@@ -171,7 +171,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 font-semibold text-foreground">
                     {u.fullName}
                     {u.phone && (
-                      <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5" dir="ltr">
+                      <div className="text-[11.5px] text-foreground/60 font-normal mt-0.5" dir="ltr">
                         {u.phone}
                       </div>
                     )}
@@ -187,7 +187,7 @@ export default function AdminUsers() {
                       {STATUS_LABEL[u.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-foreground/55 text-[12px] tabular-nums">
+                  <td className="px-4 py-3 text-foreground/65 text-[12px] tabular-nums">
                     {new Date(u.createdAt).toLocaleDateString("ar-EG")}
                   </td>
                   <td className="px-4 py-3">
@@ -195,7 +195,7 @@ export default function AdminUsers() {
                       <button
                         type="button"
                         onClick={() => setEditing(u)}
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         title="تعديل"
                         aria-label="تعديل المستخدم"
                         data-testid={`button-edit-user-${u.id}`}
@@ -308,7 +308,7 @@ function UserEditor({
           <h3 className="text-[16px] font-bold text-foreground">
             تعديل حساب — {initial.email}
           </h3>
-          <button type="button" onClick={onClose} aria-label="إغلاق" className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65">
+          <button type="button" onClick={onClose} aria-label="إغلاق" className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>

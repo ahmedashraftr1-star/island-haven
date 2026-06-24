@@ -339,7 +339,7 @@ export default function ProgramDetail() {
                       value={ventureName}
                       onChange={(e) => setVentureName(e.target.value)}
                       maxLength={200}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
                     />
                   </Field>
                   <Field label={t({ ar: "فكرة المشروع", en: "Your idea" })}>
@@ -348,7 +348,7 @@ export default function ProgramDetail() {
                       onChange={(e) => setIdea(e.target.value)}
                       rows={4}
                       maxLength={4000}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </Field>
                   <Field label={t({ ar: "لماذا تريد الانضمام؟ (اختياري)", en: "Why do you want to join? (optional)" })}>
@@ -357,7 +357,7 @@ export default function ProgramDetail() {
                       onChange={(e) => setMotivation(e.target.value)}
                       rows={3}
                       maxLength={4000}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </Field>
                   {formError && <div className="text-[12.5px] text-red-300">{formError}</div>}

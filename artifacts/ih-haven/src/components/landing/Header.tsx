@@ -159,7 +159,7 @@ export function Header() {
                     }`}
                   >
                     <span>{l.label}</span>
-                    <span className="text-[10px] tracking-[0.16em] uppercase text-foreground/40 font-semibold">
+                    <span className="text-[10px] tracking-[0.16em] uppercase text-foreground/55 font-semibold">
                       {l.en}
                     </span>
                   </Link>

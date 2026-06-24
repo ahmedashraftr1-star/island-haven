@@ -110,10 +110,12 @@ export default function MembersScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={f.label}
                 accessibilityState={{ selected: active }}
-                hitSlop={4}
+                hitSlop={{ top: 10, bottom: 10, left: 4, right: 4 }}
                 style={({ pressed }) => ({
                   paddingHorizontal: 14,
-                  paddingVertical: 7,
+                  paddingVertical: 8,
+                  minHeight: 36,
+                  justifyContent: "center",
                   borderRadius: 999,
                   borderWidth: 1,
                   borderColor: active ? colors.primary : colors.border,
@@ -216,8 +218,8 @@ function MemberCard({
             </View>
           )}
           <View style={{ flex: 1 }}>
-            <T size={10} weight="bold" color={colors.primary} style={{ letterSpacing: 0.5, marginBottom: 1 }}>
-              {(ROLE_AR[m.role] || "عضو").toUpperCase()}
+            <T size={11} weight="bold" color={colors.primary} style={{ marginBottom: 1 }}>
+              {ROLE_AR[m.role] || "عضو"}
             </T>
             <T size={15.5} weight="bold" numberOfLines={1}>{m.fullName}</T>
             {m.jobTitle ? (
@@ -229,7 +231,7 @@ function MemberCard({
           {m.worksCount ? (
             <View style={{ alignItems: "center", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14, backgroundColor: colors.primarySoft }}>
               <T size={15} weight="bold" color={colors.primary}>{toArabicNum(m.worksCount)}</T>
-              <T size={9.5} color={colors.primary}>عمل</T>
+              <T size={11} weight="medium" color={colors.primary}>عمل</T>
             </View>
           ) : null}
         </View>

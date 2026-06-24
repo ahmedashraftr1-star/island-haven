@@ -186,7 +186,7 @@ export default function VentureDetail() {
                   />
                   <div
                     className={`mt-2 text-[10.5px] font-semibold text-center ${
-                      i === stageIx ? "text-primary" : "text-white/40"
+                      i === stageIx ? "text-primary" : "text-white/60"
                     }`}
                   >
                     {t({
@@ -242,7 +242,7 @@ export default function VentureDetail() {
 
           {v.founderName && (
             <div className="text-[13px] text-white/55 mb-6">
-              <span className="text-white/40">
+              <span className="text-white/60">
                 {t({ ar: "المؤسِّس: ", en: "Founder: " })}
               </span>
               <span className="text-white/85 font-semibold">{v.founderName}</span>
@@ -437,7 +437,7 @@ function Fact({
   return (
     <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/40 text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
       <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );
@@ -488,7 +488,7 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
                     en: VENTURE_STAGE_LABELS_EN[o.stage],
                   })}
                 </span>
-                <ArrowLeft className="w-3.5 h-3.5 text-white/40 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+                <ArrowLeft className="w-3.5 h-3.5 text-white/55 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
               </div>
             </Link>
           </motion.div>

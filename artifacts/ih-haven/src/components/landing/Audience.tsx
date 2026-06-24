@@ -83,11 +83,11 @@ export function Audience() {
           className="mb-20 lg:mb-28"
         >
           <div className="flex items-center gap-3 mb-5">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/45 font-semibold">
+            <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/55 font-semibold">
               {lang === "en" ? "Seat allocation" : "توزيع المقاعد · Seat allocation"}
             </span>
-            <span className="flex-1 h-[1px] bg-foreground/10" />
-            <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold tabular-nums">
+            <span className="flex-1 h-px bg-foreground/10" />
+            <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/55 font-semibold tabular-nums">
               {lang === "en" ? "100%" : "٪١٠٠"}
             </span>
           </div>
@@ -113,7 +113,7 @@ export function Audience() {
             {segments.map((s) => (
               <div key={s.no} className="flex items-center gap-1.5">
                 <span className="text-foreground font-bold">{s.pct}٪</span>
-                <span className="text-foreground/45">· {lang === "en" ? s.en : s.ar}</span>
+                <span className="text-foreground/55">· {lang === "en" ? s.en : s.ar}</span>
               </div>
             ))}
           </div>
@@ -177,7 +177,7 @@ export function Audience() {
                   >
                     <span>{seg.pct}</span>
                     <span className="text-primary text-[0.5em]">%</span>
-                    <span className="text-foreground/35 text-[0.4em] mr-3 lg:mr-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
+                    <span className="text-foreground/50 text-[0.4em] ms-3 lg:ms-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
                   </div>
 
                   <h3
@@ -194,7 +194,7 @@ export function Audience() {
                     {seg.criteria.map((cc, j) => (
                       <li
                         key={j}
-                        className="flex gap-4 items-baseline text-foreground/80 leading-relaxed border-t border-foreground/8 pt-3.5"
+                        className="flex gap-4 items-baseline text-foreground/80 leading-relaxed border-t border-foreground/12 pt-3.5"
                       >
                         <span className="text-primary text-sm font-bold tabular-nums shrink-0 w-6">
                           {String(j + 1).padStart(2, "0")}

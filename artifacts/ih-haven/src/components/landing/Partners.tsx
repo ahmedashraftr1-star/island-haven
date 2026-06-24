@@ -69,7 +69,7 @@ export function Partners() {
               </>
             )}
           </h2>
-          <p className="mt-3 text-foreground/55 text-[14px] max-w-xl mx-auto leading-[1.75]">
+          <p className="mt-3 text-foreground/65 text-[14px] max-w-xl mx-auto leading-[1.75]">
             {lang === "en"
               ? "Strategic alliances that strengthen the incubator's programs and amplify its impact."
               : "تحالفات استراتيجية تُقوّي برامج الحاضنة وتُضاعف أثرها."}
@@ -102,13 +102,13 @@ export function Partners() {
                       </div>
                       {p.description && (
                         <div
-                          className={`text-foreground/55 text-[12px] leading-[1.65] ${lang === "en" ? "text-left" : "text-right"}`}
+                          className={`text-foreground/65 text-[12px] leading-[1.65] ${lang === "en" ? "text-left" : "text-right"}`}
                         >
                           {p.description}
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-foreground/35 group-hover:text-primary/70 transition-colors">
+                    <div className="flex items-center gap-1.5 text-[11px] text-foreground/50 group-hover:text-primary/80 transition-colors">
                       <ExternalLink className="w-3 h-3" />
                       <span dir="ltr">{new URL(p.websiteUrl).hostname}</span>
                     </div>
@@ -118,7 +118,7 @@ export function Partners() {
                     <PartnerLogo p={p} showLogo={showLogo} onError={() => handleImgError(p.id)} />
                     <div className="font-bold text-foreground text-[15px]">{p.name}</div>
                     {p.description && (
-                      <div className="text-foreground/55 text-[12px] leading-[1.65]">
+                      <div className="text-foreground/65 text-[12px] leading-[1.65]">
                         {p.description}
                       </div>
                     )}
@@ -137,7 +137,7 @@ export function Partners() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-14 text-center"
         >
-          <p className="text-foreground/45 text-[13px] mb-3">
+          <p className="text-foreground/60 text-[13px] mb-3">
             {lang === "en"
               ? "Want to collaborate with Island Haven?"
               : "تريد التعاون مع آيلاند هيفن؟"}

@@ -117,7 +117,7 @@ export default function Works() {
             ar: "ابحث في الأعمال بالعنوان أو الوصف أو الوسوم",
             en: "Search works by title, summary, or tags",
           })}
-          className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/40 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
+          className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
           data-testid="input-search-works"
         />
       </div>
@@ -160,7 +160,7 @@ export default function Works() {
       </div>
 
       <div className="flex items-center gap-2 flex-wrap mb-8 -mt-4">
-        <span className="text-white/40 text-[12px] font-semibold me-1">
+        <span className="text-white/60 text-[12px] font-semibold me-1">
           {t({ ar: "ترتيب:", en: "Sort:" })}
         </span>
         {SORT_OPTIONS.map((o) => (
@@ -318,7 +318,7 @@ function WorkCard({ row }: { row: WorkRow }) {
           </div>
         ) : (
           <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
-            <div className="text-white/30 text-[12px] tracking-[0.22em] uppercase">
+            <div className="text-white/55 text-[12px] tracking-[0.22em] uppercase">
               {t({ ar: "لا توجد صورة", en: "No image" })}
             </div>
           </div>
@@ -352,11 +352,11 @@ function WorkCard({ row }: { row: WorkRow }) {
               <div className="text-white text-[12.5px] font-semibold truncate">
                 {row.author.fullName}
               </div>
-              <div className="text-white/45 text-[10.5px] tracking-[0.16em] uppercase">
+              <div className="text-white/60 text-[10.5px] tracking-[0.16em] uppercase">
                 {ROLE_LABELS[row.author.role]}
               </div>
             </div>
-            <div className="ms-auto flex items-center gap-3 text-white/45 text-[11.5px] tabular-nums shrink-0">
+            <div className="ms-auto flex items-center gap-3 text-white/60 text-[11.5px] tabular-nums shrink-0">
               <span
                 className="inline-flex items-center gap-1"
                 title={t({ ar: "إعجابات", en: "Likes" })}

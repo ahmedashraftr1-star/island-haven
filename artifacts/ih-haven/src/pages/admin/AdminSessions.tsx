@@ -73,7 +73,7 @@ export default function AdminSessions() {
     <div className="space-y-5">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">جلسات الإرشاد</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           تابع كلّ طلبات جلسات الإرشاد بين الأعضاء والخبراء.
         </p>
       </div>
@@ -103,14 +103,14 @@ export default function AdminSessions() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا توجد جلسات.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الموضوع</th>
                 <th className="text-right px-4 py-3 font-semibold">العضو</th>
@@ -131,11 +131,11 @@ export default function AdminSessions() {
                       {r.session.topic}
                     </div>
                     {r.session.message && (
-                      <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5 line-clamp-2 max-w-xs">
+                      <div className="text-[11.5px] text-foreground/60 font-normal mt-0.5 line-clamp-2 max-w-xs">
                         {r.session.message}
                       </div>
                     )}
-                    <div className="text-[11px] text-foreground/40 mt-1 tabular-nums">
+                    <div className="text-[11px] text-foreground/65 mt-1 tabular-nums">
                       {formatArabicDateTime(r.session.createdAt)}
                       {r.session.preferredAt
                         ? ` · مقترح: ${formatArabicDateTime(r.session.preferredAt)}`

@@ -139,7 +139,7 @@ export function NewsSlider() {
         ) : posts.length === 0 ? (
           <div className="rounded-3xl bg-foreground/[0.03] border border-dashed border-border p-12 text-center">
             <Calendar className="w-7 h-7 mx-auto mb-3 text-foreground/30" />
-            <p className="text-foreground/55 text-[14px]">
+            <p className="text-foreground/65 text-[14px]">
               {c.emptyText}
             </p>
           </div>
@@ -214,7 +214,7 @@ export function NewsSlider() {
                     </div>
                   </div>
                   <div className="p-5">
-                    <div className="text-[11px] text-foreground/55 mb-2 font-medium tabular-nums">
+                    <div className="text-[11px] text-foreground/65 mb-2 font-medium tabular-nums">
                       {formatDate(p.publishedAt, lang)}
                     </div>
                     <h3 className="text-foreground font-bold text-[16px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">

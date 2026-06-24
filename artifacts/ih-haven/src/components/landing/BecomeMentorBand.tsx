@@ -30,7 +30,7 @@ export function BecomeMentorBand() {
           transition={{ duration: 0.6 }}
           className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-8 sm:p-12 text-center"
         >
-          <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-4">
+          <div className="text-[11px] font-bold text-primary/80 tracking-widest uppercase mb-4">
             {t(s.eyebrow)}
           </div>
 
@@ -39,7 +39,7 @@ export function BecomeMentorBand() {
             <span className="text-accent-gradient">{t(s.highlight)}</span>
           </h2>
 
-          <p className="text-[14px] sm:text-[15px] text-white/50 leading-relaxed max-w-xl mx-auto mb-8">
+          <p className="text-[14px] sm:text-[15px] text-white/65 leading-relaxed max-w-xl mx-auto mb-8">
             {t(s.body)}
           </p>
 

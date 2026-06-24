@@ -81,7 +81,7 @@ export default function AdminApplications() {
   });
 
   if (isLoading)
-    return <div className="text-center py-16 text-foreground/45 text-sm">جارِ التحميل...</div>;
+    return <div className="text-center py-16 text-foreground/60 text-sm">جارِ التحميل...</div>;
 
   const apps = data?.applications ?? [];
   const filtered = apps
@@ -110,7 +110,7 @@ export default function AdminApplications() {
       {/* Filter bar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/55" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -130,13 +130,13 @@ export default function AdminApplications() {
             <SelectItem value="rejected">مرفوض</SelectItem>
           </SelectContent>
         </Select>
-        <div className="text-[12px] text-foreground/55 font-medium">
+        <div className="text-[12px] text-foreground/65 font-medium">
           {filtered.length} نتيجة
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-foreground/45 bg-card rounded-2xl border border-border">
+        <div className="text-center py-20 text-foreground/60 bg-card rounded-2xl border border-border">
           لا توجد طلبات تطابق البحث.
         </div>
       ) : (
@@ -232,7 +232,7 @@ export default function AdminApplications() {
                   >
                     <div className="px-5 pb-5 pt-2 border-t border-border space-y-4">
                       <div>
-                        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/45 font-semibold mb-1.5">
+                        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">
                           نبذة عن المتقدّم
                         </div>
                         <p className="text-[14px] text-foreground/85 whitespace-pre-wrap leading-relaxed">
@@ -240,7 +240,7 @@ export default function AdminApplications() {
                         </p>
                       </div>
                       <div>
-                        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/45 font-semibold mb-1.5">
+                        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">
                           ملاحظات داخليّة
                         </div>
                         <Textarea

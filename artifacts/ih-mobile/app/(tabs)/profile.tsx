@@ -19,12 +19,13 @@ function LangPill() {
       onPress={toggleLang}
       accessibilityRole="button"
       accessibilityLabel={lang === "ar" ? "التبديل إلى الإنجليزية" : "Switch to Arabic"}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       style={{
         flexDirection: "row",
         alignItems: "center",
         gap: 5,
         paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingVertical: 8,
         borderRadius: 999,
         backgroundColor: colors.primarySoft,
         borderWidth: 1,
@@ -249,6 +250,7 @@ export default function ProfileScreen() {
         </View>
         <TouchableOpacity
           onPress={() => router.push("/edit-profile" as never)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={{
             position: "absolute",
             top: 0,
@@ -257,7 +259,7 @@ export default function ProfileScreen() {
             alignItems: "center",
             gap: 4,
             paddingHorizontal: 10,
-            paddingVertical: 6,
+            paddingVertical: 8,
             borderRadius: colors.radius,
             borderWidth: 1,
             borderColor: colors.border,
@@ -308,6 +310,7 @@ export default function ProfileScreen() {
             <TouchableOpacity
               onPress={confirmAvatarDelete}
               disabled={avatarDeleting || avatarUploading}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               style={{
                 position: "absolute",
                 bottom: 0,
@@ -993,16 +996,20 @@ function MySessionsSection() {
                 {canRate ? (
                   <Pressable
                     onPress={() => router.push(`/sessions/${s.id}/rate` as never)}
-                    style={{
+                    accessibilityRole="button"
+                    accessibilityLabel="تقييم الجلسة"
+                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+                    style={({ pressed }) => ({
                       flexDirection: "row-reverse",
                       alignItems: "center",
                       gap: 4,
                       paddingHorizontal: 10,
-                      paddingVertical: 5,
+                      paddingVertical: 7,
                       borderRadius: colors.radius,
                       borderWidth: 1,
                       borderColor: colors.primary,
-                    }}
+                      backgroundColor: pressed ? colors.primarySoft : "transparent",
+                    })}
                   >
                     <Feather name="star" size={12} color={colors.primary} />
                     <T size={12} weight="medium" color={colors.primary}>تقييم</T>
@@ -1011,16 +1018,20 @@ function MySessionsSection() {
                 {canCancel ? (
                   <Pressable
                     onPress={() => cancel(s.id)}
-                    style={{
+                    accessibilityRole="button"
+                    accessibilityLabel="إلغاء الجلسة"
+                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+                    style={({ pressed }) => ({
                       flexDirection: "row-reverse",
                       alignItems: "center",
                       gap: 4,
                       paddingHorizontal: 10,
-                      paddingVertical: 5,
+                      paddingVertical: 7,
                       borderRadius: colors.radius,
                       borderWidth: 1,
                       borderColor: "#ef444450",
-                    }}
+                      backgroundColor: pressed ? "#ef444412" : "transparent",
+                    })}
                   >
                     <Feather name="x" size={12} color="#ef4444" />
                     <T size={12} weight="medium" color="#ef4444">إلغاء</T>

@@ -283,7 +283,7 @@ function SessionsPanel({
                     <div className="text-white font-semibold text-[14px]">
                       {row.menteeName}
                     </div>
-                    <div className="text-white/45 text-[11.5px]">
+                    <div className="text-white/60 text-[11.5px]">
                       {formatDateTime(s.createdAt, lang)}
                     </div>
                   </div>
@@ -452,7 +452,7 @@ function ProfilePanel({
           })}
         >
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
-          <p className="mt-1 text-[11.5px] text-white/40 leading-relaxed">
+          <p className="mt-1 text-[11.5px] text-white/60 leading-relaxed">
             {t({
               ar: "يظهر هذا النصّ أسفل اسمك على بطاقة الحجز وقائمة الخبراء.",
               en: "This appears under your name on your booking card and in the experts list.",
@@ -481,7 +481,7 @@ function ProfilePanel({
             onChange={(e) => set("bio", e.target.value)}
             rows={5}
             maxLength={4000}
-            className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+            className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
           />
         </DField>
         <div className="grid grid-cols-2 gap-4">
@@ -604,7 +604,7 @@ function Input({
       onChange={(e) => onChange(e.target.value)}
       maxLength={max}
       placeholder={placeholder}
-      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
     />
   );
 }
@@ -628,7 +628,7 @@ const SLOT_BADGE: Record<SlotStatus, string> = {
 };
 
 const inputCls =
-  "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none";
+  "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none";
 
 function OfficeHoursPanel() {
   const { lang, t } = useLanguage();
@@ -812,7 +812,7 @@ function OfficeHoursPanel() {
           {t({ ar: "مواعيدي", en: "My slots" })}
         </h3>
         {slots === null ? (
-          <div className="text-white/45 text-[13px] py-8 text-center">
+          <div className="text-white/65 text-[13px] py-8 text-center">
             {t({ ar: "جارِ التحميل…", en: "Loading…" })}
           </div>
         ) : slots.length === 0 ? (
@@ -834,7 +834,7 @@ function OfficeHoursPanel() {
                   <div className="text-white text-[13.5px] font-semibold">
                     {formatDateTime(s.startAt, lang)}
                   </div>
-                  <div className="text-white/45 text-[11.5px] truncate">
+                  <div className="text-white/60 text-[11.5px] truncate">
                     {sessionModeLabel(s.mode, lang)}
                     {s.location ? ` · ${s.location}` : ""}
                     {s.note ? ` · ${s.note}` : ""}
@@ -849,7 +849,7 @@ function OfficeHoursPanel() {
                   {s.status !== "booked" && (
                     <button
                       onClick={() => remove(s.id)}
-                      className="text-white/35 hover:text-red-300 transition-colors"
+                      className="text-white/55 hover:text-red-300 transition-colors"
                       title={t({ ar: "حذف", en: "Delete" })}
                     >
                       <Trash2 className="w-3.5 h-3.5" />

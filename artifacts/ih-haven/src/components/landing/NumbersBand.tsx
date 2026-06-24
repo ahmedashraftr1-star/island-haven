@@ -185,10 +185,10 @@ export function NumbersBand() {
                   >
                     {n ? <CountUp value={t.value} lang={lang} /> : "—"}
                   </div>
-                  <div className="text-[14px] font-semibold text-foreground/75">
+                  <div className="text-[14px] font-semibold text-foreground/80">
                     {t.label}
                   </div>
-                  <div className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/40 font-semibold mt-1">
+                  <div className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/55 font-semibold mt-1">
                     {t.en}
                   </div>
                 </div>

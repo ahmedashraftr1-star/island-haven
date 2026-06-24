@@ -253,10 +253,10 @@ export function ApplyProcess() {
                   <h3 className="text-foreground font-bold text-[17px] leading-snug mb-2">
                     {s.title}
                   </h3>
-                  <p className="text-foreground/55 text-[13.5px] leading-relaxed flex-1">
+                  <p className="text-foreground/65 text-[13.5px] leading-relaxed flex-1">
                     {s.body}
                   </p>
-                  <div className="mt-5 inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-foreground/45">
+                  <div className="mt-5 inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-foreground/55">
                     <Clock className="w-3.5 h-3.5" />
                     {s.meta}
                   </div>

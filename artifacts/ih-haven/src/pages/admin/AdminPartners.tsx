@@ -53,7 +53,7 @@ export default function AdminPartners() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">الشركاء والداعمون</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">شعارات الشركاء التي تظهر في الصفحة الرئيسيّة.</p>
+          <p className="text-[13px] text-foreground/65 mt-1">شعارات الشركاء التي تظهر في الصفحة الرئيسيّة.</p>
         </div>
         <button type="button" onClick={() => setEditing("new")} className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow">
           <Plus className="w-4 h-4" /> شريك جديد
@@ -63,12 +63,12 @@ export default function AdminPartners() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">لا شركاء بعد.</div>
+          <div className="p-12 text-center text-foreground/65 text-[14px]">لا شركاء بعد.</div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الشريك</th>
                 <th className="text-right px-4 py-3 font-semibold">النوع</th>
@@ -87,13 +87,13 @@ export default function AdminPartners() {
                   </td>
                   <td className="px-4 py-3 text-foreground/65">{PARTNER_TIER_LABELS[r.tier]}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.status === "visible" ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "bg-muted text-foreground/55 border border-border"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.status === "visible" ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "bg-muted text-foreground/70 border border-border"}`}>
                       {r.status === "visible" ? "ظاهر" : "مخفيّ"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button type="button" aria-label="تعديل الشريك" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button type="button" aria-label="تعديل الشريك" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
                       <button type="button" aria-label="حذف الشريك" onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>

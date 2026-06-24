@@ -260,7 +260,7 @@ function SectionCard({
               {dirtyCount} غير محفوظ
             </span>
           )}
-          <span className="text-[11px] text-foreground/45 font-mono">
+          <span className="text-[11px] text-foreground/60 font-mono">
             {matchingFieldKeys
               ? `${visibleFields.length}/${section.fields.length} حقل`
               : `${section.fields.length} حقل`}
@@ -279,7 +279,7 @@ function SectionCard({
           )}
           <div className="mt-5 space-y-4">
             {visibleFields.length === 0 ? (
-              <p className="text-[12px] text-foreground/45 py-4 text-center">
+              <p className="text-[12px] text-foreground/60 py-4 text-center">
                 لا حقول مطابقة في هذا القسم
               </p>
             ) : (
@@ -295,7 +295,7 @@ function SectionCard({
                     </span>
                   </Label>
                   {f.hint && (
-                    <p className="text-[11px] text-foreground/50 mt-0.5">
+                    <p className="text-[11px] text-foreground/60 mt-0.5">
                       {f.hint}
                     </p>
                   )}
@@ -477,7 +477,7 @@ export default function AdminContent() {
 
   if (isLoading || !data)
     return (
-      <div className="text-center py-16 text-foreground/45 text-sm">
+      <div className="text-center py-16 text-foreground/60 text-sm">
         جارِ التحميل...
       </div>
     );
@@ -518,7 +518,7 @@ export default function AdminContent() {
               );
             })}
             {filtered.length === 0 && (
-              <p className="text-[11px] text-foreground/45 py-2 text-center">
+              <p className="text-[11px] text-foreground/60 py-2 text-center">
                 لا أقسام مطابقة
               </p>
             )}
@@ -558,7 +558,7 @@ export default function AdminContent() {
         <div className="sticky top-2 z-20 bg-card/95 backdrop-blur-md rounded-2xl border border-border shadow-soft p-3 lg:p-4">
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/55" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -600,7 +600,7 @@ export default function AdminContent() {
             </div>
           </div>
           {(query || modifiedOnly) && (
-            <p className="text-[11px] text-foreground/55 mt-2">
+            <p className="text-[11px] text-foreground/65 mt-2">
               {filtered.length} قسم مطابق
               {query && ` · بحث: "${query}"`}
               {modifiedOnly && ` · المعدَّل فقط`}
@@ -611,7 +611,7 @@ export default function AdminContent() {
         {/* Sections */}
         {filtered.length === 0 ? (
           <div className="bg-card rounded-2xl border border-border p-10 text-center">
-            <p className="text-foreground/55 text-sm">لا توجد نتائج مطابقة.</p>
+            <p className="text-foreground/65 text-sm">لا توجد نتائج مطابقة.</p>
             {(query || modifiedOnly) && (
               <Button
                 variant="ghost"

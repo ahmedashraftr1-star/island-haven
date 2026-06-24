@@ -131,7 +131,7 @@ export default function AdminJobs() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">لوحة الوظائف</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">وظائف من مشاريع وشركاء آيلاند هيفن.</p>
+          <p className="text-[13px] text-foreground/65 mt-1">وظائف من مشاريع وشركاء آيلاند هيفن.</p>
         </div>
         <button
           type="button"
@@ -150,12 +150,12 @@ export default function AdminJobs() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">لا وظائف بعد.</div>
+          <div className="p-12 text-center text-foreground/65 text-[14px]">لا وظائف بعد.</div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الوظيفة</th>
                 <th className="text-right px-4 py-3 font-semibold">الشركة</th>
@@ -172,7 +172,7 @@ export default function AdminJobs() {
                       {row.title}
                       {row.featured && <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />}
                     </div>
-                    <div className="text-[11px] text-foreground/40 mt-0.5">{row.location}</div>
+                    <div className="text-[11px] text-foreground/65 mt-0.5">{row.location}</div>
                   </td>
                   <td className="px-4 py-3 text-foreground/70">{row.companyName}</td>
                   <td className="px-4 py-3">
@@ -197,10 +197,10 @@ export default function AdminJobs() {
                       >
                         <Star className="w-4 h-4" fill={row.featured ? "currentColor" : "none"} />
                       </button>
-                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/55 hover:bg-muted hover:text-foreground transition-colors">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
+                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف وظيفة ${row.title}`} className="p-1.5 rounded-lg text-foreground/55 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -223,12 +223,12 @@ export default function AdminJobs() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="نوع الوظيفة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
                   {Object.entries(JOB_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </Field>
               <Field label="التصنيف">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.category} onChange={(e) => set("category")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card" value={form.category} onChange={(e) => set("category")(e.target.value)}>
                   {Object.entries(JOB_CAT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </Field>
@@ -255,7 +255,7 @@ export default function AdminJobs() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="الحالة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.status} onChange={(e) => set("status")(e.target.value as Row["status"])}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card" value={form.status} onChange={(e) => set("status")(e.target.value as Row["status"])}>
                   <option value="draft">مسودة</option>
                   <option value="active">نشطة</option>
                   <option value="closed">مغلقة</option>

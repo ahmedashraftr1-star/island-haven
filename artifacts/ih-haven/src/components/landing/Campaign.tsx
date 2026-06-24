@@ -88,7 +88,7 @@ export function Campaign() {
           </motion.div>
 
           <div className="col-span-12 lg:col-span-7">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold mb-5">
+            <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/60 font-bold mb-5">
               {lang === "en"
                 ? "New branch · Open campaign · Gaza"
                 : "الفرع الجديد · حملة مفتوحة · غزّة"}
@@ -121,10 +121,10 @@ export function Campaign() {
 
             <div className="border-t border-foreground/15">
               <div className="flex items-baseline justify-between py-5">
-                <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold">
+                <div className="text-[10px] tracking-[0.4em] uppercase text-foreground/60 font-bold">
                   {lang === "en" ? "What your contribution unlocks" : "ماذا تُحدِث مساهمتك"}
                 </div>
-                <div dir="ltr" className="text-[10px] tracking-[0.4em] uppercase text-foreground/45 font-bold">
+                <div dir="ltr" className="text-[10px] tracking-[0.4em] uppercase text-foreground/60 font-bold">
                   Impact ledger
                 </div>
               </div>
@@ -146,7 +146,7 @@ export function Campaign() {
                       <div className="font-bold text-foreground" style={{ fontSize: "clamp(1.05rem, 1.6vw, 1.4rem)" }}>
                         {lang === "en" ? t.en : t.ar}
                       </div>
-                      <div dir="ltr" className="text-[10px] tracking-[0.3em] uppercase text-foreground/45 mt-1">
+                      <div dir="ltr" className="text-[10px] tracking-[0.3em] uppercase text-foreground/55 mt-1">
                         {lang === "en" ? t.ar : t.en}
                       </div>
                     </div>

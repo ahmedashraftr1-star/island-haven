@@ -635,7 +635,7 @@ export default function WorkDetail() {
                     ar: "شاركنا رأيك في هذا العمل…",
                     en: "Share your thoughts on this work…",
                   })}
-                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/35"
+                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/50"
                   data-testid="input-comment"
                 />
                 {commentError && (
@@ -707,11 +707,11 @@ export default function WorkDetail() {
                             >
                               {c.author.fullName}
                             </Link>
-                            <span className="text-white/35 text-[11px]">
+                            <span className="text-white/55 text-[11px]">
                               {formatArabicDate(c.createdAt)}
                             </span>
                             {c.editedAt && (
-                              <span className="text-white/30 text-[10.5px]">
+                              <span className="text-white/50 text-[10.5px]">
                                 {t({ ar: "(عُدّل)", en: "(edited)" })}
                               </span>
                             )}
@@ -720,7 +720,7 @@ export default function WorkDetail() {
                                 <button
                                   type="button"
                                   onClick={() => startEdit(c)}
-                                  className="text-white/35 hover:text-primary transition-colors"
+                                  className="text-white/55 hover:text-primary transition-colors"
                                   aria-label={t({ ar: "تعديل التعليق", en: "Edit comment" })}
                                   data-testid={`edit-comment-${c.id}`}
                                 >
@@ -731,7 +731,7 @@ export default function WorkDetail() {
                                 <button
                                   type="button"
                                   onClick={() => deleteComment(c.id)}
-                                  className="text-white/35 hover:text-red-300 transition-colors"
+                                  className="text-white/55 hover:text-red-300 transition-colors"
                                   aria-label={t({ ar: "حذف التعليق", en: "Delete comment" })}
                                   data-testid={`delete-comment-${c.id}`}
                                 >
@@ -763,7 +763,7 @@ export default function WorkDetail() {
                                     setReplyingTo(c.id);
                                     setReplyText("");
                                   }}
-                                  className="mt-1.5 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11.5px] font-semibold transition-colors"
+                                  className="mt-1.5 inline-flex items-center gap-1 text-white/60 hover:text-primary text-[11.5px] font-semibold transition-colors"
                                   data-testid={`reply-comment-${c.id}`}
                                 >
                                   <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
@@ -803,11 +803,11 @@ export default function WorkDetail() {
                                   >
                                     {rep.author.fullName}
                                   </Link>
-                                  <span className="text-white/35 text-[10.5px]">
+                                  <span className="text-white/55 text-[10.5px]">
                                     {formatArabicDate(rep.createdAt)}
                                   </span>
                                   {rep.editedAt && (
-                                    <span className="text-white/30 text-[10px]">
+                                    <span className="text-white/50 text-[10px]">
                                       {t({ ar: "(عُدّل)", en: "(edited)" })}
                                     </span>
                                   )}
@@ -816,7 +816,7 @@ export default function WorkDetail() {
                                       <button
                                         type="button"
                                         onClick={() => startEdit(rep)}
-                                        className="text-white/35 hover:text-primary transition-colors"
+                                        className="text-white/55 hover:text-primary transition-colors"
                                         aria-label={t({ ar: "تعديل الرد", en: "Edit reply" })}
                                         data-testid={`edit-comment-${rep.id}`}
                                       >
@@ -827,7 +827,7 @@ export default function WorkDetail() {
                                       <button
                                         type="button"
                                         onClick={() => deleteComment(rep.id, c.id)}
-                                        className="text-white/35 hover:text-red-300 transition-colors"
+                                        className="text-white/55 hover:text-red-300 transition-colors"
                                         aria-label={t({ ar: "حذف الرد", en: "Delete reply" })}
                                         data-testid={`delete-comment-${rep.id}`}
                                       >
@@ -859,7 +859,7 @@ export default function WorkDetail() {
                                           setReplyingTo(rep.id);
                                           setReplyText("");
                                         }}
-                                        className="mt-1 inline-flex items-center gap-1 text-white/40 hover:text-primary text-[11px] font-semibold transition-colors"
+                                        className="mt-1 inline-flex items-center gap-1 text-white/60 hover:text-primary text-[11px] font-semibold transition-colors"
                                         data-testid={`reply-comment-${rep.id}`}
                                       >
                                         <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
@@ -885,7 +885,7 @@ export default function WorkDetail() {
                               placeholder={t({ ar: "اكتب ردًّا…", en: "Write a reply…" })}
                               autoFocus
                               maxLength={1000}
-                              className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+                              className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
                               data-testid={`reply-input-${c.id}`}
                             />
                             <button
@@ -1097,7 +1097,7 @@ function CommentEditForm({
           onChange={(e) => onChange(e.target.value)}
           autoFocus
           maxLength={1000}
-          className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/40 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+          className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
           data-testid="edit-comment-input"
         />
         <button

@@ -112,7 +112,7 @@ export default function Onboarding() {
                   {t({ ar: "ابدأ الآن", en: "Get started" })}
                   <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 </button>
-                <button type="button" onClick={() => navigate("/profile")} className="text-[12px] text-white/35 hover:text-white/55 transition-colors">
+                <button type="button" onClick={() => navigate("/profile")} className="text-[12px] text-white/55 hover:text-white/80 transition-colors">
                   {t({ ar: "تخطّى، سأكمل لاحقًا", en: "Skip — I'll finish later" })}
                 </button>
               </motion.div>
@@ -123,13 +123,13 @@ export default function Onboarding() {
               <motion.div key="s1" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="space-y-5">
                 <div className="mb-2">
                   <h2 className="text-2xl font-bold text-white">{t({ ar: "عرّف بنفسك", en: "About you" })}</h2>
-                  <p className="text-white/45 text-[13px] mt-1">{t({ ar: "هذا ما يراه الأعضاء في ملفّك العامّ", en: "This is what members see on your public profile" })}</p>
+                  <p className="text-white/60 text-[13px] mt-1">{t({ ar: "هذا ما يراه الأعضاء في ملفّك العامّ", en: "This is what members see on your public profile" })}</p>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[12.5px] font-semibold text-white/70 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5" /> {t({ ar: "المسمّى الوظيفيّ", en: "Job title" })}
-                    <span className="text-white/30 font-normal">Job title</span>
+                    <span className="text-white/45 font-normal">Job title</span>
                   </label>
                   <input
                     value={jobTitle}
@@ -137,12 +137,12 @@ export default function Onboarding() {
                     placeholder={t({ ar: "مثال: مصمّم جرافيك مستقلّ", en: "e.g. Freelance graphic designer" })}
                     aria-label={t({ ar: "المسمّى الوظيفيّ", en: "Job title" })}
                     maxLength={120}
-                    className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all"
+                    className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/50 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[12.5px] font-semibold text-white/70">{t({ ar: "نبذة عنك", en: "Bio" })} <span className="text-white/30 font-normal">Bio</span></label>
+                  <label className="text-[12.5px] font-semibold text-white/70">{t({ ar: "نبذة عنك", en: "Bio" })} <span className="text-white/45 font-normal">Bio</span></label>
                   <textarea
                     value={bio}
                     onChange={e => setBio(e.target.value)}
@@ -150,9 +150,9 @@ export default function Onboarding() {
                     aria-label={t({ ar: "نبذة عنك", en: "Bio" })}
                     maxLength={500}
                     rows={4}
-                    className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all resize-none leading-relaxed"
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/50 text-[14px] outline-none focus:border-primary/60 focus:bg-white/[0.09] transition-all resize-none leading-relaxed"
                   />
-                  <div className="text-[11px] text-white/30 text-left">{bio.length}/500</div>
+                  <div className="text-[11px] text-white/50 text-left">{bio.length}/500</div>
                 </div>
 
                 <div className="flex gap-3">
@@ -171,18 +171,18 @@ export default function Onboarding() {
               <motion.div key="s2" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="space-y-5">
                 <div className="mb-2">
                   <h2 className="text-2xl font-bold text-white">{t({ ar: "مهاراتك", en: "Your skills" })}</h2>
-                  <p className="text-white/45 text-[13px] mt-1">{t({ ar: "افصل المهارات بفاصلة — ستظهر على ملفّك العامّ", en: "Separate skills with commas — they'll appear on your public profile" })}</p>
+                  <p className="text-white/60 text-[13px] mt-1">{t({ ar: "افصل المهارات بفاصلة — ستظهر على ملفّك العامّ", en: "Separate skills with commas — they'll appear on your public profile" })}</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[12.5px] font-semibold text-white/70">{t({ ar: "المهارات", en: "Skills" })} <span className="text-white/30 font-normal">Skills</span></label>
+                  <label className="text-[12.5px] font-semibold text-white/70">{t({ ar: "المهارات", en: "Skills" })} <span className="text-white/45 font-normal">Skills</span></label>
                   <input
                     value={skills}
                     onChange={e => setSkills(e.target.value)}
                     placeholder={t({ ar: "مثال: تصميم، React، تصوير، تسويق", en: "e.g. Design, React, Photography, Marketing" })}
                     aria-label={t({ ar: "المهارات", en: "Skills" })}
                     maxLength={400}
-                    className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/30 text-[14px] outline-none focus:border-primary/60 transition-all"
+                    className="w-full h-12 px-4 rounded-xl bg-white/[0.07] border border-white/15 text-white placeholder:text-white/50 text-[14px] outline-none focus:border-primary/60 transition-all"
                   />
                   {skills && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
@@ -210,7 +210,7 @@ export default function Onboarding() {
                     {saving ? t({ ar: "جارٍ الحفظ…", en: "Saving…" }) : <><CheckCircle2 className="w-4 h-4" aria-hidden="true" /> {t({ ar: "أنهِ الإعداد", en: "Finish setup" })}</>}
                   </button>
                 </div>
-                <button type="button" onClick={() => navigate("/profile")} className="w-full text-center text-[12px] text-white/35 hover:text-white/55 transition-colors">
+                <button type="button" onClick={() => navigate("/profile")} className="w-full text-center text-[12px] text-white/55 hover:text-white/80 transition-colors">
                   {t({ ar: "تخطّى", en: "Skip" })}
                 </button>
               </motion.div>

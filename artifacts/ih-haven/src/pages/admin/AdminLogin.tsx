@@ -155,7 +155,7 @@ export default function AdminLogin() {
               <Shield className="w-5 h-5 text-white" strokeWidth={2.4} />
             </div>
             <div>
-              <div className="text-[10px] tracking-[0.24em] uppercase text-white/45 font-semibold">
+              <div className="text-[10px] tracking-[0.24em] uppercase text-white/55 font-semibold">
                 Restricted area
               </div>
               <h1 className="text-[20px] font-bold text-white tracking-tight leading-tight">
@@ -196,7 +196,7 @@ export default function AdminLogin() {
                 autoComplete="username"
                 data-testid="input-username"
                 placeholder="ahmedashraf"
-                className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/25 outline-none transition-all"
+                className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/40 outline-none transition-all"
                 style={{
                   background: "rgba(0,0,0,0.32)",
                   border: "1px solid rgba(255,255,255,0.12)",
@@ -240,7 +240,7 @@ export default function AdminLogin() {
                 autoComplete="current-password"
                 data-testid="input-password"
                 placeholder="••••••••••••"
-                className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/25 outline-none transition-all"
+                className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/40 outline-none transition-all"
                 style={{
                   background: "rgba(0,0,0,0.32)",
                   border: "1px solid rgba(255,255,255,0.12)",
@@ -318,7 +318,7 @@ export default function AdminLogin() {
       </motion.form>
 
       {/* Caption below */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-white/35 font-medium">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-white/55 font-medium">
         محميّ بـ HMAC · جلسة آمنة لـ ٧ أيّام
       </div>
     </div>

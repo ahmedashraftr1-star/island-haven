@@ -303,7 +303,7 @@ export default function ExpertDetail() {
                       <span className="text-white/85 text-[12.5px] font-bold tabular-nums">
                         {rating.average?.toFixed(1)}
                       </span>
-                      <span className="text-white/40 text-[11.5px]">
+                      <span className="text-white/60 text-[11.5px]">
                         {t({
                           ar: `(${num(rating.count, lang)} تقييم)`,
                           en: `(${rating.count} reviews)`,
@@ -479,7 +479,7 @@ export default function ExpertDetail() {
                         ar: "مثال: مراجعة نموذج عمل مشروعي",
                         en: "e.g. Review my startup's business model",
                       })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
                       data-testid="input-session-topic"
                     />
                   </Field>
@@ -494,7 +494,7 @@ export default function ExpertDetail() {
                       onChange={(e) => setMessage(e.target.value)}
                       maxLength={2000}
                       rows={3}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
                       data-testid="input-session-message"
                     />
                   </Field>
@@ -539,7 +539,7 @@ export default function ExpertDetail() {
                     <Sparkles className="w-4 h-4" />
                     {busy ? "…" : t({ ar: "إرسال طلب الجلسة", en: "Send session request" })}
                   </button>
-                  <p className="text-white/40 text-[11.5px] text-center leading-[1.6]">
+                  <p className="text-white/60 text-[11.5px] text-center leading-[1.6]">
                     {t({
                       ar: "مَجّاني تمامًا — الخبير يؤكّد الموعد بعد المراجعة.",
                       en: "Completely free — the expert confirms the time after reviewing.",
@@ -739,7 +739,7 @@ function OfficeHoursPicker({
                         aria-pressed={isPicked ? "true" : "false"}
                       >
                         <span className="block text-[13px] font-semibold">{timeLabel}</span>
-                        <span className="block text-[10px] text-white/45">
+                        <span className="block text-[10px] text-white/60">
                           {sessionModeLabel(s.mode, lang)}
                         </span>
                       </button>
@@ -773,7 +773,7 @@ function OfficeHoursPicker({
                         ar: "ماذا تريد أن نناقش؟",
                         en: "What would you like to discuss?",
                       })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
                     />
                   </label>
                   <label className="block">
@@ -785,7 +785,7 @@ function OfficeHoursPicker({
                       onChange={(e) => setMessage(e.target.value)}
                       rows={3}
                       maxLength={2000}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </label>
                   {error && (
@@ -800,7 +800,7 @@ function OfficeHoursPicker({
                     <Sparkles className="w-4 h-4" />
                     {busy ? "…" : t({ ar: "تأكيد الحجز", en: "Confirm booking" })}
                   </button>
-                  <p className="text-white/40 text-[11px] text-center">
+                  <p className="text-white/60 text-[11px] text-center">
                     {t({
                       ar: "مَجّاني — يَصلك إيميل التأكيد فورًا.",
                       en: "Free — a confirmation email arrives instantly.",

@@ -179,9 +179,9 @@ export function NotificationBell() {
           )}
 
           {isLoading ? (
-            <div className="text-white/35 text-[12px] text-center py-10">جارٍ التحميل…</div>
+            <div className="text-white/60 text-[12px] text-center py-10">جارٍ التحميل…</div>
           ) : items.length === 0 ? (
-            <div className="text-white/45 text-[12.5px] text-center py-10">
+            <div className="text-white/60 text-[12.5px] text-center py-10">
               لا إشعارات بعد
             </div>
           ) : (
@@ -205,7 +205,7 @@ export function NotificationBell() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-white text-[12.5px] font-semibold">{n.title}</span>
-                      <span className="text-white/35 text-[10px] shrink-0">{timeAgo(n.createdAt)}</span>
+                      <span className="text-white/55 text-[10px] shrink-0">{timeAgo(n.createdAt)}</span>
                     </div>
                     {n.body && (
                       <div className="text-white/55 text-[11.5px] mt-0.5 leading-relaxed">

@@ -649,7 +649,7 @@ function ProfileInner({
               >
                 <div className="space-y-2">
                   {form.otherLinks.length === 0 && (
-                    <p className="text-white/35 text-[12.5px] italic px-1">
+                    <p className="text-white/55 text-[12.5px] italic px-1">
                       {t({
                         ar: "أضف روابط مثل اليوتيوب، Dribbble، أو موقعك الخاصّ.",
                         en: "Add links such as YouTube, Dribbble, or your own website.",
@@ -725,10 +725,10 @@ function ProfileInner({
                       setForm((s) => ({ ...s, bio: e.target.value }))
                     }
                     placeholder={t({ ar: "ماذا تعمل؟ ما الذي تنوي تحقيقه؟", en: "What do you do? What are you working toward?" })}
-                    className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                    className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                     data-testid="input-bio"
                   />
-                  <div className="text-[10.5px] text-white/30 mt-1.5 tracking-wide">
+                  <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">
                     {form.bio.length}/2000
                   </div>
                 </FieldShell>
@@ -1013,9 +1013,9 @@ function MyStorySection({ user }: { user: AuthUser }) {
   const statusColor: Record<string, string> = {
     draft: "text-amber-300",
     published: "text-emerald-400",
-    hidden: "text-white/40",
+    hidden: "text-white/60",
     rejected: "text-rose-400",
-    deleted: "text-white/40",
+    deleted: "text-white/60",
   };
 
   return (
@@ -1028,14 +1028,14 @@ function MyStorySection({ user }: { user: AuthUser }) {
           <div className="flex items-center gap-3">
             <Quote className="w-4 h-4 text-white/50" />
             <span className="text-[14px] font-semibold text-white">{t({ ar: "قصّتي في الحاضنة", en: "My story at the incubator" })}</span>
-            <span className="text-[11px] text-white/35 tracking-widest uppercase">{t({ ar: "My Story", en: "Story" })}</span>
+            <span className="text-[11px] text-white/55 tracking-widest uppercase">{t({ ar: "My Story", en: "Story" })}</span>
             {myStory !== undefined && myStory !== null && (
-              <span className={`text-[11px] font-semibold ${statusColor[myStory.status] ?? "text-white/40"}`}>
+              <span className={`text-[11px] font-semibold ${statusColor[myStory.status] ?? "text-white/60"}`}>
                 · {statusLabel[myStory.status] ?? myStory.status}
               </span>
             )}
           </div>
-          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/35"}`}>
+          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/60"}`}>
             {open
               ? t({ ar: "إغلاق", en: "Close" })
               : myStory
@@ -1055,7 +1055,7 @@ function MyStorySection({ user }: { user: AuthUser }) {
             >
               <div className="px-5 pb-5 pt-1 border-t border-white/10">
                 {myStory === undefined ? (
-                  <div className="py-6 text-center text-white/40 text-[13px]">{t({ ar: "جارٍ التحميل…", en: "Loading…" })}</div>
+                  <div className="py-6 text-center text-white/65 text-[13px]">{t({ ar: "جارٍ التحميل…", en: "Loading…" })}</div>
                 ) : isRejected ? (
                   <div className="py-4 space-y-3">
                     <div className="rounded-xl px-4 py-3 bg-rose-500/10 border border-rose-500/25 space-y-2">
@@ -1121,7 +1121,7 @@ function MyStorySection({ user }: { user: AuthUser }) {
                     )}
                     <div className="space-y-1">
                       <label className="text-[12px] font-semibold text-white/55">
-                        {t({ ar: "اقتباسك", en: "Your quote" })} <span className="text-white/25 font-normal">{t({ ar: "Quote · مطلوب", en: "Quote · required" })}</span>
+                        {t({ ar: "اقتباسك", en: "Your quote" })} <span className="text-white/45 font-normal">{t({ ar: "Quote · مطلوب", en: "Quote · required" })}</span>
                       </label>
                       <textarea
                         rows={3}
@@ -1129,14 +1129,14 @@ function MyStorySection({ user }: { user: AuthUser }) {
                         value={form.quote}
                         onChange={e => setForm(f => ({ ...f, quote: e.target.value }))}
                         placeholder={t({ ar: "ما الذي أضافه آيلاند هيفن لمسيرتك؟ شارك تجربتك بإيجاز…", en: "What did Island Haven add to your journey? Share your experience briefly…" })}
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/25"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/50"
                         required
                       />
-                      <div className="text-[10.5px] text-white/30 text-left">{form.quote.length}/600</div>
+                      <div className="text-[10.5px] text-white/50 text-left">{form.quote.length}/600</div>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[12px] font-semibold text-white/55">
-                        {t({ ar: "قصّتك كاملة", en: "Your full story" })} <span className="text-white/25 font-normal">{t({ ar: "Full Story · اختياريّ", en: "Full story · optional" })}</span>
+                        {t({ ar: "قصّتك كاملة", en: "Your full story" })} <span className="text-white/45 font-normal">{t({ ar: "Full Story · اختياريّ", en: "Full story · optional" })}</span>
                       </label>
                       <textarea
                         rows={5}
@@ -1144,13 +1144,13 @@ function MyStorySection({ user }: { user: AuthUser }) {
                         value={form.story}
                         onChange={e => setForm(f => ({ ...f, story: e.target.value }))}
                         placeholder={t({ ar: "شارك رحلتك بشكل أوسع — ما واجهته، وما تعلّمته، وأين وصلت…", en: "Tell your journey more fully — what you faced, what you learned, and where you are now…" })}
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/25"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/15 text-white text-[13.5px] leading-[1.85] outline-none focus:border-primary/60 transition-all resize-none placeholder-white/50"
                       />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-[12px] font-semibold text-white/55">
-                          {t({ ar: "اسم مشروعك", en: "Your project's name" })} <span className="text-white/25 font-normal">{t({ ar: "اختياريّ", en: "optional" })}</span>
+                          {t({ ar: "اسم مشروعك", en: "Your project's name" })} <span className="text-white/45 font-normal">{t({ ar: "اختياريّ", en: "optional" })}</span>
                         </label>
                         <input
                           value={form.ventureName}
@@ -1162,7 +1162,7 @@ function MyStorySection({ user }: { user: AuthUser }) {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[12px] font-semibold text-white/55">
-                          {t({ ar: "رابط المشروع", en: "Project link" })} <span className="text-white/25 font-normal">{t({ ar: "اختياريّ", en: "optional" })}</span>
+                          {t({ ar: "رابط المشروع", en: "Project link" })} <span className="text-white/45 font-normal">{t({ ar: "اختياريّ", en: "optional" })}</span>
                         </label>
                         <input
                           dir="ltr"
@@ -1201,7 +1201,7 @@ function MyStorySection({ user }: { user: AuthUser }) {
                         className={`w-full h-10 rounded-xl border text-[13px] font-semibold transition-all disabled:opacity-50 ${
                           confirmWithdraw
                             ? "border-rose-500/60 bg-rose-500/10 text-rose-300"
-                            : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
+                            : "border-white/10 text-white/55 hover:border-white/20 hover:text-white/80"
                         }`}
                       >
                         {withdrawing
@@ -1264,9 +1264,9 @@ function ChangePasswordSection() {
           <div className="flex items-center gap-3">
             <Lock className="w-4 h-4 text-white/50" />
             <span className="text-[14px] font-semibold text-white">{t({ ar: "تغيير كلمة السرّ", en: "Change password" })}</span>
-            <span className="text-[11px] text-white/35 tracking-widest uppercase">{t({ ar: "Security", en: "Security" })}</span>
+            <span className="text-[11px] text-white/55 tracking-widest uppercase">{t({ ar: "Security", en: "Security" })}</span>
           </div>
-          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/35"}`}>
+          <span className={`text-[11px] font-semibold transition-colors ${open ? "text-primary" : "text-white/60"}`}>
             {open ? t({ ar: "إغلاق", en: "Close" }) : t({ ar: "تغيير", en: "Change" })}
           </span>
         </button>
@@ -1299,7 +1299,7 @@ function ChangePasswordSection() {
                 ].map(({ key, label, hint }) => (
                   <div key={key} className="space-y-1">
                     <label className="text-[12px] font-semibold text-white/55 flex items-center gap-1.5">
-                      {label} <span className="text-white/25 font-normal">{hint}</span>
+                      {label} <span className="text-white/45 font-normal">{hint}</span>
                     </label>
                     <input
                       type="password"
@@ -1545,7 +1545,7 @@ function SectionHeader({ index, title, sub }: { index: string; title: string; su
       <div className="text-[10.5px] tracking-[0.22em] text-primary font-bold">{index}</div>
       <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
       <div className="text-[11px] tracking-[0.18em] uppercase text-white/50 font-semibold">
-        {title} <span className="text-white/30">· {sub}</span>
+        {title} <span className="text-white/55">· {sub}</span>
       </div>
     </div>
   );
@@ -1573,7 +1573,7 @@ function FieldShell({
         className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]"
       >
         <span className="text-white/75 font-semibold">{label}</span>
-        <span className="inline-flex items-center gap-1.5 text-white/35">
+        <span className="inline-flex items-center gap-1.5 text-white/55">
           <Icon className="w-3 h-3" />
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
         </span>
@@ -1622,7 +1622,7 @@ function EditField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         dir={ltr ? "ltr" : "auto"}
-        className="block w-full bg-transparent text-white placeholder-white/30 text-[14.5px] outline-none px-1 py-0.5"
+        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] outline-none px-1 py-0.5"
         data-testid={`input-${id}`}
       />
     </FieldShell>
@@ -1644,7 +1644,7 @@ function InfoCard({
     <div className="relative rounded-3xl p-5 bg-white/[0.045] border border-white/10 backdrop-blur-2xl">
       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
         <span className="text-white/75 font-semibold">{label}</span>
-        <span className="inline-flex items-center gap-1.5 text-white/35">
+        <span className="inline-flex items-center gap-1.5 text-white/55">
           <Icon className="w-3 h-3" />
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
         </span>
@@ -1655,7 +1655,7 @@ function InfoCard({
 }
 
 function Empty({ msg }: { msg: string }) {
-  return <p className="text-white/35 text-[13px] italic">{msg}</p>;
+  return <p className="text-white/55 text-[13px] italic">{msg}</p>;
 }
 
 // ─── Expert dashboard shortcut (shown only to experts) ───────────────────────
@@ -1724,7 +1724,7 @@ function MyVentures() {
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-4 h-4 text-primary" />
         <h2 className="text-white font-bold text-[15px]">{t({ ar: "مشاريعي", en: "My ventures" })}</h2>
-        <span className="text-white/40 text-[12px]">({num(rows.length, lang)})</span>
+        <span className="text-white/60 text-[12px]">({num(rows.length, lang)})</span>
       </div>
       <div className="grid sm:grid-cols-2 gap-2.5">
         {rows.map((v) => (
@@ -1746,7 +1746,7 @@ function MyVentures() {
                 {(lang === "ar" ? VENTURE_STAGE_AR[v.stage] : VENTURE_STAGE_EN[v.stage]) ?? v.stage}
               </div>
             </div>
-            <ArrowRight className="w-4 h-4 text-white/35 group-hover:text-primary rtl:rotate-180 transition-colors" />
+            <ArrowRight className="w-4 h-4 text-white/55 group-hover:text-primary rtl:rotate-180 transition-colors" />
           </Link>
         ))}
       </div>
@@ -1808,7 +1808,7 @@ function MyMentorshipSessions() {
       <div className="flex items-center gap-2 mb-4">
         <CalendarCheck className="w-4 h-4 text-primary" />
         <h2 className="text-white font-bold text-[15px]">{t({ ar: "جلسات الإرشاد", en: "Mentorship sessions" })}</h2>
-        <span className="text-white/40 text-[12px]">({num(rows.length, lang)})</span>
+        <span className="text-white/60 text-[12px]">({num(rows.length, lang)})</span>
       </div>
       <div className="space-y-2.5">
         {rows.map((r) => {
@@ -1848,7 +1848,7 @@ function MyMentorshipSessions() {
                 {canCancel && (
                   <button
                     onClick={() => cancel(s.id)}
-                    className="text-white/35 hover:text-red-300 transition-colors"
+                    className="text-white/55 hover:text-red-300 transition-colors"
                     title={t({ ar: "إلغاء", en: "Cancel" })}
                   >
                     <X className="w-3.5 h-3.5" />

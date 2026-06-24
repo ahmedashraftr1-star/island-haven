@@ -166,7 +166,7 @@ export default function Certificate() {
             </span>
           </p>
 
-          <p className="text-white/35 text-[11px] tracking-[0.16em] uppercase mt-8 print:text-[#0B1020]/45">
+          <p className="text-white/60 text-[11px] tracking-[0.16em] uppercase mt-8 print:text-[#0B1020]/70">
             {t({
               ar: "Island Haven · حاضنة أعمال في غزّة",
               en: "Island Haven · A business incubator in Gaza",

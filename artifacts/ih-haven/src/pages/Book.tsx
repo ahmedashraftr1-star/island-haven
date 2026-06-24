@@ -504,7 +504,7 @@ function StepOne({
               <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
-          <div className="grid grid-cols-7 gap-1.5 text-[10px] text-white/40 font-semibold mb-2">
+          <div className="grid grid-cols-7 gap-1.5 text-[10px] text-white/60 font-semibold mb-2">
             {(lang === "en" ? WEEKDAY_LABELS_EN : WEEKDAY_LABELS).map((w) => (
               <div key={w} className="text-center">
                 {w}
@@ -651,7 +651,7 @@ function StepTwo({
           className="block text-[12.5px] text-white/65 mb-2 flex items-center gap-2"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          {lang === "en" ? "Additional notes" : "ملاحظات إضافيّة"} <span className="text-white/35">{lang === "en" ? "(optional)" : "(اختياريّ)"}</span>
+          {lang === "en" ? "Additional notes" : "ملاحظات إضافيّة"} <span className="text-white/55">{lang === "en" ? "(optional)" : "(اختياريّ)"}</span>
         </label>
         <textarea
           id="notes"
@@ -661,7 +661,7 @@ function StepTwo({
           placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
           maxLength={1000}
           data-testid="textarea-notes"
-          className="w-full px-4 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-[13.5px] placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
+          className="w-full px-4 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-[13.5px] placeholder:text-white/50 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
         />
       </div>
     </StepShell>
@@ -789,7 +789,7 @@ function ExpertProfileModal({
                 </p>
               )}
               {expert.yearsExperience != null && expert.yearsExperience > 0 && (
-                <p className="text-[11.5px] text-white/35 mt-1">
+                <p className="text-[11.5px] text-white/60 mt-1">
                   {lang === "en"
                     ? `${expert.yearsExperience} yrs experience`
                     : `${expert.yearsExperience} سنوات خبرة`}
@@ -820,8 +820,8 @@ function ExpertProfileModal({
           )}
 
           {(expert.sessionMinutes != null && expert.sessionMinutes > 0) && (
-            <div className="flex items-center gap-2 text-[12px] text-white/45">
-              <Clock className="w-3.5 h-3.5 shrink-0 text-white/30" />
+            <div className="flex items-center gap-2 text-[12px] text-white/60">
+              <Clock className="w-3.5 h-3.5 shrink-0 text-white/55" />
               <span className="text-white/60">
                 {lang === "en"
                   ? `${expert.sessionMinutes}-minute session`
@@ -831,8 +831,8 @@ function ExpertProfileModal({
           )}
 
           {expert.languages && (
-            <div className="flex items-center gap-2 text-[12px] text-white/45">
-              <MessageSquare className="w-3.5 h-3.5 shrink-0 text-white/30" />
+            <div className="flex items-center gap-2 text-[12px] text-white/60">
+              <MessageSquare className="w-3.5 h-3.5 shrink-0 text-white/55" />
               <span>
                 {lang === "en" ? "Languages: " : "اللغات: "}
                 <span className="text-white/60">{expert.languages}</span>
@@ -841,8 +841,8 @@ function ExpertProfileModal({
           )}
 
           {expert.availabilityNote && (
-            <div className="flex items-start gap-2 text-[12px] text-white/45">
-              <Info className="w-3.5 h-3.5 shrink-0 text-white/30 mt-0.5" />
+            <div className="flex items-start gap-2 text-[12px] text-white/60">
+              <Info className="w-3.5 h-3.5 shrink-0 text-white/55 mt-0.5" />
               <span className="text-white/55 leading-relaxed">{expert.availabilityNote}</span>
             </div>
           )}
@@ -881,7 +881,7 @@ function ExpertProfileModal({
 
         <div className="px-5 pb-5 pt-1 border-t border-white/[0.07]">
           {!expert.acceptingSessions ? (
-            <p className="text-center text-[12.5px] text-white/35 py-2">
+            <p className="text-center text-[12.5px] text-white/60 py-2">
               {lang === "en" ? "Not accepting sessions right now" : "لا يستقبل جلسات حاليًا"}
             </p>
           ) : isSelected ? (
@@ -1075,7 +1075,7 @@ function StepExpert({
                         : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
                     </span>
                   )}
-                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.09] text-white/30 text-[9.5px] font-medium leading-none pointer-events-none">
+                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.09] text-white/55 text-[9.5px] font-medium leading-none pointer-events-none">
                     <Info className="w-2.5 h-2.5 shrink-0" />
                     {lang === "en" ? "profile" : "الملف"}
                   </span>
@@ -1102,11 +1102,11 @@ function StepExpert({
                         </div>
                       )}
                       {!e.acceptingSessions ? (
-                        <div className="text-[10.5px] text-white/35 mt-0.5">
+                        <div className="text-[10.5px] text-white/60 mt-0.5">
                           {lang === "en" ? "Unavailable" : "غير متاح"}
                         </div>
                       ) : !availabilityLoading && hasSlot === false ? (
-                        <div className="text-[10.5px] text-white/35 mt-0.5">
+                        <div className="text-[10.5px] text-white/60 mt-0.5">
                           {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
                         </div>
                       ) : null}
@@ -1120,10 +1120,10 @@ function StepExpert({
           {form.expertId !== null && (
             <div className="mt-5 pt-5 border-t border-white/[0.07]">
               <div className="flex items-center gap-2 mb-3">
-                <Clock className="w-3.5 h-3.5 text-white/40 shrink-0" />
-                <span className="text-[12px] text-white/50 font-medium">
+                <Clock className="w-3.5 h-3.5 text-white/55 shrink-0" />
+                <span className="text-[12px] text-white/60 font-medium">
                   {lang === "en" ? "Available slots for this day" : "المواعيد المتاحة لهذا اليوم"}
-                  <span className="text-white/30 ms-1">
+                  <span className="text-white/55 ms-1">
                     {lang === "en" ? "— optional" : "— اختياريّ"}
                   </span>
                 </span>
@@ -1138,7 +1138,7 @@ function StepExpert({
               )}
 
               {!slotsLoading && daySlots.length === 0 && (
-                <p className="text-[12px] text-white/30 italic">
+                <p className="text-[12px] text-white/60 italic">
                   {lang === "en"
                     ? "No specific slots listed for this date — you can still book without a slot."
                     : "لا توجد مواعيد محدّدة لهذا اليوم — يمكنك الحجز دون تحديد موعد."}
@@ -1293,7 +1293,7 @@ function Field({
       >
         <Icon className="w-3.5 h-3.5" />
         {label}
-        {optional && <span className="text-white/35">(اختياريّ)</span>}
+        {optional && <span className="text-white/55">(اختياريّ)</span>}
       </label>
       <input
         ref={ref}
@@ -1305,7 +1305,7 @@ function Field({
         data-testid={`input-${id}`}
         className={`w-full h-12 px-4 rounded-2xl bg-white/[0.05] border ${
           error ? "border-rose-400/50" : "border-white/10"
-        } text-[14px] placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition`}
+        } text-[14px] placeholder:text-white/50 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition`}
       />
       {error && (
         <p className="mt-1.5 text-[11.5px] text-rose-300">{error}</p>
@@ -1446,11 +1446,11 @@ function SummaryRow({
 }) {
   return (
     <div className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-3 border-b border-white/5 last:border-0">
-      <Icon className="w-4 h-4 text-white/40 mt-0.5 shrink-0" strokeWidth={2} />
+      <Icon className="w-4 h-4 text-white/55 mt-0.5 shrink-0" strokeWidth={2} />
       <div className="flex-1 min-w-0">
-        <div className="text-[10.5px] text-white/45 mb-0.5">{label}</div>
+        <div className="text-[10.5px] text-white/60 mb-0.5">{label}</div>
         <div
-          className={`text-[13px] font-semibold truncate ${placeholder ? "text-white/35" : "text-white"}`}
+          className={`text-[13px] font-semibold truncate ${placeholder ? "text-white/55" : "text-white"}`}
         >
           {value}
         </div>

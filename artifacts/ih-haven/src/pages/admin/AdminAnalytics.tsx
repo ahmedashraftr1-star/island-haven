@@ -34,7 +34,7 @@ export default function AdminAnalytics() {
 
   if (isLoading || !analytics)
     return (
-      <div className="text-center py-16 text-foreground/45 text-sm">
+      <div className="text-center py-16 text-foreground/60 text-sm">
         جارِ التحميل...
       </div>
     );
@@ -71,11 +71,11 @@ export default function AdminAnalytics() {
             <h3 className="text-[15px] font-bold text-foreground">
               الزيارات خلال آخر ٣٠ يوماً
             </h3>
-            <p className="text-[12px] text-foreground/55 mt-0.5">يتحدّث كل ٣٠ ث</p>
+            <p className="text-[12px] text-foreground/65 mt-0.5">يتحدّث كل ٣٠ ث</p>
           </div>
         </div>
         {analytics.byDay.length === 0 ? (
-          <div className="text-foreground/45 text-[13px] py-16 text-center">
+          <div className="text-foreground/60 text-[13px] py-16 text-center">
             لا توجد بيانات بعد.
           </div>
         ) : (
@@ -125,7 +125,7 @@ export default function AdminAnalytics() {
             الصفحات الأكثر زيارة
           </h3>
           {analytics.byPath.length === 0 ? (
-            <div className="text-foreground/45 text-[13px]">لا توجد بيانات.</div>
+            <div className="text-foreground/60 text-[13px]">لا توجد بيانات.</div>
           ) : (
             <ul className="space-y-2.5">
               {analytics.byPath.slice(0, 10).map((row) => {
@@ -159,7 +159,7 @@ export default function AdminAnalytics() {
             الطلبات حسب الحالة
           </h3>
           {!appStats || appStats.byStatus.length === 0 ? (
-            <div className="text-foreground/45 text-[13px]">لا توجد بيانات.</div>
+            <div className="text-foreground/60 text-[13px]">لا توجد بيانات.</div>
           ) : (
             <ul className="space-y-3">
               {appStats.byStatus.map((row) => (

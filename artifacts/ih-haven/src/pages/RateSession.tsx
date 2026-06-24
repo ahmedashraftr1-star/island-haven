@@ -241,10 +241,10 @@ export default function RateSession() {
                     ar: "ما الذي أعجبك؟ وما الذي يمكن تحسينه؟",
                     en: "What did you like? What could be improved?",
                   })}
-                  className="w-full rounded-2xl bg-white/[0.05] border border-white/10 px-4 py-3 text-[13.5px] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none resize-none leading-[1.85]"
+                  className="w-full rounded-2xl bg-white/[0.05] border border-white/10 px-4 py-3 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none leading-[1.85]"
                   data-testid="input-feedback"
                 />
-                <div className="text-[11px] text-white/35 mt-1 text-left tabular-nums">
+                <div className="text-[11px] text-white/55 mt-1 text-left tabular-nums">
                   {num(feedback.length, lang)}/{num(2000, lang)}
                 </div>
               </label>

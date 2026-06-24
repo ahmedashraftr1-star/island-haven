@@ -289,12 +289,12 @@ export default function Experts() {
             className="mb-12 sm:mb-14 space-y-4"
           >
             <div className="relative max-w-md">
-              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t({ ar: "ابحث عن خبير…", en: "Search experts…" })}
-                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-all"
+                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-all"
                 dir={dir}
                 data-testid="expert-search"
               />
@@ -303,7 +303,7 @@ export default function Experts() {
                   type="button"
                   onClick={() => setQuery("")}
                   aria-label={t({ ar: "مسح البحث", en: "Clear search" })}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -573,7 +573,7 @@ function ExpertCardView({
                   <span className="text-[11.5px] text-white/85 font-bold tabular-nums">
                     {e.ratingAvg?.toFixed(1)}
                   </span>
-                  <span className="text-[10.5px] text-white/40">
+                  <span className="text-[10.5px] text-white/60">
                     ({num(e.ratingCount, lang)})
                   </span>
                 </div>
@@ -587,7 +587,7 @@ function ExpertCardView({
                 >
                   {num(e.yearsExperience, lang)}+
                 </div>
-                <div className="text-[9px] tracking-widest text-white/35 font-bold -mt-0.5">
+                <div className="text-[9px] tracking-widest text-white/60 font-bold -mt-0.5">
                   {t({ ar: "سنة خبرة", en: "yrs exp" })}
                 </div>
               </div>
@@ -625,7 +625,7 @@ function ExpertCardView({
                 {t({ ar: "متاح للحجز", en: "Available" })}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11.5px] text-white/45">
+              <span className="inline-flex items-center gap-1.5 text-[11.5px] text-white/60">
                 <Clock className="w-3.5 h-3.5" />{" "}
                 {t({ ar: "غير متاح حاليًا", en: "Unavailable" })}
               </span>

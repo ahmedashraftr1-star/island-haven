@@ -171,7 +171,7 @@ export default function Process() {
                             <span className={`text-[11px] font-bold tracking-widest ${step.accent} opacity-60`}>
                               {step.num}
                             </span>
-                            <span className="text-[11px] text-white/30 font-medium">{step.en}</span>
+                            <span className="text-[11px] text-white/55 font-medium">{step.en}</span>
                           </div>
                           <h3 className="text-[17px] font-bold text-white mb-2">{t(step.title)}</h3>
                           <p className="text-[13.5px] text-white/55 leading-relaxed">{t(step.desc)}</p>
@@ -221,7 +221,7 @@ export default function Process() {
           <h3 className="text-[22px] font-bold text-white mb-2">
             {t({ ar: "مستعدّ للبدء؟", en: "Ready to begin?" })}
           </h3>
-          <p className="text-white/45 text-[14px] mb-6">
+          <p className="text-white/65 text-[14px] mb-6">
             {t({
               ar: "خصّص 20 دقيقة وقدّم طلبك الآن — فكرتك تستحق.",
               en: "Set aside 20 minutes and apply now — your idea deserves it.",
@@ -237,7 +237,7 @@ export default function Process() {
           <div className="mt-4">
             <Link
               href="/faq"
-              className="text-[13px] text-white/35 hover:text-white/60 transition-colors underline underline-offset-2"
+              className="text-[13px] text-white/60 hover:text-white transition-colors underline underline-offset-2"
             >
               {t({
                 ar: "عندك أسئلة؟ راجع الأسئلة الشائعة",

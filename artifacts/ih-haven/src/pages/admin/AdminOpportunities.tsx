@@ -83,7 +83,7 @@ export default function AdminOpportunities() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">الفرص والوظائف</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             وظائف وفرص من الشركاء والمشاريع — جسر المنتسبين لسوق العمل.
           </p>
         </div>
@@ -103,14 +103,14 @@ export default function AdminOpportunities() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا فرص بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الفرصة</th>
                 <th className="text-right px-4 py-3 font-semibold">النوع</th>
@@ -129,7 +129,7 @@ export default function AdminOpportunities() {
                       {r.title}
                     </div>
                     {r.organization && (
-                      <div className="text-[11.5px] text-foreground/45 mt-0.5">
+                      <div className="text-[11.5px] text-foreground/60 mt-0.5">
                         {r.organization}
                         {r.city ? ` · ${r.city}` : ""}
                       </div>
@@ -143,7 +143,7 @@ export default function AdminOpportunities() {
                       className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                         r.status === "published"
                           ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                          : "bg-muted text-foreground/55 border border-border"
+                          : "bg-muted text-foreground/70 border border-border"
                       }`}
                     >
                       {STATUS_LABELS[r.status]}
@@ -155,7 +155,7 @@ export default function AdminOpportunities() {
                         type="button"
                         onClick={() => setEditing(r)}
                         aria-label="تعديل الفرصة"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>

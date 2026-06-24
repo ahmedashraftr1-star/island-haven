@@ -195,7 +195,7 @@ export default function Perks() {
                 </div>
 
                 {p.description && (
-                  <p className="text-white/45 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
+                  <p className="text-white/65 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
                     {p.description}
                   </p>
                 )}
@@ -236,7 +236,7 @@ export default function Perks() {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : (
-                    <span className="text-[12px] text-white/45">
+                    <span className="text-[12px] text-white/60">
                       {t({
                         ar: "تواصل مع الفريق للحصول على العرض.",
                         en: "Contact the team to claim this offer.",

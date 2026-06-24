@@ -73,7 +73,7 @@ export default function AdminDaily() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">اليوميّات</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             نَصائح وأخبار وقصص — انشر منشورًا جديدًا كلّ يوم.
           </p>
         </div>
@@ -96,14 +96,14 @@ export default function AdminDaily() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لا منشورات بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">العنوان</th>
                 <th className="text-right px-4 py-3 font-semibold">النوع</th>
@@ -121,7 +121,7 @@ export default function AdminDaily() {
                   <td className="px-4 py-3 font-semibold text-foreground">
                     {p.title}
                     {p.body && (
-                      <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5 line-clamp-1">
+                      <div className="text-[11.5px] text-foreground/60 font-normal mt-0.5 line-clamp-1">
                         {p.body}
                       </div>
                     )}
@@ -138,7 +138,7 @@ export default function AdminDaily() {
                         type="button"
                         onClick={() => setEditing(p)}
                         aria-label="تعديل المنشور"
-                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                        className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                         data-testid={`button-edit-daily-${p.id}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -251,7 +251,7 @@ function DailyEditor({
             type="button"
             onClick={onClose}
             aria-label="إغلاق"
-            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
+            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

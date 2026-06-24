@@ -95,10 +95,12 @@ export default function EventsScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={f.label}
                 accessibilityState={{ selected: active }}
-                hitSlop={4}
+                hitSlop={{ top: 10, bottom: 10, left: 4, right: 4 }}
                 style={({ pressed }) => ({
                   paddingHorizontal: 14,
-                  paddingVertical: 7,
+                  paddingVertical: 8,
+                  minHeight: 36,
+                  justifyContent: "center",
                   borderRadius: 999,
                   borderWidth: 1,
                   borderColor: active ? colors.primary : colors.border,

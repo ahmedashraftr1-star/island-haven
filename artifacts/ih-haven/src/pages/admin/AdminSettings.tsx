@@ -150,7 +150,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h2 className="text-[20px] font-bold text-foreground">إعدادات الموقع</h2>
-        <p className="text-[13px] text-foreground/55 mt-1">
+        <p className="text-[13px] text-foreground/65 mt-1">
           مفاتيح تتحكّم بسلوك الموقع للزوّار — وأدوات صيانة قاعدة البيانات.
         </p>
       </div>
@@ -163,7 +163,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
 
       <section className="rounded-2xl bg-card border border-border divide-y divide-border">
         {items === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : (
           items.map((s) => (
             <div
@@ -174,7 +174,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                 <div className="text-[14px] font-semibold text-foreground">
                   {s.label}
                 </div>
-                <div className="text-[12px] text-foreground/55 mt-0.5" dir="ltr">
+                <div className="text-[12px] text-foreground/65 mt-0.5" dir="ltr">
                   {s.key}
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
           العنوان الذي تُرسَل إليه إشعارات المنصّة (طلبات الانتساب، القصص الجديدة…). إذا تُرِك فارغًا يُستخدَم متغيّر البيئة <span dir="ltr" className="font-mono">ADMIN_EMAIL</span>.
         </p>
         {!adminEmailLoaded ? (
-          <div className="text-[13px] text-foreground/45">جارِ التحميل…</div>
+          <div className="text-[13px] text-foreground/60">جارِ التحميل…</div>
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-3">
@@ -242,7 +242,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
               </button>
             </div>
             <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-xl bg-muted/40 border border-border">
-              <span className="text-[12.5px] text-foreground/55 font-medium shrink-0">النشط الآن:</span>
+              <span className="text-[12.5px] text-foreground/65 font-medium shrink-0">النشط الآن:</span>
               {adminEmail ? (
                 <>
                   <span className="text-[13px] font-mono text-foreground flex-1 min-w-0 truncate" dir="ltr">
@@ -272,7 +272,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                   )}
                 </>
               ) : (
-                <span className="text-[12.5px] text-foreground/45 italic flex-1">
+                <span className="text-[12.5px] text-foreground/60 italic flex-1">
                   لم يُعيَّن بريد — لن تُرسَل إشعارات حتى يُضبَط العنوان
                 </span>
               )}
@@ -300,7 +300,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
               { l: "تسجيلات", v: totals.enrollments },
             ].map((x) => (
               <div key={x.l} className="rounded-xl bg-muted/40 px-4 py-3 text-center">
-                <div className="text-[11px] text-foreground/55 font-semibold mb-1">
+                <div className="text-[11px] text-foreground/65 font-semibold mb-1">
                   {x.l}
                 </div>
                 <div className="text-[20px] font-bold text-foreground tabular-nums">
@@ -330,7 +330,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                 max={3650}
                 value={pruneDays}
                 onChange={(e) => setPruneDays(e.target.value)}
-                className="w-24 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none tabular-nums text-center"
+                className="w-24 h-10 px-3 rounded-xl bg-muted/40 border border-border text-[13px] outline-none focus:border-primary/50 transition-colors tabular-nums text-center"
               />
               <span className="text-[12.5px] text-foreground/65">يومًا</span>
               <button

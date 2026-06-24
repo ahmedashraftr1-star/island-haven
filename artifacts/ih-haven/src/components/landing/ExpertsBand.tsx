@@ -90,7 +90,7 @@ export function ExpertsBand() {
                 <>خبراء يأخذون بيدك نحو <span className="text-primary">الأثر</span></>
               )}
             </h2>
-            <p className="text-white/50 text-[14.5px] leading-[1.75] mt-3 max-w-xl">
+            <p className="text-white/65 text-[14.5px] leading-[1.75] mt-3 max-w-xl">
               {lang === "en"
                 ? "Book a free one-on-one mentoring session and turn your idea into a scalable project."
                 : "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ."}
@@ -206,8 +206,8 @@ export function ExpertsBand() {
                         </>
                       ) : (
                         <>
-                          <Clock className="w-2.5 h-2.5 text-white/50" />
-                          <span className="text-[10px] font-medium text-white/50">
+                          <Clock className="w-2.5 h-2.5 text-white/65" />
+                          <span className="text-[10px] font-medium text-white/65">
                             {lang === "en" ? "Busy" : "مشغول"}
                           </span>
                         </>
@@ -227,7 +227,7 @@ export function ExpertsBand() {
                       {e.fullName}
                     </h3>
                     {e.headline && (
-                      <p className="text-white/45 text-[12px] leading-snug mb-3 line-clamp-1">
+                      <p className="text-white/60 text-[12px] leading-snug mb-3 line-clamp-1">
                         {e.headline}
                       </p>
                     )}
@@ -244,7 +244,7 @@ export function ExpertsBand() {
                       </div>
                     )}
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="text-[11px] text-white/35 group-hover:text-white/60 transition-colors font-medium">
+                      <span className="text-[11px] text-white/55 group-hover:text-white transition-colors font-medium">
                         {lang === "en" ? "View profile →" : "← الملف الكامل"}
                       </span>
                     </div>
@@ -266,7 +266,7 @@ export function ExpertsBand() {
               <p className="text-white font-bold text-[15px] mb-1">
                 {lang === "en" ? "All Experts" : "كل الخبراء"}
               </p>
-              <p className="text-white/40 text-[12.5px] leading-relaxed">
+              <p className="text-white/60 text-[12.5px] leading-relaxed">
                 {lang === "en" ? "Browse & book a free session" : "تصفّح واحجز جلستك مجّانًا"}
               </p>
             </Link>

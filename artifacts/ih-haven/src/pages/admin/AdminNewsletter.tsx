@@ -59,7 +59,7 @@ export default function AdminNewsletter() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">النشرة الإخبارية</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             {rows !== null ? `${active.length} مشترك نشط من أصل ${total}` : "جارِ التحميل…"}
           </p>
         </div>
@@ -78,15 +78,15 @@ export default function AdminNewsletter() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{active.length}</div>
-            <div className="text-[12px] text-foreground/50 mt-1">مشترك نشط</div>
+            <div className="text-[12px] text-foreground/60 mt-1">مشترك نشط</div>
           </div>
           <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{rows.filter(r => r.status === "unsubscribed").length}</div>
-            <div className="text-[12px] text-foreground/50 mt-1">ألغى الاشتراك</div>
+            <div className="text-[12px] text-foreground/60 mt-1">ألغى الاشتراك</div>
           </div>
           <div className="rounded-2xl bg-card border border-border p-5">
             <div className="text-[28px] font-black text-foreground">{total}</div>
-            <div className="text-[12px] text-foreground/50 mt-1">إجمالي السجلات</div>
+            <div className="text-[12px] text-foreground/60 mt-1">إجمالي السجلات</div>
           </div>
         </div>
       )}
@@ -99,12 +99,12 @@ export default function AdminNewsletter() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">لا مشتركين بعد.</div>
+          <div className="p-12 text-center text-foreground/65 text-[14px]">لا مشتركين بعد.</div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">البريد الإلكتروني</th>
                 <th className="text-right px-4 py-3 font-semibold">الاسم</th>
@@ -118,12 +118,12 @@ export default function AdminNewsletter() {
                 <tr key={row.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-3 font-medium text-foreground">{row.email}</td>
                   <td className="px-4 py-3 text-foreground/60">{row.name || "—"}</td>
-                  <td className="px-4 py-3 text-foreground/50">{fmt(row.subscribedAt)}</td>
+                  <td className="px-4 py-3 text-foreground/60">{fmt(row.subscribedAt)}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                       row.status === "active"
                         ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                        : "bg-muted text-foreground/55 border-border"
+                        : "bg-muted text-foreground/70 border-border"
                     }`}>
                       {row.status === "active" ? "نشط" : "ألغى الاشتراك"}
                     </span>
@@ -133,7 +133,7 @@ export default function AdminNewsletter() {
                       type="button"
                       aria-label="حذف المشترك"
                       onClick={() => onDelete(row.id)}
-                      className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/15 hover:text-rose-400 transition-colors"
+                      className="p-1.5 rounded-lg text-foreground/55 hover:bg-rose-500/15 hover:text-rose-400 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

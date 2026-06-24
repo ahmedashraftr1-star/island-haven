@@ -49,14 +49,14 @@ export function NewsletterBand() {
             <Mail className="w-6 h-6 text-primary" />
           </div>
 
-          <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-2">
+          <div className="text-[11px] font-bold text-primary/80 tracking-widest uppercase mb-2">
             {t({ ar: "النشرة الإخبارية", en: "Newsletter" })}
           </div>
 
           <h2 className="text-[26px] sm:text-[30px] font-black text-white leading-tight mb-3">
             {t({ ar: "ابقَ على اطّلاع دائم", en: "Stay in the loop" })}
           </h2>
-          <p className="text-[14px] text-white/45 leading-relaxed mb-8 max-w-md mx-auto">
+          <p className="text-[14px] text-white/65 leading-relaxed mb-8 max-w-md mx-auto">
             {t({
               ar: "أخبار الحاضنة، فرص التقديم، فعاليّات مجتمعيّة، وقصص ملهمة — مرّة في الشهر إلى بريدك مباشرة.",
               en: "Incubator news, application openings, community events, and inspiring stories — once a month, straight to your inbox.",
@@ -81,7 +81,7 @@ export function NewsletterBand() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
-                className="w-full h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors text-right"
+                className="w-full h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.12] text-white placeholder:text-white/45 text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
               />
               <div className="flex gap-2">
                 <input
@@ -90,7 +90,7 @@ export function NewsletterBand() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
-                  className="flex-1 h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors text-right"
+                  className="flex-1 h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.12] text-white placeholder:text-white/45 text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
                 />
                 <button
                   type="submit"
@@ -108,9 +108,9 @@ export function NewsletterBand() {
                 </button>
               </div>
               {status === "error" && (
-                <p className="text-[13px] text-rose-400 text-right">{errorMsg}</p>
+                <p className="text-[13px] text-rose-400 text-start">{errorMsg}</p>
               )}
-              <p className="text-[11px] text-white/25 text-center">
+              <p className="text-[11px] text-white/45 text-center">
                 {t({
                   ar: "لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أي وقت.",
                   en: "No spam. Unsubscribe anytime.",

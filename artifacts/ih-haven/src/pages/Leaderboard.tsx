@@ -153,7 +153,7 @@ export default function Leaderboard() {
                           }`}
                         />
                       ) : (
-                        <span className="text-white/45 font-bold text-[15px] tabular-nums">
+                        <span className="text-white/65 font-bold text-[15px] tabular-nums">
                           {num(i + 1, lang)}
                         </span>
                       )}
@@ -215,7 +215,7 @@ export default function Leaderboard() {
                           {num(r.score, lang)}
                         </span>
                       </div>
-                      <div className="text-[10px] text-white/35 text-center mt-1 tracking-wide">
+                      <div className="text-[10px] text-white/60 text-center mt-1 tracking-wide">
                         {t({ ar: "نقطة", en: "points" })}
                       </div>
                     </div>
@@ -229,7 +229,7 @@ export default function Leaderboard() {
 
       {/* Scoring note */}
       {rows && rows.length > 0 && (
-        <p className="text-center text-white/35 text-[12px] mt-8">
+        <p className="text-center text-white/60 text-[12px] mt-8">
           {t({
             ar: "النقاط = عدد الأعمال + (عدد الشارات × ٣)",
             en: "Points = number of works + (number of badges × 3)",

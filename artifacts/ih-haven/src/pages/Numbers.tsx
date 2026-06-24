@@ -162,7 +162,7 @@ function Group({
       <div className="flex items-baseline gap-3 mb-5">
         <h2 className="text-white font-bold text-[20px] tracking-tight">{title}</h2>
         {lang === "ar" && (
-          <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/40 font-bold">
+          <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-bold">
             {en}
           </span>
         )}
@@ -219,7 +219,7 @@ function Tile({
         }}
       >
         {value === undefined ? (
-          <span className="text-white/25">—</span>
+          <span className="text-white/40">—</span>
         ) : (
           <CountUp value={value} lang={lang} />
         )}

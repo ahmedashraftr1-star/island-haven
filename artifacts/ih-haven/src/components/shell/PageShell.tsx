@@ -48,7 +48,7 @@ export function PageShell({
             <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
             <div className="leading-tight text-right">
               <div className="text-[13px] font-bold tracking-tight">Island Haven</div>
-              <div className="text-[10px] text-white/45 tracking-[0.16em] uppercase">
+              <div className="text-[10px] text-white/60 tracking-[0.16em] uppercase">
                 آيلاند هيفن
               </div>
             </div>
@@ -199,7 +199,7 @@ export function EmptyState({
         <span className="block w-2 h-2 rounded-full bg-primary" aria-hidden />
       </div>
       <div className="text-white/85 text-[16px] font-semibold mb-1">{title}</div>
-      {hint && <div className="text-white/45 text-[13.5px]">{hint}</div>}
+      {hint && <div className="text-white/60 text-[13.5px]">{hint}</div>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   );

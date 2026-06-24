@@ -75,7 +75,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
             />
           ) : (
             <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0 border border-white/[0.08]">
-              <span className="text-xl font-bold text-white/30">{job.companyName[0]}</span>
+              <span className="text-xl font-bold text-white/60">{job.companyName[0]}</span>
             </div>
           )}
 
@@ -93,13 +93,13 @@ function JobCard({ job, index }: { job: Job; index: number }) {
             <div className="text-[13px] font-medium text-white/60 mb-2">{job.companyName}</div>
 
             {job.description && (
-              <p className="text-[13px] text-white/45 line-clamp-2 leading-relaxed mb-3">
+              <p className="text-[13px] text-white/65 line-clamp-2 leading-relaxed mb-3">
                 {job.description}
               </p>
             )}
 
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-3 text-[12px] text-white/35">
+              <div className="flex items-center gap-3 text-[12px] text-white/60">
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" /> {job.location}
                 </span>
@@ -120,7 +120,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
                   قدّم الآن <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
               ) : (
-                <span className="text-[12px] text-white/25">تواصل مع الشركة</span>
+                <span className="text-[12px] text-white/55">تواصل مع الشركة</span>
               )}
             </div>
           </div>
@@ -171,14 +171,14 @@ export default function Jobs() {
         {/* Search + Filters */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" aria-hidden="true" />
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t(jp.searchPlaceholder)}
               aria-label={t(jp.searchPlaceholder)}
-              className="w-full h-12 pr-11 pl-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/25 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
+              className="w-full h-12 pr-11 pl-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/50 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function Jobs() {
 
         {/* Count */}
         {!isLoading && (
-          <div className="text-[13px] text-white/35">
+          <div className="text-[13px] text-white/60">
             {filtered.length} {lang === "en" ? "jobs available" : "وظيفة متاحة"}
           </div>
         )}
@@ -226,8 +226,8 @@ export default function Jobs() {
         {!isLoading && filtered.length === 0 && (
           <div className="text-center py-20">
             <Briefcase className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/40 text-[15px] mb-2">{t(jp.empty)}</p>
-            <p className="text-white/25 text-[13px]">{lang === "en" ? "Check back later or follow us to stay updated." : "ارجع لاحقاً أو تابعنا للبقاء على اطّلاع."}</p>
+            <p className="text-white/85 text-[15px] font-semibold mb-2">{t(jp.empty)}</p>
+            <p className="text-white/60 text-[13px]">{lang === "en" ? "Check back later or follow us to stay updated." : "ارجع لاحقاً أو تابعنا للبقاء على اطّلاع."}</p>
           </div>
         )}
 
@@ -244,7 +244,7 @@ export default function Jobs() {
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-[15px] font-bold text-white mb-1">هل لديك وظيفة تودّ نشرها؟</h3>
-            <p className="text-[13px] text-white/40">شركاء آيلاند يمكنهم نشر فرصهم مجاناً لمجتمع الحاضنة.</p>
+            <p className="text-[13px] text-white/60">شركاء آيلاند يمكنهم نشر فرصهم مجاناً لمجتمع الحاضنة.</p>
           </div>
           <a
             href="https://wa.me/972567536815"
@@ -258,7 +258,7 @@ export default function Jobs() {
 
         {/* Become a member */}
         <div className="text-center">
-          <p className="text-white/35 text-[13px] mb-3">
+          <p className="text-white/60 text-[13px] mb-3">
             الأعضاء المسجّلون يحصلون على إشعار فوري بكل وظيفة جديدة.
           </p>
           <Link

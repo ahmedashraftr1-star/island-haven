@@ -272,8 +272,8 @@ export function Hero() {
             transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
             className="mb-6 lg:mb-8 flex items-center gap-3"
           >
-            <span className="h-[1px] w-10 bg-white/40" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
+            <span className="h-px w-10 bg-white/50" />
+            <span className="text-[11px] tracking-[0.22em] uppercase text-white/85 font-semibold">
               {c.eyebrow}
             </span>
           </motion.div>
@@ -306,7 +306,7 @@ export function Hero() {
             className="mt-6 lg:mt-7 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/85"
           >
             <Heart className="h-3.5 w-3.5 text-primary fill-primary/70" />
-            <span className="text-white/60">{c.backedByLabel} ·</span>
+            <span className="text-white/70">{c.backedByLabel} ·</span>
             <span className="text-white">{c.backedByBrand}</span>
           </motion.div>
 
@@ -319,25 +319,25 @@ export function Hero() {
             <a
               href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.03] transition-all duration-500 shadow-[0_24px_70px_-12px_rgba(220,68,84,0.7)]"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.03] active:scale-[0.99] transition-transform duration-300 ease-out shadow-[0_24px_70px_-12px_rgba(220,68,84,0.7)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
             <a
               href={`${import.meta.env.BASE_URL}book`}
               data-testid="cta-book"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 transition-all duration-500"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-300"
             >
               <span className="relative z-10">{c.bookCtaLabel}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-500 group-hover:-translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
             {c.ctaSecondary && (
               <a
                 href={c.ctaSecondaryHref || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] hover:bg-white/15 transition-all duration-500"
+                className="inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-300"
               >
                 <Phone className="h-4 w-4" />
                 {c.ctaSecondary}
@@ -358,10 +358,10 @@ export function Hero() {
             <div className="flex items-end gap-3">
               <HavenMark size={56} className="text-white" delay={1.6} />
               <div className="pb-1.5 leading-tight">
-                <div className="text-[10px] tracking-[0.2em] uppercase text-white/55 font-semibold">
+                <div className="text-[10px] tracking-[0.2em] uppercase text-white/65 font-semibold">
                   {c.estLabel}
                 </div>
-                <div className="text-[12px] text-white/80 font-medium">{c.placeLabel}</div>
+                <div className="text-[12px] text-white/85 font-medium">{c.placeLabel}</div>
               </div>
             </div>
 
@@ -369,12 +369,12 @@ export function Hero() {
               {stats.map((s, i) => (
                 <div
                   key={`${s.l}-${i}`}
-                  className={`px-5 lg:px-7 ${i > 0 ? "border-r border-white/15" : ""}`}
+                  className={`px-5 lg:px-7 ${i > 0 ? "border-s border-white/20" : ""}`}
                 >
                   <div className="text-2xl lg:text-3xl font-bold text-white tabular-nums leading-none">
                     {s.v}
                   </div>
-                  <div className="text-[11px] text-white/60 mt-1.5 font-medium tracking-wide">
+                  <div className="text-[11px] text-white/70 mt-1.5 font-medium tracking-wide">
                     {s.l}
                   </div>
                 </div>

@@ -117,7 +117,7 @@ export default function AdminExperts() {
           <h2 className="text-[20px] font-bold text-foreground">
             الخبراء والمرشدون
           </h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             أنشئ حسابات الخبراء وأدِر ملفّاتهم وظهورهم في دليل الإرشاد.
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function AdminExperts() {
             className={`flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold border-b-2 transition-colors -mb-px ${
               tab === t.id
                 ? "border-primary text-primary"
-                : "border-transparent text-foreground/50 hover:text-foreground"
+                : "border-transparent text-foreground/60 hover:text-foreground"
             }`}
           >
             {t.label}
@@ -175,9 +175,9 @@ export default function AdminExperts() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {filtered === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             {tab === "pending"
               ? "لا توجد طلبات معلّقة حاليًا."
               : tab === "hidden"
@@ -186,7 +186,7 @@ export default function AdminExperts() {
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الخبير</th>
                 <th className="text-right px-4 py-3 font-semibold">التخصّص</th>
@@ -221,7 +221,7 @@ export default function AdminExperts() {
                         </button>
                       )}
                     </div>
-                    <div className="text-[11.5px] text-foreground/45 font-normal mt-0.5">
+                    <div className="text-[11.5px] text-foreground/60 font-normal mt-0.5">
                       {r.email}
                     </div>
                     {tab === "pending" && (
@@ -243,7 +243,7 @@ export default function AdminExperts() {
                   {tab !== "pending" && (
                     <td className="px-4 py-3 text-foreground/65 tabular-nums">
                       <span className="inline-flex items-center gap-1">
-                        <CalendarCheck className="w-3.5 h-3.5 text-foreground/45" />
+                        <CalendarCheck className="w-3.5 h-3.5 text-foreground/60" />
                         {r.sessionsCount}
                       </span>
                     </td>
@@ -255,7 +255,7 @@ export default function AdminExperts() {
                           ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : r.status === "pending"
                           ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
-                          : "bg-muted text-foreground/55 border border-border"
+                          : "bg-muted text-foreground/70 border border-border"
                       }`}
                     >
                       {STATUS_LABELS[r.status]}
@@ -291,7 +291,7 @@ export default function AdminExperts() {
                             type="button"
                             onClick={() => setEditing(r)}
                             aria-label="تعديل الخبير"
-                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                             data-testid={`button-edit-expert-${r.id}`}
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -341,7 +341,7 @@ export default function AdminExperts() {
                             type="button"
                             onClick={() => setEditing(r)}
                             aria-label="تعديل الخبير"
-                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary"
+                            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors"
                             data-testid={`button-edit-expert-${r.id}`}
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -545,7 +545,7 @@ function ExpertEditor({
             type="button"
             onClick={onClose}
             aria-label="إغلاق"
-            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65"
+            className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -887,7 +887,7 @@ function AvatarUploader({
             <button
               type="button"
               onClick={() => onChange("")}
-              className="p-1.5 rounded-lg hover:bg-rose-500/15 text-foreground/45 hover:text-rose-400 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-rose-500/15 text-foreground/60 hover:text-rose-400 transition-colors"
               title="إزالة الصورة"
               aria-label="إزالة الصورة"
             >
@@ -896,7 +896,7 @@ function AvatarUploader({
           )}
         </div>
         {value && !uploading && (
-          <div className="flex items-center gap-1 text-[11px] text-foreground/45">
+          <div className="flex items-center gap-1 text-[11px] text-foreground/60">
             <ImageIcon className="w-3 h-3" />
             <span className="truncate max-w-[200px]">{value}</span>
           </div>

@@ -74,7 +74,7 @@ export function HoursLocation() {
             <GazaPulseMap className="w-full max-w-[480px] mx-auto aspect-square" />
           </div>
           <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="text-[11px] tracking-[0.14em] uppercase text-foreground/45 font-semibold mb-3">
+            <div className="text-[11px] tracking-[0.14em] uppercase text-foreground/55 font-semibold mb-3">
               {c.locationEyebrow}
             </div>
             <h3 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight leading-[1.15] mb-4 whitespace-pre-line">
@@ -88,7 +88,7 @@ export function HoursLocation() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {c.locationStatus}
               </div>
-              <div className="text-[13px] text-foreground/55">{c.locationCoords}</div>
+              <div className="text-[13px] text-foreground/65 tabular-nums">{c.locationCoords}</div>
             </div>
           </div>
         </motion.div>

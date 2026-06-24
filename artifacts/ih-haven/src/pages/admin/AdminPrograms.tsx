@@ -91,7 +91,7 @@ export default function AdminPrograms() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">برامج الاحتضان</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">
+          <p className="text-[13px] text-foreground/65 mt-1">
             أنشئ مسارات الاحتضان وراجع طلبات الانضمام إليها.
           </p>
         </div>
@@ -113,14 +113,14 @@ export default function AdminPrograms() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">
+          <div className="p-12 text-center text-foreground/65 text-[14px]">
             لم يُضَف أيّ برنامج بعد.
           </div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">العنوان</th>
                 <th className="text-right px-4 py-3 font-semibold">يبدأ</th>
@@ -151,7 +151,7 @@ export default function AdminPrograms() {
                         r.status === "open"
                           ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : r.status === "draft"
-                          ? "bg-muted text-foreground/55 border border-border"
+                          ? "bg-muted text-foreground/70 border border-border"
                           : "bg-foreground/[0.04] text-foreground/65 border border-border"
                       }`}
                     >
@@ -160,10 +160,10 @@ export default function AdminPrograms() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button type="button" onClick={() => setViewing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary" title="الطلبات" aria-label="عرض الطلبات">
+                      <button type="button" onClick={() => setViewing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors" title="الطلبات" aria-label="عرض الطلبات">
                         <Inbox className="w-3.5 h-3.5" />
                       </button>
-                      <button type="button" aria-label="تعديل البرنامج" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary">
+                      <button type="button" aria-label="تعديل البرنامج" onClick={() => setEditing(r)} className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 hover:text-primary transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button type="button" aria-label="حذف البرنامج" onClick={() => onDelete(r.id)} className="p-2 rounded-lg hover:bg-rose-500/15 text-foreground/65 hover:text-rose-400 transition-colors">
@@ -350,16 +350,16 @@ function ApplicationsModal({ program, onClose }: { program: { id: number; title:
     <Modal title={`طلبات: ${program.title}`} onClose={onClose}>
       <div className="p-6 space-y-3">
         {apps === null ? (
-          <div className="text-center text-foreground/45 py-8">جارِ التحميل…</div>
+          <div className="text-center text-foreground/60 py-8">جارِ التحميل…</div>
         ) : apps.length === 0 ? (
-          <div className="text-center text-foreground/55 py-10">لا توجد طلبات بعد.</div>
+          <div className="text-center text-foreground/65 py-10">لا توجد طلبات بعد.</div>
         ) : (
           apps.map((a) => (
             <div key={a.application.id} className="rounded-2xl border border-border p-4">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <div>
                   <div className="font-semibold text-foreground text-[14px]">{a.applicantName}</div>
-                  <div className="text-[11.5px] text-foreground/45" dir="ltr">{a.applicantEmail}</div>
+                  <div className="text-[11.5px] text-foreground/60" dir="ltr">{a.applicantEmail}</div>
                 </div>
                 <select
                   value={a.application.status}
@@ -376,7 +376,7 @@ function ApplicationsModal({ program, onClose }: { program: { id: number; title:
               )}
               <p className="text-[13px] text-foreground/70 leading-[1.7] mt-1 whitespace-pre-wrap">{a.application.idea}</p>
               {a.application.motivation && (
-                <p className="text-[12.5px] text-foreground/50 leading-[1.7] mt-2 whitespace-pre-wrap">{a.application.motivation}</p>
+                <p className="text-[12.5px] text-foreground/60 leading-[1.7] mt-2 whitespace-pre-wrap">{a.application.motivation}</p>
               )}
             </div>
           ))

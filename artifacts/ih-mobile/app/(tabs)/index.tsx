@@ -387,7 +387,7 @@ export default function Home() {
               <T size={20} weight="bold" accessibilityRole="header">آخر الأخبار</T>
               <Pressable
                 onPress={() => router.push("/events")}
-                hitSlop={8}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 accessibilityRole="button"
                 accessibilityLabel="عرض المزيد من الأخبار"
               >
@@ -452,7 +452,7 @@ export default function Home() {
                 {!expertsQ.isLoading && (
                   <Pressable
                     onPress={() => router.push("/experts" as never)}
-                    hitSlop={8}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                     accessibilityRole="button"
                     accessibilityLabel="عرض كلّ الخبراء"
                   >
@@ -603,7 +603,7 @@ export default function Home() {
               <T size={20} weight="bold" accessibilityRole="header">مجتمعنا بالأرقام</T>
               <Pressable
                 onPress={() => router.push("/members")}
-                hitSlop={8}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 accessibilityRole="button"
                 accessibilityLabel="عرض المنتسبين"
               >

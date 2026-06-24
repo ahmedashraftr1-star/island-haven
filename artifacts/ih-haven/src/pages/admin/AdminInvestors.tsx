@@ -92,7 +92,7 @@ export default function AdminInvestors() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[20px] font-bold text-foreground">المستثمرون والداعمون</h2>
-          <p className="text-[13px] text-foreground/55 mt-1">أبرز الجهات الداعمة والمستثمرة في آيلاند هيفن.</p>
+          <p className="text-[13px] text-foreground/65 mt-1">أبرز الجهات الداعمة والمستثمرة في آيلاند هيفن.</p>
         </div>
         <button
           type="button"
@@ -111,12 +111,12 @@ export default function AdminInvestors() {
 
       <div className="rounded-2xl bg-card border border-border overflow-hidden">
         {rows === null ? (
-          <div className="p-8 text-center text-foreground/45">جارِ التحميل…</div>
+          <div className="p-8 text-center text-foreground/60">جارِ التحميل…</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-foreground/55 text-[14px]">لا مستثمرين بعد.</div>
+          <div className="p-12 text-center text-foreground/65 text-[14px]">لا مستثمرين بعد.</div>
         ) : (
           <table className="w-full text-[13.5px]">
-            <thead className="bg-muted/40 text-foreground/55 text-[11.5px] tracking-[0.05em] uppercase">
+            <thead className="bg-muted/40 text-foreground/65 text-[11.5px] tracking-[0.05em] uppercase">
               <tr>
                 <th className="text-right px-4 py-3 font-semibold">الاسم</th>
                 <th className="text-right px-4 py-3 font-semibold">النوع</th>
@@ -138,7 +138,7 @@ export default function AdminInvestors() {
                       )}
                       <div>
                         <div className="font-semibold text-foreground">{row.name}</div>
-                        {row.investmentFocus && <div className="text-[11px] text-foreground/40 truncate max-w-[200px]">{row.investmentFocus}</div>}
+                        {row.investmentFocus && <div className="text-[11px] text-foreground/65 truncate max-w-[200px]">{row.investmentFocus}</div>}
                       </div>
                     </div>
                   </td>
@@ -151,17 +151,17 @@ export default function AdminInvestors() {
                     <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
                       row.status === "visible"
                         ? "bg-emerald-500/15 text-emerald-300"
-                        : "bg-muted text-foreground/55"
+                        : "bg-muted text-foreground/70"
                     }`}>
                       {row.status === "visible" ? "ظاهر" : "مخفيّ"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
-                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل ${row.name}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-muted hover:text-foreground transition-colors">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={`تعديل ${row.name}`} className="p-1.5 rounded-lg text-foreground/55 hover:bg-muted hover:text-foreground transition-colors">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف ${row.name}`} className="p-1.5 rounded-lg text-foreground/40 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
+                      <button type="button" onClick={() => onDelete(row.id)} aria-label={`حذف ${row.name}`} className="p-1.5 rounded-lg text-foreground/55 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -180,7 +180,7 @@ export default function AdminInvestors() {
               <input className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30" value={form.name} onChange={(e) => set("name")(e.target.value)} />
             </Field>
             <Field label="نوع المستثمر">
-              <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
+              <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card" value={form.type} onChange={(e) => set("type")(e.target.value)}>
                 {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </Field>
@@ -198,7 +198,7 @@ export default function AdminInvestors() {
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="الحالة">
-                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none bg-card" value={form.status} onChange={(e) => set("status")(e.target.value)}>
+                <select className="w-full border border-border rounded-xl px-3 h-10 text-[13.5px] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card" value={form.status} onChange={(e) => set("status")(e.target.value)}>
                   <option value="visible">ظاهر</option>
                   <option value="hidden">مخفيّ</option>
                 </select>

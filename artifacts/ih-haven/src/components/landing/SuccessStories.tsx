@@ -92,7 +92,7 @@ export function SuccessStories() {
                     <div className="font-bold text-foreground text-[13.5px] truncate">
                       {s.personName}
                     </div>
-                    <div className="text-foreground/55 text-[12px] truncate">
+                    <div className="text-foreground/65 text-[12px] truncate">
                       {[s.role, s.ventureName].filter(Boolean).join(" · ")}
                     </div>
                   </div>

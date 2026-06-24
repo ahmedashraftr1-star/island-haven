@@ -112,7 +112,7 @@ export default function Investors() {
 
           {!isLoading && investors.length === 0 && (
             <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-              <p className="text-white/30 text-[14px]">يُعلَن عنهم قريباً.</p>
+              <p className="text-white/65 text-[14px] font-semibold">يُعلَن عنهم قريباً.</p>
             </div>
           )}
 
@@ -131,7 +131,7 @@ export default function Investors() {
                         <img src={inv.logoUrl} alt={inv.name} className="w-12 h-12 rounded-xl object-cover border border-white/10 flex-shrink-0" />
                       ) : (
                         <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0 border border-white/[0.08]">
-                          <span className="text-xl font-bold text-white/30">{inv.name[0]}</span>
+                          <span className="text-xl font-bold text-white/60">{inv.name[0]}</span>
                         </div>
                       )}
                       <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[inv.type] ?? "bg-white/10 text-white/50 border-white/10"}`}>
@@ -142,7 +142,7 @@ export default function Investors() {
                     <div>
                       <h3 className="text-[15px] font-bold text-white">{inv.name}</h3>
                       {inv.investmentFocus && (
-                        <p className="text-[12px] text-white/40 mt-0.5">{inv.investmentFocus}</p>
+                        <p className="text-[12px] text-white/60 mt-0.5">{inv.investmentFocus}</p>
                       )}
                     </div>
 

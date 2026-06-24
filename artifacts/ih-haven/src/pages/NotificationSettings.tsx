@@ -200,7 +200,7 @@ export default function NotificationSettings() {
             );
           })}
 
-          <p className="flex items-center gap-2 text-white/40 text-[12px] pt-2 px-1">
+          <p className="flex items-center gap-2 text-white/60 text-[12px] pt-2 px-1">
             <Bell className="w-3.5 h-3.5 text-primary/70 shrink-0" />
             {t({
               ar: "نُرسل دائمًا الرّسائل الأساسيّة المتعلّقة بأمان حسابك بصرف النّظر عن هذه الإعدادات.",
