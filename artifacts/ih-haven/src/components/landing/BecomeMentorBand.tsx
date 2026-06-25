@@ -1,24 +1,46 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { I18N } from "@/lib/i18n";
 
 /**
- * BecomeMentorBand — editorial, photo-forward band in the approved WhatYouGet
- * language. Real Gaza imagery on one column; an oversized solid headline, lead,
- * and a quiet hairline ledger of what mentoring gives (replacing the old pill
- * badges) plus a single decisive CTA on the other. Start-aligned, asymmetric.
- * Removed: text-accent-gradient heading, centered glass card, two-pill row.
+ * BecomeMentorBand — editorial, photo-forward band in the approved WhatYouGet /
+ * About house style. Real Gaza imagery on one column; an oversized SOLID headline
+ * with a single crimson accent word, a lead in the authentic brand voice, and a
+ * quiet hairline ledger (cerulean data numerals) of what mentoring is — plus one
+ * decisive crimson CTA. Ties to the "Networking & Global Impact" axis: talent is
+ * not bound by geography. Start-aligned, asymmetric.
+ * No gradient text, no glass, no icon-tile grid, no pill row.
  */
 export function BecomeMentorBand() {
   const { lang, t } = useLanguage();
-  const s = I18N.landing.becomeMentor;
 
   const idx = (i: number) =>
     lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣"][i];
 
-  const reasons = [t(s.badge1), t(s.badge2), t(s.badge3)];
+  const ledger = [
+    {
+      title: t({ ar: "جلسة واحدة تكفي", en: "One session is enough" }),
+      body: t({
+        ar: "وقتك أنت — جلسة فرديّة واحدة منك قد تُغيّر مسار حياةٍ كاملة.",
+        en: "Your schedule — a single 1:1 session from you can change the course of a life.",
+      }),
+    },
+    {
+      title: t({ ar: "خبرتك، لا جغرافيتك", en: "Your expertise, not your geography" }),
+      body: t({
+        ar: "تُرشد عن بُعد من أيّ مكان في العالم — لأنّ الموهبة لا تحدّها الحدود.",
+        en: "Mentor remotely from anywhere — because talent is not bound by borders.",
+      }),
+    },
+    {
+      title: t({ ar: "أثر يتجاوز الحدود", en: "Impact beyond the borders" }),
+      body: t({
+        ar: "تربط كفاءة غزّيّة بالاقتصاد الرقميّ العالميّ — أثرٌ حقيقيّ، مجّانًا تمامًا.",
+        en: "You connect Gazan talent to the global digital economy — real impact, entirely free.",
+      }),
+    },
+  ];
 
   return (
     <section
@@ -54,31 +76,39 @@ export function BecomeMentorBand() {
             className="lg:col-span-7"
           >
             <div className="eyebrow eyebrow-sand mb-5">
-              {t(s.eyebrow)}
+              {t({ ar: "كُن جزءًا من القصّة", en: "Be part of the story" })}
             </div>
 
             <h2
               className="font-display font-extrabold text-foreground"
               style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.2rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
             >
-              {t(s.title)} <span className="text-sand">{t(s.highlight)}</span>
+              {t({ ar: "أرشِد موهبةً ", en: "Mentor talent " })}
+              <span className="text-primary">{t({ ar: "لا تحدّها الجغرافيا", en: "the world hasn't met yet" })}</span>
+              {t({ ar: ".", en: "." })}
             </h2>
 
             <p className="t-body mt-5 max-w-xl">
-              {t(s.body)}
+              {t({
+                ar: "خبراء ومؤسّسون ومتخصّصون من حول العالم — شاركوا جيلًا غزّيًّا شابًّا ما تعلّمتموه. جلسة إرشادٍ فرديّة واحدة منكم قد تفتح بابًا كانت الحرب قد أغلقته.",
+                en: "Experts, founders and specialists worldwide — share what you've learned with a young Gazan generation. One 1:1 mentoring session from you can open a door the war had closed.",
+              })}
             </p>
 
-            {/* Quiet hairline ledger — replaces the two-pill badge row */}
+            {/* Quiet hairline ledger — cerulean data numerals, no cards */}
             <div className="mt-8 border-t border-border-strong">
-              {reasons.map((label, i) => (
+              {ledger.map((item, i) => (
                 <div
-                  key={label}
-                  className="grid grid-cols-[auto_1fr] gap-x-5 items-baseline border-b border-border py-4"
+                  key={item.title}
+                  className="grid grid-cols-[auto_1fr] gap-x-5 sm:gap-x-7 items-baseline border-b border-border py-5"
                 >
-                  <span className="font-display text-[15px] font-bold tabular-nums text-sand leading-none">
+                  <span className="font-display text-[15px] font-bold tnum text-sand leading-none">
                     {idx(i)}
                   </span>
-                  <span className="text-[15px] font-semibold text-foreground">{label}</span>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-foreground">{item.title}</h3>
+                    <p className="t-body mt-1.5 max-w-lg">{item.body}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -89,8 +119,7 @@ export function BecomeMentorBand() {
               data-testid="cta-become-mentor"
               onClick={() => console.log("[analytics] become-mentor cta clicked", { ref: "home-banner" })}
             >
-              <Sparkles className="w-4 h-4" />
-              {t(s.cta)}
+              {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
             </Link>
           </motion.div>

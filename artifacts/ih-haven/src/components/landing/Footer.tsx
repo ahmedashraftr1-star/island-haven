@@ -72,19 +72,27 @@ export function Footer() {
 
   return (
     <footer className="relative bg-surface-1 border-t border-border-strong pt-20 pb-10">
-      <div className="container-ih">
-        <div className="grid grid-cols-12 gap-6 lg:gap-10 mb-16">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
+
+      <div className="container-ih relative">
+        <div className="grid grid-cols-12 gap-6 lg:gap-10 mb-16 items-start">
           <div className="col-span-12 lg:col-span-9">
-            <div className="eyebrow mb-5">
-              {c.colophonEyebrow}
+            <div className="eyebrow mb-6">
+              {t({ ar: "إيماننا", en: "What we believe" })}
             </div>
-            <h2 className="t-h1">
-              {c.signOffA} <span className="text-sand">{c.signOffAccent}</span>
-              <br />
-              {c.signOffB}
+            <h2
+              className="font-display font-extrabold text-foreground max-w-4xl"
+              style={{ fontSize: "clamp(1.9rem, 4.4vw, 3.4rem)", lineHeight: 1.08, letterSpacing: "-0.03em" }}
+            >
+              {t({ ar: "نؤمن أنّ الموهبة لا ", en: "We believe talent is not bound by " })}
+              <span className="text-primary">{t({ ar: "تحدّها الجغرافيا", en: "geography" })}</span>
+              {t({ ar: ".", en: "." })}
             </h2>
+            <p className="t-body-lg mt-5 text-fg-secondary max-w-xl">
+              {t({ ar: "مساحة تتّسع لأحلامك — من قلب غزّة، إلى العالم.", en: "A space wide enough for your dreams — from the heart of Gaza, to the world." })}
+            </p>
           </div>
-          <div className="col-span-12 lg:col-span-3 lg:text-end font-mono text-caption text-muted-foreground flex items-end lg:justify-end">
+          <div className="col-span-12 lg:col-span-3 lg:text-end font-mono text-caption text-muted-foreground flex items-start lg:justify-end">
             <div>
               {c.estLabel}
               <br />
@@ -103,22 +111,34 @@ export function Footer() {
               {c.aboutBody}
             </p>
             {socials.length > 0 && (
-              <div className="flex items-center gap-2 mb-6">
-                {socials.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <a
-                      key={s.label}
-                      href={s.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={s.label}
-                      className="w-10 h-10 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary hover:text-primary hover:border-primary/35 transition-colors"
-                    >
-                      <Icon className="w-4 h-4" />
-                    </a>
-                  );
-                })}
+              <div className="mb-6">
+                <div className="flex items-center gap-2">
+                  {socials.map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <a
+                        key={s.label}
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={s.label}
+                        className="w-10 h-10 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary hover:text-primary hover:border-primary/35 transition-colors"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </a>
+                    );
+                  })}
+                </div>
+                {contact.instagram && (
+                  <a
+                    href={contact.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-fg-faint hover:text-primary transition-colors w-fit"
+                  >
+                    <span dir="ltr">@ih_haven</span>
+                  </a>
+                )}
               </div>
             )}
             {(contact.email || contact.phone || contact.whatsapp) && (

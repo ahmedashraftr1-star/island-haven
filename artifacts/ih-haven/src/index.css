@@ -46,15 +46,16 @@
   --color-accent-2: hsl(var(--accent-2));
   --color-accent-2-soft: hsl(var(--accent-2-soft));
 
-  /* ── GAZA PLACE-IDENTITY — warm coastal accent (sand / sunlit clay / amber-gold).
-     The vibrant, professional secondary for section HIGHLIGHTS: index numerals,
-     eyebrows, small data, underlines, hairline tints. NEVER for primary CTAs
-     (those stay brand red). Read these from section agents. ── */
-  --color-sand: hsl(var(--sand));               /* warm amber-gold — highlights / numerals */
-  --color-sand-bright: hsl(var(--sand-bright)); /* brighter sunlit gold — emphasis on dark */
-  --color-sand-soft: hsl(var(--sand-soft));     /* deep clay tint — chip / wash fills */
-  --color-sand-deep: hsl(var(--sand-deep));     /* deepest clay — borders on sand chips */
-  --color-accent-warm: hsl(var(--sand));        /* alias — same warm Gaza accent */
+  /* ── BRAND COOL ACCENT — Dark Cerulean family (#083E7F → bright azure).
+     The brand's supporting tone for section HIGHLIGHTS: index numerals, small
+     data, underlines, hairline tints, the cerulean radial glow. NEVER for primary
+     CTAs (those stay Alizarin Crimson). Kept under the legacy "sand" var names so
+     existing utilities stay wired — now resolves to the authentic brand cerulean. ── */
+  --color-sand: hsl(var(--sand));               /* bright cerulean — highlights / numerals */
+  --color-sand-bright: hsl(var(--sand-bright)); /* brighter azure — display emphasis on dark */
+  --color-sand-soft: hsl(var(--sand-soft));     /* deep cerulean tint — chip / wash fills */
+  --color-sand-deep: hsl(var(--sand-deep));     /* deepest cerulean — borders on cool chips */
+  --color-accent-warm: hsl(var(--sand));        /* alias — same brand cerulean accent */
   --color-accent-warm-soft: hsl(var(--sand-soft));
 
   --color-secondary: hsl(var(--secondary));
@@ -99,7 +100,7 @@
   /* Component border tokens (referenced by ui/button + ui/badge). Subtle lit
      edges that sit on the brand/secondary/destructive fills without muddying
      them on the dark canvas. */
-  --primary-border: hsl(354 82% 64%);
+  --primary-border: hsl(355 80% 64%);
   --secondary-border: hsl(225 16% 27%);
   --destructive-border: hsl(0 72% 60%);
 
@@ -124,18 +125,19 @@
   --popover-foreground: 210 24% 98%;
   --popover-border: 225 16% 27%;
 
-  /* ── PRIMARY — warm red, made luminous, with a real gradient travel. ──
-     NOTE the two-rung red system:
-       --primary      (58% L) — tuned for red TEXT/accents on the dark canvas
-                                 (passes AA as text on surfaces ≈4.5:1).
-       --primary-cta  (49% L) — darker FILL used behind WHITE button labels so
-                                 white-on-red reaches ≈4.76:1 (WCAG AA). 58% L
-                                 only reached 3.95:1 with white — the failing case. */
-  --primary: 354 82% 58%;            /* #E83D52 — red text / accents */
-  --primary-cta: 354 82% 49%;        /* AA fill behind white CTA labels */
+  /* ── PRIMARY — Alizarin Crimson #E32738, the brand's signature red. ──
+     Two-rung system tuned for the dark canvas:
+       --primary       (~55% L) — brand crimson for red TEXT/accents on dark
+                                  (passes AA as text on surfaces ≈4.5:1).
+       --primary-cta   (~46% L) — darker FILL behind WHITE labels so white-on-red
+                                  reaches ≈4.8:1 (WCAG AA).
+       --primary-pressed        — Carmine #9B0013, the brand's deep pressed red. */
+  --primary: 355 80% 55%;            /* Alizarin Crimson — red text / accents */
+  --primary-cta: 354 80% 46%;        /* AA fill behind white CTA labels */
+  --primary-pressed: 353 100% 30%;   /* Carmine #9B0013 — pressed / active red */
   --primary-foreground: 0 0% 100%;
-  --primary-soft: 354 58% 16%;       /* icon tiles */
-  --primary-bright: 11 88% 62%;      /* warm coral — gradient END */
+  --primary-soft: 354 60% 15%;       /* icon tiles / soft red wash */
+  --primary-bright: 356 86% 62%;     /* brighter brand crimson — gradient END (no coral) */
 
   --secondary: 224 22% 14%;
   --secondary-foreground: 210 24% 98%;
@@ -151,27 +153,30 @@
   --accent: 224 24% 14%;
   --accent-foreground: 210 24% 98%;
 
-  /* ── SECONDARY ACCENT — ONE cool tone (data/links/glints, never CTAs). ── */
-  --accent-2: 199 90% 58%;           /* #21AEF0 */
-  --accent-2-soft: 199 70% 14%;
+  /* ── SECONDARY ACCENT — brand Dark Cerulean (data/links/glints, never CTAs). ──
+     Shifted off the old cyan (199°, an AI-slop tell) onto the brand's true azure
+     hue family so it reads as the identity's cerulean, not generic neon-on-dark. */
+  --accent-2: 211 90% 60%;           /* bright brand azure/cerulean */
+  --accent-2-soft: 213 75% 15%;      /* Dark Cerulean #083E7F family — soft cool fill */
 
-  /* ── GAZA PLACE-IDENTITY — warm coastal accent (سند / clay / amber-gold). ──
-     The vibrant + professional highlight tone that gives the page a sense of
-     PLACE: coastal sunlight on sand and warm clay. Used for index numerals,
-     eyebrows, small data, underlines and quiet tints — NOT for CTAs (brand red).
-     Tuned to read luminous on the matte #0A0E1A canvas while passing AA as
-     text on surfaces (≈40% L → contrast ≈5.1:1 on surface-1; the -bright rung
-     is for larger display numerals where it pops without shouting). */
-  --sand: 38 92% 56%;                /* #F5A623 — warm amber-gold (numerals / highlights) */
-  --sand-bright: 42 96% 64%;         /* #FBC04A — sunlit gold (large display emphasis) */
-  --sand-soft: 32 60% 13%;           /* deep clay tint — chip / wash fills */
-  --sand-deep: 34 50% 22%;           /* clay border on sand chips */
+  /* ── BRAND COOL ACCENT — Dark Cerulean family (#083E7F). ──
+     The identity's supporting tone that pairs with crimson on navy (see the
+     brand stationery: red + navy + cerulean). Used for index numerals, small
+     data, underlines, quiet tints and the cerulean radial glow — NOT for CTAs
+     (those stay Alizarin Crimson). Kept under the legacy "sand" var names so the
+     wired utilities (.chip-sand / .eyebrow-sand / .hairline-sand) stay intact;
+     they now resolve to the authentic brand cerulean. Tuned to read luminous on
+     the matte #0A0E1A canvas while the -soft/-deep rungs give fills & borders. */
+  --sand: 211 90% 62%;               /* bright cerulean — numerals / highlights */
+  --sand-bright: 205 96% 70%;        /* brighter azure — large display emphasis */
+  --sand-soft: 213 75% 14%;          /* deep cerulean tint — chip / wash fills */
+  --sand-deep: 213 55% 26%;          /* cerulean border on cool chips */
 
   --destructive: 0 72% 52%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 224 22% 14%;
-  --ring: 354 82% 60%;
+  --ring: 355 80% 58%;
 
   /* Typography — IBM Plex Sans Arabic stays primary for Arabic.
      Inter is the Latin display partner (matches Galata, modern, neutral).
@@ -484,7 +489,8 @@
   background-color: hsl(var(--primary-cta));
   color: hsl(var(--primary-foreground));
 }
-.cta-fill:hover { background-color: hsl(354 82% 51%); } /* still ≥4.5:1 with white */
+.cta-fill:hover { background-color: hsl(355 80% 50%); } /* brand crimson, still ≥4.5:1 with white */
+.cta-fill:active { background-color: hsl(var(--primary-pressed)); } /* Carmine on press */
 
 /* ── ICON TILE — 44px square, 14px radius, primary-soft fill, primary icon. ── */
 @utility icon-tile {
@@ -535,7 +541,7 @@
   border: 1px solid hsl(var(--accent-2) / 0.28);
 }
 
-/* ── GAZA WARM chip — sand/clay highlight (place identity), never a CTA. ──
+/* ── BRAND CERULEAN chip — cool azure highlight (supporting accent), never a CTA. ──
    Use for small data badges, "free" markers, category tags. */
 @utility chip-sand {
   background: hsl(var(--sand-soft));
@@ -543,11 +549,11 @@
   border: 1px solid hsl(var(--sand) / 0.30);
 }
 
-/* Warm eyebrow variant — same eyebrow geometry, place-identity sand tone.
+/* Cerulean eyebrow variant — same eyebrow geometry, brand cool tone.
    Compose: class="eyebrow eyebrow-sand". */
 .eyebrow-sand { color: hsl(var(--sand)); }
 
-/* Warm hairline — a sand-tinted divider for sections that want the place
+/* Cerulean hairline — an azure-tinted divider for sections that want the cool
    accent to carry the rhythm instead of the neutral border-strong. */
 @utility hairline-sand {
   background-image: linear-gradient(
@@ -558,6 +564,17 @@
   );
   height: 1px;
   width: 100%;
+}
+
+/* ── SIGNATURE BRAND AURA — the cerulean radial glow on navy from the identity
+   (deep azure bloom behind a focal lockup). Place on an absolute/fixed full-bleed
+   div behind hero / closing statement sections. Crimson kept to a faint top kiss
+   so the brand's two accents read together, exactly as on the brand collateral. */
+@utility brand-aura {
+  background:
+    radial-gradient(58% 50% at 50% 42%, hsl(var(--accent-2) / 0.16) 0%, transparent 70%),
+    radial-gradient(40% 40% at 50% 0%, hsl(var(--primary) / 0.10) 0%, transparent 65%);
+  pointer-events: none;
 }
 
 /* Hairline divider with center fade — uses border-strong so it actually reads. */
