@@ -5,6 +5,11 @@ import {
   ArrowLeft,
   CalendarDays,
   Clock,
+  ClipboardList,
+  MessageSquare,
+  Users,
+  Rocket,
+  type LucideIcon,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
@@ -89,9 +94,12 @@ export function ApplyProcess() {
   const idx = (i: number) =>
     lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣", "٠٤"][i];
 
-  const steps = [
+  const steps: {
+    no: string; title: string; en: string; body: string; meta: string; icon: LucideIcon;
+  }[] = [
     {
       no: "01",
+      icon: ClipboardList,
       title: t({ ar: "تقدّم بطلبك", en: "Apply" }),
       en: "Apply",
       body: t({
@@ -102,6 +110,7 @@ export function ApplyProcess() {
     },
     {
       no: "02",
+      icon: MessageSquare,
       title: t({ ar: "المراجعة والمقابلة", en: "Review & interview" }),
       en: "Review",
       body: t({
@@ -112,6 +121,7 @@ export function ApplyProcess() {
     },
     {
       no: "03",
+      icon: Users,
       title: t({ ar: "الانضمام إلى دفعة", en: "Onboard into a cohort" }),
       en: "Onboard",
       body: t({
@@ -122,6 +132,7 @@ export function ApplyProcess() {
     },
     {
       no: "04",
+      icon: Rocket,
       title: t({ ar: "يوم العرض", en: "Demo Day" }),
       en: "Demo Day",
       body: t({
@@ -226,11 +237,16 @@ export function ApplyProcess() {
                 variants={reduce ? undefined : rise}
                 className="group grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-7 sm:py-9 first:border-t-0 first:pt-0"
               >
-                <span className="font-display text-[clamp(1.5rem,2.4vw,2.1rem)] font-bold tabular-nums text-sand leading-none">
+                <span className="font-display text-[clamp(2rem,3.6vw,3.2rem)] font-black tabular-nums text-sand leading-none transition-colors group-hover:text-sand-bright">
                   {idx(i)}
                 </span>
                 <div>
-                  <div className="eyebrow eyebrow-sand mb-2">{s.en}</div>
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-sand-soft text-sand-bright ring-1 ring-sand/25">
+                      <s.icon className="h-3.5 w-3.5" strokeWidth={2.1} />
+                    </span>
+                    <span className="eyebrow eyebrow-sand">{s.en}</span>
+                  </div>
                   <h3
                     className="font-display font-bold text-foreground"
                     style={{ fontSize: "clamp(1.3rem, 2.2vw, 1.85rem)", letterSpacing: "-0.018em", lineHeight: 1.15 }}

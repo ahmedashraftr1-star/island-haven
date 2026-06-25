@@ -4,6 +4,7 @@ import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
 import { NumbersBand } from "@/components/landing/NumbersBand";
+import { FloatingContact } from "@/components/landing/FloatingContact";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
 // Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
@@ -15,6 +16,7 @@ const VenturesBand = lazy(() => named(import("@/components/landing/VenturesBand"
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
 const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
 const SuccessStories = lazy(() => named(import("@/components/landing/SuccessStories"), "SuccessStories"));
+const CinematicBand = lazy(() => named(import("@/components/landing/CinematicBand"), "CinematicBand"));
 const NewsSlider = lazy(() => named(import("@/components/landing/NewsSlider"), "NewsSlider"));
 const HoursLocation = lazy(() => named(import("@/components/landing/HoursLocation"), "HoursLocation"));
 const ApplyProcess = lazy(() => named(import("@/components/landing/ApplyProcess"), "ApplyProcess"));
@@ -55,6 +57,7 @@ export default function Home() {
             <ExpertsBand />
             <Audience />
             <SuccessStories />
+            <CinematicBand />
             <NewsSlider />
             <HoursLocation />
             <ApplyProcess />
@@ -70,6 +73,7 @@ export default function Home() {
           <AdminShortcut />
         </Suspense>
       </SectionErrorBoundary>
+      <FloatingContact />
     </div>
   );
 }

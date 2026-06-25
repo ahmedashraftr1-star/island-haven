@@ -184,6 +184,18 @@ export function VenturesBand() {
             );
           })}
         </div>
+
+        {/* Confident terminal CTA — prominent + centered, visible on every breakpoint */}
+        <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex justify-center">
+          <Link
+            href="/ventures"
+            data-testid="ventures-band-cta"
+            className="cta-fill group inline-flex items-center gap-2.5 h-[52px] px-8 rounded-full font-bold text-[14.5px] shadow-[0_18px_44px_-16px_hsl(354_82%_34%/0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200"
+          >
+            {t({ ar: "استكشف كلّ المشاريع", en: "Explore all ventures" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

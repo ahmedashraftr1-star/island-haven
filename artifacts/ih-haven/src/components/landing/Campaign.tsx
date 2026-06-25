@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { EditorialHeader } from "./EditorialHeader";
 import { MagneticButton } from "./MagneticButton";
+import { TrustStrip } from "./TrustStrip";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const TIERS_AR = [
@@ -74,22 +75,32 @@ export function Campaign() {
             transition={{ duration: 0.5 }}
             className="col-span-12 lg:col-span-5 relative"
           >
-            <div className="overflow-hidden rounded-[20px] border border-border-strong shadow-[0_12px_32px_-12px_hsl(226_60%_2%_/_0.6)]">
+            <div className="relative overflow-hidden rounded-[20px] border border-border-strong shadow-[0_12px_32px_-12px_hsl(226_60%_2%_/_0.6)]">
               <img
                 src={`${import.meta.env.BASE_URL}photos/IMG_8300.webp`}
                 alt="Island Haven workspace in Gaza"
-                className="w-full aspect-[5/4] object-cover saturate-[1.06]"
+                className="w-full aspect-[4/5] object-cover saturate-[1.06]"
               />
-            </div>
-            <div className="absolute top-4 right-4 inline-flex items-center gap-2 chip-accent-2 rounded-full px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase font-bold tnum">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-accent-2/60 animate-ping" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
-              </span>
-              {lang === "en" ? "Open now · Live" : "مفتوحة الآن · Live"}
-            </div>
-            <div dir="ltr" className="absolute -bottom-4 left-4 text-caption tracking-[0.3em] uppercase font-bold text-fg-faint">
-              Plate · 13A
+              {/* Big campaign year overlay — reference-site register */}
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 p-6 lg:p-7">
+                <div
+                  className="font-display font-black text-white leading-[0.85] tnum"
+                  style={{ fontSize: "clamp(3rem, 7vw, 5rem)", letterSpacing: "-0.04em" }}
+                >
+                  {lang === "en" ? "2026" : "٢٠٢٦"}
+                </div>
+                <div className="mt-2 text-[11px] tracking-[0.18em] uppercase text-white/85 font-semibold">
+                  {lang === "en" ? "New branch campaign" : "حملة الفرع الجديد"}
+                </div>
+              </div>
+              <div className="absolute top-4 end-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase font-bold tnum bg-[#0A0E1A]/70 backdrop-blur-sm border border-white/15 text-white">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent-2/60 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
+                </span>
+                {lang === "en" ? "Open now · Live" : "مفتوحة الآن · Live"}
+              </div>
             </div>
           </motion.div>
 
@@ -185,6 +196,9 @@ export function Campaign() {
                 {lang === "en" ? "Details on nastonas.org →" : "التفاصيل على nastonas.org →"}
               </a>
             </div>
+
+            {/* Trust indicators — credibility near the ask (reference-site register) */}
+            <TrustStrip className="mt-10 pt-8 border-t border-border-strong" />
           </div>
         </div>
       </div>
