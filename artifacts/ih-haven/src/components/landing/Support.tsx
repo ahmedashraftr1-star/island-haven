@@ -131,20 +131,21 @@ export function Support() {
               }}
             />
             <div className="relative">
-              <div className="eyebrow mb-1">{lang === "en" ? "Donate" : c.donateEyebrow}</div>
-              <div className="text-[12px] text-foreground/55 font-medium mb-9">
+              {/* Inverted card: text must be explicit DARK (never the near-white --foreground / .t-body tokens) */}
+              <div className="eyebrow mb-1" style={{ color: "hsl(var(--primary-cta))" }}>{lang === "en" ? "Donate" : c.donateEyebrow}</div>
+              <div className="text-[12px] text-[#0A0E1A]/55 font-medium mb-9">
                 {t({ ar: "عبر مبادرة «من النّاس إلى النّاس»", en: "Through the من النّاس إلى النّاس initiative" })}
               </div>
 
               <h3
-                className="font-display font-extrabold text-foreground"
+                className="font-display font-extrabold text-[#0A0E1A]"
                 style={{ fontSize: "clamp(1.75rem, 3.6vw, 3rem)", lineHeight: 1.06, letterSpacing: "-0.028em" }}
               >
                 {t({ ar: "كلّ مساهمة تُبقي", en: "Every gift keeps" })}
                 <br />
                 {t({ ar: "الأبواب مفتوحة.", en: "the doors open." })}
               </h3>
-              <p className="t-body mt-5 max-w-lg text-foreground/65">
+              <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-[#0A0E1A]/70">
                 {t({
                   ar: "تبرّعك يموّل المقاعد والإنترنت والكهرباء والإرشاد — لتبقى الحاضنة مجّانيّة لكلّ موهبة غزّيّة.",
                   en: "Your gift funds the seats, the internet, the power and the mentorship — so the incubator stays free for every Gazan talent.",
@@ -157,7 +158,7 @@ export function Support() {
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 </span>
                 {c.donateNote && (
-                  <span className="tnum text-[12px] text-foreground/45 font-medium">{c.donateNote}</span>
+                  <span className="tnum text-[12px] text-[#0A0E1A]/45 font-medium">{c.donateNote}</span>
                 )}
               </div>
             </div>

@@ -53,9 +53,9 @@ export function Programs() {
           label={lang === "en" ? "Events & Programs" : c.label}
           title={
             lang === "en" ? (
-              <>The space breathes through its people,<br /><span className="text-accent-gradient">not its walls.</span></>
+              <>The space breathes through its people,<br /><span className="text-primary">not its walls.</span></>
             ) : (
-              <>{c.titleA}<br /><span className="text-accent-gradient">{c.titleAccent}</span></>
+              <>{c.titleA}<br /><span className="text-primary">{c.titleAccent}</span></>
             )
           }
           sub={

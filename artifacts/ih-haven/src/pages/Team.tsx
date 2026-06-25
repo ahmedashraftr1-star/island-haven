@@ -200,37 +200,27 @@ export default function Team() {
         </>
       )}
 
-      {/* Join us */}
-      <div className="relative mt-16 rounded-[28px] p-8 sm:p-11 bg-white/[0.04] border border-white/10 text-center overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, hsl(354 80% 55% / 0.12), transparent 70%)",
-          }}
-        />
-        <div className="relative">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/25 mb-4">
-            <Sparkles className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="text-white font-bold text-[19px] sm:text-[21px] mb-2.5">
-            {t({ ar: "هل تريد الانضمام إلى الفريق؟", en: "Want to join the team?" })}
-          </h3>
-          <p className="text-white/55 text-[14px] leading-[1.9] max-w-md mx-auto mb-6">
-            {t({
-              ar: "نَبحث دائماً عن مرشدين، وخبراء قطاع, ومتطوّعين يُؤمنون بريادة الأعمال في غزّة. راسلنا وقُل لنا كيف تُريد أن تُساهم.",
-              en: "We're always looking for mentors, industry experts, and volunteers who believe in entrepreneurship in Gaza. Write to us and tell us how you'd like to contribute.",
-            })}
-          </p>
-          <a
-            href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
-          >
-            <Mail className="w-4 h-4" />
-            {t({ ar: "راسلنا", en: "Email Us" })}
-          </a>
-        </div>
+      {/* Join us — start-aligned editorial band (mirrors landing/BecomeMentorBand) */}
+      <div className="mt-16 surface-2 rounded-[28px] p-8 sm:p-11">
+        <h3
+          className="font-display font-extrabold text-foreground"
+          style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.08, letterSpacing: "-0.025em" }}
+        >
+          {t({ ar: "هل تريد الانضمام إلى الفريق؟", en: "Want to join the team?" })}
+        </h3>
+        <p className="t-body mt-4 max-w-xl">
+          {t({
+            ar: "نَبحث دائماً عن مرشدين، وخبراء قطاع, ومتطوّعين يُؤمنون بريادة الأعمال في غزّة. راسلنا وقُل لنا كيف تُريد أن تُساهم.",
+            en: "We're always looking for mentors, industry experts, and volunteers who believe in entrepreneurship in Gaza. Write to us and tell us how you'd like to contribute.",
+          })}
+        </p>
+        <a
+          href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
+          className="group mt-8 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
+        >
+          <Mail className="w-4 h-4" />
+          {t({ ar: "راسلنا", en: "Email Us" })}
+        </a>
       </div>
     </PageShell>
   );

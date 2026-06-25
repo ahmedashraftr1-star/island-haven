@@ -531,8 +531,12 @@
   font-feature-settings: "kern", "calt", "ss01";
   color: hsl(var(--primary));
 }
-/* Arabic must never be tracked — neutralise the eyebrow tracking in RTL. */
-[dir="rtl"] .eyebrow { letter-spacing: 0 !important; }
+/* Arabic must never be tracked — neutralise kicker/caption tracking in RTL
+   (eyebrow + its cerulean variant + caption + cool chip all carry tracking). */
+[dir="rtl"] .eyebrow,
+[dir="rtl"] .eyebrow-sand,
+[dir="rtl"] .t-caption,
+[dir="rtl"] .chip-sand { letter-spacing: 0 !important; }
 
 /* ── COOL ACCENT chip — LIVE / data only, never a CTA. ── */
 @utility chip-accent-2 {

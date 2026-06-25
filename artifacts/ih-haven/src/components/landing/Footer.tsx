@@ -134,7 +134,7 @@ export function Footer() {
                     href={contact.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-fg-faint hover:text-primary transition-colors w-fit"
+                    className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-primary transition-colors w-fit"
                   >
                     <span dir="ltr">@ih_haven</span>
                   </a>
@@ -245,9 +245,9 @@ export function Footer() {
             <p>{c.bottomTag}</p>
             <a
               href={`${import.meta.env.BASE_URL}admin`}
-              aria-label="لوحة الإدارة"
-              title="لوحة الإدارة (Cmd/Ctrl + Shift + A)"
-              className="group inline-flex items-center justify-center w-7 h-7 rounded-full border border-border text-fg-faint hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
+              aria-label={t({ ar: "لوحة الإدارة", en: "Admin panel" })}
+              title={t({ ar: "لوحة الإدارة (Cmd/Ctrl + Shift + A)", en: "Admin panel (Cmd/Ctrl + Shift + A)" })}
+              className="group inline-flex items-center justify-center w-7 h-7 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

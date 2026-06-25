@@ -149,7 +149,12 @@ export function Campaign() {
                       <div className="t-h3">
                         {lang === "en" ? t.en : t.ar}
                       </div>
-                      <div dir="ltr" className="text-caption tracking-[0.2em] uppercase text-muted-foreground mt-1">
+                      <div
+                        dir={lang === "en" ? "rtl" : "ltr"}
+                        className={`text-caption uppercase text-muted-foreground mt-1 ${
+                          lang === "en" ? "" : "tracking-[0.2em]"
+                        }`}
+                      >
                         {lang === "en" ? t.ar : t.en}
                       </div>
                     </div>

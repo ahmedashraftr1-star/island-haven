@@ -19,7 +19,7 @@ const FALLBACK = {
 };
 
 export function Header() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const cms = useContentSection("header", FALLBACK);
   const c = {
     ...cms,
@@ -82,7 +82,7 @@ export function Header() {
         </Link>
 
         <nav
-          aria-label="التنقّل الرئيسيّ"
+          aria-label={t({ ar: "التنقّل الرئيسيّ", en: "Main navigation" })}
           className="hidden xl:flex flex-1 items-center justify-center gap-0.5 mx-2 min-w-0"
         >
           <NavRail tone="onDark" pillId="header-rail" />
@@ -111,6 +111,8 @@ export function Header() {
           onClick={() => setOpen((v) => !v)}
           className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 border border-white/20 bg-white/10 backdrop-blur-md text-white"
           aria-label={c.menuLabel}
+          aria-expanded={open}
+          aria-controls="mobile-nav-panel"
           data-testid="button-mobile-menu"
         >
           {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -121,6 +123,7 @@ export function Header() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id="mobile-nav-panel"
             initial={{ y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}

@@ -70,7 +70,7 @@ export default function NotFound() {
               letterSpacing: "-0.04em",
             }}
           >
-            <span className="text-accent-gradient">{t({ ar: "٤٠٤", en: "404" })}</span>
+            <span className="text-primary">{t({ ar: "٤٠٤", en: "404" })}</span>
           </h1>
 
           <p className="text-[20px] sm:text-[24px] font-bold text-white mb-3 leading-tight">

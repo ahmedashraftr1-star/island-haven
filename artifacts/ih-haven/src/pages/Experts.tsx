@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { ArrowLeft, Star, Clock, Users, Search, X, UserPlus, Briefcase } from "lucide-react";
+import { ArrowLeft, Star, Clock, Users, Search, X, Briefcase } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
@@ -124,7 +124,7 @@ export default function Experts() {
 
   useEffect(() => {
     document.title =
-      lang === "ar" ? "خبراء آيلاند — Island Haven" : "Experts — Island Haven";
+      lang === "ar" ? "مرشدو آيلاند — Island Haven" : "Island Haven Mentors";
   }, [lang]);
 
   useEffect(() => {
@@ -215,8 +215,8 @@ export default function Experts() {
         ar: "شبكة الخبراء · إرشاد فرديّ مَجّانيّ",
         en: "Expert Network · Free 1:1 Mentorship",
       })}
-      title={t({ ar: "خبراء", en: "Island Haven" })}
-      highlight={t({ ar: "آيلاند", en: "Experts" })}
+      title={t({ ar: "مرشدو", en: "Island Haven" })}
+      highlight={t({ ar: "آيلاند", en: "Mentors" })}
       subtitle={t({
         ar: "ثلاثة فِرَق من المرشدين وروّاد الأعمال والمتخصّصين — يرافقونك جلسةً بعد جلسة، حتّى تتحوّل الفكرة إلى مشروع، والمشروع إلى أثر.",
         en: "Three teams of mentors, founders, and specialists — with you session after session, turning ideas into ventures and ventures into impact.",
@@ -230,7 +230,7 @@ export default function Experts() {
         <SkeletonExperts />
       ) : rows && rows.length === 0 ? (
         <EmptyState
-          title={t({ ar: "سيُعلَن عن الخبراء قريبًا", en: "Experts coming soon" })}
+          title={t({ ar: "سيُعلَن عن المرشدين قريبًا", en: "Mentors coming soon" })}
           hint={t({
             ar: "نُجهّز شبكة من أفضل المرشدين لمجتمع آيلاند.",
             en: "We're assembling a network of top mentors for the Island Haven community.",
@@ -317,7 +317,7 @@ export default function Experts() {
                   onClick={() => setActiveTag(null)}
                   className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
                     !activeTag
-                      ? "bg-primary text-white border-primary"
+                      ? "cta-fill border-transparent"
                       : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
                   }`}
                 >
@@ -330,7 +330,7 @@ export default function Experts() {
                     onClick={() => setActiveTag(activeTag === tag ? null : tag)}
                     className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
                       activeTag === tag
-                        ? "bg-primary text-white border-primary"
+                        ? "cta-fill border-transparent"
                         : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
                     }`}
                   >
@@ -344,7 +344,7 @@ export default function Experts() {
           {/* Empty state when search/filter matches nothing */}
           {isFiltering && (filtered?.length ?? 0) === 0 ? (
             <EmptyState
-              title={t({ ar: "لا يوجد خبراء مطابقون", en: "No matching experts" })}
+              title={t({ ar: "لا يوجد مرشدون مطابقون", en: "No matching mentors" })}
               hint={t({
                 ar: "جرّب بحثًا أو تصفيةً مختلفة.",
                 en: "Try a different search or filter.",
@@ -381,20 +381,19 @@ export default function Experts() {
             transition={{ duration: 0.55 }}
             className="mt-16 sm:mt-20"
           >
-            <div className="relative overflow-hidden rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-white/[0.02] to-primary/[0.04] p-8 sm:p-12">
-              <div className="pointer-events-none absolute -top-16 -start-16 w-64 h-64 rounded-full bg-primary/10 blur-3xl" />
-              <div className="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-center sm:text-start">
-                <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center">
-                  <UserPlus className="w-7 h-7 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-bold text-[20px] mb-2">
+            <div className="rounded-[24px] bg-surface-2 border border-border-strong shadow-soft p-8 sm:p-12">
+              <div className="flex flex-col gap-6 text-start lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+                <div className="max-w-2xl">
+                  <h3
+                    className="text-white font-bold"
+                    style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", lineHeight: 1.1, letterSpacing: "-0.025em" }}
+                  >
                     {t({
                       ar: "كن مرشداً في آيلاند",
                       en: "Become a Mentor at Island Haven",
                     })}
                   </h3>
-                  <p className="text-white/50 text-[14.5px] leading-relaxed max-w-lg">
+                  <p className="text-fg-secondary text-[14.5px] leading-relaxed mt-3">
                     {t({
                       ar: "شارك خبرتك مع الجيل القادم من روّاد الأعمال — انضمّ إلى شبكة المرشدين، واترك أثرًا يبقى.",
                       en: "Share your expertise with the next generation of founders — join the mentor network and leave a lasting impact.",
@@ -404,10 +403,10 @@ export default function Experts() {
                 <Link
                   href="/become-mentor"
                   data-testid="become-mentor-cta"
-                  className="flex-shrink-0 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-8px_rgba(201,54,58,0.5)] transition-all"
+                  className="group flex-shrink-0 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
                 >
                   {t({ ar: "كن مرشداً", en: "Become a Mentor" })}
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
                 </Link>
               </div>
             </div>

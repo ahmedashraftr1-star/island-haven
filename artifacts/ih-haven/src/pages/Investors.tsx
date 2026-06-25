@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  TrendingUp,
-  Globe,
-  Users,
-  Lightbulb,
-  ArrowLeft,
-  ExternalLink,
-  Mail,
-} from "lucide-react";
+import { ArrowLeft, ExternalLink, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
@@ -44,8 +36,6 @@ const TYPE_COLORS: Record<string, string> = {
   individual: "bg-white/10 text-white/50 border-white/10",
 };
 
-const WHY_ICONS = [Globe, Users, TrendingUp, Lightbulb];
-
 export default function Investors() {
   const { lang, t } = useLanguage();
   const p = I18N.pages.investors;
@@ -65,33 +55,36 @@ export default function Investors() {
       subtitle={t(p.subtitle)}
     >
       <div className="space-y-16">
-        {/* Why Invest */}
+        {/* Why Invest — start-aligned numbered hairline ledger */}
         <section>
-          <div className="text-center mb-10">
-            <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-2">{lang === "en" ? "Why Invest" : "لماذا تستثمر"}</div>
-            <h2 className="text-[26px] font-black text-white">{lang === "en" ? "Why Invest in Island Haven?" : "لماذا تستثمر في آيلاند؟"}</h2>
+          <div className="mb-8 sm:mb-10">
+            <div className="eyebrow eyebrow-sand mb-2">{lang === "en" ? "Why Invest" : "لماذا تستثمر"}</div>
+            <h2
+              className="font-display font-extrabold text-foreground"
+              style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.08, letterSpacing: "-0.025em" }}
+            >
+              {lang === "en" ? "Why Invest in Island Haven?" : "لماذا تستثمر في آيلاند؟"}
+            </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {p.whyItems.map((item, i) => {
-              const Icon = WHY_ICONS[i] ?? Globe;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ delay: i * 0.08 }}
-                >
-                  <GlassCard className="p-6 h-full">
-                    <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <h3 className="text-[16px] font-bold text-white mb-2">{t(item.title)}</h3>
-                    <p className="text-[13.5px] text-white/50 leading-relaxed">{t(item.desc)}</p>
-                  </GlassCard>
-                </motion.div>
-              );
-            })}
+          <div className="border-t border-border-strong">
+            {p.whyItems.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: i * 0.08 }}
+                className="grid grid-cols-[auto_1fr] gap-x-5 sm:gap-x-7 items-baseline border-b border-border py-5"
+              >
+                <span className="font-display text-[15px] font-bold tnum text-sand leading-none">
+                  {lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣", "٠٤"][i]}
+                </span>
+                <div>
+                  <h3 className="text-[15px] font-bold text-foreground">{t(item.title)}</h3>
+                  <p className="t-body mt-1.5 max-w-lg">{t(item.desc)}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </section>
 
@@ -169,27 +162,27 @@ export default function Investors() {
           )}
         </section>
 
-        {/* Investment CTA */}
+        {/* Investment CTA — start-aligned flat band */}
         <section>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] to-transparent p-10 text-center"
+            className="surface-2 rounded-[28px] p-8 sm:p-11"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-5">
-              <TrendingUp className="w-7 h-7 text-primary" />
-            </div>
-            <h3 className="text-[24px] font-black text-white mb-3">
+            <h3
+              className="font-display font-extrabold text-foreground"
+              style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.08, letterSpacing: "-0.025em" }}
+            >
               {t(p.investTitle)}
             </h3>
-            <p className="text-[14px] text-white/50 max-w-lg mx-auto mb-7 leading-relaxed">
+            <p className="t-body mt-4 max-w-xl">
               {t(p.investBody)}
             </p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="mt-8 flex items-center gap-3 flex-wrap">
               <a
-                href="mailto:invest@islandhaven.ps"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
+                href="mailto:island-haven@nastonas.org"
+                className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
               >
                 <Mail className="w-4 h-4" />
                 {t(p.contactBtn)}
@@ -198,7 +191,7 @@ export default function Investors() {
                 href="https://wa.me/972567536815"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-white/15 text-white/70 font-medium text-[14px] hover:border-white/30 hover:text-white transition-all"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-border-strong text-fg-secondary font-medium text-[14px] hover:border-foreground/30 hover:text-foreground transition-all"
               >
                 WhatsApp
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />

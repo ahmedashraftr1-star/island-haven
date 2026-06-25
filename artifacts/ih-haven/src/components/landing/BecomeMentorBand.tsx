@@ -117,7 +117,6 @@ export function BecomeMentorBand() {
               href="/become-mentor?ref=home-banner"
               className="group mt-9 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
               data-testid="cta-become-mentor"
-              onClick={() => console.log("[analytics] become-mentor cta clicked", { ref: "home-banner" })}
             >
               {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />

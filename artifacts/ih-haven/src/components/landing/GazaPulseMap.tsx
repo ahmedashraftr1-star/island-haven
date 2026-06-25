@@ -22,7 +22,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         aria-label={t({ ar: "خريطة قطاع غزّة", en: "Map of the Gaza Strip" })}
       >
         {/* Sea ripple background — three soft horizontal lines (cool accent: it's the Mediterranean / data context) */}
-        <g stroke="hsl(199 90% 58%)" strokeWidth="1" strokeLinecap="round" opacity="0.32">
+        <g stroke="hsl(var(--accent-2))" strokeWidth="1" strokeLinecap="round" opacity="0.32">
           <motion.path
             d="M 30 70 Q 80 64 130 70 T 230 70 T 300 68"
             initial={{ pathLength: 0 }}
@@ -48,9 +48,9 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
 
         {/* Compass rose, top-right */}
         <g transform="translate(280, 40)" opacity="0.55">
-          <circle cx="0" cy="0" r="14" stroke="hsl(199 70% 60%)" strokeWidth="0.8" fill="none" />
-          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(199 70% 60%)" strokeWidth="0.8" />
-          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(199 80% 68%)" fontWeight="600">N</text>
+          <circle cx="0" cy="0" r="14" stroke="hsl(var(--sand))" strokeWidth="0.8" fill="none" />
+          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(var(--sand))" strokeWidth="0.8" />
+          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(var(--sand-bright))" fontWeight="600">N</text>
         </g>
 
         {/* Gaza Strip silhouette — stylised, coastal, NE→SW.
@@ -154,7 +154,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             x="14"
             y="4"
             fontSize="10.5"
-            fill="hsl(42 96% 64%)"
+            fill="hsl(var(--primary))"
             fontWeight="700"
             initial={{ opacity: 0, x: 8 }}
             whileInView={{ opacity: 1, x: 14 }}

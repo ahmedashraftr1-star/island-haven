@@ -131,7 +131,7 @@ export function PageShell({
                   {highlight && (
                     <>
                       {" "}
-                      <span className="text-accent-gradient">{highlight}</span>
+                      <span className="text-primary">{highlight}</span>
                     </>
                   )}
                 </h1>
@@ -177,7 +177,7 @@ export function GlassCard({
     <div
       data-testid={testId}
       onClick={onClick}
-      className={`relative rounded-[24px] bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_20px_60px_-25px_rgba(0,0,0,0.6)] overflow-hidden ${className}`}
+      className={`relative rounded-[24px] bg-surface-2 border border-border-strong shadow-soft overflow-hidden ${className}`}
     >
       {children}
     </div>

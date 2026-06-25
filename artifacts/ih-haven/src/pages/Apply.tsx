@@ -398,7 +398,7 @@ export default function Apply() {
               }}
             >
               {c.titleLead}{" "}
-              <span className="text-accent-gradient">{c.titleAccent}</span>
+              <span className="text-primary">{c.titleAccent}</span>
             </h1>
             <p className="text-white/55 text-[14px] sm:text-[15.5px] leading-[1.85] mt-5 max-w-lg mx-auto">
               {c.subtitle}
@@ -741,21 +741,23 @@ export default function Apply() {
                   <SectionHeader index="08" title={c.sec8Title} sub={c.sec8Sub} />
                   <input
                     ref={cvInputRef}
+                    id="cv-upload-input"
                     type="file"
                     accept="application/pdf"
+                    aria-label={t({ ar: "ارفع سيرتك الذاتية (PDF)", en: "Upload your CV (PDF)" })}
                     className="sr-only"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) uploadCv(file);
                     }}
                   />
-                  <div
-                    className={`rounded-2xl border-2 border-dashed transition-colors ${
+                  <label
+                    htmlFor="cv-upload-input"
+                    className={`block rounded-2xl border-2 border-dashed transition-colors ${
                       cvUrl
                         ? "border-primary/40 bg-primary/[0.06]"
                         : "border-white/12 bg-white/[0.02] hover:border-white/25"
                     } p-5 text-center cursor-pointer`}
-                    onClick={() => !cvUploading && cvInputRef.current?.click()}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
@@ -774,7 +776,7 @@ export default function Apply() {
                         <span className="text-[13.5px] text-white font-medium">{cvFileName}</span>
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setCvUrl(""); setCvFileName(""); }}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCvUrl(""); setCvFileName(""); }}
                           className="text-[11px] text-white/60 hover:text-red-300 transition-colors underline underline-offset-2 mr-1"
                         >
                           {c.cvUploadRemove}
@@ -790,7 +792,7 @@ export default function Apply() {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </label>
                 </div>
 
                 {/* Error region */}
@@ -816,7 +818,7 @@ export default function Apply() {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className="group relative w-full overflow-hidden rounded-2xl h-14 bg-primary text-white font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
+                    className="cta-fill group relative w-full overflow-hidden rounded-2xl h-14 font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
                     data-testid="button-submit"
                   >
                     <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
@@ -1104,7 +1106,7 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
             </div>
             <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
               {c.successThanksLead}{" "}
-              <span className="text-accent-gradient">{firstName || c.successFallbackName}</span>
+              <span className="text-primary">{firstName || c.successFallbackName}</span>
             </h1>
             <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
               {bodyLines.map((line, i) => (

@@ -150,7 +150,7 @@ export default function Certificate() {
           </p>
 
           <h2
-            className="font-bold text-accent-gradient leading-snug mb-7 print:text-primary"
+            className="font-bold text-foreground leading-snug mb-7 print:text-primary"
             style={{ fontSize: "clamp(1.2rem, 3.5vw, 1.7rem)" }}
             data-testid="certificate-course"
           >

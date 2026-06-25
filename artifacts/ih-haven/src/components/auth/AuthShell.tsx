@@ -12,7 +12,7 @@ export function AuthBackgroundAura() {
         className="absolute inset-0 opacity-[0.5] pointer-events-none"
         style={{
           background:
-            "radial-gradient(60% 50% at 80% 0%, rgba(220,38,55,0.32) 0%, transparent 60%), radial-gradient(50% 40% at 0% 100%, rgba(220,38,55,0.16) 0%, transparent 60%)",
+            "radial-gradient(60% 50% at 80% 0%, hsl(var(--primary) / 0.32) 0%, transparent 60%), radial-gradient(50% 40% at 0% 100%, hsl(var(--primary) / 0.16) 0%, transparent 60%)",
         }}
       />
       <div
@@ -56,7 +56,7 @@ export function AuthShell({
             href="/"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
             العودة
           </Link>
           <div className="flex items-center gap-2.5">
@@ -94,7 +94,7 @@ export function AuthShell({
               {highlight && (
                 <>
                   {" "}
-                  <span className="text-accent-gradient">{highlight}</span>
+                  <span className="text-primary">{highlight}</span>
                 </>
               )}
             </h1>
@@ -107,14 +107,14 @@ export function AuthShell({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="relative rounded-[28px] p-6 sm:p-8 bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden"
+            className="relative rounded-[28px] p-6 sm:p-8 bg-surface-2 border border-border-strong shadow-soft overflow-hidden"
           >
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none opacity-60"
               style={{
                 background:
-                  "radial-gradient(80% 40% at 50% 0%, rgba(220,38,55,0.18) 0%, transparent 60%)",
+                  "radial-gradient(80% 40% at 50% 0%, hsl(var(--primary) / 0.18) 0%, transparent 60%)",
               }}
             />
             <div className="relative">{children}</div>

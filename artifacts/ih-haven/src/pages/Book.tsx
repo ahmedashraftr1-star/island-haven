@@ -98,7 +98,7 @@ const WEEKDAY_LABELS = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جم�
 const WEEKDAY_LABELS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Book() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const [step, setStep] = useState<Step>(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
@@ -195,12 +195,12 @@ export default function Book() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || "فشل الإرسال");
+        setError(d.error || t({ ar: "فشل الإرسال", en: "Submission failed" }));
         const m: Record<string, string> = {};
         for (const i of d.issues || []) m[i.path] = i.message;
         setIssues(m);
       } else {
-        setError("فشل الإرسال، حاول مجدّدًا");
+        setError(t({ ar: "فشل الإرسال، حاول مجدّدًا", en: "Submission failed, please try again" }));
       }
     } finally {
       setSubmitting(false);
@@ -253,9 +253,9 @@ export default function Book() {
             style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)" }}
           >
             {lang === "en" ? (
-              <>Come to{" "}<span className="text-accent-gradient">Island Haven</span><br />your seat awaits.</>
+              <>Come to{" "}<span className="text-primary">Island Haven</span><br />your seat awaits.</>
             ) : (
-              <>تعالَ إلى{" "}<span className="text-accent-gradient">آيلاند هيفن</span><br />مقعدك ينتظرك.</>
+              <>تعالَ إلى{" "}<span className="text-primary">آيلاند هيفن</span><br />مقعدك ينتظرك.</>
             )}
           </h1>
           <p className="mt-5 text-white/65 text-[15px] leading-[1.85] max-w-xl mx-auto">
@@ -324,7 +324,7 @@ export default function Book() {
                       (step === 1 && !canStep2) ||
                       (step === 2 && !canStep3)
                     }
-                    className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
+                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-next"
                   >
                     {step === 2
@@ -338,7 +338,7 @@ export default function Book() {
                   <button
                     onClick={submit}
                     disabled={!canSubmit || submitting}
-                    className="h-12 px-7 rounded-full bg-primary text-primary-foreground text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
+                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
                     data-testid="button-submit"
                   >
                     {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
@@ -1281,6 +1281,7 @@ function Field({
   ltr?: boolean;
   autoFocus?: boolean;
 }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (autoFocus) ref.current?.focus();
@@ -1293,7 +1294,7 @@ function Field({
       >
         <Icon className="w-3.5 h-3.5" />
         {label}
-        {optional && <span className="text-white/55">(اختياريّ)</span>}
+        {optional && <span className="text-white/55">{t({ ar: "(اختياريّ)", en: "(optional)" })}</span>}
       </label>
       <input
         ref={ref}
@@ -1537,9 +1538,9 @@ function SuccessScreen({
             </div>
             <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
               {lang === "en" ? (
-                <>Your seat is booked,{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span>!</>
+                <>Your seat is booked,{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span>!</>
               ) : (
-                <>مقعدك محجوز يا{" "}<span className="text-accent-gradient">{form.fullName.split(" ")[0]}</span></>
+                <>مقعدك محجوز يا{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span></>
               )}
             </h1>
             <p className="text-white/65 text-[14px] leading-[1.85] mb-6">
@@ -1605,7 +1606,7 @@ function SuccessScreen({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/"
-                className="h-11 px-6 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:brightness-110 transition flex items-center gap-2"
+                className="cta-fill h-11 px-6 rounded-full text-[13px] font-semibold hover:brightness-110 transition flex items-center gap-2"
                 data-testid="link-home-success"
               >
                 {lang === "en" ? "Back to home" : "العودة للرئيسيّة"}

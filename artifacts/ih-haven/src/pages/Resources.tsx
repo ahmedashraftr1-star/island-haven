@@ -3,17 +3,11 @@ import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import {
   ArrowLeft,
-  BookOpen,
   Download,
   ExternalLink,
-  FileText,
-  Gift,
   Lock,
-  PlayCircle,
-  Scale,
   Sparkles,
   Star,
-  Wrench,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
@@ -45,15 +39,6 @@ const RESOURCE_CATEGORY_LABELS_EN: Record<ResourceCategory, string> = {
   perk: "Perk",
   recording: "Recording",
   legal: "Legal",
-};
-
-const CATEGORY_ICONS: Record<ResourceCategory, typeof BookOpen> = {
-  template: FileText,
-  guide: BookOpen,
-  tool: Wrench,
-  perk: Gift,
-  recording: PlayCircle,
-  legal: Scale,
 };
 
 const FILTERS: Array<{ key: "" | ResourceCategory; label: { ar: string; en: string } }> = [
@@ -155,7 +140,7 @@ export default function Resources() {
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-semibold"
+                className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full cta-fill text-[12.5px] font-semibold"
               >
                 {t({ ar: "تسجيل الدخول", en: "Log in" })}
                 <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -187,7 +172,7 @@ export default function Resources() {
                 aria-pressed={isActive ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                   isActive
-                    ? "bg-primary/20 text-white border-primary/40"
+                    ? "cta-fill border-transparent"
                     : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
                 }`}
               >
@@ -246,7 +231,6 @@ export default function Resources() {
 
 function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
   const { lang, t } = useLanguage();
-  const Icon = CATEGORY_ICONS[r.category];
   const href = r.externalUrl || r.fileUrl;
   return (
     <motion.div
@@ -266,28 +250,18 @@ function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
             r.featured ? "border-amber-400/25 hover:border-amber-300/45" : "hover:border-primary/40"
           }`}
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            style={{ background: "radial-gradient(130% 80% at 80% 0%, hsl(354 80% 55% / 0.09), transparent 60%)" }}
-          />
-          <div className="relative flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0 transition-transform duration-300 group-hover:scale-110">
-              <Icon className="w-5 h-5" />
+          <div className="relative mb-3">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
+                {categoryLabel(r.category, lang)}
+              </span>
+              {r.featured && (
+                <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+              )}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
-                  {categoryLabel(r.category, lang)}
-                </span>
-                {r.featured && (
-                  <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
-                )}
-              </div>
-              <h3 className="text-white font-bold text-[15.5px] leading-snug">
-                {r.title}
-              </h3>
-            </div>
+            <h3 className="text-white font-bold text-[15.5px] leading-snug">
+              {r.title}
+            </h3>
           </div>
           {r.summary && (
             <p className="relative text-white/60 text-[13px] leading-[1.85] mb-4 line-clamp-3 flex-1">

@@ -19,12 +19,12 @@ const DAYS = [
 ];
 
 /**
- * OpeningHours — Apple liquid-glass treatment.
+ * OpeningHours — editorial deep-ink treatment.
  *
- * A single, world-class moment that turns "ساعات العمل" into a piece
- * of design. Layered translucent glass on a dark indigo canvas, with
- * a 24-hour SVG dial tracing the open arc (09→17). Live Gaza time
- * orbits the dial. Compact, premium, never sprawling.
+ * Turns "ساعات العمل" into a piece of design on a flat deep-ink canvas:
+ * an oversized 09—17 display and a 24-hour SVG dial tracing the open arc
+ * (09→17), with live Gaza time on the dial. Hairline-divided day rows,
+ * a quiet status chip — zero glassmorphism. Compact, premium, on-brand.
  */
 export function OpeningHours() {
   const { lang } = useLanguage();
@@ -71,10 +71,10 @@ export function OpeningHours() {
   const inHours =
     !isFriday && totalMinutes >= OPEN_HOUR * 60 && totalMinutes < CLOSE_HOUR * 60;
   const liveStatus = isFriday
-    ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-white/30" }
+    ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-muted-foreground" }
     : inHours
     ? { ar: "مفتوح الآن", en: "Open now", color: "bg-emerald-400" }
-    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", color: "bg-amber-400" };
+    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", color: "bg-muted-foreground" };
 
   // SVG geometry
   const SIZE = 420;
@@ -127,43 +127,14 @@ export function OpeningHours() {
         />
       </div>
 
-      {/* ─── LAYER 3 · dual indigo nebulas for liquid glow ──────── */}
-      <div
-        aria-hidden
-        className="absolute -top-32 -left-24 w-[520px] h-[520px] pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle, hsl(354 100% 65% / 0.32) 0%, transparent 65%)",
-          filter: "blur(80px)",
-        }}
-      />
+      {/* ─── LAYER 3 · single restrained cerulean data-glow ─────── */}
       <div
         aria-hidden
         className="absolute -bottom-32 -right-24 w-[520px] h-[520px] pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, hsl(195 100% 60% / 0.18) 0%, transparent 65%)",
+            "radial-gradient(circle, hsl(195 100% 60% / 0.14) 0%, transparent 65%)",
           filter: "blur(80px)",
-        }}
-      />
-
-      {/* ─── LAYER 4 · glass refraction surface ─────────────────── */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 35%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.04) 100%)",
-        }}
-      />
-
-      {/* ─── LAYER 5 · top inner highlight (Apple glass spec) ──── */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
         }}
       />
 
@@ -217,9 +188,9 @@ export function OpeningHours() {
             style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
           >
             {lang === "en" ? (
-              <>Work at the space<br />from <span className="text-accent-gradient">9 am</span> until{" "}<span className="text-accent-gradient">5 pm.</span></>
+              <>Work at the space<br />from <span className="text-primary">9 am</span> until{" "}<span className="text-primary">5 pm.</span></>
             ) : (
-              <>العمل في المساحة<br />من <span className="text-accent-gradient">٩ صباحاً</span> حتّى{" "}<span className="text-accent-gradient">٥ مساءً.</span></>
+              <>العمل في المساحة<br />من <span className="text-primary">٩ صباحاً</span> حتّى{" "}<span className="text-primary">٥ مساءً.</span></>
             )}
           </h3>
 
@@ -229,18 +200,8 @@ export function OpeningHours() {
               : "تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا انقطاع — والقهوة دائماً جاهزة."}
           </p>
 
-          {/* Live status — true Apple glass pill */}
-          <div
-            className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full text-[13px] font-semibold mb-9 relative overflow-hidden"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px -4px rgba(0,0,0,0.3)",
-            }}
-          >
+          {/* Live status — quiet hairline-edged chip */}
+          <div className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full text-[13px] font-semibold mb-9 bg-white/[0.03] border border-border-strong">
             <span className={`w-2 h-2 rounded-full ${liveStatus.color} ${inHours ? "animate-pulse" : ""}`} />
             <span>{lang === "en" ? liveStatus.en : liveStatus.ar}</span>
             <span className="text-white/45 tabular-nums font-mono">
@@ -248,46 +209,46 @@ export function OpeningHours() {
             </span>
           </div>
 
-          {/* Weekly strip — single line, week starts Saturday */}
-          <div className="flex flex-nowrap gap-1 sm:gap-1.5 w-full max-w-xl">
+          {/* Weekly strip — hairline-divided rows on the flat canvas */}
+          <div className="w-full max-w-md border-t border-border-strong">
             {DAYS.map((d) => {
               const isToday = d.idx === dayOfWeek;
               return (
                 <div
                   key={d.en}
-                  className={`flex-1 min-w-0 flex flex-col items-center justify-center px-0.5 py-2.5 rounded-xl transition-all relative overflow-hidden ${
+                  className={`flex items-baseline justify-between gap-4 py-3 border-b border-border-strong ${
                     isToday
-                      ? "bg-white text-[#0A0E1A] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.5)]"
+                      ? "text-white"
                       : d.closed
                       ? "text-white/35"
                       : "text-white/75"
                   }`}
-                  style={
-                    isToday
-                      ? undefined
-                      : {
-                          background: "rgba(255,255,255,0.04)",
-                          backdropFilter: "blur(12px)",
-                          WebkitBackdropFilter: "blur(12px)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
-                        }
-                  }
                   data-testid={`day-tile-${d.en.toLowerCase()}`}
                 >
-                  <div className="text-[9.5px] tracking-[0.14em] uppercase font-semibold opacity-65">
-                    {d.en}
+                  <div className="flex items-center gap-3 min-w-0">
+                    {isToday && (
+                      <span
+                        aria-hidden
+                        className="h-[1px] w-5 bg-primary shrink-0"
+                      />
+                    )}
+                    <span
+                      className={`truncate ${
+                        isToday
+                          ? "text-[15px] font-bold"
+                          : "text-[15px] font-semibold"
+                      }`}
+                    >
+                      {lang === "en" ? d.en : d.ar}
+                    </span>
                   </div>
-                  <div className="text-[13px] sm:text-[14px] font-bold mt-0.5 truncate max-w-full">
-                    {lang === "en" ? d.en : d.ar}
-                  </div>
-                  <div
-                    className={`text-[9.5px] mt-1 tabular-nums opacity-75 font-mono ${
-                      d.closed ? "line-through decoration-white/40" : ""
-                    }`}
+                  <span
+                    className={`text-[13px] tabular-nums font-mono shrink-0 ${
+                      d.closed ? "line-through decoration-white/30" : ""
+                    } ${isToday ? "text-white" : ""}`}
                   >
                     {d.closed ? (lang === "en" ? "Closed" : "مغلق") : "9–17"}
-                  </div>
+                  </span>
                 </div>
               );
             })}
@@ -299,23 +260,8 @@ export function OpeningHours() {
           {lang === "en" ? liveStatus.en : liveStatus.ar} — {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} Gaza time.
         </div>
 
-        {/* RIGHT — 24h dial inside its own glass disc */}
+        {/* RIGHT — 24h dial on the flat canvas */}
         <div className="relative lg:col-span-5 order-1 lg:order-2 flex items-center justify-center">
-          {/* Glass disc backdrop for the dial */}
-          <div
-            aria-hidden
-            className="absolute inset-0 m-auto w-[92%] aspect-square rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 60%, transparent)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2)",
-            }}
-          />
-
           <div className="relative w-full max-w-[420px] aspect-square">
             <svg
               viewBox={`0 0 ${SIZE} ${SIZE}`}
@@ -509,16 +455,6 @@ export function OpeningHours() {
           </div>
         </div>
       </div>
-
-      {/* ─── LAYER 6 · bottom inner shadow (glass spec) ────────── */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-px pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(0,0,0,0.4), transparent)",
-        }}
-      />
     </motion.div>
   );
 }
