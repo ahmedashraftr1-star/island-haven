@@ -71,16 +71,13 @@ export function VenturesBand() {
         <div className="flex items-end justify-between gap-6 mb-[clamp(2rem,4vw,3.5rem)]">
           <Reveal>
             <div className="flex items-center gap-2 mb-3">
-              <Rocket className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-              <span className="eyebrow">
+              <Rocket className="w-3.5 h-3.5 text-sand" strokeWidth={2} />
+              <span className="eyebrow eyebrow-sand">
                 {t({ ar: "صُنع في آيلاند", en: "Built at Island Haven" })}
               </span>
             </div>
             <h2 className="t-h2">
-              {t({ ar: "مشاريع ", en: "Ventures from " })}
-              <span className="text-accent-gradient">
-                {t({ ar: "وُلدت من المساحة", en: "the space" })}
-              </span>
+              {t({ ar: "مشاريع وُلدت من المساحة", en: "Ventures from the space" })}
             </h2>
           </Reveal>
           <Link
@@ -116,7 +113,7 @@ export function VenturesBand() {
                 >
                   {/* Cover */}
                   <div
-                    className={`relative overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-transparent ${
+                    className={`relative overflow-hidden bg-surface-3 ${
                       featured ? "aspect-[16/9] sm:aspect-[2.4/1]" : "aspect-[16/10]"
                     }`}
                   >
@@ -129,12 +126,12 @@ export function VenturesBand() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Rocket className="w-8 h-8 text-primary/30" />
+                        <Rocket className="w-8 h-8 text-fg-faint" />
                       </div>
                     )}
                     {v.featured && (
-                      <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/15 text-amber-300 border border-amber-400/30 backdrop-blur-sm">
-                        <Star className="w-3 h-3 fill-amber-300" />
+                      <span className="chip-sand absolute top-3 start-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                        <Star className="w-3 h-3 fill-sand-bright" />
                         {t({ ar: "مميّز", en: "Featured" })}
                       </span>
                     )}

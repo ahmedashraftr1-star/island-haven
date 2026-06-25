@@ -105,13 +105,13 @@ export function Campaign() {
                 <>
                   Island Haven's
                   <br />
-                  <span className="text-accent-gradient italic-latin">next point.</span>
+                  <span className="text-sand italic-latin">next point.</span>
                 </>
               ) : (
                 <>
                   نقطة آيلاند هيفن
                   <br />
-                  <span className="text-accent-gradient">القادمة.</span>
+                  <span className="text-sand">القادمة.</span>
                 </>
               )}
             </h3>
@@ -142,7 +142,7 @@ export function Campaign() {
                     transition={{ duration: 0.42, delay: i * 0.08 }}
                     className="group grid grid-cols-12 gap-4 items-baseline py-4 border-b border-border transition-colors hover:bg-surface-1/60"
                   >
-                    <div dir="ltr" className="col-span-2 sm:col-span-1 text-[11px] tracking-[0.3em] font-bold text-primary tnum">
+                    <div dir="ltr" className="col-span-2 sm:col-span-1 text-[11px] tracking-[0.3em] font-bold text-sand tnum">
                       {t.no}
                     </div>
                     <div className="col-span-10 sm:col-span-4">

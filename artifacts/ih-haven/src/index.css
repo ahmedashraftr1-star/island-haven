@@ -46,6 +46,17 @@
   --color-accent-2: hsl(var(--accent-2));
   --color-accent-2-soft: hsl(var(--accent-2-soft));
 
+  /* ── GAZA PLACE-IDENTITY — warm coastal accent (sand / sunlit clay / amber-gold).
+     The vibrant, professional secondary for section HIGHLIGHTS: index numerals,
+     eyebrows, small data, underlines, hairline tints. NEVER for primary CTAs
+     (those stay brand red). Read these from section agents. ── */
+  --color-sand: hsl(var(--sand));               /* warm amber-gold — highlights / numerals */
+  --color-sand-bright: hsl(var(--sand-bright)); /* brighter sunlit gold — emphasis on dark */
+  --color-sand-soft: hsl(var(--sand-soft));     /* deep clay tint — chip / wash fills */
+  --color-sand-deep: hsl(var(--sand-deep));     /* deepest clay — borders on sand chips */
+  --color-accent-warm: hsl(var(--sand));        /* alias — same warm Gaza accent */
+  --color-accent-warm-soft: hsl(var(--sand-soft));
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-secondary-border: var(--secondary-border);
@@ -143,6 +154,18 @@
   /* ── SECONDARY ACCENT — ONE cool tone (data/links/glints, never CTAs). ── */
   --accent-2: 199 90% 58%;           /* #21AEF0 */
   --accent-2-soft: 199 70% 14%;
+
+  /* ── GAZA PLACE-IDENTITY — warm coastal accent (سند / clay / amber-gold). ──
+     The vibrant + professional highlight tone that gives the page a sense of
+     PLACE: coastal sunlight on sand and warm clay. Used for index numerals,
+     eyebrows, small data, underlines and quiet tints — NOT for CTAs (brand red).
+     Tuned to read luminous on the matte #0A0E1A canvas while passing AA as
+     text on surfaces (≈40% L → contrast ≈5.1:1 on surface-1; the -bright rung
+     is for larger display numerals where it pops without shouting). */
+  --sand: 38 92% 56%;                /* #F5A623 — warm amber-gold (numerals / highlights) */
+  --sand-bright: 42 96% 64%;         /* #FBC04A — sunlit gold (large display emphasis) */
+  --sand-soft: 32 60% 13%;           /* deep clay tint — chip / wash fills */
+  --sand-deep: 34 50% 22%;           /* clay border on sand chips */
 
   --destructive: 0 72% 52%;
   --destructive-foreground: 0 0% 100%;
@@ -510,6 +533,31 @@
   background: hsl(var(--accent-2-soft));
   color: hsl(var(--accent-2));
   border: 1px solid hsl(var(--accent-2) / 0.28);
+}
+
+/* ── GAZA WARM chip — sand/clay highlight (place identity), never a CTA. ──
+   Use for small data badges, "free" markers, category tags. */
+@utility chip-sand {
+  background: hsl(var(--sand-soft));
+  color: hsl(var(--sand-bright));
+  border: 1px solid hsl(var(--sand) / 0.30);
+}
+
+/* Warm eyebrow variant — same eyebrow geometry, place-identity sand tone.
+   Compose: class="eyebrow eyebrow-sand". */
+.eyebrow-sand { color: hsl(var(--sand)); }
+
+/* Warm hairline — a sand-tinted divider for sections that want the place
+   accent to carry the rhythm instead of the neutral border-strong. */
+@utility hairline-sand {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--sand) / 0.35) 50%,
+    transparent 100%
+  );
+  height: 1px;
+  width: 100%;
 }
 
 /* Hairline divider with center fade — uses border-strong so it actually reads. */

@@ -2,10 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import {
-  FileText,
-  Search,
-  Rocket,
-  Trophy,
   ArrowLeft,
   CalendarDays,
   Clock,
@@ -90,10 +86,12 @@ export function ApplyProcess() {
     };
   }, []);
 
+  const idx = (i: number) =>
+    lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣", "٠٤"][i];
+
   const steps = [
     {
       no: "01",
-      icon: FileText,
       title: t({ ar: "تقدّم بطلبك", en: "Apply" }),
       en: "Apply",
       body: t({
@@ -104,7 +102,6 @@ export function ApplyProcess() {
     },
     {
       no: "02",
-      icon: Search,
       title: t({ ar: "المراجعة والمقابلة", en: "Review & interview" }),
       en: "Review",
       body: t({
@@ -115,7 +112,6 @@ export function ApplyProcess() {
     },
     {
       no: "03",
-      icon: Rocket,
       title: t({ ar: "الانضمام إلى دفعة", en: "Onboard into a cohort" }),
       en: "Onboard",
       body: t({
@@ -126,7 +122,6 @@ export function ApplyProcess() {
     },
     {
       no: "04",
-      icon: Trophy,
       title: t({ ar: "يوم العرض", en: "Demo Day" }),
       en: "Demo Day",
       body: t({
@@ -174,86 +169,84 @@ export function ApplyProcess() {
       className="relative bg-surface-1 section-y overflow-hidden"
     >
       <div className="relative container-ih">
-        {/* Header */}
-        <div className="max-w-3xl mb-[clamp(2rem,4vw,3.5rem)]">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="h-px w-10 bg-primary/40" />
-            <span className="eyebrow">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
+          {/* Lead + photo — the journey, shown not listed */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5 lg:sticky lg:top-28"
+          >
+            <div className="eyebrow mb-5">
               {t({ ar: "كيف تنضمّ", en: "How to join" })}
-            </span>
-          </div>
-          <h2 className="t-h1">
-            {t({ ar: "من طلب واحد ", en: "From one application " })}
-            <span className="text-accent-gradient">
-              {t({ ar: "إلى يوم العرض", en: "to Demo Day" })}
-            </span>
-          </h2>
-          <p className="t-body-lg mt-6 max-w-2xl">
-            {t({
-              ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
-              en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
-            })}
-          </p>
+            </div>
+            <h2
+              className="font-display font-extrabold text-foreground"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.4rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
+            >
+              {t({ ar: "من طلبٍ واحد، ", en: "From one application, " })}
+              <span className="text-sand-bright">
+                {t({ ar: "إلى يوم العرض.", en: "to Demo Day." })}
+              </span>
+            </h2>
+            <p className="t-body mt-5 max-w-md">
+              {t({
+                ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
+                en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
+              })}
+            </p>
 
-          {/* Next-cohort / rolling-intake line */}
-          <div className="mt-7 inline-flex items-center gap-2.5 rounded-full px-4 py-2 bg-surface-2 border border-border-strong text-caption text-fg-secondary tnum">
-            {cohortLine}
-          </div>
-        </div>
+            {/* Next-cohort / rolling-intake line */}
+            <div className="mt-7 inline-flex items-center gap-2.5 rounded-full px-4 py-2 bg-surface-2 border border-border-strong text-caption text-fg-secondary tnum">
+              {cohortLine}
+            </div>
 
-        {/* Steps */}
-        <motion.ol
-          variants={reduce ? undefined : stagger}
-          initial={reduce ? undefined : "hidden"}
-          whileInView={reduce ? undefined : "show"}
-          viewport={{ once: true, margin: "-10% 0px" }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-        >
-          {steps.map((s, i) => {
-            const Icon = s.icon;
-            const isLast = i === steps.length - 1;
-            return (
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+              <img
+                src={`${import.meta.env.BASE_URL}photos/IMG_8357.webp`}
+                alt={t({ ar: "مؤسّسون يعملون في مساحة آيلاند هيفن", en: "Founders at work in the Island Haven space" })}
+                loading="lazy"
+                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
+              />
+            </div>
+          </motion.div>
+
+          {/* Editorial numbered ledger — hairline-divided, no cards, no icon tiles */}
+          <motion.ol
+            variants={reduce ? undefined : stagger}
+            initial={reduce ? undefined : "hidden"}
+            whileInView={reduce ? undefined : "show"}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            className="lg:col-span-7"
+          >
+            {steps.map((s, i) => (
               <motion.li
                 key={s.no}
                 variants={reduce ? undefined : rise}
-                className="relative h-full"
+                className="group grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-7 sm:py-9 first:border-t-0 first:pt-0"
               >
-                {/* Connector arrow between steps (desktop, LTR + RTL aware) */}
-                {!isLast && (
-                  <div className="hidden lg:flex absolute top-12 -end-[14px] z-10 items-center justify-center text-fg-faint">
-                    <ArrowLeft className="w-5 h-5 rtl:rotate-0 ltr:rotate-180" strokeWidth={2} />
-                  </div>
-                )}
-                <div className="group card-base card-hover flex flex-col h-full p-7 lg:p-8">
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="icon-tile">
-                      <Icon className="w-5 h-5" strokeWidth={2} />
-                    </div>
-                    <span
-                      dir="ltr"
-                      className="font-display text-[34px] leading-none font-extrabold text-foreground/10 group-hover:text-primary/30 transition-colors tnum"
-                    >
-                      {s.no}
-                    </span>
-                  </div>
-                  <div className="eyebrow mb-2">
-                    {s.en}
-                  </div>
-                  <h3 className="t-h3 mb-2">
+                <span className="font-display text-[clamp(1.5rem,2.4vw,2.1rem)] font-bold tabular-nums text-sand leading-none">
+                  {idx(i)}
+                </span>
+                <div>
+                  <div className="eyebrow eyebrow-sand mb-2">{s.en}</div>
+                  <h3
+                    className="font-display font-bold text-foreground"
+                    style={{ fontSize: "clamp(1.3rem, 2.2vw, 1.85rem)", letterSpacing: "-0.018em", lineHeight: 1.15 }}
+                  >
                     {s.title}
                   </h3>
-                  <p className="t-body flex-1 text-[14px]">
-                    {s.body}
-                  </p>
-                  <div className="mt-5 inline-flex items-center gap-1.5 text-caption font-semibold text-muted-foreground tnum">
-                    <Clock className="w-3.5 h-3.5" />
+                  <p className="t-body mt-2.5 max-w-xl">{s.body}</p>
+                  <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-fg-secondary tnum">
+                    <Clock className="w-3.5 h-3.5 text-sand" />
                     {s.meta}
                   </div>
                 </div>
               </motion.li>
-            );
-          })}
-        </motion.ol>
+            ))}
+          </motion.ol>
+        </div>
 
         {/* CTA row */}
         <motion.div

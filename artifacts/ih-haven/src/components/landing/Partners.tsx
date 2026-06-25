@@ -43,17 +43,7 @@ export function Partners() {
             {lang === "en" ? "Collaboration" : "تعاون"}
           </div>
           <h2 className="t-h2">
-            {lang === "en" ? (
-              <>
-                Building together with{" "}
-                <span className="text-accent-gradient">our partners</span>
-              </>
-            ) : (
-              <>
-                نبني معًا بثقة{" "}
-                <span className="text-accent-gradient">شركائنا</span>
-              </>
-            )}
+            {lang === "en" ? "Building together with our partners" : "نبني معًا بثقة شركائنا"}
           </h2>
           <p className="t-body mt-3 max-w-xl">
             {lang === "en"
@@ -62,8 +52,9 @@ export function Partners() {
           </p>
         </Reveal>
 
-        {/* Quiet monochrome partner row — grayscale, lifts to full color on hover */}
-        <div className="flex flex-wrap items-stretch gap-3">
+        {/* Quiet editorial logo row — hairline-divided cells, grayscale logos
+            that lift to full colour on hover. A logo wall, not a card grid. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border-t border-s border-border-strong">
           {rows.map((p, i) => {
             const showLogo = !!p.logoUrl && !imgErrors.has(p.id);
             const inner = (
@@ -82,26 +73,21 @@ export function Partners() {
                 </div>
               </>
             );
+            const cellClass =
+              "group flex items-center gap-3.5 px-5 py-6 h-full border-b border-e border-border-strong transition-colors hover:bg-surface-2/60";
             return (
-              <Reveal
-                key={p.id}
-                delay={i * 0.05}
-                distance={16}
-                className="grow basis-[220px] max-w-[300px]"
-              >
+              <Reveal key={p.id} delay={i * 0.04} distance={16}>
                 {p.websiteUrl ? (
                   <a
                     href={p.websiteUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="card-base card-hover group flex items-center gap-3.5 px-4 py-3.5 h-full"
+                    className={cellClass}
                   >
                     {inner}
                   </a>
                 ) : (
-                  <div className="card-base group flex items-center gap-3.5 px-4 py-3.5 h-full">
-                    {inner}
-                  </div>
+                  <div className={cellClass}>{inner}</div>
                 )}
               </Reveal>
             );
@@ -149,7 +135,7 @@ function PartnerLogo({
     );
   }
   return (
-    <div className="icon-tile text-[18px] font-bold shrink-0">
+    <div className="chip-sand w-11 h-11 rounded-[12px] flex items-center justify-center text-[18px] font-bold shrink-0">
       {p.name.charAt(0)}
     </div>
   );

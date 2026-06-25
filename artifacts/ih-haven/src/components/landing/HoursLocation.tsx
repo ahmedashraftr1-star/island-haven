@@ -56,7 +56,7 @@ export function HoursLocation() {
             <>
               {c.titleA}
               <br />
-              {c.titleB} <span className="text-accent-gradient">{c.titleAccent}</span>
+              {c.titleB} <span className="text-sand-bright">{c.titleAccent}</span>
             </>
           }
           sub={c.sub}
@@ -75,10 +75,13 @@ export function HoursLocation() {
             <GazaPulseMap className="w-full max-w-[480px] mx-auto aspect-square" />
           </div>
           <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="eyebrow !text-muted-foreground mb-3">
+            <div className="eyebrow eyebrow-sand mb-4">
               {c.locationEyebrow}
             </div>
-            <h3 className="t-h3 !text-foreground !text-2xl lg:!text-3xl mb-4 whitespace-pre-line">
+            <h3
+              className="font-display font-bold text-foreground mb-4 whitespace-pre-line"
+              style={{ fontSize: "clamp(1.5rem, 2.4vw, 2.1rem)", letterSpacing: "-0.02em", lineHeight: 1.15 }}
+            >
               {c.locationTitle}
             </h3>
             <p className="t-body !text-fg-secondary mb-6 whitespace-pre-line">

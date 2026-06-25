@@ -37,16 +37,6 @@ interface Post {
   publishedAt: string;
 }
 
-// Dark-native placeholder accents: deep, brand-leaning tints that sit on the
-// dark canvas. Each carries a faint warm/cool bias for variety, but stays
-// within the cinematic palette (no light pastels).
-const TYPE_ACCENT: Record<DailyType, { from: string; to: string; mark: string }> = {
-  tip: { from: "from-primary/25", to: "to-[#1a1018]", mark: "✦" },
-  news: { from: "from-[#1a6cff]/20", to: "to-[#0b1020]", mark: "◇" },
-  quote: { from: "from-[#8b5cf6]/22", to: "to-[#120e22]", mark: "❝" },
-  story: { from: "from-emerald-500/18", to: "to-[#0a1614]", mark: "✿" },
-};
-
 function trimExcerpt(s: string, n = 110): string {
   const t = (s ?? "").trim().replace(/\s+/g, " ");
   if (t.length <= n) return t;
@@ -174,40 +164,27 @@ export function NewsSlider() {
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </>
                     ) : (
-                      <div
-                        className={`w-full h-full bg-gradient-to-br ${TYPE_ACCENT[p.type].from} ${TYPE_ACCENT[p.type].to} relative overflow-hidden`}
-                      >
-                        {/* Decorative editorial pattern — sparse marks, large date numerals */}
-                        <div className="absolute inset-0 opacity-[0.12]" aria-hidden>
-                          <div
-                            className="absolute -top-6 -right-6 text-[160px] leading-none font-bold text-white select-none"
-                            style={{ letterSpacing: "-0.04em" }}
-                          >
-                            {new Date(p.publishedAt).toLocaleDateString("ar-EG", { day: "2-digit" })}
-                          </div>
+                      // Editorial typographic placeholder — large index day numeral
+                      // on a matte surface, a sand hairline and the excerpt. No
+                      // decorative gradient blobs, no glyph marks, no dots.
+                      <div className="w-full h-full bg-surface-3 relative overflow-hidden flex flex-col justify-end p-5">
+                        <div
+                          dir="ltr"
+                          className="absolute top-3 end-4 font-display font-extrabold tabular-nums text-sand/20 leading-none select-none pointer-events-none"
+                          style={{ fontSize: "clamp(4.5rem, 9vw, 6.5rem)", letterSpacing: "-0.04em" }}
+                          aria-hidden
+                        >
+                          {new Date(p.publishedAt).toLocaleDateString("en-US", { day: "2-digit" })}
                         </div>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-5 text-center">
-                          <div
-                            className="text-[40px] leading-none mb-3 text-white/70 group-hover:text-primary group-hover:scale-110 transition-all duration-300"
-                            aria-hidden
-                          >
-                            {TYPE_ACCENT[p.type].mark}
-                          </div>
-                          {p.body && (
-                            <p className="text-[13px] leading-relaxed text-white/80 line-clamp-3 max-w-[26ch]">
-                              {trimExcerpt(p.body, 130)}
-                            </p>
-                          )}
-                        </div>
-                        {/* subtle decorative arabesque dots in corners */}
-                        <div className="absolute bottom-3 left-3 flex gap-1 opacity-40" aria-hidden>
-                          <span className="w-1 h-1 rounded-full bg-white" />
-                          <span className="w-1 h-1 rounded-full bg-white" />
-                          <span className="w-1 h-1 rounded-full bg-white" />
-                        </div>
+                        <span aria-hidden className="hairline-sand block w-12 mb-3" />
+                        {p.body && (
+                          <p className="relative text-[13px] leading-relaxed text-fg-secondary line-clamp-3 max-w-[28ch]">
+                            {trimExcerpt(p.body, 120)}
+                          </p>
+                        )}
                       </div>
                     )}
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-3/90 backdrop-blur border border-white/10 eyebrow !text-primary">
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full chip-sand eyebrow !text-sand-bright">
                       {typeLabels[p.type]}
                     </div>
                   </div>

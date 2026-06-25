@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ArrowLeft, Users, Briefcase, GraduationCap, CalendarCheck } from "lucide-react";
+import { useInView } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { DURATION, EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
+import { Reveal } from "@/components/landing/Reveal";
 
 const FALLBACK = {
   eyebrow: "الحاضنة بالأرقام · By the numbers",
@@ -66,10 +66,12 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
 }
 
 /**
- * NumbersBand — homepage section that surfaces a tight 4-tile snapshot
- * of the community's real numbers, with a clear "view more" link to the
- * full /numbers page. Numbers come straight from the database — never
- * hard-coded.
+ * NumbersBand — the incubator's live figures told as an editorial ledger
+ * (NOT a grid of identical icon-tile cards). A photo-anchored lead on the
+ * logical start, then a hairline-divided index where oversized SOLID tabular
+ * numerals — tinted in the warm Gaza sand accent — carry the eye. Every figure
+ * comes straight from the database. No gradient text, no icon tiles, no glow
+ * blobs: photography + typography + real numbers.
  */
 export function NumbersBand() {
   const { lang, t } = useLanguage();
@@ -82,39 +84,36 @@ export function NumbersBand() {
       .catch(() => setN(null));
   }, []);
 
-  const tiles = [
+  const rows = [
     {
       value: n?.members ?? 0,
       label: t({ ar: c.tile1Label, en: "Members of the community" }),
       en: c.tile1En,
-      icon: Users,
     },
     {
       value: n?.works ?? 0,
       label: t({ ar: c.tile2Label, en: "Works in the showcase" }),
       en: c.tile2En,
-      icon: Briefcase,
     },
     {
       value: n?.enrollments ?? 0,
       label: t({ ar: c.tile3Label, en: "Program enrollments" }),
       en: c.tile3En,
-      icon: GraduationCap,
     },
     {
       value: n?.seatsHosted ?? 0,
       label: t({ ar: c.tile4Label, en: "Seats we've hosted" }),
       en: c.tile4En,
-      icon: CalendarCheck,
     },
   ];
 
   return (
     <section id="numbers" className="relative bg-surface-1 section-y">
       <div className="container-ih">
-        <div className="grid lg:grid-cols-12 gap-x-10 gap-y-6 items-end mb-[clamp(2rem,4vw,3.5rem)]">
-          <div className="lg:col-span-7">
-            <div className="flex items-center gap-3 mb-4">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
+          {/* Photo + lead — the place, shown not described */}
+          <Reveal as="div" className="lg:col-span-5 lg:sticky lg:top-28">
+            <div className="flex items-center gap-3 mb-5">
               <span className="eyebrow">
                 {t({ ar: c.eyebrow, en: "By the numbers" })}
               </span>
@@ -126,67 +125,65 @@ export function NumbersBand() {
                 LIVE
               </span>
             </div>
-            <h2 className="t-h2">
+            <h2
+              className="font-display font-extrabold text-foreground"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.4rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
+            >
               {t({ ar: c.titleA, en: "Not slogans." })}
               <br />
-              <span className="text-accent-gradient">
-                {t({ ar: c.titleAccent, en: "Real numbers" })}
-              </span>{" "}
+              {t({ ar: c.titleAccent, en: "Real numbers" })}{" "}
               {t({ ar: c.titleB, en: "from our database." })}
             </h2>
-          </div>
-          <div className="lg:col-span-5 lg:text-end">
-            <p className="t-body max-w-md mb-5 lg:ms-auto">
+            <p className="t-body mt-5 max-w-md">
               {t({
                 ar: c.sub,
                 en: "Every figure here mirrors the incubator right now — updating automatically with each member, each project, and each mentorship seat.",
               })}
             </p>
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+              <img
+                src="/photos/IMG_8352.webp"
+                alt={t({ ar: "مجتمع آيلاند هيفن في غزّة", en: "The Island Haven community in Gaza" })}
+                loading="lazy"
+                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
+              />
+            </div>
             <Link
               href="/numbers"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold transition-colors duration-200"
+              className="mt-7 inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold transition-colors duration-200"
               data-testid="link-numbers-more"
             >
               {t({ ar: c.ctaLabel, en: "View all" })}
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             </Link>
-          </div>
-        </div>
+          </Reveal>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-          {tiles.map((t, i) => {
-            const Icon = t.icon;
-            return (
-              <motion.div
-                key={t.en}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={VIEWPORT}
-                transition={{ duration: DURATION.sm, delay: i * 0.07, ease: EASE_OUT_EXPO }}
-                className="card-base card-hover p-7 lg:p-8 group overflow-hidden"
-                data-testid={`numbers-tile-${t.en.toLowerCase()}`}
-              >
+          {/* Editorial index — oversized solid tabular numerals, hairline-divided, no cards */}
+          <div className="lg:col-span-7">
+            {rows.map((row, i) => (
+              <Reveal key={row.en} delay={i * 0.05}>
                 <div
-                  aria-hidden
-                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                />
-                <div className="relative">
-                  <div className="icon-tile mb-6">
-                    <Icon className="w-5 h-5" strokeWidth={2} />
-                  </div>
-                  <div className="font-display t-display !text-[clamp(2.6rem,6vw,4rem)] !leading-none text-foreground mb-2.5 tnum">
-                    {n ? <CountUp value={t.value} lang={lang} /> : "—"}
-                  </div>
-                  <div className="text-[14px] font-semibold text-foreground">
-                    {t.label}
-                  </div>
-                  <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1">
-                    {t.en}
+                  className="grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-7 sm:py-9 first:border-t-0 first:pt-0"
+                  data-testid={`numbers-row-${row.en.toLowerCase()}`}
+                >
+                  <span
+                    className="font-display font-extrabold tabular-nums text-sand-bright leading-none"
+                    style={{ fontSize: "clamp(2.6rem, 6vw, 4.25rem)" }}
+                  >
+                    {n ? <CountUp value={row.value} lang={lang} /> : "—"}
+                  </span>
+                  <div>
+                    <div className="text-[15px] sm:text-base font-semibold text-foreground leading-snug">
+                      {row.label}
+                    </div>
+                    <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1.5">
+                      {row.en}
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            );
-          })}
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

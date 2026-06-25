@@ -79,7 +79,7 @@ export function Footer() {
               {c.colophonEyebrow}
             </div>
             <h2 className="t-h1">
-              {c.signOffA} <span className="text-accent-gradient">{c.signOffAccent}</span>
+              {c.signOffA} <span className="text-sand">{c.signOffAccent}</span>
               <br />
               {c.signOffB}
             </h2>

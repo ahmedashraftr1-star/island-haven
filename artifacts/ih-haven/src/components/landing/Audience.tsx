@@ -44,9 +44,10 @@ const EN_FALLBACK = {
   seg3C3: "",
 };
 
-// Seat-allocation bar uses the brand red staircase (warm → soft) so the data
-// reads as one family; the cool accent-2 is reserved for the live/data glint.
-const BAR_FILL = ["hsl(354 82% 58%)", "hsl(354 74% 66%)", "hsl(354 60% 78%)"];
+// Seat-allocation bar uses the warm Gaza sand staircase (gold → clay) so the
+// data carries the place identity as one family; the cool accent-2 stays the
+// live glint, the brand red stays for CTAs only.
+const BAR_FILL = ["hsl(38 92% 56%)", "hsl(34 78% 46%)", "hsl(32 60% 34%)"];
 
 export function Audience() {
   const { lang } = useLanguage();
@@ -75,7 +76,7 @@ export function Audience() {
       <div className="container-ih">
         <EditorialHeader
           label={c.label}
-          title={<>{c.titleA} <span className="text-accent-gradient">{c.titleAccent}</span> {c.titleB}</>}
+          title={<>{c.titleA} <span className="text-sand">{c.titleAccent}</span> {c.titleB}</>}
           sub={c.sub}
         />
 
@@ -88,8 +89,8 @@ export function Audience() {
           className="surface-1 rounded-[20px] p-6 lg:p-8 mb-[clamp(2.5rem,5vw,4rem)]"
         >
           <div className="flex items-center gap-3 mb-5">
-            <span className="inline-flex items-center gap-2 eyebrow !text-accent-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
+            <span className="inline-flex items-center gap-2 eyebrow eyebrow-sand">
+              <span className="w-1.5 h-1.5 rounded-full bg-sand animate-pulse" />
               {lang === "en" ? "Seat allocation" : "توزيع المقاعد"}
             </span>
             <span className="flex-1 hairline" />
@@ -181,7 +182,7 @@ export function Audience() {
                     className="flex items-baseline gap-2 mb-3 t-display !text-foreground tnum"
                   >
                     <span>{seg.pct}</span>
-                    <span className="text-primary text-[0.5em]">%</span>
+                    <span className="text-sand text-[0.5em]">%</span>
                     <span className="text-muted-foreground text-[0.32em] font-semibold ms-3 lg:ms-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
                   </div>
 
@@ -198,7 +199,7 @@ export function Audience() {
                         key={j}
                         className="flex gap-4 items-baseline text-fg-secondary border-t border-border pt-3.5 pb-3.5 last:pb-0"
                       >
-                        <span className="text-primary t-caption font-bold tnum shrink-0 w-6">
+                        <span className="text-sand t-caption font-bold tnum shrink-0 w-6">
                           {String(j + 1).padStart(2, "0")}
                         </span>
                         <span className="t-body">{cc}</span>

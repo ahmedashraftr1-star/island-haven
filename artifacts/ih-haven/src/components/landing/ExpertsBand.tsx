@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Sparkles, Star, Clock } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,17 +19,12 @@ interface ExpertCard {
   ratingCount: number;
 }
 
-// Brand-aligned avatar plates — every gradient stays within the warm-red
-// primary system, so the dense grid reads as one cohesive palette.
-const ACCENT_PLATES = [
-  "from-[#dc4454] to-[#3d0e12]",
-  "from-[#b32733] to-[#2c0a0d]",
-  "from-[#e0656a] to-[#561217]",
-  "from-[#a51f2c] to-[#2c0a0d]",
-  "from-[#c9363a] to-[#4a1316]",
-  "from-[#d04d57] to-[#561217]",
-];
-
+/**
+ * ExpertsBand — the mentor roster, told the editorial way: an asymmetric header
+ * aligned to the logical start, a live availability index in warm sand, and a
+ * roster of people-cards (a real card warranted by faces) on ONE quiet card spec.
+ * No gradient heading, no glass badges, no icon-tile CTA — type + portrait carry it.
+ */
 export function ExpertsBand() {
   const { lang } = useLanguage();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
@@ -50,52 +45,54 @@ export function ExpertsBand() {
   return (
     <section id="experts" className="relative bg-surface-1 section-y">
       <div className="container-ih">
-        {/* Header row */}
-        <div className="flex items-end justify-between gap-6 mb-[clamp(2rem,4vw,3.5rem)]">
-          <Reveal>
-            <div className="eyebrow mb-3">
+        {/* Editorial header — start-aligned, oversized solid display */}
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-6 items-end mb-[clamp(2.5rem,5vw,4rem)]">
+          <Reveal as="div" className="lg:col-span-8">
+            <div className="eyebrow mb-5">
               {lang === "en" ? "Mentors & Experts" : "الإرشاد والخبرة"}
             </div>
-            <h2 className="t-h2">
-              {lang === "en" ? (
-                <>Experts who guide you toward <span className="text-accent-gradient">impact</span></>
-              ) : (
-                <>خبراء يأخذون بيدك نحو <span className="text-accent-gradient">الأثر</span></>
-              )}
+            <h2
+              className="font-display font-extrabold text-foreground"
+              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
+            >
+              {lang === "en"
+                ? "Experts who guide you toward impact."
+                : "خبراء يأخذون بيدك نحو الأثر."}
             </h2>
-            <p className="t-body mt-3 max-w-xl">
+            <p className="t-body mt-5 max-w-xl">
               {lang === "en"
                 ? "Book a free one-on-one mentoring session and turn your idea into a scalable project."
                 : "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ."}
             </p>
             {rows && available > 0 && (
-              <div className="inline-flex items-center gap-2 mt-4 px-3 h-7 rounded-full bg-accent-2-soft border border-accent-2/20">
+              <div className="inline-flex items-center gap-2 mt-6 px-3 h-7 rounded-full chip-sand">
                 <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
                 </span>
-                <span className="text-[12px] text-accent-2 font-semibold tnum">
+                <span className="text-[12px] font-semibold tabular-nums">
                   {available} {lang === "en" ? "available now" : "خبير متاح الآن"}
                 </span>
               </div>
             )}
           </Reveal>
 
-          <Link
-            href="/experts"
-            className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border-strong bg-surface-2 text-fg-secondary text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors shrink-0"
-          >
-            {lang === "en" ? "All experts" : "كل الخبراء"}
-            <ArrowLeft className="w-4 h-4 rotate-180" />
-          </Link>
+          <div className="lg:col-span-4 lg:justify-self-end">
+            <Link
+              href="/experts"
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border-strong bg-surface-2 text-fg-secondary text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors"
+            >
+              {lang === "en" ? "All experts" : "كل الخبراء"}
+              <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0" />
+            </Link>
+          </div>
         </div>
 
-        {/* Dense grid */}
+        {/* Roster — people-cards, one quiet card spec, portrait-forward */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr">
           {experts.map((e, i) => {
-            const plate = ACCENT_PLATES[i % ACCENT_PLATES.length];
             if (!e) {
-              return <div key={i} className="card-base h-72 animate-pulse" />;
+              return <div key={i} className="card-base h-80 animate-pulse" />;
             }
             const tags = splitTags(e.expertise).slice(0, 3);
             const initials = e.fullName.trim().split(" ").slice(0, 2).map((w) => w[0]).join("");
@@ -106,50 +103,46 @@ export function ExpertsBand() {
                   className="card-base card-hover group block h-full overflow-hidden"
                   data-testid={`home-expert-${e.id}`}
                 >
-                  {/* Avatar plate */}
-                  <div className={`relative h-40 bg-gradient-to-br ${plate} flex items-center justify-center`}>
+                  {/* Portrait */}
+                  <div className="relative h-48 bg-surface-3 flex items-center justify-center overflow-hidden">
                     {e.avatarUrl ? (
                       <img
                         src={e.avatarUrl}
                         alt={e.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover saturate-[1.03] transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                         loading="lazy"
                       />
                     ) : (
-                      <span className="text-5xl font-black text-white/30 select-none">
+                      <span className="font-display text-6xl font-black text-fg-faint/40 select-none">
                         {initials}
                       </span>
                     )}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
                     {e.featured && (
-                      <div className="absolute top-3 start-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 backdrop-blur-sm">
-                        <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                        <span className="text-[10px] font-bold tracking-wide text-amber-200">
+                      <div className="absolute top-3 start-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full chip-sand">
+                        <Star className="w-3 h-3 fill-sand text-sand" />
+                        <span className="text-[10px] font-bold tracking-wide">
                           {lang === "en" ? "FEATURED" : "مميّز"}
                         </span>
                       </div>
                     )}
-                    <div className={`absolute top-3 end-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border ${e.acceptingSessions ? "bg-accent-2-soft border-accent-2/40" : "bg-black/30 border-white/20"}`}>
+                    <div className="absolute bottom-3 start-3 inline-flex items-center gap-1.5">
                       {e.acceptingSessions ? (
-                        <>
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white">
                           <span className="relative flex h-1.5 w-1.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
                             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
                           </span>
-                          <span className="text-[10px] font-semibold text-accent-2">
-                            {lang === "en" ? "Open" : "متاح"}
-                          </span>
-                        </>
+                          {lang === "en" ? "Open" : "متاح"}
+                        </span>
                       ) : (
-                        <>
-                          <Clock className="w-2.5 h-2.5 text-white/65" />
-                          <span className="text-[10px] font-medium text-white/65">
-                            {lang === "en" ? "Busy" : "مشغول"}
-                          </span>
-                        </>
+                        <span className="text-[11px] font-medium text-white/70">
+                          {lang === "en" ? "Busy" : "مشغول"}
+                        </span>
                       )}
                     </div>
                     {e.yearsExperience > 0 && (
-                      <div className="absolute bottom-3 start-3 text-[11px] font-bold text-white/85 bg-black/35 backdrop-blur-sm px-2 py-0.5 rounded-full tnum">
+                      <div className="absolute bottom-3 end-3 text-[11px] font-bold text-white/90 tabular-nums">
                         {e.yearsExperience}+ {lang === "en" ? "yrs" : "سنة"}
                       </div>
                     )}
@@ -158,12 +151,12 @@ export function ExpertsBand() {
                   {/* Info */}
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-2 mb-0.5">
-                      <h3 className="t-h3 text-[15.5px] leading-snug truncate">
+                      <h3 className="font-display font-bold text-foreground text-[16px] leading-snug truncate group-hover:text-primary transition-colors">
                         {e.fullName}
                       </h3>
                       {e.ratingCount > 0 && e.ratingAvg != null && (
-                        <span className="inline-flex items-center gap-1 shrink-0 text-[12px] font-semibold text-amber-300 tnum mt-0.5">
-                          <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                        <span className="inline-flex items-center gap-1 shrink-0 text-[12px] font-semibold text-sand tabular-nums mt-0.5">
+                          <Star className="w-3.5 h-3.5 fill-sand text-sand" />
                           {e.ratingAvg.toFixed(1)}
                         </span>
                       )}
@@ -185,7 +178,7 @@ export function ExpertsBand() {
                     )}
                     <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary group-hover:gap-2.5 transition-all">
                       {lang === "en" ? "View profile" : "الملف الكامل"}
-                      <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 rtl:rotate-0" />
                     </span>
                   </div>
                 </Link>
@@ -194,18 +187,14 @@ export function ExpertsBand() {
           })}
         </div>
 
-        {/* Terminal CTA */}
-        <Reveal delay={0.15} className="mt-6 sm:hidden">
+        {/* Terminal CTA — quiet text link, no icon tile */}
+        <Reveal delay={0.15} className="mt-8 sm:hidden">
           <Link
             href="/experts"
-            className="card-base card-hover group flex items-center justify-center gap-3 h-14 text-center"
+            className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
           >
-            <span className="icon-tile w-9 h-9 rounded-[11px]">
-              <Sparkles className="w-4 h-4" />
-            </span>
-            <span className="text-foreground font-bold text-[14px]">
-              {lang === "en" ? "Browse all experts" : "تصفّح كل الخبراء"}
-            </span>
+            {lang === "en" ? "Browse all experts" : "تصفّح كل الخبراء"}
+            <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
           </Link>
         </Reveal>
       </div>
