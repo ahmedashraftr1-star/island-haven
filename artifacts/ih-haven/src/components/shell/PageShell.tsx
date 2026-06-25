@@ -112,19 +112,24 @@ export function PageShell({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-10 sm:mb-12"
+              className="relative mb-10 sm:mb-14"
             >
+              {/* Focal brand aura behind the page title — atmosphere, not flat */}
+              <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-70" />
               {eyebrow && (
-                <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-                  {eyebrow}
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="h-px w-9 bg-primary/50" />
+                  <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
+                    {eyebrow}
+                  </span>
                 </div>
               )}
               {title && (
                 <h1
-                  className="font-bold text-white leading-[1.05] mb-3"
+                  className="font-display font-extrabold text-white leading-[1.02]"
                   style={{
-                    fontSize: "clamp(2rem, 5vw, 3rem)",
-                    letterSpacing: "-0.03em",
+                    fontSize: "clamp(2.4rem, 6vw, 4rem)",
+                    letterSpacing: "-0.035em",
                   }}
                 >
                   {title}
@@ -137,10 +142,11 @@ export function PageShell({
                 </h1>
               )}
               {subtitle && (
-                <p className="text-white/55 text-[14.5px] sm:text-[15.5px] leading-[1.85] max-w-2xl">
+                <p className="mt-5 text-fg-secondary text-[15px] sm:text-[17px] leading-[1.8] max-w-2xl">
                   {subtitle}
                 </p>
               )}
+              <div aria-hidden className="mt-9 sm:mt-11 h-px w-full bg-gradient-to-r from-border-strong via-border-strong/40 to-transparent rtl:bg-gradient-to-l" />
             </motion.div>
           )}
           {children}
