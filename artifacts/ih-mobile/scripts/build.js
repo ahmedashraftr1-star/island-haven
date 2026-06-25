@@ -67,10 +67,16 @@ function getDeploymentDomain() {
     return stripProtocol(process.env.EXPO_PUBLIC_DOMAIN);
   }
 
-  console.error(
-    "ERROR: No deployment domain found. Set REPLIT_INTERNAL_APP_DOMAIN, REPLIT_DEV_DOMAIN, or EXPO_PUBLIC_DOMAIN",
+  // No deployment domain = local / non-deployment environment. The static Expo
+  // Go export only makes sense for a cloud deployment, so skip gracefully (exit 0)
+  // instead of failing the whole workspace `pnpm run build`. In Replit the domain
+  // env IS set, so the real build proceeds unchanged.
+  console.warn(
+    "⚠ Skipping static Expo Go deployment build — no deployment domain " +
+      "(REPLIT_INTERNAL_APP_DOMAIN / REPLIT_DEV_DOMAIN / EXPO_PUBLIC_DOMAIN). " +
+      "This is expected outside a deployment environment.",
   );
-  process.exit(1);
+  process.exit(0);
 }
 
 function prepareDirectories(timestamp) {
