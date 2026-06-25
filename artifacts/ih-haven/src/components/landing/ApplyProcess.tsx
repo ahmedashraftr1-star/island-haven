@@ -177,7 +177,7 @@ export function ApplyProcess() {
   return (
     <section
       id="how-to-join"
-      className="relative bg-surface-1 section-y overflow-hidden"
+      className="theme-light relative bg-surface-1 section-y overflow-hidden"
     >
       <div className="relative container-ih">
         <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
@@ -213,7 +213,7 @@ export function ApplyProcess() {
               {cohortLine}
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
               <img
                 src={`${import.meta.env.BASE_URL}photos/IMG_8357.webp`}
                 alt={t({ ar: "مؤسّسون يعملون في مساحة آيلاند هيفن", en: "Founders at work in the Island Haven space" })}

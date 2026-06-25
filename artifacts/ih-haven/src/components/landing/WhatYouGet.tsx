@@ -56,7 +56,7 @@ export function WhatYouGet() {
   ];
 
   return (
-    <section id="what-you-get" className="relative bg-surface-1 section-y">
+    <section id="what-you-get" className="theme-light relative bg-surface-1 section-y">
       <div className="container-ih">
         <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
           {/* Photo + lead — the place, shown not described */}
@@ -76,7 +76,7 @@ export function WhatYouGet() {
                 en: "Space, mentorship, programs and a network. Everything a maker needs to start and grow — from the heart of Gaza.",
               })}
             </p>
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
               <img
                 src="/photos/IMG_8347.webp"
                 alt={t({ ar: "مساحة عمل آيلاند هيفن في غزّة", en: "The Island Haven workspace in Gaza" })}

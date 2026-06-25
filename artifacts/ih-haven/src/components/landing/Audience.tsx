@@ -68,7 +68,7 @@ export function Audience() {
   ];
 
   return (
-    <section id="audience" className="relative bg-background section-y overflow-hidden">
+    <section id="audience" className="theme-light relative bg-background section-y overflow-hidden">
       <div aria-hidden className="absolute inset-x-0 top-0 h-[65%] brand-aura opacity-60" />
 
       <div className="container-ih relative">
@@ -90,7 +90,7 @@ export function Audience() {
                 en: "Four tracks find their place here — because we believe talent is bound neither by geography nor by circumstance.",
               })}
             </p>
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
               <img
                 src="/photos/IMG_8341.webp"
                 alt={t({ ar: "أعضاء آيلاند هيفن في مساحة العمل بغزّة", en: "Island Haven members in the Gaza workspace" })}
