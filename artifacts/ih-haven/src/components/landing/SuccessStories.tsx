@@ -65,7 +65,7 @@ export function SuccessStories() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={VIEWPORT}
-                transition={{ duration: 0.6, delay: Math.min(i, 5) * 0.06, ease: EASE_OUT_EXPO }}
+                transition={{ duration: 0.42, delay: Math.min(i, 5) * 0.06, ease: EASE_OUT_EXPO }}
                 className="group card-base card-hover rounded-[20px] p-7 lg:p-8 flex flex-col overflow-hidden"
               >
                 <Quote className="w-7 h-7 text-primary/45 mb-4 shrink-0" strokeWidth={2} />

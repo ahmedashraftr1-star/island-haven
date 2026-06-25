@@ -125,7 +125,7 @@ export function VenturesBand() {
                         src={imageUrl(v.coverUrl)}
                         alt={v.name}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-400"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

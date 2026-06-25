@@ -39,7 +39,7 @@ export function NewsletterBand() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.42 }}
           className="card-base p-8 sm:p-10 text-center"
         >
           {/* Icon */}

@@ -68,7 +68,7 @@ export function Support() {
           initial={{ y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="font-bold text-white max-w-[1100px]"
           style={{ fontSize: "clamp(2.5rem, 6.5vw, 6rem)", lineHeight: 0.99, letterSpacing: "-0.035em" }}
         >
@@ -81,7 +81,7 @@ export function Support() {
           initial={{ y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8, delay: 0.15 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
           className="mt-8 lg:mt-10 max-w-2xl text-lg lg:text-xl text-white/75 leading-relaxed whitespace-pre-line"
         >
           {c.body}
@@ -95,8 +95,8 @@ export function Support() {
             initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="group col-span-12 lg:col-span-7 relative bg-white text-[#0A0E1A] rounded-3xl p-10 lg:p-14 overflow-hidden hover:scale-[1.01] transition-transform duration-700 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]"
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="group col-span-12 lg:col-span-7 relative bg-white text-[#0A0E1A] rounded-3xl p-10 lg:p-14 overflow-hidden hover:scale-[1.01] transition-transform duration-400 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]"
           >
             <div
               aria-hidden
@@ -161,8 +161,8 @@ export function Support() {
                   initial={{ y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.7, delay: 0.2 + i * 0.08 }}
-                  className="group flex-1 relative bg-white/[0.04] backdrop-blur-md border border-white/15 rounded-3xl p-8 lg:p-10 hover:bg-white/[0.08] hover:border-white/25 transition-all duration-500"
+                  transition={{ duration: 0.45, delay: 0.2 + i * 0.08 }}
+                  className="group flex-1 relative bg-white/[0.04] backdrop-blur-md border border-white/15 rounded-3xl p-8 lg:p-10 hover:bg-white/[0.08] hover:border-white/25 transition-all duration-300"
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center">

@@ -13,15 +13,17 @@ export const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 export const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const;
 export const EASE_OUT_SOFT = [0.22, 1, 0.36, 1] as const;
 
+/* Snappy + subtle — quick reveals that don't tire the eye on scroll
+   (Linear/Stripe register). Was 0.8–1.35s/28px which read as heavy. */
 export const DURATION = {
-  xs: 0.35,
-  sm: 0.55,
-  md: 0.8,
-  lg: 1.05,
-  xl: 1.35,
+  xs: 0.25,
+  sm: 0.4,
+  md: 0.5,
+  lg: 0.65,
+  xl: 0.85,
 } as const;
 
-export const fadeUp = (delay = 0, distance = 28): Variants => ({
+export const fadeUp = (delay = 0, distance = 16): Variants => ({
   hidden: { opacity: 0, y: distance },
   visible: {
     opacity: 1,
@@ -46,7 +48,7 @@ export const slideMask = (delay = 0): Variants => ({
   },
 });
 
-export const stagger = (each = 0.08, delayChildren = 0): Variants => ({
+export const stagger = (each = 0.05, delayChildren = 0): Variants => ({
   hidden: {},
   visible: { transition: { staggerChildren: each, delayChildren } },
 });

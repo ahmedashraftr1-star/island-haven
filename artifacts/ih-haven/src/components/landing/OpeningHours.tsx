@@ -108,7 +108,7 @@ export function OpeningHours() {
       initial={{ y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-12%" }}
-      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="mb-12 lg:mb-14 relative rounded-[28px] overflow-hidden"
       style={{
         boxShadow:
@@ -190,7 +190,7 @@ export function OpeningHours() {
             <motion.span
               initial={{ y: "100%" }}
               animate={inView ? { y: 0, opacity: 1 } : {}}
-              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="block"
             >
               09
@@ -198,14 +198,14 @@ export function OpeningHours() {
             <motion.span
               initial={{ scaleX: 0 }}
               animate={inView ? { scaleX: 1 } : {}}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
               className="origin-left inline-block w-12 lg:w-20 h-[6px] lg:h-[10px] bg-white/85 rounded-full -translate-y-[0.42em]"
               aria-hidden
             />
             <motion.span
               initial={{ y: "100%" }}
               animate={inView ? { y: 0, opacity: 1 } : {}}
-              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
+              transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
               className="block"
             >
               17
@@ -441,7 +441,7 @@ export function OpeningHours() {
               <motion.g
                 initial={{  }}
                 animate={inView ? { opacity: 1 } : {}}
-                transition={{ duration: 0.6, delay: 2.1 }}
+                transition={{ duration: 0.42, delay: 2.1 }}
               >
                 <line
                   x1={CX}

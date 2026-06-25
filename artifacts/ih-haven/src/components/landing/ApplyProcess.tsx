@@ -44,7 +44,7 @@ const rise: Variants = {
   // Visible by default (y-only) so content never stays hidden if the scroll
   // reveal fails to fire; the rise still animates as enhancement when it does.
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 };
 
 // A live/open/announced cohort is one applicants can still join or is upcoming.
@@ -260,7 +260,7 @@ export function ApplyProcess() {
           initial={reduce ? false : { opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.42 }}
           className="mt-12 lg:mt-16 flex flex-wrap items-center gap-x-7 gap-y-4"
         >
           <Link

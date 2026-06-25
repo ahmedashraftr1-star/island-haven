@@ -30,7 +30,7 @@ export const NAV_SECONDARY: NavItem[] = [
   { href: "/learning", label: "التعلّم والتطوير", en: "Learning", key: "learning" },
   { href: "/messages", label: "الرسائل", en: "Messages", key: "messages" },
   { href: "/leaderboard", label: "لوحة المتميّزين", en: "Leaderboard", key: "leaderboard" },
-  { href: "/settings/notifications", label: "إعدادات الإشعارات", en: "Notifications", key: "notification-settings" },
+  { href: "/notifications", label: "إعدادات الإشعارات", en: "Notifications", key: "notification-settings" },
   { href: "/stories", label: "قصص النجاح", en: "Stories", key: "stories" },
   { href: "/jobs", label: "فرص العمل", en: "Jobs", key: "jobs" },
   { href: "/courses", label: "التّدريب والتّطوير", en: "Training", key: "courses" },

@@ -68,7 +68,7 @@ export function HoursLocation() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT}
-          transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.45, ease: EASE_OUT_EXPO }}
           className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center card-base rounded-[20px] p-6 lg:p-10 overflow-hidden"
         >
           <div className="lg:col-span-7 order-2 lg:order-1">

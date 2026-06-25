@@ -82,7 +82,7 @@ export function About() {
             initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="col-span-12 lg:col-span-5"
           >
             <figure className="group relative">
@@ -122,7 +122,7 @@ export function About() {
             initial={{ y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="col-span-12 lg:col-span-7"
           >
             <HairlineRow no="01" ar={c.p1Ar} en={c.p1En} body={c.p1Body} />

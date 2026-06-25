@@ -18,7 +18,7 @@ export function SectionLabel({
       initial={{ y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.42 }}
       className={`mb-12 lg:mb-16 ${
         align === "center" ? "text-center mx-auto max-w-3xl" : align === "left" ? "text-left max-w-3xl" : "text-right max-w-3xl mr-auto"
       }`}

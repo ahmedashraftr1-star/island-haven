@@ -150,7 +150,7 @@ export function Gallery() {
                 initial={false}
                 animate={{ opacity: i === idx ? 1 : 0, scale: i === idx ? 1 : 1.05 }}
                 transition={{
-                  opacity: { duration: 1.0, ease: [0.16, 1, 0.3, 1] },
+                  opacity: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
                   scale: { duration: 6.5, ease: [0.16, 1, 0.3, 1] },
                 }}
                 className="absolute inset-0 w-full h-full object-cover"
@@ -184,7 +184,7 @@ export function Gallery() {
                   key={`cap-${idx}`}
                   initial={{ y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                   className="max-w-3xl"
                 >
                   <div className="text-[11px] tracking-[0.22em] uppercase font-semibold opacity-85 mb-3">
@@ -231,7 +231,7 @@ export function Gallery() {
                 key={p.src + i}
                 onClick={() => setIdx(i)}
                 aria-label={`عرض المشهد ${i + 1}: ${p.caption}`}
-                className={`relative shrink-0 rounded-md overflow-hidden transition-all duration-500 ${
+                className={`relative shrink-0 rounded-md overflow-hidden transition-all duration-300 ${
                   i === idx
                     ? "w-16 h-12 lg:w-20 lg:h-14 ring-2 ring-white"
                     : "w-9 h-12 lg:w-11 lg:h-14 opacity-50 hover:opacity-90"
@@ -257,8 +257,8 @@ export function Gallery() {
               initial={{ y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.7, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative overflow-hidden rounded-2xl shadow-soft hover:shadow-soft-hover transition-all duration-700 group bg-black ${p.col} ${p.aspect}`}
+              transition={{ duration: 0.45, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`relative overflow-hidden rounded-2xl shadow-soft hover:shadow-soft-hover transition-all duration-400 group bg-black ${p.col} ${p.aspect}`}
             >
               <img
                 src={p.src}
@@ -271,7 +271,7 @@ export function Gallery() {
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
               )}
               {!p.showCap && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               )}
 
               <div className="absolute top-3 left-3 text-[10px] font-mono tabular-nums font-bold text-white bg-black/45 backdrop-blur-md px-2 py-1 rounded-md tracking-wider">
@@ -288,7 +288,7 @@ export function Gallery() {
                   </div>
                 </figcaption>
               ) : (
-                <figcaption className="absolute bottom-3 right-3 left-3 text-white text-[12px] font-semibold opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-1 transition-all duration-500">
+                <figcaption className="absolute bottom-3 right-3 left-3 text-white text-[12px] font-semibold opacity-0 group-hover:opacity-100 group-hover:translate-y-0 translate-y-1 transition-all duration-300">
                   {p.caption}
                 </figcaption>
               )}
@@ -347,7 +347,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
           alt=""
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover transition-opacity duration-1000"
+          className="w-full h-full object-cover transition-opacity duration-500"
         />
         <div
           className="absolute inset-0"
@@ -392,7 +392,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
             key={idx}
             initial={{ y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative text-white max-w-[1300px]"
           >
             <div
@@ -405,7 +405,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
             <motion.figcaption
               initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
+              transition={{ duration: 0.42, delay: 0.35 }}
               className="block mt-10 lg:mt-14 text-[13px] tracking-[0.16em] uppercase text-white/55 font-semibold"
             >
               — مُلتقطة في آيلاند هيفن ·{" "}
@@ -431,7 +431,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
                 key={i}
                 onClick={() => setIdx(i)}
                 aria-label={`عرض المشهد ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-500 ${
+                className={`h-2 rounded-full transition-all duration-300 ${
                   i === idx ? "bg-white w-8" : "bg-white/25 hover:bg-white/45 w-2"
                 }`}
               />

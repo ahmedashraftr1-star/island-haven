@@ -71,7 +71,7 @@ export function Campaign() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             className="col-span-12 lg:col-span-5 relative"
           >
             <div className="overflow-hidden rounded-[20px] border border-border-strong shadow-[0_12px_32px_-12px_hsl(226_60%_2%_/_0.6)]">
@@ -139,7 +139,7 @@ export function Campaign() {
                     initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.6, delay: i * 0.08 }}
+                    transition={{ duration: 0.42, delay: i * 0.08 }}
                     className="group grid grid-cols-12 gap-4 items-baseline py-4 border-b border-border transition-colors hover:bg-surface-1/60"
                   >
                     <div dir="ltr" className="col-span-2 sm:col-span-1 text-[11px] tracking-[0.3em] font-bold text-primary tnum">

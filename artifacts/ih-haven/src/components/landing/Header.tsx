@@ -52,7 +52,7 @@ export function Header() {
     <header
       className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "bg-white/85 backdrop-blur-xl border-b border-border py-2.5"
+          ? "bg-[#0A0E1A]/80 backdrop-blur-xl border-b border-white/10 py-2.5"
           : "bg-transparent py-4"
       }`}
     >
@@ -61,7 +61,7 @@ export function Header() {
           <div className="relative">
             <div
               aria-hidden
-              className="absolute -inset-1 rounded-2xl bg-primary/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              className="absolute -inset-1 rounded-2xl bg-primary/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             />
             <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-[#0A0E1A] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
               <img
@@ -72,18 +72,10 @@ export function Header() {
             </div>
           </div>
           <div className="leading-tight">
-            <div
-              className={`font-bold text-[15px] lg:text-[16px] tracking-tight transition-colors duration-300 ${
-                scrolled ? "text-foreground" : "text-white"
-              }`}
-            >
+            <div className="font-bold text-[15px] lg:text-[16px] tracking-tight text-white">
               {c.brand}
             </div>
-            <div
-              className={`text-[10.5px] font-medium tracking-wide transition-colors duration-300 ${
-                scrolled ? "text-foreground/60" : "text-white/70"
-              }`}
-            >
+            <div className="text-[10.5px] font-medium tracking-wide text-white/70">
               {c.tagline}
             </div>
           </div>
@@ -93,28 +85,20 @@ export function Header() {
           aria-label="التنقّل الرئيسيّ"
           className="hidden xl:flex flex-1 items-center justify-center gap-0.5 mx-2 min-w-0"
         >
-          <NavRail tone={scrolled ? "onLight" : "onDark"} pillId="header-rail" />
+          <NavRail tone="onDark" pillId="header-rail" />
         </nav>
 
         <div className="hidden lg:flex items-center gap-2 shrink-0">
-          <LangToggle tone={scrolled ? "onLight" : "onDark"} />
+          <LangToggle tone="onDark" />
           <Link
             href="/book"
-            className={`inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] ${
-              scrolled
-                ? "bg-primary-soft text-primary hover:bg-primary/15"
-                : "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15"
-            }`}
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] bg-white/10 backdrop-blur-md border border-white/15 text-white hover:bg-white/15"
           >
             {c.bookCtaLabel}
           </Link>
           <Link
             href={c.ctaHref || "/apply"}
-            className={`inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
-              scrolled
-                ? "cta-fill"
-                : "bg-white text-[#0A0E1A] hover:bg-white/90"
-            }`}
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] cta-fill"
           >
             <span>{c.ctaLabel}</span>
             <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -122,14 +106,10 @@ export function Header() {
         </div>
 
         <div className="xl:hidden flex items-center gap-2">
-          <LangToggle tone={scrolled ? "onLight" : "onDark"} />
+          <LangToggle tone="onDark" />
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-            scrolled
-              ? "border border-border bg-white text-foreground"
-              : "border border-white/25 bg-white/10 backdrop-blur-md text-white"
-          }`}
+          className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 border border-white/20 bg-white/10 backdrop-blur-md text-white"
           aria-label={c.menuLabel}
           data-testid="button-mobile-menu"
         >
@@ -145,7 +125,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="xl:hidden border-t border-border bg-white/95 backdrop-blur-xl"
+            className="xl:hidden border-t border-white/10 bg-[#0A0E1A]/95 backdrop-blur-xl"
           >
             <nav className="container mx-auto px-6 py-4 flex flex-col">
               {[...NAV_ITEMS, ...NAV_SECONDARY].map((l) => {

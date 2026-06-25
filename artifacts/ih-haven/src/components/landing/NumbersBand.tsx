@@ -168,7 +168,7 @@ export function NumbersBand() {
               >
                 <div
                   aria-hidden
-                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 />
                 <div className="relative">
                   <div className="icon-tile mb-6">

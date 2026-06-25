@@ -84,7 +84,7 @@ export function Audience() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT}
-          transition={{ duration: 0.8, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
           className="surface-1 rounded-[20px] p-6 lg:p-8 mb-[clamp(2.5rem,5vw,4rem)]"
         >
           <div className="flex items-center gap-3 mb-5">
@@ -104,7 +104,7 @@ export function Audience() {
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
                 viewport={VIEWPORT}
-                transition={{ duration: 1.0, delay: 0.15 + i * 0.12, ease: EASE_OUT_EXPO }}
+                transition={{ duration: 0.42, delay: 0.15 + i * 0.12, ease: EASE_OUT_EXPO }}
                 style={{
                   width: `${s.pct}%`,
                   background: BAR_FILL[i] ?? BAR_FILL[2],
@@ -134,7 +134,7 @@ export function Audience() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={VIEWPORT}
-                transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+                transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
                 className="grid grid-cols-12 gap-6 lg:gap-12 items-center group"
               >
                 <div className={`col-span-12 lg:col-span-5 ${reverse ? "lg:order-2" : "lg:order-1"}`}>

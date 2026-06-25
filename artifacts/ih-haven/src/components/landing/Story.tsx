@@ -75,7 +75,7 @@ export function Story() {
             initial={{ y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             className="col-span-12 lg:col-span-7"
           >
             <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-5">
@@ -143,7 +143,7 @@ export function Story() {
             initial={{ y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="col-span-12 lg:col-span-5 lg:sticky lg:top-24"
           >
             <div className="relative rounded-2xl overflow-hidden shadow-soft">

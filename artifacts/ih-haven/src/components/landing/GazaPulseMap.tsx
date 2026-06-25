@@ -86,7 +86,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           viewport={{ once: true }}
           transition={{
             pathLength: { duration: 2, ease: [0.16, 1, 0.3, 1] },
-            fillOpacity: { delay: 1.2, duration: 0.8 },
+            fillOpacity: { delay: 1.2, duration: 0.5 },
           }}
         />
 
@@ -113,7 +113,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 1.6, duration: 0.6 }}
+          transition={{ delay: 1.6, duration: 0.42 }}
         >
           {t({ ar: "غزّة · GAZA", en: "GAZA" })}
         </motion.text>
@@ -148,7 +148,7 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 2.0, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 2.0, duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
           />
           <motion.text
             x="14"

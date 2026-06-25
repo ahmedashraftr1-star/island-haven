@@ -32,7 +32,7 @@ export function Intro() {
         <motion.div
           className="fixed inset-0 z-[200] bg-foreground flex items-center justify-center overflow-hidden"
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] as const }}
+          transition={{ duration: 0.42, ease: [0.65, 0, 0.35, 1] as const }}
         >
           {/* curtain wipe */}
           <motion.div
@@ -40,7 +40,7 @@ export function Intro() {
             initial={{ y: "100%" }}
             animate={{ y: "100%" }}
             exit={{ y: "0%" }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] as const }}
+            transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as const }}
           />
 
           <div className="relative text-center px-6">
@@ -65,7 +65,7 @@ export function Intro() {
                 <motion.div
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.2, ease: [0.65, 0, 0.35, 1] as const }}
+                  transition={{ duration: 0.5, delay: 0.2, ease: [0.65, 0, 0.35, 1] as const }}
                 >
                   مساحة <span className="text-primary italic">تتّسع</span>
                 </motion.div>
@@ -74,7 +74,7 @@ export function Intro() {
                 <motion.div
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
-                  transition={{ duration: 0.9, delay: 0.45, ease: [0.65, 0, 0.35, 1] as const }}
+                  transition={{ duration: 0.5, delay: 0.45, ease: [0.65, 0, 0.35, 1] as const }}
                 >
                   لأحلامك.
                 </motion.div>
@@ -85,7 +85,7 @@ export function Intro() {
             <motion.div
               initial={{  }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
+              transition={{ duration: 0.42, delay: 1.2 }}
               className="mt-10 flex items-center justify-center gap-4 text-background/70 text-xs tracking-[0.4em] uppercase"
             >
               <span className="block w-10 h-px bg-background/40" />

@@ -69,7 +69,7 @@ export function Programs() {
           initial={{ y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
           className="bg-white border border-border rounded-3xl shadow-soft overflow-hidden mb-6 lg:mb-7"
         >
           <div className="grid grid-cols-12 gap-0 items-stretch">
@@ -138,8 +138,8 @@ export function Programs() {
               initial={{ y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.7, delay: i * 0.08 }}
-              className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all duration-500 hover:-translate-y-1"
+              transition={{ duration: 0.45, delay: i * 0.08 }}
+              className="bg-white border border-border rounded-2xl p-7 lg:p-8 shadow-soft hover:shadow-soft-hover hover:border-primary/25 transition-all duration-300 hover:-translate-y-1"
             >
               <div className="text-[11px] tracking-[0.15em] uppercase text-primary font-semibold mb-3">
                 {lang === "en" ? card.ar : card.en}

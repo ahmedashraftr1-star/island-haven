@@ -187,7 +187,7 @@ export function Showcase() {
                   <img
                     src={p.photo}
                     alt={p.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 hover:scale-105"
                   />
                 </div>
 
