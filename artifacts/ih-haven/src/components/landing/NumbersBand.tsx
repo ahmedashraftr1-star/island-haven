@@ -167,8 +167,8 @@ export function NumbersBand() {
                   data-testid={`numbers-row-${row.en.toLowerCase()}`}
                 >
                   <span
-                    className="font-display font-extrabold tabular-nums text-sand-bright leading-none"
-                    style={{ fontSize: "clamp(2.6rem, 6vw, 4.25rem)" }}
+                    className="font-display font-black tabular-nums text-sand-bright leading-[0.9]"
+                    style={{ fontSize: "clamp(3.25rem, 7.5vw, 5.5rem)", letterSpacing: "-0.03em" }}
                   >
                     {n ? <CountUp value={row.value} lang={lang} /> : "—"}
                   </span>

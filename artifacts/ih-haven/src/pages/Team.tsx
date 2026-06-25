@@ -334,7 +334,7 @@ function TeamCard({
         />
 
         {m.featured && (
-          <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
+          <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-primary/12 text-primary border border-primary/30">
             <Sparkles className="w-3 h-3" /> {t({ ar: "مميَّز", en: "Featured" })}
           </div>
         )}
@@ -353,7 +353,8 @@ function TeamCard({
             <div
               className={`${
                 isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"
-              } shrink-0 rounded-2xl bg-gradient-to-br from-primary/35 to-primary/[0.06] border border-white/10 flex items-center justify-center font-bold text-white/90 transition-transform duration-300 group-hover:scale-[1.06]`}
+              } shrink-0 rounded-2xl ring-1 ring-white/15 shadow-soft flex items-center justify-center font-display font-black text-white transition-transform duration-300 group-hover:scale-[1.06]`}
+              style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
             >
               {initials}
             </div>

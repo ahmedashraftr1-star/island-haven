@@ -50,7 +50,8 @@ export function SuccessStories() {
       />
     ) : (
       <div
-        className={`${size} rounded-full grid place-items-center font-display font-bold bg-sand-soft text-sand-bright ring-1 ring-sand/30`}
+        className={`${size} rounded-full grid place-items-center font-display font-black text-white ring-2 ring-white/15 shadow-soft`}
+        style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
       >
         {s.personName.charAt(0)}
       </div>

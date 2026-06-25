@@ -104,26 +104,28 @@
   --secondary-border: hsl(225 16% 27%);
   --destructive-border: hsl(0 72% 60%);
 
-  /* ── CANVAS / SURFACES — widened tonal staircase (was flat-on-flat). ──
-     A real ~3pt L step between each rung so panels read as raised. */
-  --background: 226 41% 6%;          /* deep navy-black canvas */
-  --surface-1: 225 30% 9%;           /* lifted SECTION bg (replaces bg-muted/40) */
-  --surface-2: 224 28% 11%;          /* default card */
-  --surface-3: 223 26% 14%;          /* raised / modal */
-  --foreground: 210 24% 98%;         /* headings */
+  /* ── CANVAS / SURFACES — DIMENSIONAL staircase. Wider L steps + a touch more
+     chroma so panels read as genuinely raised material, not flat-on-flat murk.
+     (Premium-dark register: Linear/Vercel separate surfaces clearly; murky
+     dark-on-dark reads as weak/cheap.) ── */
+  --background: 225 44% 5%;          /* deeper, richer navy-black canvas */
+  --surface-1: 224 32% 10%;          /* lifted SECTION bg */
+  --surface-2: 223 30% 13%;          /* default card — clearly above canvas */
+  --surface-3: 222 28% 18%;          /* raised / modal — pops */
+  --foreground: 210 30% 99%;         /* headings — crisp white */
 
-  /* ── BORDERS — the flat bug. +3pt L so edges actually read. ── */
-  --border: 225 16% 20%;             /* hairline */
-  --border-strong: 225 16% 27%;      /* card edges / dividers */
+  /* ── BORDERS — edges must actually read on the dark canvas. ── */
+  --border: 225 17% 24%;             /* hairline */
+  --border-strong: 224 20% 34%;      /* card edges / dividers — crisp */
 
   /* Default card = surface-2. */
-  --card: 224 28% 11%;
-  --card-foreground: 210 24% 98%;
-  --card-border: 225 16% 27%;
+  --card: 223 30% 13%;
+  --card-foreground: 210 30% 99%;
+  --card-border: 224 20% 34%;
 
-  --popover: 223 26% 14%;
-  --popover-foreground: 210 24% 98%;
-  --popover-border: 225 16% 27%;
+  --popover: 222 28% 18%;
+  --popover-foreground: 210 30% 99%;
+  --popover-border: 224 20% 34%;
 
   /* ── PRIMARY — Alizarin Crimson #E32738, the brand's signature red. ──
      Two-rung system tuned for the dark canvas:
@@ -142,13 +144,13 @@
   --secondary: 224 22% 14%;
   --secondary-foreground: 210 24% 98%;
 
-  /* ── FOREGROUND STAIRCASE ── */
-  --fg-secondary: 214 16% 80%;       /* BODY copy (use this, NOT foreground/65) */
-  --fg-faint: 220 12% 46%;           /* disabled */
+  /* ── FOREGROUND STAIRCASE — brighter, more confident/legible on dark. ── */
+  --fg-secondary: 214 20% 85%;       /* BODY copy (use this, NOT foreground/65) */
+  --fg-faint: 220 12% 50%;           /* disabled */
 
   /* Soft dark surface + readable muted text. */
-  --muted: 224 24% 11%;
-  --muted-foreground: 217 14% 60%;   /* captions / meta */
+  --muted: 224 24% 13%;
+  --muted-foreground: 217 17% 67%;   /* captions / meta — now clears AA */
 
   --accent: 224 24% 14%;
   --accent-foreground: 210 24% 98%;

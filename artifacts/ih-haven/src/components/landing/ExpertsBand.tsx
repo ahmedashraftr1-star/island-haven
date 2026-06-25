@@ -103,8 +103,15 @@ export function ExpertsBand() {
                   className="card-base card-hover group block h-full overflow-hidden"
                   data-testid={`home-expert-${e.id}`}
                 >
-                  {/* Portrait */}
-                  <div className="relative h-48 bg-surface-3 flex items-center justify-center overflow-hidden">
+                  {/* Portrait — real photo, or a crafted crimson medallion (never a faint glyph) */}
+                  <div
+                    className="relative h-48 flex items-center justify-center overflow-hidden"
+                    style={
+                      e.avatarUrl
+                        ? { background: "hsl(var(--surface-3))" }
+                        : { background: "radial-gradient(130% 120% at 50% 0%, hsl(var(--primary) / 0.20) 0%, hsl(var(--surface-3)) 68%)" }
+                    }
+                  >
                     {e.avatarUrl ? (
                       <img
                         src={e.avatarUrl}
@@ -113,9 +120,12 @@ export function ExpertsBand() {
                         loading="lazy"
                       />
                     ) : (
-                      <span className="font-display text-6xl font-black text-fg-faint/40 select-none">
+                      <div
+                        className="flex h-[88px] w-[88px] items-center justify-center rounded-full text-white font-display font-black text-[28px] ring-2 ring-white/15 shadow-soft select-none transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
+                        style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+                      >
                         {initials}
-                      </span>
+                      </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
                     {e.featured && (
