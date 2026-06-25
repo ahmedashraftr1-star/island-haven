@@ -3,12 +3,15 @@ import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Reveal } from "@/components/landing/Reveal";
 
 /**
- * NewsletterBand — editorial, start-aligned band in the approved WhatYouGet
- * language. No icon-tile, no centered glass card. Asymmetric: an oversized
- * solid headline + lead on the logical START, the form on the END column,
- * separated by an Apple-quiet hairline frame. Warm sand accent on the eyebrow.
+ * NewsletterBand — the closing invitation, told in the canonical homepage
+ * language: a brand-aura glow on the navy canvas, an oversized SOLID display
+ * headline with a single cerulean accent word, and the form lifted onto ONE
+ * real card-base panel (surface-2 + border-strong + shadow-soft) with crisp
+ * inputs and a confident crimson cta-fill. No glass, no scheme-flip, no
+ * off-palette success state — system tokens carry it. Success/error preserved.
  */
 export function NewsletterBand() {
   const { t } = useLanguage();
@@ -39,64 +42,77 @@ export function NewsletterBand() {
   }
 
   return (
-    <section className="relative section-y-compact overflow-hidden bg-background">
-      <div className="container-ih">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-10 items-center border-t border-border-strong pt-[clamp(2.5rem,5vw,4.5rem)]">
-          {/* Lead — start-aligned, oversized solid type */}
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.45 }}
-            className="lg:col-span-6"
-          >
+    <section className="relative bg-background section-y overflow-hidden">
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[70%] brand-aura opacity-60" />
+
+      <div className="container-ih relative">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
+          {/* Lead — start-aligned, oversized solid display with a cerulean accent */}
+          <Reveal as="div" className="lg:col-span-6">
             <div className="eyebrow eyebrow-sand mb-5">
               {t({ ar: "النشرة الإخبارية", en: "Newsletter" })}
             </div>
             <h2
               className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(1.9rem, 3.6vw, 3rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
+              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
             >
-              {t({ ar: "ابقَ على اطّلاع دائم.", en: "Stay in the loop." })}
+              {t({ ar: "ابقَ على ", en: "Stay in " })}
+              <span className="text-sand-bright">{t({ ar: "اطّلاع دائم.", en: "the loop." })}</span>
             </h2>
-            <p className="t-body mt-5 max-w-md">
+            <p className="t-body-lg mt-5 max-w-md">
               {t({
                 ar: "أخبار الحاضنة، فرص التقديم، فعاليّات مجتمعيّة، وقصص ملهمة — مرّة في الشهر إلى بريدك مباشرة.",
                 en: "Incubator news, application openings, community events, and inspiring stories — once a month, straight to your inbox.",
               })}
             </p>
-          </motion.div>
+            <p className="t-caption mt-6">
+              {t({
+                ar: "لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أيّ وقت.",
+                en: "No spam. Unsubscribe anytime.",
+              })}
+            </p>
+          </Reveal>
 
-          {/* Form — end column, hairline-framed (no glass) */}
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.45, delay: 0.08 }}
-            className="lg:col-span-6"
-          >
-            {status === "success" ? (
-              <motion.div
-                initial={{ scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 py-5 px-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20"
-              >
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span className="text-[15px] font-semibold text-emerald-300 text-start">
-                  {t({ ar: "تمّ الاشتراك! أهلاً في مجتمع آيلاند.", en: "You're subscribed! Welcome to the Island community." })}
-                </span>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  aria-label={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
-                  placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
-                  className="w-full h-12 px-5 rounded-2xl bg-surface-2 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
-                />
-                <div className="flex gap-2">
+          {/* Form — lifted onto ONE real card panel (no glass, no scheme-flip) */}
+          <Reveal as="div" delay={0.08} className="lg:col-span-6">
+            <div className="card-base p-[clamp(1.5rem,3vw,2rem)]">
+              {status === "success" ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-start gap-3.5 py-6"
+                  data-testid="newsletter-success"
+                >
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                    style={{ background: "hsl(var(--sand-soft))" }}
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-sand-bright" />
+                  </span>
+                  <div className="text-start">
+                    <div className="font-display font-bold text-foreground text-[17px] leading-snug">
+                      {t({ ar: "تمّ الاشتراك بنجاح", en: "You're subscribed" })}
+                    </div>
+                    <p className="t-body mt-1.5">
+                      {t({
+                        ar: "أهلاً بك في مجتمع آيلاند هيفن — نراك في النشرة القادمة.",
+                        en: "Welcome to the Island Haven community — see you in the next issue.",
+                      })}
+                    </p>
+                  </div>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-3.5" data-testid="newsletter-form">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    aria-label={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
+                    placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
+                    data-testid="input-newsletter-name"
+                    className="w-full h-12 px-5 rounded-[14px] bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
+                  />
                   <input
                     type="email"
                     required
@@ -104,35 +120,33 @@ export function NewsletterBand() {
                     onChange={(e) => setEmail(e.target.value)}
                     aria-label={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
                     placeholder={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
-                    className="flex-1 min-w-0 h-12 px-5 rounded-2xl bg-surface-2 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
+                    data-testid="input-newsletter-email"
+                    className="w-full h-12 px-5 rounded-[14px] bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
                   />
                   <button
                     type="submit"
                     disabled={status === "loading" || !email.trim()}
-                    className="cta-fill shrink-0 h-12 px-5 rounded-2xl font-semibold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_hsl(354_82%_30%_/_0.55)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center gap-2"
+                    data-testid="button-newsletter-subscribe"
+                    className="cta-fill group w-full h-12 px-5 rounded-[14px] font-semibold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_hsl(354_82%_30%_/_0.55)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
                   >
                     {status === "loading" ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
-                        {t({ ar: "اشترك", en: "Subscribe" })}
-                        <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                        {t({ ar: "اشترك الآن", en: "Subscribe" })}
+                        <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                       </>
                     )}
                   </button>
-                </div>
-                {status === "error" && (
-                  <p className="text-[13px] text-rose-400 text-start">{errorMsg}</p>
-                )}
-                <p className="text-caption text-fg-faint text-start">
-                  {t({
-                    ar: "لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أي وقت.",
-                    en: "No spam. Unsubscribe anytime.",
-                  })}
-                </p>
-              </form>
-            )}
-          </motion.div>
+                  {status === "error" && (
+                    <p className="text-[13px] font-medium text-primary text-start" data-testid="newsletter-error">
+                      {errorMsg}
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

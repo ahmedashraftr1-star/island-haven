@@ -82,7 +82,7 @@ export function Audience() {
               className="font-display font-extrabold text-foreground"
               style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
             >
-              {t({ ar: "مساحة تتّسع لأحلامك.", en: "A space wide enough for your dreams." })}
+              {t({ ar: "مكانٌ لكلّ موهبة.", en: "A place for every talent." })}
             </h2>
             <p className="t-body-lg mt-5 max-w-md text-foreground/90">
               {t({

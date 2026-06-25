@@ -1,16 +1,17 @@
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Reveal } from "@/components/landing/Reveal";
 
 /**
- * BecomeMentorBand — editorial, photo-forward band in the approved WhatYouGet /
- * About house style. Real Gaza imagery on one column; an oversized SOLID headline
- * with a single crimson accent word, a lead in the authentic brand voice, and a
- * quiet hairline ledger (cerulean data numerals) of what mentoring is — plus one
- * decisive crimson CTA. Ties to the "Networking & Global Impact" axis: talent is
- * not bound by geography. Start-aligned, asymmetric.
- * No gradient text, no glass, no icon-tile grid, no pill row.
+ * BecomeMentorBand — a confident statement band in the canonical house style
+ * (NumbersBand / WhatYouGet / About): a large full-bleed Gaza photograph with a
+ * dark gradient for legibility on one column, and on the other an oversized SOLID
+ * font-display headline with a single crimson accent word, a tight authentic
+ * lead (expert founders & mentors worldwide give 1:1 mentorship — talent is not
+ * bound by geography), a quiet hairline ledger in cerulean numerals, and one
+ * decisive .cta-fill CTA. Start-aligned, asymmetric, on-brand depth.
+ * No icon tile, no glass, no gradient text, no scheme-flip cards.
  */
 export function BecomeMentorBand() {
   const { lang, t } = useLanguage();
@@ -43,60 +44,36 @@ export function BecomeMentorBand() {
   ];
 
   return (
-    <section
-      className="relative section-y-compact overflow-hidden bg-surface-1"
-      dir={lang === "ar" ? "rtl" : "ltr"}
-    >
-      <div className="container-ih">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
-          {/* Photo — the place and its people, shown not described */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5 }}
-            className="lg:col-span-5"
-          >
-            <div className="overflow-hidden rounded-[20px] ring-1 ring-white/10">
-              <img
-                src={`${import.meta.env.BASE_URL}photos/IMG_8352.webp`}
-                alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
-                loading="lazy"
-                className="w-full aspect-[5/4] object-cover saturate-[1.04]"
-              />
-            </div>
-          </motion.div>
+    <section className="relative bg-surface-1 section-y overflow-hidden">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[60%] brand-aura opacity-60" />
 
-          {/* Lead + ledger + CTA — start-aligned, oversized solid type */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="lg:col-span-7"
-          >
-            <div className="eyebrow eyebrow-sand mb-5">
-              {t({ ar: "كُن جزءًا من القصّة", en: "Be part of the story" })}
+      <div className="container-ih relative">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
+          {/* Statement — start-aligned, oversized solid type, one crimson accent */}
+          <Reveal as="div" className="lg:col-span-7 lg:order-1">
+            <div className="flex items-center gap-3 mb-5">
+              <span aria-hidden className="h-px w-9 bg-primary/50" />
+              <span className="eyebrow">{t({ ar: "كُن جزءًا من القصّة", en: "Be part of the story" })}</span>
             </div>
 
             <h2
               className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.2rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
+              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
             >
               {t({ ar: "أرشِد موهبةً ", en: "Mentor talent " })}
               <span className="text-primary">{t({ ar: "لا تحدّها الجغرافيا", en: "the world hasn't met yet" })}</span>
               {t({ ar: ".", en: "." })}
             </h2>
 
-            <p className="t-body mt-5 max-w-xl">
+            <p className="t-body-lg mt-5 max-w-xl">
               {t({
-                ar: "خبراء ومؤسّسون ومتخصّصون من حول العالم — شاركوا جيلًا غزّيًّا شابًّا ما تعلّمتموه. جلسة إرشادٍ فرديّة واحدة منكم قد تفتح بابًا كانت الحرب قد أغلقته.",
-                en: "Experts, founders and specialists worldwide — share what you've learned with a young Gazan generation. One 1:1 mentoring session from you can open a door the war had closed.",
+                ar: "خبراء ومؤسّسون ومتخصّصون من حول العالم — شاركوا جيلًا غزّيًّا شابًّا ما تعلّمتموه عبر جلسات إرشادٍ فرديّة. جلسة واحدة منكم قد تفتح بابًا كانت الحرب قد أغلقته.",
+                en: "Expert founders, mentors and specialists worldwide — share what you've learned with a young Gazan generation through 1:1 mentorship. One session from you can open a door the war had closed.",
               })}
             </p>
 
             {/* Quiet hairline ledger — cerulean data numerals, no cards */}
-            <div className="mt-8 border-t border-border-strong">
+            <div className="mt-9 border-t border-border-strong">
               {ledger.map((item, i) => (
                 <div
                   key={item.title}
@@ -115,13 +92,34 @@ export function BecomeMentorBand() {
 
             <Link
               href="/become-mentor?ref=home-banner"
-              className="group mt-9 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
+              className="group mt-9 inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px]"
               data-testid="cta-become-mentor"
             >
               {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
             </Link>
-          </motion.div>
+          </Reveal>
+
+          {/* Photo — the place and its people, shown large with a dark gradient */}
+          <Reveal as="div" delay={0.08} className="lg:col-span-5 lg:order-2">
+            <div className="relative overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
+              <img
+                src="/photos/IMG_8352.webp"
+                alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
+                loading="lazy"
+                className="w-full h-[clamp(380px,52vw,560px)] object-cover object-center saturate-[1.04]"
+              />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 lg:p-7">
+                <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
+                  {t({ ar: "من داخل المساحة", en: "Inside the space" })}
+                </div>
+                <div className="font-display font-bold text-white text-[clamp(1.05rem,1.9vw,1.5rem)]">
+                  {t({ ar: "موهبة تنتظر من يأخذ بيدها", en: "Talent waiting for a hand to guide it" })}
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

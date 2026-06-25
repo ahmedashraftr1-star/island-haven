@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { api } from "@/lib/api";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
+import { Reveal } from "@/components/landing/Reveal";
 
 const FALLBACK = {
   eyebrow: "فعاليّات آيلاند · Events",
@@ -44,9 +43,13 @@ function trimExcerpt(s: string, n = 110): string {
 }
 
 /**
- * NewsSlider — horizontal carousel of upcoming/recent events.
- * Each card shows a cover image and a 2-line clickable title that
- * routes to the event detail page.
+ * NewsSlider — the incubator's pulse, told as a horizontal editorial carousel
+ * sitting directly below the "من قلب غزّة" cinematic band. ONE photo-forward card
+ * spec for every event (real cover with a hover zoom, or a branded crimson
+ * medallion block when there is none — never a faint typographic placeholder), on
+ * the canonical .card-base + .card-hover surface. Header matches the top sections:
+ * crimson eyebrow, oversized solid display headline with a single accent word, a
+ * t-body sub. No gradient text, no glass, no scheme-flip cards.
  */
 export function NewsSlider() {
   const { lang } = useLanguage();
@@ -75,18 +78,35 @@ export function NewsSlider() {
   return (
     <section
       id="events-slider"
-      className="relative bg-surface-1 section-y"
+      className="relative bg-surface-1 section-y overflow-hidden"
     >
-      <div className="container-ih">
-        <div className="flex items-end justify-between gap-6 mb-[clamp(2rem,4vw,3.5rem)]">
-          <div>
-            <div className="eyebrow mb-4">
-              {c.eyebrow}
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
+
+      <div className="container-ih relative">
+        {/* Header — start-aligned, oversized solid display, matching the top sections */}
+        <div className="flex items-end justify-between gap-6 mb-[clamp(2.5rem,5vw,4rem)]">
+          <Reveal as="div">
+            <div className="flex items-center gap-3 mb-5">
+              <span aria-hidden className="h-px w-9 bg-primary/50" />
+              <span className="eyebrow">{c.eyebrow}</span>
             </div>
-            <h2 className="t-h2 !text-foreground max-w-2xl">
-              {c.title}
+            <h2
+              className="font-display font-extrabold text-foreground max-w-2xl"
+              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
+            >
+              {lang === "en" ? (
+                <>What's happening at the space <span className="text-primary">this week.</span></>
+              ) : (
+                <>ما يحدث في المساحة <span className="text-primary">هذا الأسبوع.</span></>
+              )}
             </h2>
-          </div>
+            <p className="t-body mt-5 max-w-xl">
+              {lang === "en"
+                ? "Workshops, talks and the daily life of the incubator — pulled live from the space."
+                : "ورشٌ ولقاءات ونبض الحاضنة اليوميّ — تُسحب مباشرةً من قلب المساحة."}
+            </p>
+          </Reveal>
+
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <button
               type="button"
@@ -120,7 +140,7 @@ export function NewsSlider() {
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="shrink-0 w-[320px] h-[380px] rounded-[20px] card-base skeleton-shimmer"
+                className="shrink-0 w-[300px] sm:w-[340px] h-[380px] rounded-[20px] card-base skeleton-shimmer"
               />
             ))}
           </div>
@@ -137,77 +157,75 @@ export function NewsSlider() {
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth scrollbar-thin"
             style={{ scrollbarColor: "transparent transparent" }}
           >
-            {posts.map((p, i) => (
-              <motion.div
-                key={p.id}
-                data-card
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={VIEWPORT}
-                transition={{ duration: 0.55, delay: Math.min(i, 4) * 0.06, ease: EASE_OUT_EXPO }}
-                className="snap-start shrink-0 w-[300px] sm:w-[340px]"
-              >
-                <Link
-                  href={`/events/${p.id}`}
-                  className="group block rounded-[20px] card-base card-hover overflow-hidden"
-                  data-testid={`event-card-${p.id}`}
+            {posts.map((p, i) => {
+              // Branded matte fallback for cover-less posts — a crimson medallion
+              // initial on a radial wash, never a faint typographic placeholder.
+              const initial = (p.title.trim()[0] ?? typeLabels[p.type][0] ?? "·").toUpperCase();
+              return (
+                <Reveal
+                  key={p.id}
+                  as="div"
+                  delay={Math.min(i, 4) * 0.06}
+                  className="snap-start shrink-0 w-[300px] sm:w-[340px]"
                 >
-                  <div className="aspect-[4/3] overflow-hidden relative">
-                    {p.coverUrl ? (
-                      <>
+                  <Link
+                    href={`/events/${p.id}`}
+                    className="group block h-full overflow-hidden card-base card-hover"
+                    data-testid={`event-card-${p.id}`}
+                  >
+                    {/* Cover — real photo with hover zoom, or a branded crimson medallion */}
+                    <div
+                      className="aspect-[4/3] overflow-hidden relative flex items-center justify-center"
+                      style={
+                        p.coverUrl
+                          ? { background: "hsl(var(--surface-3))" }
+                          : { background: "radial-gradient(130% 120% at 50% 0%, hsl(var(--primary) / 0.20) 0%, hsl(var(--surface-3)) 70%)" }
+                      }
+                    >
+                      {p.coverUrl ? (
                         <img
                           src={p.coverUrl}
                           alt={p.title}
-                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-400"
+                          className="w-full h-full object-cover saturate-[1.03] transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </>
-                    ) : (
-                      // Editorial typographic placeholder — large index day numeral
-                      // on a matte surface, a sand hairline and the excerpt. No
-                      // decorative gradient blobs, no glyph marks, no dots.
-                      <div className="w-full h-full bg-surface-3 relative overflow-hidden flex flex-col justify-end p-5">
+                      ) : (
                         <div
-                          dir="ltr"
-                          className="absolute top-3 end-4 font-display font-extrabold tabular-nums text-sand/20 leading-none select-none pointer-events-none"
-                          style={{ fontSize: "clamp(4.5rem, 9vw, 6.5rem)", letterSpacing: "-0.04em" }}
                           aria-hidden
+                          className="flex h-[84px] w-[84px] items-center justify-center rounded-full text-white font-display font-black text-[30px] ring-2 ring-white/15 shadow-soft select-none transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
+                          style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
                         >
-                          {new Date(p.publishedAt).toLocaleDateString("en-US", { day: "2-digit" })}
+                          {initial}
                         </div>
-                        <span aria-hidden className="hairline-sand block w-12 mb-3" />
-                        {p.body && (
-                          <p className="relative text-[13px] leading-relaxed text-fg-secondary line-clamp-3 max-w-[28ch]">
-                            {trimExcerpt(p.body, 120)}
-                          </p>
-                        )}
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
+                      <div className="absolute top-3 end-3 px-2.5 py-1 rounded-full chip-sand eyebrow !text-sand-bright">
+                        {typeLabels[p.type]}
                       </div>
-                    )}
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full chip-sand eyebrow !text-sand-bright">
-                      {typeLabels[p.type]}
                     </div>
-                  </div>
-                  <div className="p-5">
-                    <div className="t-caption !text-muted-foreground mb-2 font-mono tnum">
-                      {formatDate(p.publishedAt, lang)}
+
+                    {/* Info */}
+                    <div className="p-5">
+                      <div className="t-caption !text-muted-foreground mb-2 font-mono tnum">
+                        {formatDate(p.publishedAt, lang)}
+                      </div>
+                      <h3 className="t-h3 !text-foreground line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">
+                        {p.title}
+                      </h3>
+                      {p.body && (
+                        <p className="mt-2 t-caption !text-muted-foreground line-clamp-2 min-h-[2.6em]">
+                          {trimExcerpt(p.body, 90)}
+                        </p>
+                      )}
+                      <span className="mt-4 inline-flex items-center gap-1.5 t-caption font-semibold text-primary">
+                        {c.ctaCard}
+                        <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                      </span>
                     </div>
-                    <h3 className="t-h3 !text-foreground line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">
-                      {p.title}
-                    </h3>
-                    {p.body && (
-                      <p className="mt-2 t-caption !text-muted-foreground line-clamp-2 min-h-[2.6em]">
-                        {trimExcerpt(p.body, 90)}
-                      </p>
-                    )}
-                    <div className="mt-4 flex items-center gap-1.5 t-caption font-semibold text-primary">
-                      {c.ctaCard}
-                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1" />
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         )}
 
