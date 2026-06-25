@@ -92,7 +92,7 @@ const NETWORK: Node[] = [
 ];
 
 export function Partners() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section id="partners" className="relative bg-background section-y overflow-hidden">
@@ -110,6 +110,22 @@ export function Partners() {
               en: "We don't show logos — we show what each partnership actually unlocks for you: cloud tools, international payments, a global freelance market, and acceleration.",
             })}
           </p>
+        </Reveal>
+
+        {/* Value framing — the killer angle: real $ in tools, unlocked free */}
+        <Reveal className="mb-[clamp(1.75rem,3vw,2.5rem)] flex flex-wrap items-stretch gap-x-10 gap-y-5 border-y border-border-strong py-6">
+          {[
+            { v: lang === "en" ? "8" : "٨", l: t({ ar: "شركاء عالميّون", en: "Global partners" }) },
+            { v: lang === "en" ? "$1,000s" : "آلاف $", l: t({ ar: "أدوات وأرصدة — مجّانًا", en: "in tools & credits — free" }) },
+            { v: lang === "en" ? "Worldwide" : "عالميّ", l: t({ ar: "وصول لفرص عبر الحدود", en: "cross-border opportunity" }) },
+          ].map((s, i) => (
+            <div key={i} className="flex flex-col">
+              <span className="font-display font-black text-sand-bright tnum leading-none" style={{ fontSize: "clamp(1.6rem,2.6vw,2.4rem)", letterSpacing: "-0.02em" }}>
+                {s.v}
+              </span>
+              <span className="t-caption mt-2 text-fg-secondary">{s.l}</span>
+            </div>
+          ))}
         </Reveal>
 
         {/* Live marquee — the network in motion (pause on hover) */}
