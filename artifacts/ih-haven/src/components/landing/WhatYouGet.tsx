@@ -56,7 +56,7 @@ export function WhatYouGet() {
   ];
 
   return (
-    <section id="what-you-get" className="theme-light relative bg-surface-1 section-y">
+    <section id="what-you-get" className="relative bg-surface-1 section-y">
       <div className="container-ih">
         <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
           {/* Photo + lead — the place, shown not described */}

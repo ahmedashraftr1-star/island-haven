@@ -68,7 +68,7 @@ export function Audience() {
   ];
 
   return (
-    <section id="audience" className="theme-light relative bg-background section-y overflow-hidden">
+    <section id="audience" className="relative bg-background section-y overflow-hidden">
       <div aria-hidden className="absolute inset-x-0 top-0 h-[65%] brand-aura opacity-60" />
 
       <div className="container-ih relative">

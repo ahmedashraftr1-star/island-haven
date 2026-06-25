@@ -177,7 +177,7 @@ export function ApplyProcess() {
   return (
     <section
       id="how-to-join"
-      className="theme-light relative bg-surface-1 section-y overflow-hidden"
+      className="relative bg-surface-1 section-y overflow-hidden"
     >
       <div className="relative container-ih">
         <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
