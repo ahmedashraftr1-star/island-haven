@@ -595,6 +595,13 @@
   width: 100%;
 }
 
+/* Infinite logo/partner marquee — translate a duplicated track by -50% so the
+   loop is seamless. Pair with a duplicated child list + edge mask. GPU transform. */
+@keyframes ih-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
 /* Skeleton shimmer */
 @keyframes skeleton-shimmer {
   0% { background-position: -200% center; }
