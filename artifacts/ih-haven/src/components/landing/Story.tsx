@@ -129,7 +129,7 @@ export function Story() {
                     href={c.creditLink2}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
+                    className="cta-fill inline-flex items-center gap-2 h-10 px-4 rounded-full text-[13px] font-semibold transition-colors"
                   >
                     {(c.creditLink2 || "").replace(/^https?:\/\//, "")} · {lang === "en" ? "Donate" : "للتبرّع"}
                     <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />

@@ -116,7 +116,7 @@ export function NewsSlider() {
             </button>
             <Link
               href="/events"
-              className="ms-2 inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
+              className="ms-2 inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold transition-colors"
               data-testid="link-all-events"
             >
               {c.ctaAll}
@@ -237,7 +237,7 @@ export function NewsSlider() {
         <div className="md:hidden mt-6 flex justify-center">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold"
           >
             {c.ctaAll}
             <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />

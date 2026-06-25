@@ -126,9 +126,26 @@ app.use(cookieParser());
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 
-// Apply strict rate limiting to auth routes, general limiter to everything else.
-app.use("/api/auth", authLimiter);
-app.use("/api/admin/auth", authLimiter);
+// Apply the STRICT limiter only to the sensitive credential/mutation endpoints
+// (login, register, password reset). It must NOT cover the lightweight session
+// probe GET /api/auth/me — that fires on every page load, so a 20-per-15-min
+// cap there locks out normal browsing with HTTP 429. The session probe and all
+// other authenticated reads/writes fall under the generous generalLimiter.
+//
+// NOTE: express-rate-limit only invokes the limiter for requests whose method
+// matches; we still guard with an explicit method check so a GET to these paths
+// (e.g. a probe) is never counted against the strict budget.
+const STRICT_AUTH_PATHS = [
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/admin/login",
+];
+app.use(STRICT_AUTH_PATHS, (req, res, next) => {
+  if (req.method !== "POST") return next();
+  return authLimiter(req, res, next);
+});
 app.use("/api", generalLimiter);
 
 // ─── Edge/browser caching for ANONYMOUS public reads ─────────────────────────

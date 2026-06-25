@@ -135,7 +135,7 @@ export function Support() {
               </p>
 
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="inline-flex items-center justify-center gap-3 h-14 px-8 rounded-full bg-primary text-primary-foreground font-bold text-[14px] group-hover:bg-primary/90 transition-all duration-300 shadow-soft">
+                <span className="cta-fill inline-flex items-center justify-center gap-3 h-14 px-8 rounded-full font-bold text-[14px] transition-all duration-300 shadow-soft">
                   {c.donateCta}
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1" />
                 </span>

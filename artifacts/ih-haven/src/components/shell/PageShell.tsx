@@ -29,7 +29,8 @@ export function PageShell({
   active?: string;
 }) {
   const { user, loading } = useAuth();
-  const { dir, lang } = useLanguage();
+  const { dir, lang, t } = useLanguage();
+  const navLabel = t({ ar: "التنقّل الرئيسيّ", en: "Main navigation" });
 
   return (
     <div
@@ -55,7 +56,7 @@ export function PageShell({
           </Link>
 
           <nav
-            aria-label="التنقّل الرئيسيّ"
+            aria-label={navLabel}
             className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md"
           >
             <NavRail tone="onDark" pillId="shell-rail" />
@@ -64,7 +65,7 @@ export function PageShell({
           <div className="flex items-center gap-2">
             <Link
               href="/search"
-              aria-label="بحث"
+              aria-label={t({ ar: "بحث", en: "Search" })}
               className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
               data-testid="link-search"
             >
@@ -97,7 +98,7 @@ export function PageShell({
         {/* Same rail, horizontally scrollable below xl — identical items, so the
             bar never changes shape between breakpoints or pages. */}
         <nav
-          aria-label="التنقّل الرئيسيّ"
+          aria-label={navLabel}
           className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10 [&::-webkit-scrollbar]:hidden"
         >
           <NavRail tone="onDark" pillId="shell-scroll" />

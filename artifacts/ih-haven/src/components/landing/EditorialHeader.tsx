@@ -20,7 +20,7 @@ export function EditorialHeader({ label, title, sub, align = "start" }: Props) {
   const isCenter = align === "center";
   return (
     <div
-      className={`mb-16 lg:mb-24 ${
+      className={`mb-10 lg:mb-14 ${
         isCenter ? "text-center max-w-3xl mx-auto" : "max-w-[1100px]"
       }`}
     >

@@ -167,7 +167,7 @@ export function Campaign() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="inline-flex items-center justify-center h-14 px-9 rounded-full bg-primary text-primary-foreground font-bold text-xs tracking-[0.2em] uppercase transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]">
+                <span className="inline-flex items-center justify-center h-14 px-9 rounded-full cta-fill font-bold text-xs tracking-[0.2em] uppercase transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]">
                   {lang === "en" ? "Donate to the new branch" : "تبرّع للفرع الجديد"}
                 </span>
               </MagneticButton>

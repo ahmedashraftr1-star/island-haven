@@ -3,15 +3,21 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Compass } from "lucide-react";
 import { useEffect } from "react";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function NotFound() {
+  const { dir, t } = useLanguage();
+
   useEffect(() => {
-    document.title = "صفحة غير موجودة — آيلاند هيفن";
-  }, []);
+    document.title = t({
+      ar: "صفحة غير موجودة — آيلاند هيفن",
+      en: "Page not found — Island Haven",
+    });
+  }, [t]);
 
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex flex-col"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
@@ -53,7 +59,7 @@ export default function NotFound() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 backdrop-blur-md mb-6">
             <Compass className="w-3 h-3 text-primary" />
             <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-              404 · ضائع في الأرخبيل
+              {t({ ar: "404 · ضائع في الأرخبيل", en: "404 · Lost at sea" })}
             </span>
           </div>
 
@@ -64,15 +70,20 @@ export default function NotFound() {
               letterSpacing: "-0.04em",
             }}
           >
-            <span className="text-accent-gradient">٤٠٤</span>
+            <span className="text-accent-gradient">{t({ ar: "٤٠٤", en: "404" })}</span>
           </h1>
 
           <p className="text-[20px] sm:text-[24px] font-bold text-white mb-3 leading-tight">
-            هذه الصفحة لم تجد طريقها للجزيرة بعد.
+            {t({
+              ar: "هذه الصفحة لم تجد طريقها للجزيرة بعد.",
+              en: "This page never found its way to the island.",
+            })}
           </p>
           <p className="text-white/55 text-[14px] sm:text-[15px] leading-[1.85] mb-9 max-w-md mx-auto">
-            ربّما حُذِف الرابط، أو رحل في رحلة طويلة. أمّا نحن، فما زلنا هنا
-            ننتظرك في غزّة.
+            {t({
+              ar: "ربّما حُذِف الرابط، أو رحل في رحلة طويلة. أمّا نحن، فما زلنا هنا ننتظرك في غزّة.",
+              en: "The link may have been removed or set sail long ago. We, though, are still right here in Gaza, waiting for you.",
+            })}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -81,13 +92,13 @@ export default function NotFound() {
               className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-white font-bold text-[13.5px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              العودة للرئيسيّة
+              {t({ ar: "العودة للرئيسيّة", en: "Back to home" })}
             </Link>
             <Link
               href="/book"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md text-white font-semibold text-[13.5px] hover:bg-white/[0.1] transition-colors"
             >
-              احجز مقعدًا
+              {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
             </Link>
           </div>
         </motion.div>

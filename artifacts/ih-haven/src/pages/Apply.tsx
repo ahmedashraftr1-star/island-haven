@@ -721,7 +721,7 @@ export default function Apply() {
                               key={String(opt.v)}
                               type="button"
                               onClick={() => setIsEmployed(active ? null : opt.v)}
-                              className={`flex-1 py-2.5 rounded-2xl text-[13px] font-semibold border transition-all ${
+                              className={`flex-1 min-h-11 py-2.5 rounded-2xl text-[13px] font-semibold border transition-all ${
                                 active
                                   ? "bg-primary/15 border-primary/50 text-white"
                                   : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25"

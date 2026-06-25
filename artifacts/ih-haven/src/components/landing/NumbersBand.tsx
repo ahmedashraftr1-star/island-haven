@@ -144,7 +144,7 @@ export function NumbersBand() {
             </p>
             <Link
               href="/numbers"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors duration-200"
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold transition-colors duration-200"
               data-testid="link-numbers-more"
             >
               {t({ ar: c.ctaLabel, en: "View all" })}

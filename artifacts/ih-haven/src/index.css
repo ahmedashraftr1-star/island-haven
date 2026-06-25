@@ -34,6 +34,9 @@
 
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  /* AA-safe fill behind WHITE text — darker than --primary (which is tuned for
+     red-TEXT-on-dark). White on this reaches >=4.5:1 (WCAG AA). */
+  --color-primary-cta: hsl(var(--primary-cta));
   --color-primary-soft: hsl(var(--primary-soft));
   --color-primary-bright: hsl(var(--primary-bright));
   --color-primary-border: var(--primary-border);
@@ -110,8 +113,15 @@
   --popover-foreground: 210 24% 98%;
   --popover-border: 225 16% 27%;
 
-  /* ── PRIMARY — warm red, made luminous, with a real gradient travel. ── */
-  --primary: 354 82% 58%;            /* #E83D52 */
+  /* ── PRIMARY — warm red, made luminous, with a real gradient travel. ──
+     NOTE the two-rung red system:
+       --primary      (58% L) — tuned for red TEXT/accents on the dark canvas
+                                 (passes AA as text on surfaces ≈4.5:1).
+       --primary-cta  (49% L) — darker FILL used behind WHITE button labels so
+                                 white-on-red reaches ≈4.76:1 (WCAG AA). 58% L
+                                 only reached 3.95:1 with white — the failing case. */
+  --primary: 354 82% 58%;            /* #E83D52 — red text / accents */
+  --primary-cta: 354 82% 49%;        /* AA fill behind white CTA labels */
   --primary-foreground: 0 0% 100%;
   --primary-soft: 354 58% 16%;       /* icon tiles */
   --primary-bright: 11 88% 62%;      /* warm coral — gradient END */
@@ -197,8 +207,11 @@
      SPACING / LAYOUT — one rhythm. Section agents reference these so
      the page breathes instead of metronome-pacing.
      ============================================================ */
-  --section-py: clamp(4.5rem, 8vw, 8rem);
-  --section-py-compact: clamp(3rem, 5vw, 4.5rem);   /* utility bands */
+  /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
+     sections produced ~3000px of pure air. This denser rhythm reads as
+     confident (Linear/Stripe), not padded-out. */
+  --section-py: clamp(3.5rem, 5.5vw, 6rem);
+  --section-py-compact: clamp(2.75rem, 4vw, 4rem);  /* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
   --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
@@ -439,6 +452,16 @@
 @media (prefers-reduced-motion: reduce) {
   .card-hover:hover { transform: none; }
 }
+
+/* ── PRIMARY CTA FILL — AA-compliant. Use on filled red buttons that carry
+   WHITE labels instead of bare `bg-primary text-primary-foreground` (which fails
+   AA at 3.95:1). White on this darker red reaches ≈4.76:1. Hover lifts toward the
+   brighter brand red so the button still feels luminous on press. ── */
+@utility cta-fill {
+  background-color: hsl(var(--primary-cta));
+  color: hsl(var(--primary-foreground));
+}
+.cta-fill:hover { background-color: hsl(354 82% 51%); } /* still ≥4.5:1 with white */
 
 /* ── ICON TILE — 44px square, 14px radius, primary-soft fill, primary icon. ── */
 @utility icon-tile {

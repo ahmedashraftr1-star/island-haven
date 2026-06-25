@@ -5,6 +5,7 @@ import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { HavenMark } from "./HavenMark";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { api } from "@/lib/api";
 
 const FALLBACK = {
   eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
@@ -110,6 +111,9 @@ export function Hero() {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
+  // Live community figures — same /numbers source NumbersBand uses, so the hero
+  // can never contradict the "real numbers from our database" section below.
+  const [live, setLive] = useState<{ members: number; seatsHosted: number } | null>(null);
   const [now, setNow] = useState<string>("");
   const [hour, setHour] = useState<number>(() => new Date().getHours());
 
@@ -135,6 +139,14 @@ export function Hero() {
   }, [reduce, stills.length]);
 
   useEffect(() => {
+    let cancelled = false;
+    api<{ numbers: { members: number; seatsHosted: number } }>("/numbers")
+      .then((r) => { if (!cancelled) setLive({ members: r.numbers.members, seatsHosted: r.numbers.seatsHosted }); })
+      .catch(() => { /* keep content fallbacks */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     function tick() {
       const d = new Date();
       const hh = d.getHours().toString().padStart(2, "0");
@@ -157,9 +169,12 @@ export function Hero() {
   const textY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "-25%"]);
   const overlayOpacity = useTransform(smooth, [0, 1], [1, reduce ? 1 : 1.3]);
 
+  // Format a live count in the active locale (Arabic-Indic in AR, Western in EN)
+  // so the hero stats read identically to NumbersBand and never disagree.
+  const fmt = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   const stats = [
-    { v: c.stat1Value, l: c.stat1Label },
-    { v: c.stat2Value, l: c.stat2Label },
+    { v: live ? fmt(live.seatsHosted) : c.stat1Value, l: c.stat1Label },
+    { v: live ? fmt(live.members) : c.stat2Value, l: c.stat2Label },
     { v: c.stat3Value, l: c.stat3Label },
   ].filter((s) => s.v || s.l);
 
@@ -314,16 +329,19 @@ export function Hero() {
             <span className="text-white">{c.backedByBrand}</span>
           </motion.div>
 
+          {/* ── ONE primary (Apply) + one quiet secondary (Book a seat).
+              "Chat" is demoted to a low-weight text/icon link so the hero leads
+              with a single decisive action, not three near-equal pills. ── */}
           <motion.div
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.45, duration: 0.9, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
             <a
               href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.02] active:scale-[0.99] transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
+              className="cta-fill group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.02] active:scale-[0.99] transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
@@ -341,10 +359,11 @@ export function Hero() {
                 href={c.ctaSecondaryHref || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-300"
+                data-testid="cta-chat"
+                className="group inline-flex items-center justify-center sm:justify-start gap-2 h-12 sm:h-auto px-2 text-white/75 font-semibold text-[14px] hover:text-white transition-colors duration-200"
               >
-                <Phone className="h-4 w-4" />
-                {c.ctaSecondary}
+                <Phone className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
+                <span className="underline-offset-[6px] group-hover:underline">{c.ctaSecondary}</span>
               </a>
             )}
           </motion.div>

@@ -78,6 +78,7 @@ export function NewsletterBand() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                aria-label={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
                 placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
                 className="w-full h-12 px-5 rounded-2xl bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
               />
@@ -87,13 +88,14 @@ export function NewsletterBand() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  aria-label={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
                   placeholder={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
                   className="flex-1 h-12 px-5 rounded-2xl bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
                 />
                 <button
                   type="submit"
                   disabled={status === "loading" || !email.trim()}
-                  className="shrink-0 h-12 px-5 rounded-2xl bg-primary text-primary-foreground font-semibold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_hsl(354_82%_30%_/_0.55)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center gap-2"
+                  className="cta-fill shrink-0 h-12 px-5 rounded-2xl font-semibold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_hsl(354_82%_30%_/_0.55)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center gap-2"
                 >
                   {status === "loading" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

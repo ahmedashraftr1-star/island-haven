@@ -112,7 +112,7 @@ export function Header() {
             href={c.ctaHref || "/apply"}
             className={`inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] ${
               scrolled
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "cta-fill"
                 : "bg-white text-[#0A0E1A] hover:bg-white/90"
             }`}
           >
@@ -125,7 +125,7 @@ export function Header() {
           <LangToggle tone={scrolled ? "onLight" : "onDark"} />
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
             scrolled
               ? "border border-border bg-white text-foreground"
               : "border border-white/25 bg-white/10 backdrop-blur-md text-white"
@@ -174,7 +174,7 @@ export function Header() {
                 </Link>
                 <Link
                   href={c.ctaHref || "/apply"}
-                  className="inline-flex items-center justify-center gap-2 h-12 rounded-full bg-primary text-primary-foreground text-[14px] font-semibold"
+                  className="inline-flex items-center justify-center gap-2 h-12 rounded-full cta-fill text-[14px] font-semibold"
                 >
                   <span>{c.ctaLabel}</span>
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
