@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Reveal } from "@/components/landing/Reveal";
 
 interface Partner {
   id: number;
@@ -35,28 +35,14 @@ export function Partners() {
   }
 
   return (
-    <section id="partners" className="relative bg-background py-20 lg:py-28 overflow-hidden">
-      {/* subtle background glow */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none opacity-30"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 50% 100%, rgba(220,38,55,0.08) 0%, transparent 70%)",
-        }}
-      />
-
-      <div className="relative container mx-auto px-6 lg:px-12 max-w-[1300px]">
-        {/* Section header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2.5 px-4 h-8 rounded-full bg-primary/10 text-primary text-[11px] tracking-[0.22em] font-bold uppercase mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+    <section id="partners" className="relative bg-background section-y-compact">
+      <div className="container-ih">
+        {/* Section header — compact, single tight line */}
+        <Reveal as="header" className="max-w-2xl mb-[clamp(2rem,4vw,3.5rem)]">
+          <div className="eyebrow mb-4">
             {lang === "en" ? "Collaboration" : "تعاون"}
           </div>
-          <h2
-            className="font-bold tracking-tight text-foreground leading-tight"
-            style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.2rem)" }}
-          >
+          <h2 className="t-h2">
             {lang === "en" ? (
               <>
                 Building together with{" "}
@@ -69,87 +55,74 @@ export function Partners() {
               </>
             )}
           </h2>
-          <p className="mt-3 text-foreground/65 text-[14px] max-w-xl mx-auto leading-[1.75]">
+          <p className="t-body mt-3 max-w-xl">
             {lang === "en"
               ? "Strategic alliances that strengthen the incubator's programs and amplify its impact."
               : "تحالفات استراتيجية تُقوّي برامج الحاضنة وتُضاعف أثرها."}
           </p>
-        </div>
+        </Reveal>
 
-        {/* Partner cards */}
-        <div className="flex flex-wrap items-stretch justify-center gap-5 sm:gap-6">
+        {/* Quiet monochrome partner row — grayscale, lifts to full color on hover */}
+        <div className="flex flex-wrap items-stretch gap-3">
           {rows.map((p, i) => {
             const showLogo = !!p.logoUrl && !imgErrors.has(p.id);
+            const inner = (
+              <>
+                <PartnerLogo p={p} showLogo={showLogo} onError={() => handleImgError(p.id)} />
+                <div className="min-w-0">
+                  <div className="font-bold text-foreground text-[14px] leading-tight truncate group-hover:text-primary transition-colors">
+                    {p.name}
+                  </div>
+                  {p.websiteUrl && (
+                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground group-hover:text-fg-secondary transition-colors">
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                      <span dir="ltr" className="truncate">{new URL(p.websiteUrl).hostname}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
             return (
-              <motion.div
+              <Reveal
                 key={p.id}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
+                delay={i * 0.05}
+                distance={16}
+                className="grow basis-[220px] max-w-[300px]"
               >
                 {p.websiteUrl ? (
                   <a
                     href={p.websiteUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="group flex flex-col items-center gap-4 px-7 py-6 rounded-3xl border border-border bg-muted/20 hover:border-primary/35 hover:bg-muted/40 hover:shadow-[0_12px_40px_-12px_rgba(220,38,55,0.15)] transition-all duration-300 min-w-[180px] max-w-[240px] text-center"
+                    className="card-base card-hover group flex items-center gap-3.5 px-4 py-3.5 h-full"
                   >
-                    <PartnerLogo p={p} showLogo={showLogo} onError={() => handleImgError(p.id)} />
-                    <div className="flex-1">
-                      <div className="font-bold text-foreground text-[15px] leading-tight mb-1 group-hover:text-primary transition-colors">
-                        {p.name}
-                      </div>
-                      {p.description && (
-                        <div
-                          className={`text-foreground/65 text-[12px] leading-[1.65] ${lang === "en" ? "text-left" : "text-right"}`}
-                        >
-                          {p.description}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-foreground/50 group-hover:text-primary/80 transition-colors">
-                      <ExternalLink className="w-3 h-3" />
-                      <span dir="ltr">{new URL(p.websiteUrl).hostname}</span>
-                    </div>
+                    {inner}
                   </a>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 px-7 py-6 rounded-3xl border border-border bg-muted/20 min-w-[180px] max-w-[240px] text-center">
-                    <PartnerLogo p={p} showLogo={showLogo} onError={() => handleImgError(p.id)} />
-                    <div className="font-bold text-foreground text-[15px]">{p.name}</div>
-                    {p.description && (
-                      <div className="text-foreground/65 text-[12px] leading-[1.65]">
-                        {p.description}
-                      </div>
-                    )}
+                  <div className="card-base group flex items-center gap-3.5 px-4 py-3.5 h-full">
+                    {inner}
                   </div>
                 )}
-              </motion.div>
+              </Reveal>
             );
           })}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-14 text-center"
-        >
-          <p className="text-foreground/60 text-[13px] mb-3">
+        {/* CTA — compact inline */}
+        <Reveal delay={0.15} className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p className="t-caption">
             {lang === "en"
               ? "Want to collaborate with Island Haven?"
               : "تريد التعاون مع آيلاند هيفن؟"}
           </p>
           <a
             href="mailto:hello@islandhaven.ps"
-            className="inline-flex items-center gap-2 px-5 h-10 rounded-full border border-border text-[13px] text-foreground/70 hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all"
+            className="inline-flex items-center gap-2 px-4 h-9 rounded-full border border-border-strong text-[12.5px] font-semibold text-fg-secondary hover:border-primary/50 hover:text-primary transition-colors"
           >
             {lang === "en" ? "Get in touch" : "تواصل معنا"}
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );
@@ -170,13 +143,13 @@ function PartnerLogo({
         src={p.logoUrl!}
         alt={p.name}
         onError={onError}
-        className="w-14 h-14 rounded-2xl object-contain bg-white p-1.5 shadow-sm group-hover:shadow-md transition-shadow"
+        className="w-11 h-11 rounded-[12px] object-contain bg-white p-1.5 shrink-0 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
         loading="lazy"
       />
     );
   }
   return (
-    <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-[22px]">
+    <div className="icon-tile text-[18px] font-bold shrink-0">
       {p.name.charAt(0)}
     </div>
   );

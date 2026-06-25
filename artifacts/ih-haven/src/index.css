@@ -16,6 +16,18 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-card-border: hsl(var(--card-border));
 
+  /* Widened tonal staircase — surfaces now sit a real step above the canvas. */
+  --color-surface-1: hsl(var(--surface-1));
+  --color-surface-2: hsl(var(--surface-2));
+  --color-surface-3: hsl(var(--surface-3));
+
+  /* Stronger hairline for card edges / dividers (fixes the invisible-border bug). */
+  --color-border-strong: hsl(var(--border-strong));
+
+  /* Foreground staircase — body copy is fg-secondary, never dimmer than this. */
+  --color-fg-secondary: hsl(var(--fg-secondary));
+  --color-fg-faint: hsl(var(--fg-faint));
+
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-popover-border: hsl(var(--popover-border));
@@ -23,7 +35,13 @@
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-soft: hsl(var(--primary-soft));
+  --color-primary-bright: hsl(var(--primary-bright));
   --color-primary-border: var(--primary-border);
+
+  /* ONE cool secondary accent — LIVE/data chips, in-body links, focus glints.
+     NEVER for CTAs. */
+  --color-accent-2: hsl(var(--accent-2));
+  --color-accent-2-soft: hsl(var(--accent-2-soft));
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -67,44 +85,60 @@
   /* Component border tokens (referenced by ui/button + ui/badge). Subtle lit
      edges that sit on the brand/secondary/destructive fills without muddying
      them on the dark canvas. */
-  --primary-border: hsl(354 78% 64%);
-  --secondary-border: hsl(225 18% 24%);
+  --primary-border: hsl(354 82% 64%);
+  --secondary-border: hsl(225 16% 27%);
   --destructive-border: hsl(0 72% 60%);
 
-  /* Deep navy-black canvas (≈ #0A0E1A). */
-  --background: 225 39% 7%;
-  --foreground: 210 20% 97%;
-  --border: 225 18% 17%;
+  /* ── CANVAS / SURFACES — widened tonal staircase (was flat-on-flat). ──
+     A real ~3pt L step between each rung so panels read as raised. */
+  --background: 226 41% 6%;          /* deep navy-black canvas */
+  --surface-1: 225 30% 9%;           /* lifted SECTION bg (replaces bg-muted/40) */
+  --surface-2: 224 28% 11%;          /* default card */
+  --surface-3: 223 26% 14%;          /* raised / modal */
+  --foreground: 210 24% 98%;         /* headings */
 
-  /* Slightly lifted dark surfaces for cards/sections. */
-  --card: 225 30% 10%;
-  --card-foreground: 210 20% 97%;
-  --card-border: 225 18% 17%;
+  /* ── BORDERS — the flat bug. +3pt L so edges actually read. ── */
+  --border: 225 16% 20%;             /* hairline */
+  --border-strong: 225 16% 27%;      /* card edges / dividers */
 
-  --popover: 225 30% 10%;
-  --popover-foreground: 210 20% 97%;
-  --popover-border: 225 18% 17%;
+  /* Default card = surface-2. */
+  --card: 224 28% 11%;
+  --card-foreground: 210 24% 98%;
+  --card-border: 225 16% 27%;
 
-  /* Confident warm red — single brand color (reads well on dark). */
-  --primary: 354 78% 56%;
+  --popover: 223 26% 14%;
+  --popover-foreground: 210 24% 98%;
+  --popover-border: 225 16% 27%;
+
+  /* ── PRIMARY — warm red, made luminous, with a real gradient travel. ── */
+  --primary: 354 82% 58%;            /* #E83D52 */
   --primary-foreground: 0 0% 100%;
-  --primary-soft: 354 50% 18%;
+  --primary-soft: 354 58% 16%;       /* icon tiles */
+  --primary-bright: 11 88% 62%;      /* warm coral — gradient END */
 
-  --secondary: 225 18% 16%;
-  --secondary-foreground: 210 20% 97%;
+  --secondary: 224 22% 14%;
+  --secondary-foreground: 210 24% 98%;
+
+  /* ── FOREGROUND STAIRCASE ── */
+  --fg-secondary: 214 16% 80%;       /* BODY copy (use this, NOT foreground/65) */
+  --fg-faint: 220 12% 46%;           /* disabled */
 
   /* Soft dark surface + readable muted text. */
-  --muted: 225 24% 12%;
-  --muted-foreground: 220 14% 64%;
+  --muted: 224 24% 11%;
+  --muted-foreground: 217 14% 60%;   /* captions / meta */
 
-  --accent: 225 24% 14%;
-  --accent-foreground: 210 20% 97%;
+  --accent: 224 24% 14%;
+  --accent-foreground: 210 24% 98%;
+
+  /* ── SECONDARY ACCENT — ONE cool tone (data/links/glints, never CTAs). ── */
+  --accent-2: 199 90% 58%;           /* #21AEF0 */
+  --accent-2-soft: 199 70% 14%;
 
   --destructive: 0 72% 52%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 225 18% 16%;
-  --ring: 354 78% 56%;
+  --input: 224 22% 14%;
+  --ring: 354 82% 60%;
 
   /* Typography — IBM Plex Sans Arabic stays primary for Arabic.
      Inter is the Latin display partner (matches Galata, modern, neutral).
@@ -116,12 +150,76 @@
      register); Arabic glyphs fall back per-glyph to IBM Plex Sans Arabic. */
   --app-font-display: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif;
 
-  --radius: 0.875rem;
+  /* ── ONE card radius everywhere (kills the xl/2xl/3xl drift). ── */
+  --radius: 1.25rem;                 /* 20px — use rounded-[20px] / rounded-lg */
+
+  /* ============================================================
+     TYPE SCALE — defined once, referenced everywhere. Each token is a
+     clamp + line-height + tracking + weight contract. Section agents:
+     apply via the .t-* helper classes below or read these vars directly.
+     ============================================================ */
+  --t-display-size: clamp(2.6rem, 7vw, 7rem);
+  --t-display-lh: 1.02;
+  --t-display-ls: -0.035em;
+  --t-display-weight: 800;
+
+  --t-h1-size: clamp(2.1rem, 4.8vw, 3.6rem);
+  --t-h1-lh: 1.06;
+  --t-h1-ls: -0.03em;
+  --t-h1-weight: 800;
+
+  --t-h2-size: clamp(1.8rem, 3.6vw, 2.8rem);
+  --t-h2-lh: 1.1;
+  --t-h2-ls: -0.022em;
+  --t-h2-weight: 700;
+
+  --t-h3-size: 1.25rem;
+  --t-h3-lh: 1.3;
+  --t-h3-ls: -0.01em;
+  --t-h3-weight: 700;
+
+  --t-body-size: 1rem;               /* 16px — never below 15px */
+  --t-body-lh: 1.7;
+  --t-body-ls: 0;
+
+  --t-body-lg-size: 1.125rem;
+  --t-body-lg-lh: 1.7;
+
+  --t-caption-size: 0.8125rem;       /* 13px */
+  --t-caption-lh: 1.5;
+  --t-caption-ls: 0.01em;
+
+  --t-eyebrow-size: 0.6875rem;       /* 11px */
+  --t-eyebrow-ls: 0.2em;
+  --t-eyebrow-weight: 600;
+
+  /* ============================================================
+     SPACING / LAYOUT — one rhythm. Section agents reference these so
+     the page breathes instead of metronome-pacing.
+     ============================================================ */
+  --section-py: clamp(4.5rem, 8vw, 8rem);
+  --section-py-compact: clamp(3rem, 5vw, 4.5rem);   /* utility bands */
+  --container-max: 1280px;                          /* tightened from 1500 */
+  --container-px: clamp(1.5rem, 5vw, 3rem);
+  --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
+
+  /* Card / chip geometry. */
+  --card-radius: 1.25rem;            /* 20px */
+  --card-pad: 1.75rem;               /* mobile */
+  --card-pad-lg: 2rem;               /* desktop */
+  --chip-pad: 0.5rem;
+  --tile-size: 44px;
+  --tile-radius: 14px;
+
+  /* Grid gaps. */
+  --gap-cards: 1.25rem;              /* 20px */
+  --gap-dense: 1rem;
+  --gap-feature: 2rem;
 }
 
 .dark {
-  --background: 225 39% 7%;
-  --foreground: 210 20% 97%;
+  --background: 226 41% 6%;
+  --foreground: 210 24% 98%;
 }
 
 @layer base {
@@ -133,30 +231,51 @@
     background: hsl(var(--background));
   }
   body {
-    @apply font-sans antialiased text-foreground;
+    @apply font-sans antialiased;
     background: hsl(var(--background));
-    line-height: 1.65;
-    letter-spacing: 0.003em;
+    color: hsl(var(--fg-secondary));   /* body copy reads at the secondary step */
+    line-height: var(--t-body-lh);
+    letter-spacing: var(--t-body-ls);
     font-feature-settings: "kern", "calt", "ss01", "liga";
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--app-font-sans);
     font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.01em !important;
+    line-height: var(--t-h3-lh);
+    letter-spacing: var(--t-h3-ls);
     font-feature-settings: "kern", "ss01";
-    color: hsl(var(--foreground));
+    color: hsl(var(--foreground));     /* headings always full foreground */
   }
   /* Big headlines wear the bold cinematic display face. */
   h1, h2 {
     font-family: var(--app-font-display);
-    font-weight: 800;
+    font-weight: var(--t-h1-weight);
   }
-  h1 { line-height: 1.05; letter-spacing: -0.022em !important; }
-  h2 { line-height: 1.08; letter-spacing: -0.016em !important; }
+  h1 { line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); }
+  h2 { line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-weight); }
   .font-display { font-family: var(--app-font-display); }
-  p { line-height: 1.7; letter-spacing: 0.003em; }
+  p { line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); }
+
+  /* ── ARABIC / RTL — never letter-space Arabic, give it more line-height,
+     and neutralise any inline Latin tracking that bleeds onto Arabic glyphs.
+     This wins over inline style on the headline blocks (the Hero ls bug). ── */
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
+  [dir="rtl"] h5,
+  [dir="rtl"] h6,
+  [dir="rtl"] .t-display,
+  [dir="rtl"] .t-h1,
+  [dir="rtl"] .t-h2,
+  [dir="rtl"] .t-h3 {
+    letter-spacing: 0 !important;
+    line-height: calc(var(--t-h2-lh) + 0.05);
+  }
+  [dir="rtl"] p,
+  [dir="rtl"] .t-body,
+  [dir="rtl"] .t-body-lg { letter-spacing: 0 !important; }
 
   html { scroll-behavior: smooth; }
 
@@ -214,17 +333,133 @@
    Surfaces & accents — deliberately few, deliberately calm.
    ============================================================ */
 
-/* Brand red gradient — used SPARINGLY on a single accent word per page. */
+/* Brand red gradient — used SPARINGLY on a single accent word per page.
+   Now travels red → warm coral (real gradient distance, not flat 354→348). */
 @utility text-accent-gradient {
   background: linear-gradient(
     100deg,
-    hsl(354 78% 56%) 0%,
-    hsl(348 86% 42%) 100%
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary-bright)) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+   TYPE HELPERS — apply the shared scale by class. Section agents:
+   use these instead of hand-rolling clamp(). Headings always wear
+   --foreground; body uses --fg-secondary.
+   ============================================================ */
+@utility t-display {
+  font-family: var(--app-font-display);
+  font-size: var(--t-display-size);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-ls);
+  font-weight: var(--t-display-weight);
+  color: hsl(var(--foreground));
+}
+@utility t-h1 {
+  font-family: var(--app-font-display);
+  font-size: var(--t-h1-size);
+  line-height: var(--t-h1-lh);
+  letter-spacing: var(--t-h1-ls);
+  font-weight: var(--t-h1-weight);
+  color: hsl(var(--foreground));
+}
+@utility t-h2 {
+  font-family: var(--app-font-display);
+  font-size: var(--t-h2-size);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-ls);
+  font-weight: var(--t-h2-weight);
+  color: hsl(var(--foreground));
+}
+@utility t-h3 {
+  font-size: var(--t-h3-size);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-ls);
+  font-weight: var(--t-h3-weight);
+  color: hsl(var(--foreground));
+}
+@utility t-body {
+  font-size: var(--t-body-size);
+  line-height: var(--t-body-lh);
+  letter-spacing: var(--t-body-ls);
+  color: hsl(var(--fg-secondary));
+}
+@utility t-body-lg {
+  font-size: var(--t-body-lg-size);
+  line-height: var(--t-body-lg-lh);
+  letter-spacing: var(--t-body-ls);
+  color: hsl(var(--fg-secondary));
+}
+@utility t-caption {
+  font-size: var(--t-caption-size);
+  line-height: var(--t-caption-lh);
+  letter-spacing: var(--t-caption-ls);
+  color: hsl(var(--muted-foreground));
+}
+
+/* Tabular figures for all stats / live numbers. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "kern";
+}
+
+/* ── DEFINITIVE CARD — one spec everywhere (kills radius + 500ms hover drift). ──
+   surface-2 fill, border-strong edge + lit top inset, layered depth shadow.
+   HOVER: border→primary/35, lift -3px, warm shadow cast, 220ms expo-out. */
+@utility card-base {
+  background-color: hsl(var(--surface-2));
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: var(--card-radius);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
+    0 1px 2px hsl(226 60% 2% / 0.4),
+    0 12px 32px -12px hsl(226 60% 2% / 0.6);
+  transition:
+    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+/* Opt-in interactive lift — compose with .card-base. Plain class (not @utility)
+   because Tailwind requires utilities to declare at least one property. */
+.card-hover { cursor: pointer; }
+.card-hover:hover {
+  border-color: hsl(var(--primary) / 0.35);
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
+    0 2px 6px hsl(226 60% 2% / 0.45),
+    0 20px 48px -16px hsl(354 82% 30% / 0.32);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-hover:hover { transform: none; }
+}
+
+/* ── ICON TILE — 44px square, 14px radius, primary-soft fill, primary icon. ── */
+@utility icon-tile {
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border-radius: var(--tile-radius);
+  background: hsl(var(--primary-soft));
+  color: hsl(var(--primary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── LAYOUT helpers — drive section rhythm from one place. ── */
+@utility section-y { padding-block: var(--section-py); }
+@utility section-y-compact { padding-block: var(--section-py-compact); }
+@utility container-ih {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-px);
 }
 
 /* Soft icon tile — Galata's signature feature card */
@@ -236,21 +471,30 @@
 /* Unified eyebrow / section kicker — one treatment everywhere (kills the
    per-section size/tracking drift). Color defaults to brand; override if needed. */
 @utility eyebrow {
-  font-size: 0.6875rem;        /* 11px */
+  font-size: var(--t-eyebrow-size);   /* 11px */
   line-height: 1;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--t-eyebrow-ls);/* 0.2em — single treatment, no drift */
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: var(--t-eyebrow-weight);
   font-feature-settings: "kern", "calt", "ss01";
   color: hsl(var(--primary));
 }
+/* Arabic must never be tracked — neutralise the eyebrow tracking in RTL. */
+[dir="rtl"] .eyebrow { letter-spacing: 0 !important; }
 
-/* Hairline divider with center fade */
+/* ── COOL ACCENT chip — LIVE / data only, never a CTA. ── */
+@utility chip-accent-2 {
+  background: hsl(var(--accent-2-soft));
+  color: hsl(var(--accent-2));
+  border: 1px solid hsl(var(--accent-2) / 0.28);
+}
+
+/* Hairline divider with center fade — uses border-strong so it actually reads. */
 @utility hairline {
   background-image: linear-gradient(
     90deg,
     transparent 0%,
-    hsl(var(--border)) 50%,
+    hsl(var(--border-strong)) 50%,
     transparent 100%
   );
   height: 1px;
@@ -279,16 +523,16 @@
    deep cast shadow PLUS a 1px top inset highlight that reads as a lit edge. */
 @utility shadow-soft {
   box-shadow:
-    0 1px 0 0 hsl(0 0% 100% / 0.04) inset,
-    0 1px 2px hsl(225 60% 2% / 0.4),
-    0 8px 24px -8px hsl(225 60% 2% / 0.55);
+    0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
+    0 1px 2px hsl(226 60% 2% / 0.4),
+    0 12px 32px -12px hsl(226 60% 2% / 0.6);
 }
 
 @utility shadow-soft-hover {
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
-    0 2px 6px hsl(225 60% 2% / 0.45),
-    0 18px 44px -12px hsl(354 78% 30% / 0.35);
+    0 2px 6px hsl(226 60% 2% / 0.45),
+    0 20px 48px -16px hsl(354 82% 30% / 0.32);
 }
 
 /* ============================================================
@@ -308,8 +552,8 @@
 /* Soft brand glow — a single warm radial that lifts dark sections. */
 @utility ambient-aura {
   background:
-    radial-gradient(60% 60% at 50% 0%, hsl(354 78% 56% / 0.10) 0%, transparent 70%),
-    radial-gradient(50% 50% at 100% 100%, hsl(225 60% 30% / 0.12) 0%, transparent 70%);
+    radial-gradient(60% 60% at 50% 0%, hsl(var(--primary) / 0.09) 0%, transparent 70%),
+    radial-gradient(50% 50% at 100% 100%, hsl(var(--accent-2) / 0.07) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -331,22 +575,22 @@
 /* Graduated raised surfaces. Each lifts the fill a touch and adds depth so
    panels never sit flush with the #0A0E1A page (the flat-on-flat dark bug). */
 @utility surface-1 {
-  background-color: hsl(225 30% 10%);
+  background-color: hsl(var(--surface-1));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.04) inset,
-    0 8px 24px -10px hsl(225 60% 2% / 0.5);
+    0 8px 24px -10px hsl(226 60% 2% / 0.5);
 }
 @utility surface-2 {
-  background-color: hsl(225 28% 12%);
+  background-color: hsl(var(--surface-2));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
-    0 12px 36px -12px hsl(225 60% 2% / 0.6);
+    0 12px 36px -12px hsl(226 60% 2% / 0.6);
 }
 @utility surface-3 {
-  background-color: hsl(225 26% 14%);
+  background-color: hsl(var(--surface-3));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
-    0 24px 60px -16px hsl(225 60% 1% / 0.7);
+    0 24px 60px -16px hsl(226 60% 1% / 0.7);
 }
 
 /* Consistent brand focus ring for custom interactive elements that aren't

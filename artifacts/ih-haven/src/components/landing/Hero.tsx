@@ -82,18 +82,20 @@ function KineticLine({
   text,
   delay = 0,
   accent = false,
+  reduce = false,
 }: {
   text: string;
   delay?: number;
   accent?: boolean;
+  reduce?: boolean;
 }) {
   return (
     <span className="block overflow-hidden pt-[0.22em] pb-[0.18em]">
       <motion.span
         className={`block ${accent ? "text-accent-gradient" : ""}`}
-        initial={{ y: "115%" }}
+        initial={reduce ? false : { y: "115%" }}
         animate={{ y: 0 }}
-        transition={{ duration: 1.2, delay, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ duration: 1.2, delay, ease: EASE_OUT_EXPO }}
       >
         {text}
       </motion.span>
@@ -195,32 +197,27 @@ export function Hero() {
       </motion.div>
 
       <motion.div style={{ opacity: overlayOpacity }} aria-hidden className="absolute inset-0 z-[1]">
+        {/* Base vertical scrim — lighter bottom (0.70) so the photo breathes,
+            a fine top-vignette so the brand mark + live clock float clearly. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,14,26,0.38) 0%, rgba(10,14,26,0.06) 34%, rgba(10,14,26,0.30) 62%, rgba(10,14,26,0.82) 100%)",
+              "linear-gradient(180deg, rgba(10,14,26,0.46) 0%, rgba(10,14,26,0.06) 32%, rgba(10,14,26,0.26) 60%, rgba(10,14,26,0.70) 100%)",
           }}
         />
         {/* Focused scrim behind the headline (right side, RTL) so text stays
             crisp while the rest of the photo breathes. */}
         <div
-          className="absolute inset-y-0 right-0 w-full lg:w-[68%]"
+          className="absolute inset-y-0 right-0 w-full lg:w-[66%]"
           style={{
             background:
-              "linear-gradient(270deg, rgba(10,14,26,0.62) 0%, rgba(10,14,26,0.30) 38%, transparent 72%)",
+              "linear-gradient(270deg, rgba(10,14,26,0.58) 0%, rgba(10,14,26,0.28) 40%, transparent 74%)",
           }}
         />
+        {/* Fine grain — editorial, not noisy (0.05). */}
         <div
-          className="absolute top-[42%] right-[20%] -translate-y-1/2 w-[60vw] h-[55vh]"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, hsl(354 100% 62% / 0.22) 0%, transparent 65%)",
-            filter: "blur(70px)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.07] mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none"
           style={{
             backgroundImage:
               "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
@@ -232,12 +229,15 @@ export function Hero() {
         initial={{ y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.8, ease: EASE_OUT_EXPO }}
-        className="absolute top-24 lg:top-28 inset-x-0 z-20 px-6 lg:px-12"
+        className="absolute top-24 lg:top-28 inset-x-0 z-20"
       >
-        <div className="max-w-[1500px] mx-auto flex items-center justify-between gap-4">
+        <div className="container-ih flex items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.18em] uppercase font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.2em] uppercase font-semibold">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-2 shadow-[0_0_8px_hsl(var(--accent-2)/0.9)]" />
+              </span>
               {c.onAirLabel} · {now}
             </div>
             {greeting && (
@@ -254,7 +254,7 @@ export function Hero() {
             )}
           </div>
           {c.topRight && (
-            <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.16em] uppercase font-semibold text-white/85">
+            <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.2em] uppercase font-semibold text-white/85">
               {c.topRight}
             </div>
           )}
@@ -265,36 +265,40 @@ export function Hero() {
         style={{ y: textY }}
         className="relative z-10 h-full flex items-center will-change-transform"
       >
-        <div className="container mx-auto max-w-[1500px] px-6 lg:px-12 w-full">
-          <motion.div
-            initial={{ y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
-            className="mb-6 lg:mb-8 flex items-center gap-3"
-          >
-            <span className="h-px w-10 bg-white/50" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-white/85 font-semibold">
-              {c.eyebrow}
-            </span>
-          </motion.div>
+        <div className="container-ih w-full">
+          {/* Editorial hairline-framed plate behind the headline (Apple/Stripe
+              precision) — a 1px white frame + faint wash, replacing the old
+              blurred red radial blob. */}
+          <div className="relative inline-block max-w-full">
+            <div
+              aria-hidden
+              className="absolute -inset-x-5 -inset-y-6 lg:-inset-x-7 lg:-inset-y-8 rounded-[28px] border border-white/12 bg-white/[0.03] backdrop-blur-[2px] pointer-events-none"
+            />
+            <div className="relative">
+              <motion.div
+                initial={{ y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+                className="mb-6 lg:mb-8 flex items-center gap-3"
+              >
+                <span className="h-px w-10 bg-white/50" />
+                <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold ltr:tracking-[0.2em] rtl:tracking-normal">
+                  {c.eyebrow}
+                </span>
+              </motion.div>
 
-          <h1
-            className="font-bold text-white"
-            style={{
-              fontSize: "clamp(2.1rem, 7.2vw, 7.5rem)",
-              lineHeight: 1.02,
-              letterSpacing: "-0.035em",
-            }}
-          >
-            <KineticLine text={c.title1} delay={0.45} />
-            <KineticLine text={c.title2} delay={0.62} accent />
-          </h1>
+              <h1 className="t-display text-white">
+                <KineticLine text={c.title1} delay={0.45} reduce={!!reduce} />
+                <KineticLine text={c.title2} delay={0.62} accent reduce={!!reduce} />
+              </h1>
+            </div>
+          </div>
 
           <motion.p
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.25, duration: 0.9, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 max-w-2xl text-base lg:text-xl text-white/80 font-normal leading-relaxed whitespace-pre-line"
+            className="mt-7 lg:mt-9 max-w-2xl text-[1.0625rem] lg:text-xl text-white/82 font-normal leading-[1.7] whitespace-pre-line"
           >
             {c.subtitle}
           </motion.p>
@@ -319,7 +323,7 @@ export function Hero() {
             <a
               href={c.ctaPrimaryHref || "/apply"}
               data-testid="cta-apply"
-              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.03] active:scale-[0.99] transition-transform duration-300 ease-out shadow-[0_24px_70px_-12px_rgba(220,68,84,0.7)]"
+              className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full bg-primary text-primary-foreground font-bold text-[15.5px] tracking-[-0.005em] hover:scale-[1.02] active:scale-[0.99] transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
@@ -351,9 +355,9 @@ export function Hero() {
         initial={{ y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.7, duration: 1, ease: EASE_OUT_EXPO }}
-        className="absolute bottom-0 inset-x-0 z-10 px-6 lg:px-12 pb-7 lg:pb-9"
+        className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9"
       >
-        <div className="max-w-[1500px] mx-auto">
+        <div className="container-ih">
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div className="flex items-end gap-3">
               <HavenMark size={56} className="text-white" delay={1.6} />
@@ -369,12 +373,12 @@ export function Hero() {
               {stats.map((s, i) => (
                 <div
                   key={`${s.l}-${i}`}
-                  className={`px-5 lg:px-7 ${i > 0 ? "border-s border-white/20" : ""}`}
+                  className={`flex flex-col justify-end px-6 lg:px-8 ${i > 0 ? "border-s border-white/[0.22]" : ""}`}
                 >
-                  <div className="text-2xl lg:text-3xl font-bold text-white tabular-nums leading-none">
+                  <div className="t-h2 !text-white tnum leading-none">
                     {s.v}
                   </div>
-                  <div className="text-[11px] text-white/70 mt-1.5 font-medium tracking-wide">
+                  <div className="text-[11px] text-white/65 mt-2 font-medium tracking-wide">
                     {s.l}
                   </div>
                 </div>
@@ -382,7 +386,7 @@ export function Hero() {
             </div>
 
             <motion.div
-              animate={{ y: [0, 6, 0] }}
+              animate={reduce ? undefined : { y: [0, 6, 0] }}
               transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:flex flex-col items-center gap-2 text-white/65"
             >

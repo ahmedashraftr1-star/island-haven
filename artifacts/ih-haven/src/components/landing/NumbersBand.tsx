@@ -6,6 +6,7 @@ import { ArrowLeft, Users, Briefcase, GraduationCap, CalendarCheck } from "lucid
 import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { DURATION, EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
 
 const FALLBACK = {
   eyebrow: "الحاضنة بالأرقام · By the numbers",
@@ -58,7 +59,7 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
 
   // Localised numeral: Arabic-Indic in AR, Western digits in EN.
   return (
-    <span ref={ref} className="tabular-nums">
+    <span ref={ref} className="tnum">
       {n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
     </span>
   );
@@ -109,29 +110,23 @@ export function NumbersBand() {
   ];
 
   return (
-    <section
-      id="numbers"
-      className="relative bg-muted/40 py-20 lg:py-28 border-t border-border"
-    >
-      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-10 lg:mb-12">
+    <section id="numbers" className="relative bg-surface-1 section-y">
+      <div className="container-ih">
+        <div className="grid lg:grid-cols-12 gap-x-10 gap-y-6 items-end mb-[clamp(2rem,4vw,3.5rem)]">
           <div className="lg:col-span-7">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="eyebrow">
                 {t({ ar: c.eyebrow, en: "By the numbers" })}
-              </div>
-              <span className="inline-flex items-center gap-1.5 px-2 h-5 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold tracking-wider">
+              </span>
+              <span className="chip-accent-2 inline-flex items-center gap-1.5 px-2.5 h-[22px] rounded-full text-[10px] font-bold tracking-[0.12em]">
                 <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
                 </span>
                 LIVE
               </span>
             </div>
-            <h2
-              className="font-bold text-foreground tracking-tight leading-[1.08]"
-              style={{ fontSize: "clamp(1.95rem, 4.4vw, 3.1rem)" }}
-            >
+            <h2 className="t-h2">
               {t({ ar: c.titleA, en: "Not slogans." })}
               <br />
               <span className="text-accent-gradient">
@@ -141,7 +136,7 @@ export function NumbersBand() {
             </h2>
           </div>
           <div className="lg:col-span-5 lg:text-end">
-            <p className="text-[15px] text-foreground/65 leading-relaxed mb-5 max-w-md lg:ms-auto">
+            <p className="t-body max-w-md mb-5 lg:ms-auto">
               {t({
                 ar: c.sub,
                 en: "Every figure here mirrors the incubator right now — updating automatically with each member, each project, and each mentorship seat.",
@@ -149,7 +144,7 @@ export function NumbersBand() {
             </p>
             <Link
               href="/numbers"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 transition-colors duration-200"
               data-testid="link-numbers-more"
             >
               {t({ ar: c.ctaLabel, en: "View all" })}
@@ -158,7 +153,7 @@ export function NumbersBand() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
           {tiles.map((t, i) => {
             const Icon = t.icon;
             return (
@@ -166,29 +161,26 @@ export function NumbersBand() {
                 key={t.en}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.55, delay: i * 0.07 }}
-                className="relative bg-card border border-border rounded-3xl p-6 lg:p-8 shadow-[0_18px_44px_-22px_rgba(0,0,0,0.7)] hover:border-primary/25 hover:shadow-[0_28px_64px_-20px_rgba(220,68,84,0.28)] transition-all duration-500 hover:-translate-y-1 group overflow-hidden"
+                viewport={VIEWPORT}
+                transition={{ duration: DURATION.sm, delay: i * 0.07, ease: EASE_OUT_EXPO }}
+                className="card-base card-hover p-7 lg:p-8 group overflow-hidden"
                 data-testid={`numbers-tile-${t.en.toLowerCase()}`}
               >
                 <div
                   aria-hidden
-                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 />
                 <div className="relative">
-                  <div className="tile-soft w-11 h-11 rounded-xl flex items-center justify-center mb-5">
-                    <Icon className="w-5 h-5" strokeWidth={2.2} />
+                  <div className="icon-tile mb-6">
+                    <Icon className="w-5 h-5" strokeWidth={2} />
                   </div>
-                  <div
-                    className="font-display font-extrabold text-foreground leading-none mb-2.5 tabular-nums"
-                    style={{ fontSize: "clamp(2.6rem, 6vw, 4rem)", letterSpacing: "-0.04em" }}
-                  >
+                  <div className="font-display t-display !text-[clamp(2.6rem,6vw,4rem)] !leading-none text-foreground mb-2.5 tnum">
                     {n ? <CountUp value={t.value} lang={lang} /> : "—"}
                   </div>
-                  <div className="text-[14px] font-semibold text-foreground/80">
+                  <div className="text-[14px] font-semibold text-foreground">
                     {t.label}
                   </div>
-                  <div className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/55 font-semibold mt-1">
+                  <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1">
                     {t.en}
                   </div>
                 </div>

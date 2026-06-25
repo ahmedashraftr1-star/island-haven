@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { ArrowLeft, Rocket } from "lucide-react";
+import { ArrowLeft, Rocket, Star, User } from "lucide-react";
 import { api } from "@/lib/api";
 import { imageUrl } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Reveal } from "@/components/landing/Reveal";
 
 interface Venture {
   id: number;
@@ -50,7 +50,7 @@ export function VenturesBand() {
         const sorted = [...r.ventures].sort(
           (a, b) => Number(b.featured) - Number(a.featured),
         );
-        setRows(sorted.slice(0, 6));
+        setRows(sorted.slice(0, 5));
       })
       .catch(() => !cancelled && setRows([]));
     return () => {
@@ -59,62 +59,67 @@ export function VenturesBand() {
   }, []);
 
   if (rows !== null && rows.length === 0) return null;
-  const ventures = rows ?? Array.from({ length: 3 }).map(() => null);
+  const ventures = rows ?? Array.from({ length: 5 }).map(() => null);
+
+  const stageLabel = (stage: string) =>
+    lang === "ar" ? STAGE_AR[stage] ?? stage : STAGE_EN[stage] ?? stage;
 
   return (
-    <section id="ventures-band" className="relative bg-background py-20 lg:py-28 border-t border-border">
-      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
+    <section id="ventures-band" className="relative bg-background section-y">
+      <div className="container-ih">
         {/* Header */}
-        <div className="flex items-end justify-between gap-6 mb-10 lg:mb-12">
-          <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <Rocket className="w-4 h-4 text-primary" />
-              <span className="text-[11px] tracking-[0.2em] uppercase text-primary font-bold">
+        <div className="flex items-end justify-between gap-6 mb-[clamp(2rem,4vw,3.5rem)]">
+          <Reveal>
+            <div className="flex items-center gap-2 mb-3">
+              <Rocket className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+              <span className="eyebrow">
                 {t({ ar: "صُنع في آيلاند", en: "Built at Island Haven" })}
               </span>
             </div>
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(1.9rem, 4.4vw, 3.2rem)", letterSpacing: "-0.03em" }}
-            >
+            <h2 className="t-h2">
               {t({ ar: "مشاريع ", en: "Ventures from " })}
               <span className="text-accent-gradient">
                 {t({ ar: "وُلدت من المساحة", en: "the space" })}
               </span>
             </h2>
-          </div>
+          </Reveal>
           <Link
             href="/ventures"
-            className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border bg-card text-foreground/80 text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors shrink-0"
+            className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border-strong bg-surface-2 text-fg-secondary text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors shrink-0"
           >
             {t({ ar: "كل المشاريع", en: "All ventures" })}
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180 ltr:rotate-180" />
+            <ArrowLeft className="w-4 h-4 rotate-180" />
           </Link>
         </div>
 
-        {/* Portfolio grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {ventures.map((v, i) =>
-            v === null ? (
-              <div
-                key={i}
-                className="h-64 rounded-3xl bg-card border border-border animate-pulse"
-              />
-            ) : (
-              <motion.div
-                key={v.id}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: Math.min(i, 5) * 0.06 }}
-              >
+        {/* Portfolio grid — featured card spans 2 cols, taller cinematic covers */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr">
+          {ventures.map((v, i) => {
+            const featured = !!v?.featured && i === 0;
+            const spanClass = featured ? "sm:col-span-2" : "";
+
+            if (v === null) {
+              return (
+                <div
+                  key={i}
+                  className={`card-base h-72 animate-pulse ${i === 0 ? "sm:col-span-2" : ""}`}
+                />
+              );
+            }
+
+            return (
+              <Reveal key={v.id} delay={Math.min(i, 5) * 0.06} className={`h-full ${spanClass}`}>
                 <Link
                   href={`/ventures/${v.id}`}
-                  className="group block h-full rounded-3xl bg-card border border-border overflow-hidden hover:border-primary/40 hover:-translate-y-1 transition-all duration-500 shadow-soft hover:shadow-soft-hover"
+                  className="card-base card-hover group block h-full overflow-hidden"
                   data-testid={`venture-band-${v.id}`}
                 >
                   {/* Cover */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
+                  <div
+                    className={`relative overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-transparent ${
+                      featured ? "aspect-[16/9] sm:aspect-[2.4/1]" : "aspect-[16/10]"
+                    }`}
+                  >
                     {v.coverUrl ? (
                       <img
                         src={imageUrl(v.coverUrl)}
@@ -128,55 +133,59 @@ export function VenturesBand() {
                       </div>
                     )}
                     {v.featured && (
-                      <span className="absolute top-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/15 text-amber-300 border border-amber-400/30 start-3">
+                      <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/15 text-amber-300 border border-amber-400/30 backdrop-blur-sm">
+                        <Star className="w-3 h-3 fill-amber-300" />
                         {t({ ar: "مميّز", en: "Featured" })}
                       </span>
                     )}
                   </div>
                   {/* Body */}
-                  <div className="p-5">
+                  <div className={featured ? "p-6" : "p-5"}>
                     <div className="flex items-center gap-3 mb-2">
                       {v.logoUrl && (
                         <img
                           src={imageUrl(v.logoUrl)}
                           alt=""
-                          className="w-9 h-9 rounded-xl object-contain bg-white p-1 shrink-0"
+                          className="w-9 h-9 rounded-[12px] object-contain bg-white p-1 shrink-0"
                           loading="lazy"
                         />
                       )}
-                      <h3 className="text-foreground font-bold text-[16px] leading-snug truncate">
+                      <h3 className={`t-h3 truncate ${featured ? "text-[20px]" : "text-[16px]"}`}>
                         {v.name}
                       </h3>
                     </div>
                     {v.tagline && (
-                      <p className="text-foreground/65 text-[13px] leading-relaxed line-clamp-2 mb-4">
+                      <p className={`t-body text-[13px] mb-4 ${featured ? "line-clamp-3 max-w-2xl" : "line-clamp-2"}`}>
                         {v.tagline}
                       </p>
                     )}
-                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/70">
-                      {v.founderName && (
-                        <span className="text-[12px] text-foreground/60 truncate">
+                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+                      {v.founderName ? (
+                        <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground truncate">
+                          <User className="w-3.5 h-3.5 shrink-0" />
                           {v.founderName}
                         </span>
+                      ) : (
+                        <span />
                       )}
                       <span className="inline-flex items-center gap-1.5 shrink-0">
                         {v.sector && (
-                          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-white/[0.04] text-foreground/65 border border-border">
+                          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-surface-3 text-fg-secondary border border-border">
                             {v.sector}
                           </span>
                         )}
                         {v.stage && (
-                          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-primary/10 text-primary border border-primary/20">
-                            {lang === "ar" ? STAGE_AR[v.stage] ?? v.stage : STAGE_EN[v.stage] ?? v.stage}
+                          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-accent-2-soft text-accent-2 border border-accent-2/20">
+                            {stageLabel(v.stage)}
                           </span>
                         )}
                       </span>
                     </div>
                   </div>
                 </Link>
-              </motion.div>
-            ),
-          )}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -21,8 +21,8 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         className="w-full h-full"
         aria-label={t({ ar: "خريطة قطاع غزّة", en: "Map of the Gaza Strip" })}
       >
-        {/* Sea ripple background — three soft horizontal lines */}
-        <g stroke="hsl(354 70% 75%)" strokeWidth="1" strokeLinecap="round" opacity="0.35">
+        {/* Sea ripple background — three soft horizontal lines (cool accent: it's the Mediterranean / data context) */}
+        <g stroke="hsl(199 90% 58%)" strokeWidth="1" strokeLinecap="round" opacity="0.32">
           <motion.path
             d="M 30 70 Q 80 64 130 70 T 230 70 T 300 68"
             initial={{ pathLength: 0 }}
@@ -47,10 +47,10 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
         </g>
 
         {/* Compass rose, top-right */}
-        <g transform="translate(280, 40)" opacity="0.6">
-          <circle cx="0" cy="0" r="14" stroke="hsl(354 50% 72%)" strokeWidth="0.8" fill="none" />
-          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(354 50% 72%)" strokeWidth="0.8" />
-          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(354 60% 78%)" fontWeight="600">N</text>
+        <g transform="translate(280, 40)" opacity="0.55">
+          <circle cx="0" cy="0" r="14" stroke="hsl(199 70% 60%)" strokeWidth="0.8" fill="none" />
+          <path d="M 0 -10 L 0 10 M -10 0 L 10 0" stroke="hsl(199 70% 60%)" strokeWidth="0.8" />
+          <text x="0" y="-16" textAnchor="middle" fontSize="9" fill="hsl(199 80% 68%)" fontWeight="600">N</text>
         </g>
 
         {/* Gaza Strip silhouette — stylised, coastal, NE→SW.
@@ -107,10 +107,10 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
           y="266"
           textAnchor="middle"
           fontSize="11"
-          fill="hsl(210 20% 90%)"
+          fill="hsl(210 24% 92%)"
           fontWeight="700"
           letterSpacing="0.5"
-          initial={{  }}
+          initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 1.6, duration: 0.6 }}
@@ -154,9 +154,9 @@ export function GazaPulseMap({ className = "" }: { className?: string }) {
             x="14"
             y="4"
             fontSize="10.5"
-            fill="hsl(354 78% 72%)"
+            fill="hsl(354 82% 72%)"
             fontWeight="700"
-            initial={{ x: 8 }}
+            initial={{ opacity: 0, x: 8 }}
             whileInView={{ opacity: 1, x: 14 }}
             viewport={{ once: true }}
             transition={{ delay: 2.4, duration: 0.5 }}

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { EditorialHeader } from "./EditorialHeader";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { I18N } from "@/lib/i18n";
+import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
 
 const FALLBACK = {
   label: "الفئات والمعايير",
@@ -44,6 +44,10 @@ const EN_FALLBACK = {
   seg3C3: "",
 };
 
+// Seat-allocation bar uses the brand red staircase (warm → soft) so the data
+// reads as one family; the cool accent-2 is reserved for the live/data glint.
+const BAR_FILL = ["hsl(354 82% 58%)", "hsl(354 74% 66%)", "hsl(354 60% 78%)"];
+
 export function Audience() {
   const { lang } = useLanguage();
   const cms = useContentSection("audience", FALLBACK);
@@ -67,59 +71,61 @@ export function Audience() {
   ];
 
   return (
-    <section id="audience" className="relative bg-background py-20 lg:py-28 overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
+    <section id="audience" className="relative bg-background section-y overflow-hidden">
+      <div className="container-ih">
         <EditorialHeader
           label={c.label}
           title={<>{c.titleA} <span className="text-accent-gradient">{c.titleAccent}</span> {c.titleB}</>}
           sub={c.sub}
         />
 
+        {/* ── Seat-allocation bar — flagship data band on a lifted surface ── */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-12 lg:mb-16"
+          viewport={VIEWPORT}
+          transition={{ duration: 0.8, ease: EASE_OUT_EXPO }}
+          className="surface-1 rounded-[20px] p-6 lg:p-8 mb-[clamp(2.5rem,5vw,4rem)]"
         >
           <div className="flex items-center gap-3 mb-5">
-            <span className="text-[11px] tracking-[0.2em] uppercase text-foreground/55 font-semibold">
-              {lang === "en" ? "Seat allocation" : "توزيع المقاعد · Seat allocation"}
+            <span className="inline-flex items-center gap-2 eyebrow !text-accent-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
+              {lang === "en" ? "Seat allocation" : "توزيع المقاعد"}
             </span>
-            <span className="flex-1 h-px bg-foreground/10" />
-            <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/55 font-semibold tabular-nums">
+            <span className="flex-1 hairline" />
+            <span className="eyebrow !text-muted-foreground tnum">
               {lang === "en" ? "100%" : "٪١٠٠"}
             </span>
           </div>
-          <div className="h-3 w-full rounded-full bg-foreground/5 overflow-hidden flex">
+          <div className="h-3 w-full rounded-full bg-surface-3 overflow-hidden flex">
             {segments.map((s, i) => (
               <motion.div
                 key={s.no}
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 1.0, delay: 0.15 + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                viewport={VIEWPORT}
+                transition={{ duration: 1.0, delay: 0.15 + i * 0.12, ease: EASE_OUT_EXPO }}
                 style={{
                   width: `${s.pct}%`,
-                  background:
-                    i === 0 ? "hsl(354 70% 52%)" : i === 1 ? "hsl(354 70% 62%)" : "hsl(354 60% 78%)",
-                  transformOrigin: "right",
+                  background: BAR_FILL[i] ?? BAR_FILL[2],
+                  transformOrigin: lang === "en" ? "left" : "right",
                 }}
-                className={i > 0 ? "border-r-2 border-background" : ""}
+                className={i > 0 ? "border-r-2 border-surface-1" : ""}
               />
             ))}
           </div>
-          <div className="mt-4 flex justify-between gap-4 text-[12px] text-foreground/55 font-medium tabular-nums">
-            {segments.map((s) => (
-              <div key={s.no} className="flex items-center gap-1.5">
-                <span className="text-foreground font-bold">{s.pct}٪</span>
-                <span className="text-foreground/55">· {lang === "en" ? s.en : s.ar}</span>
+          <div className="mt-5 flex flex-wrap justify-between gap-x-6 gap-y-2 t-caption tnum">
+            {segments.map((s, i) => (
+              <div key={s.no} className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ background: BAR_FILL[i] ?? BAR_FILL[2] }} />
+                <span className="text-foreground font-bold">{lang === "en" ? `${s.pct}%` : `${s.pct}٪`}</span>
+                <span className="text-muted-foreground">{lang === "en" ? s.en : s.ar}</span>
               </div>
             ))}
           </div>
         </motion.div>
 
-        <div className="space-y-14 lg:space-y-20">
+        <div className="space-y-12 lg:space-y-16">
           {segments.map((seg, i) => {
             const reverse = i % 2 === 1;
             return (
@@ -127,32 +133,32 @@ export function Audience() {
                 key={seg.no}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                className="grid grid-cols-12 gap-6 lg:gap-14 items-center group"
+                viewport={VIEWPORT}
+                transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+                className="grid grid-cols-12 gap-6 lg:gap-12 items-center group"
               >
                 <div className={`col-span-12 lg:col-span-5 ${reverse ? "lg:order-2" : "lg:order-1"}`}>
-                  <div className="relative rounded-2xl overflow-hidden shadow-soft-hover">
+                  <div className="relative rounded-[20px] overflow-hidden card-base">
                     <img
                       src={seg.photo}
                       alt={seg.ar}
                       loading="lazy"
                       className="w-full aspect-[5/4] object-cover transition-transform duration-[2200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                     />
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/15 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/65 via-black/15 to-transparent pointer-events-none" />
                     <div className="absolute top-5 left-5 right-5 flex items-start justify-between text-white">
-                      <div className="text-[11px] tracking-[0.22em] uppercase font-semibold opacity-80">
+                      <div className="eyebrow !text-white/80">
                         {seg.tag}
                       </div>
-                      <div className="text-[11px] font-mono font-semibold tabular-nums opacity-70">
+                      <div className="t-caption font-mono font-semibold tnum text-white/70">
                         / {seg.no}
                       </div>
                     </div>
                     <div className="absolute bottom-6 left-6 text-white">
-                      <div className="text-[10px] tracking-[0.2em] uppercase font-semibold opacity-75 mb-1.5">
+                      <div className="eyebrow !text-white/75 mb-1.5">
                         {seg.en}
                       </div>
-                      <div className="font-bold leading-none" style={{ fontSize: "clamp(1.5rem, 2.2vw, 2rem)", letterSpacing: "-0.02em" }}>
+                      <div className="t-h3 !text-white !font-bold leading-none" style={{ fontSize: "clamp(1.5rem, 2.2vw, 2rem)" }}>
                         {seg.ar}
                       </div>
                     </div>
@@ -160,46 +166,42 @@ export function Audience() {
                 </div>
 
                 <div className={`col-span-12 lg:col-span-7 ${reverse ? "lg:order-1" : "lg:order-2"}`}>
-                  <div className="flex items-baseline gap-4 mb-7">
-                    <span className="text-[11px] font-mono font-semibold text-foreground/40 tabular-nums tracking-[0.1em]">
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="t-caption font-mono font-semibold text-fg-faint tnum">
                       {seg.no}
                     </span>
-                    <span className="h-[1px] w-12 bg-foreground/15" />
-                    <span className="text-[11px] tracking-[0.2em] uppercase text-primary font-semibold">
-                      {lang === "en" ? "Audience" : "Audience · فئة"}
+                    <span className="h-px w-12 bg-border-strong" />
+                    <span className="eyebrow">
+                      {lang === "en" ? "Audience" : "فئة"}
                     </span>
                   </div>
 
                   <div
                     dir="ltr"
-                    className="flex items-baseline gap-2 mb-3 font-bold text-foreground tabular-nums"
-                    style={{ fontSize: "clamp(3.25rem, 6vw, 5.5rem)", letterSpacing: "-0.045em", lineHeight: 0.9 }}
+                    className="flex items-baseline gap-2 mb-3 t-display !text-foreground tnum"
                   >
                     <span>{seg.pct}</span>
                     <span className="text-primary text-[0.5em]">%</span>
-                    <span className="text-foreground/50 text-[0.4em] ms-3 lg:ms-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
+                    <span className="text-muted-foreground text-[0.32em] font-semibold ms-3 lg:ms-5">{lang === "en" ? "of seats" : "من المقاعد"}</span>
                   </div>
 
-                  <h3
-                    className="font-bold text-foreground leading-[1.1] mb-7 tracking-tight"
-                    style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
-                  >
+                  <h3 className="t-h2 !text-foreground mb-7">
                     {seg.ar}
                   </h3>
 
-                  <div className="text-[11px] tracking-[0.18em] uppercase text-foreground/45 font-semibold mb-4">
-                    {lang === "en" ? "Admission criteria" : "معايير القبول · Admission criteria"}
+                  <div className="eyebrow !text-muted-foreground mb-4">
+                    {lang === "en" ? "Admission criteria" : "معايير القبول"}
                   </div>
-                  <ul className="space-y-3.5 max-w-xl">
+                  <ul className="space-y-0 max-w-xl">
                     {seg.criteria.map((cc, j) => (
                       <li
                         key={j}
-                        className="flex gap-4 items-baseline text-foreground/80 leading-relaxed border-t border-foreground/12 pt-3.5"
+                        className="flex gap-4 items-baseline text-fg-secondary border-t border-border pt-3.5 pb-3.5 last:pb-0"
                       >
-                        <span className="text-primary text-sm font-bold tabular-nums shrink-0 w-6">
+                        <span className="text-primary t-caption font-bold tnum shrink-0 w-6">
                           {String(j + 1).padStart(2, "0")}
                         </span>
-                        <span className="text-[15px] lg:text-[16px]">{cc}</span>
+                        <span className="t-body">{cc}</span>
                       </li>
                     ))}
                   </ul>

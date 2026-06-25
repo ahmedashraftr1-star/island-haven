@@ -4,6 +4,7 @@ import { GazaPulseMap } from "./GazaPulseMap";
 import { OpeningHours } from "./OpeningHours";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
 
 /**
  * HoursLocation — single composite section that frames the "ساعات العمل"
@@ -46,9 +47,9 @@ export function HoursLocation() {
   return (
     <section
       id="visit"
-      className="relative bg-muted/40 py-20 lg:py-28 border-t border-border"
+      className="relative bg-background section-y"
     >
-      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
+      <div className="container-ih">
         <EditorialHeader
           label={c.label}
           title={
@@ -66,29 +67,29 @@ export function HoursLocation() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center bg-card border border-border rounded-3xl p-6 lg:p-10 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] overflow-hidden"
+          viewport={VIEWPORT}
+          transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center card-base rounded-[20px] p-6 lg:p-10 overflow-hidden"
         >
           <div className="lg:col-span-7 order-2 lg:order-1">
             <GazaPulseMap className="w-full max-w-[480px] mx-auto aspect-square" />
           </div>
           <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="text-[11px] tracking-[0.14em] uppercase text-foreground/55 font-semibold mb-3">
+            <div className="eyebrow !text-muted-foreground mb-3">
               {c.locationEyebrow}
             </div>
-            <h3 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight leading-[1.15] mb-4 whitespace-pre-line">
+            <h3 className="t-h3 !text-foreground !text-2xl lg:!text-3xl mb-4 whitespace-pre-line">
               {c.locationTitle}
             </h3>
-            <p className="text-[15px] text-foreground/65 leading-relaxed mb-6 whitespace-pre-line">
+            <p className="t-body !text-fg-secondary mb-6 whitespace-pre-line">
               {c.locationBody}
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-              <div className="flex items-center gap-2 text-[13px] text-foreground/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="inline-flex items-center gap-2 chip-accent-2 rounded-full px-3 py-1.5 t-caption font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
                 {c.locationStatus}
               </div>
-              <div className="text-[13px] text-foreground/65 tabular-nums">{c.locationCoords}</div>
+              <div className="t-caption !text-muted-foreground font-mono tnum">{c.locationCoords}</div>
             </div>
           </div>
         </motion.div>

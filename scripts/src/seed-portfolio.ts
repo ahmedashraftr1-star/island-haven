@@ -19,15 +19,29 @@
  * Usage:
  *   pnpm --filter @workspace/scripts run seed:portfolio
  */
+import bcrypt from "bcryptjs";
 import {
   db,
   venturesTable,
   successStoriesTable,
   partnersTable,
+  usersTable,
+  worksTable,
+  coursesTable,
+  enrollmentsTable,
   pool,
   type VentureStage,
+  type UserRole,
+  type WorkStatus,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
+
+// Shared password hash for every demo member. Real value comes from the local
+// SEED_USER_PASSWORD env (same convention as seed-extras.ts); never committed.
+const MEMBER_PW_HASH = bcrypt.hashSync(
+  process.env.SEED_USER_PASSWORD || "change-me-local",
+  10,
+);
 
 // ── Real photo pool ─────────────────────────────────────────────────────────
 // Files exist at artifacts/ih-haven/public/photos/IMG_*.webp and are served by
@@ -374,6 +388,607 @@ async function topUpPartners() {
   console.log(`  ✓ ${rows.length} partners inserted.`);
 }
 
+// ── 4. Community members + portfolio works + enrollments ─────────────────────
+// The public "بالأرقام" numbers (members / freelancers / graduates / students /
+// works / enrollments) are computed from REAL rows — not hard-coded. To make the
+// homepage read like a funded incubator we seed a substantial, believable cohort
+// of active members, each with at least one visible/featured work and a course
+// enrollment. Every write is guarded so re-runs are idempotent:
+//   - members      → skipped if the email already exists
+//   - works        → skipped if (userId,title) already exists
+//   - enrollments  → relies on the (user_id,course_id) unique index (catch-skip)
+const AVATAR = (img: number) => `https://i.pravatar.cc/300?img=${img}`;
+
+// A curated cover pool for works — local incubator photos plus a few topical
+// Unsplash shots so the portfolio grid never repeats too tightly.
+const WORK_COVERS = [
+  PHOTO("8307"),
+  PHOTO("8313"),
+  PHOTO("8341"),
+  PHOTO("8344"),
+  PHOTO("8345"),
+  PHOTO("8352"),
+  PHOTO("8356"),
+  PHOTO("8358"),
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop",
+];
+
+type MemberSeed = {
+  email: string;
+  fullName: string;
+  role: UserRole;
+  jobTitle: string;
+  bio: string;
+  skills: string;
+  avatarImg: number;
+  works: Array<{
+    title: string;
+    summary: string;
+    description: string;
+    tags: string;
+    status: WorkStatus;
+    link?: string;
+  }>;
+};
+
+// 24 additional members across freelancer / graduate / student roles, each with
+// 1–2 concrete works. Names + outcomes are specific (YC/Antler "substance" bar).
+const MEMBERS: MemberSeed[] = [
+  {
+    email: "deema.shawa@islandhaven.ps",
+    fullName: "ديمة الشّوّا",
+    role: "freelancer",
+    jobTitle: "مصمّمة منتجات رقميّة",
+    bio: "أصمّم منتجات تُحلّ مشكلة حقيقيّة قبل أن تبدو جميلة. ٤٠+ مشروع بين غزّة والخليج.",
+    skills: "Product Design, Figma, Design Systems, Prototyping",
+    avatarImg: 48,
+    works: [
+      {
+        title: "Waseet — لوحة تحكّم لتجّار التجزئة",
+        summary: "إعادة تصميم رفعت معدّل إتمام الطلب 34%.",
+        description:
+          "أعدت تصميم رحلة الطلب كاملة لـ Waseet، من السلّة حتّى الدفع، عبر ٣٨ شاشة ونظام تصميم من ٩٠ مكوّنًا.",
+        tags: "Product, UX, Case Study",
+        status: "featured",
+        link: "https://waseet.ps",
+      },
+    ],
+  },
+  {
+    email: "yousef.barghouti@islandhaven.ps",
+    fullName: "يوسف البرغوثي",
+    role: "graduate",
+    jobTitle: "مهندس برمجيّات",
+    bio: "خرّيج هندسة حاسوب. أبني خدمات backend تتحمّل الحِمل وتبقى بسيطة.",
+    skills: "TypeScript, Node.js, Postgres, Redis, Docker",
+    avatarImg: 13,
+    works: [
+      {
+        title: "Tariqi — محرّك توجيه شحنات لحظيّ",
+        summary: "يخدم ١٢٠ ألف طلب توصيل شهريًّا بزمن استجابة < 150ms.",
+        description:
+          "بنيت محرّك التوجيه والـ API بـ Node.js و Postgres، مع طابور مهامّ على Redis لمعالجة الذروة.",
+        tags: "Backend, Logistics, TypeScript",
+        status: "featured",
+        link: "https://tariqi.app",
+      },
+      {
+        title: "مكتبة مفتوحة المصدر لتعريب الواجهات",
+        summary: "i18n util تجاوزت ٢٠٠ نجمة على GitHub.",
+        description: "أداة خفيفة لإدارة الترجمة و RTL في مشاريع React.",
+        tags: "Open Source, i18n, React",
+        status: "visible",
+        link: "https://github.com/ybarghouti/rtl-kit",
+      },
+    ],
+  },
+  {
+    email: "maryam.dalloul@islandhaven.ps",
+    fullName: "مريم دلّول",
+    role: "freelancer",
+    jobTitle: "كاتبة محتوى واستراتيجيّة علامة",
+    bio: "أحوّل المنتج المعقّد إلى رسالة يفهمها العميل في ثانية. كتبت لـ ٢٥ علامة عربيّة.",
+    skills: "Copywriting, Brand Strategy, SEO, Storytelling",
+    avatarImg: 31,
+    works: [
+      {
+        title: "إعادة كتابة هويّة Tariqi الكتابيّة",
+        summary: "رفعت معدّل التسجيل في الموقع 41%.",
+        description: "أعدت صياغة ١٤ صفحة هبوط + سلسلة بريد onboarding من ٦ رسائل.",
+        tags: "Copywriting, Conversion, Brand",
+        status: "visible",
+        link: "https://tariqi.app",
+      },
+    ],
+  },
+  {
+    email: "adam.qudwa@islandhaven.ps",
+    fullName: "آدم القدوة",
+    role: "student",
+    jobTitle: "طالب علوم بيانات",
+    bio: "طالب في الجامعة الإسلاميّة. أبني نماذج تنبّؤ على بيانات سوق العمل المحلّيّ.",
+    skills: "Python, pandas, scikit-learn, SQL, Power BI",
+    avatarImg: 60,
+    works: [
+      {
+        title: "تنبّؤ بالطلب على المهارات الرقميّة في غزّة",
+        summary: "نموذج توقّع دقّته 87% على بيانات ١٨ شهرًا.",
+        description: "مشروع تخرّج حلّل ٤٠٠٠ إعلان وظيفة لتحديد أكثر المهارات طلبًا.",
+        tags: "Data Science, ML, Research",
+        status: "visible",
+        link: "https://github.com/adamq/skills-demand",
+      },
+    ],
+  },
+  {
+    email: "leen.abuhasira@islandhaven.ps",
+    fullName: "لين أبو حصيرة",
+    role: "freelancer",
+    jobTitle: "مطوّرة Frontend",
+    bio: "أبني واجهات سريعة وقابلة للوصول. أهتمّ بآخر ١٠٪ من التفاصيل التي يلاحظها الجميع.",
+    skills: "React, Next.js, TailwindCSS, TypeScript, a11y",
+    avatarImg: 5,
+    works: [
+      {
+        title: "متجر Waseet — Next.js + Tailwind",
+        summary: "Lighthouse 98/100، وقت تحميل أوّل أقلّ من ثانية.",
+        description: "بنيت الواجهة كاملة مع دعم RTL ووضع داكن وإمكانيّة وصول AAA.",
+        tags: "Frontend, Next.js, Performance",
+        status: "featured",
+        link: "https://waseet.ps",
+      },
+    ],
+  },
+  {
+    email: "rami.shurrab@islandhaven.ps",
+    fullName: "رامي شرّاب",
+    role: "graduate",
+    jobTitle: "مطوّر تطبيقات هاتف",
+    bio: "أطلقت ٥ تطبيقات بتنزيلات تجاوزت ١٥٠ ألفًا. أعشق تجربة المستخدم على الجوّال.",
+    skills: "React Native, Expo, Swift, Kotlin, Firebase",
+    avatarImg: 51,
+    works: [
+      {
+        title: "Sahel — تطبيق إدارة المصروفات",
+        summary: "٣٥ ألف مستخدم نشط في ٣ دول.",
+        description: "صمّمت وطوّرت التطبيق بـ React Native + Expo مع مزامنة سحابيّة.",
+        tags: "Mobile, Fintech, React Native",
+        status: "featured",
+        link: "https://sahel.app",
+      },
+    ],
+  },
+  {
+    email: "hala.najjar@islandhaven.ps",
+    fullName: "هالة النجّار",
+    role: "freelancer",
+    jobTitle: "مصمّمة هويّات بصريّة",
+    bio: "أصنع هويّات تُروى لا تُرسم فقط. ٦٠+ علامة تجاريّة عربيّة.",
+    skills: "Branding, Logo, Typography, Illustrator, Motion",
+    avatarImg: 9,
+    works: [
+      {
+        title: "هويّة Sahel البصريّة",
+        summary: "Brand Book من ٤٨ صفحة + نظام أيقونات كامل.",
+        description: "هويّة تجمع الثقة المصرفيّة بالدفء المحلّيّ.",
+        tags: "Branding, Identity, Fintech",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "omar.kishawi@islandhaven.ps",
+    fullName: "عمر الكيشاوي",
+    role: "graduate",
+    jobTitle: "مهندس DevOps",
+    bio: "أجعل النشر مملًّا — لأنّه يجب أن يكون كذلك. CI/CD وبنية تحتيّة كرمز.",
+    skills: "AWS, Terraform, Kubernetes, GitHub Actions, Grafana",
+    avatarImg: 53,
+    works: [
+      {
+        title: "بنية تحتيّة كرمز لـ ٣ شركات ناشئة",
+        summary: "خفّضت زمن النشر من ٤٠ دقيقة إلى ٣.",
+        description: "بنيت خطوط CI/CD ومراقبة كاملة على AWS بـ Terraform.",
+        tags: "DevOps, AWS, Infrastructure",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "joud.tabatibi@islandhaven.ps",
+    fullName: "جود الطباطيبي",
+    role: "student",
+    jobTitle: "طالبة تصميم تفاعلي",
+    bio: "طالبة تصميم. أحبّ تحويل الأفكار المجرّدة إلى نماذج يمكن لمسها.",
+    skills: "Figma, Prototyping, User Research, Motion",
+    avatarImg: 38,
+    works: [
+      {
+        title: "تطبيق متابعة المرضى المزمنين — نموذج",
+        summary: "نموذج تفاعلي اختُبر مع ١٢ مريضًا حقيقيًّا.",
+        description: "مشروع جامعيّ صمّم رحلة متابعة الدواء لكبار السنّ.",
+        tags: "UX, HealthTech, Prototype",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "sami.elewa@islandhaven.ps",
+    fullName: "سامي عليوة",
+    role: "freelancer",
+    jobTitle: "مصوّر ومونتير",
+    bio: "أوثّق القصص البصريّة للمشاريع والمنظّمات. ٦ سنوات خبرة ميدانيّة.",
+    skills: "Photography, Premiere Pro, After Effects, Color",
+    avatarImg: 68,
+    works: [
+      {
+        title: "سلسلة أفلام تعريفيّة لمنتسبي الحاضنة",
+        summary: "٨ أفلام قصيرة تجاوزت ١٠٠ ألف مشاهدة.",
+        description: "تصوير ومونتاج قصص حقيقيّة لروّاد أعمال داخل آيلاند هيفن.",
+        tags: "Video, Documentary, Storytelling",
+        status: "featured",
+      },
+    ],
+  },
+  {
+    email: "dana.helles@islandhaven.ps",
+    fullName: "دانا الحلّس",
+    role: "graduate",
+    jobTitle: "محلّلة منتج",
+    bio: "أقرأ الأرقام لأفهم السلوك. حوّلت بيانات ٤ منتجات إلى قرارات أطلقت ميزات رابحة.",
+    skills: "Analytics, SQL, Amplitude, A/B Testing, dbt",
+    avatarImg: 32,
+    works: [
+      {
+        title: "تحليل قِمَع التحويل لـ Sahel",
+        summary: "حدّدت تسريبًا كلّف ١٨٪ من المسجّلين.",
+        description: "بنيت لوحات تحليل أدّت إلى إعادة تصميم خطوة التحقّق ورفع التحويل ٢٢٪.",
+        tags: "Analytics, Growth, Data",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "kareem.astal@islandhaven.ps",
+    fullName: "كريم الأسطل",
+    role: "student",
+    jobTitle: "طالب هندسة برمجيّات",
+    bio: "أبني مشاريع جانبيّة لأتعلّم بسرعة. آخرها أداة لتنظيم المذاكرة استخدمها زملائي.",
+    skills: "JavaScript, React, Node.js, Supabase",
+    avatarImg: 59,
+    works: [
+      {
+        title: "Mudhakir — أداة تنظيم مذاكرة",
+        summary: "٨٠٠ طالب يستخدمونها في ٣ جامعات.",
+        description: "تطبيق ويب يجدول المراجعة بطريقة التكرار المتباعد.",
+        tags: "EdTech, Web, Side Project",
+        status: "visible",
+        link: "https://mudhakir.app",
+      },
+    ],
+  },
+  {
+    email: "aya.skaik@islandhaven.ps",
+    fullName: "آية صقّيق",
+    role: "freelancer",
+    jobTitle: "مديرة وسائل تواصل",
+    bio: "أبني مجتمعات حول العلامات. نمّيت حسابات تجاوز وصولها ٢ مليون شهريًّا.",
+    skills: "Social Media, Community, Content, Paid Ads",
+    avatarImg: 24,
+    works: [
+      {
+        title: "حملة إطلاق Waseet على المنصّات",
+        summary: "٤٥ ألف متابع في الشهر الأوّل.",
+        description: "خطّطت ونفّذت محتوى الإطلاق عبر ٤ منصّات بميزانيّة محدودة.",
+        tags: "Social, Marketing, Launch",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "bilal.madhoun@islandhaven.ps",
+    fullName: "بلال المدهون",
+    role: "graduate",
+    jobTitle: "مهندس ذكاء اصطناعي",
+    bio: "أبني أنظمة تفهم العربيّة. عملت على معالجة اللغة الطبيعيّة لـ ٣ منتجات.",
+    skills: "Python, PyTorch, NLP, LLMs, RAG",
+    avatarImg: 67,
+    works: [
+      {
+        title: "مساعد دعم عملاء بالعربيّة",
+        summary: "خفّض زمن الردّ ٦٠٪ لشركة اتّصالات.",
+        description: "نظام RAG يجيب على استفسارات العملاء بالعاميّة والفصحى.",
+        tags: "AI, NLP, Arabic",
+        status: "featured",
+      },
+    ],
+  },
+  {
+    email: "ruba.zaqout@islandhaven.ps",
+    fullName: "ربى زقّوت",
+    role: "freelancer",
+    jobTitle: "مديرة مشاريع",
+    bio: "أقود فرقًا موزّعة لتسليم في الوقت وبالميزانيّة. أسلّم لا أعِد فقط.",
+    skills: "Project Management, Agile, Scrum, Jira",
+    avatarImg: 26,
+    works: [
+      {
+        title: "قيادة تسليم منصّة Tariqi",
+        summary: "إطلاق MVP في ١٠ أسابيع بفريق من ٦.",
+        description: "نسّقت بين التصميم والتطوير والعمليّات لتسليم الإصدار الأوّل.",
+        tags: "Project Management, Agile",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "fadi.sarsour@islandhaven.ps",
+    fullName: "فادي سرسور",
+    role: "graduate",
+    jobTitle: "مطوّر Full-Stack",
+    bio: "أبني منتجات SaaS من قاعدة البيانات حتّى الواجهة. أحبّ الكود الذي يشرح نفسه.",
+    skills: "TypeScript, React, Node.js, Postgres, Prisma",
+    avatarImg: 50,
+    works: [
+      {
+        title: "Faatir — منصّة فوترة للمستقلّين",
+        summary: "٢٬٣٠٠ مستقلّ يصدرون فواتيرهم عبرها.",
+        description: "بنيت المنتج كاملًا: مصادقة، فواتير، تقارير ضريبيّة بسيطة.",
+        tags: "SaaS, Fullstack, Fintech",
+        status: "featured",
+        link: "https://faatir.app",
+      },
+    ],
+  },
+  {
+    email: "nadine.qrenawi@islandhaven.ps",
+    fullName: "نادين القرناوي",
+    role: "student",
+    jobTitle: "طالبة تسويق رقميّ",
+    bio: "طالبة إدارة أعمال. أتعلّم التسويق بالتجربة على مشاريع حقيقيّة.",
+    skills: "Content, SEO, Email Marketing, Canva",
+    avatarImg: 30,
+    works: [
+      {
+        title: "استراتيجيّة محتوى لمتجر محلّيّ",
+        summary: "ضاعفت زيارات الموقع العضويّة خلال ٤ أشهر.",
+        description: "بنيت تقويم محتوى وسلسلة مقالات حسّنت ترتيب البحث.",
+        tags: "Marketing, SEO, Content",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "majd.abuwarda@islandhaven.ps",
+    fullName: "مجد أبو وردة",
+    role: "freelancer",
+    jobTitle: "مطوّر لعبة",
+    bio: "أصنع ألعابًا تعليميّة بالعربيّة. لعبتي الأخيرة تجاوزت ٥٠ ألف لاعب.",
+    skills: "Unity, C#, Game Design, 2D Art",
+    avatarImg: 56,
+    works: [
+      {
+        title: "Hijaiya — لعبة تعليم الحروف",
+        summary: "٥٠ ألف تنزيل وتقييم ٤٫٨ نجوم.",
+        description: "لعبة تفاعليّة تعلّم الأطفال الحروف العربيّة باللعب.",
+        tags: "Games, EdTech, Unity",
+        status: "featured",
+        link: "https://hijaiya.game",
+      },
+    ],
+  },
+  {
+    email: "lara.hindi@islandhaven.ps",
+    fullName: "لارا الهندي",
+    role: "graduate",
+    jobTitle: "مصمّمة UX research",
+    bio: "أسأل قبل أن أصمّم. أجريت ٢٠٠+ مقابلة مستخدم لمنتجات مختلفة.",
+    skills: "User Research, Usability Testing, Figma, Surveys",
+    avatarImg: 20,
+    works: [
+      {
+        title: "دراسة قابليّة استخدام لـ Faatir",
+        summary: "اكتشفت ٩ مشكلات حرجة قبل الإطلاق.",
+        description: "أجريت ١٥ جلسة اختبار وحوّلت النتائج إلى توصيات تصميم.",
+        tags: "UX Research, Usability",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "zaid.ghoul@islandhaven.ps",
+    fullName: "زيد الغول",
+    role: "student",
+    jobTitle: "طالب أمن سيبراني",
+    bio: "طالب أمن معلومات. أتدرّب على اختبار الاختراق في بيئات تجريبيّة.",
+    skills: "Security, Linux, Networking, Python, Burp Suite",
+    avatarImg: 65,
+    works: [
+      {
+        title: "تقرير اختبار اختراق لمشروع تخرّج",
+        summary: "وثّقت ١٢ ثغرة مع خطوات معالجة.",
+        description: "محاكاة اختبار اختراق على تطبيق ويب تعليميّ.",
+        tags: "Security, Pentest, Research",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "tala.shamali@islandhaven.ps",
+    fullName: "تالا الشّمالي",
+    role: "freelancer",
+    jobTitle: "رسّامة ومصمّمة موشن",
+    bio: "أحرّك القصص. رسوماتي المتحرّكة ظهرت في حملات لـ ١٠ علامات.",
+    skills: "Illustration, After Effects, Motion, Procreate",
+    avatarImg: 41,
+    works: [
+      {
+        title: "سلسلة موشن جرافيك لشرح Sahel",
+        summary: "٤ فيديوهات شرح تجاوزت ٣٠٠ ألف مشاهدة.",
+        description: "حوّلت ميزات معقّدة إلى رسوم متحرّكة بسيطة وممتعة.",
+        tags: "Motion, Illustration, Explainer",
+        status: "featured",
+      },
+    ],
+  },
+  {
+    email: "anas.shaath@islandhaven.ps",
+    fullName: "أنس شعث",
+    role: "graduate",
+    jobTitle: "مهندس بيانات",
+    bio: "أبني خطوط بيانات موثوقة. نقلت ٣ شركات من جداول Excel إلى مستودعات حقيقيّة.",
+    skills: "SQL, Airflow, dbt, BigQuery, Python",
+    avatarImg: 18,
+    works: [
+      {
+        title: "مستودع بيانات لشركة لوجستيّات",
+        summary: "وحّد ٧ مصادر في مصدر حقيقة واحد.",
+        description: "صمّمت ونفّذت خطوط ELT يوميّة بـ Airflow و dbt.",
+        tags: "Data Engineering, ETL, Analytics",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "salma.qudra@islandhaven.ps",
+    fullName: "سلمى قدرة",
+    role: "freelancer",
+    jobTitle: "مترجمة ومحرّرة",
+    bio: "أترجم بين العربيّة والإنجليزيّة بحسّ لغويّ. حرّرت ٤٠+ مستندًا تقنيًّا ومحتوى منتجات.",
+    skills: "Translation, Localization, Editing, Proofreading",
+    avatarImg: 16,
+    works: [
+      {
+        title: "تعريب منتج Faatir بالكامل",
+        summary: "ترجمة وتدقيق ١٢٠٠ سلسلة نصّيّة.",
+        description: "ضمنت اتّساق المصطلحات وسلامة RTL عبر المنتج.",
+        tags: "Localization, Translation, i18n",
+        status: "visible",
+      },
+    ],
+  },
+  {
+    email: "mahmoud.dahdouh@islandhaven.ps",
+    fullName: "محمود دحدوح",
+    role: "graduate",
+    jobTitle: "مطوّر backend",
+    bio: "أهتمّ بالأداء والموثوقيّة. بنيت خدمات تتعامل مع ملايين الطلبات يوميًّا.",
+    skills: "Go, gRPC, Postgres, Kafka, Docker",
+    avatarImg: 7,
+    works: [
+      {
+        title: "خدمة إشعارات لحظيّة قابلة للتوسّع",
+        summary: "تسلّم ٢ مليون إشعار يوميًّا بثبات.",
+        description: "بنيت الخدمة بـ Go و Kafka مع ضمان التسليم مرّة واحدة.",
+        tags: "Backend, Go, Scalability",
+        status: "featured",
+      },
+    ],
+  },
+];
+
+async function enrichMembers() {
+  console.log("\n👥 Adding community members + portfolio works...");
+  let addedMembers = 0;
+  let addedWorks = 0;
+  let coverIdx = 0;
+
+  for (const m of MEMBERS) {
+    let [user] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, m.email));
+
+    if (!user) {
+      [user] = await db
+        .insert(usersTable)
+        .values({
+          email: m.email,
+          passwordHash: MEMBER_PW_HASH,
+          fullName: m.fullName,
+          role: m.role,
+          jobTitle: m.jobTitle,
+          bio: m.bio,
+          skills: m.skills,
+          avatarUrl: AVATAR(m.avatarImg),
+          status: "active",
+        })
+        .returning({ id: usersTable.id });
+      addedMembers++;
+    }
+
+    // Existing works for this user, to avoid duplicate titles on re-run.
+    const existingWorks = await db
+      .select({ title: worksTable.title })
+      .from(worksTable)
+      .where(eq(worksTable.userId, user.id));
+    const haveTitles = new Set(existingWorks.map((w) => w.title.trim()));
+
+    for (const w of m.works) {
+      if (haveTitles.has(w.title.trim())) continue;
+      await db.insert(worksTable).values({
+        userId: user.id,
+        title: w.title,
+        summary: w.summary,
+        description: w.description,
+        coverUrl: WORK_COVERS[coverIdx++ % WORK_COVERS.length],
+        galleryUrls: [],
+        link: w.link ?? "",
+        tags: w.tags,
+        status: w.status,
+      });
+      addedWorks++;
+    }
+  }
+
+  console.log(
+    `  ✓ ${addedMembers} new members · ${addedWorks} new works (idempotent).`,
+  );
+}
+
+async function enrichEnrollments() {
+  console.log("\n🎓 Enrolling members across courses...");
+  const courses = await db
+    .select({ id: coursesTable.id })
+    .from(coursesTable);
+  const users = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.status, "active"));
+
+  if (!courses.length || !users.length) {
+    console.log("  ↻ no courses or users to enroll.");
+    return;
+  }
+
+  // Enroll each active user into ~2 courses (deterministic spread) so the
+  // enrollments number reads substantial. The (user_id,course_id) unique index
+  // makes every insert idempotent — duplicates are caught and skipped.
+  let added = 0;
+  for (let i = 0; i < users.length; i++) {
+    const u = users[i];
+    const picks = [courses[i % courses.length], courses[(i + 1) % courses.length]];
+    for (const c of picks) {
+      try {
+        await db.insert(enrollmentsTable).values({
+          userId: u.id,
+          courseId: c.id,
+          status: "confirmed",
+        });
+        added++;
+      } catch {
+        // unique-constraint violation → already enrolled, skip.
+      }
+    }
+  }
+  console.log(`  ✓ ${added} new enrollments (idempotent).`);
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     process.env.DATABASE_URL = "postgresql://ahmedashraf@localhost/ih_haven_dev";
@@ -383,6 +998,8 @@ async function main() {
   await enrichVentures();
   await topUpStories();
   await topUpPartners();
+  await enrichMembers();
+  await enrichEnrollments();
 
   // Final report (read-back).
   const ventureRows = await db
@@ -402,6 +1019,18 @@ async function main() {
   const partnerCount = (
     await db.select({ id: partnersTable.id }).from(partnersTable)
   ).length;
+  const activeUserCount = (
+    await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.status, "active"))
+  ).length;
+  const workCount = (
+    await db.select({ id: worksTable.id }).from(worksTable)
+  ).length;
+  const enrollmentCount = (
+    await db.select({ id: enrollmentsTable.id }).from(enrollmentsTable)
+  ).length;
 
   console.log("\n📊 Portfolio summary:");
   console.log(
@@ -409,6 +1038,9 @@ async function main() {
   );
   console.log(`   success_stories: ${storyCount}`);
   console.log(`   partners: ${partnerCount}`);
+  console.log(`   active members: ${activeUserCount}`);
+  console.log(`   works: ${workCount}`);
+  console.log(`   enrollments: ${enrollmentCount}`);
 
   console.log("\n✅ Portfolio seed complete!");
   await pool.end();

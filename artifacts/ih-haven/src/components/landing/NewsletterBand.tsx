@@ -33,30 +33,28 @@ export function NewsletterBand() {
   }
 
   return (
-    <section className="relative py-24 px-5 sm:px-8 overflow-hidden bg-[#0A0E1A] text-white">
-      {/* background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[320px] rounded-full bg-primary/[0.14] blur-[90px] pointer-events-none" />
-
-      <div className="relative max-w-2xl mx-auto text-center">
+    <section className="relative section-y-compact overflow-hidden bg-background">
+      <div className="relative container-ih max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          className="card-base p-8 sm:p-10 text-center"
         >
           {/* Icon */}
-          <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-5">
-            <Mail className="w-6 h-6 text-primary" />
+          <div className="icon-tile mx-auto mb-5">
+            <Mail className="w-5 h-5 text-primary" strokeWidth={2} />
           </div>
 
-          <div className="text-[11px] font-bold text-primary/80 tracking-widest uppercase mb-2">
+          <div className="eyebrow mb-2">
             {t({ ar: "النشرة الإخبارية", en: "Newsletter" })}
           </div>
 
-          <h2 className="text-[26px] sm:text-[30px] font-black text-white leading-tight mb-3">
+          <h2 className="t-h3 text-[1.4rem] sm:text-[1.6rem] mb-3">
             {t({ ar: "ابقَ على اطّلاع دائم", en: "Stay in the loop" })}
           </h2>
-          <p className="text-[14px] text-white/65 leading-relaxed mb-8 max-w-md mx-auto">
+          <p className="t-body text-[14px] mb-8 max-w-md mx-auto">
             {t({
               ar: "أخبار الحاضنة، فرص التقديم، فعاليّات مجتمعيّة، وقصص ملهمة — مرّة في الشهر إلى بريدك مباشرة.",
               en: "Incubator news, application openings, community events, and inspiring stories — once a month, straight to your inbox.",
@@ -81,7 +79,7 @@ export function NewsletterBand() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t({ ar: "اسمك (اختياري)", en: "Your name (optional)" })}
-                className="w-full h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.12] text-white placeholder:text-white/45 text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
+                className="w-full h-12 px-5 rounded-2xl bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
               />
               <div className="flex gap-2">
                 <input
@@ -90,12 +88,12 @@ export function NewsletterBand() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t({ ar: "بريدك الإلكتروني", en: "Your email address" })}
-                  className="flex-1 h-12 px-5 rounded-2xl bg-white/[0.05] border border-white/[0.12] text-white placeholder:text-white/45 text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
+                  className="flex-1 h-12 px-5 rounded-2xl bg-surface-3 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors text-start"
                 />
                 <button
                   type="submit"
                   disabled={status === "loading" || !email.trim()}
-                  className="shrink-0 h-12 px-5 rounded-2xl bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-primary/25"
+                  className="shrink-0 h-12 px-5 rounded-2xl bg-primary text-primary-foreground font-semibold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_hsl(354_82%_30%_/_0.55)] disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center gap-2"
                 >
                   {status === "loading" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -110,7 +108,7 @@ export function NewsletterBand() {
               {status === "error" && (
                 <p className="text-[13px] text-rose-400 text-start">{errorMsg}</p>
               )}
-              <p className="text-[11px] text-white/45 text-center">
+              <p className="text-caption text-fg-faint text-center">
                 {t({
                   ar: "لا رسائل مزعجة. بإمكانك إلغاء الاشتراك في أي وقت.",
                   en: "No spam. Unsubscribe anytime.",

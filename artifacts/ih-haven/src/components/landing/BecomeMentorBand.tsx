@@ -16,30 +16,27 @@ export function BecomeMentorBand() {
 
   return (
     <section
-      className="relative py-24 sm:py-28 px-5 sm:px-8 overflow-hidden bg-gradient-to-br from-[#0A0E1A] via-[#0E1426] to-[#0A0E1A] text-white"
+      className="relative section-y-compact overflow-hidden bg-surface-1"
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[360px] rounded-full bg-primary/20 blur-[100px] pointer-events-none" />
-      <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")" }} />
-
-      <div className="relative max-w-3xl mx-auto">
+      <div className="relative container-ih max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-8 sm:p-12 text-center"
+          className="card-base p-8 sm:p-12 text-center"
         >
-          <div className="text-[11px] font-bold text-primary/80 tracking-widest uppercase mb-4">
+          <div className="eyebrow mb-4">
             {t(s.eyebrow)}
           </div>
 
-          <h2 className="text-[26px] sm:text-[34px] font-black text-white leading-snug mb-4">
+          <h2 className="t-h2 mb-4">
             {t(s.title)}{" "}
             <span className="text-accent-gradient">{t(s.highlight)}</span>
           </h2>
 
-          <p className="text-[14px] sm:text-[15px] text-white/65 leading-relaxed max-w-xl mx-auto mb-8">
+          <p className="t-body max-w-xl mx-auto mb-8">
             {t(s.body)}
           </p>
 
@@ -47,7 +44,7 @@ export function BecomeMentorBand() {
             {badges.map((b) => (
               <span
                 key={b.label}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium bg-primary/10 border border-primary/20 text-primary/80"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-caption font-medium bg-primary-soft border border-primary/20 text-primary"
               >
                 {b.icon}
                 {b.label}
@@ -57,7 +54,7 @@ export function BecomeMentorBand() {
 
           <Link
             href="/become-mentor?ref=home-banner"
-            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-[14px] hover:shadow-soft-hover hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/25"
+            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
             data-testid="cta-become-mentor"
             onClick={() => console.log("[analytics] become-mentor cta clicked", { ref: "home-banner" })}
           >

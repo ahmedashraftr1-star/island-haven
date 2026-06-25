@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
 
 const FALLBACK = {
   eyebrow: "فعاليّات آيلاند · Events",
@@ -84,18 +85,15 @@ export function NewsSlider() {
   return (
     <section
       id="events-slider"
-      className="relative bg-background py-20 lg:py-28 border-t border-border"
+      className="relative bg-surface-1 section-y"
     >
-      <div className="container mx-auto px-6 lg:px-10 max-w-[1500px]">
-        <div className="flex items-end justify-between gap-6 mb-8 lg:mb-10">
+      <div className="container-ih">
+        <div className="flex items-end justify-between gap-6 mb-[clamp(2rem,4vw,3.5rem)]">
           <div>
-            <div className="text-[11px] tracking-[0.18em] uppercase text-primary font-bold mb-3">
+            <div className="eyebrow mb-4">
               {c.eyebrow}
             </div>
-            <h2
-              className="font-bold text-foreground tracking-tight leading-[1.1]"
-              style={{ fontSize: "clamp(1.85rem, 4.2vw, 3rem)" }}
-            >
+            <h2 className="t-h2 !text-foreground max-w-2xl">
               {c.title}
             </h2>
           </div>
@@ -104,7 +102,7 @@ export function NewsSlider() {
               type="button"
               onClick={() => scrollBy(1)}
               aria-label={c.prevAria}
-              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border-strong bg-surface-2 text-foreground hover:bg-primary/10 hover:border-primary/35 hover:text-primary transition-colors flex items-center justify-center"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -112,7 +110,7 @@ export function NewsSlider() {
               type="button"
               onClick={() => scrollBy(-1)}
               aria-label={c.nextAria}
-              className="w-11 h-11 rounded-full border border-border bg-card text-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors flex items-center justify-center"
+              className="w-11 h-11 rounded-full border border-border-strong bg-surface-2 text-foreground hover:bg-primary/10 hover:border-primary/35 hover:text-primary transition-colors flex items-center justify-center"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -132,21 +130,21 @@ export function NewsSlider() {
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="shrink-0 w-[320px] h-[380px] rounded-3xl bg-foreground/[0.04] animate-pulse"
+                className="shrink-0 w-[320px] h-[380px] rounded-[20px] card-base skeleton-shimmer"
               />
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="rounded-3xl bg-foreground/[0.03] border border-dashed border-border p-12 text-center">
-            <Calendar className="w-7 h-7 mx-auto mb-3 text-foreground/30" />
-            <p className="text-foreground/65 text-[14px]">
+          <div className="rounded-[20px] surface-1 border border-dashed border-border-strong p-12 text-center">
+            <Calendar className="w-7 h-7 mx-auto mb-3 text-muted-foreground" />
+            <p className="text-fg-secondary t-body">
               {c.emptyText}
             </p>
           </div>
         ) : (
           <div
             ref={trackRef}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-10 lg:px-10 scroll-smooth scrollbar-thin"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth scrollbar-thin"
             style={{ scrollbarColor: "transparent transparent" }}
           >
             {posts.map((p, i) => (
@@ -155,13 +153,13 @@ export function NewsSlider() {
                 data-card
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.55, delay: Math.min(i, 4) * 0.06 }}
+                viewport={VIEWPORT}
+                transition={{ duration: 0.55, delay: Math.min(i, 4) * 0.06, ease: EASE_OUT_EXPO }}
                 className="snap-start shrink-0 w-[300px] sm:w-[340px]"
               >
                 <Link
                   href={`/events/${p.id}`}
-                  className="group block rounded-3xl bg-card border border-border overflow-hidden shadow-[0_18px_44px_-22px_rgba(0,0,0,0.7)] hover:border-primary/25 hover:shadow-[0_28px_64px_-20px_rgba(220,68,84,0.28)] hover:-translate-y-1 transition-all duration-500"
+                  className="group block rounded-[20px] card-base card-hover overflow-hidden"
                   data-testid={`event-card-${p.id}`}
                 >
                   <div className="aspect-[4/3] overflow-hidden relative">
@@ -209,23 +207,23 @@ export function NewsSlider() {
                         </div>
                       </div>
                     )}
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10.5px] tracking-[0.16em] uppercase text-primary font-bold">
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-3/90 backdrop-blur border border-white/10 eyebrow !text-primary">
                       {typeLabels[p.type]}
                     </div>
                   </div>
                   <div className="p-5">
-                    <div className="text-[11px] text-foreground/65 mb-2 font-medium tabular-nums">
+                    <div className="t-caption !text-muted-foreground mb-2 font-mono tnum">
                       {formatDate(p.publishedAt, lang)}
                     </div>
-                    <h3 className="text-foreground font-bold text-[16px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">
+                    <h3 className="t-h3 !text-foreground line-clamp-2 group-hover:text-primary transition-colors min-h-[2.6em]">
                       {p.title}
                     </h3>
                     {p.body && (
-                      <p className="mt-2 text-[12.5px] text-foreground/60 leading-relaxed line-clamp-2 min-h-[2.6em]">
+                      <p className="mt-2 t-caption !text-muted-foreground line-clamp-2 min-h-[2.6em]">
                         {trimExcerpt(p.body, 90)}
                       </p>
                     )}
-                    <div className="mt-4 flex items-center gap-1.5 text-[12.5px] font-semibold text-primary">
+                    <div className="mt-4 flex items-center gap-1.5 t-caption font-semibold text-primary">
                       {c.ctaCard}
                       <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1" />
                     </div>

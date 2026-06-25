@@ -1,7 +1,7 @@
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { ArrowLeft, Armchair, Users, Rocket, Network } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Reveal } from "@/components/landing/Reveal";
 
 /**
  * WhatYouGet — the incubator's core promise, stated plainly. Every world-class
@@ -55,61 +55,47 @@ export function WhatYouGet() {
   ];
 
   return (
-    <section id="what-you-get" className="relative bg-muted/40 py-20 lg:py-28 border-t border-border">
-      <div className="container mx-auto px-6 lg:px-12 max-w-[1500px]">
-        <div className="max-w-2xl mb-12 lg:mb-16">
-          <div className="text-[11px] tracking-[0.2em] uppercase text-primary font-bold mb-3">
+    <section id="what-you-get" className="relative bg-surface-1 section-y">
+      <div className="container-ih">
+        <Reveal as="header" className="max-w-2xl mb-[clamp(2rem,4vw,3.5rem)]">
+          <div className="eyebrow mb-4">
             {t({ ar: "ماذا تأخذ من آيلاند", en: "What you get" })}
           </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(1.95rem, 4.6vw, 3.4rem)", letterSpacing: "-0.03em" }}
-          >
+          <h2 className="t-h2">
             {t({ ar: "كلّ ما تحتاجه ", en: "Everything you need " })}
             <span className="text-accent-gradient">
               {t({ ar: "لتبدأ وتنمو", en: "to start and grow" })}
             </span>
           </h2>
-          <p className="mt-4 text-foreground/60 text-[15px] leading-relaxed">
+          <p className="t-body mt-3">
             {t({
               ar: "حاضنة كاملة — مساحة، إرشاد، برامج، وشبكة — مجّانًا، من قلب غزّة.",
               en: "A full incubator — space, mentorship, programs and a network — free, from the heart of Gaza.",
             })}
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {pillars.map((p, i) => {
             const Icon = p.icon;
             return (
-              <motion.div
-                key={p.href}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: i * 0.07 }}
-                className="h-full"
-              >
+              <Reveal key={p.href} delay={i * 0.07} className="h-full">
                 <Link
                   href={p.href}
-                  className="group flex flex-col h-full rounded-3xl bg-card border border-border p-7 hover:border-primary/40 hover:-translate-y-1 transition-all duration-500 shadow-soft hover:shadow-soft-hover"
+                  className="card-base card-hover group flex flex-col h-full p-7"
                   data-testid={`pillar-${p.href.slice(1)}`}
                 >
-                  <div className="tile-soft w-12 h-12 rounded-2xl flex items-center justify-center mb-5">
-                    <Icon className="w-5 h-5" strokeWidth={2.2} />
+                  <div className="icon-tile mb-5">
+                    <Icon className="w-5 h-5" strokeWidth={2} />
                   </div>
-                  <h3 className="text-foreground font-bold text-[17px] mb-2 leading-snug">
-                    {p.title}
-                  </h3>
-                  <p className="text-foreground/65 text-[13.5px] leading-relaxed flex-1">
-                    {p.body}
-                  </p>
+                  <h3 className="t-h3 mb-2">{p.title}</h3>
+                  <p className="t-body text-[14px] flex-1">{p.body}</p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-primary group-hover:gap-2.5 transition-all">
                     {p.cta}
-                    <ArrowLeft className="w-4 h-4 rtl:rotate-180 ltr:rotate-180" />
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
                   </span>
                 </Link>
-              </motion.div>
+              </Reveal>
             );
           })}
         </div>

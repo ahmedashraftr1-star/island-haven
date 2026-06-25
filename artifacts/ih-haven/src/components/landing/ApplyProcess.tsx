@@ -55,8 +55,8 @@ function isUpcoming(s: CohortStatus): boolean {
 function Dot() {
   return (
     <span className="relative flex h-2 w-2">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/60 animate-ping" />
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+      <span className="absolute inline-flex h-full w-full rounded-full bg-accent-2/60 animate-ping" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-2" />
     </span>
   );
 }
@@ -141,13 +141,13 @@ export function ApplyProcess() {
   const cohortLine = cohort ? (
     <>
       {cohort.status === "open" && <Dot />}
-      <CalendarDays className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+      <CalendarDays className="w-3.5 h-3.5 text-accent-2" strokeWidth={2} />
       <span>
         {cohort.status === "open"
           ? t({ ar: "التقديم مفتوح الآن", en: "Applications open now" })
           : t({ ar: "الدفعة القادمة", en: "Next cohort" })}
         {" · "}
-        <span className="text-white font-semibold">{cohort.name}</span>
+        <span className="text-foreground font-semibold">{cohort.name}</span>
         {cohort.startsAt && (
           <>
             {" — "}
@@ -171,37 +171,24 @@ export function ApplyProcess() {
   return (
     <section
       id="how-to-join"
-      className="relative bg-background py-20 lg:py-28 border-t border-foreground/10 overflow-hidden"
+      className="relative bg-surface-1 section-y overflow-hidden"
     >
-      {/* Cinematic backdrop glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 45% at 50% 0%, hsl(354 80% 55% / 0.10) 0%, transparent 60%)",
-        }}
-      />
-
-      <div className="relative container mx-auto px-6 lg:px-12 max-w-[1500px]">
+      <div className="relative container-ih">
         {/* Header */}
-        <div className="max-w-3xl mb-12 lg:mb-16">
+        <div className="max-w-3xl mb-[clamp(2rem,4vw,3.5rem)]">
           <div className="flex items-center gap-3 mb-6">
-            <span className="h-[1px] w-10 bg-primary/40" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-semibold">
-              {t({ ar: "كيف تنضمّ · How to join", en: "How to join" })}
+            <span className="h-px w-10 bg-primary/40" />
+            <span className="eyebrow">
+              {t({ ar: "كيف تنضمّ", en: "How to join" })}
             </span>
           </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(2rem, 5.4vw, 4.25rem)", lineHeight: 1.02, letterSpacing: "-0.03em" }}
-          >
+          <h2 className="t-h1">
             {t({ ar: "من طلب واحد ", en: "From one application " })}
             <span className="text-accent-gradient">
               {t({ ar: "إلى يوم العرض", en: "to Demo Day" })}
             </span>
           </h2>
-          <p className="mt-6 text-foreground/65 text-[15px] lg:text-[17px] leading-relaxed max-w-2xl">
+          <p className="t-body-lg mt-6 max-w-2xl">
             {t({
               ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
               en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
@@ -209,7 +196,7 @@ export function ApplyProcess() {
           </p>
 
           {/* Next-cohort / rolling-intake line */}
-          <div className="mt-7 inline-flex items-center gap-2.5 rounded-full px-4 py-2 bg-white/[0.04] border border-white/10 text-[12.5px] text-white/70 backdrop-blur-md">
+          <div className="mt-7 inline-flex items-center gap-2.5 rounded-full px-4 py-2 bg-surface-2 border border-border-strong text-caption text-fg-secondary tnum">
             {cohortLine}
           </div>
         </div>
@@ -233,32 +220,32 @@ export function ApplyProcess() {
               >
                 {/* Connector arrow between steps (desktop, LTR + RTL aware) */}
                 {!isLast && (
-                  <div className="hidden lg:flex absolute top-12 -end-[14px] z-10 items-center justify-center text-foreground/25">
+                  <div className="hidden lg:flex absolute top-12 -end-[14px] z-10 items-center justify-center text-fg-faint">
                     <ArrowLeft className="w-5 h-5 rtl:rotate-0 ltr:rotate-180" strokeWidth={2} />
                   </div>
                 )}
-                <div className="group flex flex-col h-full rounded-3xl bg-card border border-border p-7 hover:border-primary/40 hover:-translate-y-1 transition-all duration-500 shadow-soft hover:shadow-soft-hover">
+                <div className="group card-base card-hover flex flex-col h-full p-7 lg:p-8">
                   <div className="flex items-center justify-between mb-5">
-                    <div className="tile-soft w-12 h-12 rounded-2xl flex items-center justify-center">
-                      <Icon className="w-5 h-5" strokeWidth={2.2} />
+                    <div className="icon-tile">
+                      <Icon className="w-5 h-5" strokeWidth={2} />
                     </div>
                     <span
                       dir="ltr"
-                      className="font-display text-[34px] leading-none font-extrabold text-foreground/10 group-hover:text-primary/30 transition-colors tabular-nums"
+                      className="font-display text-[34px] leading-none font-extrabold text-foreground/10 group-hover:text-primary/30 transition-colors tnum"
                     >
                       {s.no}
                     </span>
                   </div>
-                  <div className="text-[10.5px] tracking-[0.18em] uppercase text-primary/80 font-semibold mb-1.5">
+                  <div className="eyebrow mb-2">
                     {s.en}
                   </div>
-                  <h3 className="text-foreground font-bold text-[17px] leading-snug mb-2">
+                  <h3 className="t-h3 mb-2">
                     {s.title}
                   </h3>
-                  <p className="text-foreground/65 text-[13.5px] leading-relaxed flex-1">
+                  <p className="t-body flex-1 text-[14px]">
                     {s.body}
                   </p>
-                  <div className="mt-5 inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-foreground/55">
+                  <div className="mt-5 inline-flex items-center gap-1.5 text-caption font-semibold text-muted-foreground tnum">
                     <Clock className="w-3.5 h-3.5" />
                     {s.meta}
                   </div>
@@ -279,20 +266,20 @@ export function ApplyProcess() {
           <Link
             href="/apply"
             data-testid="apply-process-cta"
-            className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full bg-primary text-primary-foreground font-bold text-[14.5px] tracking-wide hover:-translate-y-px transition-all duration-300 hover:shadow-[0_18px_40px_-12px_hsl(354_80%_55%_/_0.55)]"
+            className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full bg-primary text-primary-foreground font-bold text-[14.5px] tracking-wide transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
           >
             {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
           </Link>
           <Link
             href="/process"
-            className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-foreground/65 hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 text-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
           </Link>
           <Link
             href="/cohorts"
-            className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-foreground/65 hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 text-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
           </Link>

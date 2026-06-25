@@ -56,7 +56,7 @@ export function Header() {
           : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-5 lg:px-8 max-w-[1500px] flex items-center justify-between gap-4">
+      <div className="container-ih flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="relative">
             <div
@@ -159,7 +159,7 @@ export function Header() {
                     }`}
                   >
                     <span>{l.label}</span>
-                    <span className="text-[10px] tracking-[0.16em] uppercase text-foreground/55 font-semibold">
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-foreground/55 font-semibold">
                       {l.en}
                     </span>
                   </Link>
