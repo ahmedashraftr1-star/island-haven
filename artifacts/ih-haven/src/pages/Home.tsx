@@ -46,7 +46,7 @@ export default function Home() {
     }
   }, []);
   return (
-    <div className="theme-light min-h-screen bg-background font-sans antialiased relative">
+    <div className="min-h-screen bg-background font-sans antialiased relative">
       <ScrollProgress />
       <Header />
       <div className="relative z-10">

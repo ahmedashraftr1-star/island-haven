@@ -34,7 +34,7 @@ export function PageShell({
   return (
     <div
       dir={dir}
-      className="theme-light relative min-h-screen overflow-hidden bg-background text-foreground"
+      className="relative min-h-screen overflow-hidden bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[45vh] brand-aura opacity-50" />

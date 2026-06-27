@@ -9,7 +9,7 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  * WhyIslandHaven — "لماذا آيلاند؟ / Why Island Haven" told as the incubator's
  * thesis: we don't hand out hope, we hand over infrastructure. A light editorial
  * section (warm-white canvas, deep-navy ink, crimson accents — inherited from the
- * page's .theme-light) with a serif font-editorial header carrying one italic
+ * page's .) with a serif font-editorial header carrying one italic
  * crimson accent word, then the THREE STRATEGIC AXES as a strong asymmetric
  * layout: a sticky thesis column on one side, and the axes as numbered (٠١/٠٢/٠٣
  * in cerulean) card-base panels with depth on the other. No icon-tile grids, no

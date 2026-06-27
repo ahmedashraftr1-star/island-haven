@@ -213,7 +213,7 @@ export default function Book() {
   return (
     <div
       dir={lang === "en" ? "ltr" : "rtl"}
-      className="theme-light relative min-h-screen overflow-hidden bg-surface-1 text-foreground"
+      className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground"
     >
       <BackgroundAura />
 
@@ -755,7 +755,7 @@ function ExpertProfileModal({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.97 }}
         transition={{ duration: 0.26, ease: [0.19, 1, 0.22, 1] }}
-        className="relative z-10 w-full sm:max-w-md theme-light bg-surface-2 border border-border-strong rounded-t-3xl sm:rounded-3xl shadow-[0_40px_90px_-30px_rgba(15,32,64,0.4)] overflow-hidden"
+        className="relative z-10 w-full sm:max-w-md bg-surface-2 border border-border-strong rounded-t-3xl sm:rounded-3xl shadow-[0_40px_90px_-30px_rgba(15,32,64,0.4)] overflow-hidden"
         dir={lang === "en" ? "ltr" : "rtl"}
       >
         <button
@@ -1496,7 +1496,7 @@ function SuccessScreen({
   return (
     <div
       dir={lang === "en" ? "ltr" : "rtl"}
-      className="theme-light relative min-h-screen overflow-hidden bg-surface-1 text-foreground flex items-center justify-center px-6 py-16"
+      className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground flex items-center justify-center px-6 py-16"
     >
       <BackgroundAura />
       <Confetti />

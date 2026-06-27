@@ -18,7 +18,7 @@ const DAYS = [
   { ar: "جمعة", en: "Fri", idx: 5, closed: true },
 ];
 
-// Brand-token SVG colors resolved from the live (.theme-light-inherited) canvas
+// Brand-token SVG colors resolved from the live (.-inherited) canvas
 // so the dial reads on white: muted neutral track, crimson active range, cerulean
 // accents, deep-navy ink. Live status open = an AA green, otherwise muted.
 const INK = "hsl(219 47% 13%)"; // foreground (deep-navy ink)
