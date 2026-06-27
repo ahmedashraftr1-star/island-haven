@@ -56,26 +56,26 @@ export function PageShell({
 
           <nav
             aria-label={navLabel}
-            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-surface-2 border border-border-strong shadow-soft"
+            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md"
           >
-            <NavRail tone="onLight" pillId="shell-rail" />
+            <NavRail tone="onDark" pillId="shell-rail" />
           </nav>
 
           <div className="flex items-center gap-2">
             <Link
               href="/search"
               aria-label={t({ ar: "بحث", en: "Search" })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-2 border border-border-strong hover:bg-surface-3 transition-colors"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
               data-testid="link-search"
             >
-              <Search className="w-4 h-4 text-muted-foreground" />
+              <Search className="w-4 h-4 text-white/70" />
             </Link>
-            <LangToggle tone="onLight" />
+            <LangToggle tone="onDark" />
             {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (
               <Link
                 href="/profile"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border-strong text-[12.5px] font-semibold hover:bg-surface-3 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold text-white hover:bg-white/[0.1] transition-colors"
                 data-testid="link-profile"
               >
                 <UserCircle2 className="w-4 h-4 text-primary" />
@@ -84,13 +84,22 @@ export function PageShell({
             ) : !loading ? (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border-strong text-[12.5px] font-semibold hover:bg-surface-3 transition-colors"
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold text-white hover:bg-white/[0.1] transition-colors"
                 data-testid="link-login"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 {lang === "en" ? "Login" : "دخول"}
               </Link>
             ) : null}
+            {/* Primary CTA — consistent with the homepage header (was missing here) */}
+            <Link
+              href="/apply"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold cta-fill shadow-soft hover:scale-[1.03] transition-transform"
+              data-testid="shell-apply"
+            >
+              {lang === "en" ? "Apply" : "انتسب"}
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+            </Link>
           </div>
         </div>
 
@@ -98,9 +107,9 @@ export function PageShell({
             bar never changes shape between breakpoints or pages. */}
         <nav
           aria-label={navLabel}
-          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-surface-2 border border-border-strong [&::-webkit-scrollbar]:hidden"
+          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md [&::-webkit-scrollbar]:hidden"
         >
-          <NavRail tone="onLight" pillId="shell-scroll" />
+          <NavRail tone="onDark" pillId="shell-scroll" />
         </nav>
       </header>
 
