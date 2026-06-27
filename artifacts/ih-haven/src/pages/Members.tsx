@@ -139,14 +139,14 @@ export default function Members() {
     >
       <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-8 items-center">
         <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
           <input
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={c.searchPlaceholder}
             aria-label={c.searchPlaceholder}
-            className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
+            className="w-full h-12 pe-11 ps-4 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-surface-2 transition-colors"
             data-testid="input-search-members"
           />
         </div>
@@ -161,14 +161,14 @@ export default function Members() {
                 aria-pressed={active ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border flex items-center gap-1.5 ${
                   active
-                    ? "bg-primary/20 text-white border-primary/40"
-                    : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                    ? "bg-primary/20 text-foreground border-primary/40"
+                    : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
                 }`}
                 data-testid={`filter-role-${f.key || "all"}`}
               >
                 <span>{f.label}</span>
                 {active && total !== null && (
-                  <span className="text-[10.5px] text-white/55 tabular-nums">
+                  <span className="text-[10.5px] text-muted-foreground tabular-nums">
                     {total.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
                   </span>
                 )}
@@ -179,7 +179,7 @@ export default function Members() {
       </div>
 
       {error && !rows && (
-        <GlassCard className="p-6 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-6 text-center text-destructive">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -187,7 +187,7 @@ export default function Members() {
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="h-72 rounded-[24px] bg-white/[0.035] border border-white/10 animate-pulse"
+              className="h-72 rounded-[24px] bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -216,7 +216,7 @@ export default function Members() {
             onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
             aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           ><span aria-hidden="true">←</span></button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -225,11 +225,11 @@ export default function Members() {
               acc.push(p); return acc;
             }, [])
             .map((p, i) => p === "…"
-              ? <span key={`e${i}`} className="text-white/30 text-[13px] px-1">…</span>
+              ? <span key={`e${i}`} className="text-fg-faint text-[13px] px-1">…</span>
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-white/[0.07] border border-white/15 text-white/70 hover:bg-white/[0.11]"}`}
+                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}
                 >{p}</button>
             )}
           <button
@@ -237,7 +237,7 @@ export default function Members() {
             onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           ><span aria-hidden="true">→</span></button>
         </nav>
       )}
@@ -259,7 +259,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
       <GlassCard className="h-full p-6 hover:border-primary/45 transition-colors flex flex-col">
         <div className="flex items-start gap-4 mb-4">
           <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[20px] font-bold text-white shadow-[0_8px_30px_-12px_rgba(220,38,55,0.55)]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[20px] font-bold text-foreground shadow-[0_8px_30px_-12px_rgba(220,38,55,0.55)]">
               {m.avatarUrl ? (
                 <img src={m.avatarUrl} alt={m.fullName} className="w-full h-full object-cover" />
               ) : (
@@ -271,11 +271,11 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
             <div className="text-[10px] tracking-[0.18em] uppercase text-primary font-bold mb-1">
               {ROLE_LABELS[m.role]}
             </div>
-            <h3 className="text-white font-bold text-[16.5px] leading-tight truncate group-hover:text-primary transition-colors">
+            <h3 className="text-foreground font-bold text-[16.5px] leading-tight truncate group-hover:text-primary transition-colors">
               {m.fullName}
             </h3>
             {m.jobTitle && (
-              <div className="text-white/65 text-[12.5px] mt-1 truncate flex items-center gap-1.5">
+              <div className="text-fg-secondary text-[12.5px] mt-1 truncate flex items-center gap-1.5">
                 <Briefcase className="w-3 h-3 shrink-0" />
                 <span className="truncate">{m.jobTitle}</span>
               </div>
@@ -284,11 +284,11 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
         </div>
 
         {m.bio ? (
-          <p className="text-white/70 text-[13px] leading-[1.85] line-clamp-3 mb-4 flex-1">
+          <p className="text-fg-secondary text-[13px] leading-[1.85] line-clamp-3 mb-4 flex-1">
             {m.bio}
           </p>
         ) : (
-          <p className="text-white/55 text-[13px] italic mb-4 flex-1">
+          <p className="text-muted-foreground text-[13px] italic mb-4 flex-1">
             {t({ ar: "لا توجد نبذة بعد.", en: "No bio yet." })}
           </p>
         )}
@@ -307,26 +307,26 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
         )}
 
         <div className="flex items-center justify-between pt-3 border-t border-white/8 text-[12px]">
-          <div className="flex items-center gap-2 text-white/55">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums">
               {m.worksCount.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
             </span>
-            <span className="text-white/60">{worksLabel}</span>
+            <span className="text-muted-foreground">{worksLabel}</span>
           </div>
           <div className="flex items-center gap-2">
             {m.linkedinUrl && (
-              <span className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/55">
+              <span className="w-7 h-7 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-muted-foreground">
                 <Linkedin className="w-3 h-3" />
               </span>
             )}
             {m.githubUrl && (
-              <span className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/55">
+              <span className="w-7 h-7 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-muted-foreground">
                 <Github className="w-3 h-3" />
               </span>
             )}
             {m.portfolioUrl && (
-              <span className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/55">
+              <span className="w-7 h-7 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-muted-foreground">
                 <Globe className="w-3 h-3" />
               </span>
             )}

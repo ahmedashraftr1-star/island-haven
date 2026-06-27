@@ -118,7 +118,7 @@ export default function Numbers() {
       })}
     >
       {error && (
-        <GlassCard className="p-6 text-center text-red-200 mb-8">{error}</GlassCard>
+        <GlassCard className="p-6 text-center text-destructive mb-8">{error}</GlassCard>
       )}
 
       <div className="space-y-10">
@@ -160,13 +160,13 @@ function Group({
   return (
     <section>
       <div className="flex items-baseline gap-3 mb-5">
-        <h2 className="text-white font-bold text-[20px] tracking-tight">{title}</h2>
+        <h2 className="text-foreground font-bold text-[20px] tracking-tight">{title}</h2>
         {lang === "ar" && (
-          <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-bold">
+          <span className="text-[10.5px] tracking-[0.22em] uppercase text-muted-foreground font-bold">
             {en}
           </span>
         )}
-        <span className="flex-1 h-px bg-white/10" />
+        <span className="flex-1 h-px bg-surface-2" />
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         {children}
@@ -196,12 +196,12 @@ function Tile({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5 }}
-      className={`relative rounded-3xl p-5 lg:p-6 bg-white/[0.05] border border-white/10 backdrop-blur-md overflow-hidden ${
+      className={`relative rounded-3xl p-5 lg:p-6 bg-surface-2 border border-border-strong backdrop-blur-md overflow-hidden ${
         big ? "lg:col-span-2" : ""
       }`}
       data-testid={`numbers-page-tile-${en.toLowerCase().replace(/\s+/g, "-")}`}
     >
-      <div className="flex items-center gap-2.5 mb-4 text-white/55">
+      <div className="flex items-center gap-2.5 mb-4 text-muted-foreground">
         <span className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
           <Icon className="w-4 h-4" strokeWidth={2.2} />
         </span>
@@ -212,19 +212,19 @@ function Tile({
         )}
       </div>
       <div
-        className="font-bold text-white leading-none mb-2 tabular-nums"
+        className="font-bold text-foreground leading-none mb-2 tabular-nums"
         style={{
           fontSize: big ? "clamp(2.6rem, 6vw, 4.4rem)" : "clamp(2rem, 4.6vw, 3rem)",
           letterSpacing: "-0.03em",
         }}
       >
         {value === undefined ? (
-          <span className="text-white/40">—</span>
+          <span className="text-fg-faint">—</span>
         ) : (
           <CountUp value={value} lang={lang} />
         )}
       </div>
-      <div className="text-[13.5px] font-semibold text-white/75">{label}</div>
+      <div className="text-[13.5px] font-semibold text-fg-secondary">{label}</div>
     </motion.div>
   );
 }

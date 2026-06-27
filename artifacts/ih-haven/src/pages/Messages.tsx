@@ -117,7 +117,7 @@ export default function Messages() {
   if (loading || !user) {
     return (
       <PageShell active="messages">
-        <div className="h-[60vh] rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-[60vh] rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -134,7 +134,7 @@ export default function Messages() {
       })}
     >
       {error && (
-        <GlassCard className="p-4 text-red-200 text-center mb-5">
+        <GlassCard className="p-4 text-destructive text-center mb-5">
           {error}
         </GlassCard>
       )}
@@ -142,8 +142,8 @@ export default function Messages() {
       <div className="grid lg:grid-cols-[340px_1fr] gap-5 min-h-[60vh]">
         {/* ─── Conversation list ─────────────────────────────────────────── */}
         <GlassCard className="flex flex-col">
-          <div className="flex items-center justify-between gap-3 p-4 border-b border-white/[0.07]">
-            <div className="text-white font-bold text-[15px]">
+          <div className="flex items-center justify-between gap-3 p-4 border-b border-border-strong">
+            <div className="text-foreground font-bold text-[15px]">
               {t({ ar: "محادثاتي", en: "My conversations" })}
             </div>
             <button
@@ -162,12 +162,12 @@ export default function Messages() {
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="h-16 rounded-2xl bg-white/[0.035] border border-white/10 animate-pulse"
+                    className="h-16 rounded-2xl bg-white/[0.035] border border-border-strong animate-pulse"
                   />
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="p-6 text-center text-white/45 text-[13px]">
+              <div className="p-6 text-center text-fg-faint text-[13px]">
                 {t({
                   ar: "لا محادثات بعد. ابدأ واحدة من زرّ «رسالة جديدة».",
                   en: "No conversations yet. Start one with the “New message” button.",
@@ -183,7 +183,7 @@ export default function Messages() {
                       className={`w-full text-start flex items-center gap-3 p-3 rounded-2xl transition-colors border ${
                         activeId === c.id
                           ? "bg-primary/15 border-primary/40"
-                          : "bg-white/[0.02] border-transparent hover:bg-white/[0.05]"
+                          : "bg-surface-2 border-transparent hover:bg-surface-2"
                       }`}
                       data-testid={`conversation-${c.id}`}
                     >
@@ -193,10 +193,10 @@ export default function Messages() {
                         size={40}
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-white font-semibold text-[13.5px] truncate">
+                        <span className="block text-foreground font-semibold text-[13.5px] truncate">
                           {c.otherFullName}
                         </span>
-                        <span className="block text-white/45 text-[12px] truncate">
+                        <span className="block text-fg-faint text-[12px] truncate">
                           {c.lastMessage || "…"}
                         </span>
                       </span>
@@ -327,17 +327,17 @@ function Thread({
   return (
     <GlassCard className="flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/[0.07]">
+      <div className="flex items-center gap-3 p-4 border-b border-border-strong">
         <Avatar
           url={conversation.otherAvatarUrl}
           name={conversation.otherFullName}
           size={40}
         />
         <div className="min-w-0">
-          <div className="text-white font-bold text-[14.5px] truncate">
+          <div className="text-foreground font-bold text-[14.5px] truncate">
             {conversation.otherFullName}
           </div>
-          <div className="text-white/60 text-[11.5px]">
+          <div className="text-muted-foreground text-[11.5px]">
             {t({ ar: "منتسب · Island Haven", en: "Member · Island Haven" })}
           </div>
         </div>
@@ -353,14 +353,14 @@ function Thread({
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className={`h-10 w-2/3 rounded-2xl bg-white/[0.04] animate-pulse ${
+                className={`h-10 w-2/3 rounded-2xl bg-surface-2 animate-pulse ${
                   i % 2 ? "" : "ms-auto"
                 }`}
               />
             ))}
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-white/65 text-[13px]">
+          <div className="h-full flex items-center justify-center text-fg-secondary text-[13px]">
             {t({
               ar: "لا رسائل بعد — اكتب أوّل رسالة في الأسفل.",
               en: "No messages yet — write the first one below.",
@@ -381,13 +381,13 @@ function Thread({
                   className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-[1.7] whitespace-pre-wrap break-words ${
                     mine
                       ? "bg-primary text-white rounded-bl-md"
-                      : "bg-white/[0.06] text-white/90 border border-white/10 rounded-br-md"
+                      : "bg-surface-2 text-foreground border border-border-strong rounded-br-md"
                   }`}
                 >
                   {m.body}
                   <div
                     className={`mt-1 text-[10px] ${
-                      mine ? "text-white/75" : "text-white/55"
+                      mine ? "text-fg-secondary" : "text-muted-foreground"
                     }`}
                   >
                     {formatDateTime(m.createdAt, lang)}
@@ -402,7 +402,7 @@ function Thread({
       {/* Composer */}
       <form
         onSubmit={onSend}
-        className="p-3 border-t border-white/[0.07] flex items-end gap-2"
+        className="p-3 border-t border-border-strong flex items-end gap-2"
       >
         <textarea
           value={draft}
@@ -416,7 +416,7 @@ function Thread({
           rows={1}
           maxLength={4000}
           placeholder={t({ ar: "اكتب رسالتك…", en: "Write your message…" })}
-          className="flex-1 resize-none rounded-2xl bg-white/[0.05] border border-white/12 px-4 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 leading-[1.7] max-h-32"
+          className="flex-1 resize-none rounded-2xl bg-surface-2 border border-white/12 px-4 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 leading-[1.7] max-h-32"
           data-testid="input-message"
         />
         <button
@@ -430,7 +430,7 @@ function Thread({
         </button>
       </form>
       {error && (
-        <div className="px-4 pb-3 text-red-300 text-[12px]">{error}</div>
+        <div className="px-4 pb-3 text-destructive text-[12px]">{error}</div>
       )}
     </GlassCard>
   );
@@ -485,8 +485,8 @@ function NewMessageModal({
         className="w-full max-w-md"
       >
         <GlassCard className="flex flex-col max-h-[70vh]">
-          <div className="flex items-center justify-between gap-3 p-4 border-b border-white/[0.07]">
-            <div className="inline-flex items-center gap-2 text-white font-bold text-[15px]">
+          <div className="flex items-center justify-between gap-3 p-4 border-b border-border-strong">
+            <div className="inline-flex items-center gap-2 text-foreground font-bold text-[15px]">
               <MessageSquare className="w-4 h-4 text-primary" />{" "}
               {t({ ar: "رسالة جديدة", en: "New message" })}
             </div>
@@ -494,15 +494,15 @@ function NewMessageModal({
               type="button"
               onClick={onClose}
               aria-label={t({ ar: "إغلاق", en: "Close" })}
-              className="p-1.5 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.06]"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-2"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="p-4 border-b border-white/[0.07]">
+          <div className="p-4 border-b border-border-strong">
             <div className="relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -510,7 +510,7 @@ function NewMessageModal({
                   ar: "ابحث عن منتسب بالاسم أو المهارة…",
                   en: "Search a member by name or skill…",
                 })}
-                className="w-full rounded-2xl bg-white/[0.05] border border-white/12 ps-10 pe-4 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50"
+                className="w-full rounded-2xl bg-surface-2 border border-white/12 ps-10 pe-4 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                 data-testid="input-member-search"
                 autoFocus
               />
@@ -519,11 +519,11 @@ function NewMessageModal({
 
           <div className="flex-1 overflow-y-auto p-2">
             {rows === null ? (
-              <div className="p-6 text-center text-white/45 text-[13px]">
+              <div className="p-6 text-center text-fg-faint text-[13px]">
                 {t({ ar: "جارِ التحميل…", en: "Loading…" })}
               </div>
             ) : rows.length === 0 ? (
-              <div className="p-6 text-center text-white/45 text-[13px]">
+              <div className="p-6 text-center text-fg-faint text-[13px]">
                 {t({ ar: "لا منتسبين مطابقين.", en: "No matching members." })}
               </div>
             ) : (
@@ -533,21 +533,21 @@ function NewMessageModal({
                     <button
                       type="button"
                       onClick={() => onPick(m.id)}
-                      className="w-full text-start flex items-center gap-3 p-3 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] transition-colors"
+                      className="w-full text-start flex items-center gap-3 p-3 rounded-2xl bg-surface-2 hover:bg-surface-2 transition-colors"
                       data-testid={`member-pick-${m.id}`}
                     >
                       <Avatar url={m.avatarUrl} name={m.fullName} size={40} />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-white font-semibold text-[13.5px] truncate">
+                        <span className="block text-foreground font-semibold text-[13.5px] truncate">
                           {m.fullName}
                         </span>
                         {m.jobTitle && (
-                          <span className="block text-white/45 text-[12px] truncate">
+                          <span className="block text-fg-faint text-[12px] truncate">
                             {m.jobTitle}
                           </span>
                         )}
                       </span>
-                      <ArrowRight className="w-4 h-4 text-white/50 -scale-x-100 rtl:scale-x-100" />
+                      <ArrowRight className="w-4 h-4 text-muted-foreground -scale-x-100 rtl:scale-x-100" />
                     </button>
                   </li>
                 ))}
@@ -578,7 +578,7 @@ function Avatar({
         alt={name}
         width={size}
         height={size}
-        className="rounded-full object-cover shrink-0 border border-white/10"
+        className="rounded-full object-cover shrink-0 border border-border-strong"
         style={{ width: size, height: size }}
       />
     );

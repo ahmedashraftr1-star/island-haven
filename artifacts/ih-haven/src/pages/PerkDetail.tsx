@@ -82,14 +82,14 @@ export default function PerkDetail() {
           href="/perks"
           label={t({ ar: "عودة للعروض", en: "Back to perks" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!p) {
     return (
       <PageShell active="perks">
-        <div className="h-80 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-80 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -130,13 +130,13 @@ export default function PerkDetail() {
             <img
               src={p.logoUrl}
               alt={p.partnerName}
-              className="w-16 h-16 rounded-2xl object-contain bg-white/[0.06] border border-white/10 p-1.5 shrink-0"
+              className="w-16 h-16 rounded-2xl object-contain bg-surface-2 border border-border-strong p-1.5 shrink-0"
             />
           )}
         </div>
 
         <h1
-          className="font-bold text-white leading-tight mb-2"
+          className="font-bold text-foreground leading-tight mb-2"
           style={{ fontSize: "clamp(1.5rem, 4vw, 2.2rem)" }}
           data-testid="text-perk-title"
         >
@@ -168,25 +168,25 @@ export default function PerkDetail() {
         </div>
 
         {p.description && (
-          <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
+          <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
             {p.description}
           </div>
         )}
 
         {p.code && (
           <div className="mb-7">
-            <div className="text-[10.5px] tracking-[0.18em] uppercase text-white/60 font-bold mb-2.5">
+            <div className="text-[10.5px] tracking-[0.18em] uppercase text-muted-foreground font-bold mb-2.5">
               {t({ ar: "رمز العرض", en: "Promo code" })}
             </div>
             <button
               type="button"
               onClick={copyCode}
-              className="group/code flex items-center justify-between gap-3 w-full sm:max-w-sm px-4 h-12 rounded-2xl bg-white/[0.05] border border-dashed border-white/25 hover:border-primary/45 transition-colors"
+              className="group/code flex items-center justify-between gap-3 w-full sm:max-w-sm px-4 h-12 rounded-2xl bg-surface-2 border border-dashed border-border-strong hover:border-primary/45 transition-colors"
               data-testid="button-copy-code"
             >
               <span className="inline-flex items-center gap-2 min-w-0">
                 <Ticket className="w-4 h-4 text-primary shrink-0" />
-                <span className="font-mono text-[14px] tracking-wide text-white/90 truncate" dir="ltr">
+                <span className="font-mono text-[14px] tracking-wide text-foreground truncate" dir="ltr">
                   {p.code}
                 </span>
               </span>
@@ -195,7 +195,7 @@ export default function PerkDetail() {
                   <Check className="w-4 h-4" /> {t({ ar: "نُسخ", en: "Copied" })}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[12px] text-white/55 group-hover/code:text-primary transition-colors shrink-0">
+                <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground group-hover/code:text-primary transition-colors shrink-0">
                   <Copy className="w-4 h-4" /> {t({ ar: "نسخ", en: "Copy" })}
                 </span>
               )}
@@ -216,7 +216,7 @@ export default function PerkDetail() {
             <ExternalLink className="w-4 h-4" />
           </a>
         ) : (
-          <div className="inline-flex items-center px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-white/55 text-[13.5px]">
+          <div className="inline-flex items-center px-5 py-3 rounded-2xl bg-surface-2 border border-border-strong text-muted-foreground text-[13.5px]">
             {t({
               ar: "للحصول على هذا العرض، تواصل مع فريق آيلاند هيفن.",
               en: "To claim this perk, get in touch with the Island Haven team.",
@@ -238,10 +238,10 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+    <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
-      <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
+      <div className="text-muted-foreground text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-foreground font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );
 }

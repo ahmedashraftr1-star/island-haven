@@ -33,7 +33,7 @@ const TYPE_COLORS: Record<string, string> = {
   vc: "bg-blue-500/15 text-blue-400 border-blue-500/20",
   corporate: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
   ngo: "bg-rose-500/15 text-rose-400 border-rose-500/20",
-  individual: "bg-white/10 text-white/50 border-white/10",
+  individual: "bg-surface-2 text-muted-foreground border-border-strong",
 };
 
 export default function Investors() {
@@ -92,20 +92,20 @@ export default function Investors() {
         <section>
           <div className="mb-6">
             <div className="text-[11px] font-bold text-primary/60 tracking-widest uppercase mb-1">Our Backers</div>
-            <h2 className="text-[20px] font-bold text-white">مستثمرونا وداعمونا</h2>
+            <h2 className="text-[20px] font-bold text-foreground">مستثمرونا وداعمونا</h2>
           </div>
 
           {isLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-36 rounded-2xl bg-white/[0.04] animate-pulse" />
+                <div key={i} className="h-36 rounded-2xl bg-surface-2 animate-pulse" />
               ))}
             </div>
           )}
 
           {!isLoading && investors.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-              <p className="text-white/65 text-[14px] font-semibold">يُعلَن عنهم قريباً.</p>
+            <div className="rounded-2xl border border-dashed border-border-strong p-12 text-center">
+              <p className="text-fg-secondary text-[14px] font-semibold">يُعلَن عنهم قريباً.</p>
             </div>
           )}
 
@@ -121,26 +121,26 @@ export default function Investors() {
                   <GlassCard className="p-5 h-full flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
                       {inv.logoUrl ? (
-                        <img src={inv.logoUrl} alt={inv.name} className="w-12 h-12 rounded-xl object-cover border border-white/10 flex-shrink-0" />
+                        <img src={inv.logoUrl} alt={inv.name} className="w-12 h-12 rounded-xl object-cover border border-border-strong flex-shrink-0" />
                       ) : (
-                        <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0 border border-white/[0.08]">
-                          <span className="text-xl font-bold text-white/60">{inv.name[0]}</span>
+                        <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center flex-shrink-0 border border-border-strong">
+                          <span className="text-xl font-bold text-muted-foreground">{inv.name[0]}</span>
                         </div>
                       )}
-                      <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[inv.type] ?? "bg-white/10 text-white/50 border-white/10"}`}>
+                      <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[inv.type] ?? "bg-surface-2 text-muted-foreground border-border-strong"}`}>
                         {(lang === "en" ? TYPE_LABELS_EN : TYPE_LABELS_AR)[inv.type] ?? inv.type}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-[15px] font-bold text-white">{inv.name}</h3>
+                      <h3 className="text-[15px] font-bold text-foreground">{inv.name}</h3>
                       {inv.investmentFocus && (
-                        <p className="text-[12px] text-white/60 mt-0.5">{inv.investmentFocus}</p>
+                        <p className="text-[12px] text-muted-foreground mt-0.5">{inv.investmentFocus}</p>
                       )}
                     </div>
 
                     {inv.description && (
-                      <p className="text-[13px] text-white/50 leading-relaxed flex-1">
+                      <p className="text-[13px] text-muted-foreground leading-relaxed flex-1">
                         {inv.description}
                       </p>
                     )}

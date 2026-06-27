@@ -81,7 +81,7 @@ function Copyable({ text }: { text: string }) {
       onClick={() => navigator.clipboard?.writeText(text)}
       title={t({ ar: "نسخ", en: "Copy" })}
       aria-label={t({ ar: "نسخ", en: "Copy" })}
-      className="inline-flex items-center gap-1.5 text-white/55 hover:text-primary transition-colors"
+      className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
     >
       <Copy className="w-3.5 h-3.5" aria-hidden="true" />
     </button>
@@ -113,12 +113,12 @@ export default function Press() {
       <GlassCard className="p-6 sm:p-8 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Newspaper className="w-4 h-4 text-primary" />
-          <h2 className="text-white font-bold text-[16px]">
+          <h2 className="text-foreground font-bold text-[16px]">
             {t({ ar: "نبذة للنشر", en: "Boilerplate" })}
           </h2>
           <Copyable text={t(BOILERPLATE)} />
         </div>
-        <p className="text-white/75 text-[14.5px] leading-[1.95]">{t(BOILERPLATE)}</p>
+        <p className="text-fg-secondary text-[14.5px] leading-[1.95]">{t(BOILERPLATE)}</p>
       </GlassCard>
 
       {/* Fast facts */}
@@ -130,13 +130,13 @@ export default function Press() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: i * 0.06 }}
-            className="rounded-2xl p-5 bg-white/[0.05] border border-white/10"
+            className="rounded-2xl p-5 bg-surface-2 border border-border-strong"
           >
             <f.icon className="w-5 h-5 text-primary mb-3" />
-            <div className="text-white font-bold text-[26px] leading-none mb-1.5 tabular-nums">
+            <div className="text-foreground font-bold text-[26px] leading-none mb-1.5 tabular-nums">
               {t(f.value)}
             </div>
-            <div className="text-white/55 text-[12px] leading-snug">{t(f.label)}</div>
+            <div className="text-muted-foreground text-[12px] leading-snug">{t(f.label)}</div>
           </motion.div>
         ))}
       </div>
@@ -145,7 +145,7 @@ export default function Press() {
       <GlassCard className="p-6 sm:p-8 mb-6 relative overflow-hidden">
         <Quote className="absolute -top-2 -right-2 w-24 h-24 text-primary/10" />
         <div className="relative">
-          <p className="text-white text-[17px] sm:text-[19px] font-semibold leading-[1.8] mb-4">
+          <p className="text-foreground text-[17px] sm:text-[19px] font-semibold leading-[1.8] mb-4">
             {t({
               ar: "«تنظيم فعاليّة بهذا الحجم تحت هذه الظروف يمثّل تحدّيًا كبيرًا ومباشرًا — عقولٌ تقهر الركام وتبني مستقبلًا رقميًّا لغزّة.»",
               en: "“Organizing an event of this scale under these conditions is a direct and immense challenge — minds that rise above the rubble and build a digital future for Gaza.”",
@@ -154,7 +154,7 @@ export default function Press() {
           <div className="text-primary font-bold text-[14px]">
             {t({ ar: "مهنّد جندية", en: "Muhannad Jundiyya" })}
           </div>
-          <div className="text-white/65 text-[12.5px]">
+          <div className="text-fg-secondary text-[12.5px]">
             {t({
               ar: "المدير ومؤسّس آيلاند هيفن",
               en: "Director & Founder of Island Haven",
@@ -165,41 +165,41 @@ export default function Press() {
 
       {/* In the media */}
       <GlassCard className="p-6 sm:p-8 mb-6">
-        <h2 className="text-white font-bold text-[16px] mb-4">
+        <h2 className="text-foreground font-bold text-[16px] mb-4">
           {t({ ar: "في الإعلام", en: "In the media" })}
         </h2>
         <a
           href="https://felesteen.news/post/181271"
           target="_blank"
           rel="noreferrer"
-          className="group flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 transition-colors"
+          className="group flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 bg-surface-2 border border-border-strong hover:border-primary/40 transition-colors"
         >
           <div className="min-w-0">
-            <div className="text-white font-semibold text-[13.5px] truncate">
+            <div className="text-foreground font-semibold text-[13.5px] truncate">
               {t({
                 ar: "عقولٌ تقهر الركام.. شباب غزّة يطلقون «هاكثون البنّائين»",
                 en: "Minds that rise above the rubble.. Gaza's youth launch the “Builders' Hackathon”",
               })}
             </div>
-            <div className="text-white/60 text-[11.5px]">
+            <div className="text-muted-foreground text-[11.5px]">
               {t({ ar: "فلسطين أون لاين", en: "Felesteen Online" })}
             </div>
           </div>
-          <ExternalLink className="w-4 h-4 text-white/55 group-hover:text-primary shrink-0" />
+          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0" />
         </a>
       </GlassCard>
 
       {/* Brand assets */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         <GlassCard className="p-6 sm:p-8">
-          <h2 className="text-white font-bold text-[16px] mb-4">
+          <h2 className="text-foreground font-bold text-[16px] mb-4">
             {t({ ar: "الاسم الرسميّ", en: "Official name" })}
           </h2>
           <ul className="space-y-2.5">
             {NAME_SPELLINGS.map((n) => (
               <li
                 key={n.en}
-                className="flex items-center justify-between gap-3 text-white/80 text-[13.5px]"
+                className="flex items-center justify-between gap-3 text-foreground text-[13.5px]"
               >
                 <span>{t(n)}</span>
                 <Copyable text={t(n)} />
@@ -208,7 +208,7 @@ export default function Press() {
           </ul>
         </GlassCard>
         <GlassCard className="p-6 sm:p-8">
-          <h2 className="text-white font-bold text-[16px] mb-4">
+          <h2 className="text-foreground font-bold text-[16px] mb-4">
             {t({ ar: "ألوان الهويّة", en: "Brand colors" })}
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -217,18 +217,18 @@ export default function Press() {
                 key={c.hex}
                 type="button"
                 onClick={() => navigator.clipboard?.writeText(c.hex)}
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-colors"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 bg-surface-2 border border-border-strong hover:border-border-strong transition-colors"
                 title={t({ ar: "نسخ", en: "Copy" })}
               >
                 <span
-                  className="w-6 h-6 rounded-md border border-white/15"
+                  className="w-6 h-6 rounded-md border border-border-strong"
                   style={{ background: c.hex }}
                 />
                 <div className="text-right">
-                  <div className="text-white text-[12px] font-semibold">
+                  <div className="text-foreground text-[12px] font-semibold">
                     {c.name}
                   </div>
-                  <div className="text-white/60 text-[10.5px] font-mono tabular-nums">
+                  <div className="text-muted-foreground text-[10.5px] font-mono tabular-nums">
                     {c.hex}
                   </div>
                 </div>
@@ -241,10 +241,10 @@ export default function Press() {
       {/* Press contact */}
       <GlassCard className="p-6 sm:p-8 text-center">
         <Mail className="w-7 h-7 text-primary mx-auto mb-3" />
-        <h2 className="text-white font-bold text-[17px] mb-1">
+        <h2 className="text-foreground font-bold text-[17px] mb-1">
           {t({ ar: "للاستفسارات الإعلاميّة", en: "Press inquiries" })}
         </h2>
-        <p className="text-white/55 text-[13px] mb-4">
+        <p className="text-muted-foreground text-[13px] mb-4">
           {t({
             ar: "فريقنا جاهز لتزويدك بالمعلومات والمقابلات والصور عالية الدقّة.",
             en: "Our team is ready to provide information, interviews, and high-resolution images.",

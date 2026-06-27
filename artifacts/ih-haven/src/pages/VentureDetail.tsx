@@ -100,14 +100,14 @@ export default function VentureDetail() {
           href="/ventures"
           label={t({ ar: "عودة للمشاريع", en: "Back to ventures" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!v) {
     return (
       <PageShell active="ventures">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-surface-2 border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -144,10 +144,10 @@ export default function VentureDetail() {
               <img
                 src={v.logoUrl}
                 alt={v.name}
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-[#0A0E1A] shadow-xl bg-[#0A0E1A]"
+                className="w-20 h-20 rounded-2xl object-cover border-2 border-[#0A0E1A] shadow-xl bg-surface-1"
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/50 border-2 border-[#0A0E1A] shadow-xl flex items-center justify-center text-3xl font-bold text-white">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/50 border-2 border-[#0A0E1A] shadow-xl flex items-center justify-center text-3xl font-bold text-foreground">
                 {v.name.charAt(0)}
               </div>
             )}
@@ -159,7 +159,7 @@ export default function VentureDetail() {
                 })}
               </span>
               <h1
-                className="font-bold text-white leading-tight"
+                className="font-bold text-foreground leading-tight"
                 style={{ fontSize: "clamp(1.6rem, 4vw, 2.3rem)" }}
                 data-testid="text-venture-name"
               >
@@ -181,12 +181,12 @@ export default function VentureDetail() {
                 <div key={s} className="flex-1">
                   <div
                     className={`h-1.5 rounded-full transition-colors ${
-                      i <= stageIx ? "bg-primary" : "bg-white/10"
+                      i <= stageIx ? "bg-primary" : "bg-surface-2"
                     }`}
                   />
                   <div
                     className={`mt-2 text-[10.5px] font-semibold text-center ${
-                      i === stageIx ? "text-primary" : "text-white/60"
+                      i === stageIx ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
                     {t({
@@ -200,7 +200,7 @@ export default function VentureDetail() {
           </div>
 
           {v.description && (
-            <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
+            <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
               {v.description}
             </div>
           )}
@@ -241,11 +241,11 @@ export default function VentureDetail() {
           </div>
 
           {v.founderName && (
-            <div className="text-[13px] text-white/55 mb-6">
-              <span className="text-white/60">
+            <div className="text-[13px] text-muted-foreground mb-6">
+              <span className="text-muted-foreground">
                 {t({ ar: "المؤسِّس: ", en: "Founder: " })}
               </span>
-              <span className="text-white/85 font-semibold">{v.founderName}</span>
+              <span className="text-foreground font-semibold">{v.founderName}</span>
             </div>
           )}
 
@@ -266,7 +266,7 @@ export default function VentureDetail() {
                 href={pitchDeck.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-surface-2 border border-border-strong text-foreground font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
               >
                 <FileText className="w-4 h-4 text-primary" />
                 {t({ ar: "ملفّ العرض (Pitch Deck)", en: "Pitch Deck" })}
@@ -375,20 +375,20 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                       en: MILESTONE_LABELS_EN[m.type],
                     })}
                   </span>
-                  <span className="text-[11.5px] text-white/45 font-medium">
+                  <span className="text-[11.5px] text-fg-faint font-medium">
                     {date}
                   </span>
                 </div>
-                <h4 className="text-white font-bold text-[15px] mb-1 leading-snug">
+                <h4 className="text-foreground font-bold text-[15px] mb-1 leading-snug">
                   {m.title}
                 </h4>
                 {m.body && (
-                  <p className="text-white/65 text-[13.5px] leading-[1.85] whitespace-pre-wrap">
+                  <p className="text-fg-secondary text-[13.5px] leading-[1.85] whitespace-pre-wrap">
                     {m.body}
                   </p>
                 )}
                 {(m.amount || m.metricValue || m.link) && (
-                  <div className="mt-2 flex items-center gap-3 flex-wrap text-[12px] text-white/55">
+                  <div className="mt-2 flex items-center gap-3 flex-wrap text-[12px] text-muted-foreground">
                     {m.amount ? (
                       <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-200 border border-emerald-500/30 font-semibold tabular-nums">
                         {"$"}
@@ -396,7 +396,7 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                       </span>
                     ) : null}
                     {m.metricValue ? (
-                      <span className="text-white/60 tabular-nums">
+                      <span className="text-muted-foreground tabular-nums">
                         {t({ ar: "قيمة:", en: "Value:" })}{" "}
                         {m.metricValue.toLocaleString(
                           lang === "ar" ? "ar-EG" : "en-US",
@@ -435,10 +435,10 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+    <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
-      <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
+      <div className="text-muted-foreground text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-foreground font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );
 }
@@ -469,17 +469,17 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
           >
             <Link
               href={`/ventures/${o.id}`}
-              className="group block rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 transition-colors"
+              className="group block rounded-2xl p-4 bg-surface-2 border border-border-strong hover:border-primary/40 transition-colors"
             >
               <div className="flex items-center gap-3 mb-1">
                 {o.logoUrl ? (
                   <img src={o.logoUrl} alt="" className="w-9 h-9 rounded-xl object-cover" />
                 ) : (
-                  <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center text-white/70 font-bold text-sm">
+                  <div className="w-9 h-9 rounded-xl bg-surface-2 flex items-center justify-center text-fg-secondary font-bold text-sm">
                     {o.name.charAt(0)}
                   </div>
                 )}
-                <div className="font-bold text-white text-[13.5px] truncate">{o.name}</div>
+                <div className="font-bold text-foreground text-[13.5px] truncate">{o.name}</div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-primary/80">
@@ -488,7 +488,7 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
                     en: VENTURE_STAGE_LABELS_EN[o.stage],
                   })}
                 </span>
-                <ArrowLeft className="w-3.5 h-3.5 text-white/55 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+                <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all" />
               </div>
             </Link>
           </motion.div>

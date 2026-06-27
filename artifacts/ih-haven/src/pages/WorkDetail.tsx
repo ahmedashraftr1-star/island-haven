@@ -410,14 +410,14 @@ export default function WorkDetail() {
           href="/works"
           label={t({ ar: "عودة للمعرض", en: "Back to gallery" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
       <PageShell active="works">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -464,14 +464,14 @@ export default function WorkDetail() {
               {formatArabicDate(data.work.createdAt)}
             </div>
             <h1
-              className="font-bold text-white leading-tight mb-3"
+              className="font-bold text-foreground leading-tight mb-3"
               style={{ fontSize: "clamp(1.7rem, 4vw, 2.4rem)" }}
               data-testid="text-work-title"
             >
               {data.work.title}
             </h1>
             {data.work.summary && (
-              <p className="text-white/65 text-[15.5px] leading-[1.85] mb-5">
+              <p className="text-fg-secondary text-[15.5px] leading-[1.85] mb-5">
                 {data.work.summary}
               </p>
             )}
@@ -498,7 +498,7 @@ export default function WorkDetail() {
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
                   liked
                     ? "bg-primary/15 border-primary/40 text-primary"
-                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                    : "bg-surface-2 border-border-strong text-fg-secondary hover:bg-white/[0.1]"
                 }`}
                 data-testid="button-like-work"
               >
@@ -508,7 +508,7 @@ export default function WorkDetail() {
               </button>
               <a
                 href="#comments"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white/75 text-[13px] font-semibold hover:bg-white/[0.1] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.1] transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="tabular-nums">{commentsCount}</span>
@@ -522,7 +522,7 @@ export default function WorkDetail() {
                 className={`ms-auto inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[13px] font-bold transition-all ${
                   saved
                     ? "bg-amber-400/15 border-amber-400/40 text-amber-200"
-                    : "bg-white/[0.06] border-white/15 text-white/75 hover:bg-white/[0.1]"
+                    : "bg-surface-2 border-border-strong text-fg-secondary hover:bg-white/[0.1]"
                 }`}
                 data-testid="button-save-work"
               >
@@ -536,7 +536,7 @@ export default function WorkDetail() {
             </div>
 
             {data.work.description && (
-              <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap">
+              <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap">
                 {data.work.description}
               </div>
             )}
@@ -547,7 +547,7 @@ export default function WorkDetail() {
                 <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3 flex items-center gap-2">
                   <Youtube className="w-4 h-4" /> {t({ ar: "فيديو", en: "Video" })}
                 </div>
-                <div className="rounded-2xl overflow-hidden border border-white/10 bg-black aspect-video">
+                <div className="rounded-2xl overflow-hidden border border-border-strong bg-black aspect-video">
                   <iframe
                     src={embed}
                     title={data.work.title}
@@ -567,7 +567,7 @@ export default function WorkDetail() {
                 target="_blank"
                 rel="noreferrer"
                 dir="ltr"
-                className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/15 text-white text-[12.5px] font-semibold hover:bg-white/[0.1] transition-colors"
+                className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-2 border border-border-strong text-foreground text-[12.5px] font-semibold hover:bg-white/[0.1] transition-colors"
               >
                 <Youtube className="w-3.5 h-3.5" /> {data.work.videoUrl}
               </a>
@@ -585,7 +585,7 @@ export default function WorkDetail() {
                       key={`${url}-${i}`}
                       type="button"
                       onClick={() => setLightbox(data.work.coverUrl ? i + 1 : i)}
-                      className="aspect-square rounded-xl overflow-hidden border border-white/10 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      className="aspect-square rounded-xl overflow-hidden border border-border-strong group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       data-testid={`work-gallery-${i}`}
                     >
                       <img
@@ -635,11 +635,11 @@ export default function WorkDetail() {
                     ar: "شاركنا رأيك في هذا العمل…",
                     en: "Share your thoughts on this work…",
                   })}
-                  className="w-full rounded-2xl bg-white/[0.05] border border-white/15 text-white text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-white/50"
+                  className="w-full rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[14px] leading-[1.8] p-4 resize-y focus:outline-none focus:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-muted-foreground"
                   data-testid="input-comment"
                 />
                 {commentError && (
-                  <p className="text-red-300 text-[12.5px] mt-2">{commentError}</p>
+                  <p className="text-destructive text-[12.5px] mt-2">{commentError}</p>
                 )}
                 <div className="flex justify-end mt-3">
                   <button
@@ -660,7 +660,7 @@ export default function WorkDetail() {
             ) : (
               <Link
                 href="/login"
-                className="block mb-6 text-center py-3 rounded-2xl bg-white/[0.05] border border-white/12 text-white/70 text-[13px] font-semibold hover:bg-white/[0.08] transition-colors"
+                className="block mb-6 text-center py-3 rounded-2xl bg-surface-2 border border-white/12 text-fg-secondary text-[13px] font-semibold hover:bg-surface-2 transition-colors"
               >
                 {t({
                   ar: "سجّل الدخول للمشاركة بتعليق",
@@ -670,7 +670,7 @@ export default function WorkDetail() {
             )}
 
             {comments.length === 0 ? (
-              <p className="text-white/45 text-[13.5px] text-center py-6">
+              <p className="text-fg-faint text-[13.5px] text-center py-6">
                 {t({
                   ar: "لا توجد تعليقات بعد — كن أول من يعلّق.",
                   en: "No comments yet — be the first to comment.",
@@ -687,7 +687,7 @@ export default function WorkDetail() {
                     <div key={c.id} data-testid={`comment-${c.id}`}>
                       <div className="flex gap-3">
                         <Link href={`/u/${c.author.id}`} className="shrink-0">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-white">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-foreground">
                             {c.author.avatarUrl ? (
                               <img
                                 src={c.author.avatarUrl}
@@ -703,15 +703,15 @@ export default function WorkDetail() {
                           <div className="flex items-center gap-2">
                             <Link
                               href={`/u/${c.author.id}`}
-                              className="text-white font-semibold text-[13px] hover:text-primary transition-colors truncate"
+                              className="text-foreground font-semibold text-[13px] hover:text-primary transition-colors truncate"
                             >
                               {c.author.fullName}
                             </Link>
-                            <span className="text-white/55 text-[11px]">
+                            <span className="text-muted-foreground text-[11px]">
                               {formatArabicDate(c.createdAt)}
                             </span>
                             {c.editedAt && (
-                              <span className="text-white/50 text-[10.5px]">
+                              <span className="text-muted-foreground text-[10.5px]">
                                 {t({ ar: "(عُدّل)", en: "(edited)" })}
                               </span>
                             )}
@@ -720,7 +720,7 @@ export default function WorkDetail() {
                                 <button
                                   type="button"
                                   onClick={() => startEdit(c)}
-                                  className="text-white/55 hover:text-primary transition-colors"
+                                  className="text-muted-foreground hover:text-primary transition-colors"
                                   aria-label={t({ ar: "تعديل التعليق", en: "Edit comment" })}
                                   data-testid={`edit-comment-${c.id}`}
                                 >
@@ -731,7 +731,7 @@ export default function WorkDetail() {
                                 <button
                                   type="button"
                                   onClick={() => deleteComment(c.id)}
-                                  className="text-white/55 hover:text-red-300 transition-colors"
+                                  className="text-muted-foreground hover:text-destructive transition-colors"
                                   aria-label={t({ ar: "حذف التعليق", en: "Delete comment" })}
                                   data-testid={`delete-comment-${c.id}`}
                                 >
@@ -751,7 +751,7 @@ export default function WorkDetail() {
                             />
                           ) : (
                             <>
-                              <p className="text-white/75 text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
+                              <p className="text-fg-secondary text-[13.5px] leading-[1.85] mt-1 whitespace-pre-wrap break-words">
                                 {c.body}
                               </p>
                               {user && (
@@ -763,7 +763,7 @@ export default function WorkDetail() {
                                     setReplyingTo(c.id);
                                     setReplyText("");
                                   }}
-                                  className="mt-1.5 inline-flex items-center gap-1 text-white/60 hover:text-primary text-[11.5px] font-semibold transition-colors"
+                                  className="mt-1.5 inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-[11.5px] font-semibold transition-colors"
                                   data-testid={`reply-comment-${c.id}`}
                                 >
                                   <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
@@ -775,7 +775,7 @@ export default function WorkDetail() {
                       </div>
 
                       {replies.length > 0 && (
-                        <div className="mt-3 space-y-3 pe-12 ps-3 border-e border-white/10">
+                        <div className="mt-3 space-y-3 pe-12 ps-3 border-e border-border-strong">
                           {replies.map((rep) => (
                             <div
                               key={rep.id}
@@ -783,7 +783,7 @@ export default function WorkDetail() {
                               data-testid={`comment-${rep.id}`}
                             >
                               <Link href={`/u/${rep.author.id}`} className="shrink-0">
-                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-white">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-foreground">
                                   {rep.author.avatarUrl ? (
                                     <img
                                       src={rep.author.avatarUrl}
@@ -799,15 +799,15 @@ export default function WorkDetail() {
                                 <div className="flex items-center gap-2">
                                   <Link
                                     href={`/u/${rep.author.id}`}
-                                    className="text-white font-semibold text-[12.5px] hover:text-primary transition-colors truncate"
+                                    className="text-foreground font-semibold text-[12.5px] hover:text-primary transition-colors truncate"
                                   >
                                     {rep.author.fullName}
                                   </Link>
-                                  <span className="text-white/55 text-[10.5px]">
+                                  <span className="text-muted-foreground text-[10.5px]">
                                     {formatArabicDate(rep.createdAt)}
                                   </span>
                                   {rep.editedAt && (
-                                    <span className="text-white/50 text-[10px]">
+                                    <span className="text-muted-foreground text-[10px]">
                                       {t({ ar: "(عُدّل)", en: "(edited)" })}
                                     </span>
                                   )}
@@ -816,7 +816,7 @@ export default function WorkDetail() {
                                       <button
                                         type="button"
                                         onClick={() => startEdit(rep)}
-                                        className="text-white/55 hover:text-primary transition-colors"
+                                        className="text-muted-foreground hover:text-primary transition-colors"
                                         aria-label={t({ ar: "تعديل الرد", en: "Edit reply" })}
                                         data-testid={`edit-comment-${rep.id}`}
                                       >
@@ -827,7 +827,7 @@ export default function WorkDetail() {
                                       <button
                                         type="button"
                                         onClick={() => deleteComment(rep.id, c.id)}
-                                        className="text-white/55 hover:text-red-300 transition-colors"
+                                        className="text-muted-foreground hover:text-destructive transition-colors"
                                         aria-label={t({ ar: "حذف الرد", en: "Delete reply" })}
                                         data-testid={`delete-comment-${rep.id}`}
                                       >
@@ -847,7 +847,7 @@ export default function WorkDetail() {
                                   />
                                 ) : (
                                   <>
-                                    <p className="text-white/70 text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
+                                    <p className="text-fg-secondary text-[13px] leading-[1.8] mt-0.5 whitespace-pre-wrap break-words">
                                       {rep.body}
                                     </p>
                                     {user && (
@@ -859,7 +859,7 @@ export default function WorkDetail() {
                                           setReplyingTo(rep.id);
                                           setReplyText("");
                                         }}
-                                        className="mt-1 inline-flex items-center gap-1 text-white/60 hover:text-primary text-[11px] font-semibold transition-colors"
+                                        className="mt-1 inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-[11px] font-semibold transition-colors"
                                         data-testid={`reply-comment-${rep.id}`}
                                       >
                                         <Reply className="w-3 h-3" /> {t({ ar: "رد", en: "Reply" })}
@@ -885,7 +885,7 @@ export default function WorkDetail() {
                               placeholder={t({ ar: "اكتب ردًّا…", en: "Write a reply…" })}
                               autoFocus
                               maxLength={1000}
-                              className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+                              className="flex-1 h-10 px-3 rounded-xl bg-surface-2 border border-border-strong text-foreground text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
                               data-testid={`reply-input-${c.id}`}
                             />
                             <button
@@ -903,13 +903,13 @@ export default function WorkDetail() {
                             <button
                               type="button"
                               onClick={() => { setReplyingTo(null); setComposerError(null); }}
-                              className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+                              className="h-10 px-2 text-fg-faint hover:text-foreground text-[12px] font-semibold transition-colors"
                             >
                               {t({ ar: "إلغاء", en: "Cancel" })}
                             </button>
                           </form>
                           {composerError && (
-                            <p className="text-red-300 text-[12px] mt-1.5">{composerError}</p>
+                            <p className="text-destructive text-[12px] mt-1.5">{composerError}</p>
                           )}
                         </div>
                       )}
@@ -932,7 +932,7 @@ export default function WorkDetail() {
               className="flex items-center gap-3 hover:opacity-90 transition-opacity"
               data-testid="link-author"
             >
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[15px] font-bold text-white shrink-0">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[15px] font-bold text-foreground shrink-0">
                 {data.author.avatarUrl ? (
                   <img
                     src={data.author.avatarUrl}
@@ -944,7 +944,7 @@ export default function WorkDetail() {
                 )}
               </div>
               <div className="leading-tight min-w-0">
-                <div className="text-white font-semibold text-[14px] truncate">
+                <div className="text-foreground font-semibold text-[14px] truncate">
                   {data.author.fullName}
                 </div>
                 <div className="text-primary text-[10.5px] tracking-[0.18em] uppercase font-bold mt-0.5">
@@ -953,13 +953,13 @@ export default function WorkDetail() {
               </div>
             </Link>
             {data.author.jobTitle && (
-              <div className="mt-3 flex items-center gap-1.5 text-white/65 text-[12.5px]">
+              <div className="mt-3 flex items-center gap-1.5 text-fg-secondary text-[12.5px]">
                 <Briefcase className="w-3 h-3 shrink-0" />
                 <span className="truncate">{data.author.jobTitle}</span>
               </div>
             )}
             {data.author.bio && (
-              <p className="text-white/65 text-[13px] leading-[1.85] mt-4 line-clamp-4">
+              <p className="text-fg-secondary text-[13px] leading-[1.85] mt-4 line-clamp-4">
                 {data.author.bio}
               </p>
             )}
@@ -971,7 +971,7 @@ export default function WorkDetail() {
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-white/75 text-[11.5px] font-semibold hover:bg-white/[0.1] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[11.5px] font-semibold hover:bg-white/[0.1] transition-colors"
                   >
                     <Icon className="w-3 h-3" /> {label}
                   </a>
@@ -997,7 +997,7 @@ export default function WorkDetail() {
               </div>
               <Link
                 href={`/works/${data.work.id}/edit`}
-                className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-semibold text-[13px] hover:bg-white/[0.1] transition-colors"
+                className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-surface-2 border border-border-strong text-foreground font-semibold text-[13px] hover:bg-white/[0.1] transition-colors"
                 data-testid="button-edit-work"
               >
                 <Pencil className="w-3.5 h-3.5" /> {t({ ar: "تعديل", en: "Edit" })}
@@ -1005,7 +1005,7 @@ export default function WorkDetail() {
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-white/[0.04] border border-white/10 text-white/65 font-semibold text-[13px] hover:bg-red-500/15 hover:text-red-200 hover:border-red-500/30 transition-colors"
+                className="flex items-center gap-2 w-full py-2.5 px-4 rounded-2xl bg-surface-2 border border-border-strong text-fg-secondary font-semibold text-[13px] hover:bg-red-500/15 hover:text-destructive hover:border-red-500/30 transition-colors"
                 data-testid="button-delete-work"
               >
                 <Trash2 className="w-3.5 h-3.5" /> {t({ ar: "حذف", en: "Delete" })}
@@ -1031,7 +1031,7 @@ export default function WorkDetail() {
           <button
             type="button"
             onClick={() => setLightbox(null)}
-            className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+            className="absolute top-4 left-4 w-10 h-10 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-foreground hover:bg-white/15 transition-colors"
             aria-label={t({ ar: "إغلاق", en: "Close" })}
           >
             <X className="w-4 h-4" />
@@ -1046,7 +1046,7 @@ export default function WorkDetail() {
                     i === null ? 0 : Math.min(allImages.length - 1, i + 1),
                   );
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-foreground hover:bg-white/15 transition-colors"
                 aria-label={t({ ar: "السابق", en: "Previous" })}
               >
                 <ChevronRight className="w-5 h-5" />
@@ -1057,12 +1057,12 @@ export default function WorkDetail() {
                   e.stopPropagation();
                   setLightbox((i) => (i === null ? 0 : Math.max(0, i - 1)));
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-foreground hover:bg-white/15 transition-colors"
                 aria-label={t({ ar: "التالي", en: "Next" })}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white text-[12px] tabular-nums">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-surface-2 border border-border-strong text-foreground text-[12px] tabular-nums">
                 {lightbox + 1} / {allImages.length}
               </div>
             </>
@@ -1097,7 +1097,7 @@ function CommentEditForm({
           onChange={(e) => onChange(e.target.value)}
           autoFocus
           maxLength={1000}
-          className="flex-1 h-10 px-3 rounded-xl bg-white/[0.05] border border-white/10 text-white text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+          className="flex-1 h-10 px-3 rounded-xl bg-surface-2 border border-border-strong text-foreground text-[13px] placeholder-white/50 outline-none focus:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
           data-testid="edit-comment-input"
         />
         <button
@@ -1111,12 +1111,12 @@ function CommentEditForm({
         <button
           type="button"
           onClick={onCancel}
-          className="h-10 px-2 text-white/45 hover:text-white text-[12px] font-semibold transition-colors"
+          className="h-10 px-2 text-fg-faint hover:text-foreground text-[12px] font-semibold transition-colors"
         >
           {t({ ar: "إلغاء", en: "Cancel" })}
         </button>
       </form>
-      {error && <p className="text-red-300 text-[12px] mt-1.5">{error}</p>}
+      {error && <p className="text-destructive text-[12px] mt-1.5">{error}</p>}
     </div>
   );
 }

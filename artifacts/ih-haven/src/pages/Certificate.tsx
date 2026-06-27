@@ -53,7 +53,7 @@ export default function Certificate() {
           href="/learning"
           label={t({ ar: "عودة للتعلّم", en: "Back to learning" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
@@ -61,7 +61,7 @@ export default function Certificate() {
   if (!data) {
     return (
       <PageShell active="learning">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -94,7 +94,7 @@ export default function Certificate() {
       <div
         id="certificate-sheet"
         dir={dir}
-        className="relative mx-auto max-w-3xl rounded-[28px] overflow-hidden bg-[#0B1020] border border-white/10 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)] print:bg-white print:text-[#0B1020]"
+        className="relative mx-auto max-w-3xl rounded-[28px] overflow-hidden bg-[#0B1020] border border-border-strong shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)] print:bg-white print:text-[#0B1020]"
         style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
         data-testid="certificate-sheet"
       >
@@ -113,10 +113,10 @@ export default function Certificate() {
           <div className="flex items-center justify-center gap-3 mb-8">
             <HavenMark size={40} strokeColor="hsl(354 80% 60%)" />
             <div className="text-right leading-tight">
-              <div className="text-[16px] font-bold tracking-tight text-white print:text-[#0B1020]">
+              <div className="text-[16px] font-bold tracking-tight text-foreground print:text-[#0B1020]">
                 Island Haven
               </div>
-              <div className="text-[11px] tracking-[0.18em] uppercase text-white/45 print:text-[#0B1020]/55">
+              <div className="text-[11px] tracking-[0.18em] uppercase text-fg-faint print:text-[#0B1020]/55">
                 آيلاند هيفن
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function Certificate() {
             {t({ ar: "شهادة إكمال", en: "Certificate of Completion" })}
           </div>
 
-          <p className="text-white/55 text-[14px] mb-2 print:text-[#0B1020]/60">
+          <p className="text-muted-foreground text-[14px] mb-2 print:text-[#0B1020]/60">
             {t({
               ar: "تشهد آيلاند هيفن بأنّ",
               en: "Island Haven hereby certifies that",
@@ -138,14 +138,14 @@ export default function Certificate() {
           </p>
 
           <h1
-            className="font-bold text-white leading-tight mb-4 print:text-[#0B1020]"
+            className="font-bold text-foreground leading-tight mb-4 print:text-[#0B1020]"
             style={{ fontSize: "clamp(1.8rem, 5vw, 2.6rem)" }}
             data-testid="certificate-name"
           >
             {data.user.fullName}
           </h1>
 
-          <p className="text-white/55 text-[14px] mb-2 print:text-[#0B1020]/60">
+          <p className="text-muted-foreground text-[14px] mb-2 print:text-[#0B1020]/60">
             {t({ ar: "قد أكمل بنجاح", en: "has successfully completed" })}
           </p>
 
@@ -159,14 +159,14 @@ export default function Certificate() {
 
           <div className="h-px w-40 mx-auto bg-gradient-to-r from-transparent via-white/20 to-transparent mb-7 print:via-[#0B1020]/20" />
 
-          <p className="text-white/60 text-[13.5px] print:text-[#0B1020]/65">
+          <p className="text-muted-foreground text-[13.5px] print:text-[#0B1020]/65">
             {t({ ar: "بتاريخ", en: "on" })}{" "}
-            <span className="text-white font-semibold print:text-[#0B1020]">
+            <span className="text-foreground font-semibold print:text-[#0B1020]">
               {formatDate(data.completedAt, lang) || "—"}
             </span>
           </p>
 
-          <p className="text-white/60 text-[11px] tracking-[0.16em] uppercase mt-8 print:text-[#0B1020]/70">
+          <p className="text-muted-foreground text-[11px] tracking-[0.16em] uppercase mt-8 print:text-[#0B1020]/70">
             {t({
               ar: "Island Haven · حاضنة أعمال في غزّة",
               en: "Island Haven · A business incubator in Gaza",

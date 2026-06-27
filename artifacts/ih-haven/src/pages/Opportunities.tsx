@@ -137,7 +137,7 @@ export default function Opportunities() {
               aria-pressed={filter === key ? "true" : "false"}
               className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
                 filter === key
-                  ? "cta-fill text-white border-transparent"
+                  ? "cta-fill text-foreground border-transparent"
                   : "bg-surface-2 text-fg-secondary border-border-strong hover:border-primary/40 hover:text-foreground"
               }`}
             >

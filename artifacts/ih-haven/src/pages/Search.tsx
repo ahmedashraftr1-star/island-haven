@@ -107,18 +107,18 @@ export default function Search() {
       maxWidth="max-w-3xl"
     >
       <div className="relative mb-8">
-        <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/45 pointer-events-none" />
+        <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-fg-faint pointer-events-none" />
         <input
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t({ ar: "اكتب اسمًا، مهارة، أو موضوعًا…", en: "Type a name, skill, or topic…" })}
-          className="w-full h-14 pe-12 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[15px] placeholder-white/50 outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-colors"
+          className="w-full h-14 pe-12 ps-4 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[15px] placeholder-white/50 outline-none focus:border-primary/50 focus:bg-surface-2 transition-colors"
           data-testid="input-global-search"
         />
       </div>
 
-      {error && <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>}
+      {error && <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>}
 
       {q.trim().length < 2 ? (
         <EmptyState
@@ -128,7 +128,7 @@ export default function Search() {
       ) : loading && !results ? (
         <div className="space-y-3">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-16 rounded-2xl bg-white/[0.035] border border-white/10 animate-pulse" />
+            <div key={i} className="h-16 rounded-2xl bg-white/[0.035] border border-border-strong animate-pulse" />
           ))}
         </div>
       ) : results && total === 0 ? (
@@ -150,8 +150,8 @@ export default function Search() {
               <section key={c.key}>
                 <div className="flex items-center gap-2.5 mb-3">
                   <Icon className="w-4 h-4 text-primary" />
-                  <h2 className="text-white font-bold text-[15.5px]">{t(c.label)}</h2>
-                  <span className="text-white/60 text-[12px] tabular-nums">({items.length})</span>
+                  <h2 className="text-foreground font-bold text-[15.5px]">{t(c.label)}</h2>
+                  <span className="text-muted-foreground text-[12px] tabular-nums">({items.length})</span>
                 </div>
                 <div className="space-y-2.5">
                   {items.map((h, i) => (
@@ -163,25 +163,25 @@ export default function Search() {
                     >
                       <Link
                         href={c.to(h)}
-                        className="group flex items-center gap-3.5 rounded-2xl p-3.5 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 hover:bg-white/[0.06] transition-colors"
+                        className="group flex items-center gap-3.5 rounded-2xl p-3.5 bg-surface-2 border border-border-strong hover:border-primary/40 hover:bg-surface-2 transition-colors"
                         data-testid={`search-hit-${c.key}-${h.id}`}
                       >
                         {h.avatarUrl ? (
-                          <img src={h.avatarUrl} alt="" className="w-11 h-11 rounded-xl object-cover border border-white/10 shrink-0" />
+                          <img src={h.avatarUrl} alt="" className="w-11 h-11 rounded-xl object-cover border border-border-strong shrink-0" />
                         ) : (
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-white/10 flex items-center justify-center shrink-0">
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-border-strong flex items-center justify-center shrink-0">
                             <Icon className="w-5 h-5 text-primary/80" />
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <div className="text-white font-semibold text-[14px] truncate group-hover:text-primary transition-colors">
+                          <div className="text-foreground font-semibold text-[14px] truncate group-hover:text-primary transition-colors">
                             {h.title}
                           </div>
                           {h.subtitle ? (
-                            <div className="text-white/50 text-[12.5px] truncate">{h.subtitle}</div>
+                            <div className="text-muted-foreground text-[12.5px] truncate">{h.subtitle}</div>
                           ) : null}
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-white/55 group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
                       </Link>
                     </motion.div>
                   ))}

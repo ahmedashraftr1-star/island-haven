@@ -138,8 +138,8 @@ export default function Events() {
             aria-pressed={filter === f.key ? "true" : "false"}
             className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
               filter === f.key
-                ? "bg-primary/20 text-white border-primary/40"
-                : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                ? "bg-primary/20 text-foreground border-primary/40"
+                : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid={`events-filter-${f.key || "all"}`}
           >
@@ -148,14 +148,14 @@ export default function Events() {
         ))}
       </div>
 
-      {error && <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>}
+      {error && <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>}
 
       {rows === null && !error ? (
         <div className="space-y-4">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-40 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-40 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -180,7 +180,7 @@ export default function Events() {
         <nav className="flex items-center justify-center gap-2 mt-10" dir="ltr" aria-label={t({ ar: "ترقيم الصفحات", en: "Pagination" })}>
           <button type="button" onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }} disabled={page <= 1}
             aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"><span aria-hidden="true">←</span></button>
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"><span aria-hidden="true">←</span></button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
             .reduce<(number | "…")[]>((acc, p, i, arr) => {
@@ -188,15 +188,15 @@ export default function Events() {
               acc.push(p); return acc;
             }, [])
             .map((p, i) => p === "…"
-              ? <span key={`e${i}`} className="text-white/30 text-[13px] px-1">…</span>
+              ? <span key={`e${i}`} className="text-fg-faint text-[13px] px-1">…</span>
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-white/[0.07] border border-white/15 text-white/70 hover:bg-white/[0.11]"}`}>{p}</button>
+                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}>{p}</button>
             )}
           <button type="button" onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }} disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"><span aria-hidden="true">→</span></button>
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"><span aria-hidden="true">→</span></button>
         </nav>
       )}
     </PageShell>
@@ -241,19 +241,19 @@ function EventCard({
                   ? DAILY_TYPE_LABELS[post.type]
                   : DAILY_TYPE_LABELS_EN[post.type]}
               </span>
-              <span className="text-white/60 text-[11.5px]">
+              <span className="text-muted-foreground text-[11.5px]">
                 {formatDate(post.publishedAt, lang)}
               </span>
             </div>
-            <h3 className="text-white font-bold text-[18px] leading-snug mb-2 line-clamp-2">
+            <h3 className="text-foreground font-bold text-[18px] leading-snug mb-2 line-clamp-2">
               {post.title}
             </h3>
             {post.body && (
-              <p className="text-white/60 text-[13.5px] leading-[1.85] line-clamp-2">
+              <p className="text-muted-foreground text-[13.5px] leading-[1.85] line-clamp-2">
                 {post.body}
               </p>
             )}
-            <div className="mt-3 flex items-center gap-2 text-[12.5px] text-white/55 group-hover:text-primary font-semibold transition-colors">
+            <div className="mt-3 flex items-center gap-2 text-[12.5px] text-muted-foreground group-hover:text-primary font-semibold transition-colors">
               <span>{detailsLabel}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
@@ -295,14 +295,14 @@ export function EventDetail() {
     return (
       <PageShell active="events">
         <BackLink href="/events" label={t({ ar: "الفعاليّات", en: "Events" })} />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!post) {
     return (
       <PageShell active="events">
-        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -330,19 +330,19 @@ export function EventDetail() {
                 ? DAILY_TYPE_LABELS[post.type]
                 : DAILY_TYPE_LABELS_EN[post.type]}
             </span>
-            <span className="text-white/60 text-[11.5px]">
+            <span className="text-muted-foreground text-[11.5px]">
               {formatDate(post.publishedAt, lang)}
             </span>
           </div>
           <h1
-            className="font-bold text-white leading-tight mb-5"
+            className="font-bold text-foreground leading-tight mb-5"
             style={{ fontSize: "clamp(1.85rem, 4.5vw, 2.6rem)" }}
             data-testid="text-event-title"
           >
             {post.title}
           </h1>
           {post.body && (
-            <div className="text-white/80 text-[15px] leading-[2.05] whitespace-pre-wrap">
+            <div className="text-foreground text-[15px] leading-[2.05] whitespace-pre-wrap">
               {post.body}
             </div>
           )}

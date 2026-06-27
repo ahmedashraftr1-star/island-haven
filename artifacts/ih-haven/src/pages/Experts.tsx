@@ -548,7 +548,7 @@ function ExpertCardView({
               <div
                 className={`${
                   isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"
-                } shrink-0 rounded-2xl ring-1 ring-white/15 shadow-soft flex items-center justify-center font-display font-black text-white select-none transition-transform duration-300 group-hover:scale-[1.06]`}
+                } shrink-0 rounded-2xl ring-1 ring-border-strong shadow-soft flex items-center justify-center font-display font-black text-white select-none transition-transform duration-300 group-hover:scale-[1.06]`}
                 style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
               >
                 {initials}

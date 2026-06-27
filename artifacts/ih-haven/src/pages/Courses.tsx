@@ -157,8 +157,8 @@ export default function Courses() {
                 aria-pressed={isActive ? "true" : "false"}
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                   isActive
-                    ? "bg-primary/20 text-white border-primary/40"
-                    : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                    ? "bg-primary/20 text-foreground border-primary/40"
+                    : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
                 }`}
                 data-testid={`filter-${f.key || "all"}`}
               >
@@ -176,7 +176,7 @@ export default function Courses() {
       </div>
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -184,7 +184,7 @@ export default function Courses() {
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-72 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-72 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -270,22 +270,22 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold border ${
                   isOpen
                     ? "bg-emerald-500/10 text-emerald-200 border-emerald-500/30"
-                    : "bg-white/[0.05] text-white/55 border-white/10"
+                    : "bg-surface-2 text-muted-foreground border-border-strong"
                 }`}
               >
                 {isOpen && <Dot />}
                 {statusLabel}
               </span>
             </div>
-            <h3 className="text-white font-bold text-[17px] leading-snug mb-1.5 line-clamp-2">
+            <h3 className="text-foreground font-bold text-[17px] leading-snug mb-1.5 line-clamp-2">
               {c.title}
             </h3>
             {c.summary && (
-              <p className="text-white/55 text-[13px] leading-[1.7] line-clamp-2 mb-4">
+              <p className="text-muted-foreground text-[13px] leading-[1.7] line-clamp-2 mb-4">
                 {c.summary}
               </p>
             )}
-            <div className="mt-auto space-y-1.5 text-[12px] text-white/55">
+            <div className="mt-auto space-y-1.5 text-[12px] text-muted-foreground">
               {c.startsAt && (
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary/80" />
@@ -311,7 +311,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
                 </span>
               </div>
               {c.capacity > 0 && (
-                <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden mt-1">
+                <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden mt-1">
                   <motion.div
                     className="h-full rounded-full"
                     style={{ background: isFull ? "rgba(255,255,255,0.25)" : isOpen ? "#34d399" : "hsl(354 80% 58%)" }}
@@ -325,7 +325,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
             </div>
           </div>
           <div className="relative px-5 pb-5">
-            <div className="flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
+            <div className="flex items-center justify-between text-[12.5px] text-fg-secondary group-hover:text-primary transition-colors font-semibold">
               <span>{isOpen ? t({ ar: "سجّل الآن", en: "Register now" }) : t({ ar: "عرض التفاصيل", en: "View details" })}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>

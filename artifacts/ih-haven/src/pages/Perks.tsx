@@ -112,7 +112,7 @@ export default function Perks() {
             className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
               filter === key
                 ? "bg-primary text-white border-primary"
-                : "bg-white/[0.04] text-white/65 border-white/10 hover:border-white/25"
+                : "bg-surface-2 text-fg-secondary border-border-strong hover:border-border-strong"
             }`}
           >
             {filterLabel(key)}
@@ -121,7 +121,7 @@ export default function Perks() {
       </div>
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -129,7 +129,7 @@ export default function Perks() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-52 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-52 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -175,12 +175,12 @@ export default function Perks() {
                       href={`/perks/${p.id}`}
                       className="group inline-block"
                     >
-                      <h3 className="text-white font-bold text-[16.5px] leading-snug mt-2 line-clamp-2 group-hover:text-primary transition-colors">
+                      <h3 className="text-foreground font-bold text-[16.5px] leading-snug mt-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {p.title}
                       </h3>
                     </Link>
                     {p.partnerName && (
-                      <p className="text-white/55 text-[12.5px] mt-0.5">
+                      <p className="text-muted-foreground text-[12.5px] mt-0.5">
                         {p.partnerName}
                       </p>
                     )}
@@ -189,13 +189,13 @@ export default function Perks() {
                     <img
                       src={p.logoUrl}
                       alt={p.partnerName}
-                      className="w-11 h-11 rounded-xl object-contain bg-white/[0.06] border border-white/10 p-1 shrink-0"
+                      className="w-11 h-11 rounded-xl object-contain bg-surface-2 border border-border-strong p-1 shrink-0"
                     />
                   )}
                 </div>
 
                 {p.description && (
-                  <p className="text-white/65 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
+                  <p className="text-fg-secondary text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
                     {p.description}
                   </p>
                 )}
@@ -204,10 +204,10 @@ export default function Perks() {
                   <button
                     type="button"
                     onClick={() => copyCode(p.id, p.code)}
-                    className="group/code flex items-center justify-between gap-2 mb-3 px-3 h-9 rounded-xl bg-white/[0.05] border border-dashed border-white/20 hover:border-primary/40 transition-colors"
+                    className="group/code flex items-center justify-between gap-2 mb-3 px-3 h-9 rounded-xl bg-surface-2 border border-dashed border-border-strong hover:border-primary/40 transition-colors"
                     data-testid={`perk-code-${p.id}`}
                   >
-                    <span className="font-mono text-[12.5px] tracking-wide text-white/85 truncate" dir="ltr">
+                    <span className="font-mono text-[12.5px] tracking-wide text-foreground truncate" dir="ltr">
                       {p.code}
                     </span>
                     {copied === p.id ? (
@@ -215,14 +215,14 @@ export default function Perks() {
                         <Check className="w-3.5 h-3.5" /> {t({ ar: "نُسخ", en: "Copied" })}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-white/55 group-hover/code:text-primary transition-colors shrink-0">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground group-hover/code:text-primary transition-colors shrink-0">
                         <Copy className="w-3.5 h-3.5" /> {t({ ar: "نسخ", en: "Copy" })}
                       </span>
                     )}
                   </button>
                 )}
 
-                <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+                <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-border-strong">
                   {p.url ? (
                     <a
                       href={p.url}
@@ -236,7 +236,7 @@ export default function Perks() {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : (
-                    <span className="text-[12px] text-white/60">
+                    <span className="text-[12px] text-muted-foreground">
                       {t({
                         ar: "تواصل مع الفريق للحصول على العرض.",
                         en: "Contact the team to claim this offer.",
@@ -245,7 +245,7 @@ export default function Perks() {
                   )}
                   <Link
                     href={`/perks/${p.id}`}
-                    className="group inline-flex items-center gap-1 text-[12px] text-white/65 hover:text-primary transition-colors font-semibold shrink-0"
+                    className="group inline-flex items-center gap-1 text-[12px] text-fg-secondary hover:text-primary transition-colors font-semibold shrink-0"
                   >
                     {t({ ar: "التفاصيل", en: "Details" })}
                     <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />

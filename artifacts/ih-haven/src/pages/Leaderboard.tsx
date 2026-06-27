@@ -99,7 +99,7 @@ export default function Leaderboard() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -107,7 +107,7 @@ export default function Leaderboard() {
           {[0, 1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-[20px] h-[76px] bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[20px] h-[76px] bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -153,7 +153,7 @@ export default function Leaderboard() {
                           }`}
                         />
                       ) : (
-                        <span className="text-white/65 font-bold text-[15px] tabular-nums">
+                        <span className="text-fg-secondary font-bold text-[15px] tabular-nums">
                           {num(i + 1, lang)}
                         </span>
                       )}
@@ -161,7 +161,7 @@ export default function Leaderboard() {
 
                     {/* Avatar */}
                     <div
-                      className={`shrink-0 w-11 h-11 rounded-full overflow-hidden bg-white/[0.06] border border-white/10 flex items-center justify-center ${
+                      className={`shrink-0 w-11 h-11 rounded-full overflow-hidden bg-surface-2 border border-border-strong flex items-center justify-center ${
                         medal ? `ring-2 ${medal.ring}` : ""
                       }`}
                     >
@@ -173,7 +173,7 @@ export default function Leaderboard() {
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[13px] font-bold text-white/70">
+                        <span className="text-[13px] font-bold text-fg-secondary">
                           {initials(r.fullName)}
                         </span>
                       )}
@@ -182,7 +182,7 @@ export default function Leaderboard() {
                     {/* Name + stats */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-white font-bold text-[15px] truncate group-hover:text-primary transition-colors">
+                        <h3 className="text-foreground font-bold text-[15px] truncate group-hover:text-primary transition-colors">
                           {r.fullName}
                         </h3>
                         {medal && (
@@ -193,7 +193,7 @@ export default function Leaderboard() {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-[12px] text-white/50">
+                      <div className="flex items-center gap-3 mt-1 text-[12px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1">
                           <Briefcase className="w-3.5 h-3.5 text-primary/75" />
                           {num(r.worksCount, lang)}{" "}
@@ -211,11 +211,11 @@ export default function Leaderboard() {
                     <div className="shrink-0 text-left">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/12 border border-primary/25">
                         <Trophy className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-white font-extrabold text-[15px] tabular-nums">
+                        <span className="text-foreground font-extrabold text-[15px] tabular-nums">
                           {num(r.score, lang)}
                         </span>
                       </div>
-                      <div className="text-[10px] text-white/60 text-center mt-1 tracking-wide">
+                      <div className="text-[10px] text-muted-foreground text-center mt-1 tracking-wide">
                         {t({ ar: "نقطة", en: "points" })}
                       </div>
                     </div>
@@ -229,7 +229,7 @@ export default function Leaderboard() {
 
       {/* Scoring note */}
       {rows && rows.length > 0 && (
-        <p className="text-center text-white/60 text-[12px] mt-8">
+        <p className="text-center text-muted-foreground text-[12px] mt-8">
           {t({
             ar: "النقاط = عدد الأعمال + (عدد الشارات × ٣)",
             en: "Points = number of works + (number of badges × 3)",

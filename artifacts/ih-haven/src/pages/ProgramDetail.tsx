@@ -165,14 +165,14 @@ export default function ProgramDetail() {
           href="/programs"
           label={t({ ar: "عودة للبرامج", en: "Back to programs" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
       <PageShell active="programs">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -199,25 +199,25 @@ export default function ProgramDetail() {
             <div className="aspect-[16/9] bg-gradient-to-br from-primary/30 via-primary/8 to-transparent" />
           )}
           <div className="p-6 sm:p-8">
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold bg-white/[0.05] text-white/60 border border-white/10 mb-4">
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold bg-surface-2 text-muted-foreground border border-border-strong mb-4">
               {t({
                 ar: PROGRAM_STATUS_LABELS[p.status],
                 en: PROGRAM_STATUS_LABELS_EN[p.status],
               })}
             </span>
             <h1
-              className="font-bold text-white leading-tight mb-3"
+              className="font-bold text-foreground leading-tight mb-3"
               style={{ fontSize: "clamp(1.7rem, 4vw, 2.4rem)" }}
             >
               {p.title}
             </h1>
             {p.summary && (
-              <p className="text-white/65 text-[15.5px] leading-[1.85] mb-6">
+              <p className="text-fg-secondary text-[15.5px] leading-[1.85] mb-6">
                 {p.summary}
               </p>
             )}
             {p.description && (
-              <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
+              <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
                 {p.description}
               </div>
             )}
@@ -228,7 +228,7 @@ export default function ProgramDetail() {
                 </div>
                 <ul className="space-y-2">
                   {perks.map((perk, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-white/75 text-[14px]">
+                    <li key={i} className="flex items-start gap-2.5 text-fg-secondary text-[14px]">
                       <CheckCircle2 className="w-4 h-4 text-emerald-300 mt-0.5 shrink-0" />
                       {perk}
                     </li>
@@ -239,7 +239,7 @@ export default function ProgramDetail() {
             {splitTags(p.tags).length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-6">
                 {splitTags(p.tags).map((tag) => (
-                  <span key={tag} className="px-3 py-1 rounded-full text-[12px] font-medium bg-white/[0.05] text-white/75 border border-white/10">
+                  <span key={tag} className="px-3 py-1 rounded-full text-[12px] font-medium bg-surface-2 text-fg-secondary border border-border-strong">
                     {tag}
                   </span>
                 ))}
@@ -253,7 +253,7 @@ export default function ProgramDetail() {
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
               {t({ ar: "تفاصيل البرنامج", en: "Program details" })}
             </div>
-            <ul className="space-y-3 text-[13.5px] text-white/75">
+            <ul className="space-y-3 text-[13.5px] text-fg-secondary">
               {p.durationWeeks > 0 && (
                 <li className="flex items-center gap-3">
                   <Clock className="w-4 h-4 text-primary" />
@@ -294,13 +294,13 @@ export default function ProgramDetail() {
               {data.hasApplied ? (
                 <motion.div key="applied" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-5">
                   <CheckCircle2 className="w-11 h-11 text-emerald-300 mx-auto mb-3" />
-                  <div className="text-white font-bold text-[14.5px] mb-1">
+                  <div className="text-foreground font-bold text-[14.5px] mb-1">
                     {t({
                       ar: "قدّمت على هذا البرنامج",
                       en: "You've applied to this program",
                     })}
                   </div>
-                  <div className="text-white/55 text-[13px]">
+                  <div className="text-muted-foreground text-[13px]">
                     {t({ ar: "الحالة:", en: "Status:" })}{" "}
                     {data.myStatus
                       ? t({
@@ -311,7 +311,7 @@ export default function ProgramDetail() {
                   </div>
                 </motion.div>
               ) : p.status !== "open" ? (
-                <motion.div key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-white/55 text-[13px] text-center py-4">
+                <motion.div key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-muted-foreground text-[13px] text-center py-4">
                   {t({
                     ar: "التقديم على هذا البرنامج مغلق حاليًا.",
                     en: "Applications to this program are currently closed.",
@@ -319,7 +319,7 @@ export default function ProgramDetail() {
                 </motion.div>
               ) : !user ? (
                 <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <p className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
+                  <p className="text-fg-secondary text-[13.5px] leading-[1.85] mb-4">
                     {t({
                       ar: "سجّل دخولك لتقديم مشروعك على هذا البرنامج.",
                       en: "Sign in to submit your venture to this program.",
@@ -339,7 +339,7 @@ export default function ProgramDetail() {
                       value={ventureName}
                       onChange={(e) => setVentureName(e.target.value)}
                       maxLength={200}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
+                      className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none"
                     />
                   </Field>
                   <Field label={t({ ar: "فكرة المشروع", en: "Your idea" })}>
@@ -348,7 +348,7 @@ export default function ProgramDetail() {
                       onChange={(e) => setIdea(e.target.value)}
                       rows={4}
                       maxLength={4000}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </Field>
                   <Field label={t({ ar: "لماذا تريد الانضمام؟ (اختياري)", en: "Why do you want to join? (optional)" })}>
@@ -357,10 +357,10 @@ export default function ProgramDetail() {
                       onChange={(e) => setMotivation(e.target.value)}
                       rows={3}
                       maxLength={4000}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
+                      className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </Field>
-                  {formError && <div className="text-[12.5px] text-red-300">{formError}</div>}
+                  {formError && <div className="text-[12.5px] text-destructive">{formError}</div>}
                   <button
                     type="submit"
                     disabled={busy}
@@ -383,7 +383,7 @@ export default function ProgramDetail() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-[11.5px] text-white/50 font-medium mb-1.5">{label}</span>
+      <span className="block text-[11.5px] text-muted-foreground font-medium mb-1.5">{label}</span>
       {children}
     </label>
   );

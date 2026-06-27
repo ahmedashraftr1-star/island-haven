@@ -80,10 +80,10 @@ export default function Learning() {
     return (
       <div
         dir={dir}
-        className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center"
+        className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground flex items-center justify-center"
       >
         <AuthBackgroundAura />
-        <div className="relative z-10 flex items-center gap-3 text-white/55">
+        <div className="relative z-10 flex items-center gap-3 text-muted-foreground">
           <span className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-primary animate-spin" />
           {t({ ar: "جارٍ التحميل…", en: "Loading…" })}
         </div>
@@ -204,7 +204,7 @@ function LearningInner() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 mb-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 mb-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {items === null && !error ? (
@@ -212,7 +212,7 @@ function LearningInner() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-40 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-40 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -288,27 +288,27 @@ function ProgressCard({
           </div>
           <Link
             href={`/courses/${item.courseId}`}
-            className="text-white font-bold text-[16px] leading-snug hover:text-primary transition-colors line-clamp-2"
+            className="text-foreground font-bold text-[16px] leading-snug hover:text-primary transition-colors line-clamp-2"
           >
             {item.courseTitle}
           </Link>
           {done && item.completedAt && item.completedAt !== "now" && (
-            <p className="text-white/60 text-[12px] mt-1">
+            <p className="text-muted-foreground text-[12px] mt-1">
               {t({ ar: "أُكمِل في", en: "Completed on" })}{" "}
               {formatDate(item.completedAt, lang)}
             </p>
           )}
         </div>
         <div className="text-left shrink-0">
-          <div className="text-[26px] font-bold text-white tabular-nums leading-none">
+          <div className="text-[26px] font-bold text-foreground tabular-nums leading-none">
             {num(item.percent, lang)}
-            <span className="text-[14px] text-white/65">%</span>
+            <span className="text-[14px] text-fg-secondary">%</span>
           </div>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2.5 rounded-full bg-white/[0.06] border border-white/[0.06] overflow-hidden mb-4">
+      <div className="h-2.5 rounded-full bg-surface-2 border border-border-strong overflow-hidden mb-4">
         <motion.div
           className={`h-full rounded-full ${done ? "bg-emerald-400" : "bg-primary"}`}
           initial={false}
@@ -335,7 +335,7 @@ function ProgressCard({
         <button
           onClick={() => onSave(item.percent - 10)}
           disabled={saving || item.percent <= 0}
-          className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-white/[0.05] border border-white/10 text-white/75 text-[12.5px] font-semibold hover:bg-white/[0.08] disabled:opacity-40 transition-colors"
+          className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[12.5px] font-semibold hover:bg-surface-2 disabled:opacity-40 transition-colors"
           data-testid={`learn-dec-${item.courseId}`}
         >
           <Minus className="w-3.5 h-3.5" /> {t({ ar: "10٪", en: "10%" })}
@@ -343,7 +343,7 @@ function ProgressCard({
         <button
           onClick={() => onSave(item.percent + 10)}
           disabled={saving || item.percent >= 100}
-          className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-white/[0.05] border border-white/10 text-white/75 text-[12.5px] font-semibold hover:bg-white/[0.08] disabled:opacity-40 transition-colors"
+          className="inline-flex items-center gap-1 px-3 h-9 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[12.5px] font-semibold hover:bg-surface-2 disabled:opacity-40 transition-colors"
           data-testid={`learn-inc-${item.courseId}`}
         >
           <Plus className="w-3.5 h-3.5" /> {t({ ar: "10٪", en: "10%" })}

@@ -80,8 +80,8 @@ export default function Daily() {
             aria-pressed={filter === f.key ? "true" : "false"}
             className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
               filter === f.key
-                ? "bg-primary/20 text-white border-primary/40"
-                : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                ? "bg-primary/20 text-foreground border-primary/40"
+                : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid={`filter-${f.key || "all"}`}
           >
@@ -91,7 +91,7 @@ export default function Daily() {
       </div>
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -99,7 +99,7 @@ export default function Daily() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-40 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-40 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -160,19 +160,19 @@ function DailyCard({ post }: { post: Post }) {
                   ? DAILY_TYPE_LABELS[post.type]
                   : DAILY_TYPE_LABELS_EN[post.type]}
               </span>
-              <span className="text-white/60 text-[11.5px]">
+              <span className="text-muted-foreground text-[11.5px]">
                 {formatDate(post.publishedAt, lang)}
               </span>
             </div>
-            <h3 className="text-white font-bold text-[18px] leading-snug mb-2">
+            <h3 className="text-foreground font-bold text-[18px] leading-snug mb-2">
               {post.title}
             </h3>
             {post.body && (
-              <p className="text-white/60 text-[13.5px] leading-[1.85] line-clamp-3">
+              <p className="text-muted-foreground text-[13.5px] leading-[1.85] line-clamp-3">
                 {post.body}
               </p>
             )}
-            <div className="mt-3 flex items-center gap-2 text-[12.5px] text-white/55 group-hover:text-primary font-semibold transition-colors">
+            <div className="mt-3 flex items-center gap-2 text-[12.5px] text-muted-foreground group-hover:text-primary font-semibold transition-colors">
               <span>{t({ ar: "اقرأ المزيد", en: "Read more" })}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
@@ -214,14 +214,14 @@ export function DailyDetail() {
     return (
       <PageShell active="daily">
         <BackLink href="/daily" label={t({ ar: "عودة", en: "Back" })} />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!post) {
     return (
       <PageShell active="daily">
-        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -246,19 +246,19 @@ export function DailyDetail() {
                 ? DAILY_TYPE_LABELS[post.type]
                 : DAILY_TYPE_LABELS_EN[post.type]}
             </span>
-            <span className="text-white/60 text-[11.5px]">
+            <span className="text-muted-foreground text-[11.5px]">
               {formatDate(post.publishedAt, lang)}
             </span>
           </div>
           <h1
-            className="font-bold text-white leading-tight mb-5"
+            className="font-bold text-foreground leading-tight mb-5"
             style={{ fontSize: "clamp(1.85rem, 4.5vw, 2.6rem)" }}
             data-testid="text-daily-title"
           >
             {post.title}
           </h1>
           {post.body && (
-            <div className="text-white/80 text-[15px] leading-[2.05] whitespace-pre-wrap">
+            <div className="text-foreground text-[15px] leading-[2.05] whitespace-pre-wrap">
               {post.body}
             </div>
           )}

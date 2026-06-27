@@ -196,7 +196,7 @@ export default function WorkEditor() {
   if (loading || !user) {
     return (
       <PageShell active="works">
-        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-72 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -236,7 +236,7 @@ export default function WorkEditor() {
             error={issues.coverUrl}
           >
             {form.coverUrl ? (
-              <div className="relative rounded-2xl overflow-hidden border border-white/10">
+              <div className="relative rounded-2xl overflow-hidden border border-border-strong">
                 <img
                   src={form.coverUrl}
                   alt=""
@@ -245,7 +245,7 @@ export default function WorkEditor() {
                 <button
                   type="button"
                   onClick={() => setForm((s) => ({ ...s, coverUrl: "" }))}
-                  className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center hover:bg-red-500/70 transition-colors"
+                  className="absolute top-2 left-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-foreground flex items-center justify-center hover:bg-red-500/70 transition-colors"
                   data-testid="button-remove-cover"
                 >
                   <X className="w-4 h-4" />
@@ -256,7 +256,7 @@ export default function WorkEditor() {
                 type="button"
                 onClick={() => coverFileRef.current?.click()}
                 disabled={uploading !== null}
-                className="w-full h-44 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] text-white/55 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2"
+                className="w-full h-44 rounded-2xl border border-dashed border-border-strong bg-surface-2 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2"
                 data-testid="button-upload-cover"
               >
                 {uploading === "cover" ? (
@@ -275,7 +275,7 @@ export default function WorkEditor() {
                         en: "Drag an image here or click to choose",
                       })}
                     </span>
-                    <span className="text-[11px] text-white/55">
+                    <span className="text-[11px] text-muted-foreground">
                       {t({ ar: "حتّى ٥ ميجابايت", en: "Up to 5 MB" })}
                     </span>
                   </>
@@ -309,13 +309,13 @@ export default function WorkEditor() {
               {form.galleryUrls.map((url, i) => (
                 <div
                   key={`${url}-${i}`}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group"
+                  className="relative aspect-square rounded-xl overflow-hidden border border-border-strong group"
                 >
                   <img src={url} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeGalleryAt(i)}
-                    className="absolute top-1 left-1 w-7 h-7 rounded-full bg-black/65 backdrop-blur text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
+                    className="absolute top-1 left-1 w-7 h-7 rounded-full bg-black/65 backdrop-blur text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
                     data-testid={`button-remove-gallery-${i}`}
                   >
                     <X className="w-3.5 h-3.5" />
@@ -327,7 +327,7 @@ export default function WorkEditor() {
                   type="button"
                   onClick={() => galleryFileRef.current?.click()}
                   disabled={uploading !== null}
-                  className="aspect-square rounded-xl border border-dashed border-white/20 bg-white/[0.03] text-white/45 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1"
+                  className="aspect-square rounded-xl border border-dashed border-border-strong bg-surface-2 text-fg-faint hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1"
                   data-testid="button-upload-gallery"
                 >
                   {uploading === "gallery" ? (
@@ -365,7 +365,7 @@ export default function WorkEditor() {
             <input
               value={form.title}
               onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
-              className="w-full bg-transparent outline-none text-white text-[15px] py-1"
+              className="w-full bg-transparent outline-none text-foreground text-[15px] py-1"
               placeholder={t({
                 ar: "مثال: تطبيق متجر إلكتروني لمتجر العائلة",
                 en: "e.g. An online store app for the family shop",
@@ -385,7 +385,7 @@ export default function WorkEditor() {
               onChange={(e) =>
                 setForm((s) => ({ ...s, summary: e.target.value }))
               }
-              className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
+              className="w-full bg-transparent outline-none text-foreground text-[14.5px] py-1"
               placeholder={t({
                 ar: "جملة وصفيّة قصيرة",
                 en: "A short descriptive sentence",
@@ -406,7 +406,7 @@ export default function WorkEditor() {
                 setForm((s) => ({ ...s, description: e.target.value }))
               }
               rows={6}
-              className="w-full bg-transparent outline-none text-white text-[14.5px] leading-[1.85] py-1 resize-none"
+              className="w-full bg-transparent outline-none text-foreground text-[14.5px] leading-[1.85] py-1 resize-none"
               placeholder={t({
                 ar: "ما الذي تنجزه؟ ما الأدوات والتقنيّات؟",
                 en: "What does it do? Which tools and technologies?",
@@ -430,7 +430,7 @@ export default function WorkEditor() {
                 onChange={(e) =>
                   setForm((s) => ({ ...s, videoUrl: e.target.value }))
                 }
-                className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
+                className="w-full bg-transparent outline-none text-foreground text-[14.5px] py-1"
                 placeholder="https://www.youtube.com/watch?v=…"
                 data-testid="input-video-url"
                 maxLength={800}
@@ -450,7 +450,7 @@ export default function WorkEditor() {
                 onChange={(e) =>
                   setForm((s) => ({ ...s, link: e.target.value }))
                 }
-                className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
+                className="w-full bg-transparent outline-none text-foreground text-[14.5px] py-1"
                 placeholder="https://…"
                 data-testid="input-link"
                 maxLength={800}
@@ -467,7 +467,7 @@ export default function WorkEditor() {
                 onChange={(e) =>
                   setForm((s) => ({ ...s, tags: e.target.value }))
                 }
-                className="w-full bg-transparent outline-none text-white text-[14.5px] py-1"
+                className="w-full bg-transparent outline-none text-foreground text-[14.5px] py-1"
                 placeholder={t({
                   ar: "React, تصميم, موبايل",
                   en: "React, Design, Mobile",
@@ -479,7 +479,7 @@ export default function WorkEditor() {
           </div>
 
           {error && (
-            <div className="rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-200 text-[13px]">
+            <div className="rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/30 text-destructive text-[13px]">
               {error}
             </div>
           )}
@@ -500,7 +500,7 @@ export default function WorkEditor() {
             <button
               type="button"
               onClick={() => navigate(editing && id ? `/works/${id}` : "/works")}
-              className="px-6 py-3.5 rounded-2xl bg-white/[0.05] border border-white/10 text-white/75 font-semibold text-[14px] hover:bg-white/[0.08] transition-colors"
+              className="px-6 py-3.5 rounded-2xl bg-surface-2 border border-border-strong text-fg-secondary font-semibold text-[14px] hover:bg-surface-2 transition-colors"
             >
               {t({ ar: "إلغاء", en: "Cancel" })}
             </button>
@@ -527,22 +527,22 @@ function Field({
   return (
     <div>
       <label className="flex items-center justify-between mb-2 text-[11.5px]">
-        <span className="text-white/75 font-semibold">{label}</span>
-        <span className="text-[10px] tracking-[0.16em] uppercase text-white/55">
+        <span className="text-fg-secondary font-semibold">{label}</span>
+        <span className="text-[10px] tracking-[0.16em] uppercase text-muted-foreground">
           {hint}
           {note ? ` · ${note}` : ""}
         </span>
       </label>
       <div
-        className={`rounded-2xl px-4 py-3 bg-white/[0.04] border backdrop-blur-md transition-colors focus-within:bg-white/[0.06] ${
+        className={`rounded-2xl px-4 py-3 bg-surface-2 border backdrop-blur-md transition-colors focus-within:bg-surface-2 ${
           error
             ? "border-red-500/45 focus-within:border-red-500/65"
-            : "border-white/10 focus-within:border-primary/45"
+            : "border-border-strong focus-within:border-primary/45"
         }`}
       >
         {children}
       </div>
-      {error && <div className="text-[11.5px] text-red-300 mt-1.5 px-1">{error}</div>}
+      {error && <div className="text-[11.5px] text-destructive mt-1.5 px-1">{error}</div>}
     </div>
   );
 }

@@ -51,7 +51,7 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative z-10 w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-3xl bg-[#0f1424] border border-white/10 shadow-2xl"
+          className="relative z-10 w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-3xl bg-[#0f1424] border border-border-strong shadow-2xl"
         >
           {story.coverUrl ? (
             <div className="relative h-40 overflow-hidden rounded-t-3xl">
@@ -66,7 +66,7 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
             type="button"
             onClick={onClose}
             aria-label={t({ ar: "إغلاق", en: "Close" })}
-            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-fg-secondary hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -77,30 +77,30 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
                 <img
                   src={story.avatarUrl}
                   alt={story.personName}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-white/10 shadow-lg flex-shrink-0"
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-border-strong shadow-lg flex-shrink-0"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-white/10 flex-shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-border-strong flex-shrink-0">
                   <span className="text-2xl font-bold text-primary">{story.personName[0]}</span>
                 </div>
               )}
               <div>
-                <div className="text-[18px] font-bold text-white leading-tight">{story.personName}</div>
-                <div className="text-[13px] text-white/55 mt-0.5">{story.role} · {story.ventureName}</div>
+                <div className="text-[18px] font-bold text-foreground leading-tight">{story.personName}</div>
+                <div className="text-[13px] text-muted-foreground mt-0.5">{story.role} · {story.ventureName}</div>
               </div>
             </div>
 
             {story.quote && (
               <div className="relative mb-5">
                 <Quote className="w-6 h-6 text-primary/40 mb-2" />
-                <p className="text-[17px] text-white/85 leading-relaxed font-medium italic">
+                <p className="text-[17px] text-foreground leading-relaxed font-medium italic">
                   "{story.quote}"
                 </p>
               </div>
             )}
 
             {story.story && (
-              <p className="text-[14px] text-white/60 leading-relaxed whitespace-pre-line">
+              <p className="text-[14px] text-muted-foreground leading-relaxed whitespace-pre-line">
                 {story.story}
               </p>
             )}
@@ -145,7 +145,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               <img src={story.coverUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#15171F]" />
               {story.featured && (
-                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur text-[11px] font-bold text-white">
+                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur text-[11px] font-bold text-foreground">
                   <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {lang === "en" ? "Featured" : "مميّز"}
                 </div>
               )}
@@ -155,20 +155,20 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
           <div className="p-5 flex-1 flex flex-col gap-3">
             <div className="flex items-start gap-3">
               {story.avatarUrl ? (
-                <img src={story.avatarUrl} alt={story.personName} className="w-11 h-11 rounded-xl object-cover border border-white/10 flex-shrink-0" />
+                <img src={story.avatarUrl} alt={story.personName} className="w-11 h-11 rounded-xl object-cover border border-border-strong flex-shrink-0" />
               ) : (
                 <div className="w-11 h-11 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-lg font-bold text-primary">{story.personName[0]}</span>
                 </div>
               )}
               <div className="min-w-0">
-                <div className="text-[15px] font-bold text-white leading-tight">{story.personName}</div>
-                <div className="text-[12px] text-white/60 mt-0.5 truncate">{story.role} · {story.ventureName}</div>
+                <div className="text-[15px] font-bold text-foreground leading-tight">{story.personName}</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5 truncate">{story.role} · {story.ventureName}</div>
               </div>
             </div>
 
             {story.quote && (
-              <p className="text-[13.5px] text-white/65 leading-relaxed line-clamp-3 flex-1">
+              <p className="text-[13.5px] text-fg-secondary leading-relaxed line-clamp-3 flex-1">
                 "{story.quote}"
               </p>
             )}
@@ -206,15 +206,15 @@ export default function Stories() {
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-2xl bg-white/[0.04] animate-pulse" />
+              <div key={i} className="h-64 rounded-2xl bg-surface-2 animate-pulse" />
             ))}
           </div>
         )}
 
         {!isLoading && stories.length === 0 && (
           <div className="text-center py-24">
-            <Quote className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/75 text-[15px] font-semibold">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
+            <Quote className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
+            <p className="text-fg-secondary text-[15px] font-semibold">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
           </div>
         )}
 
@@ -225,7 +225,7 @@ export default function Stories() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
-                  <span className="text-[13px] font-semibold text-white/60 tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
+                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {stories.filter(s => s.featured).map((s, i) => (
@@ -239,9 +239,9 @@ export default function Stories() {
             <div>
               {stories.some(s => s.featured) && (
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <span className="text-[13px] font-semibold text-white/60 tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
-                  <div className="h-px flex-1 bg-white/10" />
+                  <div className="h-px flex-1 bg-surface-2" />
+                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
+                  <div className="h-px flex-1 bg-surface-2" />
                 </div>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -255,7 +255,7 @@ export default function Stories() {
 
         {/* CTA */}
         <div className="text-center py-8">
-          <p className="text-white/65 text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
+          <p className="text-fg-secondary text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
           <Link
             href="/apply"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"

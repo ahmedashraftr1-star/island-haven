@@ -146,14 +146,14 @@ export default function PublicProfile() {
           href="/members"
           label={t({ ar: "عودة للمنتسبين", en: "Back to members" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
       <PageShell active="members">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -182,7 +182,7 @@ export default function PublicProfile() {
       />
       <GlassCard className="p-6 sm:p-10 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">
-          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-white shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
+          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-foreground shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
             {u.avatarUrl ? (
               <img src={u.avatarUrl} alt={u.fullName} className="w-full h-full object-cover" />
             ) : (
@@ -194,30 +194,30 @@ export default function PublicProfile() {
               {lang === "ar" ? ROLE_LABELS[u.role] : ROLE_LABELS_EN[u.role]}
             </div>
             <h1
-              className="font-bold text-white leading-tight mb-2"
+              className="font-bold text-foreground leading-tight mb-2"
               style={{ fontSize: "clamp(1.7rem, 4.5vw, 2.4rem)" }}
               data-testid="text-public-profile-name"
             >
               {u.fullName}
             </h1>
             {u.jobTitle && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-white/80 text-[13px] mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-border-strong text-foreground text-[13px] mb-4">
                 <Briefcase className="w-3.5 h-3.5 text-primary" />
                 {u.jobTitle}
               </div>
             )}
             <div className="flex items-center gap-4 justify-center sm:justify-start mb-4 text-[13px]">
-              <span className="text-white/70" data-testid="text-followers-count">
-                <b className="text-white font-bold">{followers}</b>{" "}
+              <span className="text-fg-secondary" data-testid="text-followers-count">
+                <b className="text-foreground font-bold">{followers}</b>{" "}
                 {t({ ar: "متابِع", en: "followers" })}
               </span>
-              <span className="text-white/70" data-testid="text-following-count">
-                <b className="text-white font-bold">{data.followingCount ?? 0}</b>{" "}
+              <span className="text-fg-secondary" data-testid="text-following-count">
+                <b className="text-foreground font-bold">{data.followingCount ?? 0}</b>{" "}
                 {t({ ar: "يتابِع", en: "following" })}
               </span>
             </div>
             {u.bio && (
-              <p className="text-white/65 text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
+              <p className="text-fg-secondary text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
                 {u.bio}
               </p>
             )}
@@ -243,7 +243,7 @@ export default function PublicProfile() {
                 aria-pressed={following}
                 className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold border transition-colors disabled:opacity-60 ${
                   following
-                    ? "bg-white/[0.06] border-white/15 text-white/85 hover:bg-white/[0.1]"
+                    ? "bg-surface-2 border-border-strong text-foreground hover:bg-white/[0.1]"
                     : "bg-primary/15 border-primary/40 text-primary hover:bg-primary/25"
                 }`}
                 data-testid="button-follow"
@@ -273,14 +273,14 @@ export default function PublicProfile() {
         </div>
 
         {(externalLinks.length > 0 || otherLinks.length > 0) && (
-          <div className="mt-6 pt-6 border-t border-white/10 flex flex-wrap gap-2">
+          <div className="mt-6 pt-6 border-t border-border-strong flex flex-wrap gap-2">
             {externalLinks.map(({ label, url, Icon }) => (
               <a
                 key={label}
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-white text-[12px] font-semibold hover:bg-white/[0.1] transition-colors"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-2 border border-border-strong text-foreground text-[12px] font-semibold hover:bg-white/[0.1] transition-colors"
                 data-testid={`link-${label.toLowerCase()}`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -293,7 +293,7 @@ export default function PublicProfile() {
                 href={l.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-white/85 text-[12px] font-semibold hover:bg-white/[0.08] transition-colors"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-2 border border-border-strong text-foreground text-[12px] font-semibold hover:bg-surface-2 transition-colors"
               >
                 <ExternalLink className="w-3 h-3" />
                 {l.label}
@@ -358,11 +358,11 @@ export default function PublicProfile() {
                   <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 to-transparent" />
                 )}
                 <div className="p-4">
-                  <h3 className="text-white font-bold text-[14.5px] leading-snug line-clamp-2">
+                  <h3 className="text-foreground font-bold text-[14.5px] leading-snug line-clamp-2">
                     {w.title}
                   </h3>
                   {w.summary && (
-                    <p className="text-white/55 text-[12.5px] mt-1 line-clamp-2">
+                    <p className="text-muted-foreground text-[12.5px] mt-1 line-clamp-2">
                       {w.summary}
                     </p>
                   )}

@@ -106,14 +106,14 @@ export default function OpportunityDetail() {
           href="/opportunities"
           label={t({ ar: "عودة للفرص", en: "Back to opportunities" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!o) {
     return (
       <PageShell active="opportunities">
-        <div className="h-80 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-80 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -152,7 +152,7 @@ export default function OpportunityDetail() {
         </div>
 
         <h1
-          className="font-bold text-white leading-tight mb-2"
+          className="font-bold text-foreground leading-tight mb-2"
           style={{ fontSize: "clamp(1.5rem, 4vw, 2.2rem)" }}
           data-testid="text-opportunity-title"
         >
@@ -208,21 +208,21 @@ export default function OpportunityDetail() {
         </div>
 
         {o.description && (
-          <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
+          <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-7">
             {o.description}
           </div>
         )}
 
         {tags.length > 0 && (
           <div className="mb-8">
-            <div className="text-[10.5px] tracking-[0.18em] uppercase text-white/60 font-bold mb-2.5">
+            <div className="text-[10.5px] tracking-[0.18em] uppercase text-muted-foreground font-bold mb-2.5">
               {t({ ar: "المهارات المطلوبة", en: "Required skills" })}
             </div>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 rounded-lg text-[12.5px] bg-white/[0.05] text-white/70 border border-white/[0.08]"
+                  className="px-3 py-1 rounded-lg text-[12.5px] bg-surface-2 text-fg-secondary border border-border-strong"
                 >
                   {tag}
                 </span>
@@ -247,7 +247,7 @@ export default function OpportunityDetail() {
             )}
           </a>
         ) : (
-          <div className="inline-flex items-center px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-white/55 text-[13.5px]">
+          <div className="inline-flex items-center px-5 py-3 rounded-2xl bg-surface-2 border border-border-strong text-muted-foreground text-[13.5px]">
             {t({
               ar: "للتقديم، تواصل مع فريق آيلاند هيفن.",
               en: "To apply, get in touch with the Island Haven team.",
@@ -269,10 +269,10 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+    <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
-      <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
+      <div className="text-muted-foreground text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-foreground font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );
 }

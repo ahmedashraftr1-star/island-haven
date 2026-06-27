@@ -71,35 +71,35 @@ function JobCard({ job, index }: { job: Job; index: number }) {
             <img
               src={job.companyLogoUrl}
               alt={job.companyName}
-              className="w-12 h-12 rounded-xl object-cover border border-white/10 flex-shrink-0"
+              className="w-12 h-12 rounded-xl object-cover border border-border-strong flex-shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0 border border-white/[0.08]">
-              <span className="text-xl font-bold text-white/60">{job.companyName[0]}</span>
+            <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center flex-shrink-0 border border-border-strong">
+              <span className="text-xl font-bold text-muted-foreground">{job.companyName[0]}</span>
             </div>
           )}
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-1">
-              <h3 className="text-[15px] font-bold text-white leading-tight group-hover:text-primary transition-colors">
+              <h3 className="text-[15px] font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
                 {job.title}
                 {job.featured && <Star className="w-3.5 h-3.5 text-amber-400 fill-current inline-block mr-1.5" />}
               </h3>
-              <span className={`shrink-0 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[job.type] ?? "bg-white/10 text-white/50 border-white/10"}`}>
+              <span className={`shrink-0 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[job.type] ?? "bg-surface-2 text-muted-foreground border-border-strong"}`}>
                 {TYPE_LABELS[job.type] ?? job.type}
               </span>
             </div>
 
-            <div className="text-[13px] font-medium text-white/60 mb-2">{job.companyName}</div>
+            <div className="text-[13px] font-medium text-muted-foreground mb-2">{job.companyName}</div>
 
             {job.description && (
-              <p className="text-[13px] text-white/65 line-clamp-2 leading-relaxed mb-3">
+              <p className="text-[13px] text-fg-secondary line-clamp-2 leading-relaxed mb-3">
                 {job.description}
               </p>
             )}
 
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-3 text-[12px] text-white/60">
+              <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" /> {job.location}
                 </span>
@@ -120,7 +120,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
                   قدّم الآن <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
               ) : (
-                <span className="text-[12px] text-white/55">تواصل مع الشركة</span>
+                <span className="text-[12px] text-muted-foreground">تواصل مع الشركة</span>
               )}
             </div>
           </div>
@@ -171,14 +171,14 @@ export default function Jobs() {
         {/* Search + Filters */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t(jp.searchPlaceholder)}
               aria-label={t(jp.searchPlaceholder)}
-              className="w-full h-12 pr-11 pl-5 rounded-2xl bg-white/[0.05] border border-white/[0.09] text-white placeholder:text-white/50 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
+              className="w-full h-12 pr-11 pl-5 rounded-2xl bg-surface-2 border border-border-strong text-foreground placeholder:text-muted-foreground text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
             />
           </div>
 
@@ -192,7 +192,7 @@ export default function Jobs() {
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-white/[0.05] text-white/50 hover:text-white/75 border border-white/[0.08]"
+                    : "bg-surface-2 text-muted-foreground hover:text-fg-secondary border border-border-strong"
                 }`}
               >
                 {CAT_LABELS[cat] ?? cat}
@@ -208,7 +208,7 @@ export default function Jobs() {
 
         {/* Count */}
         {!isLoading && (
-          <div className="text-[13px] text-white/60">
+          <div className="text-[13px] text-muted-foreground">
             {filtered.length} {lang === "en" ? "jobs available" : "وظيفة متاحة"}
           </div>
         )}
@@ -217,7 +217,7 @@ export default function Jobs() {
         {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-28 rounded-2xl bg-white/[0.04] animate-pulse" />
+              <div key={i} className="h-28 rounded-2xl bg-surface-2 animate-pulse" />
             ))}
           </div>
         )}
@@ -225,9 +225,9 @@ export default function Jobs() {
         {/* Empty */}
         {!isLoading && filtered.length === 0 && (
           <div className="text-center py-20">
-            <Briefcase className="w-12 h-12 text-white/10 mx-auto mb-4" />
-            <p className="text-white/85 text-[15px] font-semibold mb-2">{t(jp.empty)}</p>
-            <p className="text-white/60 text-[13px]">{lang === "en" ? "Check back later or follow us to stay updated." : "ارجع لاحقاً أو تابعنا للبقاء على اطّلاع."}</p>
+            <Briefcase className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
+            <p className="text-foreground text-[15px] font-semibold mb-2">{t(jp.empty)}</p>
+            <p className="text-muted-foreground text-[13px]">{lang === "en" ? "Check back later or follow us to stay updated." : "ارجع لاحقاً أو تابعنا للبقاء على اطّلاع."}</p>
           </div>
         )}
 
@@ -241,10 +241,10 @@ export default function Jobs() {
         )}
 
         {/* Post a job CTA */}
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="rounded-2xl border border-border-strong bg-surface-2 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="text-[15px] font-bold text-white mb-1">هل لديك وظيفة تودّ نشرها؟</h3>
-            <p className="text-[13px] text-white/60">شركاء آيلاند يمكنهم نشر فرصهم مجاناً لمجتمع الحاضنة.</p>
+            <h3 className="text-[15px] font-bold text-foreground mb-1">هل لديك وظيفة تودّ نشرها؟</h3>
+            <p className="text-[13px] text-muted-foreground">شركاء آيلاند يمكنهم نشر فرصهم مجاناً لمجتمع الحاضنة.</p>
           </div>
           <a
             href="https://wa.me/972567536815"
@@ -258,7 +258,7 @@ export default function Jobs() {
 
         {/* Become a member */}
         <div className="text-center">
-          <p className="text-white/60 text-[13px] mb-3">
+          <p className="text-muted-foreground text-[13px] mb-3">
             الأعضاء المسجّلون يحصلون على إشعار فوري بكل وظيفة جديدة.
           </p>
           <Link

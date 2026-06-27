@@ -208,7 +208,7 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
               className="aspect-[16/9] flex items-center justify-center"
               style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
             >
-              <Layers className="w-12 h-12 text-white/90" />
+              <Layers className="w-12 h-12 text-foreground" />
             </div>
           )}
           <div className="relative p-6 flex-1 flex flex-col">

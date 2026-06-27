@@ -253,22 +253,22 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                   "linear-gradient(to top, #0A0E1A 6%, rgba(10,14,26,0.55) 42%, transparent 78%)",
               }}
             />
-            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-white/15 text-white border border-white/25 backdrop-blur-sm">
-              <Star className="w-3 h-3 fill-white text-white" />{" "}
+            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-white/15 text-foreground border border-border-strong backdrop-blur-sm">
+              <Star className="w-3 h-3 fill-white text-foreground" />{" "}
               {t({ ar: "مشروع مميّز", en: "Featured" })}
             </div>
 
             <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
               <div className="flex items-center gap-3 mb-3">
                 {v.logoUrl ? (
-                  <img src={v.logoUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-white/15" />
+                  <img src={v.logoUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-border-strong" />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 rounded-xl bg-surface-2 border border-border-strong backdrop-blur-sm flex items-center justify-center text-foreground font-bold text-lg">
                     {v.name.charAt(0)}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h3 className="text-white font-bold text-[20px] leading-tight truncate">{v.name}</h3>
+                  <h3 className="text-foreground font-bold text-[20px] leading-tight truncate">{v.name}</h3>
                   <span className="text-[12px] text-primary font-semibold">
                     {stageLabel(v.stage, lang)}
                     {v.sector ? ` · ${v.sector}` : ""}
@@ -276,9 +276,9 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                 </div>
               </div>
               {v.tagline && (
-                <p className="text-white/80 text-[14px] leading-[1.7] mb-3 max-w-xl">{v.tagline}</p>
+                <p className="text-foreground text-[14px] leading-[1.7] mb-3 max-w-xl">{v.tagline}</p>
               )}
-              <div className="flex items-center justify-between text-[12.5px] text-white/65">
+              <div className="flex items-center justify-between text-[12.5px] text-fg-secondary">
                 <span className="inline-flex items-center gap-3">
                   <span className="inline-flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-primary" />
@@ -291,7 +291,7 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                     </span>
                   ) : null}
                 </span>
-                <span className="inline-flex items-center gap-1 text-white group-hover:text-primary transition-colors font-bold">
+                <span className="inline-flex items-center gap-1 text-foreground group-hover:text-primary transition-colors font-bold">
                   {t({ ar: "القصّة الكاملة", en: "Full story" })}
                   <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
                 </span>
@@ -340,7 +340,7 @@ function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                 <img src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover border border-border" />
               ) : (
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-black ring-1 ring-white/15 shadow-soft"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-black ring-1 ring-border-strong shadow-soft"
                   style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
                 >
                   {v.name.charAt(0)}

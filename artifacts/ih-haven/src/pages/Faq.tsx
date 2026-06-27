@@ -82,7 +82,7 @@ function FaqItem({ item, index }: { item: FaqItem; index: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="border-b border-white/[0.07] last:border-0"
+      className="border-b border-border-strong last:border-0"
     >
       <button
         type="button"
@@ -92,16 +92,16 @@ function FaqItem({ item, index }: { item: FaqItem; index: number }) {
         aria-controls={panelId}
         className="w-full flex items-center justify-between gap-4 py-4 text-right rounded-lg hover:opacity-90 transition-opacity"
       >
-        <span className={`text-[14.5px] font-semibold leading-snug transition-colors ${open ? "text-primary" : "text-white/85"}`}>
+        <span className={`text-[14.5px] font-semibold leading-snug transition-colors ${open ? "text-primary" : "text-foreground"}`}>
           {item.q}
         </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.25 }}
           aria-hidden="true"
-          className="flex-shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center"
+          className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-2 flex items-center justify-center"
         >
-          <ChevronDown className="w-3.5 h-3.5 text-white/50" />
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>
@@ -117,7 +117,7 @@ function FaqItem({ item, index }: { item: FaqItem; index: number }) {
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-[13.5px] text-white/55 leading-relaxed">
+            <p className="pb-5 text-[13.5px] text-muted-foreground leading-relaxed">
               {item.a}
             </p>
           </motion.div>
@@ -151,7 +151,7 @@ export default function Faq() {
               className={`shrink-0 text-right px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
                 activeSection === i
                   ? "bg-primary text-white shadow-lg shadow-primary/20"
-                  : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
+                  : "text-muted-foreground hover:text-foreground hover:bg-surface-2"
               }`}
             >
               {lang === "en" ? sec.en : sec.title}
@@ -160,18 +160,18 @@ export default function Faq() {
         </nav>
 
         {/* Content */}
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm p-6">
+        <div className="rounded-2xl border border-border-strong bg-surface-2 backdrop-blur-sm p-6">
           <motion.div
             key={activeSection}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="mb-5 pb-4 border-b border-white/[0.07]">
+            <div className="mb-5 pb-4 border-b border-border-strong">
               <div className="text-[11px] font-bold text-primary/70 tracking-widest uppercase mb-1">
                 {FAQ_DATA[activeSection].en}
               </div>
-              <h2 className="text-[20px] font-bold text-white">
+              <h2 className="text-[20px] font-bold text-foreground">
                 {lang === "en" ? FAQ_DATA[activeSection].en : FAQ_DATA[activeSection].title}
               </h2>
             </div>
@@ -187,8 +187,8 @@ export default function Faq() {
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/[0.06] p-8 text-center">
         <MessageCircle className="w-10 h-10 text-primary/60 mx-auto mb-3" />
-        <h3 className="text-[18px] font-bold text-white mb-2">{t(p.stillQuestion)}</h3>
-        <p className="text-[13.5px] text-white/50 mb-5">{lang === "en" ? "Contact us directly and we'll reply as soon as possible." : "تواصل معنا مباشرة وسنرد عليك في أقرب وقت."}</p>
+        <h3 className="text-[18px] font-bold text-foreground mb-2">{t(p.stillQuestion)}</h3>
+        <p className="text-[13.5px] text-muted-foreground mb-5">{lang === "en" ? "Contact us directly and we'll reply as soon as possible." : "تواصل معنا مباشرة وسنرد عليك في أقرب وقت."}</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <a
             href="https://wa.me/972567536815"
@@ -200,13 +200,13 @@ export default function Faq() {
           </a>
           <Link
             href="/apply"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/15 text-white/70 font-medium text-[13px] hover:border-white/30 hover:text-white transition-all"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border-strong text-fg-secondary font-medium text-[13px] hover:border-white/30 hover:text-foreground transition-all"
           >
             {lang === "en" ? "Apply Now" : "قدّم الآن"}
           </Link>
           <Link
             href="/process"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/15 text-white/70 font-medium text-[13px] hover:border-white/30 hover:text-white transition-all"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border-strong text-fg-secondary font-medium text-[13px] hover:border-white/30 hover:text-foreground transition-all"
           >
             {lang === "en" ? "How to join" : "كيف تنضمّ"}
           </Link>

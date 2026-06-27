@@ -104,7 +104,7 @@ export default function Works() {
       })}
     >
       <div className="relative mb-5">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45 pointer-events-none" aria-hidden="true" />
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
         <input
           type="search"
           value={q}
@@ -117,7 +117,7 @@ export default function Works() {
             ar: "ابحث في الأعمال بالعنوان أو الوصف أو الوسوم",
             en: "Search works by title, summary, or tags",
           })}
-          className="w-full h-12 pe-11 ps-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-white/[0.07] transition-colors"
+          className="w-full h-12 pe-11 ps-4 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[14px] placeholder-white/50 outline-none focus:border-primary/45 focus:bg-surface-2 transition-colors"
           data-testid="input-search-works"
         />
       </div>
@@ -131,8 +131,8 @@ export default function Works() {
               aria-pressed={filter === f.key ? "true" : "false"}
               className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                 filter === f.key
-                  ? "bg-primary/20 text-white border-primary/40"
-                  : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                  ? "bg-primary/20 text-foreground border-primary/40"
+                  : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
               }`}
               data-testid={`filter-${f.key || "all"}`}
             >
@@ -152,7 +152,7 @@ export default function Works() {
         ) : (
           <Link
             href="/login?next=/works/new"
-            className="text-[12.5px] text-white/55 hover:text-primary font-semibold transition-colors"
+            className="text-[12.5px] text-muted-foreground hover:text-primary font-semibold transition-colors"
           >
             {t({ ar: "سجّل دخولك لإضافة أعمالك", en: "Sign in to add your work" })}
           </Link>
@@ -160,7 +160,7 @@ export default function Works() {
       </div>
 
       <div className="flex items-center gap-2 flex-wrap mb-8 -mt-4">
-        <span className="text-white/60 text-[12px] font-semibold me-1">
+        <span className="text-muted-foreground text-[12px] font-semibold me-1">
           {t({ ar: "ترتيب:", en: "Sort:" })}
         </span>
         {SORT_OPTIONS.map((o) => (
@@ -172,7 +172,7 @@ export default function Works() {
             className={`px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               sort === o.key
                 ? "bg-primary/15 text-primary border-primary/35"
-                : "bg-white/[0.03] text-white/55 border-white/10 hover:text-white hover:bg-white/[0.07]"
+                : "bg-surface-2 text-muted-foreground border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid={`sort-${o.key}`}
           >
@@ -187,7 +187,7 @@ export default function Works() {
             className={`ms-1 px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               followingFeed
                 ? "bg-primary text-white border-primary"
-                : "bg-white/[0.03] text-white/55 border-white/10 hover:text-white hover:bg-white/[0.07]"
+                : "bg-surface-2 text-muted-foreground border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid="toggle-following-feed"
           >
@@ -196,7 +196,7 @@ export default function Works() {
         )}
       </div>
       {followingFeed && rows !== null && rows.length === 0 && !error && (
-        <GlassCard className="p-6 text-center text-white/65 text-[13.5px] mb-6">
+        <GlassCard className="p-6 text-center text-fg-secondary text-[13.5px] mb-6">
           {t({
             ar: "لا توجد أعمال من الأعضاء الذين تتابِعهم بعد — تابِع أعضاء من صفحاتهم لترى أعمالهم هنا.",
             en: "No works yet from members you follow — follow members from their profiles to see their work here.",
@@ -205,7 +205,7 @@ export default function Works() {
       )}
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -213,7 +213,7 @@ export default function Works() {
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-72 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-72 bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -251,7 +251,7 @@ export default function Works() {
             onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
             aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
             <span aria-hidden="true">←</span>
           </button>
@@ -264,7 +264,7 @@ export default function Works() {
             }, [])
             .map((p, i) =>
               p === "…" ? (
-                <span key={`e${i}`} className="text-white/30 text-[13px] px-1">…</span>
+                <span key={`e${i}`} className="text-fg-faint text-[13px] px-1">…</span>
               ) : (
                 <button
                   key={p}
@@ -275,7 +275,7 @@ export default function Works() {
                   className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${
                     p === page
                       ? "bg-primary text-white shadow-[0_4px_14px_-3px_rgba(220,38,55,0.5)]"
-                      : "bg-white/[0.07] border border-white/15 text-white/70 hover:bg-white/[0.11]"
+                      : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"
                   }`}
                 >
                   {p}
@@ -287,7 +287,7 @@ export default function Works() {
             onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
             <span aria-hidden="true">→</span>
           </button>
@@ -318,17 +318,17 @@ function WorkCard({ row }: { row: WorkRow }) {
           </div>
         ) : (
           <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
-            <div className="text-white/55 text-[12px] tracking-[0.22em] uppercase">
+            <div className="text-muted-foreground text-[12px] tracking-[0.22em] uppercase">
               {t({ ar: "لا توجد صورة", en: "No image" })}
             </div>
           </div>
         )}
         <div className="p-5 flex-1 flex flex-col">
-          <h3 className="text-white font-bold text-[16.5px] leading-snug mb-1.5 line-clamp-2">
+          <h3 className="text-foreground font-bold text-[16.5px] leading-snug mb-1.5 line-clamp-2">
             {row.work.title}
           </h3>
           {row.work.summary && (
-            <p className="text-white/55 text-[13px] leading-[1.7] line-clamp-2 mb-3">
+            <p className="text-muted-foreground text-[13px] leading-[1.7] line-clamp-2 mb-3">
               {row.work.summary}
             </p>
           )}
@@ -337,7 +337,7 @@ function WorkCard({ row }: { row: WorkRow }) {
               {tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 rounded-full bg-white/[0.05] text-white/55 text-[11px] border border-white/10"
+                  className="px-2 py-0.5 rounded-full bg-surface-2 text-muted-foreground text-[11px] border border-border-strong"
                 >
                   {tag}
                 </span>
@@ -345,18 +345,18 @@ function WorkCard({ row }: { row: WorkRow }) {
             </div>
           )}
           <div className="mt-auto flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 flex items-center justify-center text-[11px] font-bold text-white">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-primary/5 border border-primary/30 flex items-center justify-center text-[11px] font-bold text-foreground">
               {(row.author.fullName || "·").slice(0, 1)}
             </div>
             <div className="leading-tight min-w-0">
-              <div className="text-white text-[12.5px] font-semibold truncate">
+              <div className="text-foreground text-[12.5px] font-semibold truncate">
                 {row.author.fullName}
               </div>
-              <div className="text-white/60 text-[10.5px] tracking-[0.16em] uppercase">
+              <div className="text-muted-foreground text-[10.5px] tracking-[0.16em] uppercase">
                 {ROLE_LABELS[row.author.role]}
               </div>
             </div>
-            <div className="ms-auto flex items-center gap-3 text-white/60 text-[11.5px] tabular-nums shrink-0">
+            <div className="ms-auto flex items-center gap-3 text-muted-foreground text-[11.5px] tabular-nums shrink-0">
               <span
                 className="inline-flex items-center gap-1"
                 title={t({ ar: "إعجابات", en: "Likes" })}

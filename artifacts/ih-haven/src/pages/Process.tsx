@@ -171,10 +171,10 @@ export default function Process() {
                             <span className={`text-[11px] font-bold tracking-widest ${step.accent} opacity-60`}>
                               {step.num}
                             </span>
-                            <span className="text-[11px] text-white/55 font-medium">{step.en}</span>
+                            <span className="text-[11px] text-muted-foreground font-medium">{step.en}</span>
                           </div>
-                          <h3 className="text-[17px] font-bold text-white mb-2">{t(step.title)}</h3>
-                          <p className="text-[13.5px] text-white/55 leading-relaxed">{t(step.desc)}</p>
+                          <h3 className="text-[17px] font-bold text-foreground mb-2">{t(step.title)}</h3>
+                          <p className="text-[13.5px] text-muted-foreground leading-relaxed">{t(step.desc)}</p>
                           <div className="flex items-center gap-1.5 mt-3">
                             <Clock className={`w-3.5 h-3.5 ${step.accent} opacity-60`} />
                             <span className={`text-[12px] font-medium ${step.accent} opacity-75`}>{t(step.time)}</span>
@@ -187,7 +187,7 @@ export default function Process() {
                   {/* Connector dot — only on desktop */}
                   <div className={`hidden lg:flex ${isRight ? "lg:col-start-2 justify-start" : "lg:col-start-1 justify-end"} items-center`}>
                     <div className="relative">
-                      <div className={`w-4 h-4 rounded-full border-2 ${step.border} bg-[#0A0E1A] ${isRight ? "-translate-x-full" : "translate-x-full"}`} />
+                      <div className={`w-4 h-4 rounded-full border-2 ${step.border} bg-surface-1 ${isRight ? "-translate-x-full" : "translate-x-full"}`} />
                     </div>
                   </div>
                 </motion.div>
@@ -198,14 +198,14 @@ export default function Process() {
 
         {/* FAQs */}
         <div>
-          <h2 className="text-[20px] font-bold text-white mb-5">
+          <h2 className="text-[20px] font-bold text-foreground mb-5">
             {t({ ar: "أسئلة شائعة عن التقديم", en: "Frequently asked questions" })}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {FAQS.map((faq, i) => (
               <GlassCard key={i} className="p-5">
-                <h3 className="text-[14px] font-bold text-white mb-2">{t(faq.q)}</h3>
-                <p className="text-[13px] text-white/50 leading-relaxed">{t(faq.a)}</p>
+                <h3 className="text-[14px] font-bold text-foreground mb-2">{t(faq.q)}</h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">{t(faq.a)}</p>
               </GlassCard>
             ))}
           </div>
@@ -218,10 +218,10 @@ export default function Process() {
           viewport={{ once: true }}
           className="text-center py-8 rounded-3xl border border-primary/20 bg-primary/[0.05]"
         >
-          <h3 className="text-[22px] font-bold text-white mb-2">
+          <h3 className="text-[22px] font-bold text-foreground mb-2">
             {t({ ar: "مستعدّ للبدء؟", en: "Ready to begin?" })}
           </h3>
-          <p className="text-white/65 text-[14px] mb-6">
+          <p className="text-fg-secondary text-[14px] mb-6">
             {t({
               ar: "خصّص 20 دقيقة وقدّم طلبك الآن — فكرتك تستحق.",
               en: "Set aside 20 minutes and apply now — your idea deserves it.",
@@ -237,7 +237,7 @@ export default function Process() {
           <div className="mt-4">
             <Link
               href="/faq"
-              className="text-[13px] text-white/60 hover:text-white transition-colors underline underline-offset-2"
+              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
             >
               {t({
                 ar: "عندك أسئلة؟ راجع الأسئلة الشائعة",

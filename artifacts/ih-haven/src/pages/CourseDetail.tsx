@@ -182,14 +182,14 @@ export default function CourseDetail() {
           href="/courses"
           label={t({ ar: "عودة للقائمة", en: "Back to list" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
       <PageShell active="courses">
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -239,7 +239,7 @@ export default function CourseDetail() {
                   en: COURSE_TYPE_LABELS_EN[c.type],
                 })}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold bg-white/[0.05] text-white/60 border border-white/10">
+              <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold bg-surface-2 text-muted-foreground border border-border-strong">
                 {t({
                   ar: COURSE_STATUS_LABELS[c.status],
                   en: COURSE_STATUS_LABELS_EN[c.status],
@@ -247,19 +247,19 @@ export default function CourseDetail() {
               </span>
             </div>
             <h1
-              className="font-bold text-white leading-tight mb-3"
+              className="font-bold text-foreground leading-tight mb-3"
               style={{ fontSize: "clamp(1.7rem, 4vw, 2.4rem)" }}
               data-testid="text-course-title"
             >
               {c.title}
             </h1>
             {c.summary && (
-              <p className="text-white/65 text-[15.5px] leading-[1.85] mb-6">
+              <p className="text-fg-secondary text-[15.5px] leading-[1.85] mb-6">
                 {c.summary}
               </p>
             )}
             {c.description && (
-              <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap">
+              <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap">
                 {c.description}
               </div>
             )}
@@ -271,15 +271,15 @@ export default function CourseDetail() {
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
               {t({ ar: "التفاصيل", en: "Details" })}
             </div>
-            <ul className="space-y-3 text-[13.5px] text-white/75">
+            <ul className="space-y-3 text-[13.5px] text-fg-secondary">
               {c.instructor && (
                 <li className="flex items-start gap-3">
                   <UserIcon className="w-4 h-4 text-primary mt-0.5" />
                   <div>
-                    <div className="text-white/45 text-[11px] tracking-wide">
+                    <div className="text-fg-faint text-[11px] tracking-wide">
                       {t({ ar: "المُدرِّب", en: "Instructor" })}
                     </div>
-                    <div className="text-white font-semibold">{c.instructor}</div>
+                    <div className="text-foreground font-semibold">{c.instructor}</div>
                   </div>
                 </li>
               )}
@@ -287,14 +287,14 @@ export default function CourseDetail() {
                 <li className="flex items-start gap-3">
                   <Calendar className="w-4 h-4 text-primary mt-0.5" />
                   <div>
-                    <div className="text-white/45 text-[11px] tracking-wide">
+                    <div className="text-fg-faint text-[11px] tracking-wide">
                       {t({ ar: "يبدأ", en: "Starts" })}
                     </div>
-                    <div className="text-white font-semibold">
+                    <div className="text-foreground font-semibold">
                       {fmtDateTime(c.startsAt, lang)}
                     </div>
                     {c.endsAt && (
-                      <div className="text-white/55 text-[12px] mt-0.5">
+                      <div className="text-muted-foreground text-[12px] mt-0.5">
                         {t({ ar: "ينتهي:", en: "Ends:" })}{" "}
                         {fmtDateTime(c.endsAt, lang)}
                       </div>
@@ -306,20 +306,20 @@ export default function CourseDetail() {
                 <li className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-primary mt-0.5" />
                   <div>
-                    <div className="text-white/45 text-[11px] tracking-wide">
+                    <div className="text-fg-faint text-[11px] tracking-wide">
                       {t({ ar: "المكان", en: "Location" })}
                     </div>
-                    <div className="text-white font-semibold">{c.location}</div>
+                    <div className="text-foreground font-semibold">{c.location}</div>
                   </div>
                 </li>
               )}
               <li className="flex items-start gap-3">
                 <Users className="w-4 h-4 text-primary mt-0.5" />
                 <div>
-                  <div className="text-white/45 text-[11px] tracking-wide">
+                  <div className="text-fg-faint text-[11px] tracking-wide">
                     {t({ ar: "المُسجَّلون", en: "Enrolled" })}
                   </div>
-                  <div className="text-white font-semibold">
+                  <div className="text-foreground font-semibold">
                     {num(c.enrolled, lang)}
                     {c.capacity > 0
                       ? ` ${t({ ar: "من أصل", en: "of" })} ${num(c.capacity, lang)}`
@@ -333,7 +333,7 @@ export default function CourseDetail() {
           <GlassCard className="p-6">
             {!user ? (
               <>
-                <div className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
+                <div className="text-fg-secondary text-[13.5px] leading-[1.85] mb-4">
                   {t({
                     ar: "سجّل دخولك لحجز مقعدك في هذه الفعاليّة.",
                     en: "Sign in to reserve your seat at this event.",
@@ -348,7 +348,7 @@ export default function CourseDetail() {
                 </Link>
                 <Link
                   href={`/register?next=/courses/${id}`}
-                  className="block text-center mt-2 text-[12.5px] text-white/55 hover:text-primary transition-colors"
+                  className="block text-center mt-2 text-[12.5px] text-muted-foreground hover:text-primary transition-colors"
                 >
                   {t({
                     ar: "ليس لديك حساب؟ أنشئ واحدًا",
@@ -368,7 +368,7 @@ export default function CourseDetail() {
                 <button
                   onClick={onCancel}
                   disabled={busy}
-                  className="w-full py-3 rounded-2xl bg-white/[0.05] border border-white/10 text-white/75 font-semibold text-[13.5px] hover:bg-red-500/10 hover:text-red-200 hover:border-red-500/30 transition-colors disabled:opacity-50"
+                  className="w-full py-3 rounded-2xl bg-surface-2 border border-border-strong text-fg-secondary font-semibold text-[13.5px] hover:bg-red-500/10 hover:text-destructive hover:border-red-500/30 transition-colors disabled:opacity-50"
                   data-testid="button-cancel-enrollment"
                 >
                   <XCircle className="w-4 h-4 inline ml-1.5" />
@@ -376,11 +376,11 @@ export default function CourseDetail() {
                 </button>
               </>
             ) : c.status === "done" ? (
-              <div className="text-white/55 text-[13.5px] text-center py-2">
+              <div className="text-muted-foreground text-[13.5px] text-center py-2">
                 {t({ ar: "هذه الفعاليّة منتهية.", en: "This event has ended." })}
               </div>
             ) : isFull || c.status === "closed" ? (
-              <div className="text-white/55 text-[13.5px] text-center py-2">
+              <div className="text-muted-foreground text-[13.5px] text-center py-2">
                 {t({
                   ar: "اكتمل العدد. ترقّب الدفعة القادمة.",
                   en: "Fully booked. Watch for the next round.",
@@ -388,7 +388,7 @@ export default function CourseDetail() {
               </div>
             ) : (
               <>
-                <div className="text-white/65 text-[13.5px] leading-[1.85] mb-4">
+                <div className="text-fg-secondary text-[13.5px] leading-[1.85] mb-4">
                   {t({
                     ar: "مَجّاني تمامًا — احجز مقعدك الآن.",
                     en: "Completely free — reserve your seat now.",
@@ -405,7 +405,7 @@ export default function CourseDetail() {
               </>
             )}
             {error && (
-              <div className="mt-3 text-[12.5px] text-red-300">{error}</div>
+              <div className="mt-3 text-[12.5px] text-destructive">{error}</div>
             )}
           </GlassCard>
         </div>

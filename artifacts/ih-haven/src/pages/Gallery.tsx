@@ -89,7 +89,7 @@ export default function Gallery() {
       maxWidth="max-w-7xl"
     >
       {error && (
-        <GlassCard className="p-6 text-center text-red-200 mb-6">{error}</GlassCard>
+        <GlassCard className="p-6 text-center text-destructive mb-6">{error}</GlassCard>
       )}
 
       {items === null && !error ? (
@@ -97,7 +97,7 @@ export default function Gallery() {
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-square rounded-2xl bg-white/[0.035] border border-white/10 animate-pulse"
+              className="aspect-square rounded-2xl bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -117,7 +117,7 @@ export default function Gallery() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-20px" }}
               transition={{ duration: 0.4, delay: Math.min(i, 12) * 0.02 }}
-              className="break-inside-avoid w-full block group rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              className="break-inside-avoid w-full block group rounded-2xl overflow-hidden border border-border-strong bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
               data-testid={`gallery-item-${it.id}`}
             >
               <img
@@ -127,11 +127,11 @@ export default function Gallery() {
                 className="w-full h-auto block group-hover:scale-[1.03] transition-transform duration-700"
               />
               <div className="px-3 py-2 text-right">
-                <div className="text-white/85 text-[12px] font-semibold truncate">
+                <div className="text-foreground text-[12px] font-semibold truncate">
                   {it.title}
                 </div>
                 {it.author && (
-                  <div className="text-white/45 text-[10.5px] truncate">
+                  <div className="text-fg-faint text-[10.5px] truncate">
                     {it.author}
                   </div>
                 )}
@@ -167,11 +167,11 @@ export default function Gallery() {
                 alt={active.title}
                 className="w-full max-h-[80vh] object-contain rounded-2xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
               />
-              <div className="mt-4 flex items-center justify-between gap-4 text-white">
+              <div className="mt-4 flex items-center justify-between gap-4 text-foreground">
                 <div className="min-w-0">
                   <div className="text-[16px] font-bold truncate">{active.title}</div>
                   {active.author && (
-                    <div className="text-white/55 text-[12.5px] truncate">
+                    <div className="text-muted-foreground text-[12.5px] truncate">
                       {c.byAuthor} {active.author}
                     </div>
                   )}
@@ -189,7 +189,7 @@ export default function Gallery() {
                   <button
                     type="button"
                     onClick={() => setActive(null)}
-                    className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/15 transition-colors"
+                    className="w-9 h-9 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center hover:bg-white/15 transition-colors"
                     aria-label={t({ ar: "إغلاق", en: "Close" })}
                   >
                     <X className="w-4 h-4" />

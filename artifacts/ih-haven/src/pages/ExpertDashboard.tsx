@@ -183,8 +183,8 @@ export default function ExpertDashboard() {
             onClick={() => setTab(item.k)}
             className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold border transition-colors ${
               tab === item.k
-                ? "bg-primary/20 text-white border-primary/40"
-                : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white"
+                ? "bg-primary/20 text-foreground border-primary/40"
+                : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground"
             }`}
           >
             {t(item.label)}
@@ -234,7 +234,7 @@ function SessionsPanel({
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="h-28 rounded-[20px] bg-white/[0.035] border border-white/10 animate-pulse"
+            className="h-28 rounded-[20px] bg-white/[0.035] border border-border-strong animate-pulse"
           />
         ))}
       </div>
@@ -272,18 +272,18 @@ function SessionsPanel({
                     <img
                       src={row.menteeAvatar}
                       alt={row.menteeName}
-                      className="w-10 h-10 rounded-xl object-cover border border-white/10"
+                      className="w-10 h-10 rounded-xl object-cover border border-border-strong"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
-                      <UserIcon className="w-4 h-4 text-white/50" />
+                    <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border-strong flex items-center justify-center">
+                      <UserIcon className="w-4 h-4 text-muted-foreground" />
                     </div>
                   )}
                   <div>
-                    <div className="text-white font-semibold text-[14px]">
+                    <div className="text-foreground font-semibold text-[14px]">
                       {row.menteeName}
                     </div>
-                    <div className="text-white/60 text-[11.5px]">
+                    <div className="text-muted-foreground text-[11.5px]">
                       {formatDateTime(s.createdAt, lang)}
                     </div>
                   </div>
@@ -291,15 +291,15 @@ function SessionsPanel({
                 <StatusBadge status={s.status} />
               </div>
 
-              <div className="text-white font-semibold text-[14.5px] mb-1">
+              <div className="text-foreground font-semibold text-[14.5px] mb-1">
                 {s.topic}
               </div>
               {s.message && (
-                <p className="text-white/60 text-[13px] leading-[1.7] mb-3">
+                <p className="text-muted-foreground text-[13px] leading-[1.7] mb-3">
                   {s.message}
                 </p>
               )}
-              <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[12px] text-white/55 mb-3">
+              <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[12px] text-muted-foreground mb-3">
                 <span>
                   {t({ ar: "النوع:", en: "Type:" })} {sessionModeLabel(s.mode, lang)}
                 </span>
@@ -312,7 +312,7 @@ function SessionsPanel({
               </div>
 
               {(pending || confirmed) && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-white/[0.06]">
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border-strong">
                   {pending && (
                     <>
                       <button
@@ -326,7 +326,7 @@ function SessionsPanel({
                       <button
                         onClick={() => act(s.id, "declined")}
                         disabled={busyId === s.id}
-                        className="px-4 py-2 rounded-xl bg-white/[0.05] text-white/70 border border-white/10 text-[12.5px] font-semibold hover:bg-red-500/10 hover:text-red-200 hover:border-red-500/30 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                        className="px-4 py-2 rounded-xl bg-surface-2 text-fg-secondary border border-border-strong text-[12.5px] font-semibold hover:bg-red-500/10 hover:text-destructive hover:border-red-500/30 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                       >
                         <XCircle className="w-3.5 h-3.5" />{" "}
                         {t({ ar: "رفض", en: "Decline" })}
@@ -359,8 +359,8 @@ function StatusBadge({ status }: { status: SessionStatus }) {
     requested: "bg-amber-400/10 text-amber-200 border-amber-400/30",
     confirmed: "bg-emerald-500/10 text-emerald-200 border-emerald-500/30",
     completed: "bg-primary/15 text-primary border-primary/30",
-    declined: "bg-white/[0.05] text-white/50 border-white/10",
-    cancelled: "bg-white/[0.05] text-white/50 border-white/10",
+    declined: "bg-surface-2 text-muted-foreground border-border-strong",
+    cancelled: "bg-surface-2 text-muted-foreground border-border-strong",
   };
   return (
     <span
@@ -392,7 +392,7 @@ function ProfilePanel({
 
   if (!form) {
     return (
-      <div className="h-96 rounded-[24px] bg-white/[0.035] border border-white/10 animate-pulse" />
+      <div className="h-96 rounded-[24px] bg-white/[0.035] border border-border-strong animate-pulse" />
     );
   }
 
@@ -452,7 +452,7 @@ function ProfilePanel({
           })}
         >
           <Input value={form.headline} onChange={(v) => set("headline", v)} max={160} />
-          <p className="mt-1 text-[11.5px] text-white/60 leading-relaxed">
+          <p className="mt-1 text-[11.5px] text-muted-foreground leading-relaxed">
             {t({
               ar: "يظهر هذا النصّ أسفل اسمك على بطاقة الحجز وقائمة الخبراء.",
               en: "This appears under your name on your booking card and in the experts list.",
@@ -481,7 +481,7 @@ function ProfilePanel({
             onChange={(e) => set("bio", e.target.value)}
             rows={5}
             maxLength={4000}
-            className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none"
+            className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none resize-none"
           />
         </DField>
         <div className="grid grid-cols-2 gap-4">
@@ -492,7 +492,7 @@ function ProfilePanel({
               max={80}
               value={form.yearsExperience}
               onChange={(e) => set("yearsExperience", Number(e.target.value))}
-              className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white focus:border-primary/50 focus:outline-none"
+              className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground focus:border-primary/50 focus:outline-none"
             />
           </DField>
           <DField label={t({ ar: "مدّة الجلسة (دقيقة)", en: "Session length (minutes)" })}>
@@ -502,7 +502,7 @@ function ProfilePanel({
               max={480}
               value={form.sessionMinutes}
               onChange={(e) => set("sessionMinutes", Number(e.target.value))}
-              className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white focus:border-primary/50 focus:outline-none"
+              className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground focus:border-primary/50 focus:outline-none"
             />
           </DField>
         </div>
@@ -541,7 +541,7 @@ function ProfilePanel({
             onChange={(e) => set("acceptingSessions", e.target.checked)}
             className="w-4 h-4 accent-primary"
           />
-          <span className="text-[13.5px] text-white/75">
+          <span className="text-[13.5px] text-fg-secondary">
             {t({
               ar: "أستقبل طلبات جلسات إرشاد جديدة",
               en: "I'm accepting new mentorship session requests",
@@ -549,7 +549,7 @@ function ProfilePanel({
           </span>
         </label>
 
-        {error && <div className="text-[12.5px] text-red-300">{error}</div>}
+        {error && <div className="text-[12.5px] text-destructive">{error}</div>}
         {flash && (
           <div className="text-[12.5px] text-emerald-300 inline-flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4" /> {flash}
@@ -579,7 +579,7 @@ function DField({
 }) {
   return (
     <label className="block">
-      <span className="block text-[11.5px] text-white/50 font-medium mb-1.5">
+      <span className="block text-[11.5px] text-muted-foreground font-medium mb-1.5">
         {label}
       </span>
       {children}
@@ -604,7 +604,7 @@ function Input({
       onChange={(e) => onChange(e.target.value)}
       maxLength={max}
       placeholder={placeholder}
-      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none"
+      className="w-full rounded-xl bg-surface-2 border border-border-strong px-3.5 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none"
     />
   );
 }
@@ -624,11 +624,11 @@ interface Slot {
 const SLOT_BADGE: Record<SlotStatus, string> = {
   available: "bg-emerald-500/10 text-emerald-200 border-emerald-500/30",
   booked: "bg-primary/15 text-primary border-primary/30",
-  cancelled: "bg-white/[0.05] text-white/45 border-white/10",
+  cancelled: "bg-surface-2 text-fg-faint border-border-strong",
 };
 
 const inputCls =
-  "w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none";
+  "w-full rounded-xl bg-surface-2 border border-border-strong px-3 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none";
 
 function OfficeHoursPanel() {
   const { lang, t } = useLanguage();
@@ -724,13 +724,13 @@ function OfficeHoursPanel() {
       <GlassCard className="p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Clock className="w-4 h-4 text-primary" />
-          <h3 className="text-white font-bold text-[15px]">
+          <h3 className="text-foreground font-bold text-[15px]">
             {t({ ar: "أضِف موعدًا متاحًا", en: "Add an available slot" })}
           </h3>
         </div>
         <form onSubmit={add} className="grid sm:grid-cols-2 gap-3">
           <label className="block">
-            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+            <span className="block mb-1.5 text-[12px] text-muted-foreground font-semibold">
               {t({ ar: "من", en: "From" })}
             </span>
             <input
@@ -741,7 +741,7 @@ function OfficeHoursPanel() {
             />
           </label>
           <label className="block">
-            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+            <span className="block mb-1.5 text-[12px] text-muted-foreground font-semibold">
               {t({ ar: "إلى", en: "To" })}
             </span>
             <input
@@ -752,7 +752,7 @@ function OfficeHoursPanel() {
             />
           </label>
           <label className="block">
-            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+            <span className="block mb-1.5 text-[12px] text-muted-foreground font-semibold">
               {t({ ar: "النّوع", en: "Type" })}
             </span>
             <select
@@ -766,7 +766,7 @@ function OfficeHoursPanel() {
           </label>
           {mode === "onsite" && (
             <label className="block">
-              <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+              <span className="block mb-1.5 text-[12px] text-muted-foreground font-semibold">
                 {t({ ar: "المكان", en: "Location" })}
               </span>
               <input
@@ -779,7 +779,7 @@ function OfficeHoursPanel() {
             </label>
           )}
           <label className="block sm:col-span-2">
-            <span className="block mb-1.5 text-[12px] text-white/55 font-semibold">
+            <span className="block mb-1.5 text-[12px] text-muted-foreground font-semibold">
               {t({ ar: "ملاحظة (اختياري)", en: "Note (optional)" })}
             </span>
             <input
@@ -790,7 +790,7 @@ function OfficeHoursPanel() {
             />
           </label>
           {error && (
-            <div className="sm:col-span-2 text-red-300 text-[12.5px]">
+            <div className="sm:col-span-2 text-destructive text-[12.5px]">
               {error}
             </div>
           )}
@@ -808,11 +808,11 @@ function OfficeHoursPanel() {
       </GlassCard>
 
       <div>
-        <h3 className="text-white font-bold text-[15px] mb-3">
+        <h3 className="text-foreground font-bold text-[15px] mb-3">
           {t({ ar: "مواعيدي", en: "My slots" })}
         </h3>
         {slots === null ? (
-          <div className="text-white/65 text-[13px] py-8 text-center">
+          <div className="text-fg-secondary text-[13px] py-8 text-center">
             {t({ ar: "جارِ التحميل…", en: "Loading…" })}
           </div>
         ) : slots.length === 0 ? (
@@ -828,13 +828,13 @@ function OfficeHoursPanel() {
             {slots.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 bg-white/[0.04] border border-white/[0.07]"
+                className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 bg-surface-2 border border-border-strong"
               >
                 <div className="min-w-0">
-                  <div className="text-white text-[13.5px] font-semibold">
+                  <div className="text-foreground text-[13.5px] font-semibold">
                     {formatDateTime(s.startAt, lang)}
                   </div>
-                  <div className="text-white/60 text-[11.5px] truncate">
+                  <div className="text-muted-foreground text-[11.5px] truncate">
                     {sessionModeLabel(s.mode, lang)}
                     {s.location ? ` · ${s.location}` : ""}
                     {s.note ? ` · ${s.note}` : ""}
@@ -849,7 +849,7 @@ function OfficeHoursPanel() {
                   {s.status !== "booked" && (
                     <button
                       onClick={() => remove(s.id)}
-                      className="text-white/55 hover:text-red-300 transition-colors"
+                      className="text-muted-foreground hover:text-destructive transition-colors"
                       title={t({ ar: "حذف", en: "Delete" })}
                     >
                       <Trash2 className="w-3.5 h-3.5" />

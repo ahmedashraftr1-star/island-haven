@@ -76,7 +76,7 @@ export default function Saved() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -84,7 +84,7 @@ export default function Saved() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-72 rounded-[24px] bg-white/[0.035] border border-white/10 animate-pulse"
+              className="h-72 rounded-[24px] bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -117,19 +117,19 @@ export default function Saved() {
                   </div>
                 ) : (
                   <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
-                    <Bookmark className="w-6 h-6 text-white/45" />
+                    <Bookmark className="w-6 h-6 text-fg-faint" />
                   </div>
                 )}
                 <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="text-white font-bold text-[14.5px] leading-snug line-clamp-2">
+                  <h3 className="text-foreground font-bold text-[14.5px] leading-snug line-clamp-2">
                     {row.work.title}
                   </h3>
                   {row.work.summary && (
-                    <p className="text-white/55 text-[12.5px] mt-1 line-clamp-2">
+                    <p className="text-muted-foreground text-[12.5px] mt-1 line-clamp-2">
                       {row.work.summary}
                     </p>
                   )}
-                  <div className="mt-auto pt-3 flex items-center gap-4 text-white/60 text-[12px]">
+                  <div className="mt-auto pt-3 flex items-center gap-4 text-muted-foreground text-[12px]">
                     <span className="inline-flex items-center gap-1">
                       <Heart className="w-3.5 h-3.5" />
                       <span className="tabular-nums">{row.likesCount ?? 0}</span>
@@ -138,7 +138,7 @@ export default function Saved() {
                       <MessageCircle className="w-3.5 h-3.5" />
                       <span className="tabular-nums">{row.commentsCount ?? 0}</span>
                     </span>
-                    <span className="ms-auto text-white/55 truncate">
+                    <span className="ms-auto text-muted-foreground truncate">
                       {row.author.fullName}
                     </span>
                   </div>
@@ -156,11 +156,11 @@ export default function Saved() {
             onClick={() => { setPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
             aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
             <span aria-hidden="true">←</span>
           </button>
-          <span className="text-white/55 text-[13px] tabular-nums px-2">
+          <span className="text-muted-foreground text-[13px] tabular-nums px-2">
             {page} / {totalPages}
           </span>
           <button
@@ -168,7 +168,7 @@ export default function Saved() {
             onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
-            className="px-4 py-2 rounded-xl bg-white/[0.07] border border-white/15 text-white/70 text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           >
             <span aria-hidden="true">→</span>
           </button>

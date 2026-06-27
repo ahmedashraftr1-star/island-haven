@@ -149,7 +149,7 @@ export default function NotificationSettings() {
       maxWidth="max-w-2xl"
     >
       {error && (
-        <GlassCard className="p-4 mb-5 text-red-200 text-center text-[13.5px]">
+        <GlassCard className="p-4 mb-5 text-destructive text-center text-[13.5px]">
           {error}
         </GlassCard>
       )}
@@ -159,7 +159,7 @@ export default function NotificationSettings() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-[88px] bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-[88px] bg-white/[0.035] border border-border-strong animate-pulse"
             />
           ))}
         </div>
@@ -181,10 +181,10 @@ export default function NotificationSettings() {
                       <Icon className="w-5 h-5 text-primary" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-white font-bold text-[15px] leading-snug">
+                      <span className="block text-foreground font-bold text-[15px] leading-snug">
                         {t(tag.title)}
                       </span>
-                      <span className="block text-white/45 text-[12.5px] leading-[1.7] mt-0.5">
+                      <span className="block text-fg-faint text-[12.5px] leading-[1.7] mt-0.5">
                         {t(tag.hint)}
                       </span>
                     </span>
@@ -200,7 +200,7 @@ export default function NotificationSettings() {
             );
           })}
 
-          <p className="flex items-center gap-2 text-white/60 text-[12px] pt-2 px-1">
+          <p className="flex items-center gap-2 text-muted-foreground text-[12px] pt-2 px-1">
             <Bell className="w-3.5 h-3.5 text-primary/70 shrink-0" />
             {t({
               ar: "نُرسل دائمًا الرّسائل الأساسيّة المتعلّقة بأمان حسابك بصرف النّظر عن هذه الإعدادات.",
@@ -234,7 +234,7 @@ function Toggle({
       onClick={onToggle}
       data-testid={`toggle-${label}`}
       className={`relative inline-flex items-center h-7 w-12 rounded-full shrink-0 transition-colors disabled:opacity-60 ${
-        on ? "bg-primary" : "bg-white/[0.12] border border-white/15"
+        on ? "bg-primary" : "bg-white/[0.12] border border-border-strong"
       }`}
     >
       <motion.span

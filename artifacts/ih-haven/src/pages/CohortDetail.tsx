@@ -146,14 +146,14 @@ export default function CohortDetail() {
           href="/cohorts"
           label={t({ ar: "عودة للدّفعات", en: "Back to cohorts" })}
         />
-        <GlassCard className="p-8 text-center text-red-200">{error}</GlassCard>
+        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
   if (!data) {
     return (
       <PageShell>
-        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-white/10 animate-pulse" />
+        <div className="h-96 rounded-[28px] bg-white/[0.035] border border-border-strong animate-pulse" />
       </PageShell>
     );
   }
@@ -189,8 +189,8 @@ export default function CohortDetail() {
                   isLive
                     ? "bg-emerald-500/20 text-emerald-100 border-emerald-500/40"
                     : c.status === "completed"
-                      ? "bg-white/10 text-white/65 border-white/15"
-                      : "bg-primary/20 text-white border-primary/40"
+                      ? "bg-surface-2 text-fg-secondary border-border-strong"
+                      : "bg-primary/20 text-foreground border-primary/40"
                 }`}
               >
                 {t({
@@ -200,13 +200,13 @@ export default function CohortDetail() {
               </span>
               <Link
                 href={`/programs/${data.program.id}`}
-                className="text-[11px] tracking-[0.14em] uppercase text-white/75 font-semibold hover:text-primary transition-colors"
+                className="text-[11px] tracking-[0.14em] uppercase text-fg-secondary font-semibold hover:text-primary transition-colors"
               >
                 · {data.program.title}
               </Link>
             </div>
             <h1
-              className="font-bold text-white leading-tight"
+              className="font-bold text-foreground leading-tight"
               style={{ fontSize: "clamp(1.7rem, 4vw, 2.5rem)" }}
             >
               {c.name}
@@ -221,7 +221,7 @@ export default function CohortDetail() {
             </p>
           )}
           {c.description && (
-            <div className="text-white/75 text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
+            <div className="text-fg-secondary text-[14.5px] leading-[1.95] whitespace-pre-wrap mb-6">
               {c.description}
             </div>
           )}
@@ -270,7 +270,7 @@ export default function CohortDetail() {
               href={c.demoDayUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-white/[0.06] border border-white/15 text-white font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
+              className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-2xl bg-surface-2 border border-border-strong text-foreground font-bold text-[14px] hover:bg-white/[0.1] transition-colors"
             >
               <ExternalLink className="w-4 h-4 text-primary" />
               {t({ ar: "البثّ المباشر", en: "Live stream" })}
@@ -278,7 +278,7 @@ export default function CohortDetail() {
           )}
 
           {c.demoDayLocation && !c.demoDayUrl && (
-            <div className="mt-6 inline-flex items-center gap-2 text-[13.5px] text-white/70">
+            <div className="mt-6 inline-flex items-center gap-2 text-[13.5px] text-fg-secondary">
               <MapPin className="w-4 h-4 text-primary" />
               {c.demoDayLocation}
             </div>
@@ -291,7 +291,7 @@ export default function CohortDetail() {
           {t({ ar: "مشاريع الدّفعة", en: "Cohort ventures" })}
         </div>
         {data.ventures.length === 0 ? (
-          <GlassCard className="p-8 text-center text-white/55">
+          <GlassCard className="p-8 text-center text-muted-foreground">
             {t({
               ar: "لم يلتحق أيّ مشروع بالدّفعة بعد.",
               en: "No venture has joined this cohort yet.",
@@ -358,7 +358,7 @@ function CohortJourney({ slug }: { slug: string }) {
 
       {weeks.length > 0 && (
         <div className="relative mb-8">
-          <div className="absolute top-0 bottom-0 right-[7px] w-px bg-white/10" />
+          <div className="absolute top-0 bottom-0 right-[7px] w-px bg-surface-2" />
           <div className="space-y-4">
             {weeks.map((w, i) => (
               <motion.div
@@ -370,15 +370,15 @@ function CohortJourney({ slug }: { slug: string }) {
                 className="relative ps-7"
               >
                 <span className="absolute right-0 top-1.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-[#0A0E1A]" />
-                <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+                <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
                       {t({ ar: "الأسبوع", en: "Week" })} {num(w.weekNumber, lang)}
                     </span>
-                    <h3 className="text-white font-bold text-[14.5px]">{w.title}</h3>
+                    <h3 className="text-foreground font-bold text-[14.5px]">{w.title}</h3>
                   </div>
                   {w.theme && (
-                    <p className="text-white/55 text-[12.5px] leading-[1.7]">
+                    <p className="text-muted-foreground text-[12.5px] leading-[1.7]">
                       {w.theme}
                     </p>
                   )}
@@ -391,30 +391,30 @@ function CohortJourney({ slug }: { slug: string }) {
 
       {updates.length > 0 && (
         <div>
-          <h3 className="text-white font-bold text-[15px] mb-3">
+          <h3 className="text-foreground font-bold text-[15px] mb-3">
             {t({ ar: "آخر التحديثات", en: "Latest updates" })}
           </h3>
           <div className="space-y-2.5">
             {updates.map((u) => (
               <div
                 key={u.id}
-                className="rounded-2xl px-4 py-3 bg-white/[0.03] border border-white/[0.06]"
+                className="rounded-2xl px-4 py-3 bg-surface-2 border border-border-strong"
               >
                 <div className="flex items-center gap-2 mb-1">
                   {u.weekNumber !== null && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-2 text-muted-foreground">
                       {t({ ar: "أسبوع", en: "Week" })} {num(u.weekNumber, lang)}
                     </span>
                   )}
-                  <span className="text-white font-semibold text-[13.5px]">
+                  <span className="text-foreground font-semibold text-[13.5px]">
                     {u.title}
                   </span>
-                  <span className="text-white/60 text-[11px] ms-auto">
+                  <span className="text-muted-foreground text-[11px] ms-auto">
                     {fmtDate(u.postedAt, lang)}
                   </span>
                 </div>
                 {u.body && (
-                  <p className="text-white/55 text-[12.5px] leading-[1.75]">
+                  <p className="text-muted-foreground text-[12.5px] leading-[1.75]">
                     {u.body}
                   </p>
                 )}
@@ -437,10 +437,10 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl p-4 bg-white/[0.04] border border-white/[0.08]">
+    <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
       <Icon className="w-4 h-4 text-primary mb-2" />
-      <div className="text-white/60 text-[10.5px] tracking-wide mb-0.5">{label}</div>
-      <div className="text-white font-semibold text-[13px] leading-snug">{value}</div>
+      <div className="text-muted-foreground text-[10.5px] tracking-wide mb-0.5">{label}</div>
+      <div className="text-foreground font-semibold text-[13px] leading-snug">{value}</div>
     </div>
   );
 }
@@ -458,13 +458,13 @@ function VentureMini({ row }: { row: VentureRow }) {
           {v.logoUrl ? (
             <img src={v.logoUrl} alt="" className="w-11 h-11 rounded-xl object-cover" />
           ) : (
-            <div className="w-11 h-11 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/70 font-bold">
+            <div className="w-11 h-11 rounded-xl bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary font-bold">
               {v.name.charAt(0)}
             </div>
           )}
           <div className="min-w-0">
-            <div className="text-white font-bold text-[15px] truncate">{v.name}</div>
-            <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 border border-white/10">
+            <div className="text-foreground font-bold text-[15px] truncate">{v.name}</div>
+            <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-surface-2 text-muted-foreground border border-border-strong">
               {t({
                 ar: COHORT_VENTURE_STATUS_LABELS[row.membership.status],
                 en: COHORT_VENTURE_STATUS_LABELS_EN[row.membership.status],
@@ -473,11 +473,11 @@ function VentureMini({ row }: { row: VentureRow }) {
           </div>
         </div>
         {v.tagline && (
-          <p className="text-white/55 text-[12.5px] leading-[1.7] line-clamp-2 mb-3 flex-1">
+          <p className="text-muted-foreground text-[12.5px] leading-[1.7] line-clamp-2 mb-3 flex-1">
             {v.tagline}
           </p>
         )}
-        <div className="flex items-center justify-between pt-3 border-t border-white/[0.06] text-[11.5px] text-white/45">
+        <div className="flex items-center justify-between pt-3 border-t border-border-strong text-[11.5px] text-fg-faint">
           {v.sector && <span>{v.sector}</span>}
           <ArrowLeft className="w-3.5 h-3.5 group-hover:text-primary group-hover:-translate-x-1 transition-all rtl:rotate-180" />
         </div>

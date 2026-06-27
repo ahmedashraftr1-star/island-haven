@@ -134,7 +134,7 @@ export default function RateSession() {
               animate={{ opacity: 1 }}
               className="text-center py-6"
             >
-              <p className="text-white/65 text-[14px] leading-[1.85] mb-5">
+              <p className="text-fg-secondary text-[14px] leading-[1.85] mb-5">
                 {t({
                   ar: "سجّل دخولك لتقييم جلسة الإرشاد الخاصّة بك.",
                   en: "Sign in to rate your mentorship session.",
@@ -155,10 +155,10 @@ export default function RateSession() {
               className="text-center py-6"
             >
               <CheckCircle2 className="w-14 h-14 text-emerald-300 mx-auto mb-4" />
-              <div className="text-white font-bold text-[17px] mb-1.5">
+              <div className="text-foreground font-bold text-[17px] mb-1.5">
                 {t({ ar: "شكرًا لك على تقييمك", en: "Thank you for your feedback" })}
               </div>
-              <p className="text-white/55 text-[13.5px] leading-[1.85] max-w-md mx-auto">
+              <p className="text-muted-foreground text-[13.5px] leading-[1.85] max-w-md mx-auto">
                 {t({
                   ar: "وصلنا رأيك بنجاح. ملاحظاتك تساعد المرشدين على التحسّن وتساعد بقيّة المنتسبين على اختيار الخبير الأنسب.",
                   en: "Your feedback came through. It helps mentors improve and helps fellow members choose the right expert.",
@@ -215,7 +215,7 @@ export default function RateSession() {
                           className={`w-9 h-9 transition-colors ${
                             filled
                               ? "fill-amber-400 text-amber-400"
-                              : "text-white/20"
+                              : "text-fg-faint"
                           }`}
                         />
                       </button>
@@ -229,7 +229,7 @@ export default function RateSession() {
 
               {/* Feedback */}
               <label className="block">
-                <span className="block text-[11.5px] text-white/50 font-medium mb-1.5">
+                <span className="block text-[11.5px] text-muted-foreground font-medium mb-1.5">
                   {t({ ar: "ملاحظات (اختياريّ)", en: "Notes (optional)" })}
                 </span>
                 <textarea
@@ -241,16 +241,16 @@ export default function RateSession() {
                     ar: "ما الذي أعجبك؟ وما الذي يمكن تحسينه؟",
                     en: "What did you like? What could be improved?",
                   })}
-                  className="w-full rounded-2xl bg-white/[0.05] border border-white/10 px-4 py-3 text-[13.5px] text-white placeholder:text-white/50 focus:border-primary/50 focus:outline-none resize-none leading-[1.85]"
+                  className="w-full rounded-2xl bg-surface-2 border border-border-strong px-4 py-3 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none resize-none leading-[1.85]"
                   data-testid="input-feedback"
                 />
-                <div className="text-[11px] text-white/55 mt-1 text-left tabular-nums">
+                <div className="text-[11px] text-muted-foreground mt-1 text-left tabular-nums">
                   {num(feedback.length, lang)}/{num(2000, lang)}
                 </div>
               </label>
 
               {error && (
-                <div className="text-[12.5px] text-red-300 text-center">
+                <div className="text-[12.5px] text-destructive text-center">
                   {error}
                 </div>
               )}
