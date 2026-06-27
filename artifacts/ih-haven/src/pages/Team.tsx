@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { Globe, Linkedin, Mail, Sparkles, Users } from "lucide-react";
-import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { Link } from "wouter";
+import { ArrowLeft, Globe, Linkedin, Mail } from "lucide-react";
+import { PageShell, EmptyState } from "@/components/shell/PageShell";
+import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 
@@ -34,58 +35,45 @@ const GROUPS: {
     ar: "القيادة",
     en: "Leadership",
     blurb: {
-      ar: "الفريق المؤسّس الذي يبني الحاضنة، ويرسم رؤيتها, ويقف خلف كلّ رائد.",
-      en: "The founding team building the incubator, shaping its vision, and standing behind every founder.",
+      ar: "الفريق المؤسِّس الذي وُلد مع الحاضنة في غزّة — يرسم الرؤية، يبني البنية، ويقف خلف كلّ موهبة.",
+      en: "The founding team born with the incubator in Gaza — drawing the vision, building the infrastructure, standing behind every talent.",
     },
     variant: "lead",
   },
   {
     key: "mentors",
     index: 2,
-    ar: "المرشدون",
+    ar: "الإرشاد",
     en: "Mentors",
     blurb: {
-      ar: "خبراء يرافقون الفرق في رحلتها التقنيّة وبناء المنتج خطوةً بخطوة.",
-      en: "Experts who walk with teams through their technical journey and build the product step by step.",
+      ar: "خبراء ومؤسِّسون يرافقون الفرق خطوةً بخطوة في رحلتها التقنيّة وبناء المنتج حتّى يوم العرض.",
+      en: "Experts and founders who walk with each team — step by step — from a first commit to Demo Day.",
     },
     variant: "compact",
   },
   {
     key: "advisors",
     index: 3,
-    ar: "المستشارون",
+    ar: "الاستشارة",
     en: "Advisors",
     blurb: {
-      ar: "مستشارو الأعمال والتمويل والقانون الذين يفتحون الأبواب الصعبة.",
-      en: "Business, finance, and legal advisors who open the doors that are hardest to open.",
+      ar: "مستشارو الأعمال والتمويل والقانون والشّبكات الذين يفتحون الأبواب الأصعب نحو الاقتصاد الرّقميّ.",
+      en: "Business, finance, legal and network advisors who open the hardest doors toward the global digital economy.",
     },
     variant: "compact",
   },
   {
     key: "support",
     index: 4,
-    ar: "الدّعم والتشغيل",
-    en: "Support",
+    ar: "التشغيل",
+    en: "Operations",
     blurb: {
-      ar: "الفريق الذي يُبقي المجتمع يعمل يومًا بيوم، خلف الكواليس.",
-      en: "The team that keeps the community running day by day, behind the scenes.",
+      ar: "الفريق الذي يُبقي المساحة والمجتمع يعملان يومًا بيوم، خلف الكواليس وبلا ضجيج.",
+      en: "The team that keeps the space and the community running day by day — behind the scenes, without noise.",
     },
     variant: "compact",
   },
 ];
-
-const stagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
-};
-const rise: Variants = {
-  hidden: { opacity: 0, y: 26 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-  },
-};
 
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
@@ -98,17 +86,20 @@ function num(n: number, lang: Lang): string {
 function idx(n: number, lang: Lang): string {
   return lang === "ar" ? toArabicNum(n).padStart(2, "٠") : String(n).padStart(2, "0");
 }
+// First grapheme of the name → medallion initial.
+function initialOf(name: string): string {
+  return Array.from(name.trim())[0] ?? "؟";
+}
 
 export default function Team() {
   const { lang, t } = useLanguage();
   const [team, setTeam] = useState<TeamMember[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const reduce = useReducedMotion();
 
   useEffect(() => {
     document.title = t({
-      ar: "فريق آيلاند — حاضنة أعمال غزّة",
-      en: "The Island Haven Team — Gaza Business Incubator",
+      ar: "الفريق خلف آيلاند — حاضنة أعمال غزّة",
+      en: "The Team Behind Island Haven — Gaza Business Incubator",
     });
   }, [lang, t]);
 
@@ -141,116 +132,131 @@ export default function Team() {
   );
   const sections = GROUPS.filter((g) => grouped[g.key]?.length);
   const total = team?.length ?? 0;
+  const hasTeam = team !== null && team.length > 0;
 
   return (
     <PageShell
       eyebrow={t({ ar: "من يقف خلف الحاضنة · The Team", en: "Who Stands Behind the Incubator · The Team" })}
-      title={t({ ar: "فريق", en: "The Island Haven" })}
-      highlight={t({ ar: "آيلاند", en: "Team" })}
+      title={t({ ar: "الفريق خلف", en: "The Team Behind" })}
+      highlight={t({ ar: "آيلاند", en: "Island Haven" })}
       subtitle={t({
-        ar: "حاضنة أعمال يقودها فريق غزّاويّ-دوليّ يؤمن بأنّ المواهب هنا تستحقّ بيئة عمل، إرشادًا، ودعمًا حقيقيّاً. نَنمو معكم، خطوة بخطوة.",
-        en: "A business incubator led by a Gazan-international team that believes the talent here deserves a real workplace, mentorship, and genuine support. We grow with you, step by step.",
+        ar: "حاضنة وُلدت في غزّة أثناء الحرب، ويقودها فريق غزّاويّ-دوليّ يؤمن بأنّ الموهبة هنا تستحقّ مساحةً وإرشادًا ودعمًا حقيقيًّا. لا نَعِد بالمعجزات — نَبني، خطوةً بخطوة، مع كلّ من ينضمّ إلينا.",
+        en: "An incubator born in Gaza during the war, led by a Gazan-international team that believes the talent here deserves a real space, mentorship and support. We don't promise miracles — we build, step by step, with everyone who joins us.",
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
+        <div className="card-base p-5 text-primary text-center font-medium">{error}</div>
       )}
 
       {team === null && !error ? (
         <SkeletonTeam />
       ) : team && team.length === 0 ? (
-        <EmptyState
-          title={t({ ar: "سيُعلَن عن الفريق قريبًا", en: "Team coming soon" })}
-          hint={t({
-            ar: "نُجهّز ملفّات الفريق والمرشدين — تابعنا.",
-            en: "We're preparing the team and mentor profiles — stay tuned.",
-          })}
-        />
+        <TeamEmpty />
       ) : (
         <>
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-wrap items-center gap-2.5 mb-14 sm:mb-16"
-          >
-            <Chip>
-              {num(total, lang)}{" "}
-              {t({ ar: "عضوًا في الفريق", en: "team members" })}
-            </Chip>
-            <Chip>
-              {num(sections.length, lang)} {t({ ar: "فِرَق", en: "teams" })}
-            </Chip>
-            <Chip>
-              {t({
-                ar: "بدعمٍ من · من النّاس إلى النّاس",
-                en: "Supported by · NasToNas",
-              })}
-            </Chip>
-          </motion.div>
+          {/* Founding narrative — the "why", told the editorial way. Real story,
+              no fabricated names; numerals in cerulean .tnum. */}
+          <FoundingNarrative total={total} teams={sections.length} />
 
           {sections.map((g) => (
-            <TeamSection
-              key={g.key}
-              group={g}
-              members={grouped[g.key]}
-              reduce={!!reduce}
-            />
+            <TeamSection key={g.key} group={g} members={grouped[g.key]} />
           ))}
         </>
       )}
 
-      {/* Join us — start-aligned editorial band (mirrors landing/BecomeMentorBand) */}
-      <div className="mt-16 surface-2 border border-border-strong rounded-[28px] p-8 sm:p-11">
-        <h3
-          className="font-display font-extrabold text-foreground"
-          style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.08, letterSpacing: "-0.025em" }}
-        >
-          {t({ ar: "هل تريد الانضمام إلى الفريق؟", en: "Want to join the team?" })}
-        </h3>
-        <p className="t-body mt-4 max-w-xl">
-          {t({
-            ar: "نَبحث دائماً عن مرشدين، وخبراء قطاع, ومتطوّعين يُؤمنون بريادة الأعمال في غزّة. راسلنا وقُل لنا كيف تُريد أن تُساهم.",
-            en: "We're always looking for mentors, industry experts, and volunteers who believe in entrepreneurship in Gaza. Write to us and tell us how you'd like to contribute.",
-          })}
-        </p>
-        <a
-          href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
-          className="group mt-8 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
-        >
-          <Mail className="w-4 h-4" />
-          {t({ ar: "راسلنا", en: "Email Us" })}
-        </a>
-      </div>
+      {/* Warm dual-path closing — mentor + join, never a dead end */}
+      <JoinBand show={hasTeam || (team !== null && team.length === 0)} />
     </PageShell>
   );
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
+/* ───────────────────────── Founding narrative ───────────────────────── */
+
+function FoundingNarrative({ total, teams }: { total: number; teams: number }) {
+  const { lang, t } = useLanguage();
+
+  const ledger = [
+    {
+      v: total,
+      label: t({ ar: "عضوًا في الفريق", en: "team members" }),
+    },
+    {
+      v: teams,
+      label: t({ ar: "فِرَق متخصِّصة", en: "specialised teams" }),
+    },
+  ];
+
   return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong shadow-soft">
-      {children}
-    </span>
+    <Reveal as="section" className="mb-16 sm:mb-20">
+      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-8 items-start">
+        <div className="lg:col-span-7">
+          <div className="flex items-center gap-3 mb-5">
+            <span aria-hidden className="h-px w-9 bg-primary/50" />
+            <span className="eyebrow">{t({ ar: "بدأنا عام ٢٠٢٤", en: "Founded in 2024" })}</span>
+          </div>
+          <h2
+            className="font-display font-extrabold text-foreground"
+            style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.6rem)", lineHeight: 1.08, letterSpacing: "-0.028em" }}
+          >
+            {t({ ar: "فريقٌ صغير، ", en: "A small team, " })}
+            <span className="text-primary">{t({ ar: "هدفٌ كبير.", en: "a vast goal." })}</span>
+          </h2>
+          <p className="t-body mt-5 max-w-xl">
+            {t({
+              ar: "نَسعى لتمكين ألف موهبة غزّاويّة خلال ثلاث سنوات للدّخول إلى الاقتصاد الرّقميّ العالميّ — عبر ثلاثة محاور: البنية والحلول، التطوير والابتكار، والشّبكات والأثر العالميّ. كلّ هذا مجّانًا، بدعمٍ من «من النّاس إلى النّاس».",
+              en: "We aim to empower a thousand Gazan talents over three years to enter the global digital economy — across three axes: infrastructure & solutions, development & innovation, and global networking & impact. All of it free, backed by NasToNas.",
+            })}
+          </p>
+        </div>
+
+        {/* Ledger panel — cerulean numerals carry the proof */}
+        <div className="lg:col-span-5">
+          <div className="card-base p-7 sm:p-8">
+            <div className="grid grid-cols-2 gap-6">
+              {ledger.map((row, i) => (
+                <div key={i}>
+                  <div
+                    className="tnum font-display font-black text-sand-bright leading-[0.9]"
+                    style={{ fontSize: "clamp(2.4rem, 5vw, 3.4rem)", letterSpacing: "-0.04em" }}
+                  >
+                    {num(row.v, lang)}
+                  </div>
+                  <div className="mt-2 text-[13px] text-fg-secondary leading-snug">{row.label}</div>
+                </div>
+              ))}
+            </div>
+            <div aria-hidden className="my-6 h-px bg-border-strong/70" />
+            <div className="flex items-center gap-2.5 text-[12.5px] text-muted-foreground">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
+              </span>
+              {t({ ar: "بدعمٍ من · من النّاس إلى النّاس", en: "Backed by · NasToNas" })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
+
+/* ───────────────────────────── Section ───────────────────────────── */
 
 function TeamSection({
   group,
   members,
-  reduce,
 }: {
   group: (typeof GROUPS)[number];
   members: TeamMember[];
-  reduce: boolean;
 }) {
   const { lang, t } = useLanguage();
   const isLead = group.variant === "lead";
   return (
     <section className="relative mb-16 sm:mb-24">
-      <div className="relative mb-7 sm:mb-9">
+      <Reveal as="div" className="relative mb-7 sm:mb-9">
         <span
           aria-hidden
-          className="absolute -top-7 sm:-top-9 end-0 select-none font-black leading-none"
+          className="absolute -top-7 sm:-top-9 end-0 select-none font-display font-black leading-none"
           style={{
             fontSize: "clamp(4.5rem, 13vw, 9rem)",
             WebkitTextStroke: "1.25px hsl(var(--primary) / 0.16)",
@@ -260,183 +266,235 @@ function TeamSection({
           {idx(group.index, lang)}
         </span>
         <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex flex-wrap items-center gap-3 mb-2">
             <h2
-              className="text-foreground font-display font-bold"
-              style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
+              className="text-foreground font-display font-extrabold"
+              style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)", letterSpacing: "-0.028em" }}
             >
               {t({ ar: group.ar, en: group.en })}
             </h2>
-            <span className="text-[10.5px] tracking-[0.22em] uppercase text-muted-foreground font-bold">
+            <span className="text-[10.5px] tracking-[0.22em] uppercase text-muted-foreground font-bold rtl:tracking-normal">
               {group.en}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/12 border border-primary/30">
-              <Users className="w-3 h-3" />
-              {num(members.length, lang)}
+            <span className="inline-flex items-center gap-1.5 px-2.5 h-[22px] rounded-full text-[11px] font-bold text-sand bg-surface-2 border border-border-strong">
+              <span className="tnum">{num(members.length, lang)}</span>
             </span>
           </div>
-          <p className="text-fg-secondary text-[13.5px] leading-[1.8] max-w-xl">
-            {t(group.blurb)}
-          </p>
+          <p className="t-body max-w-xl">{t(group.blurb)}</p>
         </div>
-      </div>
+      </Reveal>
 
-      <motion.div
-        variants={reduce ? undefined : stagger}
-        initial={reduce ? undefined : "hidden"}
-        whileInView={reduce ? undefined : "show"}
-        viewport={{ once: true, margin: "-8% 0px" }}
+      <div
         className={
           isLead
-            ? "grid sm:grid-cols-2 gap-5"
-            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            ? "grid sm:grid-cols-2 gap-5 auto-rows-fr"
+            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr"
         }
       >
-        {members.map((m) => (
-          <TeamCard key={m.id} m={m} variant={group.variant} reduce={reduce} />
+        {members.map((m, i) => (
+          <Reveal key={m.id} delay={Math.min(i, 5) * 0.06} className="h-full">
+            <TeamCard m={m} variant={group.variant} />
+          </Reveal>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }
 
-function TeamCard({
-  m,
-  variant,
-  reduce,
-}: {
-  m: TeamMember;
-  variant: "lead" | "compact";
-  reduce: boolean;
-}) {
+/* ────────────────────────────── Card ────────────────────────────── */
+
+function TeamCard({ m, variant }: { m: TeamMember; variant: "lead" | "compact" }) {
   const { t } = useLanguage();
   const isLead = variant === "lead";
-  const initials = m.fullName.trim().charAt(0) || "؟";
+  const hasLinks = m.linkedinUrl || m.websiteUrl || m.email;
   return (
-    <motion.div
-      variants={reduce ? undefined : rise}
-      whileHover={reduce ? undefined : { y: -6 }}
-      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className="h-full"
+    <div
+      className={`group card-base card-hover h-full flex flex-col ${isLead ? "p-7" : "p-6"} hover:border-primary/40`}
     >
-      <GlassCard
-        className={`group h-full flex flex-col card-hover ${
-          isLead ? "p-7" : "p-6"
-        } transition-colors duration-300 hover:border-primary/40 hover:bg-surface-3`}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background:
-              "radial-gradient(130% 90% at 85% 0%, hsl(354 80% 55% / 0.1), transparent 60%)",
-          }}
-        />
+      {/* Hover aura — crimson, transform/opacity only */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: "radial-gradient(130% 90% at 85% 0%, hsl(354 80% 55% / 0.1), transparent 60%)",
+        }}
+      />
 
-        {m.featured && (
-          <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-primary/12 text-primary border border-primary/30">
-            <Sparkles className="w-3 h-3" /> {t({ ar: "مميَّز", en: "Featured" })}
-          </div>
-        )}
-
-        <div className="relative flex items-center gap-4 mb-4">
-          {m.avatarUrl ? (
-            <img
-              src={m.avatarUrl}
-              alt={m.fullName}
-              className={`${
-                isLead ? "w-20 h-20" : "w-16 h-16"
-              } rounded-2xl object-cover border border-border-strong shadow-soft`}
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className={`${
-                isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"
-              } shrink-0 rounded-2xl ring-1 ring-border-strong shadow-soft flex items-center justify-center font-display font-black text-white transition-transform duration-300 group-hover:scale-[1.06]`}
-              style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
-            >
-              {initials}
-            </div>
-          )}
-          <div className="min-w-0">
-            <h3
-              className={`text-foreground font-display font-bold leading-snug truncate ${
-                isLead ? "text-[18px]" : "text-[16px]"
-              }`}
-            >
-              {m.fullName}
-            </h3>
-            {m.role && (
-              <p className="text-primary text-[12.5px] font-semibold leading-snug mt-0.5 line-clamp-2">
-                {m.role}
-              </p>
-            )}
-          </div>
+      {m.featured && (
+        <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold chip-sand">
+          {t({ ar: "مؤسِّس", en: "Founding" })}
         </div>
+      )}
 
-        {m.bio && (
-          <p
-            className={`relative text-fg-secondary text-[13.5px] leading-[1.85] mb-5 flex-1 ${
-              isLead ? "" : "line-clamp-3"
-            }`}
+      <div className="relative flex items-center gap-4 mb-4">
+        {m.avatarUrl ? (
+          <img
+            src={m.avatarUrl}
+            alt={m.fullName}
+            className={`${isLead ? "w-20 h-20" : "w-16 h-16"} shrink-0 rounded-2xl object-cover border border-border-strong shadow-soft saturate-[1.03] transition-transform duration-300 group-hover:scale-[1.04]`}
+            loading="lazy"
+          />
+        ) : (
+          // Crimson MEDALLION — the signature for people without a photo.
+          <div
+            className={`${isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"} shrink-0 rounded-2xl ring-2 ring-white/15 shadow-soft flex items-center justify-center font-display font-black text-white transition-transform duration-300 group-hover:scale-[1.06]`}
+            style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
           >
-            {m.bio}
-          </p>
-        )}
-
-        {(m.linkedinUrl || m.websiteUrl || m.email) && (
-          <div className="relative flex items-center flex-wrap gap-3 mt-auto pt-3.5 border-t border-border">
-            {m.linkedinUrl && (
-              <a
-                href={m.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn"
-                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Linkedin className="w-3.5 h-3.5" /> LinkedIn
-              </a>
-            )}
-            {m.websiteUrl && (
-              <a
-                href={m.websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={t({ ar: "الموقع", en: "Website" })}
-                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
-              </a>
-            )}
-            {m.email && (
-              <a
-                href={`mailto:${m.email}`}
-                aria-label={t({ ar: "البريد", en: "Email" })}
-                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Mail className="w-3.5 h-3.5" />
-                <span dir="ltr">{m.email}</span>
-              </a>
-            )}
+            {initialOf(m.fullName)}
           </div>
         )}
-      </GlassCard>
-    </motion.div>
+        <div className="min-w-0">
+          <h3
+            className={`text-foreground font-display font-bold leading-snug truncate group-hover:text-primary transition-colors ${isLead ? "text-[18px]" : "text-[16px]"}`}
+          >
+            {m.fullName}
+          </h3>
+          {m.role && (
+            <p className="text-fg-secondary text-[12.5px] font-semibold leading-snug mt-1 line-clamp-2">
+              {m.role}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {m.bio && (
+        <p
+          className={`relative text-fg-secondary text-[13.5px] leading-[1.85] mb-5 flex-1 ${isLead ? "" : "line-clamp-3"}`}
+        >
+          {m.bio}
+        </p>
+      )}
+
+      {hasLinks && (
+        <div className="relative flex items-center flex-wrap gap-3.5 mt-auto pt-3.5 border-t border-border">
+          {m.linkedinUrl && (
+            <a
+              href={m.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`LinkedIn — ${m.fullName}`}
+              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Linkedin className="w-3.5 h-3.5" /> LinkedIn
+            </a>
+          )}
+          {m.websiteUrl && (
+            <a
+              href={m.websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t({ ar: `الموقع — ${m.fullName}`, en: `Website — ${m.fullName}` })}
+              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
+            </a>
+          )}
+          {m.email && (
+            <a
+              href={`mailto:${m.email}`}
+              aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
+              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span dir="ltr" className="truncate max-w-[160px]">{m.email}</span>
+            </a>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
+
+/* ──────────────────────── Educational empty state ──────────────────────── */
+
+function TeamEmpty() {
+  const { t } = useLanguage();
+  return (
+    <EmptyState
+      title={t({ ar: "الفريق يتشكّل الآن", en: "The team is forming" })}
+      hint={t({
+        ar: "حاضنة فتيّة وُلدت عام ٢٠٢٤ — قيادتها ومرشدوها ومستشاروها ينضمّون تباعًا. هذه الصّفحة تكبر مع كلّ من يقف معنا. كُن أوّل من يكتب اسمه هنا.",
+        en: "A young incubator founded in 2024 — its leadership, mentors and advisors are joining one by one. This page grows with everyone who stands with us. Be among the first names on it.",
+      })}
+      action={
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/become-mentor?ref=team-empty"
+            data-testid="team-empty-become-mentor"
+            className="cta-fill group inline-flex items-center gap-2.5 h-11 px-6 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            {t({ ar: "كُن مرشدًا", en: "Become a mentor" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+          <Link
+            href="/about"
+            className="group inline-flex items-center gap-2 text-[13.5px] font-semibold text-primary"
+          >
+            {t({ ar: "قصّة آيلاند", en: "The Island Haven story" })}
+            <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        </div>
+      }
+    />
+  );
+}
+
+/* ───────────────────────── Closing — join band ───────────────────────── */
+
+function JoinBand({ show }: { show: boolean }) {
+  const { t } = useLanguage();
+  if (!show) return null;
+  return (
+    <Reveal as="div" className="mt-16 card-base p-8 sm:p-11">
+      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4rem)] gap-y-7 items-end">
+        <div className="lg:col-span-8">
+          <div className="flex items-center gap-3 mb-5">
+            <span aria-hidden className="h-px w-9 bg-primary/50" />
+            <span className="eyebrow">{t({ ar: "انضمّ إلينا", en: "Join us" })}</span>
+          </div>
+          <h3
+            className="font-display font-extrabold text-foreground"
+            style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", lineHeight: 1.08, letterSpacing: "-0.028em" }}
+          >
+            {t({ ar: "هذا الفريق ", en: "This team " })}
+            <span className="text-primary">{t({ ar: "يكبر بك.", en: "grows with you." })}</span>
+          </h3>
+          <p className="t-body mt-4 max-w-xl">
+            {t({
+              ar: "نَبحث دائمًا عن مرشدين وخبراء قطاع ومتطوّعين يؤمنون بريادة الأعمال في غزّة. ساعتك، أو خبرتك، أو شبكتك — كلٌّ منها يفتح بابًا أمام موهبة تنتظر.",
+              en: "We're always looking for mentors, industry experts and volunteers who believe in entrepreneurship in Gaza. An hour, an expertise, a network — each one opens a door for talent that's waiting.",
+            })}
+          </p>
+        </div>
+        <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-stretch">
+          <Link
+            href="/become-mentor?ref=team"
+            data-testid="team-become-mentor"
+            className="cta-fill group inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-full font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
+          >
+            {t({ ar: "كُن مرشدًا", en: "Become a mentor" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+          <a
+            href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
+            data-testid="team-email"
+            className="group inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-full border border-border-strong bg-surface-2 text-fg-secondary font-semibold text-[14px] hover:border-primary/40 hover:text-foreground transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+            {t({ ar: "راسلنا", en: "Email us" })}
+          </a>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+/* ────────────────────────────── Skeleton ────────────────────────────── */
 
 function SkeletonTeam() {
   return (
     <div className="space-y-12">
-      <div className="flex gap-2.5">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="h-8 w-32 rounded-full bg-surface-2 border border-border-strong animate-pulse"
-          />
-        ))}
-      </div>
+      <div className="card-base p-7 sm:p-8 h-40 animate-pulse" />
       {[0, 1].map((s) => (
         <div key={s}>
           <div className="h-7 w-44 rounded-lg bg-surface-2 animate-pulse mb-6" />

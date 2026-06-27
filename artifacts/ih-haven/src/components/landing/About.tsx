@@ -2,17 +2,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 
 /**
- * About — "من نحن", told in the brand's own voice (from the official profile):
- * born in Gaza during the war, refusing to stand by. Editorial Apple-grade
- * language — real photography, oversized solid type, hairline-divided vision &
- * mission, brand cerulean numerals on the deep-navy canvas. No gradient text,
- * no white scheme-flip cards, no glass. Photography + typography carry it.
+ * About — the /about HERO, told in the brand's own voice (from the official
+ * profile): born in Gaza during the war, refusing to stand by. Editorial
+ * Apple-grade dark language — a sticky photo of the place, oversized SOLID
+ * display type with one crimson accent word, the war-born narrative, and the
+ * brand's honest 3-year goal in cerulean numerals on the deep-navy canvas.
+ * No gradient text, no white scheme-flip cards, no glass — photography and
+ * typography carry it. Vision/Mission/axes/values now live in their own
+ * dedicated sections below (composed in pages/About.tsx).
  */
 export function About() {
   const { t, lang } = useLanguage();
-
-  const idx = (i: number) =>
-    lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢"][i];
 
   const narrative = [
     t({
@@ -29,28 +29,10 @@ export function About() {
     }),
   ];
 
-  const pillars = [
-    {
-      ar: "رؤيتنا",
-      en: "Vision",
-      body: t({
-        ar: "أن نكون نقطة الارتكاز الأولى للاقتصاد الرقميّ في غزّة، والوجهة التي يبدأ منها كلّ شابّ طريقه نحو المنافسة والتفوّق في السوق العالميّ.",
-        en: "To be the first anchor point of Gaza's digital economy — the place every young person's path toward global competition and excellence begins.",
-      }),
-    },
-    {
-      ar: "رسالتنا",
-      en: "Mission",
-      body: t({
-        ar: "أن نُعيد للإنسان الغزّي ما سرقته منه الحرب: بيئةً يعمل فيها، ومهارةً تحمله، وعالمًا يصل إليه — حتى تُذكر غزّة في سوق العمل الدوليّ لا بالشفقة، بل بالكفاءة والتفوّق.",
-        en: "To return to the people of Gaza what war stole: a place to work, a skill to carry them, and a world to reach — until Gaza is named in the global market not with pity, but for competence and excellence.",
-      }),
-    },
-  ];
-
   const goal = [
     { v: lang === "en" ? "1,000" : "١٬٠٠٠", l: t({ ar: "كفاءة غزّية", en: "Gazan talents" }) },
     { v: lang === "en" ? "3" : "٣", l: t({ ar: "سنوات", en: "years" }) },
+    { v: lang === "en" ? "2024" : "٢٠٢٤", l: t({ ar: "تأسّسنا", en: "founded" }) },
     { v: lang === "en" ? "100%" : "١٠٠٪", l: t({ ar: "مجّانًا", en: "free" }) },
   ];
 
@@ -62,12 +44,16 @@ export function About() {
         {/* Lead — the place + the origin, shown not described */}
         <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
           <Reveal as="div" className="lg:col-span-5 lg:sticky lg:top-28">
-            <div className="eyebrow mb-5">{t({ ar: "من نحن", en: "About Island Haven" })}</div>
+            <div className="flex items-center gap-3 mb-5">
+              <span aria-hidden className="h-px w-9 bg-primary/50" />
+              <span className="eyebrow">{t({ ar: "من نحن", en: "About Island Haven" })}</span>
+            </div>
             <h2
               className="font-display font-extrabold text-foreground"
               style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
             >
-              {t({ ar: "وُلدنا في قلب غزّة.", en: "Born in the heart of Gaza." })}
+              {t({ ar: "وُلدنا في قلب ", en: "Born in the heart of " })}
+              <span className="text-primary">{t({ ar: "غزّة.", en: "Gaza." })}</span>
             </h2>
             <p className="t-body-lg mt-5 max-w-md text-foreground/90">
               {t({
@@ -75,12 +61,12 @@ export function About() {
                 en: "Island Haven wasn't born in a comfortable office or ideal conditions — but amid a war that left no stone, and no dream, untouched. We refused to stand by.",
               })}
             </p>
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10">
+            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
               <img
                 src="/photos/IMG_8358.webp"
                 alt={t({ ar: "من داخل مساحة آيلاند هيفن في غزّة", en: "Inside the Island Haven workspace in Gaza" })}
                 loading="lazy"
-                className="w-full aspect-[5/4] object-cover"
+                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
               />
             </div>
           </Reveal>
@@ -108,69 +94,34 @@ export function About() {
                 </p>
               </blockquote>
             </Reveal>
-          </div>
-        </div>
 
-        {/* The goal — one bold, honest target */}
-        <Reveal>
-          <div className="mt-[clamp(3.5rem,7vw,6.5rem)] border-t border-border-strong pt-[clamp(2.5rem,5vw,4rem)]">
-            <div className="eyebrow eyebrow-sand mb-7">{t({ ar: "هدفنا", en: "Our goal" })}</div>
-            <div className="grid sm:grid-cols-3 gap-x-8 gap-y-10">
-              {goal.map((g, i) => (
-                <div key={i}>
-                  <div
-                    className="font-display font-extrabold text-sand tnum leading-none"
-                    style={{ fontSize: "clamp(2.6rem, 5vw, 4.2rem)", letterSpacing: "-0.03em" }}
-                  >
-                    {g.v}
-                  </div>
-                  <div className="t-body mt-3 text-foreground/80">{g.l}</div>
+            {/* The goal — one honest target, cerulean numerals on hairline ledger */}
+            <Reveal delay={0.12}>
+              <div className="mt-[clamp(2.5rem,5vw,4rem)] border-t border-border-strong pt-[clamp(2rem,4vw,3rem)]">
+                <div className="eyebrow eyebrow-sand mb-7">{t({ ar: "هدفنا في ثلاث سنوات", en: "Our 3-year goal" })}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-9">
+                  {goal.map((g, i) => (
+                    <div key={i}>
+                      <div
+                        className="font-display font-extrabold text-sand tnum leading-none"
+                        style={{ fontSize: "clamp(2.1rem, 4vw, 3.2rem)", letterSpacing: "-0.03em" }}
+                      >
+                        {g.v}
+                      </div>
+                      <div className="t-body mt-3 text-foreground/80">{g.l}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <p className="t-body-lg mt-9 max-w-2xl">
-              {t({
-                ar: "نردم الفجوة التي خلّفتها الحرب بتأهيل ألف كفاءة غزّية خلال ثلاث سنوات، ونعيد وصلها بالاقتصاد الرقميّ العالميّ — حتى تصل إلى مرحلة المنافسة والتفوّق.",
-                en: "We close the gap the war left by qualifying a thousand Gazan talents within three years, and reconnecting them to the global digital economy — until they reach real competition and excellence.",
-              })}
-            </p>
-          </div>
-        </Reveal>
-
-        {/* Vision & Mission — hairline editorial ledger */}
-        <div className="mt-[clamp(3rem,6vw,5rem)]">
-          {pillars.map((p, i) => (
-            <Reveal key={p.en} delay={i * 0.05}>
-              <div className="grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-8 sm:py-10 last:border-b">
-                <span className="font-display text-[clamp(1.4rem,2.2vw,2rem)] font-bold tnum text-fg-faint leading-none">
-                  {idx(i)}
-                </span>
-                <div className="grid lg:grid-cols-[14rem_1fr] gap-x-10 gap-y-3 items-baseline">
-                  <div>
-                    <h3
-                      className="font-display font-bold text-foreground"
-                      style={{ fontSize: "clamp(1.3rem, 2vw, 1.75rem)", letterSpacing: "-0.018em" }}
-                    >
-                      {p.ar}
-                    </h3>
-                    <div className="eyebrow mt-2">{p.en}</div>
-                  </div>
-                  <p className="t-body-lg max-w-2xl">{p.body}</p>
-                </div>
+                <p className="t-body-lg mt-9 max-w-2xl">
+                  {t({
+                    ar: "نردم الفجوة التي خلّفتها الحرب بتأهيل ألف كفاءة غزّية خلال ثلاث سنوات، ونعيد وصلها بالاقتصاد الرقميّ العالميّ — حتى تصل إلى مرحلة المنافسة والتفوّق.",
+                    en: "We close the gap the war left by qualifying a thousand Gazan talents within three years, and reconnecting them to the global digital economy — until they reach real competition and excellence.",
+                  })}
+                </p>
               </div>
             </Reveal>
-          ))}
+          </div>
         </div>
-
-        {/* Closing — the brand's belief, set large */}
-        <Reveal>
-          <p
-            className="mt-[clamp(3.5rem,7vw,6rem)] font-display font-extrabold text-foreground max-w-4xl"
-            style={{ fontSize: "clamp(1.8rem, 4vw, 3.2rem)", lineHeight: 1.1, letterSpacing: "-0.03em" }}
-          >
-            {t({ ar: "نؤمن أنّ الموهبة لا تحدّها الجغرافيا.", en: "We believe talent is not bound by geography." })}
-          </p>
-        </Reveal>
       </div>
     </section>
   );
