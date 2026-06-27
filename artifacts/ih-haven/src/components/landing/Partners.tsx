@@ -3,17 +3,23 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 
 /**
- * Partners — the GLOBAL ECOSYSTEM behind every member, not a logo wall.
+ * Partners — the ecosystem behind every member, told HONESTLY (not a logo wall).
  *
- * Most "partners" sections show a row of logos. Ours shows the ONE thing that
- * matters to a Gazan founder: what each partner actually UNLOCKS — cloud credits,
- * international payments, a global freelance market, acceleration. A live marquee
- * gives the network a sense of motion/reach; a benefit grid grounds it in real
- * value. Brand-canonical (so it always reads complete + bilingual), on-brand
- * (cerulean monograms + crimson accents on the deep-navy canvas). No fake logos.
+ * The key integrity move: we cleanly SEPARATE two groups so no claim is inflated.
+ *   • BACKERS & PARTNERS — real organisational relationships (NasToNas, Gaza Sky
+ *     Geeks, Mercy Corps Ventures) who actually back / partner with us.
+ *   • TOOLS & CREDITS WE UNLOCK — programs and platforms we help members access
+ *     (Replit, AWS Activate, Google for Startups, Payoneer, Freelancer). These
+ *     are NOT called "partners"; they're real value we open the door to.
+ *
+ * Each entry shows what it actually UNLOCKS — cloud credits, payments, market,
+ * acceleration — so a Gazan founder sees value, not vanity. On-brand (cerulean
+ * monograms + crimson accents on the deep-navy canvas). No fake logos, no
+ * overstated partnerships.
  */
 
 type Cat = "backing" | "training" | "cloud" | "payments" | "market" | "funding";
+type Group = "partner" | "tool";
 
 const CAT: Record<Cat, { ar: string; en: string }> = {
   backing: { ar: "الجهة الداعمة", en: "Our backing" },
@@ -28,15 +34,18 @@ interface Node {
   name: string;
   url: string; // hostname, no protocol
   cat: Cat;
+  group: Group;
   ar: string;
   en: string;
 }
 
-const NETWORK: Node[] = [
+// Real backers & partners — actual organisational relationships.
+const PARTNERS: Node[] = [
   {
     name: "NasToNas",
     url: "nastonas.org",
     cat: "backing",
+    group: "partner",
     ar: "المبادرة التي تحتضن آيلاند هيفن وتربطه بأصدقاء غزّة حول العالم.",
     en: "The initiative that backs Island Haven and connects it to Gaza's friends worldwide.",
   },
@@ -44,13 +53,28 @@ const NETWORK: Node[] = [
     name: "Gaza Sky Geeks",
     url: "gazaskygeeks.com",
     cat: "training",
+    group: "partner",
     ar: "تدريب برمجيّ وتشبيك دوليّ لمجتمع التقنية في غزّة.",
     en: "Code training and global networking for Gaza's tech community.",
   },
   {
+    name: "Mercy Corps Ventures",
+    url: "mercycorps.org/ventures",
+    cat: "funding",
+    group: "partner",
+    ar: "داعم لريادة الأعمال ذات الأثر في الاقتصادات الهشّة.",
+    en: "Backing impact entrepreneurship in fragile economies.",
+  },
+];
+
+// Tools & credits we help members UNLOCK — programs we open the door to, NOT
+// organisational partners. Framed honestly so claims stay defensible.
+const TOOLS: Node[] = [
+  {
     name: "Replit",
     url: "replit.com",
     cat: "cloud",
+    group: "tool",
     ar: "بيئة تطوير سحابيّة كاملة تعمل من المتصفّح — بلا قيود الجهاز.",
     en: "A full cloud dev environment in the browser — no hardware limits.",
   },
@@ -58,6 +82,7 @@ const NETWORK: Node[] = [
     name: "AWS Activate",
     url: "aws.amazon.com/activate",
     cat: "cloud",
+    group: "tool",
     ar: "أرصدة سحابيّة ودعم تقنيّ لبناء البنية التحتيّة للمشاريع الناشئة.",
     en: "Cloud credits and technical support to build venture infrastructure.",
   },
@@ -65,6 +90,7 @@ const NETWORK: Node[] = [
     name: "Google for Startups",
     url: "startup.google.com",
     cat: "cloud",
+    group: "tool",
     ar: "إرشاد وأرصدة ووصول لشبكة Google العالميّة للمؤسّسين.",
     en: "Mentorship, credits and access to Google's global founder network.",
   },
@@ -72,6 +98,7 @@ const NETWORK: Node[] = [
     name: "Payoneer",
     url: "payoneer.com",
     cat: "payments",
+    group: "tool",
     ar: "استقبال المدفوعات الدوليّة — يصل المستقلّ الغزّي بعميله في العالم.",
     en: "International payments — connecting Gaza's freelancers to clients worldwide.",
   },
@@ -79,17 +106,13 @@ const NETWORK: Node[] = [
     name: "Freelancer",
     url: "freelancer.com",
     cat: "market",
+    group: "tool",
     ar: "أكبر سوق عمل حرّ في العالم — فرص حقيقيّة عابرة للحدود لأعضائنا.",
     en: "The world's largest freelance marketplace — real, cross-border work for our members.",
   },
-  {
-    name: "Mercy Corps Ventures",
-    url: "mercycorps.org/ventures",
-    cat: "funding",
-    ar: "داعم لريادة الأعمال ذات الأثر في الاقتصادات الهشّة.",
-    en: "Backing impact entrepreneurship in fragile economies.",
-  },
 ];
+
+const NETWORK: Node[] = [...PARTNERS, ...TOOLS];
 
 export function Partners() {
   const { t, lang } = useLanguage();
@@ -100,23 +123,23 @@ export function Partners() {
 
       <div className="container-ih relative">
         <Reveal as="header" className="max-w-2xl mb-[clamp(2rem,4vw,3.25rem)]">
-          <div className="eyebrow mb-4">{t({ ar: "الشبكة العالميّة", en: "The global network" })}</div>
+          <div className="eyebrow mb-4">{t({ ar: "الداعمون وما نفتحه لك", en: "Backers & what we unlock" })}</div>
           <h2 className="t-h2">
             {t({ ar: "الشبكة التي تقف خلف كلّ عضو.", en: "The network behind every member." })}
           </h2>
           <p className="t-body mt-4 max-w-xl">
             {t({
-              ar: "لسنا نعرض شعارات — نعرض ما تفتحه كلّ شراكة لك فعليًّا: أدوات سحابيّة، مدفوعات دوليّة، سوق عمل حرّ، وتسريع عالميّ.",
-              en: "We don't show logos — we show what each partnership actually unlocks for you: cloud tools, international payments, a global freelance market, and acceleration.",
+              ar: "نفصل بصدق بين أمرَين: جهاتٌ تدعمنا وتشاركنا فعلًا، وأدواتٌ وأرصدةٌ نفتح لك بابها. لا شعارات مبالَغ بها — قيمةٌ حقيقيّة فقط.",
+              en: "We honestly separate two things: organisations that actually back and partner with us, and the tools & credits we open the door to. No overstated logos — just real value.",
             })}
           </p>
         </Reveal>
 
-        {/* Value framing — the killer angle: real $ in tools, unlocked free */}
+        {/* Value framing — honest split: real backers vs. $ in tools we unlock */}
         <Reveal className="mb-[clamp(1.75rem,3vw,2.5rem)] flex flex-wrap items-stretch gap-x-10 gap-y-5 border-y border-border-strong py-6">
           {[
-            { v: lang === "en" ? "8" : "٨", l: t({ ar: "شركاء عالميّون", en: "Global partners" }) },
-            { v: lang === "en" ? "$1,000s" : "آلاف $", l: t({ ar: "أدوات وأرصدة — مجّانًا", en: "in tools & credits — free" }) },
+            { v: lang === "en" ? String(PARTNERS.length) : "٣", l: t({ ar: "جهات داعمة وشريكة", en: "backers & partners" }) },
+            { v: lang === "en" ? "$1,000s" : "آلاف $", l: t({ ar: "أدوات وأرصدة نفتحها — مجّانًا", en: "in tools & credits we unlock — free" }) },
             { v: lang === "en" ? "Worldwide" : "عالميّ", l: t({ ar: "وصول لفرص عبر الحدود", en: "cross-border opportunity" }) },
           ].map((s, i) => (
             <div key={i} className="flex flex-col">
@@ -150,34 +173,35 @@ export function Partners() {
           </div>
         </Reveal>
 
-        {/* Benefit grid — what each partnership unlocks */}
+        {/* ── Group 1: REAL backers & partners — actual relationships ── */}
+        <Reveal className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-5">
+          <span className="h-px w-9 bg-primary/50 self-center" />
+          <h3 className="font-display font-bold text-foreground text-[clamp(1.05rem,2vw,1.4rem)]" style={{ letterSpacing: "-0.018em" }}>
+            {t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
+          </h3>
+          <span className="t-caption text-fg-secondary">
+            {t({ ar: "جهاتٌ تدعمنا وتشاركنا فعلًا", en: "organisations that actually back & partner with us" })}
+          </span>
+        </Reveal>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {NETWORK.map((p, i) => (
-            <Reveal key={p.name} delay={Math.min(i, 6) * 0.05} className="h-full">
-              <a
-                href={`https://${p.url}`}
-                target="_blank"
-                rel="noreferrer"
-                data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
-                className="card-base card-hover group flex h-full flex-col p-6"
-              >
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="grid place-items-center h-11 w-11 rounded-[14px] bg-sand-soft text-sand-bright font-display font-black text-[18px] shrink-0 ring-1 ring-sand/25">
-                      {p.name.charAt(0)}
-                    </span>
-                    <span className="font-display font-bold text-foreground text-[16px] truncate group-hover:text-primary transition-colors">
-                      {p.name}
-                    </span>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-colors shrink-0" />
-                </div>
-                <p className="t-body text-[14px] flex-1">{t({ ar: p.ar, en: p.en })}</p>
-                <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide">
-                  {t(CAT[p.cat])}
-                </span>
-              </a>
-            </Reveal>
+          {PARTNERS.map((p, i) => (
+            <PartnerCard key={p.name} p={p} i={i} t={t} />
+          ))}
+        </div>
+
+        {/* ── Group 2: TOOLS & CREDITS we unlock — NOT partners ── */}
+        <Reveal className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-[clamp(2.25rem,4vw,3rem)] mb-5">
+          <span className="h-px w-9 bg-sand/60 self-center" />
+          <h3 className="font-display font-bold text-foreground text-[clamp(1.05rem,2vw,1.4rem)]" style={{ letterSpacing: "-0.018em" }}>
+            {t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
+          </h3>
+          <span className="t-caption text-fg-secondary">
+            {t({ ar: "برامجٌ ومنصّاتٌ نفتح لك بابها — لا شراكات", en: "programs & platforms we open the door to — not partnerships" })}
+          </span>
+        </Reveal>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {TOOLS.map((p, i) => (
+            <PartnerCard key={p.name} p={p} i={i} t={t} />
           ))}
         </div>
 
@@ -196,5 +220,46 @@ export function Partners() {
         </Reveal>
       </div>
     </section>
+  );
+}
+
+// One ecosystem card — used for both groups (backers/partners + tools/credits).
+// The group's heading above it carries the honest framing; the card shows the
+// real value each entry unlocks.
+function PartnerCard({
+  p,
+  i,
+  t,
+}: {
+  p: Node;
+  i: number;
+  t: (s: { ar: string; en: string }) => string;
+}) {
+  return (
+    <Reveal delay={Math.min(i, 6) * 0.05} className="h-full">
+      <a
+        href={`https://${p.url}`}
+        target="_blank"
+        rel="noreferrer"
+        data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
+        className="card-base card-hover group flex h-full flex-col p-6"
+      >
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="grid place-items-center h-11 w-11 rounded-[14px] bg-sand-soft text-sand-bright font-display font-black text-[18px] shrink-0 ring-1 ring-sand/25">
+              {p.name.charAt(0)}
+            </span>
+            <span className="font-display font-bold text-foreground text-[16px] truncate group-hover:text-primary transition-colors">
+              {p.name}
+            </span>
+          </div>
+          <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-colors shrink-0" />
+        </div>
+        <p className="t-body text-[14px] flex-1">{t({ ar: p.ar, en: p.en })}</p>
+        <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide">
+          {t(CAT[p.cat])}
+        </span>
+      </a>
+    </Reveal>
   );
 }

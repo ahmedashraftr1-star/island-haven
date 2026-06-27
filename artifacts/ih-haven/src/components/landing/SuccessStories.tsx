@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
+import { ArrowLeft, Quote } from "lucide-react";
 import { EditorialHeader } from "./EditorialHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
@@ -35,7 +36,94 @@ export function SuccessStories() {
     };
   }, []);
 
-  if (rows !== null && rows.length === 0) return null;
+  // EVERGREEN fallback — before the first member story is recorded, this CORE
+  // proof section must still stand. We hold the light editorial register and
+  // lead with the founding belief itself, attributed to the team, + apply CTA.
+  if (rows !== null && rows.length === 0) {
+    return (
+      <section id="stories" className="relative bg-surface-1 section-y overflow-hidden">
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[50%] brand-aura opacity-50" />
+        <div className="container-ih relative">
+          <EditorialHeader
+            label={t({ ar: "قصص نجاح", en: "Success Stories" })}
+            title={
+              lang === "ar" ? (
+                <>
+                  أوّل القصص <span className="text-sand">تُكتب الآن</span>
+                </>
+              ) : (
+                <>
+                  The first stories <span className="text-sand">are being written</span>
+                </>
+              )
+            }
+            sub={t({
+              ar: "قبل أن نروي قصص أعضائنا، نبدأ بالقناعة التي بُنيت عليها آيلاند.",
+              en: "Before we tell our members' stories, we begin with the belief Island Haven was built on.",
+            })}
+          />
+
+          <motion.figure
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={VIEWPORT}
+            transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
+            className="card-base p-8 lg:p-12 max-w-4xl"
+          >
+            <Quote className="w-10 h-10 text-sand mb-6" strokeWidth={2} />
+            <blockquote
+              className="font-editorial italic text-foreground"
+              style={{ fontSize: "clamp(1.7rem, 3.6vw, 3rem)", lineHeight: 1.18, letterSpacing: "-0.02em" }}
+            >
+              {t({
+                ar: "نؤمن أنّ الموهبة لا تحدّها الجغرافيا.",
+                en: "We believe talent is not bound by geography.",
+              })}
+            </blockquote>
+            <p className="t-body-lg mt-7 max-w-2xl">
+              {t({
+                ar: "في غزّة كفاءاتٌ تستحقّ مقعدًا في الاقتصاد الرقميّ العالميّ — ومهمّتنا أن نوصلها إليه. أوّل من يقدّم اليوم، يكتب أوّل القصص.",
+                en: "Gaza holds talent that deserves a seat in the global digital economy — and our mission is to get it there. Whoever applies today writes the first story.",
+              })}
+            </p>
+            <figcaption className="flex items-center gap-3.5 mt-8 pt-7 border-t border-border-strong">
+              <div
+                className="w-12 h-12 rounded-full grid place-items-center font-display font-black text-white ring-2 ring-white/15 shadow-soft select-none"
+                style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+              >
+                {t({ ar: "آ", en: "IH" })}
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-foreground text-[15px]">
+                  {t({ ar: "فريق آيلاند هيفن", en: "The Island Haven team" })}
+                </div>
+                <div className="text-muted-foreground t-caption">
+                  {t({ ar: "قناعتنا التأسيسيّة", en: "Our founding belief" })}
+                </div>
+              </div>
+            </figcaption>
+          </motion.figure>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={VIEWPORT}
+            transition={{ duration: 0.42, delay: 0.08, ease: EASE_OUT_EXPO }}
+            className="mt-9 flex flex-wrap items-center gap-4"
+          >
+            <Link
+              href="/apply"
+              data-testid="stories-empty-apply"
+              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              {t({ ar: "اكتب أوّل قصّة", en: "Write the first story" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+    );
+  }
 
   const lead = rows?.[0] ?? null;
   const rest = rows ? rows.slice(1) : [];

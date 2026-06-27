@@ -33,8 +33,8 @@ export function HomeFAQ() {
       id: "free",
       q: { ar: "هل آيلاند مجّاني فعلًا؟", en: "Is Island Haven really free?" },
       a: {
-        ar: "نعم، مجّانيّ بالكامل — لا رسوم ولا حصّة من مشروعك. آيلاند حاضنة مدعومة من NasToNas وشركاء عالميّين (Replit وAWS وPayoneer وGoogle for Startups)، ومهمّتنا أن نعيد وصل المواهب الغزّيّة بالاقتصاد الرقميّ، لا أن نربح منها.",
-        en: "Yes — completely free. No fees, and no equity in your work. Island Haven is an incubator backed by NasToNas and global partners (Replit, AWS, Payoneer, Google for Startups). Our mission is to reconnect Gazan talent to the digital economy, not to profit from it.",
+        ar: "نعم، مجّانيّ بالكامل — لا رسوم ولا حصّة من مشروعك. آيلاند حاضنة مدعومة من NasToNas وGaza Sky Geeks، ونفتح لك أدواتٍ وأرصدةً عالميّة (Replit وAWS Activate وGoogle for Startups وPayoneer وFreelancer). مهمّتنا أن نعيد وصل المواهب الغزّيّة بالاقتصاد الرقميّ، لا أن نربح منها.",
+        en: "Yes — completely free. No fees, and no equity in your work. Island Haven is an incubator backed by NasToNas and Gaza Sky Geeks, and we unlock global tools & credits for you (Replit, AWS Activate, Google for Startups, Payoneer, Freelancer). Our mission is to reconnect Gazan talent to the digital economy, not to profit from it.",
       },
     },
     {

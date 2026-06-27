@@ -4,16 +4,19 @@ import { Reveal } from "@/components/landing/Reveal";
 /**
  * CredibilityBar — a slim, quiet trust strip that sits right under the hero.
  * Light (inherits the warm-white canvas), compact (section-y-compact). One calm
- * editorial line — "founded 2024 · 100% free · backed by NasToNas" with a single
- * crimson accent — followed by a hairline-divided row of partner wordmarks as
- * clean text chips (no fake logos). Confident, not loud: a credibility strip,
- * not a hero. No glass, no icon tiles, no gradient text.
+ * editorial line names our REAL backers — NasToNas + Gaza Sky Geeks — with a
+ * single crimson accent. Then a hairline-divided row of wordmarks labelled
+ * honestly as "tools & credits we unlock for you" (NOT partners): Replit, AWS,
+ * Google for Startups, Payoneer, Freelancer. Truthful + internally consistent
+ * with Partners + HomeFAQ. Confident, not loud. No glass, no icon tiles, no
+ * gradient text, no fake logos.
  */
 export function CredibilityBar() {
   const { t } = useLanguage();
 
-  // Partner wordmarks as honest text chips (no invented logos).
-  const partners = ["Replit", "AWS", "Payoneer", "Freelancer", "Google for Startups"];
+  // Tools & credits we help members UNLOCK — honest text chips, not "partners"
+  // (no invented logos). Backers are named in the editorial line instead.
+  const tools = ["Replit", "AWS Activate", "Google for Startups", "Payoneer", "Freelancer"];
 
   return (
     <section
@@ -27,7 +30,8 @@ export function CredibilityBar() {
           distance={16}
           className="flex flex-col gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-6 lg:flex-row lg:items-center lg:justify-between"
         >
-          {/* The quiet credibility line — editorial serif with one crimson accent */}
+          {/* The quiet credibility line — editorial serif, one crimson accent.
+              Names our REAL backers only (NasToNas + Gaza Sky Geeks). */}
           <p
             className="font-editorial text-fg-secondary shrink-0"
             style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)", lineHeight: 1.3, letterSpacing: "-0.01em", fontWeight: 500 }}
@@ -36,16 +40,19 @@ export function CredibilityBar() {
             <span className="mx-2 text-border-strong">·</span>
             <span className="text-primary italic">{t({ ar: "١٠٠٪ مجّانًا", en: "100% free" })}</span>
             <span className="mx-2 text-border-strong">·</span>
-            {t({ ar: "مدعومة من ", en: "Backed by " })}
+            {t({ ar: "بدعم من ", en: "Backed by " })}
             <span className="text-foreground font-semibold not-italic">NasToNas</span>
+            {t({ ar: " و", en: " & " })}
+            <span className="text-foreground font-semibold not-italic">Gaza Sky Geeks</span>
           </p>
 
-          {/* Partner wordmarks — clean text chips, hairline-divided, muted but legible */}
+          {/* Tools & credits we UNLOCK — honest wordmarks, labelled truthfully
+              (NOT "partners"). Hairline-divided text chips, no fake logos. */}
           <div className="flex flex-wrap items-center gap-x-1 gap-y-2 lg:justify-end">
             <span className="eyebrow eyebrow-sand me-3 hidden sm:inline">
-              {t({ ar: "بدعم من", en: "Partners" })}
+              {t({ ar: "أدوات نفتحها لك", en: "Tools we unlock" })}
             </span>
-            {partners.map((name, i) => (
+            {tools.map((name, i) => (
               <span key={name} className="inline-flex items-center">
                 {i > 0 && (
                   <span aria-hidden className="mx-1 h-3.5 w-px bg-border-strong" />

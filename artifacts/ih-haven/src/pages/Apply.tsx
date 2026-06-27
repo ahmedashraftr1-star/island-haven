@@ -26,6 +26,13 @@ import {
   Search,
   Rocket,
   Trophy,
+  Flame,
+  Hammer,
+  Compass,
+  Target,
+  MapPin,
+  Gift,
+  CalendarClock,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
@@ -404,6 +411,11 @@ export default function Apply() {
               {c.subtitle}
             </p>
           </motion.div>
+
+          {/* Who should apply & what we look for — a concise eligibility block so
+              applicants self-qualify (and feel reassured) before the form. Copy
+              reused from the homepage FAQ for one consistent voice. */}
+          <EligibilityBlock />
 
           {/* What happens after you apply — a short, honest timeline so applicants
               know the journey before they invest in the form below. */}
@@ -865,6 +877,105 @@ export default function Apply() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Reusable atoms
 // ─────────────────────────────────────────────────────────────────────────────
+
+// EligibilityBlock — "Who should apply & what we look for". Shown above the
+// form so applicants self-qualify and feel reassured before investing time.
+// Three honest beats on the dark glass canvas (white text): WHO can apply,
+// WHAT we look for, and reassurance. Copy reused from the homepage FAQ so the
+// whole site speaks with one voice. Bilingual, RTL-safe, transform/opacity only.
+function EligibilityBlock() {
+  const { t } = useLanguage();
+
+  // WHO — eligibility, reused from the FAQ "who can apply" answer.
+  const eligibility = [
+    t({ ar: "أيّ موهبة رقميّة في غزّة", en: "Any digital talent in Gaza" }),
+    t({ ar: "أيّ مرحلة — من فكرة إلى مشروع", en: "Any stage — idea to venture" }),
+    t({ ar: "لا يلزم شهادة ولا خبرة سابقة", en: "No degree or résumé required" }),
+  ];
+
+  // WHAT we look for — the real selection criteria.
+  const criteria = [
+    { Icon: Flame, label: t({ ar: "الجدّيّة", en: "Seriousness" }) },
+    { Icon: Hammer, label: t({ ar: "الرغبة في البناء", en: "Desire to build" }) },
+    { Icon: Compass, label: t({ ar: "قابليّة الإرشاد", en: "Coachability" }) },
+    { Icon: Target, label: t({ ar: "الأثر", en: "Impact" }) },
+  ];
+
+  // Reassurance — lowers the bar to pressing "apply".
+  const reassure = [
+    { Icon: Gift, label: t({ ar: "مجّاني تمامًا", en: "Entirely free" }) },
+    { Icon: CalendarClock, label: t({ ar: "~٢٠ دقيقة", en: "~20 minutes" }) },
+    { Icon: Clock, label: t({ ar: "ردّ خلال أيّام", en: "Reply within days" }) },
+  ];
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+      aria-label={t({ ar: "لِمَن التقديم وماذا نبحث عنه", en: "Who should apply and what we look for" })}
+      className="mb-9 sm:mb-12 rounded-[24px] border border-white/10 bg-white/[0.035] backdrop-blur-md p-6 sm:p-8"
+    >
+      <div className="flex items-center gap-2 mb-5">
+        <span className="h-px w-7 bg-primary/60" />
+        <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
+          {t({ ar: "لِمَن؟ وماذا نبحث عنه", en: "Who should apply & what we look for" })}
+        </span>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-x-9 gap-y-7">
+        {/* WHO — eligibility */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <MapPin className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+            <span className="text-[12.5px] font-bold text-white tracking-tight">
+              {t({ ar: "لِمَن آيلاند؟", en: "Who Island Haven is for" })}
+            </span>
+          </div>
+          <ul className="space-y-2.5">
+            {eligibility.map((item, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-white/75">
+                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* WHAT we look for — criteria */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Search className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+            <span className="text-[12.5px] font-bold text-white tracking-tight">
+              {t({ ar: "ما الذي نبحث عنه", en: "What we look for" })}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {criteria.map(({ Icon, label }, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.05] px-3 py-1.5 text-[12.5px] font-semibold text-white/85"
+              >
+                <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Reassurance — hairline-divided footer row */}
+      <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2.5">
+        {reassure.map(({ Icon, label }, i) => (
+          <span key={i} className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-white/70">
+            <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </motion.section>
+  );
+}
 
 // ProcessStrip — a compact "what happens next" timeline shown above the form.
 // Mirrors the four landing steps (Apply → Review → Onboard → Demo Day) so an

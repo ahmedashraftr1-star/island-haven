@@ -37,7 +37,82 @@ export function ExpertsBand() {
     return () => { cancelled = true; };
   }, []);
 
-  if (rows !== null && rows.length === 0) return null;
+  // EVERGREEN fallback — this proof section is CORE to the homepage and must
+  // never vanish on a thin/unseeded DB. When no experts exist yet, hold the
+  // light editorial register and tell the true story: the mentor roster is
+  // forming — and invite the reader to be one of the first.
+  if (rows !== null && rows.length === 0) {
+    return (
+      <section id="experts" className="relative bg-surface-1 section-y overflow-hidden">
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
+        <div className="container-ih relative">
+          <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
+            <Reveal as="div" className="lg:col-span-7 lg:order-1">
+              <div className="flex items-center gap-3 mb-5">
+                <span aria-hidden className="h-px w-9 bg-primary/50" />
+                <span className="eyebrow">{lang === "en" ? "Mentors & Experts" : "الإرشاد والخبرة"}</span>
+              </div>
+
+              <h2
+                className="font-editorial text-foreground"
+                style={{ fontSize: "clamp(2rem, 4.4vw, 3.4rem)", lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 600 }}
+              >
+                {lang === "en" ? "Mentors are joining — " : "مرشدونا ينضمّون — "}
+                <span className="italic text-primary">
+                  {lang === "en" ? "become one." : "كن منهم."}
+                </span>
+              </h2>
+
+              <p className="t-body-lg mt-6 max-w-xl">
+                {lang === "en"
+                  ? "Our mentor roster is forming right now. Expert founders, builders and specialists worldwide give a young Gazan generation 1:1 guidance — one session can open a door the war had closed."
+                  : "روستر المرشدين يتشكّل الآن. خبراء ومؤسّسون ومتخصّصون من حول العالم يقدّمون لجيلٍ غزّيّ شابّ إرشادًا فرديًّا — جلسة واحدة قد تفتح بابًا أغلقته الحرب."}
+              </p>
+
+              <Reveal as="div" delay={0.08} className="mt-9 flex flex-wrap items-center gap-4">
+                <Link
+                  href="/become-mentor?ref=home-experts-empty"
+                  data-testid="experts-empty-become-mentor"
+                  className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                  {lang === "en" ? "Become a mentor" : "سجّل كمرشد"}
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href="/experts"
+                  className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
+                >
+                  {lang === "en" ? "How mentorship works" : "كيف يعمل الإرشاد"}
+                  <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                </Link>
+              </Reveal>
+            </Reveal>
+
+            {/* The place and its people — large photo with dark legibility gradient */}
+            <Reveal as="div" delay={0.1} className="lg:col-span-5 lg:order-2">
+              <div className="relative overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
+                <img
+                  src="/photos/IMG_8352.webp"
+                  alt={lang === "en" ? "Mentors and members at Island Haven in Gaza" : "مرشدون ومنتسبون في آيلاند هيفن بغزّة"}
+                  loading="lazy"
+                  className="w-full h-[clamp(340px,46vw,500px)] object-cover object-center saturate-[1.04]"
+                />
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 lg:p-7">
+                  <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
+                    {lang === "en" ? "Inside the space" : "من داخل المساحة"}
+                  </div>
+                  <div className="font-display font-bold text-white text-[clamp(1.05rem,1.9vw,1.5rem)]">
+                    {lang === "en" ? "Talent waiting for a hand to guide it" : "موهبة تنتظر من يأخذ بيدها"}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const experts = rows ?? Array.from({ length: 6 }).map(() => null);
   const available = rows?.filter((e) => e.acceptingSessions).length ?? 0;
