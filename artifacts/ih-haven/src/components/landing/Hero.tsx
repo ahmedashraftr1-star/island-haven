@@ -93,7 +93,7 @@ function KineticLine({
   return (
     <span className="block overflow-hidden pt-[0.22em] pb-[0.18em]">
       <motion.span
-        className={`block ${accent ? "text-accent-gradient" : ""}`}
+        className={`block ${accent ? "text-primary" : ""}`}
         initial={reduce ? false : { y: "115%" }}
         animate={{ y: 0 }}
         transition={{ duration: 1.2, delay, ease: EASE_OUT_EXPO }}
@@ -281,32 +281,28 @@ export function Hero() {
         className="relative z-10 h-full flex items-center will-change-transform"
       >
         <div className="container-ih w-full">
-          {/* Editorial hairline-framed plate behind the headline (Apple/Stripe
-              precision) — a 1px white frame + faint wash, replacing the old
-              blurred red radial blob. */}
-          <div className="relative inline-block max-w-full">
-            <div
-              aria-hidden
-              className="absolute -inset-x-5 -inset-y-6 lg:-inset-x-7 lg:-inset-y-8 rounded-[28px] border border-white/12 bg-white/[0.03] backdrop-blur-[2px] pointer-events-none"
-            />
-            <div className="relative">
-              <motion.div
-                initial={{ y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
-                className="mb-6 lg:mb-8 flex items-center gap-3"
-              >
-                <span className="h-px w-10 bg-white/50" />
-                <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold ltr:tracking-[0.2em] rtl:tracking-normal">
-                  {c.eyebrow}
-                </span>
-              </motion.div>
+          {/* Clean, monumental headline — no glass box. Crimson hairline + an
+              oversized black display set on the focused scrim. Stronger, calmer. */}
+          <div className="relative max-w-4xl">
+            <motion.div
+              initial={{ y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+              className="mb-6 lg:mb-8 flex items-center gap-3"
+            >
+              <span className="h-[2px] w-12 bg-primary" />
+              <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold ltr:tracking-[0.2em] rtl:tracking-normal">
+                {c.eyebrow}
+              </span>
+            </motion.div>
 
-              <h1 className="t-display text-white">
-                <KineticLine text={c.title1} delay={0.45} reduce={!!reduce} />
-                <KineticLine text={c.title2} delay={0.62} accent reduce={!!reduce} />
-              </h1>
-            </div>
+            <h1
+              className="t-display text-white"
+              style={{ fontSize: "clamp(2.9rem, 8.2vw, 7.8rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.04em" }}
+            >
+              <KineticLine text={c.title1} delay={0.45} reduce={!!reduce} />
+              <KineticLine text={c.title2} delay={0.62} accent reduce={!!reduce} />
+            </h1>
           </div>
 
           <motion.p
