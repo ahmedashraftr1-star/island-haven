@@ -12,7 +12,7 @@ const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: 
   p.then((m) => ({ default: m[k] }));
 const Partners = lazy(() => named(import("@/components/landing/Partners"), "Partners"));
 const WhatYouGet = lazy(() => named(import("@/components/landing/WhatYouGet"), "WhatYouGet"));
-const VenturesBand = lazy(() => named(import("@/components/landing/VenturesBand"), "VenturesBand"));
+const VenturesShowcase = lazy(() => named(import("@/components/landing/VenturesShowcase"), "VenturesShowcase"));
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
 const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
 const SuccessStories = lazy(() => named(import("@/components/landing/SuccessStories"), "SuccessStories"));
@@ -41,7 +41,7 @@ export default function Home() {
     }
   }, []);
   return (
-    <div className="min-h-screen bg-background font-sans antialiased relative">
+    <div className="theme-light min-h-screen bg-background font-sans antialiased relative">
       <ScrollProgress />
       <Header />
       <div className="relative z-10">
@@ -53,7 +53,7 @@ export default function Home() {
           <Suspense fallback={null}>
             <Partners />
             <WhatYouGet />
-            <VenturesBand />
+            <VenturesShowcase />
             <ExpertsBand />
             <Audience />
             <SuccessStories />
