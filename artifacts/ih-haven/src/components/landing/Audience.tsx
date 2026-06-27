@@ -1,134 +1,158 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Reveal } from "@/components/landing/Reveal";
-import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * Audience — "لِمَن آيلاند؟ / الفئات المستهدفة", told the gold-standard way
- * (match WhatYouGet.tsx + About.tsx): real photography, oversized solid type, a
- * hairline-divided numbered ledger of the FOUR real tracks — graduates,
- * freelancers, university students, and early founders / idea-owners — each with
- * one tight authentic line about what they get here. Crimson eyebrow, cerulean
- * numerals for the small index. No gradient text, no glass, no warm staircase,
- * no rows of icon-tile cards. Photography + typography carry it.
+ * Audience — "لِمَن آيلاند؟". Reframed for العظمة: scale, space, restraint.
+ * One monumental calm headline on acres of room, a single large full-bleed
+ * photograph, then the four real tracks as a quiet big-type editorial sequence
+ * — no eyebrow kicker, no 01/02/03 numbered ledger, no cerulean index, no
+ * medallions, no aura blob, no uniform card grid. Type and one image carry it.
  */
 export function Audience() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
   // Preserve the CMS hook so the section stays editable from the content panel.
   const cms = useContentSection("audience", {});
   void cms;
 
-  const idx = (i: number) =>
-    lang === "en"
-      ? String(i + 1).padStart(2, "0")
-      : ["٠١", "٠٢", "٠٣", "٠٤"][i];
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["8%", "-8%"]);
 
   const tracks = [
     {
       key: "graduates",
-      photo: "/photos/IMG_8358.webp",
-      en: "Graduates",
       title: t({ ar: "الخرّيجون", en: "Graduates" }),
       line: t({
-        ar: "أوّل خطوة بعد الشهادة: مهارة تُكسبك الدخل، وبيئة تعمل فيها فعلًا بدل الانتظار.",
-        en: "Your first step after the diploma: a skill that earns, and a place to actually work — instead of waiting.",
+        ar: "أوّل خطوة بعد الشهادة — مهارة تُكسبك الدخل، وبيئة تعمل فيها فعلًا بدل الانتظار.",
+        en: "The first step after the diploma — a skill that earns, and a place to actually work instead of waiting.",
       }),
     },
     {
       key: "freelancers",
-      photo: "/photos/IMG_8347.webp",
-      en: "Freelancers",
       title: t({ ar: "المستقلّون", en: "Freelancers" }),
       line: t({
-        ar: "مقعد ثابت بإنترنت وكهرباء، وحلول دفع دوليّة تصل بك إلى عميلك في الخارج.",
+        ar: "مقعدٌ ثابت بإنترنت وكهرباء، وحلول دفع دوليّة تصل بك إلى عميلك في الخارج.",
         en: "A reliable seat with internet and power, plus payment solutions that reach your client abroad.",
       }),
     },
     {
       key: "students",
-      photo: "/photos/IMG_8341.webp",
-      en: "University students",
       title: t({ ar: "طلبة الجامعات", en: "University students" }),
       line: t({
-        ar: "تدريب وإرشاد يبنيان مهارة سوق العمل قبل التخرّج، لا بعد فوات الفرصة.",
+        ar: "تدريبٌ وإرشاد يبنيان مهارة سوق العمل قبل التخرّج، لا بعد فوات الفرصة.",
         en: "Training and mentorship that build a market-ready skill before graduation, not after the chance is gone.",
       }),
     },
     {
       key: "founders",
-      photo: "/photos/IMG_8347.webp",
-      en: "Early founders",
       title: t({ ar: "أصحاب الأفكار والمشاريع الناشئة", en: "Founders & idea-owners" }),
       line: t({
         ar: "مسارات احتضان منظّمة تحوّل الفكرة إلى مشروع قابل للحياة — حتى يوم العرض.",
-        en: "Structured incubation tracks that turn an idea into a viable venture — all the way to Demo Day.",
+        en: "Structured incubation that turns an idea into a viable venture — all the way to Demo Day.",
       }),
     },
   ];
 
   return (
-    <section id="audience" className="relative bg-background section-y overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[65%] brand-aura opacity-60" />
-
+    <section
+      id="audience"
+      ref={ref}
+      className="relative bg-background overflow-hidden"
+      style={{ paddingBlock: "clamp(6.5rem, 16vh, 12rem)" }}
+    >
       <div className="container-ih relative">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
-          {/* Lead — who Island Haven is for, shown not just listed */}
-          <Reveal as="div" className="lg:col-span-5 lg:sticky lg:top-28">
-            <div className="eyebrow mb-5">
-              {t({ ar: "لِمَن آيلاند؟", en: "Who Island Haven is for" })}
-            </div>
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
-            >
-              {t({ ar: "مكانٌ لكلّ موهبة.", en: "A place for every talent." })}
-            </h2>
-            <p className="t-body-lg mt-5 max-w-md text-foreground/90">
-              {t({
-                ar: "أربع فئات تجد مكانها هنا — لأنّنا نؤمن أنّ الموهبة لا تحدّها الجغرافيا، ولا يحدّها الظرف.",
-                en: "Four tracks find their place here — because we believe talent is bound neither by geography nor by circumstance.",
-              })}
-            </p>
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
-              <img
-                src="/photos/IMG_8341.webp"
-                alt={t({ ar: "أعضاء آيلاند هيفن في مساحة العمل بغزّة", en: "Island Haven members in the Gaza workspace" })}
-                loading="lazy"
-                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
-              />
-            </div>
-          </Reveal>
+        {/* Monumental opening — one calm idea, acres of space, no eyebrow. */}
+        <div className="max-w-5xl">
+          <motion.h2
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(2.6rem, 7.6vw, 5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              fontWeight: 700,
+            }}
+            initial={reduce ? false : { opacity: 0, y: 28 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+          >
+            {t({ ar: "مكانٌ لكلّ ", en: "A place for every " })}
+            <span className="text-primary">{t({ ar: "موهبة", en: "talent" })}</span>
+            {t({ ar: ".", en: "." })}
+          </motion.h2>
 
-          {/* Editorial index — numbered ledger of the four tracks, hairline-divided */}
-          <div className="lg:col-span-7">
-            {tracks.map((track, i) => (
-              <Reveal key={track.key} delay={i * 0.05}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={VIEWPORT}
-                  transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
-                  className="grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-7 sm:py-9 first:border-t-0 first:pt-0"
-                  data-testid={`audience-track-${track.key}`}
-                >
-                  <span className="font-display text-[clamp(1.4rem,2.2vw,2rem)] font-bold tnum text-sand leading-none">
-                    {idx(i)}
-                  </span>
-                  <div>
-                    <h3
-                      className="font-display font-bold text-foreground"
-                      style={{ fontSize: "clamp(1.3rem, 2.2vw, 1.85rem)", letterSpacing: "-0.018em", lineHeight: 1.15 }}
-                    >
-                      {track.title}
-                    </h3>
-                    <div className="eyebrow eyebrow-sand mt-2.5">{track.en}</div>
-                    <p className="t-body mt-3 max-w-xl">{track.line}</p>
-                  </div>
-                </motion.div>
-              </Reveal>
-            ))}
-          </div>
+          <motion.p
+            className="mt-9 sm:mt-11 max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.5rem)", lineHeight: 1.6 }}
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.12, ease: EASE_OUT_EXPO }}
+          >
+            {t({
+              ar: "الموهبة لا تحدّها الجغرافيا، ولا يحدّها الظرف. أربع فئات تجد مكانها هنا.",
+              en: "Talent is bound neither by geography nor by circumstance. Four tracks find their place here.",
+            })}
+          </motion.p>
+        </div>
+
+        {/* One large, calm full-bleed photograph — restraint, not a card deck. */}
+        <motion.figure
+          className="relative mt-16 sm:mt-24 overflow-hidden rounded-[24px] ring-1 ring-border-strong"
+          initial={reduce ? false : { opacity: 0, y: 30 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+        >
+          <motion.img
+            src="/photos/IMG_8341.webp"
+            alt={t({ ar: "أعضاء آيلاند هيفن في مساحة العمل بغزّة", en: "Island Haven members in the Gaza workspace" })}
+            loading="lazy"
+            style={{ y: photoY }}
+            className="w-full aspect-[16/9] object-cover scale-110 will-change-transform"
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/70 via-transparent to-transparent" />
+        </motion.figure>
+
+        {/* The four tracks — a quiet big-type editorial sequence, one idea per line.
+            No numbers, no per-row eyebrows, no medallions, no uniform grid. */}
+        <div className="mt-20 sm:mt-28 max-w-4xl">
+          {tracks.map((track, i) => (
+            <motion.div
+              key={track.key}
+              data-testid={`audience-track-${track.key}`}
+              className="border-t border-border-strong py-9 sm:py-12 first:border-t-0 first:pt-0"
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
+            >
+              <h3
+                className="font-display text-foreground"
+                style={{
+                  fontSize: "clamp(1.6rem, 3.4vw, 2.6rem)",
+                  lineHeight: 1.08,
+                  letterSpacing: "-0.03em",
+                  fontWeight: 700,
+                }}
+              >
+                {track.title}
+              </h3>
+              <p
+                className="mt-4 max-w-2xl text-fg-secondary"
+                style={{ fontSize: "clamp(1rem, 1.5vw, 1.2rem)", lineHeight: 1.6 }}
+              >
+                {track.line}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

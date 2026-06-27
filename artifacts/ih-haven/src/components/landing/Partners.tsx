@@ -14,10 +14,9 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  *     (Replit, AWS Activate, Google for Startups, Payoneer, Freelancer). These
  *     are NOT called "partners"; they're real value we open the door to.
  *
- * Each entry shows what it actually UNLOCKS — cloud credits, payments, market,
- * acceleration — so a Gazan founder sees value, not vanity. On-brand (cerulean
- * monograms + crimson accents on the deep-navy canvas). No fake logos, no
- * overstated partnerships.
+ * Grandeur pass: a single monumental headline on acres of space, no eyebrow rule,
+ * no medallions, no card decks, no aura. The two honest groups are now calm
+ * editorial rows — a name, what it unlocks — separated by hairlines, not boxes.
  */
 
 type Cat = "backing" | "training" | "cloud" | "payments" | "market" | "funding";
@@ -121,70 +120,70 @@ export function Partners() {
   const reduce = useReducedMotion();
 
   return (
-    <section id="partners" className="relative bg-background section-y overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-60" />
-
+    <section id="partners" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
       <div className="container-ih relative">
-        <Reveal as="header" className="max-w-2xl mb-[clamp(2rem,4vw,3.25rem)]">
-          <div className="eyebrow mb-4">{t({ ar: "الداعمون وما نفتحه لك", en: "Backers & what we unlock" })}</div>
-          <h2 className="t-h2">
-            {t({ ar: "الشبكة التي تقف خلف كلّ عضو.", en: "The network behind every member." })}
+        {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
+        <header className="max-w-4xl">
+          <Reveal as="p" className="t-caption text-fg-secondary mb-[clamp(1.5rem,3vw,2.5rem)]">
+            {t({ ar: "الشبكة", en: "The network" })}
+          </Reveal>
+
+          <h2
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              fontWeight: 700,
+            }}
+          >
+            {[
+              t({ ar: "ما يقف خلف", en: "Behind every" }),
+              t({ ar: "كلّ", en: "single" }),
+              <span key="accent" className="text-primary">{t({ ar: "عضو.", en: "member." })}</span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
           </h2>
-          <p className="t-body mt-4 max-w-xl">
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
             {t({
               ar: "نفصل بصدق بين أمرَين: جهاتٌ تدعمنا وتشاركنا فعلًا، وأدواتٌ وأرصدةٌ نفتح لك بابها. لا شعارات مبالَغ بها — قيمةٌ حقيقيّة فقط.",
               en: "We honestly separate two things: organisations that actually back and partner with us, and the tools & credits we open the door to. No overstated logos — just real value.",
             })}
-          </p>
-        </Reveal>
+          </motion.p>
+        </header>
 
-        {/* Value framing — honest split: real backers vs. $ in tools we unlock */}
-        <Reveal className="mb-[clamp(1.75rem,3vw,2.5rem)] flex flex-wrap items-stretch gap-x-10 gap-y-5 border-y border-border-strong py-6">
-          {[
-            { v: lang === "en" ? String(PARTNERS.length) : "٣", l: t({ ar: "جهات داعمة وشريكة", en: "backers & partners" }) },
-            { v: lang === "en" ? "$1,000s" : "آلاف $", l: t({ ar: "أدوات وأرصدة نفتحها — مجّانًا", en: "in tools & credits we unlock — free" }) },
-            { v: lang === "en" ? "Worldwide" : "عالميّ", l: t({ ar: "وصول لفرص عبر الحدود", en: "cross-border opportunity" }) },
-          ].map((s, i) => (
-            <motion.div
-              key={i}
-              className="flex flex-col"
-              initial={reduce ? false : { opacity: 0, y: 8 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.7 }}
-              transition={{ duration: 0.5, delay: 0.06 + i * 0.09, ease: EASE_OUT_EXPO }}
-              style={{ willChange: "transform, opacity" }}
-            >
-              <motion.span
-                className="font-display font-black text-sand-bright tnum leading-none origin-[0%_100%] rtl:origin-[100%_100%]"
-                style={{ fontSize: "clamp(1.6rem,2.6vw,2.4rem)", letterSpacing: "-0.02em", willChange: "transform" }}
-                initial={reduce ? false : { scale: 0.92 }}
-                whileInView={reduce ? undefined : { scale: 1 }}
-                viewport={{ once: true, amount: 0.7 }}
-                transition={{ duration: 0.55, delay: 0.06 + i * 0.09, ease: EASE_OUT_EXPO }}
-              >
-                {s.v}
-              </motion.span>
-              <span className="t-caption mt-2 text-fg-secondary">{s.l}</span>
-            </motion.div>
-          ))}
-        </Reveal>
-
-        {/* Live marquee — the network in motion (pause on hover) */}
-        <Reveal className="mb-[clamp(2.25rem,4vw,3.25rem)]">
+        {/* Live marquee — the whole network in motion (pause on hover) */}
+        <Reveal className="mt-[clamp(3rem,6vw,5rem)]">
           <div className="relative overflow-hidden py-2 [mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]">
             <div
-              className="flex w-max gap-3 hover:[animation-play-state:paused] motion-reduce:[animation:none] motion-reduce:flex-wrap"
-              style={{ animation: "ih-marquee 42s linear infinite" }}
+              className="flex w-max gap-x-[clamp(2rem,4vw,3.5rem)] hover:[animation-play-state:paused] motion-reduce:[animation:none] motion-reduce:flex-wrap motion-reduce:gap-y-3"
+              style={{ animation: "ih-marquee 48s linear infinite" }}
             >
               {[...NETWORK, ...NETWORK].map((p, i) => (
                 <span
                   key={`${p.name}-${i}`}
-                  className="group/chip inline-flex items-center gap-2.5 shrink-0 rounded-full border border-border-strong bg-surface-2 ps-2.5 pe-4 py-2 transition-colors duration-300 hover:border-sand/40"
+                  className="shrink-0 font-display font-semibold text-foreground/45 hover:text-foreground transition-colors duration-300 whitespace-nowrap"
+                  style={{ fontSize: "clamp(1.05rem,1.8vw,1.5rem)", letterSpacing: "-0.02em" }}
                 >
-                  <span className="grid place-items-center h-6 w-6 rounded-full bg-sand-soft text-sand-bright text-[11px] font-black transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover/chip:scale-110">
-                    {p.name.charAt(0)}
-                  </span>
-                  <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</span>
+                  {p.name}
                 </span>
               ))}
             </div>
@@ -192,48 +191,46 @@ export function Partners() {
         </Reveal>
 
         {/* ── Group 1: REAL backers & partners — actual relationships ── */}
-        <Reveal className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-5">
-          <span className="h-px w-9 bg-primary/50 self-center" />
-          <h3 className="font-display font-bold text-foreground text-[clamp(1.05rem,2vw,1.4rem)]" style={{ letterSpacing: "-0.018em" }}>
-            {t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
-          </h3>
-          <span className="t-caption text-fg-secondary">
-            {t({ ar: "جهاتٌ تدعمنا وتشاركنا فعلًا", en: "organisations that actually back & partner with us" })}
-          </span>
-        </Reveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {PARTNERS.map((p, i) => (
-            <PartnerCard key={p.name} p={p} i={i} t={t} />
-          ))}
+        <div className="mt-[clamp(4rem,8vw,7rem)]">
+          <GroupHeading
+            kicker={t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
+            note={t({ ar: "جهاتٌ تدعمنا وتشاركنا فعلًا", en: "organisations that actually back & partner with us" })}
+          />
+          <ul>
+            {PARTNERS.map((p, i) => (
+              <NetworkRow key={p.name} p={p} i={i} t={t} />
+            ))}
+          </ul>
         </div>
 
         {/* ── Group 2: TOOLS & CREDITS we unlock — NOT partners ── */}
-        <Reveal className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-[clamp(2.25rem,4vw,3rem)] mb-5">
-          <span className="h-px w-9 bg-sand/60 self-center" />
-          <h3 className="font-display font-bold text-foreground text-[clamp(1.05rem,2vw,1.4rem)]" style={{ letterSpacing: "-0.018em" }}>
-            {t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
-          </h3>
-          <span className="t-caption text-fg-secondary">
-            {t({ ar: "برامجٌ ومنصّاتٌ نفتح لك بابها — لا شراكات", en: "programs & platforms we open the door to — not partnerships" })}
-          </span>
-        </Reveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {TOOLS.map((p, i) => (
-            <PartnerCard key={p.name} p={p} i={i} t={t} />
-          ))}
+        <div className="mt-[clamp(3.5rem,7vw,6rem)]">
+          <GroupHeading
+            kicker={t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
+            note={t({ ar: "برامجٌ ومنصّاتٌ نفتح لك بابها — لا شراكات", en: "programs & platforms we open the door to — not partnerships" })}
+            accent="sand"
+            aside={t({ ar: "أرصدةٌ بآلاف الدولارات — مجّانًا", en: "$1,000s in credits — free" })}
+            asideValue={lang === "en" ? "$1,000s" : "آلاف $"}
+          />
+          <ul>
+            {TOOLS.map((p, i) => (
+              <NetworkRow key={p.name} p={p} i={i} t={t} />
+            ))}
+          </ul>
         </div>
 
         {/* CTA */}
-        <Reveal delay={0.1} className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p className="t-caption">
+        <Reveal delay={0.1} className="mt-[clamp(3.5rem,7vw,6rem)] flex flex-wrap items-center gap-x-4 gap-y-3">
+          <p className="text-fg-secondary" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
             {t({ ar: "تريد أن تصبح جزءًا من الشبكة؟", en: "Want to join the network?" })}
           </p>
           <a
             href="mailto:island-haven@nastonas.org"
-            className="group inline-flex items-center gap-2 px-4 h-9 rounded-full border border-border-strong text-[12.5px] font-semibold text-fg-secondary hover:border-primary/50 hover:text-primary transition-colors"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", fontWeight: 600 }}
           >
             {t({ ar: "تواصل معنا", en: "Get in touch" })}
-            <ExternalLink className="w-3.5 h-3.5 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+            <ExternalLink className="w-4 h-4 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
           </a>
         </Reveal>
       </div>
@@ -241,10 +238,50 @@ export function Partners() {
   );
 }
 
-// One ecosystem card — used for both groups (backers/partners + tools/credits).
-// The group's heading above it carries the honest framing; the card shows the
-// real value each entry unlocks.
-function PartnerCard({
+// Calm group heading — a name and an honest one-line note, no eyebrow rule, no
+// medallion. An optional real value figure (sand) sits aside for the tools group.
+function GroupHeading({
+  kicker,
+  note,
+  accent = "primary",
+  aside,
+  asideValue,
+}: {
+  kicker: string;
+  note: string;
+  accent?: "primary" | "sand";
+  aside?: string;
+  asideValue?: string;
+}) {
+  return (
+    <Reveal className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pb-[clamp(1.25rem,2.5vw,2rem)] border-b border-border-strong">
+      <div className="max-w-2xl">
+        <h3
+          className="font-display font-bold text-foreground"
+          style={{ fontSize: "clamp(1.4rem,2.8vw,2.1rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
+        >
+          {kicker}
+        </h3>
+        <p className="t-caption text-fg-secondary mt-2">{note}</p>
+      </div>
+      {asideValue && (
+        <div className="flex items-baseline gap-2.5">
+          <span
+            className={`font-display font-black leading-none tnum ${accent === "sand" ? "text-sand-bright" : "text-primary"}`}
+            style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em" }}
+          >
+            {asideValue}
+          </span>
+          <span className="t-caption text-fg-secondary max-w-[11rem]">{aside}</span>
+        </div>
+      )}
+    </Reveal>
+  );
+}
+
+// One ecosystem entry — a calm editorial row (no card, no medallion). The name,
+// the real value it unlocks, and the honest category — separated by a hairline.
+function NetworkRow({
   p,
   i,
   t,
@@ -254,30 +291,28 @@ function PartnerCard({
   t: (s: { ar: string; en: string }) => string;
 }) {
   return (
-    <Reveal delay={Math.min(i, 6) * 0.05} className="h-full">
-      <a
-        href={`https://${p.url}`}
-        target="_blank"
-        rel="noreferrer"
-        data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
-        className="card-base card-hover group flex h-full flex-col p-6"
-      >
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="grid place-items-center h-11 w-11 rounded-[14px] bg-sand-soft text-sand-bright font-display font-black text-[18px] shrink-0 ring-1 ring-sand/25 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none will-change-transform group-hover:scale-[1.06] group-hover:ring-sand/45">
-              {p.name.charAt(0)}
-            </span>
-            <span className="font-display font-bold text-foreground text-[16px] truncate group-hover:text-primary transition-colors">
-              {p.name}
-            </span>
-          </div>
-          <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none shrink-0 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-        </div>
-        <p className="t-body text-[14px] flex-1">{t({ ar: p.ar, en: p.en })}</p>
-        <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5">
-          {t(CAT[p.cat])}
-        </span>
-      </a>
-    </Reveal>
+    <li>
+      <Reveal delay={Math.min(i, 6) * 0.06}>
+        <a
+          href={`https://${p.url}`}
+          target="_blank"
+          rel="noreferrer"
+          data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
+          className="group grid grid-cols-1 md:grid-cols-[minmax(0,15rem)_1fr_auto] items-baseline gap-x-8 gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+        >
+          <span
+            className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+            style={{ fontSize: "clamp(1.25rem,2.2vw,1.75rem)", letterSpacing: "-0.022em", lineHeight: 1.15 }}
+          >
+            {p.name}
+          </span>
+          <p className="t-body text-[15px] md:text-[16px] max-w-xl">{t({ ar: p.ar, en: p.en })}</p>
+          <span className="inline-flex items-center gap-2 t-caption text-fg-secondary whitespace-nowrap group-hover:text-foreground transition-colors">
+            {t(CAT[p.cat])}
+            <ExternalLink className="w-3.5 h-3.5 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+          </span>
+        </a>
+      </Reveal>
+    </li>
   );
 }
