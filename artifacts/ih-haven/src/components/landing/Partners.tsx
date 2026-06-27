@@ -1,6 +1,8 @@
 import { ExternalLink } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
  * Partners — the ecosystem behind every member, told HONESTLY (not a logo wall).
@@ -116,6 +118,7 @@ const NETWORK: Node[] = [...PARTNERS, ...TOOLS];
 
 export function Partners() {
   const { t, lang } = useLanguage();
+  const reduce = useReducedMotion();
 
   return (
     <section id="partners" className="relative bg-background section-y overflow-hidden">
@@ -142,12 +145,27 @@ export function Partners() {
             { v: lang === "en" ? "$1,000s" : "آلاف $", l: t({ ar: "أدوات وأرصدة نفتحها — مجّانًا", en: "in tools & credits we unlock — free" }) },
             { v: lang === "en" ? "Worldwide" : "عالميّ", l: t({ ar: "وصول لفرص عبر الحدود", en: "cross-border opportunity" }) },
           ].map((s, i) => (
-            <div key={i} className="flex flex-col">
-              <span className="font-display font-black text-sand-bright tnum leading-none" style={{ fontSize: "clamp(1.6rem,2.6vw,2.4rem)", letterSpacing: "-0.02em" }}>
+            <motion.div
+              key={i}
+              className="flex flex-col"
+              initial={reduce ? false : { opacity: 0, y: 8 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: 0.5, delay: 0.06 + i * 0.09, ease: EASE_OUT_EXPO }}
+              style={{ willChange: "transform, opacity" }}
+            >
+              <motion.span
+                className="font-display font-black text-sand-bright tnum leading-none origin-[0%_100%] rtl:origin-[100%_100%]"
+                style={{ fontSize: "clamp(1.6rem,2.6vw,2.4rem)", letterSpacing: "-0.02em", willChange: "transform" }}
+                initial={reduce ? false : { scale: 0.92 }}
+                whileInView={reduce ? undefined : { scale: 1 }}
+                viewport={{ once: true, amount: 0.7 }}
+                transition={{ duration: 0.55, delay: 0.06 + i * 0.09, ease: EASE_OUT_EXPO }}
+              >
                 {s.v}
-              </span>
+              </motion.span>
               <span className="t-caption mt-2 text-fg-secondary">{s.l}</span>
-            </div>
+            </motion.div>
           ))}
         </Reveal>
 
@@ -161,9 +179,9 @@ export function Partners() {
               {[...NETWORK, ...NETWORK].map((p, i) => (
                 <span
                   key={`${p.name}-${i}`}
-                  className="inline-flex items-center gap-2.5 shrink-0 rounded-full border border-border-strong bg-surface-2 ps-2.5 pe-4 py-2"
+                  className="group/chip inline-flex items-center gap-2.5 shrink-0 rounded-full border border-border-strong bg-surface-2 ps-2.5 pe-4 py-2 transition-colors duration-300 hover:border-sand/40"
                 >
-                  <span className="grid place-items-center h-6 w-6 rounded-full bg-sand-soft text-sand-bright text-[11px] font-black">
+                  <span className="grid place-items-center h-6 w-6 rounded-full bg-sand-soft text-sand-bright text-[11px] font-black transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover/chip:scale-110">
                     {p.name.charAt(0)}
                   </span>
                   <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</span>
@@ -212,10 +230,10 @@ export function Partners() {
           </p>
           <a
             href="mailto:island-haven@nastonas.org"
-            className="inline-flex items-center gap-2 px-4 h-9 rounded-full border border-border-strong text-[12.5px] font-semibold text-fg-secondary hover:border-primary/50 hover:text-primary transition-colors"
+            className="group inline-flex items-center gap-2 px-4 h-9 rounded-full border border-border-strong text-[12.5px] font-semibold text-fg-secondary hover:border-primary/50 hover:text-primary transition-colors"
           >
             {t({ ar: "تواصل معنا", en: "Get in touch" })}
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
           </a>
         </Reveal>
       </div>
@@ -246,17 +264,17 @@ function PartnerCard({
       >
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="grid place-items-center h-11 w-11 rounded-[14px] bg-sand-soft text-sand-bright font-display font-black text-[18px] shrink-0 ring-1 ring-sand/25">
+            <span className="grid place-items-center h-11 w-11 rounded-[14px] bg-sand-soft text-sand-bright font-display font-black text-[18px] shrink-0 ring-1 ring-sand/25 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none will-change-transform group-hover:scale-[1.06] group-hover:ring-sand/45">
               {p.name.charAt(0)}
             </span>
             <span className="font-display font-bold text-foreground text-[16px] truncate group-hover:text-primary transition-colors">
               {p.name}
             </span>
           </div>
-          <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-colors shrink-0" />
+          <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none shrink-0 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
         </div>
         <p className="t-body text-[14px] flex-1">{t({ ar: p.ar, en: p.en })}</p>
-        <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide">
+        <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5">
           {t(CAT[p.cat])}
         </span>
       </a>

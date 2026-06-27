@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 interface Numbers {
   members: number;
@@ -56,6 +57,7 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
  */
 export function NumbersBand() {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
   const [n, setN] = useState<Numbers | null>(null);
 
   useEffect(() => {
@@ -128,19 +130,35 @@ export function NumbersBand() {
               delay={i * 0.06}
               className={`border-b border-border-strong ${i % 2 === 1 ? "border-s" : ""} lg:[&:not(:first-child)]:border-s py-8 sm:py-10 px-1 sm:px-5 first:ps-0`}
             >
-              <div
+              <motion.div
                 data-testid={`numbers-row-${s.key}`}
-                className="group"
+                className="group relative transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-1"
+                whileHover={reduce ? undefined : { transition: { duration: 0.22 } }}
               >
-                <div
-                  className="font-display font-black tabular-nums text-sand-bright leading-[0.85] transition-colors group-hover:text-sand"
-                  style={{ fontSize: "clamp(3.25rem, 7vw, 6rem)", letterSpacing: "-0.04em" }}
+                {/* Settle-in emphasis on the numeral — synced with the count-up */}
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, scale: 0.94, y: 6 }}
+                  whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.55, delay: i * 0.06, ease: EASE_OUT_EXPO }}
+                  className="font-display font-black tabular-nums text-sand-bright leading-[0.85] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
+                  style={{ fontSize: "clamp(3.25rem, 7vw, 6rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
                 >
                   {n ? <CountUp value={s.value} lang={lang} /> : "—"}
-                </div>
-                <div className="mt-4 text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
-                <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1.5">{s.en}</div>
-              </div>
+                </motion.div>
+                {/* Hairline that draws in beneath the figure — crafted underscore */}
+                <motion.span
+                  aria-hidden
+                  className="block mt-3.5 h-px bg-sand/45 origin-[0%_50%] rtl:origin-[100%_50%]"
+                  initial={reduce ? false : { scaleX: 0 }}
+                  whileInView={reduce ? undefined : { scaleX: 1 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.7, delay: 0.2 + i * 0.06, ease: EASE_OUT_EXPO }}
+                  style={{ willChange: "transform" }}
+                />
+                <div className="mt-3.5 text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
+                <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1.5 transition-colors duration-300 group-hover:text-fg-secondary">{s.en}</div>
+              </motion.div>
             </Reveal>
           ))}
         </div>
@@ -150,11 +168,19 @@ export function NumbersBand() {
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-fg-secondary">
             <span className="text-muted-foreground">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
             {composition.map((cmp, i) => (
-              <span key={i} className="inline-flex items-center gap-1.5">
+              <motion.span
+                key={i}
+                className="inline-flex items-center gap-1.5"
+                initial={reduce ? false : { opacity: 0, y: 6 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.8 }}
+                transition={{ duration: 0.45, delay: 0.1 + i * 0.08, ease: EASE_OUT_EXPO }}
+                style={{ willChange: "transform, opacity" }}
+              >
                 {i > 0 && <span className="text-border-strong px-1">·</span>}
                 <span className="tnum font-bold text-sand">{n ? fmt(cmp.value) : "—"}</span>
                 <span>{cmp.label}</span>
-              </span>
+              </motion.span>
             ))}
           </div>
           <Link
@@ -169,12 +195,12 @@ export function NumbersBand() {
 
         {/* Cinematic place strip */}
         <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
-          <div className="relative overflow-hidden rounded-[20px] ring-1 ring-white/10">
+          <div className="group relative overflow-hidden rounded-[20px] ring-1 ring-white/10">
             <img
               src="/photos/IMG_8352.webp"
               alt={t({ ar: "مجتمع آيلاند هيفن في غزّة", en: "The Island Haven community in Gaza" })}
               loading="lazy"
-              className="w-full h-[clamp(220px,32vw,360px)] object-cover object-center saturate-[1.05]"
+              className="w-full h-[clamp(220px,32vw,360px)] object-cover object-center saturate-[1.05] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none will-change-transform group-hover:scale-[1.04]"
             />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 lg:p-8">

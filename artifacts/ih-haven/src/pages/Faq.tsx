@@ -1,136 +1,471 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, MessageCircle } from "lucide-react";
-import { PageShell } from "@/components/shell/PageShell";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
+import { ArrowLeft, ChevronDown } from "lucide-react";
+import { PageShell } from "@/components/shell/PageShell";
+import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { I18N } from "@/lib/i18n";
 
-interface FaqItem { q: string; a: string; }
-interface FaqSection { title: string; en: string; items: FaqItem[]; }
+type Bi = { ar: string; en: string };
+type QA = { id: string; q: Bi; a: Bi };
+type Category = { id: string; label: Bi; lede: Bi; items: QA[] };
 
-const FAQ_DATA: FaqSection[] = [
+/**
+ * Faq — the standalone, "we've thought of everything" FAQ, told in Island
+ * Haven's YC light-editorial register. A Fraunces serif chapter header carries a
+ * single italic crimson accent; on the side, a sticky serif index of CATEGORIES.
+ * Each category is a section of hairline-divided, fully accessible accordion rows
+ * — a real <button> with aria-expanded / aria-controls, a panel that opens via a
+ * grid-template-rows 0fr→1fr transition (no height, GPU-friendly, zero layout
+ * jank), and a chevron that rotates 180°. The first category reuses the
+ * homepage's six honest answers as the lead chapter. Truthful, on-brand,
+ * Arabic-first and RTL-safe. No cards-as-chrome, no glass, no gradient text.
+ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   The knowledge base — 7 chapters, 28 honest bilingual Q&As.
+   Chapter 1 = the homepage's six (verbatim), then the deep coverage:
+   eligibility/apply · cost & equity · the space · programs & Demo Day ·
+   after the program · logistics (remote, hardware, privacy, who's welcome).
+   ───────────────────────────────────────────────────────────────────────── */
+const CATEGORIES: Category[] = [
   {
-    title: "عن آيلاند هيفن",
-    en: "About Island Haven",
+    id: "basics",
+    label: { ar: "الأساسيّات", en: "The essentials" },
+    lede: {
+      ar: "أكثر ستّة أسئلة نسمعها — بإجابات صريحة، بلا تجميل.",
+      en: "The six questions we hear most — answered honestly, no gloss.",
+    },
     items: [
-      { q: "ما هي آيلاند هيفن؟", a: "آيلاند هيفن (Island Haven) حاضنة أعمال ومجتمع تقني تأسّست من قلب قطاع غزة بقناعة راسخة بأن الموهبة لا تحدّها الجغرافيا. نجسر الفجوة بين المواهب الغزية والعالم — من خلال مساحات عمل احترافية، تدريب مكثّف، أرصدة سحابية، حلول مدفوعات، وتشبيك بالفرص العالمية." },
-      { q: "متى تأسّست الحاضنة؟", a: "تأسّست آيلاند هيفن عام 2024 في قطاع غزة، فلسطين. نشأت تحت مظلّة مبادرة «من الناس إلى الناس» — مبادرة تطوّعية تعمل من داخل غزة وخارجها على إيصال الدعم المباشر إلى المشاريع المجتمعية الصغيرة." },
-      { q: "هل الحاضنة مرتبطة بجهة حكومية أو سياسية؟", a: "لا. آيلاند هيفن كيان مستقل بالكامل. هدفنا الوحيد هو تهيئة المواهب الغزية مهنيًا وتقنيًا وربطها بفرص العمل والاستثمار العالمية." },
-      { q: "هل يمكن للمرأة الانضمام؟", a: "بالتأكيد. الحاضنة مفتوحة للجميع بغضّ النظر عن الجنس أو العمر أو المستوى التعليمي. نرحّب بشكل خاص بالمهنيّات اللواتي يرغبن في تطوير مساراتهن التقنية والمهنية." },
-      { q: "ما الفرق بين آيلاند هيفن وحاضنات الأعمال الأخرى؟", a: "آيلاند هيفن ليست فقط حاضنة أعمال تقليدية — هي منظومة متكاملة تجمع مساحة عمل احترافية، تدريبًا، أرصدة سحابية، حلول مدفوعات دولية، وتشبيكًا بالفرص العالمية. كل هذا مجانًا. نؤمن بأن الاستثمار الحقيقي هو في الإنسان قبل أي شيء آخر." },
+      {
+        id: "free",
+        q: { ar: "هل آيلاند مجّاني فعلًا؟", en: "Is Island Haven really free?" },
+        a: {
+          ar: "نعم، مجّانيّ بالكامل — لا رسوم ولا حصّة من مشروعك. آيلاند حاضنة مدعومة من NasToNas وGaza Sky Geeks، ونفتح لك أدواتٍ وأرصدةً عالميّة (Replit وAWS Activate وGoogle for Startups وPayoneer وFreelancer). مهمّتنا أن نعيد وصل المواهب الغزّيّة بالاقتصاد الرقميّ، لا أن نربح منها.",
+          en: "Yes — completely free. No fees, and no equity in your work. Island Haven is an incubator backed by NasToNas and Gaza Sky Geeks, and we unlock global tools & credits for you (Replit, AWS Activate, Google for Startups, Payoneer, Freelancer). Our mission is to reconnect Gazan talent to the digital economy, not to profit from it.",
+        },
+      },
+      {
+        id: "who",
+        q: { ar: "مَن يحقّ له التقديم؟", en: "Who can apply?" },
+        a: {
+          ar: "كلّ موهبة رقميّة في غزّة — مطوّرون، مصمّمون، مستقلّون، طلّاب جامعات، ومؤسّسون في بداية الطريق. نؤمن أنّ الموهبة لا تحدّها الجغرافيا؛ ما يهمّنا هو جدّيّتك واستعدادك للعمل، لا شهادتك ولا خبرتك السابقة.",
+          en: "Any digital talent in Gaza — developers, designers, freelancers, university students and early-stage founders. We believe talent isn't bound by geography; what matters is your seriousness and readiness to work, not your degree or past résumé.",
+        },
+      },
+      {
+        id: "member",
+        q: { ar: "ماذا أحصل عليه كعضو؟", en: "What do I get as a member?" },
+        a: {
+          ar: "مساحة عمل مجهّزة بإنترنت وكهرباء موثوقَين، أرصدة سحابيّة وأدوات، حلول دفع دوليّة، تدريب مستمرّ ومسارات احتضان منظّمة، إرشاد فرديّ من خبراء، وشبكة حقيقيّة من الفرص والشركاء تتجاوز الحدود.",
+          en: "An equipped workspace with reliable internet and power, cloud credits and tools, international payment solutions, continuous training and structured incubation tracks, 1:1 expert mentorship, and a real network of opportunities and partners that reaches beyond borders.",
+        },
+      },
+      {
+        id: "cohorts",
+        q: { ar: "ما هي الدفعات ويوم العرض (Demo Day)؟", en: "What are cohorts and Demo Day?" },
+        a: {
+          ar: "الدفعة مجموعة من الأعضاء تسير معًا في مسار احتضان منظّم خلال فترة محدّدة. يُختم المسار بيوم العرض — Demo Day — حيث تقدّم مشروعك أمام شبكة من المرشدين والشركاء والداعمين، وهو بوّابتك لفرص العمل والتدريب والاستثمار.",
+          en: "A cohort is a group of members who move together through a structured incubation track over a set period. The track culminates in a Demo Day, where you present your work to a network of mentors, partners and supporters — your gateway to work, training and investment.",
+        },
+      },
+      {
+        id: "space",
+        q: { ar: "أين تقع المساحة وما أوقاتها؟", en: "Where is the space, and what are its hours?" },
+        a: {
+          ar: "مساحتنا في قلب غزّة، مهيّأة للعمل المركّز بمقاعد ثابتة وإنترنت وكهرباء. تحجز مقعدك عبر صفحة الحجز، ويمكنك دائمًا التواصل معنا على واتساب لمعرفة الأوقات المتاحة وتنسيق زيارتك.",
+          en: "Our space is in the heart of Gaza, set up for focused work with stable seats, internet and power. You reserve a seat through the booking page, and you can always reach us on WhatsApp to check available hours and arrange your visit.",
+        },
+      },
+      {
+        id: "apply",
+        q: { ar: "كيف أقدّم؟", en: "How do I apply?" },
+        a: {
+          ar: "التقديم بسيط ومجّاني: املأ نموذج الانضمام عبر صفحة «قدّم الآن»، ويتواصل معك فريقنا. تفضّل أن تتحدّث إلينا أوّلًا؟ احجز مكالمة أو راسلنا مباشرةً على واتساب — مساحة تتّسع لأحلامك.",
+          en: "It's simple and free: fill in the join form on the Apply page and our team will reach out. Prefer to talk first? Book a call or message us directly on WhatsApp — a space wide enough for your dreams.",
+        },
+      },
     ],
   },
   {
-    title: "مساحة العمل المشتركة",
-    en: "Co-working Space",
+    id: "eligibility",
+    label: { ar: "الأهليّة والتقديم", en: "Eligibility & applying" },
+    lede: {
+      ar: "مَن نقبل، كيف نقرّر، وكم يستغرق الأمر — كلّ ما يخصّ بوّابة الدخول.",
+      en: "Who we take, how we decide, and how long it takes — everything about the front door.",
+    },
     items: [
-      { q: "ما المرافق المتاحة في مساحة العمل؟", a: "مساحة عمل مهنية مجهّزة بالكامل: إنترنت ألياف ضوئية عالي السرعة، مقاعد مريحة، مكاتب ذات تصميم مهني، كهرباء مستمرة، قاعات اجتماعات، ومطبخ — كل ما تحتاجه لتعمل باحترافية." },
-      { q: "من يحقّ له الانتساب لمساحة العمل؟", a: "المساحة مفتوحة لأربع فئات رئيسية: طلاب التقنية والبرمجة، خرّيجو التخصصات التقنية، المستقلّون، وأصحاب المشاريع الناشئة. المعيار الأساسي هو امتلاك الموهبة والإرادة." },
-      { q: "هل الانتساب مجاني؟", a: "نعم، الانتساب مجاني بالكامل. آيلاند هيفن مجتمع يُبنى يوميًا بأيدي داعميه ومنتسبيه — تكاليف التشغيل يغطّيها داعمون يؤمنون بالموهبة الغزية." },
-      { q: "كيف أحجز مقعداً في المساحة؟", a: "توجّه إلى صفحة 'احجز مقعداً' على الموقع واختر الوقت المناسب لك. يمكنك أيضاً التواصل معنا مباشرة عبر واتساب لتأكيد الحجز." },
-      { q: "هل يمكنني زيارة المساحة قبل الانتساب؟", a: "نعم. يمكنك حجز زيارة استطلاعية لترى المساحة بنفسك قبل اتخاذ أي قرار. العنوان التفصيلي يُرسَل عبر الرسائل الخاصة لأسباب أمنية بعد تأكيد الموعد." },
+      {
+        id: "requirements",
+        q: { ar: "هل أحتاج شهادة جامعيّة أو خبرة سابقة؟", en: "Do I need a degree or prior experience?" },
+        a: {
+          ar: "لا. لا نطلب شهادة ولا سنوات خبرة. نبحث عن موهبة حقيقيّة، استعدادٍ للتعلّم، والتزامٍ بإنجاز العمل. كثيرٌ من أقوى أعضائنا تعلّموا ذاتيًّا أو ما زالوا طلّابًا — المعيار هو ما تستطيع بناءه، لا ما هو مكتوب على ورقة.",
+          en: "No. We don't require a diploma or years of experience. We look for real talent, a willingness to learn, and the commitment to finish what you start. Many of our strongest members are self-taught or still students — the bar is what you can build, not what's printed on a certificate.",
+        },
+      },
+      {
+        id: "english",
+        q: { ar: "هل يجب أن أتقن الإنجليزيّة؟", en: "Do I need to speak fluent English?" },
+        a: {
+          ar: "مفيدةٌ لكنّها ليست شرطًا للقبول. كلّ التواصل الداخليّ والتدريب متاحٌ بالعربيّة، ونساعدك على تطوير إنجليزيّتك المهنيّة لأنّها تفتح أبواب العمل الدوليّ. ابدأ بما لديك؛ نبني الباقي معًا.",
+          en: "It helps, but it isn't a requirement to be accepted. All internal communication and training is available in Arabic, and we help you grow your professional English because it opens doors to international work. Start with what you have; we build the rest together.",
+        },
+      },
+      {
+        id: "process",
+        q: { ar: "كيف تسير عمليّة التقديم خطوةً بخطوة؟", en: "What does the application process look like, step by step?" },
+        a: {
+          ar: "أربع خطوات واضحة: تملأ نموذج التقديم عبر صفحة «قدّم الآن»، تمرّ بمراجعة أوّليّة ومقابلة قصيرة، ثمّ تنضمّ إلى دفعة من المؤسّسين والمستقلّين، وتختم رحلتك بيوم العرض أمام شبكتنا. للتفاصيل الكاملة راجع صفحة «كيف تنضمّ».",
+          en: "Four clear steps: you fill in the application on the Apply page, go through a short review and interview, join a cohort of founders and freelancers, then finish with a Demo Day in front of our network. For the full walkthrough, see the “How to join” page.",
+        },
+      },
+      {
+        id: "timeline",
+        q: { ar: "كم يستغرق الردّ على طلبي؟", en: "How long until I hear back?" },
+        a: {
+          ar: "نراجع الطلبات أوّلًا بأوّل، وعادةً يصلك ردٌّ أوّليّ خلال أيّام قليلة من التقديم، ثمّ قرارٌ بعد المقابلة القصيرة. إن طال الانتظار، راسلنا على واتساب وسنتحقّق من حالة طلبك مباشرةً.",
+          en: "We review applications on a rolling basis, and you'll usually get a first reply within a few days of applying, then a decision after the short interview. If it's taking longer, message us on WhatsApp and we'll check your status directly.",
+        },
+      },
+      {
+        id: "cadence",
+        q: { ar: "متى تُفتح دورات القبول؟", en: "When do you open admissions?" },
+        a: {
+          ar: "التقديم مفتوحٌ على مدار العام، ونستقبل دفعاتٍ جديدة على فترات. سجّل من صفحة «قدّم الآن» وسيصلك إشعارٌ فور توفّر مقعدٍ في الدفعة القادمة.",
+          en: "Applications are open year-round, and we take in new cohorts in waves. Register on the Apply page and we'll notify you the moment a seat opens in the next cohort.",
+        },
+      },
+      {
+        id: "reapply",
+        q: { ar: "إن لم أُقبل، هل أستطيع التقديم مجدّدًا؟", en: "If I'm not accepted, can I apply again?" },
+        a: {
+          ar: "بالتأكيد. رفض دفعةٍ واحدة ليس بابًا مغلقًا — نشجّعك على التطوّر ثمّ العودة. وكثيرٌ من فعالياتنا وورشنا مفتوحةٌ للجميع، فابقَ على تواصل وطوّر مهاراتك حتّى الدفعة التالية.",
+          en: "Absolutely. A no for one cohort isn't a closed door — we encourage you to grow and come back. Many of our events and workshops are open to everyone too, so stay connected and keep building until the next round.",
+        },
+      },
     ],
   },
   {
-    title: "الدورات التدريبية والفعاليات",
-    en: "Training & Events",
+    id: "cost",
+    label: { ar: "التكلفة والملكيّة", en: "Cost & equity" },
+    lede: {
+      ar: "مجّانيّ، بلا حصّة، بلا شروطٍ خفيّة — وهذا كيف يُموَّل.",
+      en: "Free, no equity, no hidden strings — and how it's funded.",
+    },
     items: [
-      { q: "ما أنواع البرامج التدريبية التي تقدّمونها؟", a: "نقدّم دورات تقنية ومهنية في مجالات متعددة كالبرمجة والتصميم والتسويق الرقمي، ورش عمل تطبيقية أسبوعية، معسكرات تدريب مكثّفة (Bootcamps)، وهاكاثونات — يقودها مدرّبون ومتخصّصون من داخل غزة وخارجها." },
-      { q: "هل البرامج التدريبية متاحة لغير الأعضاء؟", a: "بعض الفعاليات والورش مفتوحة للجميع، وبعضها مخصّص للأعضاء. تابع حساباتنا على وسائل التواصل الاجتماعي لمعرفة الفعاليات القادمة وشروط المشاركة." },
-      { q: "كيف أعرف بالدورات والفعاليات القادمة؟", a: "تابعنا على إنستغرام @ih_haven وعلى لينكدإن، أو اشترك في النشرة البريدية من خلال الموقع. كل الفعاليات القادمة تُنشر على القنوات الرسمية قبل أسبوع على الأقل." },
-      { q: "هل أحصل على شهادة بعد إتمام الدورة؟", a: "نعم، يحصل المشاركون على شهادات حضور واجتياز معتمدة من آيلاند هيفن. نعمل على توسيع شبكة الاعتراف بهذه الشهادات مع شركائنا المحليين والدوليين." },
+      {
+        id: "hidden-costs",
+        q: { ar: "هل توجد أيّ رسومٍ أو تكاليف خفيّة؟", en: "Are there any hidden fees or costs?" },
+        a: {
+          ar: "لا، ولا واحدة. لا رسوم انتساب، ولا اشتراكات، ولا «مقابلٍ لاحق». المساحة والتدريب والأرصدة والإرشاد كلّها مجّانيّة للأعضاء المقبولين. إن طلب منك أحدٌ مالًا باسم آيلاند هيفن فهو ليس منّا — أبلغنا فورًا.",
+          en: "None, not one. No membership fee, no subscription, no “pay us later.” The space, training, credits and mentorship are all free to accepted members. If anyone asks you for money in Island Haven's name, it isn't from us — tell us at once.",
+        },
+      },
+      {
+        id: "equity",
+        q: { ar: "هل تأخذون حصّةً من مشروعي أو ملكيّتي الفكريّة؟", en: "Do you take equity or own my IP?" },
+        a: {
+          ar: "إطلاقًا. لا نأخذ حصّةً في شركتك، ولا نطالب بأيّ نسبةٍ من أرباحك، ولا نملك ما تبنيه. مشروعك ملكك بالكامل، وكلّ ما تنشئه هنا — كودًا أو تصميمًا أو منتجًا — يبقى لك أنت.",
+          en: "Never. We take no stake in your company, claim no share of your revenue, and own nothing you build. Your project is fully yours, and everything you create here — code, design or product — stays yours.",
+        },
+      },
+      {
+        id: "funding",
+        q: { ar: "إذًا كيف تُموَّل الحاضنة؟", en: "So how is the incubator funded?" },
+        a: {
+          ar: "يغطّي تكاليف التشغيل داعمون وشركاء يؤمنون بالموهبة الغزّيّة — في مقدّمتهم NasToNas وGaza Sky Geeks. نموذجنا قائمٌ على الدعم والشراكة، لا على الربح من الأعضاء؛ هدفنا أثرٌ يُقاس، لا عائدٌ يُجبى.",
+          en: "Operating costs are covered by supporters and partners who believe in Gazan talent — led by NasToNas and Gaza Sky Geeks. Our model runs on backing and partnership, not on profiting from members; our goal is measured impact, not a return to collect.",
+        },
+      },
+      {
+        id: "credits-cost",
+        q: { ar: "هل أدفع مقابل الأرصدة السحابيّة والأدوات؟", en: "Do I pay for the cloud credits and tools?" },
+        a: {
+          ar: "لا. نُمكّنك من الوصول إلى أرصدة وأدواتٍ عالميّة (Replit وAWS Activate وGoogle for Startups وغيرها) دون أن تدفع، مع دعمٍ تقنيّ لإعداد حسابك واستخدامها بفعاليّة في بناء مشروعك.",
+          en: "No. We unlock access to global credits and tools (Replit, AWS Activate, Google for Startups and more) at no cost to you, with technical support to set up your account and use them effectively to build your project.",
+        },
+      },
     ],
   },
   {
-    title: "الأرصدة السحابية",
-    en: "Cloud Credits",
+    id: "space",
+    label: { ar: "المساحة والموقع", en: "The space & location" },
+    lede: {
+      ar: "المكان، الأوقات، الإنترنت والكهرباء — تفاصيل العمل من المساحة.",
+      en: "The place, the hours, the internet and power — the practicalities of working from the space.",
+    },
     items: [
-      { q: "ما هي الأرصدة السحابية التي تقدّمونها؟", a: "نُمكّن أعضاءنا من الحصول على أرصدة سحابية مجانية على كبرى المنصات العالمية كـ AWS و Google Cloud و Microsoft Azure و Replit وغيرها — مع دعم تقني لاستخدامها في تطوير المشاريع والمهارات." },
-      { q: "كيف أستفيد من الأرصدة السحابية؟", a: "بعد الانتساب، يمكنك التقديم على برنامج الأرصدة السحابية من خلال صفحة البرامج. فريقنا التقني يُرشدك في عملية التسجيل وإعداد الحساب على المنصّة التي تختارها." },
-      { q: "هل الأرصدة السحابية كافية لتطوير مشروع حقيقي؟", a: "نعم. الأرصدة المتاحة من خلال برامجنا كافية لتطوير وإطلاق مشاريع تقنية حقيقية. كثير من أعضائنا بنوا تطبيقاتهم الأولى بالكامل باستخدام هذه الأرصدة." },
+      {
+        id: "facilities",
+        q: { ar: "ما الذي توفّره المساحة بالضبط؟", en: "What exactly does the space provide?" },
+        a: {
+          ar: "مساحة عمل احترافيّة مجهّزة بالكامل: إنترنت موثوق، كهرباء مستمرّة، مقاعد ومكاتب مريحة، قاعات اجتماعات، وأجواء مهيّأة للتركيز والتعاون — كلّ ما تحتاجه لتعمل باحترافيّة من قلب غزّة.",
+          en: "A fully equipped, professional workspace: reliable internet, continuous power, comfortable seats and desks, meeting rooms, and an environment set up for focus and collaboration — everything you need to work professionally from the heart of Gaza.",
+        },
+      },
+      {
+        id: "internet-power",
+        q: { ar: "كيف تضمنون الإنترنت والكهرباء في غزّة؟", en: "How do you keep internet and power running in Gaza?" },
+        a: {
+          ar: "نعرف أنّ الاتّصال والكهرباء أكبر عائقَين أمام العمل الرقميّ هنا، لذا جعلناهما أولويّة: حلول طاقة احتياطيّة واتّصال مهيّأ ليبقي عملك مستمرًّا قدر الإمكان. المساحة بُنيت تحديدًا لتزيل هذا العبء عن كاهلك.",
+          en: "We know connectivity and power are the two biggest obstacles to digital work here, so we made them a priority: backup power solutions and provisioned connectivity to keep your work running as continuously as possible. The space was built specifically to take that burden off you.",
+        },
+      },
+      {
+        id: "hours",
+        q: { ar: "ما أوقات العمل، وكيف أحجز مقعدًا؟", en: "What are the hours, and how do I book a seat?" },
+        a: {
+          ar: "تحجز مقعدك عبر صفحة الحجز وتختار الوقت المناسب لك. الأوقات المتاحة قد تتغيّر حسب الظرف على الأرض، لذا الطريقة الأضمن هي التواصل معنا على واتساب لتأكيد موعدك ومعرفة آخر المستجدّات.",
+          en: "You reserve your seat through the booking page and pick a time that suits you. Available hours can shift with conditions on the ground, so the surest way is to reach us on WhatsApp to confirm your slot and get the latest.",
+        },
+      },
+      {
+        id: "visit",
+        q: { ar: "هل يمكنني زيارة المساحة قبل أن أنتسب؟", en: "Can I visit the space before joining?" },
+        a: {
+          ar: "نعم. يمكنك حجز جولةٍ استطلاعيّة لترى المساحة بنفسك قبل أيّ قرار. لأسبابٍ تتعلّق بالسلامة، نشارك العنوان التفصيليّ عبر الرسائل الخاصّة بعد تأكيد الموعد.",
+          en: "Yes. You can book a visit to see the space for yourself before deciding anything. For safety reasons, we share the detailed address privately once your appointment is confirmed.",
+        },
+      },
     ],
   },
   {
-    title: "حلول المدفوعات والتشبيك",
-    en: "Payments & Networking",
+    id: "programs",
+    label: { ar: "البرامج ويوم العرض", en: "Programs & Demo Day" },
+    lede: {
+      ar: "ما الذي تتعلّمه، كيف تسير الدفعة، وما الذي يُتوّجها.",
+      en: "What you learn, how a cohort runs, and what it builds toward.",
+    },
     items: [
-      { q: "ما مشكلة المدفوعات التي تحلّونها؟", a: "واحدة من أكبر التحديات التي يواجهها المستقلّون في غزة هي صعوبة استقبال المدفوعات من العملاء الدوليين. نقدّم حلولاً عملية تُمكّن أعضاءنا من تحصيل حقوقهم حول العالم دون أن تكون الجغرافيا عائقًا." },
-      { q: "ما الحلول المتاحة لاستقبال المدفوعات؟", a: "نعمل مع أعضائنا على إيجاد أفضل الحلول المتاحة التي تشمل منصّات كـ Payoneer وغيرها، مع توجيه قانوني ومالي لإتمام المعاملات الدولية بشكل صحيح وآمن. الحلول تُحدَّث باستمرار." },
-      { q: "كيف يعمل برنامج التشبيك الدولي؟", a: "شبكتنا تربط أعضاءنا بفرص العمل والتدريب والاستثمار عبر شركاء ومرشدين دوليين. ننظّم فعاليات تشبيك شهرية، جلسات إرشاد مع خبراء، ونشارك قاعدة بيانات الفرص المحدّثة مع أعضائنا بانتظام." },
-      { q: "هل يمكنني العمل مع عملاء خارج فلسطين؟", a: "هذا بالضبط ما نعمل عليه. هدفنا تمكين كل عضو من العمل مع عملاء حول العالم — من غزة. كثير من أعضائنا يعملون حاليًا مع عملاء في أوروبا والخليج وأمريكا الشمالية." },
+      {
+        id: "what-programs",
+        q: { ar: "ما أنواع البرامج والتدريب التي تقدّمونها؟", en: "What kinds of programs and training do you run?" },
+        a: {
+          ar: "تدريبٌ تقنيّ ومهنيّ في البرمجة والتصميم والمنتجات الرقميّة، ورشٌ تطبيقيّة، مسارات احتضان منظّمة، وذكاءٌ اصطناعيّ مدمجٌ في طريقة عملك. لا محاضرات نظريّة مؤجّلة، بل قدرةٌ تُبنى مشروعًا بعد مشروع.",
+          en: "Technical and professional training across code, design and digital products, hands-on workshops, structured incubation tracks, and AI embedded into how you work. Not deferred theory lectures, but capability built project after project.",
+        },
+      },
+      {
+        id: "commitment",
+        q: { ar: "كم من الوقت والالتزام تتطلّبه الدفعة؟", en: "How much time and commitment does a cohort take?" },
+        a: {
+          ar: "الدفعة مسارٌ منظّمٌ على مدى فترةٍ محدّدة، يتطلّب حضورًا والتزامًا منتظمَين لتستفيد فعلًا. نحدّد الإيقاع والمدّة بوضوح مع كلّ دفعة قبل أن تبدأ، حتّى تعرف ما الذي تلتزم به وتخطّط له.",
+          en: "A cohort is a structured track over a defined period that asks for regular attendance and commitment to truly benefit. We set the cadence and duration clearly with each cohort before it begins, so you know exactly what you're committing to and can plan for it.",
+        },
+      },
+      {
+        id: "demo-day",
+        q: { ar: "ما هو يوم العرض (Demo Day) ولماذا يهمّ؟", en: "What is Demo Day, and why does it matter?" },
+        a: {
+          ar: "يوم العرض هو تتويج مسار الدفعة: تقدّم فيه ما بنيته أمام شبكةٍ من المرشدين والشركاء والداعمين. إنّه ليس حفلًا ختاميًّا فحسب، بل بوّابتك الحقيقيّة إلى فرص العمل والتدريب والاستثمار خارج الحدود.",
+          en: "Demo Day is the culmination of the cohort track: you present what you've built to a network of mentors, partners and supporters. It isn't just a closing ceremony — it's your real gateway to work, training and investment opportunities beyond the border.",
+        },
+      },
+      {
+        id: "certificate",
+        q: { ar: "هل أحصل على شهادةٍ في النهاية؟", en: "Do I get a certificate at the end?" },
+        a: {
+          ar: "نعم، يحصل المشاركون على شهادة إتمامٍ معتمدة من آيلاند هيفن. الأهمّ من الورقة هو ما يرافقها: مشروعٌ بنيته، شبكةٌ تعرفك، ومسارٌ واضحٌ نحو الفرصة التالية.",
+          en: "Yes, participants receive a completion certificate from Island Haven. More valuable than the paper is what comes with it: a project you built, a network that knows you, and a clear path to your next opportunity.",
+        },
+      },
+      {
+        id: "events-public",
+        q: { ar: "هل فعالياتكم مفتوحةٌ لغير الأعضاء؟", en: "Are your events open to non-members?" },
+        a: {
+          ar: "بعض الورش والفعاليات مفتوحٌ للجميع، وبعضها مخصّصٌ للأعضاء. تابع حساباتنا على إنستغرام @ih_haven ولينكدإن، أو اشترك في النشرة، لتعرف القادم وشروط المشاركة قبل أسبوعٍ على الأقلّ.",
+          en: "Some workshops and events are open to everyone, others are members-only. Follow us on Instagram @ih_haven and LinkedIn, or join the newsletter, to see what's coming and how to take part — announced at least a week ahead.",
+        },
+      },
     ],
   },
   {
-    title: "التقديم والانضمام",
-    en: "Applications & Membership",
+    id: "after",
+    label: { ar: "بعد البرنامج", en: "After the program" },
+    lede: {
+      ar: "ما يبقى معك حين تنتهي الدفعة — الشبكة، الفرص، والدعم.",
+      en: "What stays with you once the cohort ends — the network, the opportunities, the support.",
+    },
     items: [
-      { q: "من يحقّ له التقديم للانتساب؟", a: "يرحّب آيلاند هيفن بأربع فئات رئيسية: طلاب التقنية والبرمجة، خرّيجو التخصصات التقنية، المستقلّون في المجالات التقنية والإبداعية، وأصحاب المشاريع الناشئة. المعيار الأساسي هو امتلاك الموهبة والإرادة." },
-      { q: "كيف تسير عملية التقديم؟", a: "أربع خطوات واضحة: تملأ نموذج التقديم عبر صفحة 'قدّم الآن'، تمرّ بمراجعة أوّلية ومقابلة قصيرة، ثم تنضمّ إلى دفعة (cohort) من المؤسّسين والمستقلّين، وتختم رحلتك بيوم العرض (Demo Day) أمام شبكتنا. القرار يصدر خلال أيّام من المقابلة. للتفاصيل الكاملة راجع صفحة 'كيف تنضمّ'." },
-      { q: "هل هناك رسوم للانتساب؟", a: "لا. الانتساب مجاني بالكامل. آيلاند هيفن مجتمع يُبنى بأيدي داعميه ومنتسبيه، وتكاليف التشغيل يغطّيها داعمون يؤمنون بالموهبة الغزية ويريدون المساهمة في تطويرها." },
-      { q: "كم مرة تُفتح دورات القبول؟", a: "التقديم مفتوح على مدار العام. سجّل من صفحة 'قدّم الآن' وسيصلك إشعار فور توفّر مقعد جديد." },
+      {
+        id: "after-cohort",
+        q: { ar: "ماذا يحدث بعد أن تنتهي دفعتي؟", en: "What happens after my cohort ends?" },
+        a: {
+          ar: "لا تنتهي علاقتك بآيلاند بانتهاء الدفعة. تبقى جزءًا من المجتمع والشبكة، مع وصولٍ مستمرّ إلى الفعاليات والفرص والتشبيك. الدفعة بدايةٌ لعلاقةٍ طويلة، لا محطّةً تنتهي عند خطّ النهاية.",
+          en: "Your relationship with Island Haven doesn't end when the cohort does. You remain part of the community and network, with continued access to events, opportunities and connections. A cohort is the start of a long relationship, not a stop that ends at the finish line.",
+        },
+      },
+      {
+        id: "jobs",
+        q: { ar: "هل تساعدونني في إيجاد عملٍ أو عملاء؟", en: "Do you help me find work or clients?" },
+        a: {
+          ar: "هذا جوهر ما نفعله. نربطك بفرص العمل والتدريب عبر شركائنا، ونشارك قاعدة فرصٍ محدّثة، وننظّم تشبيكًا مع خبراء ومؤسّساتٍ خارج الحدود. كثيرٌ من أعضائنا يعملون اليوم مع عملاء في أوروبا والخليج وأمريكا الشماليّة — من غزّة.",
+          en: "This is the heart of what we do. We connect you to work and training opportunities through our partners, share an updated opportunities database, and arrange networking with experts and organisations beyond the border. Many of our members work today with clients in Europe, the Gulf and North America — from Gaza.",
+        },
+      },
+      {
+        id: "payments",
+        q: { ar: "كيف أستقبل المدفوعات من عملاء دوليّين؟", en: "How do I receive payments from international clients?" },
+        a: {
+          ar: "استقبال المدفوعات من أكبر تحدّيات العمل الحرّ في غزّة، ونعمل عليه مباشرةً. نساعدك في الوصول إلى حلولٍ عمليّة مثل Payoneer وغيرها، مع توجيهٍ لإتمام المعاملات الدوليّة بشكلٍ صحيحٍ وآمن. الحلول تُحدَّث باستمرارٍ حسب ما هو متاح.",
+          en: "Receiving payments is one of the hardest challenges of freelancing from Gaza, and we work on it directly. We help you access practical solutions like Payoneer and others, with guidance to complete international transactions correctly and safely. The solutions are continuously updated as availability changes.",
+        },
+      },
+      {
+        id: "alumni-mentor",
+        q: { ar: "هل أستطيع العودة كمرشدٍ أو أن أردّ الجميل لاحقًا؟", en: "Can I come back to mentor or give back later?" },
+        a: {
+          ar: "نتمنّى ذلك. كثيرٌ من أعضائنا يعودون مرشدين، يقودون ورشًا، أو يفتحون أبوابًا لمن جاء بعدهم. آيلاند مجتمعٌ يُبنى يومًا بيوم بأيدي أبنائه — ونجاحك جزءٌ من بنيته التحتيّة للجيل التالي.",
+          en: "We hope you do. Many members return as mentors, lead workshops, or open doors for those who come after them. Island Haven is a community built day by day by its own people — and your success becomes part of the infrastructure for the next generation.",
+        },
+      },
+    ],
+  },
+  {
+    id: "logistics",
+    label: { ar: "اللوجستيّات والخصوصيّة", en: "Logistics & privacy" },
+    lede: {
+      ar: "العمل عن بُعد، الأجهزة، بياناتك، ومَن نرحّب به — تفاصيل تطمئنك.",
+      en: "Remote work, hardware, your data, and who's welcome — the details that put you at ease.",
+    },
+    items: [
+      {
+        id: "remote",
+        q: { ar: "هل يجب أن أحضر إلى المساحة، أم يمكنني العمل عن بُعد؟", en: "Must I come to the space, or can I work remotely?" },
+        a: {
+          ar: "المساحة الفعليّة قيمتها كبيرة — إنترنت وكهرباء وزملاء — لكنّنا نعي أنّ الظرف لا يسمح للجميع بالحضور دائمًا. التدريب والإرشاد والمتابعة متاحةٌ بمرونة، وننسّق معك ما يناسب وضعك. تواصل معنا لنرتّب أنسب صيغةٍ لك.",
+          en: "The physical space is hugely valuable — internet, power, peers — but we know conditions don't always let everyone attend. Training, mentorship and follow-up are available flexibly, and we work out what fits your situation. Reach out and we'll arrange the right setup for you.",
+        },
+      },
+      {
+        id: "hardware",
+        q: { ar: "هل أحتاج إلى حاسوبي الخاصّ؟", en: "Do I need my own laptop?" },
+        a: {
+          ar: "إن كان لديك حاسوبك فهو الأنسب لعملك المستمرّ. وإن كانت الأجهزة عائقًا أمامك، أخبرنا في طلبك أو على واتساب — نبحث الحلول حالةً بحالة قدر ما تسمح به مواردنا، لأنّ هدفنا ألّا تقف الأدوات بينك وبين موهبتك.",
+          en: "If you have your own laptop, that's ideal for continuous work. If hardware is an obstacle for you, tell us in your application or on WhatsApp — we look at solutions case by case as far as our resources allow, because our aim is that tools never stand between you and your talent.",
+        },
+      },
+      {
+        id: "privacy",
+        q: { ar: "كيف تتعاملون مع بياناتي وخصوصيّتي؟", en: "How do you handle my data and privacy?" },
+        a: {
+          ar: "نأخذ خصوصيّتك على محمل الجدّ. نستخدم بياناتك لإدارة طلبك وعضويّتك ومنفعتك فقط، ولا نبيعها. ونحمي معلوماتك الحسّاسة — مثل موقع المساحة — ونشاركها عبر قنواتٍ خاصّةٍ آمنة، حمايةً لك ولمجتمعنا.",
+          en: "We take your privacy seriously. We use your data only to manage your application, membership and benefit, and we never sell it. We protect sensitive information — such as the space's location — and share it through private, secure channels, to protect you and our community.",
+        },
+      },
+      {
+        id: "women",
+        q: { ar: "هل النساء مرحّبٌ بهنّ، وهل المساحة آمنة؟", en: "Are women welcome, and is the space safe?" },
+        a: {
+          ar: "بالتأكيد، ونرحّب بشكلٍ خاصّ بالمهنيّات والطالبات اللواتي يطوّرن مساراتهنّ التقنيّة. نلتزم ببيئةٍ محترمةٍ وآمنةٍ للجميع، ونرتّب ما يلزم لتشعري بالراحة والأمان في المساحة. لكِ أن تسألي عن أيّ تفصيلٍ يهمّك قبل أن تنتسبي.",
+          en: "Absolutely, and we especially welcome women professionals and students growing their technical paths. We're committed to a respectful, safe environment for everyone, and we make whatever arrangements help you feel comfortable and secure in the space. You're welcome to ask about any detail that matters to you before joining.",
+        },
+      },
+      {
+        id: "students",
+        q: { ar: "أنا طالبٌ جامعيّ — هل هذا مناسبٌ لي؟", en: "I'm a university student — is this right for me?" },
+        a: {
+          ar: "تمامًا. الطلّاب من أهمّ مَن نبني معهم. نرتّب الالتزام بما يحترم دراستك، ونعطيك ما لا توفّره الجامعة عادةً: مشاريع حقيقيّة، أدواتٍ عالميّة، إرشادًا مهنيًّا، وشبكةً تفتح لك أوّل فرصة. ابدأ مبكرًا، تسبق غيرك.",
+          en: "Completely. Students are among the most important people we build with. We arrange commitments that respect your studies, and give you what university usually doesn't: real projects, global tools, professional mentorship, and a network that opens your first opportunity. Start early, get ahead.",
+        },
+      },
     ],
   },
 ];
 
-function FaqItem({ item, index }: { item: FaqItem; index: number }) {
-  const [open, setOpen] = useState(false);
-  const panelId = `faq-panel-${index}`;
-  const btnId = `faq-btn-${index}`;
+function AccordionRow({
+  qa,
+  isOpen,
+  onToggle,
+}: {
+  qa: QA;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const { t } = useLanguage();
+  const panelId = `faq-panel-${qa.id}`;
+  const btnId = `faq-btn-${qa.id}`;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className="border-b border-border-strong last:border-0"
+    <div
+      className="border-t border-border-strong first:border-t-0"
+      data-testid={`faq-item-${qa.id}`}
     >
-      <button
-        type="button"
-        id={btnId}
-        onClick={() => setOpen(!open)}
-        aria-expanded={open ? "true" : "false"}
-        aria-controls={panelId}
-        className="w-full flex items-center justify-between gap-4 py-4 text-right rounded-lg hover:opacity-90 transition-opacity"
-      >
-        <span className={`text-[14.5px] font-semibold leading-snug transition-colors ${open ? "text-primary" : "text-foreground"}`}>
-          {item.q}
-        </span>
-        <motion.span
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.25 }}
-          aria-hidden="true"
-          className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-2 flex items-center justify-center"
+      <h3>
+        <button
+          id={btnId}
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isOpen ? "true" : "false"}
+          aria-controls={panelId}
+          data-testid={`faq-trigger-${qa.id}`}
+          className="group grid grid-cols-[1fr_auto] items-baseline gap-x-5 sm:gap-x-7 w-full text-start py-6 sm:py-7"
         >
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-        </motion.span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            key="content"
-            id={panelId}
-            role="region"
-            aria-labelledby={btnId}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
+          <span
+            className={`font-editorial transition-colors ${
+              isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
+            }`}
+            style={{
+              fontSize: "clamp(1.05rem, 1.7vw, 1.4rem)",
+              letterSpacing: "-0.018em",
+              lineHeight: 1.24,
+              fontWeight: 600,
+            }}
           >
-            <p className="pb-5 text-[13.5px] text-muted-foreground leading-relaxed">
-              {item.a}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+            {t(qa.q)}
+          </span>
+          <span
+            aria-hidden
+            className={`mt-0.5 inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-all duration-300 ${
+              isOpen
+                ? "rotate-180 border-primary/40 text-primary bg-primary-soft"
+                : "border-border-strong text-fg-faint group-hover:border-primary/40 group-hover:text-primary"
+            }`}
+          >
+            <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
+          </span>
+        </button>
+      </h3>
+
+      {/* Animated panel: grid-template-rows 0fr→1fr — no height, no layout jank */}
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={btnId}
+        className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <p
+            className={`t-body pb-7 max-w-2xl leading-relaxed transition-opacity duration-300 ${
+              isOpen ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {t(qa.a)}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function Faq() {
-  const { lang, t } = useLanguage();
+  const { t, lang } = useLanguage();
   const p = I18N.pages.faq;
-  const [activeSection, setActiveSection] = useState(0);
+  const [activeCat, setActiveCat] = useState(0);
+  // Open the first question of the active chapter by default — never an empty panel.
+  const [open, setOpen] = useState<string | null>(CATEGORIES[0].items[0].id);
+
+  const category = CATEGORIES[activeCat];
+  const totalCount = useMemo(
+    () => CATEGORIES.reduce((n, c) => n + c.items.length, 0),
+    [],
+  );
+
+  function selectCategory(i: number) {
+    setActiveCat(i);
+    setOpen(CATEGORIES[i].items[0].id);
+  }
 
   return (
     <PageShell
@@ -139,79 +474,172 @@ export default function Faq() {
       highlight={t(p.highlight)}
       subtitle={t(p.subtitle)}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[240px,1fr] gap-8 items-start">
-        {/* Sidebar nav */}
-        <nav className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 lg:sticky lg:top-8">
-          {FAQ_DATA.map((sec, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setActiveSection(i)}
-              aria-pressed={activeSection === i ? "true" : "false"}
-              className={`shrink-0 text-right px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
-                activeSection === i
-                  ? "bg-primary text-white shadow-lg shadow-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-surface-2"
-              }`}
-            >
-              {lang === "en" ? sec.en : sec.title}
-            </button>
-          ))}
-        </nav>
+      <div className="grid grid-cols-1 lg:grid-cols-[clamp(220px,26%,300px)_1fr] gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-10 items-start">
+        {/* ── Chapter index — sticky serif table of contents ── */}
+        <Reveal className="lg:sticky lg:top-28">
+          <nav aria-label={t({ ar: "فهرس الأسئلة", en: "Question index" })} className="contents">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="h-px w-9 bg-primary/50" />
+            <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal tnum">
+              {t({ ar: `${totalCount} سؤالًا`, en: `${totalCount} answers` })}
+            </span>
+          </div>
 
-        {/* Content */}
-        <div className="rounded-2xl border border-border-strong bg-surface-2 backdrop-blur-sm p-6">
-          <motion.div
-            key={activeSection}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="mb-5 pb-4 border-b border-border-strong">
-              <div className="text-[11px] font-bold text-primary/70 tracking-widest uppercase mb-1">
-                {FAQ_DATA[activeSection].en}
-              </div>
-              <h2 className="text-[20px] font-bold text-foreground">
-                {lang === "en" ? FAQ_DATA[activeSection].en : FAQ_DATA[activeSection].title}
+          <ul className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+            {CATEGORIES.map((c, i) => {
+              const active = activeCat === i;
+              return (
+                <li key={c.id} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => selectCategory(i)}
+                    aria-current={active ? "true" : undefined}
+                    data-testid={`faq-cat-${c.id}`}
+                    className={`group relative grid grid-cols-[auto_1fr] items-baseline gap-x-3 w-full text-start py-2.5 ps-4 pe-3 lg:pe-4 rounded-xl transition-colors ${
+                      active
+                        ? "bg-surface-2"
+                        : "hover:bg-surface-2/60"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`absolute inset-y-2 start-0 w-[3px] rounded-full transition-all duration-300 ${
+                        active ? "bg-primary opacity-100" : "opacity-0"
+                      }`}
+                    />
+                    <span
+                      className={`font-editorial tnum text-[12px] leading-none transition-colors ${
+                        active ? "text-primary" : "text-fg-faint group-hover:text-primary"
+                      }`}
+                    >
+                      {lang === "en"
+                        ? String(i + 1).padStart(2, "0")
+                        : ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦", "٠٧"][i]}
+                    </span>
+                    <span
+                      className={`text-[13.5px] font-semibold leading-snug transition-colors ${
+                        active ? "text-foreground" : "text-fg-secondary group-hover:text-foreground"
+                      }`}
+                    >
+                      {t(c.label)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          </nav>
+
+          {/* Side aside — a quiet WhatsApp invitation, ledger-style */}
+          <div className="mt-7 hidden lg:block border-t border-border-strong pt-6">
+            <p className="t-body text-[13.5px] max-w-[15rem]">
+              {t({
+                ar: "لم تجد سؤالك؟ نردّ مباشرةً على واتساب.",
+                en: "Don't see your question? We answer directly on WhatsApp.",
+              })}
+            </p>
+            <a
+              href="https://wa.me/972567536815"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="faq-aside-whatsapp"
+              className="group mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-primary"
+            >
+              {t({ ar: "تواصل عبر واتساب", en: "Talk to us on WhatsApp" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </a>
+          </div>
+        </Reveal>
+
+        {/* ── The active chapter — serif title + hairline accordion ── */}
+        <div className="min-w-0">
+          <Reveal key={category.id}>
+            <div className="pb-6 mb-2 border-b border-border-strong">
+              <h2
+                className="font-editorial text-foreground"
+                style={{
+                  fontSize: "clamp(1.6rem, 3.2vw, 2.4rem)",
+                  lineHeight: 1.08,
+                  letterSpacing: "-0.02em",
+                  fontWeight: 600,
+                }}
+              >
+                {t(category.label)}
               </h2>
+              <p className="t-body mt-3 max-w-xl">{t(category.lede)}</p>
             </div>
-            <div className="divide-y divide-white/[0.07]">
-              {FAQ_DATA[activeSection].items.map((item, i) => (
-                <FaqItem key={i} item={item} index={i} />
+
+            <div>
+              {category.items.map((qa) => (
+                <AccordionRow
+                  key={qa.id}
+                  qa={qa}
+                  isOpen={open === qa.id}
+                  onToggle={() => setOpen(open === qa.id ? null : qa.id)}
+                />
               ))}
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/[0.06] p-8 text-center">
-        <MessageCircle className="w-10 h-10 text-primary/60 mx-auto mb-3" />
-        <h3 className="text-[18px] font-bold text-foreground mb-2">{t(p.stillQuestion)}</h3>
-        <p className="text-[13.5px] text-muted-foreground mb-5">{lang === "en" ? "Contact us directly and we'll reply as soon as possible." : "تواصل معنا مباشرة وسنرد عليك في أقرب وقت."}</p>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <a
-            href="https://wa.me/972567536815"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-white font-semibold text-[13px] hover:bg-primary/90 transition-colors"
-          >
-            {t(p.whatsapp)}
-          </a>
-          <Link
-            href="/apply"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border-strong text-fg-secondary font-medium text-[13px] hover:border-white/30 hover:text-foreground transition-all"
-          >
-            {lang === "en" ? "Apply Now" : "قدّم الآن"}
-          </Link>
-          <Link
-            href="/process"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border-strong text-fg-secondary font-medium text-[13px] hover:border-white/30 hover:text-foreground transition-all"
-          >
-            {lang === "en" ? "How to join" : "كيف تنضمّ"}
-          </Link>
+      {/* ── Closing chapter — still have a question? ── */}
+      <Reveal className="mt-16 sm:mt-20 border-t border-border-strong pt-12">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-8 items-center">
+          <div className="lg:col-span-7">
+            <h2
+              className="font-editorial text-foreground"
+              style={{
+                fontSize: "clamp(1.8rem, 4vw, 3rem)",
+                lineHeight: 1.06,
+                letterSpacing: "-0.02em",
+                fontWeight: 600,
+              }}
+            >
+              {t({ ar: "ما زال لديك ", en: "Still have a " })}
+              <span className="italic text-primary">
+                {t({ ar: "سؤال؟", en: "question?" })}
+              </span>
+            </h2>
+            <p className="t-body-lg mt-5 max-w-lg">
+              {t(p.stillQuestion)}{" "}
+              {t({
+                ar: "تواصل معنا مباشرةً على واتساب، أو ابدأ طلبك — الردّ يأتيك بأسرع ما يمكن.",
+                en: "Message us directly on WhatsApp, or start your application — we reply as fast as we can.",
+              })}
+            </p>
+          </div>
+
+          <div className="lg:col-span-5 flex flex-wrap items-center gap-x-6 gap-y-4 lg:justify-end">
+            <a
+              href="https://wa.me/972567536815"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="faq-whatsapp"
+              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              {t(p.whatsapp)}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </a>
+            <Link
+              href="/apply"
+              data-testid="faq-apply"
+              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
+            >
+              {t({ ar: "قدّم الآن", en: "Apply now" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/process"
+              data-testid="faq-process"
+              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-fg-secondary hover:text-foreground transition-colors"
+            >
+              {t({ ar: "كيف تنضمّ", en: "How to join" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+          </div>
         </div>
-      </div>
+      </Reveal>
     </PageShell>
   );
 }

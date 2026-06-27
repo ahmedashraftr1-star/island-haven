@@ -357,7 +357,7 @@ export default function Apply() {
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
+      className="theme-light relative min-h-screen overflow-hidden bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <BackgroundAura />
@@ -367,16 +367,16 @@ export default function Apply() {
         <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
+            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
             {c.backLabel}
           </Link>
           <div className="flex items-center gap-2.5">
-            <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
+            <HavenMark size={32} strokeColor="hsl(354 78% 47%)" />
             <div className="leading-tight text-right">
               <div className="text-[13px] font-bold tracking-tight">{c.brandLatin}</div>
-              <div className="text-[10px] text-white/45 tracking-[0.16em] uppercase">{c.brandArabic}</div>
+              <div className="text-[10px] text-muted-foreground tracking-[0.16em] uppercase">{c.brandArabic}</div>
             </div>
           </div>
         </div>
@@ -391,23 +391,24 @@ export default function Apply() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="text-center mb-9 sm:mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 backdrop-blur-md mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.07] border border-primary/20 mb-5">
               <Sparkles className="w-3 h-3 text-primary" />
               <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
                 {c.eyebrow}
               </span>
             </div>
             <h1
-              className="font-bold text-white leading-[1.05]"
+              className="font-editorial text-foreground leading-[1.05]"
               style={{
                 fontSize: "clamp(2rem, 6.4vw, 3.75rem)",
                 letterSpacing: "-0.03em",
+                fontWeight: 600,
               }}
             >
               {c.titleLead}{" "}
-              <span className="text-primary">{c.titleAccent}</span>
+              <span className="italic text-primary">{c.titleAccent}</span>
             </h1>
-            <p className="text-white/55 text-[14px] sm:text-[15.5px] leading-[1.85] mt-5 max-w-lg mx-auto">
+            <p className="text-fg-secondary text-[14px] sm:text-[15.5px] leading-[1.85] mt-5 max-w-lg mx-auto">
               {c.subtitle}
             </p>
           </motion.div>
@@ -429,14 +430,14 @@ export default function Apply() {
             className="relative"
             noValidate
           >
-            <div className="relative rounded-[28px] p-6 sm:p-9 bg-white/[0.045] border border-white/10 backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+            <div className="relative rounded-[28px] p-6 sm:p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(15,23,42,0.22)] overflow-hidden">
               {/* Subtle interior glow */}
               <div
                 aria-hidden
-                className="absolute inset-0 pointer-events-none opacity-60"
+                className="absolute inset-0 pointer-events-none opacity-100"
                 style={{
                   background:
-                    "radial-gradient(80% 40% at 50% 0%, rgba(220,38,55,0.18) 0%, transparent 60%)",
+                    "radial-gradient(80% 40% at 50% 0%, hsl(354 78% 47% / 0.05) 0%, transparent 60%)",
                 }}
               />
               <div className="relative space-y-6">
@@ -497,26 +498,26 @@ export default function Apply() {
                           type="button"
                           onClick={() => update("category", cat.id)}
                           aria-pressed={active}
-                          className={`group relative rounded-2xl p-3.5 text-center transition-all duration-200 border backdrop-blur-md ${
+                          className={`group relative rounded-2xl p-3.5 text-center transition-all duration-200 border ${
                             active
-                              ? "bg-primary/15 border-primary/45 shadow-[0_0_0_1px_rgba(220,38,55,0.3),0_10px_30px_-12px_rgba(220,38,55,0.45)]"
-                              : "bg-white/[0.04] border-white/10 hover:bg-white/[0.07] hover:border-white/20"
+                              ? "bg-primary/[0.08] border-primary/45 shadow-[0_0_0_1px_hsl(354_78%_47%/0.25),0_10px_30px_-14px_hsl(354_78%_47%/0.35)]"
+                              : "bg-surface-2 border-border-strong hover:bg-surface-3 hover:border-primary/30"
                           }`}
                         >
                           <Icon
                             className={`w-5 h-5 mx-auto mb-2 transition-colors ${
-                              active ? "text-primary" : "text-white/55 group-hover:text-white/85"
+                              active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                             }`}
                             strokeWidth={1.8}
                           />
                           <div
                             className={`text-[12.5px] font-semibold transition-colors ${
-                              active ? "text-white" : "text-white/80"
+                              active ? "text-primary" : "text-foreground"
                             }`}
                           >
                             {cat.label}
                           </div>
-                          <div className="text-[9.5px] tracking-[0.14em] uppercase text-white/55 mt-0.5">
+                          <div className="text-[9.5px] tracking-[0.14em] uppercase text-muted-foreground mt-0.5">
                             {cat.sub}
                           </div>
                         </button>
@@ -543,10 +544,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.bioPlaceholder}
-                        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                         data-testid="input-bio"
                       />
-                      <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.bio.length}/2000</div>
+                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.bio.length}/2000</div>
                     </FieldWrap>
                     <FieldWrap
                       id="motivation"
@@ -562,10 +563,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.motivationPlaceholder}
-                        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                         data-testid="input-motivation"
                       />
-                      <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
+                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
                     </FieldWrap>
                   </div>
                 </div>
@@ -597,8 +598,8 @@ export default function Apply() {
                     {/* Years of experience chips */}
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
-                        <span className="text-white/75 font-semibold">{c.yearsLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/55">
+                        <span className="text-fg-secondary font-semibold">{c.yearsLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                           <Clock className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">Experience</span>
                         </span>
@@ -613,8 +614,8 @@ export default function Apply() {
                               onClick={() => setYearsExperience(active ? null : yr)}
                               className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
                                 active
-                                  ? "bg-primary/15 border-primary/50 text-white"
-                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
+                                  ? "bg-primary/[0.08] border-primary/50 text-primary"
+                                  : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
                               }`}
                             >
                               {yr === 0
@@ -676,10 +677,10 @@ export default function Apply() {
                       rows={3}
                       maxLength={1000}
                       placeholder={c.previousWorkPlaceholder}
-                      className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                      className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
                       data-testid="input-previousWork"
                     />
-                    <div className="text-[10.5px] text-white/50 mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
+                    <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
                   </FieldWrap>
                 </div>
 
@@ -690,8 +691,8 @@ export default function Apply() {
                     {/* Weekly hours chips */}
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
-                        <span className="text-white/75 font-semibold">{c.weeklyHoursLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/55">
+                        <span className="text-fg-secondary font-semibold">{c.weeklyHoursLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                           <Clock className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">hrs/week</span>
                         </span>
@@ -706,8 +707,8 @@ export default function Apply() {
                               onClick={() => setWeeklyHours(active ? null : h)}
                               className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
                                 active
-                                  ? "bg-primary/15 border-primary/50 text-white"
-                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25 hover:text-white/90"
+                                  ? "bg-primary/[0.08] border-primary/50 text-primary"
+                                  : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
                               }`}
                             >
                               {h}+ {t({ ar: "س/أسبوع", en: "hrs/wk" })}
@@ -719,8 +720,8 @@ export default function Apply() {
                     {/* Employed toggle */}
                     <div>
                       <div className="flex items-center justify-between mb-3 text-[11.5px] tracking-[0.06em]">
-                        <span className="text-white/75 font-semibold">{c.employedLabel}</span>
-                        <span className="inline-flex items-center gap-1.5 text-white/55">
+                        <span className="text-fg-secondary font-semibold">{c.employedLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                           <BriefcaseBusiness className="w-3 h-3" />
                           <span className="text-[10px] tracking-[0.16em] uppercase">Employment</span>
                         </span>
@@ -735,8 +736,8 @@ export default function Apply() {
                               onClick={() => setIsEmployed(active ? null : opt.v)}
                               className={`flex-1 min-h-11 py-2.5 rounded-2xl text-[13px] font-semibold border transition-all ${
                                 active
-                                  ? "bg-primary/15 border-primary/50 text-white"
-                                  : "bg-white/[0.04] border-white/10 text-white/65 hover:border-white/25"
+                                  ? "bg-primary/[0.08] border-primary/50 text-primary"
+                                  : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
                               }`}
                             >
                               {opt.l}
@@ -767,8 +768,8 @@ export default function Apply() {
                     htmlFor="cv-upload-input"
                     className={`block rounded-2xl border-2 border-dashed transition-colors ${
                       cvUrl
-                        ? "border-primary/40 bg-primary/[0.06]"
-                        : "border-white/12 bg-white/[0.02] hover:border-white/25"
+                        ? "border-primary/40 bg-primary/[0.05]"
+                        : "border-border-strong bg-surface-2 hover:border-primary/30"
                     } p-5 text-center cursor-pointer`}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
@@ -778,28 +779,28 @@ export default function Apply() {
                     }}
                   >
                     {cvUploading ? (
-                      <div className="flex items-center justify-center gap-2 text-white/55 text-[13.5px]">
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground text-[13.5px]">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         {c.cvUploadLoading}
                       </div>
                     ) : cvUrl ? (
                       <div className="flex items-center justify-center gap-2.5">
                         <FileUp className="w-4 h-4 text-primary" />
-                        <span className="text-[13.5px] text-white font-medium">{cvFileName}</span>
+                        <span className="text-[13.5px] text-foreground font-medium">{cvFileName}</span>
                         <button
                           type="button"
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCvUrl(""); setCvFileName(""); }}
-                          className="text-[11px] text-white/60 hover:text-red-300 transition-colors underline underline-offset-2 mr-1"
+                          className="text-[11px] text-muted-foreground hover:text-destructive transition-colors underline underline-offset-2 mr-1"
                         >
                           {c.cvUploadRemove}
                         </button>
                       </div>
                     ) : (
                       <div className="space-y-1.5">
-                        <FileUp className="w-6 h-6 text-white/50 mx-auto" />
-                        <div className="text-[13.5px] text-white/60">{c.cvUploadLabel}</div>
-                        <div className="text-[11px] text-white/60">{c.cvUploadHint} · {t({ ar: "اسحب الملف هنا أو", en: "drag a file here or" })}</div>
-                        <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-[12px] text-white/70 hover:text-white transition-colors">
+                        <FileUp className="w-6 h-6 text-muted-foreground mx-auto" />
+                        <div className="text-[13.5px] text-fg-secondary">{c.cvUploadLabel}</div>
+                        <div className="text-[11px] text-muted-foreground">{c.cvUploadHint} · {t({ ar: "اسحب الملف هنا أو", en: "drag a file here or" })}</div>
+                        <div className="inline-block mt-1 px-4 py-1.5 rounded-full bg-surface-3 border border-border-strong text-[12px] text-fg-secondary hover:text-foreground transition-colors">
                           {c.cvUploadBtn}
                         </div>
                       </div>
@@ -818,7 +819,7 @@ export default function Apply() {
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      className="rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-200 text-[13px] leading-relaxed"
+                      className="rounded-2xl px-4 py-3 bg-destructive/[0.07] border border-destructive/30 text-destructive text-[13px] leading-relaxed"
                     >
                       {error}
                     </motion.div>
@@ -842,7 +843,7 @@ export default function Apply() {
                       ) : (
                         <>
                           {c.submitLabel}
-                          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                         </>
                       )}
                     </span>
@@ -856,7 +857,7 @@ export default function Apply() {
                       }}
                     />
                   </button>
-                  <p className="text-[11.5px] text-center text-white/60 mt-3.5 leading-relaxed">
+                  <p className="text-[11.5px] text-center text-muted-foreground mt-3.5 leading-relaxed">
                     {c.consentLine}
                   </p>
                 </div>
@@ -865,8 +866,8 @@ export default function Apply() {
           </motion.form>
 
           {/* Footer trust line */}
-          <div className="mt-10 text-center text-[11px] text-white/55 tracking-[0.16em] uppercase">
-            {c.trustLabel} <span className="text-white/65 font-semibold">{c.trustBrand}</span>
+          <div className="mt-10 text-center text-[11px] text-muted-foreground tracking-[0.16em] uppercase">
+            {c.trustLabel} <span className="text-fg-secondary font-semibold">{c.trustBrand}</span>
           </div>
         </div>
       </div>
@@ -914,7 +915,7 @@ function EligibilityBlock() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
       aria-label={t({ ar: "لِمَن التقديم وماذا نبحث عنه", en: "Who should apply and what we look for" })}
-      className="mb-9 sm:mb-12 rounded-[24px] border border-white/10 bg-white/[0.035] backdrop-blur-md p-6 sm:p-8"
+      className="mb-9 sm:mb-12 rounded-[24px] border border-border-strong bg-surface-1 p-6 sm:p-8"
     >
       <div className="flex items-center gap-2 mb-5">
         <span className="h-px w-7 bg-primary/60" />
@@ -928,13 +929,13 @@ function EligibilityBlock() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <MapPin className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-            <span className="text-[12.5px] font-bold text-white tracking-tight">
+            <span className="text-[12.5px] font-bold text-foreground tracking-tight">
               {t({ ar: "لِمَن آيلاند؟", en: "Who Island Haven is for" })}
             </span>
           </div>
           <ul className="space-y-2.5">
             {eligibility.map((item, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-white/75">
+              <li key={i} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-fg-secondary">
                 <span aria-hidden className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
                 {item}
               </li>
@@ -946,7 +947,7 @@ function EligibilityBlock() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Search className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-            <span className="text-[12.5px] font-bold text-white tracking-tight">
+            <span className="text-[12.5px] font-bold text-foreground tracking-tight">
               {t({ ar: "ما الذي نبحث عنه", en: "What we look for" })}
             </span>
           </div>
@@ -954,7 +955,7 @@ function EligibilityBlock() {
             {criteria.map(({ Icon, label }, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.05] px-3 py-1.5 text-[12.5px] font-semibold text-white/85"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface-2 px-3 py-1.5 text-[12.5px] font-semibold text-foreground"
               >
                 <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
                 {label}
@@ -965,9 +966,9 @@ function EligibilityBlock() {
       </div>
 
       {/* Reassurance — hairline-divided footer row */}
-      <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2.5">
+      <div className="mt-6 pt-5 border-t border-border-strong flex flex-wrap items-center gap-x-6 gap-y-2.5">
         {reassure.map(({ Icon, label }, i) => (
-          <span key={i} className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-white/70">
+          <span key={i} className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-fg-secondary">
             <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
             {label}
           </span>
@@ -997,36 +998,36 @@ function ProcessStrip() {
       className="mb-9 sm:mb-12"
     >
       <div className="flex items-center justify-between mb-3.5 px-1">
-        <span className="text-[10px] tracking-[0.22em] uppercase text-white/60 font-semibold">
+        <span className="text-[10px] tracking-[0.22em] uppercase text-muted-foreground font-semibold">
           {t({ ar: "ماذا بعد التقديم", en: "What happens next" })}
         </span>
         <Link
           href="/process"
-          className="text-[10.5px] tracking-[0.12em] uppercase text-white/60 hover:text-primary transition-colors font-semibold"
+          className="text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground hover:text-primary transition-colors font-semibold"
         >
-          {t({ ar: "التفاصيل الكاملة", en: "Full process" })} →
+          {t({ ar: "التفاصيل الكاملة", en: "Full process" })} <span className="rtl:hidden">→</span><span className="hidden rtl:inline">←</span>
         </Link>
       </div>
       <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {steps.map(({ no, Icon, label, meta }, i) => (
           <li
             key={no}
-            className={`relative rounded-2xl p-3.5 border backdrop-blur-md ${
+            className={`relative rounded-2xl p-3.5 border ${
               i === 0
-                ? "bg-primary/[0.10] border-primary/35"
-                : "bg-white/[0.035] border-white/10"
+                ? "bg-primary/[0.07] border-primary/35"
+                : "bg-surface-2 border-border-strong"
             }`}
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-white/60"}`} strokeWidth={2} />
-              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-white/55 tabular-nums">
+              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-muted-foreground"}`} strokeWidth={2} />
+              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-muted-foreground tabular-nums">
                 {no}
               </span>
             </div>
-            <div className={`text-[12px] font-semibold leading-snug ${i === 0 ? "text-white" : "text-white/75"}`}>
+            <div className={`text-[12px] font-semibold leading-snug ${i === 0 ? "text-foreground" : "text-fg-secondary"}`}>
               {label}
             </div>
-            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary/85" : "text-white/60"}`}>
+            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary" : "text-muted-foreground"}`}>
               {meta}
             </div>
           </li>
@@ -1050,9 +1051,9 @@ function SectionHeader({
       <div className="text-[10.5px] tracking-[0.22em] text-primary font-bold">
         {index}
       </div>
-      <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-      <div className="text-[11px] tracking-[0.18em] uppercase text-white/50 font-semibold">
-        {title} <span className="text-white/55">· {sub}</span>
+      <div className="h-px flex-1 bg-gradient-to-r from-border-strong to-transparent rtl:bg-gradient-to-l" />
+      <div className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold">
+        {title} <span className="text-fg-faint">· {sub}</span>
       </div>
     </div>
   );
@@ -1079,17 +1080,17 @@ function FieldWrap({
         htmlFor={id}
         className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]"
       >
-        <span className="text-white/75 font-semibold">{label}</span>
-        <span className="inline-flex items-center gap-1.5 text-white/55">
+        <span className="text-fg-secondary font-semibold">{label}</span>
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <Icon className="w-3 h-3" />
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
         </span>
       </label>
       <div
-        className={`rounded-2xl px-4 py-3 bg-white/[0.04] border backdrop-blur-md transition-colors focus-within:bg-white/[0.06] ${
+        className={`rounded-2xl px-4 py-3 bg-surface-2 border transition-colors focus-within:bg-surface-3 ${
           error
-            ? "border-red-500/45 focus-within:border-red-500/65"
-            : "border-white/10 focus-within:border-primary/45"
+            ? "border-destructive/50 focus-within:border-destructive/70"
+            : "border-border-strong focus-within:border-primary/55"
         }`}
       >
         {children}
@@ -1100,7 +1101,7 @@ function FieldWrap({
             initial={{ opacity: 0, y: -2, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="text-[11.5px] text-red-300 mt-1.5 px-1"
+            className="text-[11.5px] text-destructive mt-1.5 px-1"
           >
             {error}
           </motion.div>
@@ -1146,7 +1147,7 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "auto"}
         autoComplete={autoComplete}
-        className="block w-full bg-transparent text-white placeholder-white/50 text-[14.5px] outline-none px-1 py-0.5"
+        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] outline-none px-1 py-0.5"
         data-testid={`input-${id}`}
       />
     </FieldWrap>
@@ -1154,25 +1155,10 @@ function Field({
 }
 
 function BackgroundAura() {
+  // Light editorial canvas: the signature cerulean bloom + faint crimson top kiss
+  // (the brand aura) on warm white, anchored to the top where the hero lives.
   return (
-    <>
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.5] pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 80% 0%, rgba(220,38,55,0.32) 0%, transparent 60%), radial-gradient(50% 40% at 0% 100%, rgba(220,38,55,0.16) 0%, transparent 60%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
-    </>
+    <div aria-hidden className="absolute inset-x-0 top-0 h-[70vh] brand-aura pointer-events-none" />
   );
 }
 
@@ -1183,7 +1169,7 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center px-6 py-16"
+      className="theme-light relative min-h-screen overflow-hidden bg-background text-foreground flex items-center justify-center px-6 py-16"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <BackgroundAura />
@@ -1194,13 +1180,13 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 max-w-lg w-full"
       >
-        <div className="relative rounded-[28px] p-9 bg-white/[0.06] border border-white/10 backdrop-blur-2xl text-center overflow-hidden">
+        <div className="relative rounded-[28px] p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(15,23,42,0.22)] text-center overflow-hidden">
           <div
             aria-hidden
-            className="absolute inset-0 pointer-events-none opacity-70"
+            className="absolute inset-0 pointer-events-none opacity-100"
             style={{
               background:
-                "radial-gradient(80% 60% at 50% 0%, rgba(220,38,55,0.25) 0%, transparent 60%)",
+                "radial-gradient(80% 60% at 50% 0%, hsl(354 78% 47% / 0.06) 0%, transparent 60%)",
             }}
           />
           <div className="relative">
@@ -1208,18 +1194,21 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 220, damping: 14 }}
-              className="w-20 h-20 mx-auto rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mb-6"
+              className="w-20 h-20 mx-auto rounded-full bg-primary/[0.10] border border-primary/35 flex items-center justify-center mb-6"
             >
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
             <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
               {c.successEyebrow}
             </div>
-            <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
+            <h1
+              className="font-editorial text-foreground text-[28px] lg:text-[34px] leading-tight mb-3"
+              style={{ fontWeight: 600, letterSpacing: "-0.02em" }}
+            >
               {c.successThanksLead}{" "}
-              <span className="text-primary">{firstName || c.successFallbackName}</span>
+              <span className="italic text-primary">{firstName || c.successFallbackName}</span>
             </h1>
-            <p className="text-white/65 text-[14px] leading-[1.85] mb-7">
+            <p className="text-fg-secondary text-[14px] leading-[1.85] mb-7">
               {bodyLines.map((line, i) => (
                 <span key={i}>
                   {line}
@@ -1227,15 +1216,15 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
                 </span>
               ))}
             </p>
-            <div className="inline-block rounded-xl px-4 py-2 bg-white/5 border border-white/10 text-[11px] tracking-[0.2em] uppercase text-white/55 font-semibold mb-7">
+            <div className="inline-block rounded-xl px-4 py-2 bg-surface-2 border border-border-strong text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mb-7">
               {c.successRefLabel} · #{ref}
             </div>
             <div>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-[#0A0E1A] font-bold text-[13.5px] hover:bg-white/90 transition-colors"
+                className="cta-fill inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                 {c.successCta}
               </Link>
             </div>
@@ -1256,7 +1245,7 @@ function Confetti() {
         delay: Math.random() * 0.6,
         rot: Math.random() * 360,
         size: 6 + Math.random() * 8,
-        hue: Math.random() > 0.5 ? "hsl(354 80% 58%)" : "hsl(0 0% 95%)",
+        hue: Math.random() > 0.5 ? "hsl(354 78% 47%)" : "hsl(205 75% 45%)",
       })),
     [],
   );

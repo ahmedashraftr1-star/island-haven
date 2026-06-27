@@ -1,7 +1,9 @@
 import { Link } from "wouter";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
  * WhyIslandHaven — "لماذا آيلاند؟ / Why Island Haven" told as the incubator's
@@ -15,6 +17,7 @@ import { Reveal } from "@/components/landing/Reveal";
  */
 export function WhyIslandHaven() {
   const { t, lang } = useLanguage();
+  const reduce = useReducedMotion();
 
   const idx = (i: number) =>
     lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣"][i];
@@ -91,12 +94,12 @@ export function WhyIslandHaven() {
               })}
             </p>
 
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
+            <div className="group mt-8 overflow-hidden rounded-[20px] ring-1 ring-border-strong shadow-soft">
               <img
                 src="/photos/IMG_8346.webp"
                 alt={t({ ar: "العمل من داخل آيلاند هيفن في غزّة", en: "At work inside Island Haven, Gaza" })}
                 loading="lazy"
-                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
+                className="w-full aspect-[5/4] object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none will-change-transform group-hover:scale-[1.045]"
               />
             </div>
 
@@ -122,15 +125,24 @@ export function WhyIslandHaven() {
               <Reveal key={axis.id} delay={i * 0.06}>
                 <article
                   data-testid={`why-axis-${axis.id}`}
-                  className="card-base group p-7 sm:p-9 lg:[&:nth-child(2)]:ms-0"
+                  className="card-base card-hover group relative overflow-hidden p-7 sm:p-9 lg:[&:nth-child(2)]:ms-0"
                 >
+                  {/* Leading accent rail — draws down on hover (RTL-safe edge) */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 start-0 w-[3px] bg-primary origin-top scale-y-0 transition-transform duration-[450ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-y-100"
+                  />
                   <div className="grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-start">
-                    <span
-                      className="font-editorial tnum text-sand leading-none"
-                      style={{ fontSize: "clamp(2.1rem, 3.4vw, 3rem)", fontWeight: 600, letterSpacing: "-0.02em" }}
+                    <motion.span
+                      className="font-editorial tnum text-sand leading-none transition-colors duration-300 group-hover:text-sand-bright"
+                      style={{ fontSize: "clamp(2.1rem, 3.4vw, 3rem)", fontWeight: 600, letterSpacing: "-0.02em", willChange: "transform, opacity" }}
+                      initial={reduce ? false : { opacity: 0, y: 10, scale: 0.92 }}
+                      whileInView={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, amount: 0.6 }}
+                      transition={{ duration: 0.55, delay: 0.08 + i * 0.06, ease: EASE_OUT_EXPO }}
                     >
                       {idx(i)}
-                    </span>
+                    </motion.span>
 
                     <div>
                       <h3
@@ -145,10 +157,18 @@ export function WhyIslandHaven() {
                       {/* Distilled sub-points — hairline ledger, not chips */}
                       <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5">
                         {axis.points.map((pt, j) => (
-                          <li key={j} className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-fg-secondary">
-                            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-primary/70" />
+                          <motion.li
+                            key={j}
+                            className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-fg-secondary"
+                            initial={reduce ? false : { opacity: 0, y: 6 }}
+                            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.8 }}
+                            transition={{ duration: 0.4, delay: 0.28 + i * 0.06 + j * 0.07, ease: EASE_OUT_EXPO }}
+                            style={{ willChange: "transform, opacity" }}
+                          >
+                            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-primary/70 transition-transform duration-300 group-hover:scale-125" />
                             {pt}
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
                     </div>
