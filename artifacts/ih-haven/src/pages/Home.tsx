@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from "react";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
+import { Statement } from "@/components/landing/Statement";
 import { NumbersBand } from "@/components/landing/NumbersBand";
 import { CredibilityBar } from "@/components/landing/CredibilityBar";
 import { FloatingContact } from "@/components/landing/FloatingContact";
@@ -54,6 +55,7 @@ export default function Home() {
             → mentors → who it's for → stories → news → location → how to join → support → apply */}
         <Hero />
         <CredibilityBar />
+        <Statement />
         <NumbersBand />
         <SectionErrorBoundary>
           <Suspense fallback={null}>

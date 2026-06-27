@@ -223,12 +223,12 @@
   --t-h3-ls: -0.01em;
   --t-h3-weight: 700;
 
-  --t-body-size: 1rem;               /* 16px — never below 15px */
-  --t-body-lh: 1.7;
+  --t-body-size: 1.0625rem;          /* 17px — Apple-grade reading size */
+  --t-body-lh: 1.72;
   --t-body-ls: 0;
 
-  --t-body-lg-size: 1.125rem;
-  --t-body-lg-lh: 1.7;
+  --t-body-lg-size: 1.25rem;         /* 20px — calm, generous lead body */
+  --t-body-lg-lh: 1.68;
 
   --t-caption-size: 0.8125rem;       /* 13px */
   --t-caption-lh: 1.5;
@@ -245,8 +245,8 @@
   /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
      sections produced ~3000px of pure air. This denser rhythm reads as
      confident (Linear/Stripe), not padded-out. */
-  --section-py: clamp(3.5rem, 5.5vw, 6rem);
-  --section-py-compact: clamp(2.75rem, 4vw, 4rem);  /* utility bands */
+  --section-py: clamp(4.75rem, 7.5vw, 8.5rem);      /* Apple-grade air — let it breathe */
+  --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
   --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
@@ -624,8 +624,8 @@
    so the brand's two accents read together, exactly as on the brand collateral. */
 @utility brand-aura {
   background:
-    radial-gradient(58% 50% at 50% 42%, hsl(var(--accent-2) / 0.16) 0%, transparent 70%),
-    radial-gradient(40% 40% at 50% 0%, hsl(var(--primary) / 0.10) 0%, transparent 65%);
+    radial-gradient(58% 50% at 50% 42%, hsl(var(--accent-2) / 0.07) 0%, transparent 72%),
+    radial-gradient(40% 40% at 50% 0%, hsl(var(--primary) / 0.05) 0%, transparent 68%);
   pointer-events: none;
 }
 
