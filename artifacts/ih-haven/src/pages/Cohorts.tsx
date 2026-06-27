@@ -57,8 +57,8 @@ function isLive(s: CohortStatus): boolean {
 function Dot() {
   return (
     <span className="relative flex h-2 w-2">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/60 animate-ping" />
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+      <span className="absolute inline-flex h-full w-full rounded-full bg-sand/60 animate-ping" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-sand" />
     </span>
   );
 }
@@ -111,7 +111,7 @@ export default function Cohorts() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-primary text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -136,7 +136,7 @@ export default function Cohorts() {
               {num(total, lang)} {t({ ar: "دفعات", en: "cohorts" })}
             </Chip>
             {liveCount > 0 && (
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-emerald-200 bg-emerald-500/10 border border-emerald-500/25">
+              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold chip-sand">
                 <Dot />
                 {num(liveCount, lang)} {t({ ar: "جارية الآن", en: "live now" })}
               </span>
@@ -162,7 +162,7 @@ export default function Cohorts() {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong shadow-soft">
       {children}
     </span>
   );
@@ -186,7 +186,7 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
       >
         <GlassCard
           className={`group h-full flex flex-col overflow-hidden transition-colors ${
-            live ? "border-emerald-500/25 hover:border-emerald-400/50" : "hover:border-primary/40"
+            live ? "border-sand/40 hover:border-sand/60" : "hover:border-primary/40"
           }`}
         >
           <div
@@ -195,7 +195,7 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
             style={{ background: "radial-gradient(130% 80% at 80% 0%, hsl(354 80% 55% / 0.1), transparent 60%)" }}
           />
           {c.coverUrl ? (
-            <div className="aspect-[16/9] overflow-hidden bg-black/30">
+            <div className="aspect-[16/9] overflow-hidden bg-surface-3">
               <img
                 src={c.coverUrl}
                 alt={c.name}
@@ -204,19 +204,22 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
               />
             </div>
           ) : (
-            <div className="aspect-[16/9] bg-gradient-to-br from-primary/25 via-primary/5 to-transparent flex items-center justify-center">
-              <Layers className="w-12 h-12 text-primary/60" />
+            <div
+              className="aspect-[16/9] flex items-center justify-center"
+              style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+            >
+              <Layers className="w-12 h-12 text-white/90" />
             </div>
           )}
           <div className="relative p-6 flex-1 flex flex-col">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold border ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold ${
                   live
-                    ? "bg-emerald-500/10 text-emerald-200 border-emerald-500/30"
+                    ? "chip-sand"
                     : done
-                      ? "bg-white/[0.05] text-white/50 border-white/10"
-                      : "bg-primary/15 text-primary border-primary/30"
+                      ? "bg-surface-3 text-muted-foreground border border-border"
+                      : "bg-primary/12 text-primary border border-primary/30"
                 }`}
               >
                 {live && <Dot />}
@@ -225,19 +228,19 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
                   en: COHORT_STATUS_LABELS_EN[c.status],
                 })}
               </span>
-              <span className="text-[10.5px] tracking-[0.14em] uppercase text-white/45 font-semibold">
+              <span className="text-[10.5px] tracking-[0.14em] uppercase text-muted-foreground font-semibold">
                 · {c.programTitle}
               </span>
             </div>
-            <h3 className="text-white font-bold text-[19px] leading-snug mb-2">
+            <h3 className="text-foreground font-display font-bold text-[19px] leading-snug mb-2">
               {c.name}
             </h3>
             {c.summary && (
-              <p className="text-white/55 text-[13.5px] leading-[1.85] line-clamp-3 mb-4">
+              <p className="text-fg-secondary text-[13.5px] leading-[1.85] line-clamp-3 mb-4">
                 {c.summary}
               </p>
             )}
-            <div className="mt-auto space-y-1.5 text-[12.5px] text-white/55 pt-3 border-t border-white/[0.06]">
+            <div className="mt-auto space-y-1.5 text-[12.5px] text-muted-foreground pt-3 border-t border-border">
               {c.startsAt && (
                 <div className="flex items-center gap-2">
                   <CalendarDays className="w-3.5 h-3.5 text-primary/80" />
@@ -272,7 +275,7 @@ function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
                 })}
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
+            <div className="mt-4 flex items-center justify-between text-[12.5px] text-primary transition-colors font-semibold">
               <span>{t({ ar: "تفاصيل الدّفعة", en: "Cohort details" })}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
             </div>
@@ -288,12 +291,12 @@ function SkeletonCohorts() {
     <div className="space-y-8">
       <div className="flex gap-2.5">
         {[0, 1].map((i) => (
-          <div key={i} className="h-8 w-32 rounded-full bg-white/[0.04] border border-white/10 animate-pulse" />
+          <div key={i} className="h-8 w-32 rounded-full bg-surface-3 border border-border-strong animate-pulse" />
         ))}
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-[24px] h-72 bg-white/[0.035] border border-white/10 animate-pulse" />
+          <div key={i} className="rounded-[24px] h-72 bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
         ))}
       </div>
     </div>

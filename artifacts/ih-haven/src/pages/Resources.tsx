@@ -125,13 +125,15 @@ export default function Resources() {
       })}
     >
       {gated && (
-        <GlassCard className="p-5 mb-7 flex items-start gap-3 border-amber-400/30 bg-amber-400/[0.04]">
-          <Lock className="w-5 h-5 text-amber-300 mt-0.5 shrink-0" />
+        <GlassCard className="p-5 mb-7 flex items-start gap-3.5">
+          <span className="grid place-items-center w-10 h-10 rounded-full bg-primary/12 border border-primary/30 shrink-0">
+            <Lock className="w-5 h-5 text-primary" />
+          </span>
           <div className="flex-1">
-            <div className="text-white font-bold text-[14px] mb-1">
+            <div className="text-foreground font-bold text-[14px] mb-1">
               {t({ ar: "معظم الموارد للمنتسبين فقط", en: "Most resources are for members only" })}
             </div>
-            <p className="text-white/65 text-[13px] leading-[1.85] mb-3">
+            <p className="text-fg-secondary text-[13px] leading-[1.85] mb-3">
               {t({
                 ar: "سجّل دخولك أو انتسب للمساحة لتفتح القوالب، الأدلّة، وحوافز الشّركاء.",
                 en: "Log in or join the space to unlock templates, guides, and partner perks.",
@@ -147,7 +149,7 @@ export default function Resources() {
               </Link>
               <Link
                 href="/apply"
-                className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold hover:bg-white/[0.1]"
+                className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[12.5px] font-semibold hover:bg-surface-3 hover:text-foreground transition-colors"
               >
                 {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
               </Link>
@@ -157,7 +159,7 @@ export default function Resources() {
       )}
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-center text-[13.5px] font-medium text-destructive border-destructive/30">{error}</GlassCard>
       )}
 
       <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
@@ -173,7 +175,7 @@ export default function Resources() {
                 className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
                   isActive
                     ? "cta-fill border-transparent"
-                    : "bg-white/[0.04] text-white/65 border-white/10 hover:text-white hover:bg-white/[0.08]"
+                    : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-3"
                 }`}
               >
                 {t(f.label)}
@@ -182,7 +184,7 @@ export default function Resources() {
           })}
         </div>
         {!!total && (
-          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+          <span className="inline-flex items-center px-3.5 h-7 rounded-full text-[12px] font-semibold chip-sand tabular-nums">
             {num(total, lang)} {t({ ar: "موردًا", en: "resources" })}
           </span>
         )}
@@ -193,7 +195,7 @@ export default function Resources() {
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-48 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-48 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
             />
           ))}
         </div>
@@ -246,36 +248,39 @@ function ResourceCardView({ r, reduce }: { r: ResourceCard; reduce: boolean }) {
         className="group block h-full"
       >
         <GlassCard
-          className={`group h-full flex flex-col p-6 transition-colors ${
-            r.featured ? "border-amber-400/25 hover:border-amber-300/45" : "hover:border-primary/40"
+          className={`card-hover group h-full flex flex-col p-6 transition-colors ${
+            r.featured ? "border-primary/30 hover:border-primary/50" : "hover:border-primary/40"
           }`}
         >
           <div className="relative mb-3">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-white/[0.05] text-white/55 border border-white/10">
+              <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-surface-3 text-fg-secondary border border-border">
                 {categoryLabel(r.category, lang)}
               </span>
               {r.featured && (
-                <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-primary/12 text-primary border border-primary/30">
+                  <Star className="w-3 h-3 fill-primary text-primary" />
+                  {t({ ar: "مميّز", en: "Featured" })}
+                </span>
               )}
             </div>
-            <h3 className="text-white font-bold text-[15.5px] leading-snug">
+            <h3 className="text-foreground font-bold text-[15.5px] leading-snug">
               {r.title}
             </h3>
           </div>
           {r.summary && (
-            <p className="relative text-white/60 text-[13px] leading-[1.85] mb-4 line-clamp-3 flex-1">
+            <p className="relative text-fg-secondary text-[13px] leading-[1.85] mb-4 line-clamp-3 flex-1">
               {r.summary}
             </p>
           )}
-          <div className="relative pt-3 border-t border-white/[0.06] flex items-center justify-between text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
+          <div className="relative pt-3 border-t border-border flex items-center justify-between text-[12.5px] text-muted-foreground group-hover:text-primary transition-colors font-semibold">
             {r.visibility === "members" ? (
-              <span className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/85">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary">
                 <Lock className="w-3 h-3" />
                 {t({ ar: "للمنتسبين", en: "Members" })}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-200/85">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-sand">
                 <Sparkles className="w-3 h-3" />
                 {t({ ar: "للجميع", en: "Everyone" })}
               </span>

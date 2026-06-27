@@ -153,7 +153,7 @@ export default function Team() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
       )}
 
       {team === null && !error ? (
@@ -201,7 +201,7 @@ export default function Team() {
       )}
 
       {/* Join us — start-aligned editorial band (mirrors landing/BecomeMentorBand) */}
-      <div className="mt-16 surface-2 rounded-[28px] p-8 sm:p-11">
+      <div className="mt-16 surface-2 border border-border-strong rounded-[28px] p-8 sm:p-11">
         <h3
           className="font-display font-extrabold text-foreground"
           style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.08, letterSpacing: "-0.025em" }}
@@ -228,7 +228,7 @@ export default function Team() {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong shadow-soft">
       {children}
     </span>
   );
@@ -250,10 +250,10 @@ function TeamSection({
       <div className="relative mb-7 sm:mb-9">
         <span
           aria-hidden
-          className="absolute -top-7 sm:-top-9 right-0 select-none font-black leading-none"
+          className="absolute -top-7 sm:-top-9 end-0 select-none font-black leading-none"
           style={{
             fontSize: "clamp(4.5rem, 13vw, 9rem)",
-            WebkitTextStroke: "1.25px rgba(255,255,255,0.065)",
+            WebkitTextStroke: "1.25px hsl(var(--primary) / 0.16)",
             color: "transparent",
           }}
         >
@@ -262,20 +262,20 @@ function TeamSection({
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
             <h2
-              className="text-white font-bold"
+              className="text-foreground font-display font-bold"
               style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
             >
               {t({ ar: group.ar, en: group.en })}
             </h2>
-            <span className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-bold">
+            <span className="text-[10.5px] tracking-[0.22em] uppercase text-muted-foreground font-bold">
               {group.en}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/10 border border-primary/25">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/12 border border-primary/30">
               <Users className="w-3 h-3" />
               {num(members.length, lang)}
             </span>
           </div>
-          <p className="text-white/50 text-[13.5px] leading-[1.8] max-w-xl">
+          <p className="text-fg-secondary text-[13.5px] leading-[1.8] max-w-xl">
             {t(group.blurb)}
           </p>
         </div>
@@ -320,9 +320,9 @@ function TeamCard({
       className="h-full"
     >
       <GlassCard
-        className={`group h-full flex flex-col ${
+        className={`group h-full flex flex-col card-hover ${
           isLead ? "p-7" : "p-6"
-        } transition-colors duration-300 hover:border-primary/40 hover:bg-white/[0.06]`}
+        } transition-colors duration-300 hover:border-primary/40 hover:bg-surface-3`}
       >
         <div
           aria-hidden
@@ -346,7 +346,7 @@ function TeamCard({
               alt={m.fullName}
               className={`${
                 isLead ? "w-20 h-20" : "w-16 h-16"
-              } rounded-2xl object-cover border border-white/10`}
+              } rounded-2xl object-cover border border-border-strong shadow-soft`}
               loading="lazy"
             />
           ) : (
@@ -361,14 +361,14 @@ function TeamCard({
           )}
           <div className="min-w-0">
             <h3
-              className={`text-white font-bold leading-snug truncate ${
+              className={`text-foreground font-display font-bold leading-snug truncate ${
                 isLead ? "text-[18px]" : "text-[16px]"
               }`}
             >
               {m.fullName}
             </h3>
             {m.role && (
-              <p className="text-primary/90 text-[12.5px] font-medium leading-snug mt-0.5 line-clamp-2">
+              <p className="text-primary text-[12.5px] font-semibold leading-snug mt-0.5 line-clamp-2">
                 {m.role}
               </p>
             )}
@@ -377,7 +377,7 @@ function TeamCard({
 
         {m.bio && (
           <p
-            className={`relative text-white/65 text-[13.5px] leading-[1.85] mb-5 flex-1 ${
+            className={`relative text-fg-secondary text-[13.5px] leading-[1.85] mb-5 flex-1 ${
               isLead ? "" : "line-clamp-3"
             }`}
           >
@@ -386,14 +386,14 @@ function TeamCard({
         )}
 
         {(m.linkedinUrl || m.websiteUrl || m.email) && (
-          <div className="relative flex items-center flex-wrap gap-3 mt-auto pt-3.5 border-t border-white/[0.06]">
+          <div className="relative flex items-center flex-wrap gap-3 mt-auto pt-3.5 border-t border-border">
             {m.linkedinUrl && (
               <a
                 href={m.linkedinUrl}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex items-center gap-1.5 text-[12px] text-white/65 hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
               >
                 <Linkedin className="w-3.5 h-3.5" /> LinkedIn
               </a>
@@ -404,7 +404,7 @@ function TeamCard({
                 target="_blank"
                 rel="noreferrer"
                 aria-label={t({ ar: "الموقع", en: "Website" })}
-                className="inline-flex items-center gap-1.5 text-[12px] text-white/65 hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
               >
                 <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
               </a>
@@ -413,7 +413,7 @@ function TeamCard({
               <a
                 href={`mailto:${m.email}`}
                 aria-label={t({ ar: "البريد", en: "Email" })}
-                className="inline-flex items-center gap-1.5 text-[12px] text-white/65 hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span dir="ltr">{m.email}</span>
@@ -433,18 +433,18 @@ function SkeletonTeam() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="h-8 w-32 rounded-full bg-white/[0.04] border border-white/10 animate-pulse"
+            className="h-8 w-32 rounded-full bg-surface-2 border border-border-strong animate-pulse"
           />
         ))}
       </div>
       {[0, 1].map((s) => (
         <div key={s}>
-          <div className="h-7 w-44 rounded-lg bg-white/[0.05] animate-pulse mb-6" />
+          <div className="h-7 w-44 rounded-lg bg-surface-2 animate-pulse mb-6" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="rounded-[24px] h-52 bg-white/[0.035] border border-white/10 animate-pulse"
+                className="rounded-[24px] h-52 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
               />
             ))}
           </div>

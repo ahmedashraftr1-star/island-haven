@@ -137,8 +137,8 @@ export default function Opportunities() {
               aria-pressed={filter === key ? "true" : "false"}
               className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
                 filter === key
-                  ? "bg-primary text-white border-primary"
-                  : "bg-white/[0.04] text-white/65 border-white/10 hover:border-white/25"
+                  ? "cta-fill text-white border-transparent"
+                  : "bg-surface-2 text-fg-secondary border-border-strong hover:border-primary/40 hover:text-foreground"
               }`}
             >
               {filterLabel(key)}
@@ -146,7 +146,7 @@ export default function Opportunities() {
           ))}
         </div>
         {!!total && (
-          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong">
             {num(total, lang)} {t({ ar: "فرصة", en: "opportunities" })}
             {featuredCount > 0
               ? ` · ${num(featuredCount, lang)} ${t({ ar: "مميّزة", en: "featured" })}`
@@ -156,7 +156,7 @@ export default function Opportunities() {
       </div>
 
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -164,7 +164,7 @@ export default function Opportunities() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="rounded-[24px] h-52 bg-white/[0.035] border border-white/10 animate-pulse"
+              className="rounded-[24px] h-52 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
             />
           ))}
         </div>
@@ -213,7 +213,7 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
       >
         <GlassCard
           className={`group h-full flex flex-col p-5 transition-colors ${
-            o.featured ? "border-amber-400/25 hover:border-amber-300/45" : "hover:border-primary/40"
+            o.featured ? "border-primary/30 hover:border-primary/50" : "hover:border-primary/40"
           }`}
         >
           <div
@@ -232,17 +232,17 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
                   })}
                 </span>
                 {o.featured && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-                    <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/12 text-primary border border-primary/30">
+                    <Star className="w-3 h-3 fill-primary text-primary" />{" "}
                     {t({ ar: "مميّزة", en: "Featured" })}
                   </span>
                 )}
               </div>
-              <h3 className="text-white font-bold text-[16.5px] leading-snug mt-2 line-clamp-2">
+              <h3 className="text-foreground font-display font-bold text-[16.5px] leading-snug mt-2 line-clamp-2 group-hover:text-primary transition-colors">
                 {o.title}
               </h3>
               {o.organization && (
-                <p className="text-primary/85 text-[12.5px] font-medium mt-0.5">
+                <p className="text-sand text-[12.5px] font-semibold mt-0.5">
                   {o.organization}
                 </p>
               )}
@@ -250,7 +250,7 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
           </div>
 
           {o.description && (
-            <p className="relative text-white/65 text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
+            <p className="relative text-fg-secondary text-[12.5px] leading-[1.7] line-clamp-2 mb-3">
               {o.description}
             </p>
           )}
@@ -260,7 +260,7 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 rounded-md text-[11px] bg-white/[0.05] text-white/60 border border-white/[0.08]"
+                  className="px-2 py-0.5 rounded-md text-[11px] bg-surface-3 text-fg-secondary border border-border"
                 >
                   {tag}
                 </span>
@@ -268,10 +268,10 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
             </div>
           )}
 
-          <div className="relative mt-auto flex items-center justify-between text-[12px] text-white/55 pt-3 border-t border-white/[0.06]">
+          <div className="relative mt-auto flex items-center justify-between text-[12px] text-muted-foreground pt-3 border-t border-border">
             <span className="inline-flex items-center gap-3 min-w-0">
               <span className="inline-flex items-center gap-1 truncate">
-                <MapPin className="w-3.5 h-3.5 text-primary/80 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
                 {t({
                   ar: OPPORTUNITY_LOCATION_LABELS[o.locationType],
                   en: OPPORTUNITY_LOCATION_LABELS_EN[o.locationType],
@@ -279,13 +279,13 @@ function OpportunityCard({ o, reduce }: { o: Opportunity; reduce: boolean }) {
                 {o.city ? ` · ${o.city}` : ""}
               </span>
               {o.deadline && (
-                <span className="inline-flex items-center gap-1 text-amber-200/80 shrink-0">
+                <span className="inline-flex items-center gap-1 text-sand font-semibold shrink-0">
                   <Clock className="w-3.5 h-3.5" />
                   {formatDate(o.deadline, lang)}
                 </span>
               )}
             </span>
-            <span className="inline-flex items-center gap-1 text-white/65 group-hover:text-primary transition-colors font-semibold shrink-0">
+            <span className="inline-flex items-center gap-1 text-fg-secondary group-hover:text-primary transition-colors font-semibold shrink-0">
               {t({ ar: "التفاصيل", en: "Details" })}
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
             </span>

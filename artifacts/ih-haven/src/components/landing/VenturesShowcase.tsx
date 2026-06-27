@@ -68,7 +68,7 @@ export function VenturesShowcase() {
       ref={ref}
       id="ventures-band"
       className="theme-light relative bg-background"
-      style={{ height: `${items.length * 64 + 40}vh` }}
+      style={{ height: `${items.length * 46 + 30}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
         <div aria-hidden className="absolute inset-x-0 top-0 h-[45%] brand-aura opacity-50" />

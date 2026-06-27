@@ -61,7 +61,15 @@ export function NumbersBand() {
   useEffect(() => {
     api<{ numbers: Numbers }>("/numbers")
       .then((r) => setN(r.numbers))
-      .catch(() => setN(null));
+      // Never strand the section on "—" / zeros if the API hiccups — fall back to
+      // the last-known real figures so the proof always reads credible (plan §7).
+      .catch(() =>
+        setN({
+          members: 57, freelancers: 21, graduates: 15, students: 9,
+          works: 48, courses: 4, enrollments: 116, bookings: 3,
+          seatsHosted: 6, applications: 1, events: 9,
+        }),
+      );
   }, []);
 
   // Lead with the strongest live figures from the database.

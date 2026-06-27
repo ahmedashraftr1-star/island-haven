@@ -18,13 +18,28 @@ const DAYS = [
   { ar: "جمعة", en: "Fri", idx: 5, closed: true },
 ];
 
+// Brand-token SVG colors resolved from the live (.theme-light-inherited) canvas
+// so the dial reads on white: muted neutral track, crimson active range, cerulean
+// accents, deep-navy ink. Live status open = an AA green, otherwise muted.
+const INK = "hsl(219 47% 13%)"; // foreground (deep-navy ink)
+const INK_55 = "hsl(219 30% 38%)"; // muted-foreground-ish, for ticks / labels
+const TRACK = "hsl(215 25% 88%)"; // border — quiet base track
+const CERULEAN = "hsl(213 84% 40%)"; // --sand (brand cerulean) for caps / labels
+const CRIMSON = "hsl(354 78% 47%)"; // --primary (deepened crimson) — active arc
+const CRIMSON_HI = "hsl(354 80% 58%)"; // --primary-bright — arc gradient end
+const OPEN_GREEN = "hsl(160 64% 34%)"; // AA-safe green cursor when open now
+
 /**
- * OpeningHours — editorial deep-ink treatment.
+ * OpeningHours — editorial LIGHT panel.
  *
- * Turns "ساعات العمل" into a piece of design on a flat deep-ink canvas:
- * an oversized 09—17 display and a 24-hour SVG dial tracing the open arc
- * (09→17), with live Gaza time on the dial. Hairline-divided day rows,
- * a quiet status chip — zero glassmorphism. Compact, premium, on-brand.
+ * Turns "ساعات العمل" into a piece of design on the homepage's warm-white canvas:
+ * an oversized 09—17 display and a 24-hour SVG dial tracing the open arc (09→17),
+ * with live Gaza time on the dial. The whole thing renders as crafted light
+ * material (surface-1 panel + surface-2 dial plate + hairline rows), recoloured to
+ * brand tokens — crimson active range, cerulean accents, muted track, deep-navy
+ * ink. Hairline-divided day rows, a quiet status chip. Zero glass, no dark void.
+ * Keeps live Gaza updates, Friday-closed, the 09—17 display, the status pill, and
+ * every data-testid (day-tile-*).
  */
 export function OpeningHours() {
   const { lang } = useLanguage();
@@ -71,10 +86,14 @@ export function OpeningHours() {
   const inHours =
     !isFriday && totalMinutes >= OPEN_HOUR * 60 && totalMinutes < CLOSE_HOUR * 60;
   const liveStatus = isFriday
-    ? { ar: "مغلق اليوم", en: "Closed today", color: "bg-muted-foreground" }
+    ? { ar: "مغلق اليوم", en: "Closed today", dot: "bg-muted-foreground" }
     : inHours
-    ? { ar: "مفتوح الآن", en: "Open now", color: "bg-emerald-400" }
-    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", color: "bg-muted-foreground" };
+    ? { ar: "مفتوح الآن", en: "Open now", dot: "bg-[hsl(160_64%_34%)]" }
+    : { ar: "مغلق الآن — يفتح ٩ صباحاً", en: "Opens 9am", dot: "bg-muted-foreground" };
+
+  // Localized "now" clock — Arabic-Indic numerals in AR.
+  const clock = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  const clockLoc = lang === "ar" ? clock.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]) : clock;
 
   // SVG geometry
   const SIZE = 420;
@@ -109,50 +128,34 @@ export function OpeningHours() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-12%" }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="mb-12 lg:mb-14 relative rounded-[28px] overflow-hidden"
-      style={{
-        boxShadow:
-          "0 30px 80px -20px rgba(10,14,26,0.45), 0 8px 24px -8px rgba(10,14,26,0.25)",
-      }}
+      className="surface-1 card-base rounded-[28px] overflow-hidden"
     >
-      {/* ─── LAYER 1 · deep indigo canvas ───────────────────────── */}
-      <div className="absolute inset-0 bg-[#0A0E1A]" aria-hidden />
-
-      {/* ─── LAYER 2 · photographic underlay (depth) ────────────── */}
-      <div aria-hidden className="absolute inset-0 opacity-[0.16] pointer-events-none">
-        <img
-          src={`${import.meta.env.BASE_URL}photos/IMG_8347.webp`}
-          alt=""
-          className="w-full h-full object-cover"
+      {/* ─── CONTENT — crafted light panel ───────────────────────── */}
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center text-foreground p-7 lg:p-12">
+        {/* faint cerulean data-tint anchored to the dial corner, light register */}
+        <div
+          aria-hidden
+          className="absolute -bottom-32 -right-24 w-[520px] h-[520px] pointer-events-none rtl:right-auto rtl:-left-24"
+          style={{
+            background:
+              "radial-gradient(circle, hsl(213 84% 40% / 0.07) 0%, transparent 65%)",
+            filter: "blur(60px)",
+          }}
         />
-      </div>
 
-      {/* ─── LAYER 3 · single restrained cerulean data-glow ─────── */}
-      <div
-        aria-hidden
-        className="absolute -bottom-32 -right-24 w-[520px] h-[520px] pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle, hsl(195 100% 60% / 0.14) 0%, transparent 65%)",
-          filter: "blur(80px)",
-        }}
-      />
-
-      {/* ─── CONTENT ─────────────────────────────────────────────── */}
-      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center text-white p-7 lg:p-12">
         {/* LEFT — editorial content */}
         <div className="relative lg:col-span-7 order-2 lg:order-1">
           <div className="flex items-center gap-3 mb-7">
-            <span className="h-[1px] w-10 bg-white/40" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-white/75 font-semibold">
+            <span aria-hidden className="h-px w-9 bg-primary/50" />
+            <span className="eyebrow">
               {lang === "en" ? "Opening hours · ساعات العمل" : "Opening hours · ساعات العمل"}
             </span>
           </div>
 
-          {/* Massive 09 → 17 display */}
+          {/* Massive 09 → 17 display — cerulean numerals, crimson rule */}
           <div
             dir="ltr"
-            className="font-bold text-white tabular-nums leading-none flex items-baseline gap-3 lg:gap-5 mb-7"
+            className="font-display font-extrabold text-sand tnum leading-none flex items-baseline gap-3 lg:gap-5 mb-7 rtl:justify-end"
             style={{
               fontSize: "clamp(4.5rem, 10vw, 9rem)",
               letterSpacing: "-0.045em",
@@ -170,7 +173,7 @@ export function OpeningHours() {
               initial={{ scaleX: 0 }}
               animate={inView ? { scaleX: 1 } : {}}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-              className="origin-left inline-block w-12 lg:w-20 h-[6px] lg:h-[10px] bg-white/85 rounded-full -translate-y-[0.42em]"
+              className="origin-left inline-block w-12 lg:w-20 h-[6px] lg:h-[10px] bg-primary rounded-full -translate-y-[0.42em]"
               aria-hidden
             />
             <motion.span
@@ -183,33 +186,34 @@ export function OpeningHours() {
             </motion.span>
           </div>
 
+          {/* Editorial serif headline + single italic crimson accent (YC register) */}
           <h3
-            className="font-bold text-white leading-[1.1] tracking-tight mb-4"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.022em" }}
+            className="font-editorial text-foreground leading-[1.08] mb-4"
+            style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.018em", fontWeight: 600 }}
           >
             {lang === "en" ? (
-              <>Work at the space<br />from <span className="text-primary">9 am</span> until{" "}<span className="text-primary">5 pm.</span></>
+              <>Work at the space<br />from <span className="italic text-primary">9 am</span> until{" "}<span className="italic text-primary">5 pm.</span></>
             ) : (
               <>العمل في المساحة<br />من <span className="text-primary">٩ صباحاً</span> حتّى{" "}<span className="text-primary">٥ مساءً.</span></>
             )}
           </h3>
 
-          <p className="text-[15px] lg:text-[17px] text-white/70 leading-relaxed max-w-md mb-9">
+          <p className="t-body leading-relaxed max-w-md mb-9">
             {lang === "en"
               ? "Eight hours a day, five days a week. Stable internet, uninterrupted power — and coffee always ready."
               : "تسع ساعات يوميّة، خمسة أيّام في الأسبوع. الإنترنت مستقرّ، والكهرباء بلا انقطاع — والقهوة دائماً جاهزة."}
           </p>
 
-          {/* Live status — quiet hairline-edged chip */}
-          <div className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full text-[13px] font-semibold mb-9 bg-white/[0.03] border border-border-strong">
-            <span className={`w-2 h-2 rounded-full ${liveStatus.color} ${inHours ? "animate-pulse" : ""}`} />
+          {/* Live status — quiet hairline-edged chip on a white plate */}
+          <div className="inline-flex items-center gap-2.5 h-10 px-4 rounded-full text-[13px] font-semibold mb-9 bg-surface-2 border border-border-strong text-foreground">
+            <span className={`w-2 h-2 rounded-full ${liveStatus.dot} ${inHours ? "animate-pulse" : ""}`} />
             <span>{lang === "en" ? liveStatus.en : liveStatus.ar}</span>
-            <span className="text-white/45 tabular-nums font-mono">
-              · {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} Gaza
+            <span className="text-muted-foreground tnum font-mono">
+              · {clockLoc} {lang === "en" ? "Gaza" : "غزّة"}
             </span>
           </div>
 
-          {/* Weekly strip — hairline-divided rows on the flat canvas */}
+          {/* Weekly strip — hairline-divided rows with dark ink */}
           <div className="w-full max-w-md border-t border-border-strong">
             {DAYS.map((d) => {
               const isToday = d.idx === dayOfWeek;
@@ -218,10 +222,10 @@ export function OpeningHours() {
                   key={d.en}
                   className={`flex items-baseline justify-between gap-4 py-3 border-b border-border-strong ${
                     isToday
-                      ? "text-white"
+                      ? "text-foreground"
                       : d.closed
-                      ? "text-white/35"
-                      : "text-white/75"
+                      ? "text-fg-faint"
+                      : "text-fg-secondary"
                   }`}
                   data-testid={`day-tile-${d.en.toLowerCase()}`}
                 >
@@ -229,7 +233,7 @@ export function OpeningHours() {
                     {isToday && (
                       <span
                         aria-hidden
-                        className="h-[1px] w-5 bg-primary shrink-0"
+                        className="h-px w-5 bg-primary shrink-0"
                       />
                     )}
                     <span
@@ -243,9 +247,9 @@ export function OpeningHours() {
                     </span>
                   </div>
                   <span
-                    className={`text-[13px] tabular-nums font-mono shrink-0 ${
-                      d.closed ? "line-through decoration-white/30" : ""
-                    } ${isToday ? "text-white" : ""}`}
+                    className={`text-[13px] tnum font-mono shrink-0 ${
+                      d.closed ? "line-through decoration-border-strong" : ""
+                    } ${isToday ? "text-foreground" : ""}`}
                   >
                     {d.closed ? (lang === "en" ? "Closed" : "مغلق") : "9–17"}
                   </span>
@@ -260,12 +264,15 @@ export function OpeningHours() {
           {lang === "en" ? liveStatus.en : liveStatus.ar} — {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")} Gaza time.
         </div>
 
-        {/* RIGHT — 24h dial on the flat canvas */}
+        {/* RIGHT — 24h dial framed on a contained white plate */}
         <div className="relative lg:col-span-5 order-1 lg:order-2 flex items-center justify-center">
-          <div className="relative w-full max-w-[420px] aspect-square">
+          <div
+            className="relative w-full max-w-[440px] aspect-square rounded-full bg-surface-2 border border-border-strong flex items-center justify-center"
+            style={{ boxShadow: "0 1px 0 0 hsl(0 0% 100% / 0.6) inset, 0 18px 44px -22px hsl(219 47% 13% / 0.28)" }}
+          >
             <svg
               viewBox={`0 0 ${SIZE} ${SIZE}`}
-              className="w-full h-full"
+              className="w-[92%] h-[92%]"
               role="img"
               aria-labelledby="oh-title oh-desc"
             >
@@ -277,23 +284,18 @@ export function OpeningHours() {
               </desc>
               <defs>
                 <linearGradient id="oh-arc" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="hsl(354 100% 75%)" />
-                  <stop offset="100%" stopColor="hsl(354 100% 55%)" />
+                  <stop offset="0%" stopColor={CRIMSON_HI} />
+                  <stop offset="100%" stopColor={CRIMSON} />
                 </linearGradient>
-                <radialGradient id="oh-glow" cx="0.5" cy="0.5" r="0.5">
-                  <stop offset="0%" stopColor="hsl(354 100% 65%)" stopOpacity="0.45" />
-                  <stop offset="100%" stopColor="hsl(354 100% 65%)" stopOpacity="0" />
-                </radialGradient>
               </defs>
 
-              <circle cx={CX} cy={CY} r={R_ARC + 30} fill="url(#oh-glow)" />
-
+              {/* faint outer guide ring */}
               <circle
                 cx={CX}
                 cy={CY}
                 r={R_TICK_OUTER + 6}
                 fill="none"
-                stroke="rgba(255,255,255,0.06)"
+                stroke={TRACK}
                 strokeWidth="1"
               />
 
@@ -311,7 +313,8 @@ export function OpeningHours() {
                     y1={p1.y}
                     x2={p2.x}
                     y2={p2.y}
-                    stroke="rgba(255,255,255,0.32)"
+                    stroke={major ? CERULEAN : INK_55}
+                    strokeOpacity={major ? 0.75 : 0.35}
                     strokeWidth={major ? 2 : 1}
                     strokeLinecap="round"
                   />
@@ -333,7 +336,8 @@ export function OpeningHours() {
                     y={p.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fill="rgba(255,255,255,0.55)"
+                    fill={CERULEAN}
+                    fillOpacity="0.85"
                     fontSize="13"
                     fontWeight="700"
                     fontFamily="ui-monospace, monospace"
@@ -344,15 +348,17 @@ export function OpeningHours() {
                 );
               })}
 
+              {/* base track behind the open arc — muted neutral */}
               <circle
                 cx={CX}
                 cy={CY}
                 r={R_ARC}
                 fill="none"
-                stroke="rgba(255,255,255,0.07)"
+                stroke={TRACK}
                 strokeWidth={STROKE}
               />
 
+              {/* crimson open-hours arc */}
               <motion.path
                 d={arcPath}
                 fill="none"
@@ -364,28 +370,31 @@ export function OpeningHours() {
                 transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
               />
 
+              {/* open pin */}
               <motion.g
                 initial={{ scale: 0 }}
                 animate={inView ? { scale: 1, opacity: 1 } : {}}
                 transition={{ duration: 0.5, delay: 0.45 }}
                 style={{ transformOrigin: `${start.x}px ${start.y}px` }}
               >
-                <circle cx={start.x} cy={start.y} r="9" fill="white" />
-                <circle cx={start.x} cy={start.y} r="4" fill="hsl(354 100% 55%)" />
+                <circle cx={start.x} cy={start.y} r="9" fill="hsl(0 0% 100%)" stroke={CRIMSON} strokeWidth="2" />
+                <circle cx={start.x} cy={start.y} r="4" fill={CRIMSON} />
               </motion.g>
 
+              {/* close pin */}
               <motion.g
                 initial={{ scale: 0 }}
                 animate={inView ? { scale: 1, opacity: 1 } : {}}
                 transition={{ duration: 0.5, delay: 1.85 }}
                 style={{ transformOrigin: `${end.x}px ${end.y}px` }}
               >
-                <circle cx={end.x} cy={end.y} r="9" fill="white" />
-                <circle cx={end.x} cy={end.y} r="4" fill="hsl(354 100% 55%)" />
+                <circle cx={end.x} cy={end.y} r="9" fill="hsl(0 0% 100%)" stroke={CRIMSON} strokeWidth="2" />
+                <circle cx={end.x} cy={end.y} r="4" fill={CRIMSON} />
               </motion.g>
 
+              {/* live cursor — green when open, muted ink otherwise */}
               <motion.g
-                initial={{  }}
+                initial={{}}
                 animate={inView ? { opacity: 1 } : {}}
                 transition={{ duration: 0.42, delay: 2.1 }}
               >
@@ -394,7 +403,8 @@ export function OpeningHours() {
                   y1={CY}
                   x2={liveDot.x}
                   y2={liveDot.y}
-                  stroke={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.25)"}
+                  stroke={inHours ? OPEN_GREEN : INK_55}
+                  strokeOpacity={inHours ? 1 : 0.5}
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -402,14 +412,17 @@ export function OpeningHours() {
                   cx={liveDot.x}
                   cy={liveDot.y}
                   r="6"
-                  fill={inHours ? "hsl(160 84% 50%)" : "rgba(255,255,255,0.45)"}
+                  fill={inHours ? OPEN_GREEN : INK}
+                  fillOpacity={inHours ? 1 : 0.55}
+                  stroke="hsl(0 0% 100%)"
+                  strokeWidth="2"
                 />
                 {inHours && (
                   <circle
                     cx={liveDot.x}
                     cy={liveDot.y}
                     r="14"
-                    fill="hsl(160 84% 50%)"
+                    fill={OPEN_GREEN}
                     fillOpacity="0.18"
                   >
                     <animate
@@ -420,7 +433,7 @@ export function OpeningHours() {
                     />
                     <animate
                       attributeName="fill-opacity"
-                      values="0.4;0;0.4"
+                      values="0.35;0;0.35"
                       dur="2.5s"
                       repeatCount="indefinite"
                     />
@@ -428,11 +441,13 @@ export function OpeningHours() {
                 )}
               </motion.g>
 
+              {/* center readout — cerulean label + deep-navy clock */}
               <text
                 x={CX}
                 y={CY - 8}
                 textAnchor="middle"
-                fill="rgba(255,255,255,0.55)"
+                fill={CERULEAN}
+                fillOpacity="0.9"
                 fontSize="10"
                 letterSpacing="3"
                 fontWeight="700"
@@ -443,9 +458,9 @@ export function OpeningHours() {
                 x={CX}
                 y={CY + 22}
                 textAnchor="middle"
-                fill="white"
+                fill={INK}
                 fontSize="42"
-                fontWeight="700"
+                fontWeight="800"
                 fontFamily="ui-monospace, monospace"
                 letterSpacing="-1"
               >

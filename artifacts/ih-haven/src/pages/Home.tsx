@@ -4,6 +4,7 @@ import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { Hero } from "@/components/landing/Hero";
 import { NumbersBand } from "@/components/landing/NumbersBand";
+import { CredibilityBar } from "@/components/landing/CredibilityBar";
 import { FloatingContact } from "@/components/landing/FloatingContact";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
@@ -12,6 +13,9 @@ const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: 
   p.then((m) => ({ default: m[k] }));
 const Partners = lazy(() => named(import("@/components/landing/Partners"), "Partners"));
 const WhatYouGet = lazy(() => named(import("@/components/landing/WhatYouGet"), "WhatYouGet"));
+const WhyIslandHaven = lazy(() => named(import("@/components/landing/WhyIslandHaven"), "WhyIslandHaven"));
+const HomeFAQ = lazy(() => named(import("@/components/landing/HomeFAQ"), "HomeFAQ"));
+const FinalCTA = lazy(() => named(import("@/components/landing/FinalCTA"), "FinalCTA"));
 const VenturesShowcase = lazy(() => named(import("@/components/landing/VenturesShowcase"), "VenturesShowcase"));
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
 const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
@@ -48,11 +52,13 @@ export default function Home() {
         {/* World-class incubator IA: promise → proof → what you get → portfolio
             → mentors → who it's for → stories → news → location → how to join → support → apply */}
         <Hero />
+        <CredibilityBar />
         <NumbersBand />
         <SectionErrorBoundary>
           <Suspense fallback={null}>
             <Partners />
             <WhatYouGet />
+            <WhyIslandHaven />
             <VenturesShowcase />
             <ExpertsBand />
             <Audience />
@@ -63,7 +69,9 @@ export default function Home() {
             <ApplyProcess />
             <Campaign />
             <BecomeMentorBand />
+            <HomeFAQ />
             <NewsletterBand />
+            <FinalCTA />
           </Suspense>
         </SectionErrorBoundary>
       </div>

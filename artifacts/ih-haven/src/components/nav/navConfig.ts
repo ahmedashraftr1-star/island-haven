@@ -12,20 +12,22 @@ export interface NavItem {
   key: string;
 }
 
+// Trimmed to FIVE focused destinations (plan §8: 9 → 5-6) so the bar reads clean
+// and decisive; the rest move to NAV_SECONDARY (footer + mobile sheet).
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "الرئيسيّة", en: "Home", key: "home" },
   { href: "/programs", label: "مسارات الاحتضان", en: "Programs", key: "programs" },
-  { href: "/cohorts", label: "دفعات آيلاند", en: "Cohorts", key: "cohorts" },
   { href: "/ventures", label: "مشاريعنا", en: "Ventures", key: "ventures" },
-  { href: "/opportunities", label: "فرص حصريّة", en: "Opportunities", key: "opportunities" },
   { href: "/experts", label: "مرشدونا", en: "Mentors", key: "experts" },
-  { href: "/resources", label: "أدوات النجاح", en: "Resources", key: "resources" },
-  { href: "/team", label: "فريقنا", en: "Team", key: "team" },
   { href: "/about", label: "رؤيتنا", en: "Vision", key: "about" },
 ];
 
 // Secondary destinations — surfaced in the mobile sheet & footer, not the bar.
 export const NAV_SECONDARY: NavItem[] = [
+  { href: "/cohorts", label: "دفعات آيلاند", en: "Cohorts", key: "cohorts" },
+  { href: "/opportunities", label: "فرص حصريّة", en: "Opportunities", key: "opportunities" },
+  { href: "/resources", label: "أدوات النجاح", en: "Resources", key: "resources" },
+  { href: "/team", label: "فريقنا", en: "Team", key: "team" },
   { href: "/perks", label: "امتيازات الأعضاء", en: "Perks", key: "perks" },
   { href: "/learning", label: "التعلّم والتطوير", en: "Learning", key: "learning" },
   { href: "/messages", label: "الرسائل", en: "Messages", key: "messages" },

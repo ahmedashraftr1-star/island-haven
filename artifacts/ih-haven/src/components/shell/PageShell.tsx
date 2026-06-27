@@ -4,7 +4,6 @@ import { ArrowLeft, LogIn, UserCircle2, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth } from "@/lib/auth";
-import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { NavRail } from "@/components/nav/NavRail";
 import { NotificationBell } from "@/components/shell/NotificationBell";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -35,10 +34,10 @@ export function PageShell({
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
+      className="theme-light relative min-h-screen overflow-hidden bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
-      <AuthBackgroundAura />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[45vh] brand-aura opacity-50" />
 
       <header className="relative z-30 px-5 sm:px-8 lg:px-14 pt-6 sm:pt-8">
         <div className={`mx-auto ${maxWidth} flex items-center justify-between gap-4`}>
@@ -49,7 +48,7 @@ export function PageShell({
             <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
             <div className="leading-tight text-right">
               <div className="text-[13px] font-bold tracking-tight">Island Haven</div>
-              <div className="text-[10px] text-white/60 tracking-[0.16em] uppercase">
+              <div className="text-[10px] text-muted-foreground tracking-[0.16em] uppercase">
                 آيلاند هيفن
               </div>
             </div>
@@ -57,26 +56,26 @@ export function PageShell({
 
           <nav
             aria-label={navLabel}
-            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md"
+            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-surface-2 border border-border-strong shadow-soft"
           >
-            <NavRail tone="onDark" pillId="shell-rail" />
+            <NavRail tone="onLight" pillId="shell-rail" />
           </nav>
 
           <div className="flex items-center gap-2">
             <Link
               href="/search"
               aria-label={t({ ar: "بحث", en: "Search" })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-2 border border-border-strong hover:bg-surface-3 transition-colors"
               data-testid="link-search"
             >
-              <Search className="w-4 h-4 text-white/70" />
+              <Search className="w-4 h-4 text-muted-foreground" />
             </Link>
-            <LangToggle tone="onDark" />
+            <LangToggle tone="onLight" />
             {!loading && user ? <NotificationBell /> : null}
             {!loading && user ? (
               <Link
                 href="/profile"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold hover:bg-white/[0.1] transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border-strong text-[12.5px] font-semibold hover:bg-surface-3 transition-colors"
                 data-testid="link-profile"
               >
                 <UserCircle2 className="w-4 h-4 text-primary" />
@@ -85,7 +84,7 @@ export function PageShell({
             ) : !loading ? (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold hover:bg-white/[0.1] transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border-strong text-[12.5px] font-semibold hover:bg-surface-3 transition-colors"
                 data-testid="link-login"
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -99,9 +98,9 @@ export function PageShell({
             bar never changes shape between breakpoints or pages. */}
         <nav
           aria-label={navLabel}
-          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10 [&::-webkit-scrollbar]:hidden"
+          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-surface-2 border border-border-strong [&::-webkit-scrollbar]:hidden"
         >
-          <NavRail tone="onDark" pillId="shell-scroll" />
+          <NavRail tone="onLight" pillId="shell-scroll" />
         </nav>
       </header>
 
@@ -126,7 +125,7 @@ export function PageShell({
               )}
               {title && (
                 <h1
-                  className="font-display font-extrabold text-white leading-[1.02]"
+                  className="font-display font-extrabold text-foreground leading-[1.02]"
                   style={{
                     fontSize: "clamp(2.4rem, 6vw, 4rem)",
                     letterSpacing: "-0.035em",
@@ -160,7 +159,7 @@ export function BackLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="group inline-flex items-center gap-2 text-[12px] tracking-[0.16em] uppercase text-white/55 hover:text-white transition-colors font-semibold mb-6"
+      className="group inline-flex items-center gap-2 text-[12px] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold mb-6"
     >
       <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
       {label}
@@ -205,8 +204,8 @@ export function EmptyState({
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border border-primary/30 mb-5 ring-edge">
         <span className="block w-2 h-2 rounded-full bg-primary" aria-hidden />
       </div>
-      <div className="text-white/85 text-[16px] font-semibold mb-1">{title}</div>
-      {hint && <div className="text-white/60 text-[13.5px]">{hint}</div>}
+      <div className="text-foreground text-[16px] font-semibold mb-1">{title}</div>
+      {hint && <div className="text-muted-foreground text-[13.5px]">{hint}</div>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   );

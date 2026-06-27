@@ -223,7 +223,7 @@ export default function Experts() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-primary text-center">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -245,34 +245,34 @@ export default function Experts() {
             transition={{ duration: 0.45 }}
             className="flex flex-wrap items-center gap-3 mb-6"
           >
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-surface-2 border border-border-strong shadow-soft">
               <Briefcase className="w-3.5 h-3.5 text-primary" />
-              <span className="text-[13px] text-white/70">
-                <span className="text-white font-bold tabular-nums">
+              <span className="text-[13px] text-fg-secondary">
+                <span className="text-foreground font-bold tabular-nums">
                   {num(total, lang)}
                 </span>{" "}
                 {t({ ar: "خبيرًا", en: "experts" })}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-surface-2 border border-border-strong shadow-soft">
               <span className="relative flex h-2 w-2">
                 {!reduce && (
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/70 animate-ping" />
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500/70 animate-ping" />
                 )}
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="text-[13px] text-white/70">
-                <span className="text-emerald-300 font-bold tabular-nums">
+              <span className="text-[13px] text-fg-secondary">
+                <span className="text-emerald-700 font-bold tabular-nums">
                   {num(availableCount, lang)}
                 </span>{" "}
                 {t({ ar: "يستقبل جلسات الآن", en: "available now" })}
               </span>
             </div>
             {featuredCount > 0 && (
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-[13px] text-white/70">
-                  <span className="text-amber-300 font-bold tabular-nums">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-surface-2 border border-border-strong shadow-soft">
+                <Star className="w-3.5 h-3.5 fill-primary text-primary" />
+                <span className="text-[13px] text-fg-secondary">
+                  <span className="text-primary font-bold tabular-nums">
                     {num(featuredCount, lang)}
                   </span>{" "}
                   {t({ ar: "خبير مميّز", en: "featured" })}
@@ -289,12 +289,12 @@ export default function Experts() {
             className="mb-12 sm:mb-14 space-y-4"
           >
             <div className="relative max-w-md">
-              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45" />
+              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t({ ar: "ابحث عن خبير…", en: "Search experts…" })}
-                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-white placeholder:text-white/50 focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition-all"
+                className="w-full bg-surface-2 border border-border-strong shadow-soft rounded-2xl ps-10 pe-9 py-2.5 text-[13.5px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all"
                 dir={dir}
                 data-testid="expert-search"
               />
@@ -303,7 +303,7 @@ export default function Experts() {
                   type="button"
                   onClick={() => setQuery("")}
                   aria-label={t({ ar: "مسح البحث", en: "Clear search" })}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -318,7 +318,7 @@ export default function Experts() {
                   className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
                     !activeTag
                       ? "cta-fill border-transparent"
-                      : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
+                      : "bg-surface-2 text-fg-secondary border-border-strong hover:border-primary/40 hover:text-foreground"
                   }`}
                 >
                   {t({ ar: "الكلّ", en: "All" })}
@@ -331,7 +331,7 @@ export default function Experts() {
                     className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all ${
                       activeTag === tag
                         ? "cta-fill border-transparent"
-                        : "bg-white/[0.04] text-white/55 border-white/10 hover:border-white/25 hover:text-white/80"
+                        : "bg-surface-2 text-fg-secondary border-border-strong hover:border-primary/40 hover:text-foreground"
                     }`}
                   >
                     {tag}
@@ -385,7 +385,7 @@ export default function Experts() {
               <div className="flex flex-col gap-6 text-start lg:flex-row lg:items-center lg:justify-between lg:gap-12">
                 <div className="max-w-2xl">
                   <h3
-                    className="text-white font-bold"
+                    className="text-foreground font-bold"
                     style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", lineHeight: 1.1, letterSpacing: "-0.025em" }}
                   >
                     {t({
@@ -437,7 +437,7 @@ function TeamSection({
           className="absolute -top-7 sm:-top-9 right-0 select-none font-black leading-none"
           style={{
             fontSize: "clamp(4.5rem, 13vw, 9rem)",
-            WebkitTextStroke: "1.25px rgba(255,255,255,0.065)",
+            WebkitTextStroke: "1.25px hsl(var(--primary) / 0.12)",
             color: "transparent",
           }}
         >
@@ -446,17 +446,17 @@ function TeamSection({
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
             <h2
-              className="text-white font-bold"
+              className="text-foreground font-bold"
               style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
             >
               {t(team.title)}
             </h2>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/10 border border-primary/25">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-primary bg-primary/12 border border-primary/30">
               <Users className="w-3 h-3" />
               {num(experts.length, lang)}
             </span>
           </div>
-          <p className="text-white/50 text-[13.5px] leading-[1.8] max-w-xl">
+          <p className="text-fg-secondary text-[13.5px] leading-[1.8] max-w-xl">
             {t(team.blurb)}
           </p>
         </div>
@@ -515,7 +515,7 @@ function ExpertCardView({
         <GlassCard
           className={`h-full flex flex-col ${
             isLead ? "p-7" : "p-6"
-          } transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-white/[0.06]`}
+          } transition-[border-color,box-shadow] duration-300 group-hover:border-primary/40 group-hover:shadow-[0_24px_56px_-22px_hsl(354_82%_30%_/_0.30)]`}
         >
           {/* Warm radial glow that blooms on hover */}
           <div
@@ -523,13 +523,13 @@ function ExpertCardView({
             className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
               background:
-                "radial-gradient(130% 90% at 85% 0%, hsl(354 80% 55% / 0.12), transparent 60%)",
+                "radial-gradient(130% 90% at 85% 0%, hsl(354 80% 55% / 0.07), transparent 60%)",
             }}
           />
 
           {e.featured && (
-            <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/10 text-amber-200 border border-amber-400/30">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+            <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-primary/12 text-primary border border-primary/30">
+              <Star className="w-3 h-3 fill-primary text-primary" />{" "}
               {t({ ar: "خبير مميّز", en: "Featured" })}
             </div>
           )}
@@ -541,38 +541,39 @@ function ExpertCardView({
                 alt={e.fullName}
                 className={`${
                   isLead ? "w-20 h-20" : "w-16 h-16"
-                } rounded-2xl object-cover border border-white/10`}
+                } rounded-2xl object-cover border border-border`}
                 loading="lazy"
               />
             ) : (
               <div
                 className={`${
                   isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"
-                } shrink-0 rounded-2xl bg-gradient-to-br from-primary/35 to-primary/[0.06] border border-white/10 flex items-center justify-center font-bold text-white/90 transition-transform duration-300 group-hover:scale-[1.06]`}
+                } shrink-0 rounded-2xl ring-1 ring-white/15 shadow-soft flex items-center justify-center font-display font-black text-white select-none transition-transform duration-300 group-hover:scale-[1.06]`}
+                style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
               >
                 {initials}
               </div>
             )}
             <div className="min-w-0 flex-1">
               <h3
-                className={`text-white font-bold leading-snug truncate ${
+                className={`text-foreground font-bold leading-snug truncate ${
                   isLead ? "text-[18px]" : "text-[16px]"
                 }`}
               >
                 {e.fullName}
               </h3>
               {e.headline && (
-                <p className="text-primary/90 text-[12.5px] font-medium leading-snug line-clamp-2 mt-0.5">
+                <p className="text-primary text-[12.5px] font-medium leading-snug line-clamp-2 mt-0.5">
                   {e.headline}
                 </p>
               )}
               {e.ratingCount > 0 && (
                 <div className="flex items-center gap-1 mt-1.5">
-                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                  <span className="text-[11.5px] text-white/85 font-bold tabular-nums">
+                  <Star className="w-3 h-3 fill-sand text-sand" />
+                  <span className="text-[11.5px] text-foreground font-bold tabular-nums">
                     {e.ratingAvg?.toFixed(1)}
                   </span>
-                  <span className="text-[10.5px] text-white/60">
+                  <span className="text-[10.5px] text-muted-foreground">
                     ({num(e.ratingCount, lang)})
                   </span>
                 </div>
@@ -581,12 +582,12 @@ function ExpertCardView({
             {e.yearsExperience > 0 && (
               <div className="shrink-0 text-center self-start">
                 <div
-                  className={`font-black text-white/80 ${isLead ? "text-[22px]" : "text-[18px]"}`}
+                  className={`font-black text-sand ${isLead ? "text-[22px]" : "text-[18px]"}`}
                   style={{ letterSpacing: "-0.04em" }}
                 >
                   {num(e.yearsExperience, lang)}+
                 </div>
-                <div className="text-[9px] tracking-widest text-white/60 font-bold -mt-0.5">
+                <div className="text-[9px] tracking-widest text-muted-foreground font-bold -mt-0.5">
                   {t({ ar: "سنة خبرة", en: "yrs exp" })}
                 </div>
               </div>
@@ -594,7 +595,7 @@ function ExpertCardView({
           </div>
 
           {isLead && e.bio && (
-            <p className="relative text-white/55 text-[13px] leading-[1.75] line-clamp-2 mb-4">
+            <p className="relative text-fg-secondary text-[13px] leading-[1.75] line-clamp-2 mb-4">
               {e.bio}
             </p>
           )}
@@ -604,7 +605,7 @@ function ExpertCardView({
               {areas.map((a) => (
                 <span
                   key={a}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.05] text-white/70 border border-white/10"
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-3 text-fg-secondary border border-border"
                 >
                   {a}
                 </span>
@@ -612,24 +613,24 @@ function ExpertCardView({
             </div>
           )}
 
-          <div className="relative mt-auto flex items-center justify-between pt-3.5 border-t border-white/[0.06]">
+          <div className="relative mt-auto flex items-center justify-between pt-3.5 border-t border-border">
             {e.acceptingSessions ? (
-              <span className="inline-flex items-center gap-2 text-[11.5px] text-emerald-200/85 font-medium">
+              <span className="inline-flex items-center gap-2 text-[11.5px] text-emerald-700 font-medium">
                 <span className="relative flex h-2 w-2">
                   {!reduce && (
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/60 animate-ping" />
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500/60 animate-ping" />
                   )}
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
                 {t({ ar: "متاح للحجز", en: "Available" })}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11.5px] text-white/60">
+              <span className="inline-flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
                 <Clock className="w-3.5 h-3.5" />{" "}
                 {t({ ar: "غير متاح حاليًا", en: "Unavailable" })}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-[12.5px] text-white/65 group-hover:text-primary transition-colors font-semibold">
+            <span className="inline-flex items-center gap-1 text-[12.5px] text-fg-secondary group-hover:text-primary transition-colors font-semibold">
               {t({ ar: "الملف الكامل", en: "Full profile" })}
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </span>
@@ -647,18 +648,18 @@ function SkeletonExperts() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="h-8 w-32 rounded-full bg-white/[0.04] border border-white/10 animate-pulse"
+            className="h-8 w-32 rounded-full bg-surface-3 border border-border animate-pulse"
           />
         ))}
       </div>
       {[0, 1].map((s) => (
         <div key={s}>
-          <div className="h-7 w-48 rounded-lg bg-white/[0.05] animate-pulse mb-6" />
+          <div className="h-7 w-48 rounded-lg bg-surface-3 animate-pulse mb-6" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="rounded-[24px] h-56 bg-white/[0.035] border border-white/10 animate-pulse"
+                className="rounded-[24px] h-56 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
               />
             ))}
           </div>

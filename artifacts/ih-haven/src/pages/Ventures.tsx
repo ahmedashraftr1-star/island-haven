@@ -99,7 +99,7 @@ export default function Ventures() {
       })}
     >
       {error && (
-        <GlassCard className="p-5 text-red-200 text-center">{error}</GlassCard>
+        <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
       )}
 
       {rows === null && !error ? (
@@ -183,7 +183,7 @@ export default function Ventures() {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-white/70 bg-white/[0.04] border border-white/10">
+    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong">
       {children}
     </span>
   );
@@ -197,7 +197,7 @@ function SectionHeader({ index, title, blurb }: { index: string; title: string; 
         className="absolute -top-7 sm:-top-9 right-0 select-none font-black leading-none"
         style={{
           fontSize: "clamp(4.5rem, 13vw, 9rem)",
-          WebkitTextStroke: "1.25px rgba(255,255,255,0.065)",
+          WebkitTextStroke: "1.25px hsl(var(--primary) / 0.14)",
           color: "transparent",
         }}
       >
@@ -205,12 +205,12 @@ function SectionHeader({ index, title, blurb }: { index: string; title: string; 
       </span>
       <div className="relative">
         <h2
-          className="text-white font-bold mb-2"
+          className="text-foreground font-display font-extrabold mb-2"
           style={{ fontSize: "clamp(1.3rem, 3vw, 1.85rem)", letterSpacing: "-0.025em" }}
         >
           {title}
         </h2>
-        <p className="text-white/50 text-[13.5px] leading-[1.8] max-w-xl">{blurb}</p>
+        <p className="text-fg-secondary text-[13.5px] leading-[1.8] max-w-xl">{blurb}</p>
       </div>
     </div>
   );
@@ -240,7 +240,10 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent" />
+              <div
+                className="w-full h-full"
+                style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+              />
             )}
             <div
               aria-hidden
@@ -250,8 +253,8 @@ function SpotlightCard({ v, reduce }: { v: Venture; reduce: boolean }) {
                   "linear-gradient(to top, #0A0E1A 6%, rgba(10,14,26,0.55) 42%, transparent 78%)",
               }}
             />
-            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-amber-400/15 text-amber-100 border border-amber-300/30 backdrop-blur-sm">
-              <Star className="w-3 h-3 fill-amber-300 text-amber-300" />{" "}
+            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold bg-white/15 text-white border border-white/25 backdrop-blur-sm">
+              <Star className="w-3 h-3 fill-white text-white" />{" "}
               {t({ ar: "مشروع مميّز", en: "Featured" })}
             </div>
 
@@ -317,7 +320,7 @@ function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
       >
         <GlassCard className="group h-full flex flex-col overflow-hidden group-hover:border-primary/40 transition-colors">
           {v.coverUrl ? (
-            <div className="aspect-[16/9] overflow-hidden bg-black/30">
+            <div className="aspect-[16/9] overflow-hidden bg-surface-3">
               <img
                 src={v.coverUrl}
                 alt={v.name}
@@ -326,38 +329,44 @@ function VentureCard({ v, reduce }: { v: Venture; reduce: boolean }) {
               />
             </div>
           ) : (
-            <div className="aspect-[16/9] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />
+            <div
+              className="aspect-[16/9]"
+              style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+            />
           )}
           <div className="p-5 flex-1 flex flex-col">
             <div className="flex items-center gap-3 mb-2.5">
               {v.logoUrl ? (
-                <img src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover border border-white/10" />
+                <img src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover border border-border" />
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/70 font-bold">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-black ring-1 ring-white/15 shadow-soft"
+                  style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+                >
                   {v.name.charAt(0)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <h3 className="text-white font-bold text-[16px] truncate">{v.name}</h3>
-                <span className="text-[11px] text-primary/90 font-medium">
+                <h3 className="text-foreground font-display font-bold text-[16px] truncate group-hover:text-primary transition-colors">{v.name}</h3>
+                <span className="text-[11px] text-sand font-semibold">
                   {stageLabel(v.stage, lang)}
                   {v.sector ? ` · ${v.sector}` : ""}
                 </span>
               </div>
             </div>
             {v.tagline && (
-              <p className="text-white/65 text-[13px] leading-[1.7] mb-2">{v.tagline}</p>
+              <p className="text-foreground/90 text-[13px] leading-[1.7] mb-2">{v.tagline}</p>
             )}
             {v.description && (
-              <p className="text-white/45 text-[12.5px] leading-[1.7] line-clamp-3 mb-4">{v.description}</p>
+              <p className="text-fg-secondary text-[12.5px] leading-[1.7] line-clamp-3 mb-4">{v.description}</p>
             )}
-            <div className="mt-auto flex items-center justify-between text-[12px] text-white/55 pt-3 border-t border-white/[0.06]">
+            <div className="mt-auto flex items-center justify-between text-[12px] text-muted-foreground pt-3 border-t border-border">
               <span className="inline-flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-primary/80" />
+                <Users className="w-3.5 h-3.5 text-primary" />
                 {num(v.teamSize, lang)} {t({ ar: "في الفريق", en: "on the team" })}
                 {v.foundedYear ? ` · ${num(v.foundedYear, lang)}` : ""}
               </span>
-              <span className="inline-flex items-center gap-1 text-white/65 group-hover:text-primary transition-colors font-semibold">
+              <span className="inline-flex items-center gap-1 text-fg-secondary group-hover:text-primary transition-colors font-semibold">
                 {t({ ar: "التفاصيل", en: "Details" })}
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
               </span>
@@ -374,18 +383,18 @@ function SkeletonVentures() {
     <div className="space-y-12">
       <div className="flex gap-2.5">
         {[0, 1].map((i) => (
-          <div key={i} className="h-8 w-36 rounded-full bg-white/[0.04] border border-white/10 animate-pulse" />
+          <div key={i} className="h-8 w-36 rounded-full bg-surface-2 border border-border-strong animate-pulse" />
         ))}
       </div>
-      <div className="h-7 w-40 rounded-lg bg-white/[0.05] animate-pulse" />
+      <div className="h-7 w-40 rounded-lg bg-surface-2 animate-pulse" />
       <div className="grid lg:grid-cols-2 gap-5">
         {[0, 1].map((i) => (
-          <div key={i} className="rounded-[24px] h-72 bg-white/[0.035] border border-white/10 animate-pulse" />
+          <div key={i} className="rounded-[24px] h-72 bg-surface-2 border border-border-strong shadow-soft animate-pulse" />
         ))}
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-[24px] h-72 bg-white/[0.035] border border-white/10 animate-pulse" />
+          <div key={i} className="rounded-[24px] h-72 bg-surface-2 border border-border-strong shadow-soft animate-pulse" />
         ))}
       </div>
     </div>
