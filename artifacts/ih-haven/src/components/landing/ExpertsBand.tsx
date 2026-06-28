@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 interface ExpertCard {
   id: number;
@@ -20,268 +21,323 @@ interface ExpertCard {
 }
 
 /**
- * ExpertsBand — the mentor roster, told the editorial way: an asymmetric header
- * aligned to the logical start, a live availability index in warm sand, and a
- * roster of people-cards (a real card warranted by faces) on ONE quiet card spec.
- * No gradient heading, no glass badges, no icon-tile CTA — type + portrait carry it.
+ * ExpertsBand — the mentor roster, told the Apple way: SCALE + SPACE + RESTRAINT.
+ *
+ * Grandeur pass: gone are the crimson medallion card-deck, the featured-star
+ * chips, the icon-tile CTA and the aura blob — all AI tells. In their place a
+ * single monumental headline on a dark canvas (one crimson word), and the
+ * mentors as calm editorial hairline rows: a large name, a dignified portrait
+ * where one exists, the discipline as prose. Type and acres of space carry it.
+ * The never-empty evergreen fallback, the /experts link and the testids stay.
  */
 export function ExpertsBand() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
+  const reduce = useReducedMotion();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     api<{ experts: ExpertCard[] }>("/experts")
-      .then((r) => { if (!cancelled) setRows(r.experts.slice(0, 6)); })
+      .then((r) => { if (!cancelled) setRows(r.experts.slice(0, 5)); })
       .catch(() => { if (!cancelled) setRows([]); });
     return () => { cancelled = true; };
   }, []);
 
   // EVERGREEN fallback — this proof section is CORE to the homepage and must
   // never vanish on a thin/unseeded DB. When no experts exist yet, hold the
-  // light editorial register and tell the true story: the mentor roster is
-  // forming — and invite the reader to be one of the first.
+  // monumental register and tell the true story: the roster is forming — and
+  // invite the reader to be one of the first. No eyebrow rule, no aura.
   if (rows !== null && rows.length === 0) {
     return (
-      <section id="experts" className="relative bg-surface-1 section-y overflow-hidden">
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
+      <section
+        id="experts"
+        className="relative bg-surface-1 overflow-hidden"
+        style={{ paddingBlock: "clamp(6rem, 15vh, 11rem)" }}
+        data-testid="experts-band"
+      >
         <div className="container-ih relative">
-          <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
-            <Reveal as="div" className="lg:col-span-7 lg:order-1">
-              <div className="flex items-center gap-3 mb-5">
-                <span aria-hidden className="h-px w-9 bg-primary/50" />
-                <span className="eyebrow">{lang === "en" ? "Mentors & Experts" : "الإرشاد والخبرة"}</span>
-              </div>
-
-              <h2
-                className="font-editorial text-foreground"
-                style={{ fontSize: "clamp(2rem, 4.4vw, 3.4rem)", lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 600 }}
+          <motion.h2
+            className="font-display text-foreground max-w-[15ch]"
+            style={{ fontSize: "clamp(2.4rem, 7.4vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+          >
+            {[
+              t({ ar: "المرشدون", en: "The mentors" }),
+              t({ ar: "يتجمّعون.", en: "are gathering." }),
+              <span key="accent" className="text-primary">{t({ ar: "كن منهم.", en: "Be one." })}</span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
               >
-                {lang === "en" ? "Mentors are joining — " : "مرشدونا ينضمّون — "}
-                <span className="italic text-primary">
-                  {lang === "en" ? "become one." : "كن منهم."}
-                </span>
-              </h2>
+                {ln}
+              </motion.span>
+            ))}
+          </motion.h2>
 
-              <p className="t-body-lg mt-6 max-w-xl">
-                {lang === "en"
-                  ? "Our mentor roster is forming right now. Expert founders, builders and specialists worldwide give a young Gazan generation 1:1 guidance — one session can open a door the war had closed."
-                  : "روستر المرشدين يتشكّل الآن. خبراء ومؤسّسون ومتخصّصون من حول العالم يقدّمون لجيلٍ غزّيّ شابّ إرشادًا فرديًّا — جلسة واحدة قد تفتح بابًا أغلقته الحرب."}
-              </p>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.4, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
+            {t({
+              ar: "مؤسّسون وبُناةٌ ومتخصّصون من حول العالم يجلسون مع جيلٍ غزّيّ شابّ، واحدًا لواحد. جلسة واحدة قد تفتح بابًا أغلقته الحرب.",
+              en: "Founders, builders and specialists worldwide sit with a young Gazan generation, one to one. A single session can open a door the war had closed.",
+            })}
+          </motion.p>
 
-              <Reveal as="div" delay={0.08} className="mt-9 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/become-mentor?ref=home-experts-empty"
-                  data-testid="experts-empty-become-mentor"
-                  className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  {lang === "en" ? "Become a mentor" : "سجّل كمرشد"}
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                </Link>
-                <Link
-                  href="/experts"
-                  className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
-                >
-                  {lang === "en" ? "How mentorship works" : "كيف يعمل الإرشاد"}
-                  <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                </Link>
-              </Reveal>
-            </Reveal>
-
-            {/* The place and its people — large photo with dark legibility gradient */}
-            <Reveal as="div" delay={0.1} className="lg:col-span-5 lg:order-2">
-              <div className="relative overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
-                <img
-                  src="/photos/IMG_8352.webp"
-                  alt={lang === "en" ? "Mentors and members at Island Haven in Gaza" : "مرشدون ومنتسبون في آيلاند هيفن بغزّة"}
-                  loading="lazy"
-                  className="w-full h-[clamp(340px,46vw,500px)] object-cover object-center saturate-[1.04]"
-                />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 lg:p-7">
-                  <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
-                    {lang === "en" ? "Inside the space" : "من داخل المساحة"}
-                  </div>
-                  <div className="font-display font-bold text-white text-[clamp(1.05rem,1.9vw,1.5rem)]">
-                    {lang === "en" ? "Talent waiting for a hand to guide it" : "موهبة تنتظر من يأخذ بيدها"}
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.8, delay: 0.52, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
+          >
+            <Link
+              href="/become-mentor?ref=home-experts-empty"
+              data-testid="experts-empty-become-mentor"
+              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/experts"
+              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
+            >
+              {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
         </div>
+
+        {/* The place and its people — one full-bleed photograph, a calm line overlaid. */}
+        <motion.div
+          className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+          initial={reduce ? false : { opacity: 0 }}
+          whileInView={reduce ? undefined : { opacity: 1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+        >
+          <div className="relative h-[clamp(20rem,52vh,34rem)]">
+            <img
+              src="/photos/IMG_8352.webp"
+              alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.04]"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(90deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 45%, transparent 80%)" }}
+            />
+            <div className="absolute inset-0 flex items-end">
+              <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">
+                <motion.p
+                  className="max-w-[20ch] text-white"
+                  style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
+                  initial={reduce ? false : { opacity: 0, y: 20 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+                >
+                  {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
+                </motion.p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
     );
   }
 
-  const experts = rows ?? Array.from({ length: 6 }).map(() => null);
+  const experts = rows ?? Array.from({ length: 5 }).map(() => null);
   const available = rows?.filter((e) => e.acceptingSessions).length ?? 0;
+  const availableLabel = lang === "en" ? available.toString() : available.toLocaleString("ar-EG");
 
   return (
-    <section id="experts" className="relative bg-surface-1 section-y">
-      <div className="container-ih">
-        {/* Editorial header — start-aligned, oversized solid display */}
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-6 items-end mb-[clamp(2.5rem,5vw,4rem)]">
-          <Reveal as="div" className="lg:col-span-8">
-            <div className="eyebrow mb-5">
-              {lang === "en" ? "Mentors & Experts" : "الإرشاد والخبرة"}
-            </div>
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
-            >
-              {lang === "en"
-                ? "Experts who guide you toward impact."
-                : "خبراء يأخذون بيدك نحو الأثر."}
-            </h2>
-            <p className="t-body mt-5 max-w-xl">
-              {lang === "en"
-                ? "Book a free one-on-one mentoring session and turn your idea into a scalable project."
-                : "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ."}
-            </p>
-            {rows && available > 0 && (
-              <div className="inline-flex items-center gap-2 mt-6 px-3 h-7 rounded-full chip-sand">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
-                </span>
-                <span className="text-[12px] font-semibold tabular-nums">
-                  {available} {lang === "en" ? "available now" : "خبير متاح الآن"}
-                </span>
-              </div>
-            )}
-          </Reveal>
+    <section
+      id="experts"
+      className="relative bg-surface-1 overflow-hidden"
+      style={{ paddingBlock: "clamp(6rem, 15vh, 11rem)" }}
+      data-testid="experts-band"
+    >
+      <div className="container-ih relative">
+        {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
+        <header className="max-w-4xl">
+          <motion.h2
+            className="font-display text-foreground"
+            style={{ fontSize: "clamp(2.4rem, 7.4vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+          >
+            {[
+              t({ ar: "خبراءٌ يأخذون", en: "Experts who take" }),
+              t({ ar: "بيدك نحو ", en: "your hand " }),
+              <span key="accent">
+                {t({ ar: "", en: "toward " })}
+                <span className="text-primary">{t({ ar: "الأثر.", en: "impact." })}</span>
+              </span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
+          </motion.h2>
 
-          <div className="lg:col-span-4 lg:justify-self-end">
-            <Link
-              href="/experts"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border-strong bg-surface-2 text-fg-secondary text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors"
-            >
-              {lang === "en" ? "All experts" : "كل الخبراء"}
-              <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0" />
-            </Link>
-          </div>
-        </div>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
+            {t({
+              ar: "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ.",
+              en: "Book a free one-to-one session, and turn your idea into a venture that can scale.",
+            })}
+          </motion.p>
 
-        {/* Roster — people-cards, one quiet card spec, portrait-forward */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr">
+          {rows && available > 0 && (
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.7, delay: 0.54, ease: EASE_OUT_EXPO }}
+              className="mt-[clamp(1.75rem,3vw,2.5rem)] inline-flex items-center gap-2.5 text-sand"
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
+              </span>
+              <span className="font-display font-semibold tnum" style={{ fontSize: "clamp(1rem,1.4vw,1.15rem)" }}>
+                {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
+              </span>
+            </motion.div>
+          )}
+        </header>
+
+        {/* ── The roster — calm editorial hairline rows. A dignified portrait (real
+             face, no medallion), a large name, the discipline as prose. Not a deck. ── */}
+        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
           {experts.map((e, i) => {
             if (!e) {
-              return <div key={i} className="card-base h-80 animate-pulse" />;
-            }
-            const tags = splitTags(e.expertise).slice(0, 3);
-            const initials = e.fullName.trim().split(" ").slice(0, 2).map((w) => w[0]).join("");
-            return (
-              <Reveal key={e.id} delay={Math.min(i, 5) * 0.06} className="h-full">
-                <Link
-                  href={`/experts/${e.id}`}
-                  className="card-base card-hover group block h-full overflow-hidden"
-                  data-testid={`home-expert-${e.id}`}
-                >
-                  {/* Portrait — real photo, or a crafted crimson medallion (never a faint glyph) */}
-                  <div
-                    className="relative h-48 flex items-center justify-center overflow-hidden"
-                    style={
-                      e.avatarUrl
-                        ? { background: "hsl(var(--surface-3))" }
-                        : { background: "radial-gradient(130% 120% at 50% 0%, hsl(var(--primary) / 0.20) 0%, hsl(var(--surface-3)) 68%)" }
-                    }
-                  >
-                    {e.avatarUrl ? (
-                      <img
-                        src={e.avatarUrl}
-                        alt={e.fullName}
-                        className="w-full h-full object-cover saturate-[1.03] transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div
-                        className="flex h-[88px] w-[88px] items-center justify-center rounded-full text-white font-display font-black text-[28px] ring-2 ring-white/15 shadow-soft select-none transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-                        style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
-                      >
-                        {initials}
-                      </div>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
-                    {e.featured && (
-                      <div className="absolute top-3 start-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full chip-sand">
-                        <Star className="w-3 h-3 fill-sand text-sand" />
-                        <span className="text-[10px] font-bold tracking-wide">
-                          {lang === "en" ? "FEATURED" : "مميّز"}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-3 start-3 inline-flex items-center gap-1.5">
-                      {e.acceptingSessions ? (
-                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white">
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
-                          </span>
-                          {lang === "en" ? "Open" : "متاح"}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-medium text-white/70">
-                          {lang === "en" ? "Busy" : "مشغول"}
-                        </span>
-                      )}
-                    </div>
-                    {e.yearsExperience > 0 && (
-                      <div className="absolute bottom-3 end-3 text-[11px] font-bold text-white/90 tabular-nums">
-                        {e.yearsExperience}+ {lang === "en" ? "yrs" : "سنة"}
-                      </div>
-                    )}
+              return (
+                <li key={i} className="border-b border-border-strong/60 py-[clamp(1.5rem,3vw,2.5rem)]">
+                  <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 rounded-full bg-surface-3 animate-pulse shrink-0" />
+                    <div className="h-7 w-48 max-w-[60%] rounded bg-surface-3 animate-pulse" />
                   </div>
+                </li>
+              );
+            }
+            const tags = splitTags(e.expertise).slice(0, 2);
+            return (
+              <li key={e.id}>
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, y: 20 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ duration: 0.7, delay: Math.min(i, 5) * 0.06, ease: EASE_OUT_EXPO }}
+                  className="will-change-transform"
+                >
+                  <Link
+                    href={`/experts/${e.id}`}
+                    data-testid={`home-expert-${e.id}`}
+                    className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+                  >
+                    {/* Portrait — a real dignified face where one exists; otherwise the
+                        name simply stands alone. No initial-medallion fallback. */}
+                    {e.avatarUrl ? (
+                      <div className="relative h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 overflow-hidden rounded-full ring-1 ring-white/10">
+                        <img
+                          src={e.avatarUrl}
+                          alt={e.fullName}
+                          loading="lazy"
+                          className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                        />
+                      </div>
+                    ) : (
+                      <span aria-hidden className="h-[clamp(3.5rem,7vw,5rem)] w-px shrink-0 bg-border-strong/0" />
+                    )}
 
-                  {/* Info */}
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-2 mb-0.5">
-                      <h3 className="font-display font-bold text-foreground text-[16px] leading-snug truncate group-hover:text-primary transition-colors">
+                    <div className="min-w-0">
+                      <h3
+                        className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+                        style={{ fontSize: "clamp(1.4rem,3.2vw,2.4rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+                      >
                         {e.fullName}
                       </h3>
-                      {e.ratingCount > 0 && e.ratingAvg != null && (
-                        <span className="inline-flex items-center gap-1 shrink-0 text-[12px] font-semibold text-sand tabular-nums mt-0.5">
-                          <Star className="w-3.5 h-3.5 fill-sand text-sand" />
-                          {e.ratingAvg.toFixed(1)}
-                        </span>
+                      {(e.headline || tags.length > 0) && (
+                        <p className="t-body text-[15px] md:text-[16px] mt-1.5 line-clamp-1">
+                          {e.headline || tags.join(lang === "en" ? " · " : " • ")}
+                        </p>
                       )}
                     </div>
-                    {e.headline && (
-                      <p className="t-caption mb-3 line-clamp-1">{e.headline}</p>
-                    )}
-                    {tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-surface-3 text-fg-secondary border border-border"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary group-hover:gap-2.5 transition-all">
-                      {lang === "en" ? "View profile" : "الملف الكامل"}
-                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 rtl:rotate-0" />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
+
+                    {/* Quiet status + experience, start-aligned to the logical end. */}
+                    <div className="hidden md:flex items-center gap-x-6 whitespace-nowrap justify-self-end">
+                      {e.yearsExperience > 0 && (
+                        <span className="t-caption text-fg-secondary tnum">
+                          {lang === "en"
+                            ? `${e.yearsExperience}+ yrs`
+                            : `${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-2 t-caption">
+                        {e.acceptingSessions ? (
+                          <>
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
+                            </span>
+                            <span className="text-sand font-semibold">{t({ ar: "متاح", en: "Open" })}</span>
+                          </>
+                        ) : (
+                          <span className="text-fg-secondary">{t({ ar: "مشغول", en: "Busy" })}</span>
+                        )}
+                        <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
-        {/* Terminal CTA — quiet text link, no icon tile */}
-        <Reveal delay={0.15} className="mt-8 sm:hidden">
+        {/* Terminal CTA — a calm confident line, no icon tile. */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.8, delay: 0.1, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3"
+        >
+          <p className="text-fg-secondary" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
+            {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
+          </p>
           <Link
             href="/experts"
-            className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", fontWeight: 600 }}
           >
-            {lang === "en" ? "Browse all experts" : "تصفّح كل الخبراء"}
-            <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
           </Link>
-        </Reveal>
+        </motion.div>
       </div>
     </section>
   );

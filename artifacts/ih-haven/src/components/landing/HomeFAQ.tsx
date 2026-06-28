@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Plus, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type QA = {
   id: string;
@@ -11,22 +12,18 @@ type QA = {
 };
 
 /**
- * HomeFAQ — the homepage's six honest answers, told in the YC light-editorial
- * register: a Fraunces serif header with a single italic crimson accent word,
- * then start-aligned, hairline-divided accordion rows on the warm-white canvas.
- * Each row is a real <button> (aria-expanded / aria-controls) and the panel
- * opens with a grid-template-rows 0fr→1fr transition (not height) so it animates
- * smoothly with zero layout jank; the marker rotates 45° into an ×. No cards, no
- * glass, no gradient text — just type, hairlines and crimson. RTL-safe.
+ * HomeFAQ — the homepage's honest answers, told the Apple way: SCALE + SPACE +
+ * RESTRAINT. One monumental headline on the dark canvas (a single crimson word),
+ * then the questions as calm, hairline-divided editorial rows — no eyebrow rule,
+ * no 01/02/03 ledger, no circular medallion marker, no cards or glass. Each row is
+ * a real <button> (aria-expanded / aria-controls) and the panel opens with a
+ * grid-template-rows 0fr→1fr transition (not height) so it animates smoothly with
+ * zero layout jank; a single thin marker line rotates into a × on open. RTL-safe.
  */
 export function HomeFAQ() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
   const [open, setOpen] = useState<string | null>("free");
-
-  const idx = (i: number) =>
-    lang === "en"
-      ? String(i + 1).padStart(2, "0")
-      : ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦"][i];
 
   const faqs: QA[] = [
     {
@@ -86,147 +83,183 @@ export function HomeFAQ() {
   ];
 
   return (
-    <section id="home-faq" className="relative bg-background section-y">
-      <div className="container-ih">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
-          {/* Header — editorial serif, italic crimson accent */}
-          <Reveal as="div" className="lg:col-span-4 lg:sticky lg:top-28">
-            <div className="flex items-center gap-3 mb-5">
-              <span className="h-px w-9 bg-primary/50" />
-              <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
-                {t({ ar: "أسئلة شائعة", en: "Frequently asked" })}
-              </span>
-            </div>
-            <h2
-              className="font-editorial text-foreground"
-              style={{
-                fontSize: "clamp(1.9rem, 4.2vw, 3.2rem)",
-                lineHeight: 1.06,
-                letterSpacing: "-0.02em",
-                fontWeight: 600,
-              }}
+    <section
+      id="home-faq"
+      className="relative bg-background overflow-hidden"
+      style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}
+      data-testid="home-faq"
+    >
+      <div className="container-ih relative">
+        {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+        <header className="max-w-[20ch]">
+          <motion.h2
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              fontWeight: 700,
+            }}
+          >
+            {[
+              t({ ar: "كلّ ما تريد", en: "Everything" }),
+              <span key="accent" className="text-primary">
+                {t({ ar: "أن تعرفه.", en: "you'd want to know." })}
+              </span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.85, delay: i * 0.1, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
+          </motion.h2>
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.36, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
+            {t({
+              ar: "إجاباتٌ صريحة عن آيلاند هيفن. لم تجد سؤالك؟ راسلنا مباشرةً على واتساب.",
+              en: "Honest answers about Island Haven. Don't see your question? Message us directly on WhatsApp.",
+            })}
+          </motion.p>
+        </header>
+
+        {/* ── The questions — calm, hairline-divided editorial rows. No numbered
+             ledger, no medallion marker, no cards. Type and air carry it. ── */}
+        <div className="mt-[clamp(4rem,9vh,7.5rem)]">
+          {faqs.map((f, i) => {
+            const isOpen = open === f.id;
+            const panelId = `faq-panel-${f.id}`;
+            const btnId = `faq-btn-${f.id}`;
+            return (
+              <motion.div
+                key={f.id}
+                data-testid={`faq-item-${f.id}`}
+                className="border-t border-border-strong/60 first:border-t-0 will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 22 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8, delay: Math.min(i, 5) * 0.05, ease: EASE_OUT_EXPO }}
+              >
+                <h3>
+                  <button
+                    id={btnId}
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : f.id)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    data-testid={`faq-trigger-${f.id}`}
+                    className="group grid grid-cols-[1fr_auto] items-baseline gap-x-[clamp(1.5rem,4vw,3rem)] w-full text-start py-[clamp(1.75rem,4vh,2.75rem)]"
+                  >
+                    <span
+                      className={`font-display transition-colors duration-300 ${
+                        isOpen
+                          ? "text-primary"
+                          : "text-foreground group-hover:text-primary"
+                      }`}
+                      style={{
+                        fontSize: "clamp(1.4rem, 3vw, 2.25rem)",
+                        letterSpacing: "-0.025em",
+                        lineHeight: 1.12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {t(f.q)}
+                    </span>
+                    {/* Thin + → × marker — two hairlines, no circular medallion. */}
+                    <span
+                      aria-hidden
+                      className="relative mt-2 inline-flex h-5 w-5 shrink-0 self-start translate-y-1"
+                    >
+                      <span
+                        className={`absolute top-1/2 left-0 h-px w-full -translate-y-1/2 transition-colors duration-300 ${
+                          isOpen ? "bg-primary" : "bg-fg-faint group-hover:bg-primary"
+                        }`}
+                      />
+                      <span
+                        className={`absolute top-1/2 left-0 h-px w-full -translate-y-1/2 transition-[transform,background-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                          isOpen
+                            ? "rotate-0 bg-primary"
+                            : "rotate-90 bg-fg-faint group-hover:bg-primary"
+                        }`}
+                      />
+                    </span>
+                  </button>
+                </h3>
+
+                {/* Animated panel: grid 0fr→1fr (no height), GPU-friendly. */}
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={btnId}
+                  className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+                >
+                  <div className="overflow-hidden">
+                    <p
+                      className={`max-w-2xl text-fg-secondary pb-[clamp(1.75rem,4vh,2.75rem)] transition-opacity duration-300 ${
+                        isOpen ? "opacity-100" : "opacity-0"
+                      }`}
+                      style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.65 }}
+                    >
+                      {t(f.a)}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* ── Closing line — a calm confident invitation, generous space, no card. ── */}
+        <motion.div
+          className="mt-[clamp(3.5rem,7vh,6rem)] flex flex-wrap items-center gap-x-[clamp(2rem,5vw,4rem)] gap-y-6 will-change-transform"
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+        >
+          <p
+            className="text-foreground max-w-md"
+            style={{ fontSize: "clamp(1.25rem, 2.4vw, 1.75rem)", letterSpacing: "-0.02em", lineHeight: 1.25, fontWeight: 600 }}
+          >
+            {t({
+              ar: "جاهز للبدء؟ التقديم مجّانيّ ولا يأخذ سوى دقائق.",
+              en: "Ready to start? Applying is free and takes only a few minutes.",
+            })}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
+            <Link
+              href="/apply"
+              data-testid="faq-apply"
+              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
             >
-              {t({ ar: "كلّ ما تريد ", en: "Everything you'd " })}
-              <span className="italic text-primary">
-                {t({ ar: "أن تعرفه.", en: "want to know." })}
-              </span>
-            </h2>
-            <p className="t-body mt-5 max-w-sm">
-              {t({
-                ar: "إجاباتٌ صريحة عن آيلاند هيفن. لم تجد سؤالك؟ راسلنا مباشرةً على واتساب.",
-                en: "Honest answers about Island Haven. Don't see your question? Message us directly on WhatsApp.",
-              })}
-            </p>
+              {t({ ar: "قدّم الآن", en: "Apply now" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
             <a
               href="https://wa.me/972567536815"
               target="_blank"
               rel="noopener noreferrer"
               data-testid="faq-whatsapp"
-              className="group mt-6 inline-flex items-center gap-2 text-[13px] font-semibold text-primary"
+              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-fg-secondary hover:text-foreground transition-colors"
             >
               {t({ ar: "تواصل عبر واتساب", en: "Talk to us on WhatsApp" })}
               <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
             </a>
-          </Reveal>
-
-          {/* Accordion — hairline-divided rows, grid-rows 0fr→1fr open */}
-          <div className="lg:col-span-8">
-            {faqs.map((f, i) => {
-              const isOpen = open === f.id;
-              const panelId = `faq-panel-${f.id}`;
-              const btnId = `faq-btn-${f.id}`;
-              return (
-                <Reveal key={f.id} delay={i * 0.04}>
-                  <div
-                    className="border-t border-border-strong first:border-t-0"
-                    data-testid={`faq-item-${f.id}`}
-                  >
-                    <h3>
-                      <button
-                        id={btnId}
-                        type="button"
-                        onClick={() => setOpen(isOpen ? null : f.id)}
-                        aria-expanded={isOpen}
-                        aria-controls={panelId}
-                        data-testid={`faq-trigger-${f.id}`}
-                        className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-x-5 sm:gap-x-7 w-full text-start py-7 sm:py-8"
-                      >
-                        <span className="font-editorial text-[clamp(1rem,1.6vw,1.25rem)] font-semibold tabular-nums text-fg-faint group-hover:text-primary transition-colors leading-none pt-1">
-                          {idx(i)}
-                        </span>
-                        <span
-                          className={`font-editorial transition-colors ${
-                            isOpen
-                              ? "text-primary"
-                              : "text-foreground group-hover:text-primary"
-                          }`}
-                          style={{
-                            fontSize: "clamp(1.15rem, 2vw, 1.6rem)",
-                            letterSpacing: "-0.018em",
-                            lineHeight: 1.2,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {t(f.q)}
-                        </span>
-                        <span
-                          aria-hidden
-                          className={`mt-1 inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${
-                            isOpen
-                              ? "rotate-45 border-primary/40 text-primary bg-primary-soft"
-                              : "border-border-strong text-fg-faint group-hover:border-primary/40 group-hover:text-primary"
-                          }`}
-                        >
-                          <Plus className="h-4 w-4" strokeWidth={2.25} />
-                        </span>
-                      </button>
-                    </h3>
-
-                    {/* Animated panel: grid 0fr→1fr (no height), GPU-friendly */}
-                    <div
-                      id={panelId}
-                      role="region"
-                      aria-labelledby={btnId}
-                      className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
-                    >
-                      <div className="overflow-hidden">
-                        <p
-                          className={`t-body grid-cols-[auto_1fr] sm:grid grid gap-x-5 sm:gap-x-7 pb-8 max-w-2xl transition-opacity duration-300 ${
-                            isOpen ? "opacity-100" : "opacity-0"
-                          }`}
-                        >
-                          <span aria-hidden className="hidden sm:block" />
-                          <span className="leading-relaxed">{t(f.a)}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              );
-            })}
-
-            {/* Closing CTA row — apply */}
-            <Reveal delay={0.1}>
-              <div className="border-t border-border-strong pt-8 mt-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
-                <p className="t-body max-w-md">
-                  {t({
-                    ar: "جاهز للبدء؟ التقديم مجّانيّ ولا يأخذ سوى دقائق.",
-                    en: "Ready to start? Applying is free and takes only a few minutes.",
-                  })}
-                </p>
-                <Link
-                  href="/apply"
-                  data-testid="faq-apply"
-                  className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  {t({ ar: "قدّم الآن", en: "Apply now" })}
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                </Link>
-              </div>
-            </Reveal>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

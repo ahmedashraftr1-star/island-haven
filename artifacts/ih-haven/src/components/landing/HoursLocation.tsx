@@ -1,21 +1,35 @@
+import { useRef } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, MapPin } from "lucide-react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { GazaPulseMap } from "./GazaPulseMap";
 import { OpeningHours } from "./OpeningHours";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * HoursLocation — "Visit us", told in the homepage's canonical editorial voice:
- * a system eyebrow + oversized solid display headline with a single cerulean
- * accent, then the OpeningHours dial and the place rendered as real card-base
- * material. The hand-drawn GazaPulseMap is framed INSIDE a card (paired with a
- * real photo of the space + the address/CTA) — never floating on empty canvas.
- * No glass, no dark voids. Keeps id="visit", the child components + their testids.
+ * HoursLocation — "Visit us", told in the homepage's monumental editorial voice.
+ *
+ * Grandeur pass: SCALE + SPACE + RESTRAINT. One calm, oversized headline with a
+ * single crimson word opens the chapter — no eyebrow kicker, no aura blob. The
+ * OpeningHours dial keeps its own crafted treatment (and day testids). The place
+ * is no longer a packed two-card deck: it's a single full-bleed photograph of the
+ * real space, with the address line and CTA overlaid calmly, and the hand-drawn
+ * GazaPulseMap reading as a quiet co-ordinate beside the prose — not boxed, not
+ * chipped, not floating on a void. Keeps id="visit", the child components + their
+ * testids, the content fetch, routes and forms.
  */
 export function HoursLocation() {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
+
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: mediaRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
 
   const FALLBACK = {
     label: t({ ar: "كل الأبواب مفتوحة", en: "Every door is open" }),
@@ -48,113 +62,165 @@ export function HoursLocation() {
   const c = useContentSection("hours", FALLBACK);
 
   return (
-    <section id="visit" className="relative bg-background section-y overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-60" />
-
+    <section
+      id="visit"
+      className="relative bg-background overflow-hidden"
+      style={{ paddingBlock: "clamp(6.5rem, 16vh, 12rem)" }}
+    >
       <div className="container-ih relative">
-        {/* Header — system eyebrow (hairline + kicker) + oversized solid display */}
-        <Reveal as="header" className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary/50" />
-            <span className="eyebrow">{c.label}</span>
-          </div>
+        {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+        <header className="max-w-4xl">
           <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              fontWeight: 700,
+            }}
           >
-            {c.titleA}
-            <br />
-            {c.titleB} <span className="text-sand-bright">{c.titleAccent}</span>
+            {[
+              c.titleA,
+              c.titleB,
+              <span key="accent" className="text-primary">{c.titleAccent}</span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
           </h2>
-          <p className="t-body-lg mt-5 max-w-2xl">{c.sub}</p>
-        </Reveal>
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
+            {c.sub}
+          </motion.p>
+        </header>
 
         {/* Opening hours — the dial keeps its own crafted treatment + day testids */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)]">
+        <div className="mt-[clamp(3.5rem,7vw,6rem)]">
           <OpeningHours />
         </div>
+      </div>
 
-        {/* The place — one real card pairing the pulse map, a photo of the space,
-            and the address/CTA. The map is framed material, not a floating glyph. */}
-        <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
-          <div className="card-base rounded-[20px] shadow-soft overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-            {/* Map plate — pulse map on a contained cerulean-washed surface */}
-            <div className="lg:col-span-6 relative border-b border-border-strong lg:border-b-0 lg:border-e">
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(120% 110% at 50% 0%, hsl(var(--accent-2) / 0.10) 0%, hsl(var(--surface-3)) 72%)",
-                }}
-              />
-              <div className="relative p-7 lg:p-10 flex flex-col h-full">
-                <div className="eyebrow eyebrow-sand mb-6">{c.locationEyebrow}</div>
-                <div className="flex-1 flex items-center justify-center">
-                  <GazaPulseMap className="w-full max-w-[420px] mx-auto aspect-square" />
-                </div>
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5">
-                  <div className="inline-flex items-center gap-2 chip-accent-2 rounded-full px-3 py-1.5 t-caption font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
-                    {c.locationStatus}
-                  </div>
-                  <div className="t-caption !text-muted-foreground font-mono tnum">{c.locationCoords}</div>
-                </div>
-              </div>
-            </div>
+      {/* ── The place — one full-bleed photograph of the real space, the address
+           line and CTA overlaid calmly. No card deck, no chips, no boxed map. ── */}
+      <motion.div
+        ref={mediaRef}
+        className="relative mt-[clamp(4.5rem,9vw,8rem)] w-full overflow-hidden"
+        initial={reduce ? false : { opacity: 0 }}
+        whileInView={reduce ? undefined : { opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+      >
+        <div className="relative h-[clamp(26rem,72vh,46rem)]">
+          <motion.img
+            src="/photos/IMG_8353.webp"
+            alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
+            loading="lazy"
+            style={{ y: imgY }}
+            className="absolute inset-0 h-[118%] w-full object-cover object-center will-change-transform"
+          />
+          {/* Calm legibility wash — start-aligned, not a centered card. */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, hsl(225 44% 5% / 0.94) 0%, hsl(225 44% 5% / 0.6) 46%, transparent 82%)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-1/2"
+            style={{ background: "linear-gradient(0deg, hsl(225 44% 5% / 0.55) 0%, transparent 100%)" }}
+          />
 
-            {/* Place plate — real photo + address + CTA, told with confidence */}
-            <div className="lg:col-span-6 flex flex-col">
-              <div className="relative overflow-hidden">
-                <img
-                  src="/photos/IMG_8353.webp"
-                  alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
-                  loading="lazy"
-                  className="w-full h-[clamp(200px,26vw,280px)] object-cover object-center saturate-[1.04]"
-                />
-                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/15 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 lg:p-8">
-                  <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
-                    {t({ ar: "من داخل المساحة", en: "Inside the space" })}
-                  </div>
-                  <div className="font-display font-bold text-white text-[clamp(1.1rem,2vw,1.55rem)]">
-                    {t({ ar: "غرفة عمل واحدة، مدينة كاملة من الإمكانات.", en: "One workroom, a whole city of possibility." })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-7 lg:p-10 flex flex-col flex-1">
-                <h3
-                  className="font-display font-bold text-foreground whitespace-pre-line"
-                  style={{ fontSize: "clamp(1.5rem, 2.4vw, 2.1rem)", letterSpacing: "-0.02em", lineHeight: 1.15 }}
+          <div className="absolute inset-0 flex items-end">
+            <div className="container-ih w-full pb-[clamp(2.5rem,6vh,5rem)]">
+              <div className="max-w-2xl">
+                <motion.h3
+                  className="font-display text-white whitespace-pre-line"
+                  style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.12, letterSpacing: "-0.025em", fontWeight: 700 }}
+                  initial={reduce ? false : { opacity: 0, y: 22 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
                 >
                   {c.locationTitle}
-                </h3>
-                <p className="t-body mt-4 max-w-md whitespace-pre-line">{c.locationBody}</p>
+                </motion.h3>
 
-                <div className="mt-auto pt-8 flex flex-wrap items-center gap-3">
+                <motion.p
+                  className="mt-5 max-w-xl text-white/70 whitespace-pre-line"
+                  style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.25rem)", lineHeight: 1.65 }}
+                  initial={reduce ? false : { opacity: 0, y: 18 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
+                >
+                  {c.locationBody}
+                </motion.p>
+
+                {/* Quiet co-ordinate line — the hand-drawn map reads as a mark
+                    beside the address, status and coords. Not boxed, not chipped. */}
+                <motion.div
+                  className="mt-8 flex items-center gap-5"
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.8, delay: 0.18, ease: EASE_OUT_EXPO }}
+                >
+                  <GazaPulseMap className="w-16 h-16 shrink-0 opacity-90" />
+                  <div className="min-w-0">
+                    <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/90">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
+                      {c.locationStatus}
+                    </div>
+                    <div className="mt-1.5 text-[13px] font-mono tnum text-white/55">{c.locationCoords}</div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4"
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.8, delay: 0.26, ease: EASE_OUT_EXPO }}
+                >
                   <Link
                     href="/apply"
                     data-testid="visit-apply"
-                    className="group inline-flex items-center gap-2 h-11 px-5 rounded-full cta-fill text-[13px] font-semibold"
+                    className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
                   >
                     {t({ ar: "انتسب لتعرف العنوان", en: "Join to get the address" })}
-                    <ArrowLeft className="w-3.5 h-3.5 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                    <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                   </Link>
                   <Link
                     href="/contact"
                     data-testid="visit-contact"
-                    className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-border-strong bg-surface-2 text-fg-secondary text-[13px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors"
+                    className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/85 hover:text-white transition-colors"
                   >
                     <MapPin className="w-4 h-4 text-primary" />
                     {t({ ar: "اسأل عن الزيارة", en: "Ask about visiting" })}
                   </Link>
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

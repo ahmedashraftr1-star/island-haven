@@ -1,125 +1,127 @@
+import { useRef } from "react";
 import { Link } from "wouter";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * BecomeMentorBand — a confident statement band in the canonical house style
- * (NumbersBand / WhatYouGet / About): a large full-bleed Gaza photograph with a
- * dark gradient for legibility on one column, and on the other an oversized SOLID
- * font-display headline with a single crimson accent word, a tight authentic
- * lead (expert founders & mentors worldwide give 1:1 mentorship — talent is not
- * bound by geography), a quiet hairline ledger in cerulean numerals, and one
- * decisive .cta-fill CTA. Start-aligned, asymmetric, on-brand depth.
- * No icon tile, no glass, no gradient text, no scheme-flip cards.
+ * BecomeMentorBand — a mentor-invitation CTA band in the house grandeur. Here
+ * grandeur is RESTRAINT: a calm, spacious band with one confident line and a
+ * single decisive CTA, paired with one full-bleed Gaza photograph. The whole
+ * idea — expert founders & mentors worldwide give 1:1 mentorship because talent
+ * is not bound by geography — is carried by SCALE + SPACE, not elements.
+ *
+ * AI tells removed: the eyebrow kicker (hairline + uppercase label), the
+ * 01/02/03 numbered ledger of cards, the gradient aura blob, and the uppercase
+ * tracking-label overlaid on the photo. No medallions, no icon tiles, no glass.
  */
 export function BecomeMentorBand() {
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
 
-  const idx = (i: number) =>
-    lang === "en" ? String(i + 1).padStart(2, "0") : ["٠١", "٠٢", "٠٣"][i];
-
-  const ledger = [
-    {
-      title: t({ ar: "جلسة واحدة تكفي", en: "One session is enough" }),
-      body: t({
-        ar: "وقتك أنت — جلسة فرديّة واحدة منك قد تُغيّر مسار حياةٍ كاملة.",
-        en: "Your schedule — a single 1:1 session from you can change the course of a life.",
-      }),
-    },
-    {
-      title: t({ ar: "خبرتك، لا جغرافيتك", en: "Your expertise, not your geography" }),
-      body: t({
-        ar: "تُرشد عن بُعد من أيّ مكان في العالم — لأنّ الموهبة لا تحدّها الحدود.",
-        en: "Mentor remotely from anywhere — because talent is not bound by borders.",
-      }),
-    },
-    {
-      title: t({ ar: "أثر يتجاوز الحدود", en: "Impact beyond the borders" }),
-      body: t({
-        ar: "تربط كفاءة غزّيّة بالاقتصاد الرقميّ العالميّ — أثرٌ حقيقيّ، مجّانًا تمامًا.",
-        en: "You connect Gazan talent to the global digital economy — real impact, entirely free.",
-      }),
-    },
-  ];
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: mediaRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
 
   return (
-    <section className="relative bg-surface-1 section-y overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[60%] brand-aura opacity-60" />
-
+    <section
+      className="relative bg-surface-1 overflow-hidden"
+      style={{ paddingBlock: "clamp(6rem, 15vh, 11rem)" }}
+      data-testid="become-mentor-band"
+    >
       <div className="container-ih relative">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
-          {/* Statement — start-aligned, oversized solid type, one crimson accent */}
-          <Reveal as="div" className="lg:col-span-7 lg:order-1">
-            <div className="flex items-center gap-3 mb-5">
-              <span aria-hidden className="h-px w-9 bg-primary/50" />
-              <span className="eyebrow">{t({ ar: "كُن جزءًا من القصّة", en: "Be part of the story" })}</span>
-            </div>
-
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2.5rem,6vw,6rem)] gap-y-[clamp(3rem,7vh,5rem)] items-center">
+          {/* ── The confident line — oversized solid type, one crimson word, air ── */}
+          <div className="lg:col-span-7 lg:order-1">
+            <motion.h2
+              className="font-display text-foreground max-w-[16ch]"
+              style={{
+                fontSize: "clamp(2.4rem, 6.6vw, 4.5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.04em",
+                fontWeight: 700,
+              }}
             >
-              {t({ ar: "أرشِد موهبةً ", en: "Mentor talent " })}
-              <span className="text-primary">{t({ ar: "لا تحدّها الجغرافيا", en: "the world hasn't met yet" })}</span>
-              {t({ ar: ".", en: "." })}
-            </h2>
+              <motion.span
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+              >
+                {t({ ar: "أرشِد موهبةً", en: "Mentor a talent" })}
+              </motion.span>
+              <motion.span
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
+              >
+                {t({ ar: "لا تحدّها ", en: "no border " })}
+                <span className="text-primary">{t({ ar: "الجغرافيا.", en: "can hold." })}</span>
+              </motion.span>
+            </motion.h2>
 
-            <p className="t-body-lg mt-5 max-w-xl">
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.85, delay: 0.32, ease: EASE_OUT_EXPO }}
+              className="mt-[clamp(1.75rem,3.5vw,2.5rem)] max-w-xl text-fg-secondary"
+              style={{ fontSize: "clamp(1.0625rem, 1.7vw, 1.35rem)", lineHeight: 1.65 }}
+            >
               {t({
-                ar: "خبراء ومؤسّسون ومتخصّصون من حول العالم — شاركوا جيلًا غزّيًّا شابًّا ما تعلّمتموه عبر جلسات إرشادٍ فرديّة. جلسة واحدة منكم قد تفتح بابًا كانت الحرب قد أغلقته.",
-                en: "Expert founders, mentors and specialists worldwide — share what you've learned with a young Gazan generation through 1:1 mentorship. One session from you can open a door the war had closed.",
+                ar: "خبراء ومؤسّسون من حول العالم — جلسة إرشادٍ فرديّة واحدة منك، عن بُعد ومجّانًا، قد تفتح لموهبةٍ غزّيّة بابًا أغلقته الحرب.",
+                en: "Expert founders and mentors worldwide — one 1:1 session from you, remote and free, can open a door the war had closed for a Gazan talent.",
               })}
-            </p>
+            </motion.p>
 
-            {/* Quiet hairline ledger — cerulean data numerals, no cards */}
-            <div className="mt-9 border-t border-border-strong">
-              {ledger.map((item, i) => (
-                <div
-                  key={item.title}
-                  className="grid grid-cols-[auto_1fr] gap-x-5 sm:gap-x-7 items-baseline border-b border-border py-5"
-                >
-                  <span className="font-display text-[15px] font-bold tnum text-sand leading-none">
-                    {idx(i)}
-                  </span>
-                  <div>
-                    <h3 className="text-[15px] font-bold text-foreground">{item.title}</h3>
-                    <p className="t-body mt-1.5 max-w-lg">{item.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              href="/become-mentor?ref=home-banner"
-              className="group mt-9 inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px]"
-              data-testid="cta-become-mentor"
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.8, delay: 0.46, ease: EASE_OUT_EXPO }}
+              className="mt-[clamp(2rem,4vw,3rem)]"
             >
-              {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
+              <Link
+                href="/become-mentor?ref=home-banner"
+                className="group inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+                data-testid="cta-become-mentor"
+              >
+                {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+              </Link>
+            </motion.div>
+          </div>
 
-          {/* Photo — the place and its people, shown large with a dark gradient */}
-          <Reveal as="div" delay={0.08} className="lg:col-span-5 lg:order-2">
+          {/* ── One full-bleed photograph — the place and its people, no overlay label ── */}
+          <motion.div
+            ref={mediaRef}
+            className="lg:col-span-5 lg:order-2"
+            initial={reduce ? false : { opacity: 0 }}
+            whileInView={reduce ? undefined : { opacity: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+          >
             <div className="relative overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
-              <img
+              <motion.img
                 src="/photos/IMG_8352.webp"
                 alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
                 loading="lazy"
-                className="w-full h-[clamp(380px,52vw,560px)] object-cover object-center saturate-[1.04]"
+                style={{ y: imgY }}
+                className="w-full h-[clamp(22rem,52vw,34rem)] object-cover object-center will-change-transform"
               />
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-6 lg:p-7">
-                <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
-                  {t({ ar: "من داخل المساحة", en: "Inside the space" })}
-                </div>
-                <div className="font-display font-bold text-white text-[clamp(1.05rem,1.9vw,1.5rem)]">
-                  {t({ ar: "موهبة تنتظر من يأخذ بيدها", en: "Talent waiting for a hand to guide it" })}
-                </div>
-              </div>
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/55 via-transparent to-transparent"
+              />
             </div>
-          </Reveal>
+          </motion.div>
         </div>
       </div>
     </section>
