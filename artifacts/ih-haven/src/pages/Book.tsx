@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Calendar as CalendarIcon,
   Clock,
   Users,
   CheckCircle2,
   ArrowLeft,
-  Sparkles,
   Briefcase,
   GraduationCap,
   Coffee,
@@ -25,10 +24,15 @@ import {
   ExternalLink,
   Globe,
   Linkedin,
+  Sunrise,
+  Sun,
+  Sunset,
+  Sparkles,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -49,10 +53,10 @@ interface ExpertOption {
 }
 
 const TIME_SLOTS = [
-  { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", icon: "☕" },
-  { id: "midday", label: "ظهرًا", labelEn: "Midday", time: "١٢ – ٣", timeEn: "12 – 3", icon: "☀️" },
-  { id: "afternoon", label: "بعد الظهر", labelEn: "Afternoon", time: "٣ – ٥", timeEn: "3 – 5", icon: "🌅" },
-  { id: "fullday", label: "اليوم الكامل", labelEn: "Full Day", time: "٩ – ٥", timeEn: "9 – 5", icon: "✨" },
+  { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", Icon: Sunrise },
+  { id: "midday", label: "ظهرًا", labelEn: "Midday", time: "١٢ – ٣", timeEn: "12 – 3", Icon: Sun },
+  { id: "afternoon", label: "بعد الظهر", labelEn: "Afternoon", time: "٣ – ٥", timeEn: "3 – 5", Icon: Sunset },
+  { id: "fullday", label: "اليوم الكامل", labelEn: "Full Day", time: "٩ – ٥", timeEn: "9 – 5", Icon: Sparkles },
 ] as const;
 
 const PURPOSES = [
@@ -99,6 +103,7 @@ const WEEKDAY_LABELS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Book() {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
   const [step, setStep] = useState<Step>(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
@@ -210,13 +215,16 @@ export default function Book() {
   const selectedExpert = experts?.find((e) => e.id === form.expertId) ?? null;
   if (done) return <SuccessScreen id={done.id} form={form} expert={selectedExpert} />;
 
+  const headlineLines =
+    lang === "en"
+      ? ["Come to", "Island Haven —", <span key="a" className="text-primary">your seat awaits.</span>]
+      : ["تعالَ إلى", "آيلاند هيفن —", <span key="a" className="text-primary">مقعدك ينتظرك.</span>];
+
   return (
     <div
       dir={lang === "en" ? "ltr" : "rtl"}
-      className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground"
+      className="relative min-h-screen bg-surface-1 text-foreground"
     >
-      <BackgroundAura />
-
       {/* Top bar */}
       <header className="relative z-20 px-6 lg:px-10 pt-7 lg:pt-9 pb-4 flex items-center justify-between">
         <Link
@@ -243,34 +251,48 @@ export default function Book() {
       </header>
 
       <div className="relative z-10 px-6 lg:px-10 pb-24 max-w-[1280px] mx-auto">
-        <div className="text-center max-w-2xl mx-auto pt-8 lg:pt-12 pb-10 lg:pb-14">
-          <div className="inline-flex items-center gap-2 px-3 h-7 rounded-full bg-primary/15 text-primary text-[11px] tracking-[0.2em] font-semibold uppercase mb-5">
-            <Sparkles className="w-3 h-3" />
-            {lang === "en" ? "Book a seat · Completely free" : "احجز مقعدك · مجّاني تمامًا"}
-          </div>
+        {/* ── Monumental header — one quiet thesis on acres of space, one crimson line ── */}
+        <header className="max-w-4xl pt-[clamp(3rem,8vh,6rem)] pb-[clamp(3.5rem,8vh,6rem)]">
           <h1
-            className="font-bold leading-[1.05] tracking-tight"
-            style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)" }}
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(2.6rem, 7.2vw, 5.5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              fontWeight: 700,
+            }}
           >
-            {lang === "en" ? (
-              <>Come to{" "}<span className="text-primary">Island Haven</span><br />your seat awaits.</>
-            ) : (
-              <>تعالَ إلى{" "}<span className="text-primary">آيلاند هيفن</span><br />مقعدك ينتظرك.</>
-            )}
+            {headlineLines.map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
           </h1>
-          <p className="mt-5 text-fg-secondary text-[15px] leading-[1.85] max-w-xl mx-auto">
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            animate={reduce ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.5rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
             {lang === "en"
-              ? "Pick a day, time slot, and optionally an expert to meet. No login, no fees, no hassle — just four steps."
-              : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه اختياريًّا. لا حاجة لتسجيل دخول، ولا رسوم، ولا تعقيدات — فقط أربع خطوات."}
-          </p>
-        </div>
+              ? "Pick a day, a time slot, and — if you like — an expert to meet. No login, no fees, no hassle. Just four steps, completely free."
+              : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه إن شئت. لا تسجيل دخول، ولا رسوم، ولا تعقيد — أربع خطوات فقط، ومجّانًا تمامًا."}
+          </motion.p>
+        </header>
 
         <Stepper step={step} />
 
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-9 mt-10">
           {/* Form panel */}
           <div className="relative">
-            <GlassPanel>
+            <Panel>
               <AnimatePresence mode="wait">
                 {step === 0 && (
                   <StepOne
@@ -324,7 +346,7 @@ export default function Book() {
                       (step === 1 && !canStep2) ||
                       (step === 2 && !canStep3)
                     }
-                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
+                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
                     data-testid="button-next"
                   >
                     {step === 2
@@ -338,7 +360,7 @@ export default function Book() {
                   <button
                     onClick={submit}
                     disabled={!canSubmit || submitting}
-                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-[0_8px_28px_-8px_rgba(220,38,55,0.55)] flex items-center gap-2"
+                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
                     data-testid="button-submit"
                   >
                     {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
@@ -346,7 +368,7 @@ export default function Book() {
                   </button>
                 )}
               </div>
-            </GlassPanel>
+            </Panel>
           </div>
 
           {/* Summary panel */}
@@ -363,17 +385,12 @@ export default function Book() {
 
 /* ---------- Sub-components ---------- */
 
-function GlassPanel({ children }: { children: React.ReactNode }) {
+// Calm editorial panel — a clean surface and one hairline. No glass, no aura,
+// no gradient wash; restraint and space carry it.
+function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative rounded-[28px] p-7 lg:p-10 bg-surface-2 border border-border-strong shadow-[0_30px_80px_-40px_rgba(15,32,64,0.18)] overflow-hidden">
-      <div
-        className="absolute inset-0 pointer-events-none opacity-70"
-        style={{
-          background:
-            "radial-gradient(120% 80% at 100% 0%, hsl(354 78% 47% / 0.05) 0%, transparent 55%), radial-gradient(120% 80% at 0% 100%, hsl(213 84% 40% / 0.04) 0%, transparent 55%)",
-        }}
-      />
-      <div className="relative">{children}</div>
+    <div className="relative rounded-[24px] p-7 lg:p-11 bg-surface-2 border border-border-strong">
+      {children}
     </div>
   );
 }
@@ -393,7 +410,7 @@ function Stepper({ step }: { step: Step }) {
             <div
               className={`flex items-center gap-2.5 px-4 h-10 rounded-full transition ${
                 active
-                  ? "bg-primary text-primary-foreground shadow-[0_8px_24px_-8px_rgba(220,38,55,0.4)]"
+                  ? "bg-primary text-primary-foreground"
                   : done
                     ? "bg-sand-soft text-foreground"
                     : "bg-surface-3 text-fg-faint"
@@ -404,7 +421,7 @@ function Stepper({ step }: { step: Step }) {
                   active
                     ? "bg-white/25 text-primary-foreground"
                     : done
-                      ? "bg-emerald-600/15 text-emerald-700"
+                      ? "bg-sand-soft text-sand"
                       : "bg-foreground/[0.06]"
                 }`}
               >
@@ -433,18 +450,22 @@ function StepShell({
   hint: string;
   children: React.ReactNode;
 }) {
+  const reduce = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -14 }}
+      initial={reduce ? false : { opacity: 0, y: 14 }}
+      animate={reduce ? undefined : { opacity: 1, y: 0 }}
+      exit={reduce ? undefined : { opacity: 0, y: -14 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="mb-7">
-        <h2 className="text-[22px] lg:text-[26px] font-bold leading-tight">
+      <div className="mb-8">
+        <h2
+          className="font-display font-bold text-foreground"
+          style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+        >
           {title}
         </h2>
-        <p className="text-muted-foreground text-[13px] mt-1.5">{hint}</p>
+        <p className="text-fg-secondary text-[13.5px] mt-2.5 leading-relaxed">{hint}</p>
       </div>
       {children}
     </motion.div>
@@ -564,7 +585,7 @@ function StepOne({
                       : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
                   }`}
                 >
-                  <div className="text-[18px] mb-1.5">{s.icon}</div>
+                  <s.Icon className={`w-[18px] h-[18px] mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={2} />
                   <div className="text-[13.5px] font-semibold text-foreground">{lang === "en" ? s.labelEn : s.label}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5 font-mono">
                     {lang === "en" ? s.timeEn : s.time}
@@ -603,7 +624,7 @@ function StepTwo({
               key={id}
               onClick={() => update("purpose", id)}
               data-testid={`purpose-${id}`}
-              className={`relative p-4 rounded-2xl text-right transition ${
+              className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition ${
                 active
                   ? "bg-primary-soft border border-primary/40"
                   : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
@@ -638,7 +659,7 @@ function StepTwo({
                     : "bg-surface-3 text-fg-secondary hover:bg-secondary"
                 }`}
               >
-                {n}
+                {lang === "en" ? n : n.toLocaleString("ar-EG-u-nu-arab")}
               </button>
             );
           })}
@@ -723,6 +744,7 @@ function ExpertProfileModal({
   onClose: () => void;
   lang: string;
 }) {
+  const reduce = useReducedMotion();
   const initials = expert.fullName.trim().charAt(0) || "؟";
   const tags = splitExpertiseTags(expert.expertise);
 
@@ -742,18 +764,18 @@ function ExpertProfileModal({
     >
       <motion.div
         key="expert-modal-backdrop"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        initial={reduce ? false : { opacity: 0 }}
+        animate={reduce ? undefined : { opacity: 1 }}
+        exit={reduce ? undefined : { opacity: 0 }}
         transition={{ duration: 0.18 }}
         className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
         key="expert-modal-panel"
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 24, scale: 0.97 }}
+        initial={reduce ? false : { opacity: 0, y: 40, scale: 0.97 }}
+        animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+        exit={reduce ? undefined : { opacity: 0, y: 24, scale: 0.97 }}
         transition={{ duration: 0.26, ease: [0.19, 1, 0.22, 1] }}
         className="relative z-10 w-full sm:max-w-md bg-surface-2 border border-border-strong rounded-t-3xl sm:rounded-3xl shadow-[0_40px_90px_-30px_rgba(15,32,64,0.4)] overflow-hidden"
         dir={lang === "en" ? "ltr" : "rtl"}
@@ -792,7 +814,7 @@ function ExpertProfileModal({
                 <p className="text-[11.5px] text-fg-secondary mt-1">
                   {lang === "en"
                     ? `${expert.yearsExperience} yrs experience`
-                    : `${expert.yearsExperience} سنوات خبرة`}
+                    : `${expert.yearsExperience.toLocaleString("ar-EG-u-nu-arab")} سنوات خبرة`}
                 </p>
               )}
             </div>
@@ -825,7 +847,7 @@ function ExpertProfileModal({
               <span>
                 {lang === "en"
                   ? `${expert.sessionMinutes}-minute session`
-                  : `جلسة مدّتها ${expert.sessionMinutes} دقيقة`}
+                  : `جلسة مدّتها ${expert.sessionMinutes.toLocaleString("ar-EG-u-nu-arab")} دقيقة`}
               </span>
             </div>
           )}
@@ -919,6 +941,7 @@ function StepExpert({
   onSlotMetaChange: (slot: AvailableSlot | null) => void;
 }) {
   const { lang } = useLanguage();
+  const reduce = useReducedMotion();
   const [availableIds, setAvailableIds] = useState<Map<number, number> | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [daySlots, setDaySlots] = useState<AvailableSlot[]>([]);
@@ -1023,8 +1046,8 @@ function StepExpert({
             key="expert-grid"
             layout
             className="grid grid-cols-2 sm:grid-cols-3 gap-3"
-            initial="hidden"
-            animate="show"
+            initial={reduce ? false : "hidden"}
+            animate={reduce ? undefined : "show"}
             variants={{ show: { transition: { staggerChildren: 0.055 } } }}
           >
             {[...experts].sort((a, b) => {
@@ -1052,13 +1075,13 @@ function StepExpert({
                   onClick={() => setPreviewExpert(e)}
                   onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setPreviewExpert(e); } }}
                   data-testid={`expert-pick-${e.id}`}
-                  className={`relative p-4 rounded-2xl text-right transition cursor-pointer ${
+                  className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition cursor-pointer ${
                     unavailable && !selected ? "opacity-45" : ""
                   } ${
                     selected
                       ? "bg-primary-soft border border-primary/40 shadow-[0_8px_24px_-12px_rgba(220,38,55,0.35)]"
                       : hasSlot === true
-                      ? "bg-emerald-50 border border-emerald-600/25 hover:bg-emerald-100/70 hover:border-emerald-600/40"
+                      ? "bg-sand-soft border border-sand-deep/40 hover:bg-sand-soft/80 hover:border-sand-deep/60"
                       : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
                   }`}
                 >
@@ -1069,7 +1092,7 @@ function StepExpert({
                     <span className="absolute top-2 start-2 h-4 w-10 rounded-full skeleton-shimmer" />
                   )}
                   {!selected && hasSlot === true && slotCount !== null && (
-                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-emerald-600/15 border border-emerald-600/30 text-emerald-700 text-[9px] font-semibold leading-4">
+                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-sand-soft border border-sand-deep/40 text-sand text-[9px] font-semibold leading-4">
                       {lang === "en"
                         ? `${slotCount} slot${slotCount === 1 ? "" : "s"}`
                         : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
@@ -1165,11 +1188,11 @@ function StepExpert({
                         data-testid={`slot-pick-${slot.id}`}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition border ${
                           picked
-                            ? "bg-emerald-600/15 border-emerald-600/50 text-emerald-700 shadow-[0_4px_12px_-4px_rgba(5,150,105,0.25)]"
+                            ? "bg-sand-soft border-sand-deep/60 text-sand"
                             : "bg-surface-2 border-border-strong text-fg-secondary hover:bg-surface-3 hover:border-primary/30"
                         }`}
                       >
-                        {picked && <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />}
+                        {picked && <CheckCircle2 className="w-3 h-3 text-sand shrink-0" />}
                         <span dir="ltr">{start} – {end}</span>
                         <span className="text-[10px] opacity-60">· {modeLabel}</span>
                       </button>
@@ -1357,19 +1380,11 @@ function SummaryCard({
 
   return (
     <aside className="lg:sticky lg:top-8 self-start">
-      <div className="relative rounded-[24px] p-6 bg-surface-2 border border-border-strong shadow-[0_24px_60px_-40px_rgba(15,32,64,0.16)] overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-70"
-          style={{
-            background:
-              "radial-gradient(100% 80% at 50% 0%, hsl(354 78% 47% / 0.05) 0%, transparent 60%)",
-          }}
-        />
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-              {lang === "en" ? "Booking summary" : "ملخّص حجزك"}
+      <div className="relative rounded-[20px] p-6 bg-surface-2 border border-border-strong">
+        <div>
+          <div className="pb-4 mb-2 border-b border-border-strong">
+            <div className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.05rem, 2vw, 1.25rem)", letterSpacing: "-0.02em" }}>
+              {lang === "en" ? "Your booking" : "ملخّص حجزك"}
             </div>
           </div>
 
@@ -1400,7 +1415,7 @@ function SummaryCard({
           <SummaryRow
             icon={Users}
             label={lang === "en" ? "Attendees" : "الأشخاص"}
-            value={String(form.attendees)}
+            value={lang === "en" ? String(form.attendees) : form.attendees.toLocaleString("ar-EG-u-nu-arab")}
           />
           <SummaryRow
             icon={UserIcon}
@@ -1460,19 +1475,6 @@ function SummaryRow({
   );
 }
 
-function BackgroundAura() {
-  return (
-    <div
-      aria-hidden
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        background:
-          "radial-gradient(58% 48% at 82% -4%, hsl(354 78% 47% / 0.08) 0%, transparent 60%), radial-gradient(50% 42% at -2% 102%, hsl(213 84% 40% / 0.06) 0%, transparent 60%)",
-      }}
-    />
-  );
-}
-
 function SuccessScreen({
   id,
   form,
@@ -1487,6 +1489,7 @@ function SuccessScreen({
   expert: ExpertOption | null;
 }) {
   const { lang } = useLanguage();
+  const reduce = useReducedMotion();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const dateObj = new Date(form.visitDate + "T00:00:00");
   const ref = String(id).padStart(5, "0");
@@ -1498,39 +1501,34 @@ function SuccessScreen({
       dir={lang === "en" ? "ltr" : "rtl"}
       className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground flex items-center justify-center px-6 py-16"
     >
-      <BackgroundAura />
-      <Confetti />
+      {!reduce && <Confetti />}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        initial={reduce ? false : { opacity: 0, scale: 0.95, y: 20 }}
+        animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 max-w-lg w-full"
       >
-        <div className="relative rounded-[28px] p-9 bg-surface-2 border border-border-strong shadow-[0_40px_90px_-40px_rgba(15,32,64,0.25)] text-center overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none opacity-80"
-            style={{
-              background:
-                "radial-gradient(80% 60% at 50% 0%, hsl(354 78% 47% / 0.06) 0%, transparent 60%)",
-            }}
-          />
+        <div className="relative rounded-[24px] p-9 lg:p-11 bg-surface-2 border border-border-strong text-center">
           <div className="relative">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+              initial={reduce ? false : { scale: 0 }}
+              animate={reduce ? undefined : { scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 220, damping: 14 }}
               className="w-20 h-20 mx-auto rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mb-6"
             >
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
-            <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-              {lang === "en" ? "Booking confirmed" : "تمّ بنجاح"}
+            <div className="text-[12px] text-fg-secondary font-medium mb-4">
+              {lang === "en" ? "Booking confirmed" : "تمّ الحجز بنجاح"}
             </div>
-            <h1 className="text-[28px] lg:text-[34px] font-bold leading-tight mb-3">
+            <h1
+              className="font-display font-bold text-foreground mb-4"
+              style={{ fontSize: "clamp(1.85rem, 5vw, 2.6rem)", letterSpacing: "-0.035em", lineHeight: 1.05 }}
+            >
               {lang === "en" ? (
-                <>Your seat is booked,{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span>!</>
+                <>Your seat is booked,{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span>.</>
               ) : (
-                <>مقعدك محجوز يا{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span></>
+                <>مقعدك محجوز،{" "}<span className="text-primary">{form.fullName.split(" ")[0]}</span>.</>
               )}
             </h1>
             <p className="text-fg-secondary text-[14px] leading-[1.85] mb-6">
@@ -1570,9 +1568,9 @@ function SuccessScreen({
                       {expert.fullName.trim().charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-surface-2" />
+                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-sand border-2 border-surface-2" />
                 </div>
-                <div className={`flex-1 min-w-0 text-${lang === "en" ? "left" : "right"}`}>
+                <div className={`flex-1 min-w-0 ${lang === "en" ? "text-left" : "text-right"}`}>
                   <p className="text-[10.5px] text-muted-foreground mb-0.5">
                     {lang === "en" ? "Your mentor" : "مرشدك"}
                   </p>

@@ -11,15 +11,18 @@ type QA = { id: string; q: Bi; a: Bi };
 type Category = { id: string; label: Bi; lede: Bi; items: QA[] };
 
 /**
- * Faq — the standalone, "we've thought of everything" FAQ, told in Island
- * Haven's YC light-editorial register. A Fraunces serif chapter header carries a
- * single italic crimson accent; on the side, a sticky serif index of CATEGORIES.
- * Each category is a section of hairline-divided, fully accessible accordion rows
- * — a real <button> with aria-expanded / aria-controls, a panel that opens via a
- * grid-template-rows 0fr→1fr transition (no height, GPU-friendly, zero layout
- * jank), and a chevron that rotates 180°. The first category reuses the
- * homepage's six honest answers as the lead chapter. Truthful, on-brand,
- * Arabic-first and RTL-safe. No cards-as-chrome, no glass, no gradient text.
+ * Faq — the standalone, "we've thought of everything" FAQ, brought to the house
+ * bar shipped sitewide (Statement / Partners): a monumental calm header, acres
+ * of space, and content told as large hairline-divided rows — never card decks,
+ * medallions, eyebrows-on-everything, or 01/02/03 ledgers.
+ *
+ * The category index is a quiet hairline table of contents — names only, a single
+ * crimson tick on the active chapter (no numbers, no pills, no chrome). Each
+ * question is a calm editorial accordion row: a real <button> with aria-expanded /
+ * aria-controls, a panel that opens via a grid-template-rows 0fr→1fr transition
+ * (no height, GPU-friendly, zero layout jank), and a bare chevron that rotates
+ * 180°. The first category reuses the homepage's six honest answers as the lead
+ * chapter. Truthful, on-brand, Arabic-first and RTL-safe.
  */
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -399,31 +402,31 @@ function AccordionRow({
           aria-expanded={isOpen ? "true" : "false"}
           aria-controls={panelId}
           data-testid={`faq-trigger-${qa.id}`}
-          className="group grid grid-cols-[1fr_auto] items-baseline gap-x-5 sm:gap-x-7 w-full text-start py-6 sm:py-7"
+          className="group grid grid-cols-[1fr_auto] items-baseline gap-x-6 sm:gap-x-10 w-full text-start py-[clamp(1.5rem,3.2vw,2.5rem)]"
         >
           <span
-            className={`font-editorial transition-colors ${
+            className={`font-display transition-colors ${
               isOpen ? "text-primary" : "text-foreground group-hover:text-primary"
             }`}
             style={{
-              fontSize: "clamp(1.05rem, 1.7vw, 1.4rem)",
-              letterSpacing: "-0.018em",
-              lineHeight: 1.24,
-              fontWeight: 600,
+              fontSize: "clamp(1.2rem, 2.1vw, 1.7rem)",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.2,
+              fontWeight: 700,
             }}
           >
             {t(qa.q)}
           </span>
-          <span
+          {/* Bare chevron — no medallion, no chrome — rotates on open */}
+          <ChevronDown
             aria-hidden
-            className={`mt-0.5 inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-all duration-300 ${
+            strokeWidth={1.75}
+            className={`mt-1 h-6 w-6 shrink-0 transition-[transform,color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
               isOpen
-                ? "rotate-180 border-primary/40 text-primary bg-primary-soft"
-                : "border-border-strong text-fg-faint group-hover:border-primary/40 group-hover:text-primary"
+                ? "rotate-180 text-primary"
+                : "text-fg-faint group-hover:text-primary"
             }`}
-          >
-            <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
-          </span>
+          />
         </button>
       </h3>
 
@@ -432,14 +435,15 @@ function AccordionRow({
         id={panelId}
         role="region"
         aria-labelledby={btnId}
-        className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
         style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">
           <p
-            className={`t-body pb-7 max-w-2xl leading-relaxed transition-opacity duration-300 ${
+            className={`t-body pb-[clamp(1.75rem,3.2vw,2.75rem)] max-w-2xl leading-relaxed transition-opacity duration-300 motion-reduce:transition-none ${
               isOpen ? "opacity-100" : "opacity-0"
             }`}
+            style={{ fontSize: "clamp(1rem, 1.4vw, 1.18rem)", lineHeight: 1.7 }}
           >
             {t(qa.a)}
           </p>
@@ -461,6 +465,8 @@ export default function Faq() {
     () => CATEGORIES.reduce((n, c) => n + c.items.length, 0),
     [],
   );
+  // Render the count with Arabic-Indic numerals in AR (matches Hero/NumbersBand/TrustStrip).
+  const countLabel = totalCount.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
 
   function selectCategory(i: number) {
     setActiveCat(i);
@@ -469,57 +475,50 @@ export default function Faq() {
 
   return (
     <PageShell
-      eyebrow={t(p.eyebrow)}
       title={t(p.title)}
       highlight={t(p.highlight)}
       subtitle={t(p.subtitle)}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[clamp(220px,26%,300px)_1fr] gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-10 items-start">
-        {/* ── Chapter index — sticky serif table of contents ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[clamp(220px,26%,300px)_1fr] gap-x-[clamp(2.5rem,6vw,6rem)] gap-y-12 items-start">
+        {/* ── Chapter index — a quiet hairline table of contents, no ledger ── */}
         <Reveal className="lg:sticky lg:top-28">
           <nav aria-label={t({ ar: "فهرس الأسئلة", en: "Question index" })} className="contents">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="h-px w-9 bg-primary/50" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal tnum">
-              {t({ ar: `${totalCount} سؤالًا`, en: `${totalCount} answers` })}
-            </span>
-          </div>
+          <p className="t-caption text-fg-secondary tnum mb-[clamp(1.5rem,3vw,2.25rem)]">
+            {t({ ar: `${countLabel} سؤالًا`, en: `${countLabel} questions` })}
+          </p>
 
-          <ul className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+          <ul className="flex flex-row lg:flex-col gap-x-1 lg:gap-y-0 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 [&::-webkit-scrollbar]:hidden">
             {CATEGORIES.map((c, i) => {
               const active = activeCat === i;
               return (
-                <li key={c.id} className="shrink-0">
+                <li key={c.id} className="shrink-0 lg:border-b lg:border-border-strong/60 lg:last:border-b-0">
                   <button
                     type="button"
                     onClick={() => selectCategory(i)}
                     aria-current={active ? "true" : undefined}
                     data-testid={`faq-cat-${c.id}`}
-                    className={`group relative grid grid-cols-[auto_1fr] items-baseline gap-x-3 w-full text-start py-2.5 ps-4 pe-3 lg:pe-4 rounded-xl transition-colors ${
-                      active
-                        ? "bg-surface-2"
-                        : "hover:bg-surface-2/60"
-                    }`}
+                    className="group relative grid grid-cols-[auto_1fr] items-baseline gap-x-3.5 w-full text-start py-3 lg:py-[clamp(0.9rem,1.6vw,1.15rem)]"
                   >
+                    {/* A single crimson tick marks the active chapter — no pill, no number */}
                     <span
                       aria-hidden
-                      className={`absolute inset-y-2 start-0 w-[3px] rounded-full transition-all duration-300 ${
-                        active ? "bg-primary opacity-100" : "opacity-0"
+                      className={`h-px w-[clamp(1rem,2vw,1.75rem)] self-center transition-[width,background-color,opacity] duration-300 ${
+                        active
+                          ? "bg-primary opacity-100"
+                          : "bg-border-strong opacity-60 w-3 group-hover:bg-primary group-hover:opacity-100"
                       }`}
                     />
                     <span
-                      className={`font-editorial tnum text-[12px] leading-none transition-colors ${
-                        active ? "text-primary" : "text-fg-faint group-hover:text-primary"
+                      className={`font-display leading-snug transition-colors ${
+                        active
+                          ? "text-foreground"
+                          : "text-fg-secondary group-hover:text-foreground"
                       }`}
-                    >
-                      {lang === "en"
-                        ? String(i + 1).padStart(2, "0")
-                        : ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦", "٠٧"][i]}
-                    </span>
-                    <span
-                      className={`text-[13.5px] font-semibold leading-snug transition-colors ${
-                        active ? "text-foreground" : "text-fg-secondary group-hover:text-foreground"
-                      }`}
+                      style={{
+                        fontSize: "clamp(0.95rem, 1.3vw, 1.05rem)",
+                        letterSpacing: "-0.015em",
+                        fontWeight: active ? 700 : 600,
+                      }}
                     >
                       {t(c.label)}
                     </span>
@@ -530,9 +529,9 @@ export default function Faq() {
           </ul>
           </nav>
 
-          {/* Side aside — a quiet WhatsApp invitation, ledger-style */}
-          <div className="mt-7 hidden lg:block border-t border-border-strong pt-6">
-            <p className="t-body text-[13.5px] max-w-[15rem]">
+          {/* Side aside — a quiet WhatsApp invitation, hairline-divided */}
+          <div className="mt-[clamp(2rem,4vw,3rem)] hidden lg:block border-t border-border-strong pt-[clamp(1.5rem,3vw,2rem)]">
+            <p className="t-body max-w-[16rem] leading-relaxed">
               {t({
                 ar: "لم تجد سؤالك؟ نردّ مباشرةً على واتساب.",
                 en: "Don't see your question? We answer directly on WhatsApp.",
@@ -543,7 +542,7 @@ export default function Faq() {
               target="_blank"
               rel="noopener noreferrer"
               data-testid="faq-aside-whatsapp"
-              className="group mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-primary"
+              className="group mt-3.5 inline-flex items-center gap-2 t-caption font-semibold text-primary"
             >
               {t({ ar: "تواصل عبر واتساب", en: "Talk to us on WhatsApp" })}
               <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
@@ -551,22 +550,27 @@ export default function Faq() {
           </div>
         </Reveal>
 
-        {/* ── The active chapter — serif title + hairline accordion ── */}
+        {/* ── The active chapter — monumental display title + hairline accordion ── */}
         <div className="min-w-0">
-          <Reveal key={category.id}>
-            <div className="pb-6 mb-2 border-b border-border-strong">
+          <Reveal>
+            <div className="pb-[clamp(1.75rem,3.5vw,2.75rem)] mb-2 border-b border-border-strong">
               <h2
-                className="font-editorial text-foreground"
+                className="font-display text-foreground"
                 style={{
-                  fontSize: "clamp(1.6rem, 3.2vw, 2.4rem)",
-                  lineHeight: 1.08,
-                  letterSpacing: "-0.02em",
-                  fontWeight: 600,
+                  fontSize: "clamp(2rem, 4.4vw, 3.25rem)",
+                  lineHeight: 1.02,
+                  letterSpacing: "-0.04em",
+                  fontWeight: 700,
                 }}
               >
                 {t(category.label)}
               </h2>
-              <p className="t-body mt-3 max-w-xl">{t(category.lede)}</p>
+              <p
+                className="t-body mt-[clamp(0.9rem,1.8vw,1.4rem)] max-w-xl"
+                style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)", lineHeight: 1.65 }}
+              >
+                {t(category.lede)}
+              </p>
             </div>
 
             <div>
@@ -584,24 +588,27 @@ export default function Faq() {
       </div>
 
       {/* ── Closing chapter — still have a question? ── */}
-      <Reveal className="mt-16 sm:mt-20 border-t border-border-strong pt-12">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-8 items-center">
+      <Reveal className="mt-[clamp(5rem,11vw,9rem)] border-t border-border-strong pt-[clamp(3rem,6vw,5rem)]">
+        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-10 items-center">
           <div className="lg:col-span-7">
             <h2
-              className="font-editorial text-foreground"
+              className="font-display text-foreground"
               style={{
-                fontSize: "clamp(1.8rem, 4vw, 3rem)",
-                lineHeight: 1.06,
-                letterSpacing: "-0.02em",
-                fontWeight: 600,
+                fontSize: "clamp(2.4rem, 6vw, 4.5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.04em",
+                fontWeight: 700,
               }}
             >
               {t({ ar: "ما زال لديك ", en: "Still have a " })}
-              <span className="italic text-primary">
+              <span className="text-primary">
                 {t({ ar: "سؤال؟", en: "question?" })}
               </span>
             </h2>
-            <p className="t-body-lg mt-5 max-w-lg">
+            <p
+              className="mt-[clamp(1.5rem,3vw,2.25rem)] max-w-lg text-fg-secondary"
+              style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+            >
               {t(p.stillQuestion)}{" "}
               {t({
                 ar: "تواصل معنا مباشرةً على واتساب، أو ابدأ طلبك — الردّ يأتيك بأسرع ما يمكن.",

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { X, ArrowLeft, ImageIcon } from "lucide-react";
-import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
+import { X, ArrowLeft } from "lucide-react";
+import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 const FALLBACK = {
   eyebrow: "Gallery",
@@ -81,21 +82,27 @@ const localSrc = (i: number) =>
  */
 const resolveSrc = (url: string) => imageUrl(url);
 
-// Editorial bento rhythm — a repeating 12-col pattern of varied spans so the
-// grid reads like a magazine spread, not a uniform thumbnail wall.
-const BENTO = [
-  "col-span-2 row-span-2 sm:col-span-2 lg:col-span-3 lg:row-span-2", // hero
-  "col-span-1 lg:col-span-2",
-  "col-span-1 lg:col-span-1",
-  "col-span-2 lg:col-span-2",
-  "col-span-1 lg:col-span-2 lg:row-span-2", // tall
-  "col-span-1 lg:col-span-1",
-  "col-span-1 lg:col-span-2",
-  "col-span-1 lg:col-span-1",
+// Editorial composition rhythm — a slow, asymmetric magazine cadence. A few
+// monumental frames carry the spread; the rest breathe at one column. No
+// uniform thumbnail wall, no card chrome — photography is the subject.
+const SPAN = [
+  "md:col-span-7 md:row-span-2", // grand opening frame
+  "md:col-span-5",
+  "md:col-span-5 md:row-span-2", // tall companion
+  "md:col-span-7",
+  "md:col-span-4",
+  "md:col-span-4",
+  "md:col-span-4",
+  "md:col-span-8 md:row-span-2", // wide cinematic band
+  "md:col-span-4",
+  "md:col-span-6",
+  "md:col-span-6",
+  "md:col-span-5 md:row-span-2", // tall close
+  "md:col-span-7",
 ] as const;
 
 export default function Gallery() {
-  const { lang, t } = useLanguage();
+  const { lang, t, dir } = useLanguage();
   const reduce = useReducedMotion();
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -151,49 +158,92 @@ export default function Gallery() {
   const usingLocal = items !== null && items.length === 0;
   const grid = usingLocal ? localItems : items;
 
+  // Monumental header — one calm line, a single crimson word, acres of space.
+  // No eyebrow rule, no icon tile; scale and restraint carry the grandeur.
+  const titleLines =
+    lang === "ar"
+      ? ["لحظاتٌ من", <span key="a" className="text-primary">الهيفن.</span>]
+      : ["Moments from", <span key="a" className="text-primary">the Haven.</span>];
+
   return (
-    <PageShell
-      eyebrow={c.eyebrow}
-      title={c.title}
-      subtitle={c.subtitle}
-      maxWidth="max-w-7xl"
-    >
+    <PageShell maxWidth="max-w-[1400px]">
+      <header className="max-w-4xl">
+        <h1
+          className="font-display text-foreground"
+          style={{
+            fontSize: "clamp(2.6rem, 7.4vw, 5.5rem)",
+            lineHeight: 1.0,
+            letterSpacing: "-0.04em",
+            fontWeight: 700,
+          }}
+        >
+          {titleLines.map((ln, i) => (
+            <motion.span
+              key={i}
+              className="block will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              animate={reduce ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: i * 0.1, ease: EASE_OUT_EXPO }}
+            >
+              {ln}
+            </motion.span>
+          ))}
+        </h1>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.32, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+          style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.35rem)", lineHeight: 1.6 }}
+        >
+          {c.subtitle}
+        </motion.p>
+      </header>
+
       {error && (
-        <GlassCard className="p-6 text-center text-destructive mb-6">
+        <p className="mt-10 text-destructive" role="alert">
           {error}
-        </GlassCard>
+        </p>
       )}
 
-      {/* Archive meta strip — gives the spread an editorial frame */}
+      {/* Quiet archive line — the frame count is the only real DATA here, so it
+          alone earns the cerulean numeral; everything else stays editorial. */}
       {grid && grid.length > 0 && (
-        <div className="mb-7 flex items-center justify-between gap-4 flex-wrap">
-          <div className="inline-flex items-center gap-2.5 text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-bold rtl:tracking-normal">
-            <ImageIcon className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.46, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(3rem,7vw,5.5rem)] flex items-baseline justify-between gap-6 pb-[clamp(1.25rem,2.5vw,2rem)] border-b border-border-strong"
+        >
+          <span className="t-caption text-fg-secondary">
             {t({ ar: "أرشيف المساحة", en: "The space archive" })}
-          </div>
-          <div className="font-editorial tnum text-fg-faint text-[13px]">
+          </span>
+          <span className="font-display font-black leading-none tnum text-sand" style={{ fontSize: "clamp(1.1rem,2vw,1.6rem)", letterSpacing: "-0.02em" }}>
             {t({
-              ar: `${grid.length} لقطة`,
+              ar: `${String(grid.length).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d])} لقطة`,
               en: `${grid.length} frame${grid.length === 1 ? "" : "s"}`,
             })}
-          </div>
-        </div>
+          </span>
+        </motion.div>
       )}
 
       {items === null && !error ? (
-        <div className="grid grid-cols-2 lg:grid-cols-6 auto-rows-[170px] sm:auto-rows-[200px] gap-3.5">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 md:grid-cols-12 auto-rows-[clamp(150px,22vw,230px)] gap-[clamp(0.75rem,1.4vw,1.5rem)]">
+          {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className={`rounded-[var(--card-radius)] bg-surface-2 border border-border-strong shadow-soft animate-pulse ${BENTO[i % BENTO.length]}`}
+              className={`overflow-hidden bg-surface-2 animate-pulse col-span-1 ${SPAN[i % SPAN.length]}`}
             />
           ))}
         </div>
       ) : grid && grid.length === 0 ? (
-        <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
+        <div className="mt-[clamp(2.5rem,5vw,4rem)]">
+          <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
+        </div>
       ) : (
         <div
-          className="grid grid-cols-2 lg:grid-cols-6 auto-rows-[170px] sm:auto-rows-[200px] gap-3.5"
+          className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 md:grid-cols-12 auto-rows-[clamp(150px,22vw,230px)] gap-[clamp(0.75rem,1.4vw,1.5rem)]"
           data-testid="gallery-grid"
         >
           {grid?.map((it, i) => (
@@ -201,15 +251,15 @@ export default function Gallery() {
               key={it.id}
               type="button"
               onClick={() => setActive(it)}
-              initial={reduce ? false : { opacity: 0, y: 14 }}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{
-                duration: 0.5,
-                delay: Math.min(i, 11) * 0.035,
-                ease: [0.16, 1, 0.3, 1],
+                duration: 0.7,
+                delay: Math.min(i, 8) * 0.04,
+                ease: EASE_OUT_EXPO,
               }}
-              className={`card-base card-hover group relative block overflow-hidden text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${BENTO[i % BENTO.length]}`}
+              className={`group relative block overflow-hidden text-start bg-surface-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background col-span-1 ${SPAN[i % SPAN.length]}`}
               data-testid={`gallery-item-${it.id}`}
             >
               <img
@@ -225,25 +275,17 @@ export default function Gallery() {
                   img.dataset.fb = "1";
                   img.src = localSrc(i);
                 }}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05] motion-reduce:transform-none"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transform-none"
               />
 
-              {/* Index numeral — quiet editorial signature */}
-              <div className="absolute top-2.5 left-2.5 rtl:left-auto rtl:right-2.5">
-                <span className="font-editorial tnum text-[11px] text-white/90 bg-foreground/45 backdrop-blur-md px-2 py-0.5 rounded-full leading-none">
-                  {lang === "ar"
-                    ? String(i + 1).padStart(2, "0").replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d])
-                    : String(i + 1).padStart(2, "0")}
-                </span>
-              </div>
-
-              {/* Caption — readable scrim, dark photo-overlay context keeps white ink */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 via-foreground/25 to-transparent p-3.5 pt-10 text-right rtl:text-right ltr:text-left">
-                <div className="text-white text-[12.5px] font-semibold leading-snug line-clamp-2">
+              {/* Restraint: no per-photo numeral, no card frame. The caption is a
+                  quiet line that surfaces only on hover/focus — photography first. */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent p-[clamp(0.9rem,1.6vw,1.4rem)] pt-12 opacity-0 translate-y-2 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 motion-reduce:transition-none">
+                <div className="text-white text-[13px] sm:text-[14px] font-semibold leading-snug line-clamp-2">
                   {it.title}
                 </div>
                 {it.author && (
-                  <div className="text-white/70 text-[10.5px] mt-0.5 truncate">
+                  <div className="text-white/65 text-[11px] mt-0.5 truncate">
                     {it.author}
                   </div>
                 )}
@@ -260,11 +302,12 @@ export default function Gallery() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setActive(null)}
             role="dialog"
             aria-modal="true"
             aria-label={active.title}
+            dir={dir}
           >
             <motion.div
               initial={reduce ? false : { scale: 0.96, y: 8 }}
@@ -283,11 +326,11 @@ export default function Gallery() {
                   img.dataset.fb = "1";
                   img.src = localSrc(0);
                 }}
-                className="w-full max-h-[80vh] object-contain rounded-2xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
+                className="w-full max-h-[80vh] object-contain shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
               />
-              <div className="mt-4 flex items-center justify-between gap-4 text-white">
-                <div className="min-w-0 text-right rtl:text-right ltr:text-left">
-                  <div className="font-editorial text-[18px] sm:text-[20px] italic leading-tight truncate">
+              <div className="mt-5 flex items-center justify-between gap-4 text-white">
+                <div className="min-w-0 text-start">
+                  <div className="font-display text-[18px] sm:text-[22px] font-bold leading-tight truncate" style={{ letterSpacing: "-0.02em" }}>
                     {active.title}
                   </div>
                   {active.author && (

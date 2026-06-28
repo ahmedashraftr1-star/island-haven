@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -10,7 +10,6 @@ import {
   Briefcase,
   GraduationCap,
   BookOpen,
-  Sparkles,
   Sparkle,
   PenLine,
   Link2,
@@ -22,22 +21,12 @@ import {
   Loader2,
   FolderOpen,
   BriefcaseBusiness,
-  FileText,
-  Search,
-  Rocket,
-  Trophy,
-  Flame,
-  Hammer,
-  Compass,
-  Target,
-  MapPin,
-  Gift,
-  CalendarClock,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type CategoryId = "freelancer" | "graduate" | "student" | "other";
 
@@ -45,7 +34,6 @@ const FALLBACK = {
   backLabel: "العودة",
   brandLatin: "Island Haven",
   brandArabic: "آيلاند هيفن",
-  eyebrow: "انضمّ إلى نخبة صانعي المستقبل · مجّاناً تمامًا",
   titleLead: "انضمّ إلى",
   titleAccent: "آيلاند هيفن",
   subtitle:
@@ -122,7 +110,6 @@ const FALLBACK = {
   trustBrand: "من الناس إلى الناس",
   errFallback: "تعذّر إرسال الطلب، حاول مجدّدًا.",
   errNetwork: "تعذّر الاتّصال بالخادم. تحقّق من اتّصالك وحاول مجدّدًا.",
-  successEyebrow: "طلبك في يد الفريق",
   successThanksLead: "شكرًا لك يا",
   successFallbackName: "صديقنا",
   successBody:
@@ -139,7 +126,6 @@ const FALLBACK_EN: ApplyContent = {
   backLabel: "Back",
   brandLatin: "Island Haven",
   brandArabic: "Island Haven",
-  eyebrow: "Join a circle of future-makers · entirely free",
   titleLead: "Join",
   titleAccent: "Island Haven",
   subtitle:
@@ -216,7 +202,6 @@ const FALLBACK_EN: ApplyContent = {
   trustBrand: "People to People",
   errFallback: "We couldn't submit your application. Please try again.",
   errNetwork: "We couldn't reach the server. Check your connection and try again.",
-  successEyebrow: "Your application is with the team",
   successThanksLead: "Thank you,",
   successFallbackName: "friend",
   successBody:
@@ -228,6 +213,7 @@ const FALLBACK_EN: ApplyContent = {
 
 export default function Apply() {
   const { lang, dir, t } = useLanguage();
+  const reduce = useReducedMotion();
   // Arabic content (CMS-overridable); English UI chrome from FALLBACK_EN.
   const arContent = useContentSection("applyForm", FALLBACK);
   const c: ApplyContent = lang === "en" ? FALLBACK_EN : arContent;
@@ -259,7 +245,7 @@ export default function Apply() {
 
   async function uploadCv(file: File) {
     if (file.size > 10 * 1024 * 1024) {
-      setError(t({ ar: "حجم الملف أكبر من 10 ميغا", en: "File is larger than 10 MB" }));
+      setError(t({ ar: "حجم الملف أكبر من ١٠ ميغا", en: "File is larger than 10 MB" }));
       return;
     }
     setCvUploading(true);
@@ -296,6 +282,9 @@ export default function Apply() {
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
+
+  // Locale-aware numerals — Arabic-Indic in AR, Western in EN (matches NumbersBand).
+  const fmtNum = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
 
   const canSubmit =
     form.fullName.trim().length >= 2 &&
@@ -357,14 +346,12 @@ export default function Apply() {
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-background text-foreground"
+      className="relative min-h-screen bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
-      <BackgroundAura />
-
       {/* Top bar */}
       <header className="relative z-20 px-5 sm:px-8 lg:px-14 pt-6 sm:pt-8">
-        <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-3xl flex items-center justify-between gap-4">
           <Link
             href="/"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold"
@@ -383,35 +370,47 @@ export default function Apply() {
       </header>
 
       {/* Main */}
-      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-20">
+      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pb-24">
         <div className="mx-auto max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center mb-9 sm:mb-12"
+          {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+          <header
+            className="mb-[clamp(3.5rem,8vw,6rem)]"
+            style={{ paddingBlock: "clamp(3rem, 9vh, 6rem) 0" }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.07] border border-primary/20 mb-5">
-              <Sparkles className="w-3 h-3 text-primary" />
-              <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-                {c.eyebrow}
-              </span>
-            </div>
             <h1
-              className="font-editorial text-foreground leading-[1.05]"
+              className="font-display text-foreground"
               style={{
-                fontSize: "clamp(2rem, 6.4vw, 3.75rem)",
-                letterSpacing: "-0.03em",
-                fontWeight: 600,
+                fontSize: "clamp(2.6rem, 8.4vw, 5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.04em",
+                fontWeight: 700,
               }}
             >
-              {c.titleLead}{" "}
-              <span className="italic text-primary">{c.titleAccent}</span>
+              {[
+                c.titleLead,
+                <span key="accent" className="text-primary">{c.titleAccent}</span>,
+              ].map((ln, i) => (
+                <motion.span
+                  key={i}
+                  className="block will-change-transform"
+                  initial={reduce ? false : { opacity: 0, y: 30 }}
+                  animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+                >
+                  {ln}
+                </motion.span>
+              ))}
             </h1>
-            <p className="text-fg-secondary text-[14px] sm:text-[15.5px] leading-[1.85] mt-5 max-w-lg mx-auto">
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              animate={reduce ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.32, ease: EASE_OUT_EXPO }}
+              className="mt-[clamp(1.75rem,3.5vw,2.5rem)] max-w-xl text-fg-secondary"
+              style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.3rem)", lineHeight: 1.65 }}
+            >
               {c.subtitle}
-            </p>
-          </motion.div>
+            </motion.p>
+          </header>
 
           {/* Who should apply & what we look for — a concise eligibility block so
               applicants self-qualify (and feel reassured) before the form. Copy
@@ -424,25 +423,16 @@ export default function Apply() {
 
           <motion.form
             onSubmit={onSubmit}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            animate={reduce ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.2, ease: EASE_OUT_EXPO }}
             className="relative"
             noValidate
           >
-            <div className="relative rounded-[28px] p-6 sm:p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(15,23,42,0.22)] overflow-hidden">
-              {/* Subtle interior glow */}
-              <div
-                aria-hidden
-                className="absolute inset-0 pointer-events-none opacity-100"
-                style={{
-                  background:
-                    "radial-gradient(80% 40% at 50% 0%, hsl(354 78% 47% / 0.05) 0%, transparent 60%)",
-                }}
-              />
-              <div className="relative space-y-6">
+            <div className="relative">
+              <div className="relative space-y-12 sm:space-y-14">
                 {/* Section: identity */}
-                <SectionHeader index="01" title={c.sec1Title} sub={c.sec1Sub} />
+                <SectionHeader title={c.sec1Title} sub={c.sec1Sub} />
 
                 <Field
                   id="fullName"
@@ -487,7 +477,7 @@ export default function Apply() {
 
                 {/* Section: category */}
                 <div className="pt-2">
-                  <SectionHeader index="02" title={c.sec2Title} sub={c.sec2Sub} />
+                  <SectionHeader title={c.sec2Title} sub={c.sec2Sub} />
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-1">
                     {CATEGORIES.map((cat) => {
                       const active = form.category === cat.id;
@@ -528,7 +518,7 @@ export default function Apply() {
 
                 {/* Section: bio + motivation */}
                 <div className="pt-2">
-                  <SectionHeader index="03" title={c.sec3Title} sub={c.sec3Sub} />
+                  <SectionHeader title={c.sec3Title} sub={c.sec3Sub} />
                   <div className="space-y-5">
                     <FieldWrap
                       id="bio"
@@ -544,10 +534,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.bioPlaceholder}
-                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
                         data-testid="input-bio"
                       />
-                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.bio.length}/2000</div>
+                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{fmtNum(form.bio.length)}/{fmtNum(2000)}</div>
                     </FieldWrap>
                     <FieldWrap
                       id="motivation"
@@ -563,17 +553,17 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.motivationPlaceholder}
-                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
                         data-testid="input-motivation"
                       />
-                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.motivation.length}/2000</div>
+                      <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{fmtNum(form.motivation.length)}/{fmtNum(2000)}</div>
                     </FieldWrap>
                   </div>
                 </div>
 
                 {/* Section 04: Professional */}
                 <div className="pt-2">
-                  <SectionHeader index="04" title={c.sec4Title} sub={c.sec4Sub} />
+                  <SectionHeader title={c.sec4Title} sub={c.sec4Sub} />
                   <div className="space-y-5">
                     <Field
                       id="skills"
@@ -621,8 +611,8 @@ export default function Apply() {
                               {yr === 0
                                 ? t({ ar: "أقل من سنة", en: "< 1 year" })
                                 : yr === 15
-                                  ? t({ ar: "+15 سنة", en: "15+ years" })
-                                  : `${yr}+`}
+                                  ? t({ ar: `${fmtNum(15)}+ سنة`, en: "15+ years" })
+                                  : `${fmtNum(yr)}+`}
                             </button>
                           );
                         })}
@@ -633,7 +623,7 @@ export default function Apply() {
 
                 {/* Section 05: Links */}
                 <div className="pt-2">
-                  <SectionHeader index="05" title={c.sec5Title} sub={c.sec5Sub} />
+                  <SectionHeader title={c.sec5Title} sub={c.sec5Sub} />
                   <div className="grid sm:grid-cols-2 gap-5">
                     <Field
                       id="linkedinUrl"
@@ -662,7 +652,7 @@ export default function Apply() {
 
                 {/* Section 06: Previous work */}
                 <div className="pt-2">
-                  <SectionHeader index="06" title={c.sec6Title} sub={c.sec6Sub} />
+                  <SectionHeader title={c.sec6Title} sub={c.sec6Sub} />
                   <FieldWrap
                     id="previousWork"
                     label={c.previousWorkLabel}
@@ -677,16 +667,16 @@ export default function Apply() {
                       rows={3}
                       maxLength={1000}
                       placeholder={c.previousWorkPlaceholder}
-                      className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] leading-[1.85] outline-none resize-none px-1 py-0.5"
+                      className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
                       data-testid="input-previousWork"
                     />
-                    <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{form.previousWork.length}/1000</div>
+                    <div className="text-[10.5px] text-fg-faint mt-1.5 tracking-wide">{fmtNum(form.previousWork.length)}/{fmtNum(1000)}</div>
                   </FieldWrap>
                 </div>
 
                 {/* Section 07: Availability */}
                 <div className="pt-2">
-                  <SectionHeader index="07" title={c.sec7Title} sub={c.sec7Sub} />
+                  <SectionHeader title={c.sec7Title} sub={c.sec7Sub} />
                   <div className="space-y-5">
                     {/* Weekly hours chips */}
                     <div>
@@ -711,7 +701,7 @@ export default function Apply() {
                                   : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
                               }`}
                             >
-                              {h}+ {t({ ar: "س/أسبوع", en: "hrs/wk" })}
+                              {fmtNum(h)}+ {t({ ar: "س/أسبوع", en: "hrs/wk" })}
                             </button>
                           );
                         })}
@@ -751,7 +741,7 @@ export default function Apply() {
 
                 {/* Section 08: CV Upload */}
                 <div className="pt-2">
-                  <SectionHeader index="08" title={c.sec8Title} sub={c.sec8Sub} />
+                  <SectionHeader title={c.sec8Title} sub={c.sec8Sub} />
                   <input
                     ref={cvInputRef}
                     id="cv-upload-input"
@@ -881,11 +871,13 @@ export default function Apply() {
 
 // EligibilityBlock — "Who should apply & what we look for". Shown above the
 // form so applicants self-qualify and feel reassured before investing time.
-// Three honest beats on the dark glass canvas (white text): WHO can apply,
-// WHAT we look for, and reassurance. Copy reused from the homepage FAQ so the
-// whole site speaks with one voice. Bilingual, RTL-safe, transform/opacity only.
+// Three honest beats, now as calm editorial hairline rows (no card, no bullet
+// dots, no pill chips): WHO can apply, WHAT we look for, and the reassurance.
+// Copy reused from the homepage FAQ so the whole site speaks with one voice.
+// Bilingual, RTL-safe, transform/opacity only.
 function EligibilityBlock() {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
 
   // WHO — eligibility, reused from the FAQ "who can apply" answer.
   const eligibility = [
@@ -896,83 +888,66 @@ function EligibilityBlock() {
 
   // WHAT we look for — the real selection criteria.
   const criteria = [
-    { Icon: Flame, label: t({ ar: "الجدّيّة", en: "Seriousness" }) },
-    { Icon: Hammer, label: t({ ar: "الرغبة في البناء", en: "Desire to build" }) },
-    { Icon: Compass, label: t({ ar: "قابليّة الإرشاد", en: "Coachability" }) },
-    { Icon: Target, label: t({ ar: "الأثر", en: "Impact" }) },
+    { label: t({ ar: "الجدّيّة", en: "Seriousness" }) },
+    { label: t({ ar: "الرغبة في البناء", en: "Desire to build" }) },
+    { label: t({ ar: "قابليّة الإرشاد", en: "Coachability" }) },
+    { label: t({ ar: "الأثر", en: "Impact" }) },
   ];
 
   // Reassurance — lowers the bar to pressing "apply".
   const reassure = [
-    { Icon: Gift, label: t({ ar: "مجّاني تمامًا", en: "Entirely free" }) },
-    { Icon: CalendarClock, label: t({ ar: "~٢٠ دقيقة", en: "~20 minutes" }) },
-    { Icon: Clock, label: t({ ar: "ردّ خلال أيّام", en: "Reply within days" }) },
+    { label: t({ ar: "مجّاني تمامًا", en: "Entirely free" }) },
+    { label: t({ ar: "~٢٠ دقيقة", en: "~20 minutes" }) },
+    { label: t({ ar: "ردّ خلال أيّام", en: "Reply within days" }) },
   ];
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+      initial={reduce ? false : { opacity: 0, y: 16 }}
+      animate={reduce ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.85, delay: 0.08, ease: EASE_OUT_EXPO }}
       aria-label={t({ ar: "لِمَن التقديم وماذا نبحث عنه", en: "Who should apply and what we look for" })}
-      className="mb-9 sm:mb-12 rounded-[24px] border border-border-strong bg-surface-1 p-6 sm:p-8"
+      className="mb-[clamp(3.5rem,8vw,5.5rem)]"
     >
-      <div className="flex items-center gap-2 mb-5">
-        <span className="h-px w-7 bg-primary/60" />
-        <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
-          {t({ ar: "لِمَن؟ وماذا نبحث عنه", en: "Who should apply & what we look for" })}
+      {/* WHO — eligibility, as a calm editorial row: a quiet label, the criteria
+          set as plain prose separated by middots. No card, no bullet dots. */}
+      <div className="grid sm:grid-cols-[minmax(0,11rem)_1fr] items-baseline gap-x-8 gap-y-2.5 py-[clamp(1.25rem,2.5vw,2rem)] border-t border-border-strong">
+        <span className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold">
+          {t({ ar: "لِمَن آيلاند", en: "Who it's for" })}
         </span>
+        <p className="text-fg-secondary" style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", lineHeight: 1.6 }}>
+          {eligibility.join(t({ ar: " · ", en: " · " }))}
+        </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-x-9 gap-y-7">
-        {/* WHO — eligibility */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <MapPin className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-            <span className="text-[12.5px] font-bold text-foreground tracking-tight">
-              {t({ ar: "لِمَن آيلاند؟", en: "Who Island Haven is for" })}
+      {/* WHAT we look for — the real selection signals, again as quiet prose. */}
+      <div className="grid sm:grid-cols-[minmax(0,11rem)_1fr] items-baseline gap-x-8 gap-y-2.5 py-[clamp(1.25rem,2.5vw,2rem)] border-t border-border-strong">
+        <span className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold">
+          {t({ ar: "ما نبحث عنه", en: "What we look for" })}
+        </span>
+        <p className="text-foreground" style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", lineHeight: 1.6 }}>
+          {criteria.map(({ label }, i) => (
+            <span key={i}>
+              {i > 0 && <span className="text-fg-faint">{t({ ar: " · ", en: " · " })}</span>}
+              {label}
             </span>
-          </div>
-          <ul className="space-y-2.5">
-            {eligibility.map((item, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-fg-secondary">
-                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* WHAT we look for — criteria */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Search className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-            <span className="text-[12.5px] font-bold text-foreground tracking-tight">
-              {t({ ar: "ما الذي نبحث عنه", en: "What we look for" })}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {criteria.map(({ Icon, label }, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface-2 px-3 py-1.5 text-[12.5px] font-semibold text-foreground"
-              >
-                <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
+          ))}
+        </p>
       </div>
 
-      {/* Reassurance — hairline-divided footer row */}
-      <div className="mt-6 pt-5 border-t border-border-strong flex flex-wrap items-center gap-x-6 gap-y-2.5">
-        {reassure.map(({ Icon, label }, i) => (
-          <span key={i} className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-fg-secondary">
-            <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-            {label}
-          </span>
-        ))}
+      {/* Reassurance — the bar-lowering facts, on one last hairline row. */}
+      <div className="grid sm:grid-cols-[minmax(0,11rem)_1fr] items-baseline gap-x-8 gap-y-2.5 py-[clamp(1.25rem,2.5vw,2rem)] border-y border-border-strong">
+        <span className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold">
+          {t({ ar: "بلا شروط", en: "No catch" })}
+        </span>
+        <p className="text-fg-secondary" style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", lineHeight: 1.6 }}>
+          {reassure.map(({ label }, i) => (
+            <span key={i}>
+              {i > 0 && <span className="text-fg-faint">{t({ ar: " · ", en: " · " })}</span>}
+              {label}
+            </span>
+          ))}
+        </p>
       </div>
     </motion.section>
   );
@@ -983,78 +958,83 @@ function EligibilityBlock() {
 // applicant sees the full journey before committing to the form.
 function ProcessStrip() {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
   const steps = [
-    { no: "01", Icon: FileText, label: t({ ar: "تقدّم", en: "Apply" }), meta: t({ ar: "أنت هنا", en: "You're here" }) },
-    { no: "02", Icon: Search, label: t({ ar: "مراجعة ومقابلة", en: "Review & interview" }), meta: t({ ar: "خلال أيّام", en: "Within days" }) },
-    { no: "03", Icon: Rocket, label: t({ ar: "انضمام إلى دفعة", en: "Onboard into a cohort" }), meta: t({ ar: "3–6 أشهر", en: "3–6 months" }) },
-    { no: "04", Icon: Trophy, label: t({ ar: "يوم العرض", en: "Demo Day" }), meta: t({ ar: "أمام الشبكة", en: "To the network" }) },
+    { label: t({ ar: "تقدّم", en: "Apply" }), meta: t({ ar: "أنت هنا", en: "You're here" }) },
+    { label: t({ ar: "مراجعة ومقابلة", en: "Review & interview" }), meta: t({ ar: "خلال أيّام", en: "Within days" }) },
+    { label: t({ ar: "انضمام إلى دفعة", en: "Onboard into a cohort" }), meta: t({ ar: "٣–٦ أشهر", en: "3–6 months" }) },
+    { label: t({ ar: "يوم العرض", en: "Demo Day" }), meta: t({ ar: "أمام الشبكة", en: "To the network" }) },
   ];
   return (
     <motion.section
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      initial={reduce ? false : { opacity: 0, y: 16 }}
+      animate={reduce ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
       aria-label={t({ ar: "ماذا يحدث بعد التقديم", en: "What happens after you apply" })}
-      className="mb-9 sm:mb-12"
+      className="mb-[clamp(3.5rem,8vw,5.5rem)]"
     >
-      <div className="flex items-center justify-between mb-3.5 px-1">
-        <span className="text-[10px] tracking-[0.22em] uppercase text-muted-foreground font-semibold">
+      <div className="flex items-center justify-between gap-4 mb-6 pb-3 border-b border-border-strong">
+        <h2
+          className="font-display font-bold text-foreground"
+          style={{ fontSize: "clamp(1.15rem,2.2vw,1.5rem)", letterSpacing: "-0.02em", lineHeight: 1.1 }}
+        >
           {t({ ar: "ماذا بعد التقديم", en: "What happens next" })}
-        </span>
+        </h2>
         <Link
           href="/process"
-          className="text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground hover:text-primary transition-colors font-semibold"
+          className="text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground hover:text-primary transition-colors font-semibold whitespace-nowrap"
         >
           {t({ ar: "التفاصيل الكاملة", en: "Full process" })} <span className="rtl:hidden">→</span><span className="hidden rtl:inline">←</span>
         </Link>
       </div>
-      <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {steps.map(({ no, Icon, label, meta }, i) => (
-          <li
-            key={no}
-            className={`relative rounded-2xl p-3.5 border ${
-              i === 0
-                ? "bg-primary/[0.07] border-primary/35"
-                : "bg-surface-2 border-border-strong"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1.5">
-              <Icon className={`w-4 h-4 ${i === 0 ? "text-primary" : "text-muted-foreground"}`} strokeWidth={2} />
-              <span dir="ltr" className="text-[10px] tracking-[0.16em] font-bold text-muted-foreground tabular-nums">
-                {no}
+      {/* The journey, as calm editorial rows — no number ledger, no icon tiles.
+          The step you're on carries the single crimson accent; a hairline divides. */}
+      <ol>
+        {steps.map(({ label, meta }, i) => {
+          const here = i === 0;
+          return (
+            <li
+              key={i}
+              className="grid grid-cols-[1fr_auto] items-baseline gap-x-8 gap-y-1 py-[clamp(0.85rem,1.8vw,1.25rem)] border-b border-border-strong/60"
+            >
+              <span
+                className={`font-semibold ${here ? "text-primary" : "text-foreground"}`}
+                style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", letterSpacing: "-0.01em" }}
+              >
+                {label}
               </span>
-            </div>
-            <div className={`text-[12px] font-semibold leading-snug ${i === 0 ? "text-foreground" : "text-fg-secondary"}`}>
-              {label}
-            </div>
-            <div className={`text-[10px] mt-1 tracking-wide ${i === 0 ? "text-primary" : "text-muted-foreground"}`}>
-              {meta}
-            </div>
-          </li>
-        ))}
+              <span className={`text-[11.5px] tracking-wide whitespace-nowrap ${here ? "text-primary" : "text-muted-foreground"}`}>
+                {meta}
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </motion.section>
   );
 }
 
+// SectionHeader — a calm editorial step heading. No 01/02 ledger, no gradient
+// hairline: just the section name set quietly large, the latin counterpart aside,
+// and a single full hairline beneath.
 function SectionHeader({
-  index,
   title,
   sub,
 }: {
-  index: string;
   title: string;
   sub: string;
 }) {
   return (
-    <div className="flex items-baseline gap-3 mb-4">
-      <div className="text-[10.5px] tracking-[0.22em] text-primary font-bold">
-        {index}
-      </div>
-      <div className="h-px flex-1 bg-gradient-to-r from-border-strong to-transparent rtl:bg-gradient-to-l" />
-      <div className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold">
-        {title} <span className="text-fg-faint">· {sub}</span>
-      </div>
+    <div className="flex items-baseline justify-between gap-4 mb-6 pb-3 border-b border-border-strong">
+      <h2
+        className="font-display font-bold text-foreground"
+        style={{ fontSize: "clamp(1.15rem,2.2vw,1.5rem)", letterSpacing: "-0.02em", lineHeight: 1.1 }}
+      >
+        {title}
+      </h2>
+      <span className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold whitespace-nowrap">
+        {sub}
+      </span>
     </div>
   );
 }
@@ -1078,7 +1058,7 @@ function FieldWrap({
     <div>
       <label
         htmlFor={id}
-        className="flex items-center justify-between mb-2 text-[11.5px] tracking-[0.06em]"
+        className="flex items-center justify-between mb-2.5 text-[11.5px] tracking-[0.06em]"
       >
         <span className="text-fg-secondary font-semibold">{label}</span>
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
@@ -1086,11 +1066,13 @@ function FieldWrap({
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
         </span>
       </label>
+      {/* Clean hairline-underline field — no boxed card, no fill. The baseline rule
+          lights crimson on focus, destructive on error. */}
       <div
-        className={`rounded-2xl px-4 py-3 bg-surface-2 border transition-colors focus-within:bg-surface-3 ${
+        className={`border-b transition-colors ${
           error
-            ? "border-destructive/50 focus-within:border-destructive/70"
-            : "border-border-strong focus-within:border-primary/55"
+            ? "border-destructive/60 focus-within:border-destructive"
+            : "border-border-strong focus-within:border-primary"
         }`}
       >
         {children}
@@ -1101,7 +1083,7 @@ function FieldWrap({
             initial={{ opacity: 0, y: -2, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="text-[11.5px] text-destructive mt-1.5 px-1"
+            className="text-[11.5px] text-destructive mt-1.5"
           >
             {error}
           </motion.div>
@@ -1147,7 +1129,7 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "auto"}
         autoComplete={autoComplete}
-        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[14.5px] outline-none px-1 py-0.5"
+        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5"
         data-testid={`input-${id}`}
       />
     </FieldWrap>
@@ -1155,16 +1137,19 @@ function Field({
 }
 
 function BackgroundAura() {
-  // Light editorial canvas: the signature cerulean bloom + faint crimson top kiss
-  // (the brand aura) on warm white, anchored to the top where the hero lives.
+  // The signature dark brand aura — cerulean bloom + faint crimson top kiss on the
+  // dark canvas, anchored to the top behind the success card.
   return (
     <div aria-hidden className="absolute inset-x-0 top-0 h-[70vh] brand-aura pointer-events-none" />
   );
 }
 
 function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c: ApplyContent }) {
-  const { dir } = useLanguage();
+  const { lang, dir } = useLanguage();
+  const reduce = useReducedMotion();
+  const fmtNum = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   const ref = String(id).padStart(5, "0");
+  const refDisplay = lang === "ar" ? fmtNum(id).padStart(5, "٠") : ref;
   const bodyLines = c.successBody.split("\n");
   return (
     <div
@@ -1173,40 +1158,29 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <BackgroundAura />
-      <Confetti />
+      {!reduce && <Confetti />}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 18 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 max-w-lg w-full"
       >
-        <div className="relative rounded-[28px] p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(15,23,42,0.22)] text-center overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none opacity-100"
-            style={{
-              background:
-                "radial-gradient(80% 60% at 50% 0%, hsl(354 78% 47% / 0.06) 0%, transparent 60%)",
-            }}
-          />
+        <div className="relative rounded-[28px] p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(0,0,0,0.7)] text-center">
           <div className="relative">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 220, damping: 14 }}
-              className="w-20 h-20 mx-auto rounded-full bg-primary/[0.10] border border-primary/35 flex items-center justify-center mb-6"
+              initial={reduce ? false : { opacity: 0 }}
+              animate={reduce ? undefined : { opacity: 1 }}
+              transition={{ delay: 0.25, duration: 0.5, ease: EASE_OUT_EXPO }}
+              className="mb-7 inline-flex items-center justify-center text-primary"
             >
-              <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
+              <CheckCircle2 className="w-9 h-9" strokeWidth={2} />
             </motion.div>
-            <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-3">
-              {c.successEyebrow}
-            </div>
             <h1
-              className="font-editorial text-foreground text-[28px] lg:text-[34px] leading-tight mb-3"
-              style={{ fontWeight: 600, letterSpacing: "-0.02em" }}
+              className="font-display text-foreground text-[28px] lg:text-[34px] leading-tight mb-3"
+              style={{ fontWeight: 700, letterSpacing: "-0.03em" }}
             >
               {c.successThanksLead}{" "}
-              <span className="italic text-primary">{firstName || c.successFallbackName}</span>
+              <span className="text-primary">{firstName || c.successFallbackName}</span>
             </h1>
             <p className="text-fg-secondary text-[14px] leading-[1.85] mb-7">
               {bodyLines.map((line, i) => (
@@ -1217,7 +1191,7 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
               ))}
             </p>
             <div className="inline-block rounded-xl px-4 py-2 bg-surface-2 border border-border-strong text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mb-7">
-              {c.successRefLabel} · #{ref}
+              {c.successRefLabel} · #{refDisplay}
             </div>
             <div>
               <Link
