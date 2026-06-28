@@ -141,8 +141,8 @@ export function NumbersBand() {
                   whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
                   transition={{ duration: 0.55, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-                  className="font-display font-black tabular-nums text-sand-bright leading-[0.85] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
-                  style={{ fontSize: "clamp(3.25rem, 7vw, 6rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
+                  className="font-display font-black tabular-nums text-sand-bright leading-[0.82] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
+                  style={{ fontSize: "clamp(4rem, 9vw, 8rem)", letterSpacing: "-0.055em", willChange: "transform, opacity" }}
                 >
                   {n ? <CountUp value={s.value} lang={lang} /> : "—"}
                 </motion.div>

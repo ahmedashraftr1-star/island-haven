@@ -182,7 +182,7 @@ export function Hero() {
     <section
       id="hero"
       ref={ref}
-      className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#0A0E1A] text-white"
+      className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#05070F] text-white"
     >
       <motion.div
         style={{ y: photoY, scale: photoScale }}
@@ -218,7 +218,7 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,14,26,0.55) 0%, rgba(10,14,26,0.10) 30%, rgba(10,14,26,0.34) 58%, rgba(10,14,26,0.84) 100%)",
+              "linear-gradient(180deg, rgba(5,7,15,0.55) 0%, rgba(5,7,15,0.10) 30%, rgba(5,7,15,0.34) 58%, rgba(5,7,15,0.84) 100%)",
           }}
         />
         {/* Focused scrim behind the headline (right side, RTL) so text stays
@@ -227,7 +227,7 @@ export function Hero() {
           className="absolute inset-y-0 right-0 w-full lg:w-[66%]"
           style={{
             background:
-              "linear-gradient(270deg, rgba(10,14,26,0.68) 0%, rgba(10,14,26,0.36) 42%, transparent 78%)",
+              "linear-gradient(270deg, rgba(5,7,15,0.68) 0%, rgba(5,7,15,0.36) 42%, transparent 78%)",
           }}
         />
         {/* Fine grain — editorial, not noisy (0.05). */}

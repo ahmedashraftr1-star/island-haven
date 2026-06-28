@@ -71,7 +71,7 @@ export function Footer() {
   const index: Array<[string, string]> = indexEntries.map(([href, bi]) => [href, t(bi)]);
 
   return (
-    <footer className="relative bg-surface-1 border-t border-border-strong pt-20 pb-10">
+    <footer className="relative bg-[#03050D] border-t border-border-strong pt-20 pb-10">
       <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
 
       <div className="container-ih relative">

@@ -109,10 +109,10 @@
      chroma so panels read as genuinely raised material, not flat-on-flat murk.
      (Premium-dark register: Linear/Vercel separate surfaces clearly; murky
      dark-on-dark reads as weak/cheap.) ── */
-  --background: 225 44% 5%;          /* deeper, richer navy-black canvas */
-  --surface-1: 224 32% 10%;          /* lifted SECTION bg */
-  --surface-2: 223 30% 13%;          /* default card — clearly above canvas */
-  --surface-3: 222 28% 18%;          /* raised / modal — pops */
+  --background: 224 70% 2.5%;        /* deepest space-navy canvas — cinematic */
+  --surface-1: 224 55% 6%;           /* lifted SECTION bg */
+  --surface-2: 223 45% 9%;           /* default card — clearly above canvas */
+  --surface-3: 222 38% 13%;          /* raised / modal — pops */
   --foreground: 210 30% 99%;         /* headings — crisp white */
 
   /* ── BORDERS — edges must actually read on the dark canvas. ── */
@@ -120,7 +120,7 @@
   --border-strong: 224 20% 34%;      /* card edges / dividers — crisp */
 
   /* Default card = surface-2. */
-  --card: 223 30% 13%;
+  --card: 223 45% 9%;
   --card-foreground: 210 30% 99%;
   --card-border: 224 20% 34%;
 
@@ -135,12 +135,12 @@
        --primary-cta   (~46% L) — darker FILL behind WHITE labels so white-on-red
                                   reaches ≈4.8:1 (WCAG AA).
        --primary-pressed        — Carmine #9B0013, the brand's deep pressed red. */
-  --primary: 355 80% 55%;            /* Alizarin Crimson — red text / accents */
-  --primary-cta: 354 80% 46%;        /* AA fill behind white CTA labels */
+  --primary: 354 92% 58%;            /* Alizarin Crimson — more saturated, more authority */
+  --primary-cta: 354 88% 49%;        /* AA fill behind white CTA labels */
   --primary-pressed: 353 100% 30%;   /* Carmine #9B0013 — pressed / active red */
   --primary-foreground: 0 0% 100%;
   --primary-soft: 354 60% 15%;       /* icon tiles / soft red wash */
-  --primary-bright: 356 86% 62%;     /* brighter brand crimson — gradient END (no coral) */
+  --primary-bright: 356 100% 65%;    /* brighter brand crimson — gradient END (still red, no coral) */
 
   --secondary: 224 22% 14%;
   --secondary-foreground: 210 24% 98%;
@@ -159,7 +159,7 @@
   /* ── SECONDARY ACCENT — brand Dark Cerulean (data/links/glints, never CTAs). ──
      Shifted off the old cyan (199°, an AI-slop tell) onto the brand's true azure
      hue family so it reads as the identity's cerulean, not generic neon-on-dark. */
-  --accent-2: 211 90% 60%;           /* bright brand azure/cerulean */
+  --accent-2: 211 95% 63%;           /* bright brand azure/cerulean */
   --accent-2-soft: 213 75% 15%;      /* Dark Cerulean #083E7F family — soft cool fill */
 
   /* ── BRAND COOL ACCENT — Dark Cerulean family (#083E7F). ──
@@ -170,9 +170,9 @@
      wired utilities (.chip-sand / .eyebrow-sand / .hairline-sand) stay intact;
      they now resolve to the authentic brand cerulean. Tuned to read luminous on
      the matte #0A0E1A canvas while the -soft/-deep rungs give fills & borders. */
-  --sand: 211 90% 62%;               /* bright cerulean — numerals / highlights */
-  --sand-bright: 205 96% 70%;        /* brighter azure — large display emphasis */
-  --sand-soft: 213 75% 14%;          /* deep cerulean tint — chip / wash fills */
+  --sand: 211 95% 65%;               /* bright cerulean — numerals / highlights */
+  --sand-bright: 205 100% 72%;       /* brighter azure — large display emphasis */
+  --sand-soft: 213 80% 12%;          /* deep cerulean tint — chip / wash fills */
   --sand-deep: 213 55% 26%;          /* cerulean border on cool chips */
 
   --destructive: 0 72% 52%;
@@ -196,27 +196,27 @@
   --app-font-editorial: 'Fraunces', 'IBM Plex Sans Arabic', Georgia, serif;
 
   /* ── ONE card radius everywhere (kills the xl/2xl/3xl drift). ── */
-  --radius: 1.25rem;                 /* 20px — use rounded-[20px] / rounded-lg */
+  --radius: 1.5rem;                  /* 24px — use rounded-[24px] / rounded-lg */
 
   /* ============================================================
      TYPE SCALE — defined once, referenced everywhere. Each token is a
      clamp + line-height + tracking + weight contract. Section agents:
      apply via the .t-* helper classes below or read these vars directly.
      ============================================================ */
-  --t-display-size: clamp(2.6rem, 7vw, 7rem);
-  --t-display-lh: 1.02;
-  --t-display-ls: -0.035em;
-  --t-display-weight: 800;
+  --t-display-size: clamp(3.2rem, 9.5vw, 9.5rem);
+  --t-display-lh: 0.93;
+  --t-display-ls: -0.048em;
+  --t-display-weight: 900;
 
-  --t-h1-size: clamp(2.1rem, 4.8vw, 3.6rem);
-  --t-h1-lh: 1.06;
-  --t-h1-ls: -0.03em;
-  --t-h1-weight: 800;
+  --t-h1-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  --t-h1-lh: 1.04;
+  --t-h1-ls: -0.034em;
+  --t-h1-weight: 900;
 
-  --t-h2-size: clamp(1.8rem, 3.6vw, 2.8rem);
-  --t-h2-lh: 1.1;
-  --t-h2-ls: -0.022em;
-  --t-h2-weight: 700;
+  --t-h2-size: clamp(2rem, 4vw, 3.2rem);
+  --t-h2-lh: 1.08;
+  --t-h2-ls: -0.026em;
+  --t-h2-weight: 800;
 
   --t-h3-size: 1.25rem;
   --t-h3-lh: 1.3;
@@ -245,14 +245,14 @@
   /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
      sections produced ~3000px of pure air. This denser rhythm reads as
      confident (Linear/Stripe), not padded-out. */
-  --section-py: clamp(4.75rem, 7.5vw, 8.5rem);      /* Apple-grade air — let it breathe */
+  --section-py: clamp(5.5rem, 9vw, 11rem);          /* monumental air — grandeur rhythm */
   --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
   --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
 
   /* Card / chip geometry. */
-  --card-radius: 1.25rem;            /* 20px */
+  --card-radius: 1.5rem;             /* 24px */
   --card-pad: 1.75rem;               /* mobile */
   --card-pad-lg: 2rem;               /* desktop */
   --chip-pad: 0.5rem;
@@ -417,8 +417,8 @@
   .italic-latin { font-style: italic; }
 
   ::selection {
-    background: hsl(var(--primary) / 0.15);
-    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.92);
+    color: hsl(0 0% 100%);
   }
 }
 
@@ -814,3 +814,36 @@
   pointer-events: none;
 }
 .active-elevate:active::after { background: hsl(0 0% 100% / 0.08); }
+
+/* ============================================================
+   GRANDEUR AMPLIFIED — premium depth additions (NO GLOW).
+   Owner direction "عظمة بلا توهّج": authority through depth + scale +
+   space + contrast. Deliberately NO glow drop-shadows, NO glowing
+   gradient dividers, NO gradient text — those are the rejected AI-slop.
+   ============================================================ */
+
+/* Premium scrollbar — thin, brand-crimson thumb (flat fill, no glow). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.55) hsl(var(--surface-1));
+}
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: hsl(var(--surface-1)); }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.55);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.8); }
+
+/* Editorial film grain — one fixed, ultra-subtle fractal-noise veil over the whole
+   page for cinematic depth. mix-blend overlay, 0.028 opacity, never clickable. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
