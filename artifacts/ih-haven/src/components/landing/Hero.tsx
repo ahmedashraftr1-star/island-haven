@@ -218,7 +218,7 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(10,14,26,0.46) 0%, rgba(10,14,26,0.06) 32%, rgba(10,14,26,0.26) 60%, rgba(10,14,26,0.70) 100%)",
+              "linear-gradient(180deg, rgba(10,14,26,0.55) 0%, rgba(10,14,26,0.10) 30%, rgba(10,14,26,0.34) 58%, rgba(10,14,26,0.84) 100%)",
           }}
         />
         {/* Focused scrim behind the headline (right side, RTL) so text stays
@@ -227,7 +227,7 @@ export function Hero() {
           className="absolute inset-y-0 right-0 w-full lg:w-[66%]"
           style={{
             background:
-              "linear-gradient(270deg, rgba(10,14,26,0.58) 0%, rgba(10,14,26,0.28) 40%, transparent 74%)",
+              "linear-gradient(270deg, rgba(10,14,26,0.68) 0%, rgba(10,14,26,0.36) 42%, transparent 78%)",
           }}
         />
         {/* Fine grain — editorial, not noisy (0.05). */}
@@ -298,7 +298,7 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(2.9rem, 8.2vw, 7.8rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.04em" }}
+              style={{ fontSize: "clamp(3.05rem, 8.9vw, 8.6rem)", fontWeight: 900, lineHeight: 0.93, letterSpacing: "-0.045em" }}
             >
               <KineticLine text={c.title1} delay={0.45} reduce={!!reduce} />
               <KineticLine text={c.title2} delay={0.62} accent reduce={!!reduce} />
