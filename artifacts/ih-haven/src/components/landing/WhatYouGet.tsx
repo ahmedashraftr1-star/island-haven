@@ -74,7 +74,7 @@ export function WhatYouGet() {
       <div className="container-ih relative">
         {/* MONUMENTAL promise — one calm idea, acres of space. */}
         <motion.h2
-          className="font-display text-foreground max-w-[16ch]"
+          className="font-display text-foreground max-w-[18ch]"
           style={{
             fontSize: "clamp(2.6rem, 8vw, 5rem)",
             lineHeight: 1.0,
@@ -166,7 +166,7 @@ export function WhatYouGet() {
                     >
                       {g.title}
                     </h3>
-                    <ArrowLeft className="mt-1 h-5 w-5 shrink-0 rotate-180 text-fg-faint transition-all group-hover:text-primary group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
+                    <ArrowLeft className="mt-1 h-5 w-5 shrink-0 rtl:rotate-180 text-fg-faint transition-all group-hover:text-primary group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
                   </div>
                   <p className="t-body mt-3 max-w-2xl">{g.body}</p>
                 </Link>

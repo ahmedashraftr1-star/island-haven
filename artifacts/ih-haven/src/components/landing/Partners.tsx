@@ -113,8 +113,6 @@ const TOOLS: Node[] = [
   },
 ];
 
-const NETWORK: Node[] = [...PARTNERS, ...TOOLS];
-
 export function Partners() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
@@ -131,7 +129,7 @@ export function Partners() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
+              fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)",
               lineHeight: 1.0,
               letterSpacing: "-0.04em",
               fontWeight: 700,
@@ -170,30 +168,10 @@ export function Partners() {
           </motion.p>
         </header>
 
-        {/* Live marquee — the whole network in motion (pause on hover) */}
-        <Reveal className="mt-[clamp(3rem,6vw,5rem)]">
-          <div className="relative overflow-hidden py-2 [mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]">
-            <div
-              className="flex w-max gap-x-[clamp(2rem,4vw,3.5rem)] hover:[animation-play-state:paused] motion-reduce:[animation:none] motion-reduce:flex-wrap motion-reduce:gap-y-3"
-              style={{ animation: "ih-marquee 48s linear infinite" }}
-            >
-              {[...NETWORK, ...NETWORK].map((p, i) => (
-                <span
-                  key={`${p.name}-${i}`}
-                  className="shrink-0 font-display font-semibold text-foreground/45 hover:text-foreground transition-colors duration-300 whitespace-nowrap"
-                  style={{ fontSize: "clamp(1.05rem,1.8vw,1.5rem)", letterSpacing: "-0.02em" }}
-                >
-                  {p.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-
         {/* ── Group 1: REAL backers & partners — actual relationships ── */}
-        <div className="mt-[clamp(4rem,8vw,7rem)]">
+        <div className="mt-[clamp(5rem,11vw,9rem)]">
           <GroupHeading
-            kicker={t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
+            title={t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
             note={t({ ar: "جهاتٌ تدعمنا وتشاركنا فعلًا", en: "organisations that actually back & partner with us" })}
           />
           <ul>
@@ -206,9 +184,8 @@ export function Partners() {
         {/* ── Group 2: TOOLS & CREDITS we unlock — NOT partners ── */}
         <div className="mt-[clamp(3.5rem,7vw,6rem)]">
           <GroupHeading
-            kicker={t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
+            title={t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
             note={t({ ar: "برامجٌ ومنصّاتٌ نفتح لك بابها — لا شراكات", en: "programs & platforms we open the door to — not partnerships" })}
-            accent="sand"
             aside={t({ ar: "أرصدةٌ بآلاف الدولارات — مجّانًا", en: "$1,000s in credits — free" })}
             asideValue={lang === "en" ? "$1,000s" : "آلاف $"}
           />
@@ -239,17 +216,16 @@ export function Partners() {
 }
 
 // Calm group heading — a name and an honest one-line note, no eyebrow rule, no
-// medallion. An optional real value figure (sand) sits aside for the tools group.
+// medallion. An optional value figure sits aside for the tools group; it stays
+// in the secondary foreground so cerulean is reserved for hard data only.
 function GroupHeading({
-  kicker,
+  title,
   note,
-  accent = "primary",
   aside,
   asideValue,
 }: {
-  kicker: string;
+  title: string;
   note: string;
-  accent?: "primary" | "sand";
   aside?: string;
   asideValue?: string;
 }) {
@@ -260,14 +236,14 @@ function GroupHeading({
           className="font-display font-bold text-foreground"
           style={{ fontSize: "clamp(1.4rem,2.8vw,2.1rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
         >
-          {kicker}
+          {title}
         </h3>
         <p className="t-caption text-fg-secondary mt-2">{note}</p>
       </div>
       {asideValue && (
         <div className="flex items-baseline gap-2.5">
           <span
-            className={`font-display font-black leading-none tnum ${accent === "sand" ? "text-sand-bright" : "text-primary"}`}
+            className="font-display font-black leading-none tnum text-fg-secondary"
             style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em" }}
           >
             {asideValue}

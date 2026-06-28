@@ -15,9 +15,6 @@ interface ExpertCard {
   expertise: string;
   yearsExperience: number;
   acceptingSessions: boolean;
-  featured: boolean;
-  ratingAvg: number | null;
-  ratingCount: number;
 }
 
 /**
@@ -52,13 +49,13 @@ export function ExpertsBand() {
       <section
         id="experts"
         className="relative bg-surface-1 overflow-hidden"
-        style={{ paddingBlock: "clamp(6rem, 15vh, 11rem)" }}
+        style={{ paddingBlock: "clamp(6.5rem, 17vh, 13rem)" }}
         data-testid="experts-band"
       >
         <div className="container-ih relative">
           <motion.h2
             className="font-display text-foreground max-w-[15ch]"
-            style={{ fontSize: "clamp(2.4rem, 7.4vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.6rem, 8vw, 6rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
           >
             {[
               t({ ar: "المرشدون", en: "The mentors" }),
@@ -108,7 +105,7 @@ export function ExpertsBand() {
               <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/experts"
+              href="/experts#how-it-works"
               className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
             >
               {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
@@ -165,7 +162,7 @@ export function ExpertsBand() {
     <section
       id="experts"
       className="relative bg-surface-1 overflow-hidden"
-      style={{ paddingBlock: "clamp(6rem, 15vh, 11rem)" }}
+      style={{ paddingBlock: "clamp(6.5rem, 17vh, 13rem)" }}
       data-testid="experts-band"
     >
       <div className="container-ih relative">
@@ -173,7 +170,7 @@ export function ExpertsBand() {
         <header className="max-w-4xl">
           <motion.h2
             className="font-display text-foreground"
-            style={{ fontSize: "clamp(2.4rem, 7.4vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.6rem, 8vw, 6rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
           >
             {[
               t({ ar: "خبراءٌ يأخذون", en: "Experts who take" }),
@@ -218,10 +215,7 @@ export function ExpertsBand() {
               transition={{ duration: 0.7, delay: 0.54, ease: EASE_OUT_EXPO }}
               className="mt-[clamp(1.75rem,3vw,2.5rem)] inline-flex items-center gap-2.5 text-sand"
             >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
-              </span>
+              <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-sand" />
               <span className="font-display font-semibold tnum" style={{ fontSize: "clamp(1rem,1.4vw,1.15rem)" }}>
                 {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
               </span>
@@ -250,7 +244,7 @@ export function ExpertsBand() {
                   initial={reduce ? false : { opacity: 0, y: 20 }}
                   whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.4 }}
-                  transition={{ duration: 0.7, delay: Math.min(i, 5) * 0.06, ease: EASE_OUT_EXPO }}
+                  transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
                   className="will-change-transform"
                 >
                   <Link
@@ -299,10 +293,7 @@ export function ExpertsBand() {
                       <span className="inline-flex items-center gap-2 t-caption">
                         {e.acceptingSessions ? (
                           <>
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-75" />
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sand" />
-                            </span>
+                            <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-sand" />
                             <span className="text-sand font-semibold">{t({ ar: "متاح", en: "Open" })}</span>
                           </>
                         ) : (
@@ -339,6 +330,44 @@ export function ExpertsBand() {
           </Link>
         </motion.div>
       </div>
+
+      {/* The place and its people — one full-bleed photograph, a calm line overlaid.
+          The default path earns the same editorial grandeur as the evergreen fallback. */}
+      <motion.div
+        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+        initial={reduce ? false : { opacity: 0 }}
+        whileInView={reduce ? undefined : { opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+      >
+        <div className="relative h-[clamp(20rem,52vh,34rem)]">
+          <img
+            src="/photos/IMG_8352.webp"
+            alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.04]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(90deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 45%, transparent 80%)" }}
+          />
+          <div className="absolute inset-0 flex items-end">
+            <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">
+              <motion.p
+                className="max-w-[20ch] text-white"
+                style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+              >
+                {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
+              </motion.p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

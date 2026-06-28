@@ -39,9 +39,9 @@ interface CohortRow {
 }
 
 const rise: Variants = {
-  // Visible by default (y-only) so content never stays hidden if the scroll
+  // y-only hidden (no opacity) so content is never stuck hidden if the scroll
   // reveal fails to fire; the rise still animates as enhancement when it does.
-  hidden: { opacity: 0, y: 30 },
+  hidden: { y: 30 },
   show: { opacity: 1, y: 0, transition: { duration: 0.85, ease: EASE_OUT_EXPO } },
 };
 const stagger: Variants = {
@@ -155,7 +155,7 @@ export function ApplyProcess() {
     </>
   ) : (
     <>
-      <Clock className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
+      <Clock className="w-3.5 h-3.5 text-accent-2" strokeWidth={2} />
       <span>
         {t({
           ar: "التقديم مفتوح على مدار العام — والدفعة القادمة قريبًا.",
@@ -211,7 +211,7 @@ export function ApplyProcess() {
           </motion.p>
 
           {/* Next-cohort / rolling-intake line — the one real data point, quiet. */}
-          <div className="mt-8 inline-flex items-center gap-2.5 text-caption text-fg-secondary tnum">
+          <div className="mt-8 inline-flex items-center gap-2.5 t-caption text-fg-secondary tnum">
             {cohortLine}
           </div>
         </motion.div>
@@ -294,17 +294,17 @@ export function ApplyProcess() {
             className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full cta-fill font-bold text-[14.5px] tracking-wide transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
           >
             {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
           </Link>
           <Link
             href="/process"
-            className="inline-flex items-center gap-2 text-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 t-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
           </Link>
           <Link
             href="/cohorts"
-            className="inline-flex items-center gap-2 text-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 t-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
           </Link>

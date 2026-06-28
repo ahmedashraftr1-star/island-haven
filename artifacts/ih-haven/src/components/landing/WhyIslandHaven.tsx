@@ -15,7 +15,7 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  * Typography and acres of space carry the grandeur.
  */
 export function WhyIslandHaven() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const reduce = useReducedMotion();
 
   const mediaRef = useRef<HTMLDivElement>(null);
@@ -65,7 +65,7 @@ export function WhyIslandHaven() {
         <motion.h2
           className="font-display text-foreground max-w-[18ch]"
           style={{
-            fontSize: "clamp(2.6rem, 8vw, 5rem)",
+            fontSize: "clamp(2.6rem, 8.6vw, 6.25rem)",
             lineHeight: 1.0,
             letterSpacing: "-0.04em",
             fontWeight: 700,
@@ -92,38 +92,48 @@ export function WhyIslandHaven() {
           </motion.span>
         </motion.h2>
 
-        {/* ── The three axes, woven as calm large prose — start-aligned, asymmetric,
-             one idea per row, generous air. Not a grid, not numbered, no rails. ── */}
-        <div className="mt-[clamp(4rem,9vh,7.5rem)] max-w-3xl ms-auto space-y-[clamp(2.75rem,5vh,4.25rem)]">
-          {axes.map((axis, i) => (
-            <motion.div
-              key={axis.id}
-              data-testid={`why-axis-${axis.id}`}
-              className="will-change-transform"
-              initial={reduce ? false : { opacity: 0, y: 22 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.8, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-            >
-              <h3
-                className="font-display text-foreground"
-                style={{
-                  fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                  lineHeight: 1.08,
-                  letterSpacing: "-0.025em",
-                  fontWeight: 600,
-                }}
+        {/* ── The three axes, woven as calm large prose — one idea per row, but each
+             with its own measure and offset so the cadence breaks: the first axis
+             opens full-width and wide, the next two settle into an offset right-hand
+             column. Not a grid, not numbered, no rails — woven, not listed. ── */}
+        <div className="mt-[clamp(4rem,9vh,7.5rem)] space-y-[clamp(2.75rem,5vh,4.25rem)]">
+          {axes.map((axis, i) => {
+            // Vary measure + alignment per row to escape the uniform 3-row list.
+            const isLead = i === 0;
+            const rowClass = isLead ? "max-w-4xl me-auto" : "max-w-3xl ms-auto";
+            const bodyClass = isLead ? "max-w-3xl" : "max-w-2xl";
+            return (
+              <motion.div
+                key={axis.id}
+                data-testid={`why-axis-${axis.id}`}
+                className={`will-change-transform ${rowClass}`}
+                initial={reduce ? false : { opacity: 0, y: 22 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8, delay: i * 0.06, ease: EASE_OUT_EXPO }}
               >
-                {axis.label}
-              </h3>
-              <p
-                className="mt-4 text-fg-secondary max-w-2xl"
-                style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.65 }}
-              >
-                {axis.body}
-              </p>
-            </motion.div>
-          ))}
+                <h3
+                  className="font-display text-foreground"
+                  style={{
+                    fontSize: isLead
+                      ? "clamp(1.65rem, 3.4vw, 2.6rem)"
+                      : "clamp(1.5rem, 3vw, 2.25rem)",
+                    lineHeight: 1.08,
+                    letterSpacing: "-0.025em",
+                    fontWeight: 600,
+                  }}
+                >
+                  {axis.label}
+                </h3>
+                <p
+                  className={`mt-4 text-fg-secondary ${bodyClass}`}
+                  style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.65 }}
+                >
+                  {axis.body}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
@@ -143,15 +153,18 @@ export function WhyIslandHaven() {
             alt={t({ ar: "العمل من داخل آيلاند هيفن في غزّة", en: "At work inside Island Haven, Gaza" })}
             loading="lazy"
             style={{ y: imgY }}
-            className="absolute inset-0 h-[118%] w-full object-cover will-change-transform"
+            className="absolute inset-x-0 top-[-9%] h-[118%] w-full object-cover will-change-transform"
           />
-          {/* Calm legibility wash — start-aligned, not a centered card. */}
+          {/* Calm legibility wash — start-anchored: the dark anchor follows the
+              text, flipping the gradient angle in RTL so the Arabic headline +
+              CTAs sit over the ≥0.55 region, never the transparent end. */}
           <div
             aria-hidden
             className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(90deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.55) 45%, transparent 80%)",
+              background: `linear-gradient(${
+                dir === "rtl" ? 270 : 90
+              }deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.55) 45%, transparent 80%)`,
             }}
           />
           <div className="absolute inset-0 flex items-end">

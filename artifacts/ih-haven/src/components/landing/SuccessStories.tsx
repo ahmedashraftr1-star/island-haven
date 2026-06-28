@@ -99,7 +99,7 @@ export function SuccessStories() {
               transition={{ duration: 0.7, delay: 0.55, ease: EASE_OUT_EXPO }}
               className="mt-10 sm:mt-12 flex flex-wrap items-center gap-x-6 gap-y-5"
             >
-              <span className="text-muted-foreground t-caption uppercase tracking-[0.16em]">
+              <span className="text-muted-foreground t-caption">
                 {t({ ar: "فريق آيلاند هيفن — قناعتنا التأسيسيّة", en: "The Island Haven team — our founding belief" })}
               </span>
               <Link
@@ -145,13 +145,13 @@ export function SuccessStories() {
                 <motion.blockquote
                   initial={reduce ? false : { opacity: 0, y: 30 }}
                   whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
+                  viewport={VIEWPORT}
                   transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
                   className="font-display text-foreground"
                   style={{
-                    fontSize: "clamp(2.4rem, 5.6vw, 4.25rem)",
-                    lineHeight: 1.06,
-                    letterSpacing: "-0.038em",
+                    fontSize: "clamp(2.6rem, 6.4vw, 5.25rem)",
+                    lineHeight: 1.04,
+                    letterSpacing: "-0.04em",
                     fontWeight: 700,
                   }}
                 >
@@ -161,14 +161,14 @@ export function SuccessStories() {
                 <motion.figcaption
                   initial={reduce ? false : { opacity: 0, y: 14 }}
                   whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-8%" }}
+                  viewport={VIEWPORT}
                   transition={{ duration: 0.7, delay: 0.45, ease: EASE_OUT_EXPO }}
                   className="mt-10 sm:mt-12"
                 >
                   <div className="font-bold text-foreground text-[clamp(1rem,1.6vw,1.2rem)]">
                     {lead.personName}
                   </div>
-                  <div className="text-sand t-caption mt-1.5 uppercase tracking-[0.16em]">
+                  <div className="text-muted-foreground t-caption mt-1.5">
                     {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
                   </div>
                 </motion.figcaption>
@@ -177,7 +177,7 @@ export function SuccessStories() {
               <motion.div
                 initial={reduce ? false : { opacity: 0, scale: 0.98 }}
                 whileInView={reduce ? undefined : { opacity: 1, scale: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
+                viewport={VIEWPORT}
                 transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT_EXPO }}
                 className="lg:col-span-5 will-change-transform"
               >

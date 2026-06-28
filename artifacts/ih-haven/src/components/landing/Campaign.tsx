@@ -7,8 +7,9 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
  * Campaign — the new-branch ask, told the Apple way: SCALE + SPACE + RESTRAINT.
- * One monumental line opens it ("Help us open the next door — for Gaza", a single
- * crimson word) on acres of dark canvas. The four contribution tiers — real data —
+ * One monumental line opens it ("Help us open / the next / branch." — AR "ساهم في
+ * إطلاق الفرع الجديد." — a single crimson word) on acres of dark canvas. The four
+ * contribution tiers — real data —
  * are woven as calm editorial hairline rows (a name, what it unlocks), NOT a Roman-
  * numeral ledger or card deck. A single full-bleed campaign photograph closes it
  * with the live ask and the donate CTA overlaid quietly. No eyebrow kicker, no
@@ -49,7 +50,7 @@ const TIERS = [
 ] as const;
 
 export function Campaign() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const reduce = useReducedMotion();
 
   const mediaRef = useRef<HTMLDivElement>(null);
@@ -72,9 +73,9 @@ export function Campaign() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.6rem, 7.8vw, 5rem)",
-              lineHeight: 1.0,
-              letterSpacing: "-0.04em",
+              fontSize: "clamp(2.7rem, 8.4vw, 7rem)",
+              lineHeight: 0.99,
+              letterSpacing: "-0.045em",
               fontWeight: 700,
             }}
           >
@@ -176,13 +177,14 @@ export function Campaign() {
             style={{ y: imgY }}
             className="absolute inset-0 h-[118%] w-full object-cover saturate-[1.06] will-change-transform"
           />
-          {/* Calm legibility wash — start-aligned, not a centered card. */}
+          {/* Calm legibility wash — start-aligned, not a centered card.
+              Direction-aware: the opaque 0.92 stop must sit behind the
+              text-aligned edge (right in RTL, left in LTR). */}
           <div
             aria-hidden
             className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(90deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 48%, transparent 82%)",
+              background: `linear-gradient(${dir === "rtl" ? 270 : 90}deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 48%, transparent 82%)`,
             }}
           />
           <div className="absolute inset-0 flex items-end">

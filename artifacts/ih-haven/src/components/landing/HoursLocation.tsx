@@ -32,7 +32,6 @@ export function HoursLocation() {
   const imgY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
 
   const FALLBACK = {
-    label: t({ ar: "كل الأبواب مفتوحة", en: "Every door is open" }),
     titleA: t({ ar: "زرنا.", en: "Visit us." }),
     titleB: t({ ar: "اعرف أين", en: "Find out where" }),
     titleAccent: t({ ar: "نحن.", en: "we are." }),
@@ -40,7 +39,6 @@ export function HoursLocation() {
       ar: "ساعات العمل، الموقع، وكلّ ما تحتاج معرفته قبل أن تأتي.",
       en: "Opening hours, our location, and everything you need to know before you come.",
     }),
-    locationEyebrow: t({ ar: "Where we are · أين نحن", en: "Where we are · أين نحن" }),
     locationTitle: t({
       ar: "في قلب غزّة، على ضفّة المتوسّط.",
       en: "In the heart of Gaza, on the Mediterranean shore.",
@@ -73,8 +71,8 @@ export function HoursLocation() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
-              lineHeight: 1.0,
+              fontSize: "clamp(2.8rem, 8vw, 6rem)",
+              lineHeight: 0.99,
               letterSpacing: "-0.04em",
               fontWeight: 700,
             }}
