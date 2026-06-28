@@ -1,18 +1,30 @@
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * About — the /about HERO, told in the brand's own voice (from the official
- * profile): born in Gaza during the war, refusing to stand by. Editorial
- * Apple-grade dark language — a sticky photo of the place, oversized SOLID
- * display type with one crimson accent word, the war-born narrative, and the
- * brand's honest 3-year goal in cerulean numerals on the deep-navy canvas.
- * No gradient text, no white scheme-flip cards, no glass — photography and
- * typography carry it. Vision/Mission/axes/values now live in their own
- * dedicated sections below (composed in pages/About.tsx).
+ * About — the /about HERO, told the Apple way: SCALE + SPACE + RESTRAINT.
+ *
+ * Grandeur pass: gone are the per-section eyebrow kicker, the aura blob, the
+ * boxed sticky photo and the white-on-dark ledger styling — all AI tells. In
+ * their place a single monumental headline on the dark canvas (one crimson
+ * word), the war-born narrative as calm prose, the bridge belief set large, and
+ * the honest 3-year goal as a quiet cerulean data row (cerulean reserved for
+ * real numbers only). One full-bleed photograph of the place carries the scene
+ * with a slow scroll parallax. Vision/Mission/axes/values live in their own
+ * sections below (composed in pages/About.tsx).
  */
 export function About() {
   const { t, lang } = useLanguage();
+  const reduce = useReducedMotion();
+  const photoRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: photoRef,
+    offset: ["start end", "end start"],
+  });
+  const photoY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
 
   const narrative = [
     t({
@@ -37,92 +49,136 @@ export function About() {
   ];
 
   return (
-    <section id="about" className="relative bg-background section-y overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[70%] brand-aura opacity-70" />
-
+    <section id="about" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
       <div className="container-ih relative">
-        {/* Lead — the place + the origin, shown not described */}
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-start">
-          <Reveal as="div" className="lg:col-span-5 lg:sticky lg:top-28">
-            <div className="flex items-center gap-3 mb-5">
-              <span aria-hidden className="h-px w-9 bg-primary/50" />
-              <span className="eyebrow">{t({ ar: "من نحن", en: "About Island Haven" })}</span>
-            </div>
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
-            >
-              {t({ ar: "وُلدنا في قلب ", en: "Born in the heart of " })}
-              <span className="text-primary">{t({ ar: "غزّة.", en: "Gaza." })}</span>
-            </h2>
-            <p className="t-body-lg mt-5 max-w-md text-foreground/90">
-              {t({
-                ar: "لم تولد آيلاند هيفن في مكتبٍ مريح، ولا في ظروفٍ مثالية — بل وسط حربٍ لم تُبقِ حجرًا على حجر، ولا حلمًا بلا جرح. لكنّنا رفضنا أن نقف متفرّجين.",
-                en: "Island Haven wasn't born in a comfortable office or ideal conditions — but amid a war that left no stone, and no dream, untouched. We refused to stand by.",
-              })}
-            </p>
-            <div className="mt-8 overflow-hidden rounded-[20px] ring-1 ring-white/10 shadow-soft">
-              <img
-                src="/photos/IMG_8358.webp"
-                alt={t({ ar: "من داخل مساحة آيلاند هيفن في غزّة", en: "Inside the Island Haven workspace in Gaza" })}
-                loading="lazy"
-                className="w-full aspect-[5/4] object-cover saturate-[1.03]"
-              />
-            </div>
-          </Reveal>
+        {/* ── Monumental opening — one quiet line, one crimson word, acres of space ── */}
+        <header className="max-w-4xl">
+          <motion.h2
+            className="font-display text-foreground"
+            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+          >
+            {[
+              t({ ar: "وُلدنا في", en: "Born in the" }),
+              t({ ar: "قلب", en: "heart of" }),
+              <span key="accent" className="text-primary">{t({ ar: "غزّة.", en: "Gaza." })}</span>,
+            ].map((ln, i) => (
+              <motion.span
+                key={i}
+                className="block will-change-transform"
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+              >
+                {ln}
+              </motion.span>
+            ))}
+          </motion.h2>
 
-          {/* The narrative + the bridge pull-quote */}
-          <div className="lg:col-span-7">
-            <div className="space-y-6 text-[clamp(1.05rem,1.5vw,1.2rem)] leading-[1.85] text-fg-secondary">
-              {narrative.map((p, i) => (
-                <Reveal key={i} delay={i * 0.05}>
-                  <p>{p}</p>
-                </Reveal>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+          >
+            {t({
+              ar: "لم تولد آيلاند هيفن في مكتبٍ مريح، ولا في ظروفٍ مثالية — بل وسط حربٍ لم تُبقِ حجرًا على حجر، ولا حلمًا بلا جرح. لكنّنا رفضنا أن نقف متفرّجين.",
+              en: "Island Haven wasn't born in a comfortable office or ideal conditions — but amid a war that left no stone, and no dream, untouched. We refused to stand by.",
+            })}
+          </motion.p>
+        </header>
+
+        {/* ── The narrative — calm editorial prose, no boxes ── */}
+        <div className="mt-[clamp(3.5rem,7vw,6rem)] max-w-3xl space-y-7" style={{ fontSize: "clamp(1.05rem,1.5vw,1.2rem)", lineHeight: 1.85 }}>
+          {narrative.map((p, i) => (
+            <Reveal key={i} delay={i * 0.05} as="p">
+              <span className="text-fg-secondary">{p}</span>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* ── The bridge belief — set large, unboxed ── */}
+        <Reveal delay={0.05}>
+          <p
+            className="mt-[clamp(3rem,6vw,5rem)] font-display font-bold text-foreground max-w-3xl"
+            style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.18, letterSpacing: "-0.028em" }}
+          >
+            {t({
+              ar: "نحن لسنا مجرّد مكانٍ للعمل — نحن جسرٌ يهيّئ الإنسان الغزّي ليقف على خطّ المنافسة الحقيقيّ مع العالم.",
+              en: "We're not just a place to work — we're a bridge that prepares Gaza's people to compete, for real, with the world.",
+            })}
+          </p>
+        </Reveal>
+
+        {/* ── The 3-year goal — quiet cerulean data row (cerulean = real numbers only) ── */}
+        <Reveal delay={0.08}>
+          <div className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong pt-[clamp(2.25rem,4.5vw,3.5rem)]">
+            <p className="t-caption text-fg-secondary mb-[clamp(1.75rem,3.5vw,2.75rem)]">
+              {t({ ar: "هدفنا في ثلاث سنوات", en: "Our 3-year goal" })}
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10">
+              {goal.map((g, i) => (
+                <div key={i}>
+                  <div
+                    className="font-display font-black text-sand tnum leading-none"
+                    style={{ fontSize: "clamp(2.4rem, 4.4vw, 3.6rem)", letterSpacing: "-0.03em" }}
+                  >
+                    {g.v}
+                  </div>
+                  <div className="t-body text-[15px] md:text-[16px] mt-3.5 text-foreground/85">{g.l}</div>
+                </div>
               ))}
             </div>
+            <p className="t-body text-[15px] md:text-[17px] mt-[clamp(2rem,4vw,3rem)] max-w-2xl">
+              {t({
+                ar: "نردم الفجوة التي خلّفتها الحرب بتأهيل ألف كفاءة غزّية خلال ثلاث سنوات، ونعيد وصلها بالاقتصاد الرقميّ العالميّ — حتى تصل إلى مرحلة المنافسة والتفوّق.",
+                en: "We close the gap the war left by qualifying a thousand Gazan talents within three years, and reconnecting them to the global digital economy — until they reach real competition and excellence.",
+              })}
+            </p>
+          </div>
+        </Reveal>
+      </div>
 
-            <Reveal delay={0.1}>
-              <blockquote className="mt-10 border-s-2 border-primary ps-6">
-                <p
-                  className="font-display font-bold text-foreground"
-                  style={{ fontSize: "clamp(1.4rem, 2.4vw, 2rem)", lineHeight: 1.25, letterSpacing: "-0.02em" }}
-                >
-                  {t({
-                    ar: "نحن لسنا مجرّد مكانٍ للعمل — نحن جسرٌ يهيّئ الإنسان الغزّي ليقف على خطّ المنافسة الحقيقيّ مع العالم.",
-                    en: "We're not just a place to work — we're a bridge that prepares Gaza's people to compete, for real, with the world.",
-                  })}
-                </p>
-              </blockquote>
-            </Reveal>
-
-            {/* The goal — one honest target, cerulean numerals on hairline ledger */}
-            <Reveal delay={0.12}>
-              <div className="mt-[clamp(2.5rem,5vw,4rem)] border-t border-border-strong pt-[clamp(2rem,4vw,3rem)]">
-                <div className="eyebrow eyebrow-sand mb-7">{t({ ar: "هدفنا في ثلاث سنوات", en: "Our 3-year goal" })}</div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-9">
-                  {goal.map((g, i) => (
-                    <div key={i}>
-                      <div
-                        className="font-display font-extrabold text-sand tnum leading-none"
-                        style={{ fontSize: "clamp(2.1rem, 4vw, 3.2rem)", letterSpacing: "-0.03em" }}
-                      >
-                        {g.v}
-                      </div>
-                      <div className="t-body mt-3 text-foreground/80">{g.l}</div>
-                    </div>
-                  ))}
-                </div>
-                <p className="t-body-lg mt-9 max-w-2xl">
-                  {t({
-                    ar: "نردم الفجوة التي خلّفتها الحرب بتأهيل ألف كفاءة غزّية خلال ثلاث سنوات، ونعيد وصلها بالاقتصاد الرقميّ العالميّ — حتى تصل إلى مرحلة المنافسة والتفوّق.",
-                    en: "We close the gap the war left by qualifying a thousand Gazan talents within three years, and reconnecting them to the global digital economy — until they reach real competition and excellence.",
-                  })}
-                </p>
-              </div>
-            </Reveal>
+      {/* ── The place itself — one full-bleed photograph, slow parallax, a calm line overlaid ── */}
+      <motion.div
+        ref={photoRef}
+        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+        initial={reduce ? false : { opacity: 0 }}
+        whileInView={reduce ? undefined : { opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+      >
+        <div className="relative h-[clamp(20rem,54vh,36rem)]">
+          <motion.img
+            src="/photos/IMG_8358.webp"
+            alt={t({ ar: "من داخل مساحة آيلاند هيفن في غزّة", en: "Inside the Island Haven workspace in Gaza" })}
+            loading="lazy"
+            style={{ y: photoY }}
+            className="absolute inset-0 h-[114%] -top-[7%] w-full object-cover object-center saturate-[1.04] will-change-transform"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(to top, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 45%, transparent 80%)" }}
+          />
+          <div className="absolute inset-0 flex items-end">
+            <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">
+              <motion.p
+                className="max-w-[22ch] text-white"
+                style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+              >
+                {t({ ar: "مكانٌ هادئٌ يعمل فيه الأمل.", en: "A quiet place where hope gets to work." })}
+              </motion.p>
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

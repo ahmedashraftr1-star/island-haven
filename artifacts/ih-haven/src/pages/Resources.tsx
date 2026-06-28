@@ -1,18 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import {
-  ArrowLeft,
-  Download,
-  ExternalLink,
-  Lock,
-  Sparkles,
-  Star,
-} from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowLeft, Download, ExternalLink, Lock } from "lucide-react";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   RESOURCE_CATEGORY_LABELS,
   type ResourceCategory,
@@ -118,15 +112,6 @@ const GROUP_META: Record<
   },
 };
 
-const stagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
-};
-const rise: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
-};
-
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
@@ -141,23 +126,23 @@ function categoryLabel(category: ResourceCategory, lang: Lang): string {
     : RESOURCE_CATEGORY_LABELS_EN[category];
 }
 
+// Fallback cover when the featured resource carries no coverUrl — a real space
+// photo keeps the opener anchored on photography rather than going blank.
+const RESOURCES_FALLBACK_COVER = "/photos/IMG_8347.webp";
+
 // First tag reads as the "provider / source" of a resource (e.g. "AWS", "Figma").
 function providerOf(r: ResourceCard): string {
   const first = (r.tags || "").split(/[,،]/)[0]?.trim();
   return first || "";
 }
-function initialOf(s: string): string {
-  const ch = (s || "").trim()[0];
-  return ch ? ch.toUpperCase() : "•";
-}
 
 export default function Resources() {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
   const [rows, setRows] = useState<ResourceCard[] | null>(null);
   const [gated, setGated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"" | ResourceCategory>("");
-  const reduce = useReducedMotion();
 
   useEffect(() => {
     document.title =
@@ -194,9 +179,8 @@ export default function Resources() {
 
   const all = rows ?? [];
   const total = all.length;
-  const featuredCount = all.filter((r) => r.featured).length;
   // How many filter chips actually have content — so the toolbar never offers a
-  // category that returns an empty grid.
+  // category that returns an empty list.
   const presentCategories = useMemo(
     () => new Set(all.map((r) => r.category)),
     [all],
@@ -221,6 +205,14 @@ export default function Resources() {
 
   const showFlat = !!filter;
   const isEmpty = rows !== null && total === 0;
+  // View-aware count: when a category is active the toolbar must reflect the
+  // filtered view (flat.length), not the full library size.
+  const shown = filter ? flat.length : total;
+
+  // Featured/first resource carries the page's cover photography. Fall back to a
+  // space photo so the anchor never goes blank when coverUrl is null.
+  const featured = all.find((r) => r.featured) ?? all[0] ?? null;
+  const featuredCover = featured?.coverUrl || RESOURCES_FALLBACK_COVER;
 
   return (
     <PageShell
@@ -232,126 +224,97 @@ export default function Resources() {
         en: "Everything we open up for our members, in one place — cloud credits, payment rails, learning, and ready-made templates. Hand-picked so you leap from an idea on paper to a working product without starting from zero.",
       })}
     >
-      {/* ── Toolkit ledger — what the library is, told as a numbered editorial
-          strip rather than a row of icon tiles. Sets the register before cards. ── */}
-      <Reveal as="section" className="mb-12 sm:mb-16" data-testid="resources-intro">
-        <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-9 items-start">
-          <div className="lg:col-span-5 lg:sticky lg:top-28">
-            <div className="flex items-center gap-3 mb-5">
-              <span aria-hidden className="h-px w-9 bg-primary/50" />
-              <span className="eyebrow">{t({ ar: "ما الذي نفتحه لك", en: "What we open for you" })}</span>
-            </div>
+      {/* ── Monumental opener — one calm line, one crimson word, acres of space.
+          Replaces the numbered 01/02/03 axis ledger; scale carries the register. ── */}
+      <Reveal as="section" className="mb-[clamp(4rem,9vw,7rem)]" data-testid="resources-intro">
+        <div className="grid grid-cols-1 items-center gap-[clamp(2.5rem,5vw,4.5rem)] lg:grid-cols-[1fr_minmax(0,22rem)]">
+          <div>
             <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(1.7rem, 3.4vw, 2.6rem)", lineHeight: 1.07, letterSpacing: "-0.026em" }}
+              className="font-display text-foreground max-w-[16ch]"
+              style={{
+                fontSize: "clamp(2.6rem, 7vw, 5rem)",
+                lineHeight: 0.99,
+                letterSpacing: "-0.045em",
+                fontWeight: 700,
+              }}
             >
-              {t({ ar: "لا تبدأ من ", en: "Don't start from " })}
-              <span className="text-primary">{t({ ar: "الصّفر.", en: "zero." })}</span>
+              {[
+                t({ ar: "لا تبدأ", en: "Don't build" }),
+                t({ ar: "من ", en: "from " }),
+                <span key="accent" className="text-primary">{t({ ar: "الصّفر.", en: "scratch." })}</span>,
+              ].map((ln, i) => (
+                <motion.span
+                  key={i}
+                  className="block will-change-transform"
+                  initial={reduce ? false : { opacity: 0, y: 30 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+                >
+                  {ln}
+                </motion.span>
+              ))}
             </h2>
-            <p className="t-body mt-5 max-w-md">
+
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+              className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+              style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+            >
               {t({
-                ar: "ما تدفع شركةٌ ناشئة آلاف الدّولارات لتجمعه، نضعه بين يديك مجّانًا — لأنّ الوقت في غزّة أغلى من أن يُهدر في إعادة اختراع العجلة.",
-                en: "What a startup pays thousands to assemble, we put in your hands for free — because in Gaza, time is too precious to spend reinventing the wheel.",
+                ar: "ما تدفع شركةٌ ناشئة آلاف الدّولارات لتجمعه — أرصدةٌ سحابيّة، حلول دفع، أدلّة، وقوالب — نضعه بين يديك مجّانًا. لأنّ الوقت في غزّة أغلى من أن يُهدر في إعادة اختراع العجلة.",
+                en: "What a startup pays thousands to assemble — cloud credits, payment rails, guides and templates — we put in your hands for free. Because in Gaza, time is too precious to spend reinventing the wheel.",
               })}
-            </p>
+            </motion.p>
           </div>
 
-          {/* Four axes of the toolkit — numbered ledger, hairline-divided. */}
-          <div className="lg:col-span-7">
-            {[
-              {
-                kbar: "٠١",
-                ken: "01",
-                title: t({ ar: "أدوات وبنية", en: "Tools & infrastructure" }),
-                body: t({
-                  ar: "أرصدة سحابيّة، حلول دفع، ومنصّات تُشغّل منتجك دون كلفة الإطلاق الأولى.",
-                  en: "Cloud credits, payment rails and platforms that run your product without the first-launch cost.",
-                }),
-              },
-              {
-                kbar: "٠٢",
-                ken: "02",
-                title: t({ ar: "تعلّم وأدلّة", en: "Learning & guides" }),
-                body: t({
-                  ar: "مسارات ومقالات تختصر سنوات التجربة في خطوات واضحة قابلة للتطبيق.",
-                  en: "Playbooks and guides that compress years of experience into clear, actionable steps.",
-                }),
-              },
-              {
-                kbar: "٠٣",
-                ken: "03",
-                title: t({ ar: "قوالب جاهزة", en: "Ready-made templates" }),
-                body: t({
-                  ar: "عروض، عقود، وخطط ماليّة تبدأ من منتصف الطريق بدل الورقة البيضاء.",
-                  en: "Decks, contracts and financial models that start you halfway, not at a blank page.",
-                }),
-              },
-              {
-                kbar: "٠٤",
-                ken: "04",
-                title: t({ ar: "تمويل وحوافز", en: "Funding & perks" }),
-                body: t({
-                  ar: "خصومات شركاء وفرص تمويل نتفاوض عليها بالنّيابة عن مجتمعنا.",
-                  en: "Partner discounts and funding leads we negotiate on behalf of our community.",
-                }),
-              },
-            ].map((p, i) => (
-              <Reveal
-                key={p.ken}
-                delay={i * 0.05}
-                className="grid grid-cols-[auto_1fr] gap-x-5 sm:gap-x-7 items-baseline border-t border-border-strong py-6 sm:py-7 first:border-t-0 first:pt-0"
-              >
-                <span className="font-display text-[clamp(1.3rem,2.2vw,1.85rem)] font-bold tnum text-fg-faint leading-none">
-                  {lang === "ar" ? p.kbar : p.ken}
-                </span>
-                <div>
-                  <h3
-                    className="font-display font-bold text-foreground"
-                    style={{ fontSize: "clamp(1.1rem, 1.8vw, 1.4rem)", letterSpacing: "-0.015em", lineHeight: 1.2 }}
-                  >
-                    {p.title}
-                  </h3>
-                  <p className="t-body mt-2 max-w-xl">{p.body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          {featured && (
+            <FeaturedCover src={featuredCover} caption={featured.title} />
+          )}
         </div>
       </Reveal>
 
-      {/* ── Members-gate notice — most of the library unlocks on membership. ── */}
+      {/* ── Members-gate notice — most of the library unlocks on membership. Told as
+          a calm editorial line behind a hairline, not a glass icon-tile card. ── */}
       {gated && (
         <Reveal
           as="section"
-          className="card-base mb-10 p-6 sm:p-7 flex flex-col sm:flex-row items-start gap-5"
+          className="mb-[clamp(2.5rem,5vw,4rem)] border-y border-border-strong/60 py-[clamp(1.75rem,3.5vw,2.5rem)]"
           data-testid="resources-gate"
         >
-          <span className="grid place-items-center w-12 h-12 rounded-2xl bg-primary/12 border border-primary/30 shrink-0">
-            <Lock className="w-5 h-5 text-primary" />
-          </span>
-          <div className="flex-1">
-            <div className="text-foreground font-display font-bold text-[17px] mb-1.5 leading-snug">
-              {t({ ar: "الجزء الأعمق من المكتبة للمنتسبين", en: "The deepest shelf is for members" })}
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <div className="max-w-2xl">
+              <h3
+                className="font-display font-bold text-foreground"
+                style={{ fontSize: "clamp(1.3rem,2.6vw,1.85rem)", letterSpacing: "-0.024em", lineHeight: 1.12 }}
+              >
+                {t({ ar: "الجزء الأعمق من المكتبة للمنتسبين", en: "The deepest shelf is for members" })}
+              </h3>
+              <p className="t-body text-[15px] md:text-[16px] mt-3">
+                {t({
+                  ar: "نُبقي الأدلّة العامّة مفتوحةً للجميع، ونحجز الأرصدة، القوالب الخاصّة، وحوافز الشّركاء للمنتسبين — حتّى تذهب لمن يبني فعلًا. سجّل دخولك إن كنت منتسبًا، أو قدّم للانضمام.",
+                  en: "We keep the general guides open to everyone, and reserve credits, private templates and partner perks for members — so they reach the people actually building. Log in if you're a member, or apply to join.",
+                })}
+              </p>
             </div>
-            <p className="t-body max-w-2xl">
-              {t({
-                ar: "نُبقي الأدلّة العامّة مفتوحةً للجميع، ونحجز الأرصدة، القوالب الخاصّة، وحوافز الشّركاء للمنتسبين — حتّى تذهب لمن يبني فعلًا. سجّل دخولك إن كنت منتسبًا، أو قدّم للانضمام.",
-                en: "We keep the general guides open to everyone, and reserve credits, private templates and partner perks for members — so they reach the people actually building. Log in if you're a member, or apply to join.",
-              })}
-            </p>
-            <div className="flex items-center gap-2.5 flex-wrap mt-4">
+            <div className="flex items-center gap-x-6 gap-y-3 flex-wrap shrink-0">
               <Link
                 href="/login"
                 data-testid="resources-gate-login"
-                className="group inline-flex items-center gap-1.5 px-4 h-10 rounded-full cta-fill text-[13px] font-semibold"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+                style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", fontWeight: 600 }}
               >
                 {t({ ar: "تسجيل الدخول", en: "Log in" })}
-                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/apply"
                 data-testid="resources-gate-apply"
-                className="inline-flex items-center gap-1.5 px-4 h-10 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-surface-3 hover:text-foreground transition-colors"
+                className="group inline-flex items-center gap-2 text-fg-secondary hover:text-foreground transition-colors"
+                style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", fontWeight: 600 }}
               >
                 {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
               </Link>
@@ -371,7 +334,7 @@ export default function Resources() {
 
       {/* ── Toolbar — category filters (only those with content) + live count. ── */}
       {!isEmpty && (
-        <div className="flex items-center justify-between gap-3 mb-9 flex-wrap">
+        <div className="flex items-center justify-between gap-3 mb-[clamp(2rem,4vw,3rem)] flex-wrap">
           <div className="flex items-center gap-2 flex-wrap" role="group" aria-label={t({ ar: "تصفية الموارد", en: "Filter resources" })}>
             {visibleFilters.map((f) => {
               const isActive = filter === f.key;
@@ -394,33 +357,18 @@ export default function Resources() {
             })}
           </div>
           {!!total && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {featuredCount > 0 && (
-                <span className="inline-flex items-center gap-1.5 px-3 h-7 rounded-full text-[11.5px] font-bold chip-sand">
-                  <Star className="w-3 h-3 fill-sand-bright text-sand-bright" />
-                  {num(featuredCount, lang)} {t({ ar: "مميّز", en: "featured" })}
-                </span>
-              )}
-              <span className="inline-flex items-center px-3.5 h-7 rounded-full text-[12px] font-semibold chip-sand tnum">
-                {num(total, lang)} {t({ ar: "موردًا", en: "resources" })}
-              </span>
-            </div>
+            <span className="t-caption text-fg-secondary tnum whitespace-nowrap">
+              {num(shown, lang)} {t({ ar: "موردًا", en: "resources" })}
+            </span>
           )}
         </div>
       )}
 
-      {/* ── Body — skeleton · empty · chapters · flat grid. ── */}
+      {/* ── Body — skeleton · empty · chapters · flat list. ── */}
       {rows === null && !error ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" data-testid="resources-loading">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="rounded-[24px] h-52 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
-            />
-          ))}
-        </div>
+        <ResourcesSkeleton />
       ) : isEmpty ? (
-        <ResourcesEmpty gated={gated} />
+        <ResourcesEmpty gated={gated} reduce={!!reduce} />
       ) : showFlat ? (
         flat.length === 0 ? (
           <EmptyState
@@ -431,52 +379,39 @@ export default function Resources() {
             })}
           />
         ) : (
-          <motion.div
-            key={filter}
-            variants={reduce ? undefined : stagger}
-            initial={reduce ? undefined : "hidden"}
-            animate={reduce ? undefined : "show"}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
-            data-testid="resources-grid"
-          >
-            {flat.map((r) => (
-              <ResourceCardView key={r.id} r={r} reduce={!!reduce} />
+          <ul key={filter} className="border-t border-border-strong/60" data-testid="resources-grid">
+            {flat.map((r, i) => (
+              <ResourceRow key={r.id} r={r} i={i} reduce={!!reduce} />
             ))}
-          </motion.div>
+          </ul>
         )
       ) : (
-        <div className="space-y-14" data-testid="resources-grid">
-          {groups.map((g, gi) => (
+        <div className="space-y-[clamp(3.5rem,7vw,6rem)]" data-testid="resources-grid">
+          {groups.map((g) => (
             <section key={g.cat} data-testid={`resources-group-${g.cat}`}>
-              {/* Chapter head — name, purpose, count, hairline. */}
-              <Reveal className="mb-6 flex items-end justify-between gap-4 border-b border-border-strong pb-4">
-                <div>
+              {/* Chapter head — name, purpose, count, hairline. No eyebrow kicker. */}
+              <Reveal className="mb-2 flex flex-wrap items-end justify-between gap-x-8 gap-y-2 border-b border-border-strong pb-[clamp(1.25rem,2.5vw,2rem)]">
+                <div className="max-w-2xl">
                   <h2
-                    className="font-display font-extrabold text-foreground"
-                    style={{ fontSize: "clamp(1.4rem, 2.6vw, 2rem)", letterSpacing: "-0.022em", lineHeight: 1.1 }}
+                    className="font-display font-bold text-foreground"
+                    style={{ fontSize: "clamp(1.6rem, 3.2vw, 2.6rem)", letterSpacing: "-0.028em", lineHeight: 1.06 }}
                   >
                     {t(GROUP_META[g.cat])}
                   </h2>
-                  <p className="t-caption text-muted-foreground mt-1.5 max-w-xl">
+                  <p className="t-caption text-fg-secondary mt-2">
                     {t(GROUP_META[g.cat].blurb)}
                   </p>
                 </div>
-                <span className="shrink-0 font-display font-bold text-fg-faint tnum text-[clamp(1.1rem,2vw,1.6rem)] leading-none">
+                <span className="shrink-0 font-display font-bold text-fg-faint tnum leading-none" style={{ fontSize: "clamp(1.1rem,2vw,1.6rem)" }}>
                   {num(g.items.length, lang)}
                 </span>
               </Reveal>
 
-              <motion.div
-                variants={reduce ? undefined : stagger}
-                initial={reduce ? undefined : "hidden"}
-                whileInView={reduce ? undefined : "show"}
-                viewport={{ once: true, amount: 0.1 }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
-              >
-                {g.items.map((r) => (
-                  <ResourceCardView key={r.id} r={r} reduce={!!reduce} priority={gi === 0} />
+              <ul>
+                {g.items.map((r, i) => (
+                  <ResourceRow key={r.id} r={r} i={i} reduce={!!reduce} />
                 ))}
-              </motion.div>
+              </ul>
             </section>
           ))}
         </div>
@@ -485,114 +420,164 @@ export default function Resources() {
   );
 }
 
-function ResourceCardView({
+/**
+ * FeaturedCover — anchors the monumental opener on large real photography with a
+ * slow scroll parallax, mirroring Statement.tsx (useScroll/useTransform). The
+ * image holds the page to the house bar; the transform is gated on reduced-motion.
+ * Caption surfaces the featured resource title as a quiet editorial label.
+ */
+function FeaturedCover({
+  src,
+  caption,
+}: {
+  src: string;
+  caption?: string;
+}) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    reduce ? ["0%", "0%"] : ["-8%", "8%"],
+  );
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={reduce ? false : { opacity: 0 }}
+      whileInView={reduce ? undefined : { opacity: 1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 1, delay: 0.2, ease: EASE_OUT_EXPO }}
+      className="relative overflow-hidden rounded-[2px] bg-surface-2 aspect-[4/5] will-change-transform"
+      data-testid="resources-featured-cover"
+    >
+      <motion.img
+        src={src}
+        alt={caption || ""}
+        loading="lazy"
+        style={{ y, scale: 1.16 }}
+        className="absolute inset-0 h-full w-full object-cover will-change-transform"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-background/5 to-transparent" />
+      {caption && (
+        <span
+          className="absolute inset-x-0 bottom-0 p-5 t-caption text-white/80"
+          aria-hidden
+        >
+          {caption}
+        </span>
+      )}
+    </motion.div>
+  );
+}
+
+/**
+ * ResourceRow — one entry from the toolkit, told as a calm editorial hairline
+ * row (no card, no provider medallion, no chip cluster): a large title, the
+ * provider, what it unlocks as prose, and a quiet "open / download" affordance.
+ * Members-only items wear a small lock in the logical-end column. External vs
+ * file links keep their original target/rel + testid.
+ */
+function ResourceRow({
   r,
+  i,
   reduce,
-  priority = false,
 }: {
   r: ResourceCard;
+  i: number;
   reduce: boolean;
-  priority?: boolean;
 }) {
   const { lang, t } = useLanguage();
   const href = r.externalUrl || r.fileUrl;
   const provider = providerOf(r);
   const isExternal = !!r.externalUrl;
+  const isMembers = r.visibility === "members";
 
   return (
-    <motion.div
-      variants={reduce ? undefined : rise}
-      whileHover={reduce ? undefined : { y: -5 }}
-      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className="h-full"
-    >
-      <a
-        href={href || "#"}
-        target={href ? "_blank" : undefined}
-        rel={href ? "noreferrer" : undefined}
-        className="group block h-full"
-        data-testid={`resource-card-${r.id}`}
+    <li>
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 20 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.06, ease: EASE_OUT_EXPO }}
+        className="will-change-transform"
       >
-        <div
-          className={`card-base card-hover group h-full flex flex-col p-6 ${
-            r.featured ? "border-primary/30" : ""
-          }`}
+        <a
+          href={href || "#"}
+          target={href ? "_blank" : undefined}
+          rel={href ? "noreferrer" : undefined}
+          data-testid={`resource-card-${r.id}`}
+          className="group grid grid-cols-1 md:grid-cols-[minmax(0,17rem)_1fr_auto] items-baseline gap-x-[clamp(1.5rem,3vw,2.75rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
         >
-          {/* Head — provider medallion + type chip + featured marker. */}
-          <div className="flex items-start gap-3.5 mb-4">
-            {r.coverUrl ? (
-              <span className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden ring-1 ring-border-strong bg-surface-3">
-                <img
-                  src={r.coverUrl}
-                  alt={provider || r.title}
-                  loading={priority ? "eager" : "lazy"}
-                  className="w-full h-full object-cover saturate-[1.03]"
-                />
-              </span>
-            ) : (
-              <span
-                className="shrink-0 grid place-items-center w-12 h-12 rounded-2xl text-white font-display font-black text-[19px] ring-2 ring-white/15 shadow-soft select-none transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-                style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
-                aria-hidden
-              >
-                {initialOf(provider || r.title)}
-              </span>
+          {/* Title + provider — the name carries it, no medallion. */}
+          <div className="min-w-0">
+            <h3
+              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+              style={{ fontSize: "clamp(1.3rem,2.4vw,1.85rem)", letterSpacing: "-0.024em", lineHeight: 1.14 }}
+            >
+              {r.title}
+            </h3>
+            {provider && (
+              <span className="block t-caption text-fg-secondary mt-1.5">{provider}</span>
             )}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] tracking-[0.12em] uppercase font-bold chip-sand">
-                {categoryLabel(r.category, lang)}
-              </span>
-              {r.featured && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-primary/12 text-primary border border-primary/30">
-                  <Star className="w-3 h-3 fill-primary text-primary" />
-                  {t({ ar: "مميّز", en: "Featured" })}
+          </div>
+
+          {/* What it unlocks — the real value, as prose. */}
+          {r.summary ? (
+            <p className="t-body text-[15px] md:text-[16px] max-w-xl">{r.summary}</p>
+          ) : (
+            <span aria-hidden />
+          )}
+
+          {/* Access + open affordance — start-aligned to the logical end. */}
+          <div className="flex items-center gap-x-5 whitespace-nowrap justify-self-start md:justify-self-end">
+            <span className="t-caption text-fg-secondary">
+              {categoryLabel(r.category, lang)}
+            </span>
+            <span className="inline-flex items-center gap-2 t-caption group-hover:text-foreground transition-colors">
+              {isMembers ? (
+                <span className="inline-flex items-center gap-1.5 text-primary">
+                  <Lock className="w-3.5 h-3.5" />
+                  {t({ ar: "للمنتسبين", en: "Members" })}
+                </span>
+              ) : (
+                <span className="text-fg-secondary">
+                  {isExternal ? t({ ar: "فتح", en: "Open" }) : t({ ar: "تنزيل", en: "Download" })}
                 </span>
               )}
-            </div>
+              {href &&
+                (isExternal ? (
+                  <ExternalLink className="w-3.5 h-3.5 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:translate-y-0.5" />
+                ))}
+            </span>
           </div>
+        </a>
+      </motion.div>
+    </li>
+  );
+}
 
-          {/* Title + provider line */}
-          <h3 className="font-display font-bold text-foreground text-[16px] leading-snug group-hover:text-primary transition-colors">
-            {r.title}
-          </h3>
-          {provider && (
-            <div className="text-[12px] font-semibold text-sand mt-1 truncate">
-              {provider}
-            </div>
-          )}
-
-          {/* Value line */}
-          {r.summary && (
-            <p className="t-body text-[13px] leading-[1.8] mt-3 line-clamp-3 flex-1">
-              {r.summary}
-            </p>
-          )}
-
-          {/* Footer — access marker + open affordance */}
-          <div className="mt-5 pt-4 border-t border-border flex items-center justify-between text-[12px] font-semibold">
-            {r.visibility === "members" ? (
-              <span className="inline-flex items-center gap-1.5 text-[11px] text-primary">
-                <Lock className="w-3 h-3" />
-                {t({ ar: "للمنتسبين", en: "Members" })}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-[11px] text-sand">
-                <Sparkles className="w-3 h-3" />
-                {t({ ar: "للجميع", en: "Everyone" })}
-              </span>
-            )}
-            {href && (
-              <span className="inline-flex items-center gap-1.5 text-muted-foreground group-hover:text-primary transition-colors">
-                {isExternal ? <ExternalLink className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-                {isExternal
-                  ? t({ ar: "فتح", en: "Open" })
-                  : t({ ar: "تنزيل", en: "Download" })}
-              </span>
-            )}
-          </div>
-        </div>
-      </a>
-    </motion.div>
+// Loading skeleton — hairline rows, matching the editorial list (not a card deck).
+function ResourcesSkeleton() {
+  return (
+    <ul className="border-t border-border-strong/60" data-testid="resources-loading">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <li
+          key={i}
+          className="grid grid-cols-1 md:grid-cols-[minmax(0,17rem)_1fr_auto] items-baseline gap-x-[clamp(1.5rem,3vw,2.75rem)] gap-y-3 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60"
+        >
+          <div className="h-7 w-48 max-w-[70%] rounded bg-surface-3 animate-pulse" />
+          <div className="h-5 w-full max-w-md rounded bg-surface-3 animate-pulse" />
+          <div className="h-5 w-24 rounded bg-surface-3 animate-pulse justify-self-start md:justify-self-end" />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -600,9 +585,10 @@ function ResourceCardView({
  * ResourcesEmpty — educational, never a dead end. Tells the true story: the
  * library is hand-curated and grows with every cohort, explains how a member
  * unlocks it, and routes to the real next steps (apply / book / log in). Holds
- * the dark editorial register with a numbered "what's coming" ledger.
+ * the dark editorial register — a monumental line and a calm hairline list of
+ * what's coming, no aura blob, no numbered icon ledger.
  */
-function ResourcesEmpty({ gated }: { gated: boolean }) {
+function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) {
   const { t } = useLanguage();
 
   const coming = [
@@ -630,86 +616,102 @@ function ResourcesEmpty({ gated }: { gated: boolean }) {
   ];
 
   return (
-    <section
-      data-testid="resources-empty"
-      className="card-base relative overflow-hidden p-7 sm:p-10"
-    >
-      <div aria-hidden className="ambient-grid absolute inset-0 -z-10" />
-      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4rem)] gap-y-9 items-start">
-        <div className="lg:col-span-6">
-          <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary/50" />
-            <span className="eyebrow">{t({ ar: "المكتبة قيد البناء", en: "The library is being built" })}</span>
-          </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.6rem)", lineHeight: 1.07, letterSpacing: "-0.026em" }}
+    <section data-testid="resources-empty">
+      <motion.h2
+        className="font-display text-foreground max-w-[15ch]"
+        style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+      >
+        {[
+          t({ ar: "مكتبةٌ", en: "A library" }),
+          t({ ar: "ننتقيها ", en: "we curate" }),
+          <span key="accent" className="text-primary">{t({ ar: "بأيدينا.", en: "by hand." })}</span>,
+        ].map((ln, i) => (
+          <motion.span
+            key={i}
+            className="block will-change-transform"
+            initial={reduce ? false : { opacity: 0, y: 30 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
           >
-            {t({ ar: "مكتبةٌ ", en: "A library we " })}
-            <span className="text-primary">{t({ ar: "ننتقيها بأيدينا.", en: "curate by hand." })}</span>
-          </h2>
-          <p className="t-body-lg mt-5 max-w-xl">
-            {t({
-              ar: gated
-                ? "أوّل دفعة من الموارد للمنتسبين تُجهَّز الآن. سجّل دخولك لتفتح ما هو متاح، أو قدّم للانضمام لمساحتنا والوصول إلى كلّ ما نبنيه."
-                : "لا نملأ هذه الصفحة بروابط عامّة — نختار كلّ مورد بعناية ليخدم صانعًا حقيقيًّا. أوّل دفعة في الطريق، وتنمو المكتبة مع كلّ برنامج ودفعة.",
-              en: gated
-                ? "The first batch of member resources is being prepared. Log in to unlock what's available, or apply to join the space and reach everything we build."
-                : "We don't pad this page with generic links — every resource is chosen to serve a real maker. The first batch is on the way, and the library grows with every program and cohort.",
-            })}
-          </p>
+            {ln}
+          </motion.span>
+        ))}
+      </motion.h2>
 
-          <div className="flex flex-wrap items-center gap-2.5 mt-7">
-            {gated ? (
-              <Link
-                href="/login"
-                data-testid="resources-empty-login"
-                className="group inline-flex items-center gap-2 h-11 px-6 rounded-full cta-fill text-[13.5px] font-bold"
-              >
-                {t({ ar: "تسجيل الدخول", en: "Log in" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </Link>
-            ) : (
-              <Link
-                href="/apply"
-                data-testid="resources-empty-apply"
-                className="group inline-flex items-center gap-2 h-11 px-6 rounded-full cta-fill text-[13.5px] font-bold"
-              >
-                {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </Link>
-            )}
-            <Link
-              href="/book"
-              data-testid="resources-empty-book"
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-surface-2 border border-border-strong text-fg-secondary text-[13.5px] font-semibold hover:border-primary/40 hover:text-foreground transition-colors"
-            >
-              {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
-            </Link>
-          </div>
-        </div>
+      <motion.p
+        initial={reduce ? false : { opacity: 0, y: 18 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-8%" }}
+        transition={{ duration: 0.85, delay: 0.4, ease: EASE_OUT_EXPO }}
+        className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+        style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+      >
+        {t({
+          ar: gated
+            ? "أوّل دفعة من الموارد للمنتسبين تُجهَّز الآن. سجّل دخولك لتفتح ما هو متاح، أو قدّم للانضمام لمساحتنا والوصول إلى كلّ ما نبنيه."
+            : "لا نملأ هذه الصفحة بروابط عامّة — نختار كلّ مورد بعناية ليخدم صانعًا حقيقيًّا. أوّل دفعة في الطريق، وتنمو المكتبة مع كلّ برنامج ودفعة.",
+          en: gated
+            ? "The first batch of member resources is being prepared. Log in to unlock what's available, or apply to join the space and reach everything we build."
+            : "We don't pad this page with generic links — every resource is chosen to serve a real maker. The first batch is on the way, and the library grows with every program and cohort.",
+        })}
+      </motion.p>
 
-        {/* What's coming — numbered ledger, hairline-divided, no icon tiles. */}
-        <div className="lg:col-span-6 lg:ps-6">
-          <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mb-1">
-            {t({ ar: "ما الذي يُجهَّز", en: "What's coming" })}
-          </div>
-          {coming.map((c, i) => (
-            <div
-              key={c.title}
-              className="grid grid-cols-[auto_1fr] gap-x-5 items-baseline border-t border-border-strong py-5"
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 16 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-8%" }}
+        transition={{ duration: 0.8, delay: 0.52, ease: EASE_OUT_EXPO }}
+        className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
+      >
+        {gated ? (
+          <Link
+            href="/login"
+            data-testid="resources-empty-login"
+            className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            {t({ ar: "تسجيل الدخول", en: "Log in" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        ) : (
+          <Link
+            href="/apply"
+            data-testid="resources-empty-apply"
+            className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        )}
+        <Link
+          href="/book"
+          data-testid="resources-empty-book"
+          className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
+        >
+          {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+        </Link>
+      </motion.div>
+
+      {/* What's coming — calm hairline rows, no numbered icon ledger. */}
+      <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        {coming.map((c, i) => (
+          <Reveal
+            as="li"
+            key={c.title}
+            delay={i * 0.06}
+            className="grid grid-cols-1 md:grid-cols-[minmax(0,17rem)_1fr] items-baseline gap-x-[clamp(1.5rem,3vw,2.75rem)] gap-y-1.5 py-[clamp(1.5rem,3vw,2.25rem)] border-b border-border-strong/60"
+          >
+            <h3
+              className="font-display font-bold text-foreground"
+              style={{ fontSize: "clamp(1.2rem,2.2vw,1.6rem)", letterSpacing: "-0.022em", lineHeight: 1.15 }}
             >
-              <span className="font-display text-[20px] font-bold tnum text-fg-faint leading-none">
-                {t({ ar: ["٠١", "٠٢", "٠٣"][i], en: String(i + 1).padStart(2, "0") })}
-              </span>
-              <div>
-                <div className="font-display font-bold text-foreground text-[15px]">{c.title}</div>
-                <p className="t-caption text-muted-foreground mt-1">{c.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+              {c.title}
+            </h3>
+            <p className="t-body text-[15px] md:text-[16px] max-w-xl">{c.body}</p>
+          </Reveal>
+        ))}
+      </ul>
     </section>
   );
 }

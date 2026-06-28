@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { CalendarDays, ArrowLeft, Layers, Users } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { PageShell } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   COHORT_STATUS_LABELS,
   formatArabicDate,
@@ -35,15 +36,6 @@ interface CohortRow {
   ventureCount: number;
 }
 
-const stagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
-};
-const rise: Variants = {
-  hidden: { opacity: 0, y: 26 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
-};
-
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
@@ -61,7 +53,7 @@ function fmtDate(iso: string | null, lang: Lang): string {
     ? formatArabicDate(iso)
     : new Date(iso).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
 }
-// Compact range for chips/headers: "May — Aug 2026" without restating the year.
+// Compact range for headers: "May — Aug 2026" without restating the year.
 function fmtRange(a: string | null, b: string | null, lang: Lang): string {
   if (!a) return "";
   const opts: Intl.DateTimeFormatOptions = { month: "short", year: "numeric" };
@@ -71,32 +63,56 @@ function fmtRange(a: string | null, b: string | null, lang: Lang): string {
   return b ? `${start} — ${end}` : end;
 }
 
-/** Live pulse used on running/open cohorts (cerulean). */
-function Dot() {
-  return (
-    <span className="relative flex h-2 w-2">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-sand/60 animate-ping" />
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-sand" />
-    </span>
-  );
+type T = ReturnType<typeof useLanguage>["t"];
+
+// The three-movement cohort model, shared by the loaded body and the empty
+// state so the teaching never drifts between the two surfaces.
+function cohortModelSteps(t: T): { title: string; body: string }[] {
+  return [
+    {
+      title: t({ ar: "تنطلق الدّفعة", en: "A cohort opens" }),
+      body: t({
+        ar: "نَفتح التقديم لمسارٍ محدّد، ونَقبل مجموعةً صغيرة من المؤسّسين معًا — فتبدأ الرّحلة كصفٍّ واحد، لا كأفرادٍ متفرّقين.",
+        en: "We open applications for a track and accept a small class of founders together — so the journey starts as one cohort, not as scattered individuals.",
+      }),
+    },
+    {
+      title: t({ ar: "نَبني أسبوعًا بأسبوع", en: "We build, week by week" }),
+      body: t({
+        ar: "إرشادٌ فرديّ، ساعات مكتبيّة، موارد، ومحطّات أسبوعيّة. تَنضج المشاريع جنبًا إلى جنب، فيُصبح تقدّم كلّ مؤسّسٍ وقودًا لمن حوله.",
+        en: "1:1 mentorship, office hours, resources and weekly milestones. Ventures mature side by side, so each founder's progress becomes fuel for the rest.",
+      }),
+    },
+    {
+      title: t({ ar: "نَختم بـ Demo Day", en: "We close with a Demo Day" }),
+      body: t({
+        ar: "تَنتهي كلّ دفعة بيوم عرضٍ تَقف فيه المشاريع أمام شبكةٍ من الدّاعمين والمرشدين والشّركاء — لحظة تَتحوّل فيها الرّحلة إلى فرصة.",
+        en: "Every cohort ends with a Demo Day where ventures stand before a network of supporters, mentors and partners — the moment the journey turns into opportunity.",
+      }),
+    },
+  ];
 }
 
-function StatusChip({ status, lang, t }: { status: CohortStatus; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+/** Live status word — a quiet cerulean pulse + the label, no chip, no medallion. */
+function StatusLine({ status, lang, t }: { status: CohortStatus; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+  const reduce = useReducedMotion();
   const live = isLive(status);
-  const done = status === "completed";
+  const label = t({ ar: COHORT_STATUS_LABELS[status], en: COHORT_STATUS_LABELS_EN[status] });
+  if (live) {
+    return (
+      <span className="inline-flex items-center gap-2 whitespace-nowrap">
+        <span aria-hidden className="relative flex h-2 w-2">
+          {!reduce && (
+            <span className="absolute inline-flex h-full w-full rounded-full bg-sand/60 animate-ping motion-reduce:hidden" />
+          )}
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-sand" />
+        </span>
+        <span className="t-caption text-sand font-semibold">{label}</span>
+      </span>
+    );
+  }
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-semibold rtl:tracking-normal ${
-        live
-          ? "chip-sand"
-          : done
-            ? "bg-surface-3 text-muted-foreground border border-border"
-            : "bg-primary/12 text-primary border border-primary/30"
-      }`}
-    >
-      {live && <Dot />}
-      {t({ ar: COHORT_STATUS_LABELS[status], en: COHORT_STATUS_LABELS_EN[status] })}
-    </span>
+    <span className="t-caption text-fg-secondary whitespace-nowrap">{label}</span>
   );
 }
 
@@ -104,7 +120,6 @@ export default function Cohorts() {
   const { lang, t } = useLanguage();
   const [rows, setRows] = useState<CohortRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const reduce = useReducedMotion();
 
   useEffect(() => {
     document.title =
@@ -132,12 +147,12 @@ export default function Cohorts() {
   }, [lang]);
 
   // Live cohorts first, then most-recent. The very first live one becomes the
-  // featured highlight; the rest fill the grid.
+  // featured highlight; the rest become the editorial roster of rows.
   const sorted = [...(rows ?? [])].sort(
     (a, b) => Number(isLive(b.status)) - Number(isLive(a.status)),
   );
   const featured = sorted.find((c) => isLive(c.status)) ?? sorted[0] ?? null;
-  const grid = featured ? sorted.filter((c) => c.id !== featured.id) : sorted;
+  const rest = featured ? sorted.filter((c) => c.id !== featured.id) : sorted;
   const total = rows?.length ?? 0;
   const liveCount = (rows ?? []).filter((c) => isLive(c.status)).length;
   const graduated = (rows ?? []).filter((c) => c.status === "completed").length;
@@ -163,58 +178,19 @@ export default function Cohorts() {
       ) : rows && rows.length === 0 ? (
         <EmptyCohorts />
       ) : (
-        <div className="space-y-[clamp(3.5rem,7vw,6rem)]">
-          {/* THE MODEL — how a cohort runs, as a numbered editorial ledger */}
+        <div className="space-y-[clamp(5rem,11vw,9rem)]">
+          {/* THE MODEL — three movements, told as calm editorial hairline rows */}
           <CohortModel />
 
-          {/* FEATURED — the live (or most recent) cohort, given room */}
+          {/* FEATURED — the live (or most recent) cohort, as a grand full-bleed block */}
           {featured && <FeaturedCohort c={featured} liveCount={liveCount} />}
 
-          {/* THE GRID — every other cohort, on one quiet card spec */}
-          {grid.length > 0 && (
-            <section>
-              <Reveal as="div" className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 mb-[clamp(2rem,4vw,3rem)]">
-                <div>
-                  <div className="eyebrow mb-4">
-                    {t({ ar: "كلّ الدّفعات", en: "Every cohort" })}
-                  </div>
-                  <h2
-                    className="font-display font-extrabold text-foreground"
-                    style={{ fontSize: "clamp(1.7rem, 3.4vw, 2.6rem)", lineHeight: 1.06, letterSpacing: "-0.026em" }}
-                  >
-                    {t({ ar: "الأرشيف ", en: "The cohort " })}
-                    <span className="text-primary">{t({ ar: "الكامل", en: "archive" })}</span>
-                  </h2>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <Chip>
-                    <span className="tnum font-semibold text-sand">{num(total, lang)}</span>{" "}
-                    {t({ ar: "دفعات", en: "cohorts" })}
-                  </Chip>
-                  {graduated > 0 && (
-                    <Chip>
-                      <span className="tnum font-semibold text-sand">{num(graduated, lang)}</span>{" "}
-                      {t({ ar: "خُتِمت بـ Demo Day", en: "graduated" })}
-                    </Chip>
-                  )}
-                </div>
-              </Reveal>
-
-              <motion.div
-                variants={reduce ? undefined : stagger}
-                initial={reduce ? undefined : "hidden"}
-                whileInView={reduce ? undefined : "show"}
-                viewport={{ once: true, margin: "-8% 0px" }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
-              >
-                {grid.map((c) => (
-                  <CohortCard key={c.id} c={c} reduce={!!reduce} />
-                ))}
-              </motion.div>
-            </section>
+          {/* THE ROSTER — every other cohort as a calm editorial hairline row */}
+          {rest.length > 0 && (
+            <CohortRoster rows={rest} total={total} graduated={graduated} />
           )}
 
-          {/* Always-on apply rail — a cohort is a door, this is the handle */}
+          {/* Always-on apply close — a cohort is a door, this is the handle */}
           <ApplyRail liveCount={liveCount} />
         </div>
       )}
@@ -222,450 +198,482 @@ export default function Cohorts() {
   );
 }
 
-/* ── THE MODEL — three movements of a cohort, as a hairline-divided ledger ── */
+/* ── THE MODEL — one monumental line, three movements as calm hairline rows. ──
+   No eyebrow kicker, no dominant 01/02/03 numerals, no sticky card — scale and
+   space carry it the house way. ── */
 function CohortModel() {
-  const { lang, t } = useLanguage();
-  const idx = (i: number) => (lang === "ar" ? ["٠١", "٠٢", "٠٣"][i] : String(i + 1).padStart(2, "0"));
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
 
-  const steps = [
-    {
-      title: t({ ar: "تنطلق الدّفعة", en: "A cohort opens" }),
-      body: t({
-        ar: "نَفتح التقديم لمسارٍ محدّد، ونَقبل مجموعةً صغيرة من المؤسّسين معًا — فتبدأ الرّحلة كصفٍّ واحد، لا كأفرادٍ متفرّقين.",
-        en: "We open applications for a track and accept a small class of founders together — so the journey starts as one cohort, not as scattered individuals.",
-      }),
-    },
-    {
-      title: t({ ar: "نَبني أسبوعًا بأسبوع", en: "We build, week by week" }),
-      body: t({
-        ar: "إرشادٌ فرديّ، ساعات مكتبيّة، موارد، ومحطّات أسبوعيّة. تَنضج المشاريع جنبًا إلى جنب، فيُصبح تقدّم كلّ مؤسّسٍ وقودًا لمن حوله.",
-        en: "1:1 mentorship, office hours, resources and weekly milestones. Ventures mature side by side, so each founder's progress becomes fuel for the rest.",
-      }),
-    },
-    {
-      title: t({ ar: "نَختم بـ Demo Day", en: "We close with a Demo Day" }),
-      body: t({
-        ar: "تَنتهي كلّ دفعة بيوم عرضٍ تَقف فيه المشاريع أمام شبكةٍ من الدّاعمين والمرشدين والشّركاء — لحظة تَتحوّل فيها الرّحلة إلى فرصة.",
-        en: "Every cohort ends with a Demo Day where ventures stand before a network of supporters, mentors and partners — the moment the journey turns into opportunity.",
-      }),
-    },
-  ];
+  const steps = cohortModelSteps(t);
 
   return (
     <section>
-      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-10 items-start">
-        <Reveal as="div" className="lg:col-span-5 lg:sticky lg:top-28">
-          <div className="eyebrow mb-5">
-            {t({ ar: "كيف تَعمل الدّفعة", en: "How a cohort works" })}
-          </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(1.9rem, 4vw, 3.2rem)", lineHeight: 1.05, letterSpacing: "-0.026em" }}
-          >
-            {t({ ar: "ثلاث حركات، ", en: "Three movements, " })}
-            <span className="text-primary">{t({ ar: "صفٌّ واحد.", en: "one class." })}</span>
-          </h2>
-          <p className="t-body mt-5 max-w-md">
-            {t({
-              ar: "النموذج الذي يَجعل دفعةً من غزّة تَبني أسرع: قبولٌ جماعيّ، بناءٌ متزامن، وخطٌّ نهايةٌ واحد يَجمع الجميع.",
-              en: "The model that makes a Gaza cohort build faster: a shared start, synchronized building, and one finish line that gathers everyone.",
-            })}
-          </p>
-        </Reveal>
+      <header className="max-w-4xl">
+        <h2
+          className="font-display text-foreground"
+          style={{ fontSize: "clamp(1.9rem, 4.6vw, 3.5rem)", lineHeight: 1.04, letterSpacing: "-0.04em", fontWeight: 700 }}
+        >
+          {[
+            t({ ar: "ثلاث حركات،", en: "Three movements," }),
+            t({ ar: "صفٌّ واحد.", en: "one class." }),
+          ].map((ln, i) => (
+            <motion.span
+              key={i}
+              className="block will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+            >
+              {ln}
+            </motion.span>
+          ))}
+        </h2>
 
-        <div className="lg:col-span-7">
-          {steps.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.05}>
-              <div className="grid grid-cols-[auto_1fr] gap-x-6 sm:gap-x-9 items-baseline border-t border-border-strong py-7 sm:py-9 first:border-t-0 first:pt-0">
-                <span className="font-display text-[clamp(1.5rem,2.4vw,2.1rem)] font-bold tabular-nums text-fg-faint leading-none">
-                  {idx(i)}
-                </span>
-                <div>
-                  <h3
-                    className="font-display font-bold text-foreground"
-                    style={{ fontSize: "clamp(1.25rem, 2.2vw, 1.75rem)", letterSpacing: "-0.018em", lineHeight: 1.15 }}
-                  >
-                    {s.title}
-                  </h3>
-                  <p className="t-body mt-2.5 max-w-xl">{s.body}</p>
-                </div>
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.85, delay: 0.4, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+          style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+        >
+          {t({
+            ar: "النموذج الذي يَجعل دفعةً من غزّة تَبني أسرع: قبولٌ جماعيّ، بناءٌ متزامن، وخطُّ نهايةٍ واحد يَجمع الجميع.",
+            en: "The model that makes a Gaza cohort build faster: a shared start, synchronized building, and one finish line that gathers everyone.",
+          })}
+        </motion.p>
+      </header>
+
+      <ul className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
+        {steps.map((s, i) => (
+          <li key={s.title}>
+            <Reveal delay={Math.min(i, 6) * 0.06}>
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-2 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60">
+                <h3
+                  className="font-display font-bold text-foreground"
+                  style={{ fontSize: "clamp(1.4rem,2.8vw,2.1rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
+                >
+                  {s.title}
+                </h3>
+                <p className="t-body text-[15px] md:text-[16px] max-w-2xl">{s.body}</p>
               </div>
             </Reveal>
-          ))}
-        </div>
-      </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
-/* ── FEATURED — the live (or latest) cohort, with photo + meta rail ── */
+/* ── FEATURED — the live (or latest) cohort, as a grand full-bleed editorial
+   block: large photography with parallax, a monumental name overlaid, real DATA
+   in a calm cerulean meta rail. No card-base deck, no Layers medallion. ── */
+// Curated house photograph behind a cover-less cohort — real /photos full-bleed,
+// so the featured block carries photographic weight even without an uploaded cover.
+const FEATURED_FALLBACK_PHOTO = "/photos/IMG_8352.webp";
+
 function FeaturedCohort({ c, liveCount }: { c: CohortRow; liveCount: number }) {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
   const live = isLive(c.status);
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
+  const coverSrc = c.coverUrl ?? FEATURED_FALLBACK_PHOTO;
+
+  const label = live
+    ? liveCount > 1
+      ? t({ ar: "دفعة جارية الآن", en: "Live cohort" })
+      : t({ ar: "الدّفعة الجارية", en: "The current cohort" })
+    : t({ ar: "أحدث دفعة", en: "Latest cohort" });
+
+  // Real DATA only, rendered in cerulean: dates, venture count, Demo Day.
+  const meta: { k: string; v: React.ReactNode }[] = [];
+  if (c.startsAt || c.endsAt) {
+    meta.push({
+      k: t({ ar: "المدّة", en: "Runs" }),
+      v: <span className="tnum text-sand">{fmtRange(c.startsAt, c.endsAt, lang)}</span>,
+    });
+  }
+  meta.push({
+    k: t({ ar: "المشاريع", en: "Ventures" }),
+    v: (
+      <span>
+        <span className="tnum text-sand">{num(c.ventureCount, lang)}</span>{" "}
+        <span className="text-fg-secondary">{t({ ar: c.ventureCount === 1 ? "مشروع" : "مشاريع", en: "in the class" })}</span>
+      </span>
+    ),
+  });
+  if (c.demoDayAt) {
+    meta.push({
+      k: t({ ar: "يوم العرض", en: "Demo Day" }),
+      v: <span className="tnum text-sand-bright">{fmtDate(c.demoDayAt, lang)}</span>,
+    });
+  }
+
   return (
     <section>
-      <Reveal as="div" className="flex items-center gap-3 mb-6">
-        <span aria-hidden className="h-px w-9 bg-primary/50" />
-        <span className="eyebrow">
-          {live
-            ? liveCount > 1
-              ? t({ ar: "دفعة جارية الآن", en: "Live cohort" })
-              : t({ ar: "الدّفعة الجارية", en: "The current cohort" })
-            : t({ ar: "أحدث دفعة", en: "Latest cohort" })}
+      <Reveal as="p" className="t-caption text-fg-secondary mb-[clamp(1.25rem,2.5vw,2rem)]">
+        {label}
+      </Reveal>
+
+      <motion.div
+        ref={ref}
+        initial={reduce ? false : { opacity: 0 }}
+        whileInView={reduce ? undefined : { opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+      >
+        <Link
+          href={`/cohorts/${c.slug}`}
+          className="group block"
+          data-testid={`cohort-card-${c.id}`}
+        >
+          {/* Full-bleed visual — real cover with parallax, or a curated house
+              photograph when a cohort has no cover yet (never a gradient plate). */}
+          <div className="relative overflow-hidden rounded-[clamp(1rem,2vw,1.5rem)] ring-1 ring-white/10">
+            <div className="relative h-[clamp(20rem,54vh,38rem)]">
+              <motion.img
+                src={coverSrc}
+                alt={c.coverUrl ? c.name : ""}
+                aria-hidden={c.coverUrl ? undefined : true}
+                loading="lazy"
+                style={{ y }}
+                className="absolute inset-0 h-[116%] w-full object-cover object-center saturate-[1.04] will-change-transform transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+              />
+              {/* Reading scrim — keeps the overlaid name legible on any photo. */}
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{ background: "linear-gradient(0deg, hsl(225 44% 4% / 0.94) 0%, hsl(225 44% 4% / 0.45) 42%, transparent 78%)" }}
+              />
+
+              <div className="absolute inset-0 flex items-end">
+                <div className="w-full p-[clamp(1.5rem,4vw,3.5rem)]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <StatusLine status={c.status} lang={lang} t={t} />
+                    <span aria-hidden className="h-3 w-px bg-white/25" />
+                    <span className="t-caption text-white/65 truncate">{c.programTitle}</span>
+                  </div>
+
+                  <motion.h3
+                    className="font-display font-bold text-white max-w-[18ch]"
+                    style={{ fontSize: "clamp(1.9rem,5vw,3.75rem)", lineHeight: 1.04, letterSpacing: "-0.03em" }}
+                    initial={reduce ? false : { opacity: 0, y: 22 }}
+                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+                  >
+                    {c.name}
+                  </motion.h3>
+
+                  {c.summary && (
+                    <p className="mt-4 max-w-2xl text-white/70 line-clamp-2" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", lineHeight: 1.55 }}>
+                      {c.summary}
+                    </p>
+                  )}
+
+                  <span className="mt-6 inline-flex items-center gap-2 text-white font-semibold" style={{ fontSize: "clamp(0.95rem,1.4vw,1.1rem)" }}>
+                    {t({ ar: "ادخل إلى الدّفعة", en: "Enter the cohort" })}
+                    <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Real DATA, as a calm meta rail beneath the block — cerulean for figures. */}
+          {meta.length > 0 && (
+            <dl className="mt-[clamp(1.5rem,3vw,2.25rem)] flex flex-wrap gap-x-[clamp(2.5rem,6vw,5rem)] gap-y-5">
+              {meta.map((m) => (
+                <div key={m.k}>
+                  <dt className="t-caption text-fg-secondary mb-1.5">{m.k}</dt>
+                  <dd className="font-display font-semibold" style={{ fontSize: "clamp(1.05rem,1.7vw,1.35rem)", letterSpacing: "-0.01em" }}>
+                    {m.v}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </Link>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ── THE ROSTER — every other cohort as a calm editorial hairline row:
+   name / program · dates / venture count / status — separated by hairlines,
+   never a deck of identical cards. Keeps the cohort-card-* testid + route. ── */
+function CohortRoster({
+  rows,
+  total,
+  graduated,
+}: {
+  rows: CohortRow[];
+  total: number;
+  graduated: number;
+}) {
+  const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
+
+  return (
+    <section>
+      <Reveal as="div" className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 pb-[clamp(1.25rem,2.5vw,2rem)] border-b border-border-strong">
+        <h2
+          className="font-display font-bold text-foreground"
+          style={{ fontSize: "clamp(1.9rem,4.4vw,3.25rem)", lineHeight: 1.04, letterSpacing: "-0.03em" }}
+        >
+          {t({ ar: "الأرشيف ", en: "The cohort " })}
+          <span className="text-primary">{t({ ar: "الكامل", en: "archive" })}</span>
+        </h2>
+        <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2">
+          <span className="t-caption text-fg-secondary">
+            <span className="tnum font-semibold text-sand">{num(total, lang)}</span>{" "}
+            {t({ ar: "دفعات", en: "cohorts" })}
+          </span>
+          {graduated > 0 && (
+            <span className="t-caption text-fg-secondary">
+              <span className="tnum font-semibold text-sand">{num(graduated, lang)}</span>{" "}
+              {t({ ar: "خُتِمت بـ Demo Day", en: "graduated" })}
+            </span>
+          )}
+        </div>
+      </Reveal>
+
+      <ul>
+        {rows.map((c, i) => (
+          <li key={c.id}>
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 20 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.06, ease: EASE_OUT_EXPO }}
+              className="will-change-transform"
+            >
+              <Link
+                href={`/cohorts/${c.slug}`}
+                data-testid={`cohort-card-${c.id}`}
+                className="group grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-3 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+              >
+                <div className="min-w-0">
+                  <h3
+                    className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+                    style={{ fontSize: "clamp(1.4rem,3vw,2.3rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+                  >
+                    {c.name}
+                  </h3>
+                  <p className="t-body text-[14.5px] md:text-[15.5px] mt-2 text-fg-secondary">
+                    {c.programTitle}
+                    {c.startsAt && (
+                      <>
+                        <span aria-hidden className="mx-2 text-fg-faint">·</span>
+                        <span className="tnum">{fmtRange(c.startsAt, c.endsAt, lang)}</span>
+                      </>
+                    )}
+                    <span aria-hidden className="mx-2 text-fg-faint">·</span>
+                    <span className="tnum text-sand">{num(c.ventureCount, lang)}</span>{" "}
+                    {t({
+                      ar: c.ventureCount === 1 ? "مشروع" : "مشاريع",
+                      en: c.ventureCount === 1 ? "venture" : "ventures",
+                    })}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-x-[clamp(1.25rem,2.5vw,2rem)] whitespace-nowrap justify-self-start md:justify-self-end">
+                  <StatusLine status={c.status} lang={lang} t={t} />
+                  <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                </div>
+              </Link>
+            </motion.div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/* ── APPLY RAIL — evergreen close, a calm monumental line (no aura blob, no
+   card). A cohort is a door, here's the handle. ── */
+function ApplyRail({ liveCount }: { liveCount: number }) {
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
+  return (
+    <section>
+      <motion.h2
+        className="font-display text-foreground max-w-[16ch]"
+        style={{ fontSize: "clamp(2.2rem,5.4vw,4.25rem)", lineHeight: 1.02, letterSpacing: "-0.04em", fontWeight: 700 }}
+        initial={reduce ? false : { opacity: 0, y: 26 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+      >
+        {liveCount > 0
+          ? t({ ar: "هناك دفعةٌ ", en: "There's a cohort " })
+          : t({ ar: "الدفعة القادمة ", en: "The next cohort " })}
+        <span className="text-primary">
+          {liveCount > 0 ? t({ ar: "تَنتظرك.", en: "waiting." }) : t({ ar: "قد تكون لك.", en: "could be yours." })}
+        </span>
+      </motion.h2>
+
+      <Reveal as="p" delay={0.08} className="mt-[clamp(1.5rem,3vw,2.25rem)] max-w-2xl text-fg-secondary" >
+        <span style={{ fontSize: "clamp(1.05rem,1.8vw,1.4rem)", lineHeight: 1.6 }}>
+          {t({
+            ar: "الاحتضان مجّانيّ بالكامل، مدعومٌ من NasToNas. قدّم مشروعك، أو احجز جلسة استكشافيّة مع فريقنا قبل أن تقرّر.",
+            en: "Incubation is entirely free, backed by NasToNas. Apply with your venture, or book a discovery session with our team before you decide.",
+          })}
         </span>
       </Reveal>
 
-      <Reveal as="div" delay={0.05}>
+      <Reveal delay={0.14} className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-4">
         <Link
-          href={`/cohorts/${c.slug}`}
-          className="card-base card-hover group block overflow-hidden"
-          data-testid={`cohort-card-${c.id}`}
+          href="/apply?ref=cohorts"
+          data-testid="cohorts-apply"
+          className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
-          <div className="grid md:grid-cols-2">
-            {/* Visual — real cover, or a crafted crimson plate (never a faint glyph) */}
-            <div className="relative md:order-2 aspect-[16/10] md:aspect-auto md:min-h-[320px] overflow-hidden">
-              {c.coverUrl ? (
-                <img
-                  src={c.coverUrl}
-                  alt={c.name}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover saturate-[1.04] transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-                />
-              ) : (
-                <div
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ background: "radial-gradient(130% 110% at 70% 0%, hsl(var(--primary) / 0.28) 0%, hsl(var(--surface-3)) 70%)" }}
-                >
-                  <div
-                    className="flex h-[96px] w-[96px] items-center justify-center rounded-2xl text-white ring-2 ring-white/15 shadow-soft transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
-                    style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
-                  >
-                    <Layers className="w-11 h-11" strokeWidth={1.6} />
-                  </div>
-                </div>
-              )}
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l rtl:md:bg-gradient-to-r from-[#0A0E1A]/70 via-transparent to-transparent" />
-            </div>
-
-            {/* Editorial body */}
-            <div className="md:order-1 p-7 sm:p-9 flex flex-col">
-              <div className="flex items-center gap-2 flex-wrap mb-4">
-                <StatusChip status={c.status} lang={lang} t={t} />
-                <span className="text-[10.5px] tracking-[0.14em] uppercase text-muted-foreground font-semibold rtl:tracking-normal">
-                  · {c.programTitle}
-                </span>
-              </div>
-              <h3
-                className="font-display font-extrabold text-foreground"
-                style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)", lineHeight: 1.08, letterSpacing: "-0.024em" }}
-              >
-                {c.name}
-              </h3>
-              {c.summary && (
-                <p className="t-body mt-4 max-w-prose line-clamp-3">{c.summary}</p>
-              )}
-
-              <dl className="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border-strong pt-6">
-                {(c.startsAt || c.endsAt) && (
-                  <div>
-                    <dt className="text-[10.5px] tracking-[0.16em] uppercase text-muted-foreground font-semibold rtl:tracking-normal mb-1.5">
-                      {t({ ar: "المدّة", en: "Runs" })}
-                    </dt>
-                    <dd className="text-[14px] font-semibold text-fg-secondary tnum">
-                      {fmtRange(c.startsAt, c.endsAt, lang)}
-                    </dd>
-                  </div>
-                )}
-                <div>
-                  <dt className="text-[10.5px] tracking-[0.16em] uppercase text-muted-foreground font-semibold rtl:tracking-normal mb-1.5">
-                    {t({ ar: "المشاريع", en: "Ventures" })}
-                  </dt>
-                  <dd className="text-[14px] font-semibold text-fg-secondary">
-                    <span className="tnum text-sand">{num(c.ventureCount, lang)}</span>{" "}
-                    {t({ ar: c.ventureCount === 1 ? "مشروع" : "في الدّفعة", en: "in the class" })}
-                  </dd>
-                </div>
-                {c.demoDayAt && (
-                  <div className="col-span-2">
-                    <dt className="text-[10.5px] tracking-[0.16em] uppercase text-muted-foreground font-semibold rtl:tracking-normal mb-1.5">
-                      {t({ ar: "يوم العرض", en: "Demo Day" })}
-                    </dt>
-                    <dd className="text-[14px] font-semibold text-sand-bright tnum">
-                      {fmtDate(c.demoDayAt, lang)}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-
-              <span className="mt-7 inline-flex items-center gap-2 text-[13.5px] font-semibold text-primary self-start group-hover:gap-3 transition-all">
-                {t({ ar: "ادخل إلى الدّفعة", en: "Enter the cohort" })}
-                <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </span>
-            </div>
-          </div>
+          {t({ ar: "قدّم لدفعة", en: "Apply to a cohort" })}
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+        </Link>
+        <Link
+          href="/book?ref=cohorts"
+          className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
+        >
+          {t({ ar: "احجز جلسة", en: "Book a session" })}
+          <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
       </Reveal>
     </section>
   );
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[12.5px] font-medium text-fg-secondary bg-surface-2 border border-border-strong shadow-soft">
-      {children}
-    </span>
-  );
-}
-
-/* ── GRID CARD — one quiet card-base spec, status / dates / venture count ── */
-function CohortCard({ c, reduce }: { c: CohortRow; reduce: boolean }) {
-  const { lang, t } = useLanguage();
-  return (
-    <motion.div
-      variants={reduce ? undefined : rise}
-      whileHover={reduce ? undefined : { y: -6 }}
-      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className="h-full"
-    >
-      <Link
-        href={`/cohorts/${c.slug}`}
-        className="card-base card-hover group flex flex-col h-full overflow-hidden"
-        data-testid={`cohort-card-${c.id}`}
-      >
-        {c.coverUrl ? (
-          <div className="aspect-[16/9] overflow-hidden bg-surface-3">
-            <img
-              src={c.coverUrl}
-              alt={c.name}
-              className="w-full h-full object-cover saturate-[1.03] transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <div
-            className="aspect-[16/9] flex items-center justify-center"
-            style={{ background: "radial-gradient(130% 120% at 70% 0%, hsl(var(--primary) / 0.22) 0%, hsl(var(--surface-3)) 70%)" }}
-          >
-            <div
-              className="flex h-[60px] w-[60px] items-center justify-center rounded-xl text-white ring-2 ring-white/15 shadow-soft transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-              style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
-            >
-              <Layers className="w-7 h-7" strokeWidth={1.7} />
-            </div>
-          </div>
-        )}
-
-        <div className="relative p-6 flex-1 flex flex-col">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <StatusChip status={c.status} lang={lang} t={t} />
-            <span className="text-[10.5px] tracking-[0.14em] uppercase text-muted-foreground font-semibold rtl:tracking-normal truncate">
-              · {c.programTitle}
-            </span>
-          </div>
-
-          <h3 className="font-display font-bold text-foreground text-[18px] leading-snug mb-2 group-hover:text-primary transition-colors">
-            {c.name}
-          </h3>
-          {c.summary && (
-            <p className="t-body text-[13.5px] line-clamp-2 mb-4">{c.summary}</p>
-          )}
-
-          <div className="mt-auto space-y-1.5 text-[12.5px] text-muted-foreground pt-3 border-t border-border">
-            {c.startsAt && (
-              <div className="flex items-center gap-2">
-                <CalendarDays className="w-3.5 h-3.5 text-sand/80 shrink-0" />
-                <span className="tnum">{fmtRange(c.startsAt, c.endsAt, lang)}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <Users className="w-3.5 h-3.5 text-sand/80 shrink-0" />
-              <span>
-                <span className="tnum text-sand">{num(c.ventureCount, lang)}</span>{" "}
-                {t({
-                  ar: c.ventureCount === 1 ? "مشروع" : "مشاريع في الدّفعة",
-                  en: c.ventureCount === 1 ? "venture" : "ventures",
-                })}
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between text-[12.5px] text-primary font-semibold">
-            <span>{t({ ar: "تفاصيل الدّفعة", en: "Cohort details" })}</span>
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
-}
-
-/* ── APPLY RAIL — evergreen close; a cohort is a door, here's the handle ── */
-function ApplyRail({ liveCount }: { liveCount: number }) {
-  const { t } = useLanguage();
-  return (
-    <Reveal as="section">
-      <div className="card-base relative overflow-hidden p-8 sm:p-11">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 brand-aura opacity-40" />
-        <div className="relative flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
-          <div className="max-w-2xl">
-            <h2
-              className="font-display font-extrabold text-foreground"
-              style={{ fontSize: "clamp(1.6rem, 3.2vw, 2.5rem)", lineHeight: 1.07, letterSpacing: "-0.026em" }}
-            >
-              {liveCount > 0
-                ? t({ ar: "هناك دفعةٌ ", en: "There's a cohort " })
-                : t({ ar: "الدفعة القادمة ", en: "The next cohort " })}
-              <span className="text-primary">
-                {liveCount > 0 ? t({ ar: "تَنتظرك.", en: "waiting." }) : t({ ar: "قد تكون لك.", en: "could be yours." })}
-              </span>
-            </h2>
-            <p className="t-body mt-4">
-              {t({
-                ar: "الاحتضان مجّانيّ بالكامل، مدعومٌ من NasToNas. قدّم مشروعك، أو احجز جلسة استكشافيّة مع فريقنا قبل أن تقرّر.",
-                en: "Incubation is entirely free, backed by NasToNas. Apply with your venture, or book a discovery session with our team before you decide.",
-              })}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 lg:ms-auto shrink-0">
-            <Link
-              href="/apply?ref=cohorts"
-              data-testid="cohorts-apply"
-              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              {t({ ar: "قدّم لدفعة", en: "Apply to a cohort" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
-            <Link
-              href="/book?ref=cohorts"
-              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
-            >
-              {t({ ar: "احجز جلسة", en: "Book a session" })}
-              <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </Reveal>
-  );
-}
-
-/* ── EMPTY — evergreen, educational: the first cohorts are forming ── */
+/* ── EMPTY — evergreen, educational: the first cohorts are forming. Monumental
+   line + the model taught as calm hairline rows (no 01/02/03 card ledger,
+   no ambient-grid blob). Keeps the cohorts-empty-apply testid. ── */
 function EmptyCohorts() {
   const { t } = useLanguage();
-  const steps = [
-    {
-      k: t({ ar: "٠١", en: "01" }),
-      title: t({ ar: "نَفتح التقديم", en: "Applications open" }),
-      body: t({
-        ar: "نَختار مجموعةً صغيرة من المؤسّسين لينطلقوا معًا كأوّل دفعة.",
-        en: "We select a small class of founders to start together as the first cohort.",
-      }),
-    },
-    {
-      k: t({ ar: "٠٢", en: "02" }),
-      title: t({ ar: "نَبني معًا", en: "Build together" }),
-      body: t({
-        ar: "إرشاد، موارد، ومحطّات أسبوعيّة — رحلةٌ محدّدة بزمن من القبول إلى الإطلاق.",
-        en: "Mentorship, resources and weekly milestones — a time-boxed journey from acceptance to launch.",
-      }),
-    },
-    {
-      k: t({ ar: "٠٣", en: "03" }),
-      title: t({ ar: "Demo Day", en: "Demo Day" }),
-      body: t({
-        ar: "تَختم الدّفعة بيوم عرضٍ أمام شبكةٍ من الدّاعمين والشّركاء.",
-        en: "The cohort closes with a Demo Day before a network of supporters and partners.",
-      }),
-    },
-  ];
+  const reduce = useReducedMotion();
+  const steps = cohortModelSteps(t);
 
   return (
-    <section className="relative">
-      <div aria-hidden className="ambient-grid absolute inset-0 -z-10" />
-      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
-        <Reveal as="div" className="lg:col-span-7">
-          <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary/50" />
-            <span className="eyebrow">{t({ ar: "أوّل دفعة تَتشكّل", en: "The first cohort is forming" })}</span>
-          </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(2rem, 4.4vw, 3.4rem)", lineHeight: 1.05, letterSpacing: "-0.028em" }}
+    <section>
+      <header className="max-w-4xl">
+        <h2
+          className="font-display text-foreground"
+          style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        >
+          {[
+            t({ ar: "لم تَنطلق", en: "No cohort has" }),
+            t({ ar: "أوّل دفعة بعد —", en: "launched yet —" }),
+            <span key="accent" className="text-primary">{t({ ar: "كن في الأولى.", en: "be in the first." })}</span>,
+          ].map((ln, i) => (
+            <motion.span
+              key={i}
+              className="block will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+            >
+              {ln}
+            </motion.span>
+          ))}
+        </h2>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.85, delay: 0.4, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+          style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+        >
+          {t({
+            ar: "الحاضنة وُلِدت في غزّة في قلب الحرب، وهدفها تأهيل ١٬٠٠٠ موهبة خلال ثلاث سنوات. نُجهّز الآن أوّل دفعةٍ من المؤسّسين — قدّم اليوم لتكون من صفّها الأوّل.",
+            en: "Born in Gaza in the heart of the war, the incubator's goal is to ready 1,000 talents within three years. We're forming the very first cohort of founders now — apply today to be in its founding class.",
+          })}
+        </motion.p>
+
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.8, delay: 0.52, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
+        >
+          <Link
+            href="/apply?ref=cohorts-empty"
+            data-testid="cohorts-empty-apply"
+            className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
           >
-            {t({ ar: "لم تَنطلق أوّل دفعة بعد — ", en: "No cohort has launched yet — " })}
-            <span className="text-primary">{t({ ar: "كن في الأولى.", en: "be in the first." })}</span>
-          </h2>
-          <p className="t-body-lg mt-6 max-w-xl">
-            {t({
-              ar: "الحاضنة وُلِدت في غزّة في قلب الحرب، وهدفها تأهيل ١٬٠٠٠ موهبة خلال ثلاث سنوات. نُجهّز الآن أوّل دفعةٍ من المؤسّسين — قدّم اليوم لتكون من صفّها الأوّل.",
-              en: "Born in Gaza in the heart of the war, the incubator's goal is to ready 1,000 talents within three years. We're forming the very first cohort of founders now — apply today to be in its founding class.",
-            })}
-          </p>
+            {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+          <Link
+            href="/programs"
+            className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
+          >
+            {t({ ar: "استكشف البرامج", en: "Explore the programs" })}
+            <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
+      </header>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link
-              href="/apply?ref=cohorts-empty"
-              data-testid="cohorts-empty-apply"
-              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
-            <Link
-              href="/programs"
-              className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary"
-            >
-              {t({ ar: "استكشف البرامج", en: "Explore the programs" })}
-              <ArrowLeft className="w-4 h-4 rotate-180 rtl:rotate-0 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </Reveal>
-
-        {/* What a cohort will be — the model, taught while empty */}
-        <Reveal as="div" delay={0.1} className="lg:col-span-5">
-          <div className="card-base p-7 sm:p-8">
-            <div className="text-[10.5px] tracking-[0.18em] uppercase text-muted-foreground font-semibold rtl:tracking-normal mb-6">
-              {t({ ar: "ما الدّفعة؟", en: "What a cohort is" })}
-            </div>
-            <ol className="space-y-6">
-              {steps.map((s, i) => (
-                <li key={s.title} className="grid grid-cols-[auto_1fr] gap-x-5 items-baseline border-t border-border pt-6 first:border-t-0 first:pt-0">
-                  <span className="font-display text-[clamp(1.2rem,2vw,1.6rem)] font-bold tabular-nums text-sand leading-none">
-                    {s.k}
-                  </span>
-                  <div>
-                    <div className="font-display font-bold text-foreground text-[16px]">{s.title}</div>
-                    <p className="t-body text-[13px] mt-1.5">{s.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </Reveal>
-      </div>
+      {/* What a cohort will be — the model, taught while empty, as hairline rows. */}
+      <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        {steps.map((s, i) => (
+          <li key={s.title}>
+            <Reveal delay={Math.min(i, 6) * 0.06}>
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60">
+                <h3
+                  className="font-display font-bold text-foreground"
+                  style={{ fontSize: "clamp(1.3rem,2.6vw,1.9rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
+                >
+                  {s.title}
+                </h3>
+                <p className="t-body text-[15px] md:text-[16px] max-w-2xl">{s.body}</p>
+              </div>
+            </Reveal>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
+/* ── SKELETON — mirrors the loaded body (model line → tall featured block →
+   hairline roster rows) so content does not reflow when data arrives. ── */
 function SkeletonCohorts() {
   return (
-    <div className="space-y-12">
-      <div className="grid lg:grid-cols-12 gap-x-12 gap-y-8">
-        <div className="lg:col-span-5 space-y-4">
-          <div className="h-7 w-44 rounded-lg bg-surface-3 border border-border-strong animate-pulse" />
-          <div className="h-16 w-full rounded-lg bg-surface-3 border border-border-strong animate-pulse" />
-        </div>
-        <div className="lg:col-span-7 space-y-4">
+    <div className="space-y-[clamp(5rem,11vw,9rem)]">
+      {/* Model line + a few hairline rows */}
+      <div>
+        <div className="h-12 w-3/4 max-w-xl rounded-lg bg-surface-3 border border-border-strong animate-pulse" />
+        <div className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-20 w-full rounded-lg bg-surface-3 border border-border-strong animate-pulse" />
+            <div key={i} className="h-24 w-full border-b border-border-strong/60 flex items-center">
+              <div className="h-8 w-1/2 rounded bg-surface-3 animate-pulse" />
+            </div>
           ))}
         </div>
       </div>
-      <div className="rounded-[24px] h-72 bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-[24px] h-72 bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
-        ))}
+
+      {/* Featured — tall full-bleed block at the real loaded height (not 16/9) */}
+      <div>
+        <div className="h-4 w-32 rounded bg-surface-3 animate-pulse mb-[clamp(1.25rem,2.5vw,2rem)]" />
+        <div className="h-[clamp(20rem,54vh,38rem)] w-full rounded-[clamp(1rem,2vw,1.5rem)] bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
+      </div>
+
+      {/* Roster — hairline rows under a section line */}
+      <div>
+        <div className="h-10 w-2/3 max-w-md rounded bg-surface-3 border border-border-strong animate-pulse pb-[clamp(1.25rem,2.5vw,2rem)]" />
+        <div className="mt-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-24 w-full border-b border-border-strong/60 flex items-center">
+              <div className="h-8 w-2/5 rounded bg-surface-3 animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

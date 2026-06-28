@@ -123,7 +123,7 @@ export function PageShell({
               className="relative mb-10 sm:mb-14"
             >
               {/* Focal brand aura behind the page title — atmosphere, not flat */}
-              <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-70" />
+              <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-40" />
               {eyebrow && (
                 <div className="flex items-center gap-3 mb-5">
                   <span className="h-px w-9 bg-primary/50" />
@@ -134,10 +134,10 @@ export function PageShell({
               )}
               {title && (
                 <h1
-                  className="font-display font-extrabold text-foreground leading-[1.02]"
+                  className="font-display font-extrabold text-foreground leading-[1.0]"
                   style={{
-                    fontSize: "clamp(2.4rem, 6vw, 4rem)",
-                    letterSpacing: "-0.035em",
+                    fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
+                    letterSpacing: "-0.04em",
                   }}
                 >
                   {title}

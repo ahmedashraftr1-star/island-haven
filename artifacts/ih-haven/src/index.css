@@ -365,6 +365,10 @@
   [dir="rtl"] p,
   [dir="rtl"] .t-body,
   [dir="rtl"] .t-body-lg { letter-spacing: 0 !important; }
+  /* Non-heading display/numeric spans (timeline years, backer/way names) carry
+     inline Latin negative tracking — zero it so Arabic glyphs/numerals aren't tracked. */
+  [dir="rtl"] .font-display,
+  [dir="rtl"] .tnum { letter-spacing: 0 !important; }
 
   html { scroll-behavior: smooth; }
 

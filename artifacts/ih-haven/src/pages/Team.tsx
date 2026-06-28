@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Globe, Linkedin, Mail } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type RoleGroup = "leadership" | "mentors" | "advisors" | "support";
 
@@ -23,7 +25,6 @@ interface TeamMember {
 
 const GROUPS: {
   key: RoleGroup;
-  index: number;
   ar: string;
   en: string;
   blurb: { ar: string; en: string };
@@ -31,7 +32,6 @@ const GROUPS: {
 }[] = [
   {
     key: "leadership",
-    index: 1,
     ar: "القيادة",
     en: "Leadership",
     blurb: {
@@ -42,7 +42,6 @@ const GROUPS: {
   },
   {
     key: "mentors",
-    index: 2,
     ar: "الإرشاد",
     en: "Mentors",
     blurb: {
@@ -53,7 +52,6 @@ const GROUPS: {
   },
   {
     key: "advisors",
-    index: 3,
     ar: "الاستشارة",
     en: "Advisors",
     blurb: {
@@ -64,7 +62,6 @@ const GROUPS: {
   },
   {
     key: "support",
-    index: 4,
     ar: "التشغيل",
     en: "Operations",
     blurb: {
@@ -81,14 +78,6 @@ function toArabicNum(n: number): string {
 // Localised numeral: Arabic-Indic in AR, Western digits in EN.
 function num(n: number, lang: Lang): string {
   return lang === "ar" ? toArabicNum(n) : String(n);
-}
-// Two-digit section index (٠١ / 01).
-function idx(n: number, lang: Lang): string {
-  return lang === "ar" ? toArabicNum(n).padStart(2, "٠") : String(n).padStart(2, "0");
-}
-// First grapheme of the name → medallion initial.
-function initialOf(name: string): string {
-  return Array.from(name.trim())[0] ?? "؟";
 }
 
 export default function Team() {
@@ -154,9 +143,14 @@ export default function Team() {
         <TeamEmpty />
       ) : (
         <>
-          {/* Founding narrative — the "why", told the editorial way. Real story,
-              no fabricated names; numerals in cerulean .tnum. */}
+          {/* Founding narrative — the "why", told the monumental editorial way.
+              One calm line, the two real figures as inline cerulean data, acres
+              of space. No eyebrow rule, no card panel, no ping dot. */}
           <FoundingNarrative total={total} teams={sections.length} />
+
+          {/* One monumental full-bleed photograph with a slow scroll parallax —
+              the page's single large-photography moment, mirroring Statement. */}
+          <PhotoBand />
 
           {sections.map((g) => (
             <TeamSection key={g.key} group={g} members={grouped[g.key]} />
@@ -164,8 +158,9 @@ export default function Team() {
         </>
       )}
 
-      {/* Warm dual-path closing — mentor + join, never a dead end */}
-      <JoinBand show={hasTeam || (team !== null && team.length === 0)} />
+      {/* Warm dual-path closing — only when a real roster exists; the empty
+          state already supplies its own dual-path mentor CTA. */}
+      <JoinBand show={hasTeam} />
     </PageShell>
   );
 }
@@ -174,69 +169,133 @@ export default function Team() {
 
 function FoundingNarrative({ total, teams }: { total: number; teams: number }) {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
 
   const ledger = [
-    {
-      v: total,
-      label: t({ ar: "عضوًا في الفريق", en: "team members" }),
-    },
-    {
-      v: teams,
-      label: t({ ar: "فِرَق متخصِّصة", en: "specialised teams" }),
-    },
+    { v: total, label: t({ ar: "عضوًا في الفريق", en: "team members" }) },
+    { v: teams, label: t({ ar: "فِرَق متخصِّصة", en: "specialised teams" }) },
   ];
 
   return (
-    <Reveal as="section" className="mb-16 sm:mb-20">
-      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-8 items-start">
-        <div className="lg:col-span-7">
-          <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary/50" />
-            <span className="eyebrow">{t({ ar: "بدأنا عام ٢٠٢٤", en: "Founded in 2024" })}</span>
-          </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.6rem)", lineHeight: 1.08, letterSpacing: "-0.028em" }}
-          >
-            {t({ ar: "فريقٌ صغير، ", en: "A small team, " })}
-            <span className="text-primary">{t({ ar: "هدفٌ كبير.", en: "a vast goal." })}</span>
-          </h2>
-          <p className="t-body mt-5 max-w-xl">
-            {t({
-              ar: "نَسعى لتمكين ألف موهبة غزّاويّة خلال ثلاث سنوات للدّخول إلى الاقتصاد الرّقميّ العالميّ — عبر ثلاثة محاور: البنية والحلول، التطوير والابتكار، والشّبكات والأثر العالميّ. كلّ هذا مجّانًا، بدعمٍ من «من النّاس إلى النّاس».",
-              en: "We aim to empower a thousand Gazan talents over three years to enter the global digital economy — across three axes: infrastructure & solutions, development & innovation, and global networking & impact. All of it free, backed by NasToNas.",
-            })}
-          </p>
-        </div>
+    <section className="mb-[clamp(4.5rem,9vw,8rem)]">
+      <header className="max-w-4xl">
+        <h2
+          className="font-display text-foreground"
+          style={{ fontSize: "clamp(2.4rem, 6.4vw, 5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        >
+          {[
+            t({ ar: "فريقٌ صغير،", en: "A small team," }),
+            <span key="accent">
+              {t({ ar: "هدفٌ ", en: "a vast " })}
+              <span className="text-primary">{t({ ar: "كبير.", en: "goal." })}</span>
+            </span>,
+          ].map((ln, i) => (
+            <motion.span
+              key={i}
+              className="block will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+            >
+              {ln}
+            </motion.span>
+          ))}
+        </h2>
 
-        {/* Ledger panel — cerulean numerals carry the proof */}
-        <div className="lg:col-span-5">
-          <div className="card-base p-7 sm:p-8">
-            <div className="grid grid-cols-2 gap-6">
-              {ledger.map((row, i) => (
-                <div key={i}>
-                  <div
-                    className="tnum font-display font-black text-sand-bright leading-[0.9]"
-                    style={{ fontSize: "clamp(2.4rem, 5vw, 3.4rem)", letterSpacing: "-0.04em" }}
-                  >
-                    {num(row.v, lang)}
-                  </div>
-                  <div className="mt-2 text-[13px] text-fg-secondary leading-snug">{row.label}</div>
-                </div>
-              ))}
-            </div>
-            <div aria-hidden className="my-6 h-px bg-border-strong/70" />
-            <div className="flex items-center gap-2.5 text-[12.5px] text-muted-foreground">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
-              </span>
-              {t({ ar: "بدعمٍ من · من النّاس إلى النّاس", en: "Backed by · NasToNas" })}
-            </div>
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 18 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.85, delay: 0.36, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+          style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+        >
+          {t({
+            ar: "نَسعى لتمكين ألف موهبة غزّاويّة خلال ثلاث سنوات للدّخول إلى الاقتصاد الرّقميّ العالميّ — عبر ثلاثة محاور: البنية والحلول، التطوير والابتكار، والشّبكات والأثر العالميّ. كلّ هذا مجّانًا، بدعمٍ من «من النّاس إلى النّاس».",
+            en: "We aim to empower a thousand Gazan talents over three years to enter the global digital economy — across three axes: infrastructure & solutions, development & innovation, and global networking & impact. All of it free, backed by NasToNas.",
+          })}
+        </motion.p>
+      </header>
+
+      {/* The two real figures, told as calm inline data — cerulean for the
+          numerals only, separated by a hairline. No card panel, no medallions. */}
+      <Reveal
+        delay={0.1}
+        className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-end gap-x-[clamp(2.5rem,6vw,5rem)] gap-y-6"
+      >
+        {ledger.map((row, i) => (
+          <div key={i} className="flex items-baseline gap-3">
+            <span
+              className="font-display font-black tnum text-sand-bright leading-none"
+              style={{ fontSize: "clamp(2.6rem, 5.5vw, 4rem)", letterSpacing: "-0.045em" }}
+            >
+              {num(row.v, lang)}
+            </span>
+            <span className="t-caption text-fg-secondary max-w-[9rem]">{row.label}</span>
+          </div>
+        ))}
+        <span aria-hidden className="hidden sm:block h-9 w-px bg-border-strong/60 self-center" />
+        <span className="t-caption text-fg-secondary">
+          {t({ ar: "بدعمٍ من · من النّاس إلى النّاس", en: "Backed by · NasToNas" })}
+        </span>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ──────────────────────── Full-bleed photo band ──────────────────────── */
+
+/**
+ * One monumental, calm photograph that spans the full viewport width with a
+ * slow scroll parallax — the page's single large-photography moment. Mirrors
+ * Statement.tsx (useScroll + useTransform, clamped flat under reduced-motion).
+ * Breaks out of the PageShell container via the standard left-1/2/-mx-[50vw]
+ * full-bleed escape; the shell's overflow-hidden absorbs the extra width.
+ */
+function PhotoBand() {
+  const reduce = useReducedMotion();
+  const { t } = useLanguage();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
+
+  return (
+    <section
+      ref={ref}
+      className="relative left-1/2 right-1/2 -mx-[50vw] w-screen mb-[clamp(4.5rem,9vw,8rem)] overflow-hidden"
+    >
+      <div className="relative h-[clamp(22rem,52vw,40rem)] overflow-hidden bg-surface-1">
+        <motion.img
+          src="/photos/IMG_8352.webp"
+          alt={t({ ar: "الفريق في مساحة آيلاند بغزّة", en: "The team inside the Island Haven space in Gaza" })}
+          loading="lazy"
+          style={{ y }}
+          className="absolute inset-0 h-[116%] w-full -top-[8%] object-cover will-change-transform"
+        />
+        {/* Quiet legibility wash — not glassmorphism, just a grounding gradient. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/10"
+        />
+        <div className="absolute inset-x-0 bottom-0 px-5 sm:px-8 lg:px-14 pb-[clamp(1.75rem,4vw,3rem)]">
+          <div className="mx-auto max-w-6xl">
+            <p
+              className="font-display font-semibold text-foreground max-w-xl"
+              style={{ fontSize: "clamp(1.05rem,2vw,1.6rem)", letterSpacing: "-0.02em", lineHeight: 1.25 }}
+            >
+              {t({
+                ar: "من قلب غزّة — حيث تُبنى المساحة، والمجتمع، والطّريق نحو العالم.",
+                en: "From the heart of Gaza — where the space, the community and the path outward are built.",
+              })}
+            </p>
           </div>
         </div>
       </div>
-    </Reveal>
+    </section>
   );
 }
 
@@ -249,159 +308,144 @@ function TeamSection({
   group: (typeof GROUPS)[number];
   members: TeamMember[];
 }) {
-  const { lang, t } = useLanguage();
-  const isLead = group.variant === "lead";
+  const { t } = useLanguage();
+
   return (
-    <section className="relative mb-16 sm:mb-24">
-      <Reveal as="div" className="relative mb-7 sm:mb-9">
-        <span
-          aria-hidden
-          className="absolute -top-7 sm:-top-9 end-0 select-none font-display font-black leading-none"
-          style={{
-            fontSize: "clamp(4.5rem, 13vw, 9rem)",
-            WebkitTextStroke: "1.25px hsl(var(--primary) / 0.16)",
-            color: "transparent",
-          }}
+    <section className="relative mb-[clamp(4rem,8vw,7rem)]">
+      {/* Calm monumental section line — a name and an honest one-line note. No
+          giant outline numeral, no uppercase kicker, no pill chip, no count
+          badge (FoundingNarrative already states the total). */}
+      <Reveal className="max-w-2xl pb-[clamp(1.25rem,2.5vw,2rem)] border-b border-border-strong">
+        <h2
+          className="font-display font-bold text-foreground"
+          style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.9rem)", letterSpacing: "-0.03em", lineHeight: 1.05 }}
         >
-          {idx(group.index, lang)}
-        </span>
-        <div className="relative">
-          <div className="flex flex-wrap items-center gap-3 mb-2">
-            <h2
-              className="text-foreground font-display font-extrabold"
-              style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)", letterSpacing: "-0.028em" }}
-            >
-              {t({ ar: group.ar, en: group.en })}
-            </h2>
-            <span className="text-[10.5px] tracking-[0.22em] uppercase text-muted-foreground font-bold rtl:tracking-normal">
-              {group.en}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 h-[22px] rounded-full text-[11px] font-bold text-sand bg-surface-2 border border-border-strong">
-              <span className="tnum">{num(members.length, lang)}</span>
-            </span>
-          </div>
-          <p className="t-body max-w-xl">{t(group.blurb)}</p>
-        </div>
+          {t({ ar: group.ar, en: group.en })}
+        </h2>
+        <p className="t-body text-[15px] md:text-[16px] mt-2.5 max-w-xl">{t(group.blurb)}</p>
       </Reveal>
 
-      <div
-        className={
-          isLead
-            ? "grid sm:grid-cols-2 gap-5 auto-rows-fr"
-            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr"
-        }
-      >
+      {/* The roster — dignified editorial hairline rows. A real portrait where
+          one exists, a large name, the role as prose, quiet links. Not a deck. */}
+      <ul>
         {members.map((m, i) => (
-          <Reveal key={m.id} delay={Math.min(i, 5) * 0.06} className="h-full">
-            <TeamCard m={m} variant={group.variant} />
-          </Reveal>
+          <TeamRow key={m.id} m={m} i={i} variant={group.variant} />
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
 
-/* ────────────────────────────── Card ────────────────────────────── */
+/* ────────────────────────────── Row ────────────────────────────── */
 
-function TeamCard({ m, variant }: { m: TeamMember; variant: "lead" | "compact" }) {
+function TeamRow({ m, i, variant }: { m: TeamMember; i: number; variant: "lead" | "compact" }) {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
   const isLead = variant === "lead";
   const hasLinks = m.linkedinUrl || m.websiteUrl || m.email;
+
   return (
-    <div
-      className={`group card-base card-hover h-full flex flex-col ${isLead ? "p-7" : "p-6"} hover:border-primary/40`}
-    >
-      {/* Hover aura — crimson, transform/opacity only */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: "radial-gradient(130% 90% at 85% 0%, hsl(354 80% 55% / 0.1), transparent 60%)",
-        }}
-      />
-
-      {m.featured && (
-        <div className="relative inline-flex items-center gap-1.5 self-start mb-4 px-2.5 py-0.5 rounded-full text-[10px] tracking-[0.16em] uppercase font-bold chip-sand">
-          {t({ ar: "مؤسِّس", en: "Founding" })}
-        </div>
-      )}
-
-      <div className="relative flex items-center gap-4 mb-4">
+    <li>
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 20 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.06, ease: EASE_OUT_EXPO }}
+        className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-3 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong will-change-transform"
+      >
+        {/* Portrait — a real dignified face where one exists; otherwise the name
+            simply stands alone. No initial-medallion fallback, no aura. */}
         {m.avatarUrl ? (
-          <img
-            src={m.avatarUrl}
-            alt={m.fullName}
-            className={`${isLead ? "w-20 h-20" : "w-16 h-16"} shrink-0 rounded-2xl object-cover border border-border-strong shadow-soft saturate-[1.03] transition-transform duration-300 group-hover:scale-[1.04]`}
-            loading="lazy"
-          />
-        ) : (
-          // Crimson MEDALLION — the signature for people without a photo.
           <div
-            className={`${isLead ? "w-20 h-20 text-[1.9rem]" : "w-16 h-16 text-2xl"} shrink-0 rounded-2xl ring-2 ring-white/15 shadow-soft flex items-center justify-center font-display font-black text-white transition-transform duration-300 group-hover:scale-[1.06]`}
-            style={{ background: "linear-gradient(140deg, hsl(var(--primary)) 0%, hsl(var(--primary-pressed)) 100%)" }}
+            className={`relative shrink-0 overflow-hidden rounded-full ring-1 ring-white/10 ${
+              isLead
+                ? "h-[clamp(4rem,8vw,6rem)] w-[clamp(4rem,8vw,6rem)]"
+                : "h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)]"
+            }`}
           >
-            {initialOf(m.fullName)}
+            <img
+              src={m.avatarUrl}
+              alt={m.fullName}
+              loading="lazy"
+              className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+            />
           </div>
+        ) : (
+          <span
+            aria-hidden
+            className={`shrink-0 w-px bg-border-strong/0 ${
+              isLead ? "h-[clamp(4rem,8vw,6rem)]" : "h-[clamp(3.5rem,7vw,5rem)]"
+            }`}
+          />
         )}
+
         <div className="min-w-0">
-          <h3
-            className={`text-foreground font-display font-bold leading-snug truncate group-hover:text-primary transition-colors ${isLead ? "text-[18px]" : "text-[16px]"}`}
-          >
-            {m.fullName}
-          </h3>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3
+              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+              style={{
+                fontSize: isLead ? "clamp(1.5rem,3.4vw,2.5rem)" : "clamp(1.35rem,2.8vw,2.1rem)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.1,
+              }}
+            >
+              {m.fullName}
+            </h3>
+            {m.featured && (
+              <span className="t-caption text-sand whitespace-nowrap">
+                {t({ ar: "· مؤسِّس", en: "· Founding" })}
+              </span>
+            )}
+          </div>
           {m.role && (
-            <p className="text-fg-secondary text-[12.5px] font-semibold leading-snug mt-1 line-clamp-2">
-              {m.role}
+            <p className="t-body text-[15px] md:text-[16px] mt-1.5 text-fg-secondary">{m.role}</p>
+          )}
+          {m.bio && (
+            <p className={`t-body text-[14.5px] md:text-[15px] mt-3 max-w-2xl ${isLead ? "" : "line-clamp-2"}`}>
+              {m.bio}
             </p>
           )}
         </div>
-      </div>
 
-      {m.bio && (
-        <p
-          className={`relative text-fg-secondary text-[13.5px] leading-[1.85] mb-5 flex-1 ${isLead ? "" : "line-clamp-3"}`}
-        >
-          {m.bio}
-        </p>
-      )}
-
-      {hasLinks && (
-        <div className="relative flex items-center flex-wrap gap-3.5 mt-auto pt-3.5 border-t border-border">
-          {m.linkedinUrl && (
-            <a
-              href={m.linkedinUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`LinkedIn — ${m.fullName}`}
-              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Linkedin className="w-3.5 h-3.5" /> LinkedIn
-            </a>
-          )}
-          {m.websiteUrl && (
-            <a
-              href={m.websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={t({ ar: `الموقع — ${m.fullName}`, en: `Website — ${m.fullName}` })}
-              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
-            </a>
-          )}
-          {m.email && (
-            <a
-              href={`mailto:${m.email}`}
-              aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
-              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              <span dir="ltr" className="truncate max-w-[160px]">{m.email}</span>
-            </a>
-          )}
-        </div>
-      )}
-    </div>
+        {/* Quiet links, start-aligned to the logical end — text, not icon tiles. */}
+        {hasLinks && (
+          <div className="md:justify-self-end md:text-end flex flex-wrap md:flex-col items-center md:items-end gap-x-5 gap-y-2 whitespace-nowrap">
+            {m.linkedinUrl && (
+              <a
+                href={m.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`LinkedIn — ${m.fullName}`}
+                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+              >
+                <Linkedin className="w-3.5 h-3.5" /> LinkedIn
+              </a>
+            )}
+            {m.websiteUrl && (
+              <a
+                href={m.websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t({ ar: `الموقع — ${m.fullName}`, en: `Website — ${m.fullName}` })}
+                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+              >
+                <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
+              </a>
+            )}
+            {m.email && (
+              <a
+                href={`mailto:${m.email}`}
+                aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
+                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span dir="ltr" className="truncate max-w-[150px]">{m.email}</span>
+              </a>
+            )}
+          </div>
+        )}
+      </motion.div>
+    </li>
   );
 }
 
@@ -443,34 +487,57 @@ function TeamEmpty() {
 
 function JoinBand({ show }: { show: boolean }) {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
   if (!show) return null;
   return (
-    <Reveal as="div" className="mt-16 card-base p-8 sm:p-11">
-      <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4rem)] gap-y-7 items-end">
-        <div className="lg:col-span-8">
-          <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary/50" />
-            <span className="eyebrow">{t({ ar: "انضمّ إلينا", en: "Join us" })}</span>
-          </div>
-          <h3
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", lineHeight: 1.08, letterSpacing: "-0.028em" }}
-          >
-            {t({ ar: "هذا الفريق ", en: "This team " })}
-            <span className="text-primary">{t({ ar: "يكبر بك.", en: "grows with you." })}</span>
-          </h3>
-          <p className="t-body mt-4 max-w-xl">
-            {t({
-              ar: "نَبحث دائمًا عن مرشدين وخبراء قطاع ومتطوّعين يؤمنون بريادة الأعمال في غزّة. ساعتك، أو خبرتك، أو شبكتك — كلٌّ منها يفتح بابًا أمام موهبة تنتظر.",
-              en: "We're always looking for mentors, industry experts and volunteers who believe in entrepreneurship in Gaza. An hour, an expertise, a network — each one opens a door for talent that's waiting.",
-            })}
-          </p>
-        </div>
-        <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-stretch">
+    <section className="mt-[clamp(4rem,8vw,7rem)] pt-[clamp(3rem,6vw,5rem)] border-t border-border-strong">
+      <div className="max-w-4xl">
+        <h2
+          className="font-display text-foreground"
+          style={{ fontSize: "clamp(2rem, 5vw, 3.75rem)", lineHeight: 1.02, letterSpacing: "-0.04em", fontWeight: 700 }}
+        >
+          {[
+            t({ ar: "هذا الفريق", en: "This team" }),
+            <span key="accent" className="text-primary">{t({ ar: "يكبر بك.", en: "grows with you." })}</span>,
+          ].map((ln, i) => (
+            <motion.span
+              key={i}
+              className="block will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 28 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+            >
+              {ln}
+            </motion.span>
+          ))}
+        </h2>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.8, delay: 0.32, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(1.5rem,3vw,2.25rem)] max-w-2xl text-fg-secondary"
+          style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+        >
+          {t({
+            ar: "نَبحث دائمًا عن مرشدين وخبراء قطاع ومتطوّعين يؤمنون بريادة الأعمال في غزّة. ساعتك، أو خبرتك، أو شبكتك — كلٌّ منها يفتح بابًا أمام موهبة تنتظر.",
+            en: "We're always looking for mentors, industry experts and volunteers who believe in entrepreneurship in Gaza. An hour, an expertise, a network — each one opens a door for talent that's waiting.",
+          })}
+        </motion.p>
+
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
+          transition={{ duration: 0.75, delay: 0.44, ease: EASE_OUT_EXPO }}
+          className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
+        >
           <Link
             href="/become-mentor?ref=team"
             data-testid="team-become-mentor"
-            className="cta-fill group inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-full font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
+            className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
           >
             {t({ ar: "كُن مرشدًا", en: "Become a mentor" })}
             <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
@@ -478,14 +545,15 @@ function JoinBand({ show }: { show: boolean }) {
           <a
             href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"
             data-testid="team-email"
-            className="group inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-full border border-border-strong bg-surface-2 text-fg-secondary font-semibold text-[14px] hover:border-primary/40 hover:text-foreground transition-colors"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", fontWeight: 600 }}
           >
             <Mail className="w-4 h-4" />
             {t({ ar: "راسلنا", en: "Email us" })}
           </a>
-        </div>
+        </motion.div>
       </div>
-    </Reveal>
+    </section>
   );
 }
 
@@ -494,18 +562,19 @@ function JoinBand({ show }: { show: boolean }) {
 function SkeletonTeam() {
   return (
     <div className="space-y-12">
-      <div className="card-base p-7 sm:p-8 h-40 animate-pulse" />
+      <div className="space-y-5">
+        <div className="h-12 w-3/4 max-w-xl rounded-lg bg-surface-2 animate-pulse" />
+        <div className="h-5 w-1/2 max-w-md rounded bg-surface-2 animate-pulse" />
+      </div>
       {[0, 1].map((s) => (
-        <div key={s}>
-          <div className="h-7 w-44 rounded-lg bg-surface-2 animate-pulse mb-6" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="rounded-[24px] h-52 bg-surface-2 border border-border-strong shadow-soft animate-pulse"
-              />
-            ))}
-          </div>
+        <div key={s} className="space-y-6">
+          <div className="h-8 w-44 rounded-lg bg-surface-2 animate-pulse pb-6 border-b border-border-strong/60" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-5 py-6 border-b border-border-strong/60">
+              <div className="h-14 w-14 rounded-full bg-surface-2 animate-pulse shrink-0" />
+              <div className="h-7 w-48 max-w-[60%] rounded bg-surface-2 animate-pulse" />
+            </div>
+          ))}
         </div>
       ))}
     </div>
