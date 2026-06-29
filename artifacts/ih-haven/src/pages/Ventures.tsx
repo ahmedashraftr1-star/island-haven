@@ -7,6 +7,7 @@ import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { ventureIdentity } from "@/lib/ventureIdentity";
 
 interface Venture {
   id: number;
@@ -218,6 +219,7 @@ function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
   const cover = v.coverUrl || frameFor(v.id);
+  const vid = ventureIdentity(v.sector, v.id);
 
   return (
     <section ref={ref} className="mt-[clamp(3.5rem,8vw,6rem)]">
@@ -242,6 +244,8 @@ function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
               style={{ y }}
               className="absolute inset-0 h-[114%] w-full object-cover object-center saturate-[1.04] will-change-transform transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
             />
+            {/* sector identity wash — a distinct deep hue per venture (soft-light) */}
+            <div aria-hidden className="absolute inset-0 opacity-[0.20] mix-blend-soft-light" style={{ background: vid.gradient }} />
             <div
               aria-hidden
               className="absolute inset-0"
@@ -261,7 +265,13 @@ function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
                   className="mb-3 inline-flex items-center gap-2 text-[clamp(0.85rem,1.4vw,1.05rem)] font-semibold"
                 >
                   <span className="text-primary">{stageLabel(v.stage, lang)}</span>
-                  {v.sector ? <span className="text-white/55">· {v.sector}</span> : null}
+                  {v.sector ? (
+                    <span className="inline-flex items-center gap-2" style={{ color: vid.accent }}>
+                      <span aria-hidden className="text-white/30">·</span>
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+                      {v.sector}
+                    </span>
+                  ) : null}
                 </motion.p>
 
                 <motion.h3
@@ -333,6 +343,7 @@ function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
 function VentureRow({ v, i, reduce }: { v: Venture; i: number; reduce: boolean }) {
   const { lang, t } = useLanguage();
   const cover = v.coverUrl || frameFor(v.id);
+  const vid = ventureIdentity(v.sector, v.id);
   return (
     <li>
       <motion.div
@@ -347,7 +358,8 @@ function VentureRow({ v, i, reduce }: { v: Venture; i: number; reduce: boolean }
           data-testid={`venture-card-${v.id}`}
           className="group grid grid-cols-[auto_minmax(0,1fr)] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
         >
-          {/* A dignified landscape frame — real imagery, no initial-medallion */}
+          {/* A dignified landscape frame — real imagery, no initial-medallion.
+              A thin sector-identity bar at the foot gives each row its colour. */}
           <div className="relative h-[clamp(4rem,8vw,6rem)] w-[clamp(6rem,12vw,9rem)] shrink-0 overflow-hidden rounded-[14px] ring-1 ring-white/10 bg-surface-3">
             <img
               src={cover}
@@ -355,6 +367,7 @@ function VentureRow({ v, i, reduce }: { v: Venture; i: number; reduce: boolean }
               loading="lazy"
               className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
             />
+            <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: vid.accent }} />
           </div>
 
           <div className="min-w-0">
@@ -366,7 +379,9 @@ function VentureRow({ v, i, reduce }: { v: Venture; i: number; reduce: boolean }
             </h3>
             <p className="mt-2 inline-flex flex-wrap items-baseline gap-x-2.5 text-[14px] md:text-[15px]">
               <span className="text-primary font-semibold">{stageLabel(v.stage, lang)}</span>
-              {v.sector ? <span className="text-fg-secondary">· {v.sector}</span> : null}
+              {v.sector ? (
+                <span className="font-semibold" style={{ color: vid.accent }}>· {v.sector}</span>
+              ) : null}
               {v.founderName ? (
                 <span className="text-fg-secondary">· {v.founderName}</span>
               ) : null}

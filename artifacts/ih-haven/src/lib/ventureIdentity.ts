@@ -31,12 +31,14 @@ interface IdentityDef {
 // Ordered: most specific first. Hue is the single source of truth per identity.
 const DEFS: IdentityDef[] = [
   { key: "legal", hue: 40, match: ["legal", "law", "قانون"] },
+  // well BEFORE health: "صحّة نفسيّة (WellTech)" also contains "صحّ", so the more
+  // specific mental-wellness match must win over the generic health one.
+  { key: "well", hue: 322, match: ["welltech", "well", "mental", "psych", "نفسيّ", "نفس", "سند", "سَنَد"] },
   { key: "fintech", hue: 166, match: ["fintech", "fin", "pay", "مال", "محفظة", "مدفوع"] },
   { key: "health", hue: 168, match: ["health", "med", "care", "صحّ", "صح", "طبّ", "طبيب", "عن بُعد"] },
   { key: "edtech", hue: 264, match: ["edu", "ed-tech", "edtech", "learn", "تعليم", "منهج", "تعلّم"] },
   { key: "agri", hue: 138, match: ["agri", "farm", "food", "زراع", "غلّة", "غلة"] },
   { key: "relief", hue: 205, match: ["relief", "aid", "humanit", "إغاث", "اغاث", "إغاثة"] },
-  { key: "well", hue: 322, match: ["well", "mental", "psych", "نفس", "سند", "سَنَد"] },
   { key: "construction", hue: 32, match: ["construct", "build", "إعمار", "اعمار", "بناء"] },
   { key: "marketplace", hue: 22, match: ["market", "commerce", "auction", "مزاد", "تجار", "سوق"] },
   { key: "devtools", hue: 190, match: ["dev", "devtools", "infra", "engineering", "أدوات", "برمج"] },

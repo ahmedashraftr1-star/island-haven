@@ -16,6 +16,7 @@ import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
+import { ventureIdentity } from "@/lib/ventureIdentity";
 
 const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
   idea: "Idea",
@@ -23,6 +24,14 @@ const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
   launched: "Launched",
   scaling: "Scaling",
 };
+
+// Evergreen frames so a cover-less venture still wears real imagery (deterministic
+// by id — matches the listing page so a venture keeps one consistent frame).
+const VENTURE_FRAMES = [
+  "/photos/IMG_8344.webp", "/photos/IMG_8347.webp", "/photos/IMG_8349.webp",
+  "/photos/IMG_8353.webp", "/photos/IMG_8357.webp", "/photos/IMG_8358.webp",
+];
+const frameFor = (id: number) => VENTURE_FRAMES[Math.abs(id) % VENTURE_FRAMES.length];
 
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
@@ -113,6 +122,9 @@ export default function VentureDetail() {
   }
 
   const stageIx = STAGE_STEPS.indexOf(v.stage);
+  const vid = ventureIdentity(v.sector, v.id);
+  const cover = v.coverUrl || frameFor(v.id);
+  const stageText = lang === "ar" ? VENTURE_STAGE_LABELS[v.stage] : VENTURE_STAGE_LABELS_EN[v.stage];
 
   return (
     <PageShell active="ventures">
@@ -123,56 +135,61 @@ export default function VentureDetail() {
 
       <GlassCard className="overflow-hidden">
         {/* Cover band */}
-        <div className="relative h-48 sm:h-64">
-          {v.coverUrl ? (
-            <img src={v.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent" />
+        {/* Cinematic cover hero — sector-tinted, the name at display scale */}
+        <div className="relative h-[clamp(17rem,42vh,28rem)]">
+          <img
+            src={cover}
+            alt={v.name}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
+            className="absolute inset-0 w-full h-full object-cover object-center saturate-[1.04]"
+          />
+          {/* sector identity wash — a distinct deep hue (soft-light keeps the photo) */}
+          <div aria-hidden className="absolute inset-0 opacity-[0.24] mix-blend-soft-light" style={{ background: vid.gradient }} />
+          <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, hsl(225 44% 5% / 0.96) 6%, hsl(225 44% 5% / 0.5) 46%, transparent 82%)" }} />
           {v.featured && (
-            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-100 border border-amber-400/30 backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5" />{" "}
-              {t({ ar: "مشروع مميّز", en: "Featured venture" })}
+            <div className="absolute top-4 end-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-100 border border-amber-400/30 backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5" /> {t({ ar: "مشروع مميّز", en: "Featured venture" })}
             </div>
           )}
-        </div>
-
-        <div className="px-6 sm:px-9 pb-9 -mt-12 relative">
-          <div className="flex items-end gap-4 mb-6">
-            {v.logoUrl ? (
-              <img
-                src={v.logoUrl}
-                alt={v.name}
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-[#0A0E1A] shadow-xl bg-surface-1"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/50 border-2 border-[#0A0E1A] shadow-xl flex items-center justify-center text-3xl font-bold text-foreground">
-                {v.name.charAt(0)}
+          {v.logoUrl && (
+            <img src={v.logoUrl} alt="" className="absolute top-4 start-4 w-14 h-14 rounded-2xl object-cover ring-1 ring-white/20 bg-surface-1 shadow-xl" />
+          )}
+          <div className="absolute inset-0 flex items-end">
+            <div className="w-full p-[clamp(1.5rem,4vw,3rem)]">
+              <div className="mb-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[clamp(0.8rem,1.3vw,1rem)] font-bold uppercase tracking-[0.14em] rtl:tracking-normal">
+                <span className="text-primary">{stageText}</span>
+                {v.sector && (
+                  <span className="inline-flex items-center gap-2" style={{ color: vid.accent }}>
+                    <span aria-hidden className="text-white/30">/</span>
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+                    {v.sector}
+                  </span>
+                )}
               </div>
-            )}
-            <div className="pb-1">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-primary/15 text-primary border border-primary/30 mb-1.5">
-                {t({
-                  ar: VENTURE_STAGE_LABELS[v.stage],
-                  en: VENTURE_STAGE_LABELS_EN[v.stage],
-                })}
-              </span>
               <h1
-                className="font-bold text-foreground leading-tight"
-                style={{ fontSize: "clamp(1.6rem, 4vw, 2.3rem)" }}
                 data-testid="text-venture-name"
+                className="font-display text-white"
+                style={{ fontSize: "clamp(2rem,5.2vw,4rem)", lineHeight: 1.0, letterSpacing: "-0.035em", fontWeight: 700 }}
               >
                 {v.name}
               </h1>
+              {v.tagline && (
+                <p className="mt-4 max-w-2xl text-white/80" style={{ fontSize: "clamp(1rem,1.6vw,1.3rem)", lineHeight: 1.55 }}>
+                  {v.tagline}
+                </p>
+              )}
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-white/65" style={{ fontSize: "clamp(0.85rem,1.3vw,1rem)" }}>
+                {v.founderName && <span className="text-white/85 font-semibold">{v.founderName}</span>}
+                {v.teamSize > 0 && (
+                  <span className="tnum">{num(v.teamSize, lang)} {t({ ar: "في الفريق", en: "on the team" })}</span>
+                )}
+                {v.foundedYear > 0 && <span className="tnum">{num(v.foundedYear, lang)}</span>}
+              </div>
             </div>
           </div>
+        </div>
 
-          {v.tagline && (
-            <p className="text-primary/90 text-[15px] font-medium leading-[1.7] mb-5">
-              {v.tagline}
-            </p>
-          )}
+        <div className="px-6 sm:px-9 pb-9 pt-8 relative">
 
           {/* Stage progress rail */}
           <div className="mb-7">
@@ -181,13 +198,15 @@ export default function VentureDetail() {
                 <div key={s} className="flex-1">
                   <div
                     className={`h-1.5 rounded-full transition-colors ${
-                      i <= stageIx ? "bg-primary" : "bg-surface-2"
+                      i < stageIx ? "bg-primary" : i > stageIx ? "bg-surface-2" : ""
                     }`}
+                    style={i === stageIx ? { backgroundColor: vid.accent } : undefined}
                   />
                   <div
                     className={`mt-2 text-[10.5px] font-semibold text-center ${
-                      i === stageIx ? "text-primary" : "text-muted-foreground"
+                      i === stageIx ? "" : "text-muted-foreground"
                     }`}
+                    style={i === stageIx ? { color: vid.accent } : undefined}
                   >
                     {t({
                       ar: VENTURE_STAGE_LABELS[s],
@@ -220,6 +239,7 @@ export default function VentureDetail() {
                 icon={Building2}
                 label={t({ ar: "القطاع", en: "Sector" })}
                 value={v.sector}
+                accent={vid.accent}
               />
             )}
             {v.foundedYear > 0 && (
@@ -239,15 +259,6 @@ export default function VentureDetail() {
               }
             />
           </div>
-
-          {v.founderName && (
-            <div className="text-[13px] text-muted-foreground mb-6">
-              <span className="text-muted-foreground">
-                {t({ ar: "المؤسِّس: ", en: "Founder: " })}
-              </span>
-              <span className="text-foreground font-semibold">{v.founderName}</span>
-            </div>
-          )}
 
           <div className="flex flex-wrap items-center gap-3">
             {v.websiteUrl && (
@@ -429,16 +440,18 @@ function Fact({
   icon: Icon,
   label,
   value,
+  accent,
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
+  accent?: string;
 }) {
   return (
     <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
-      <Icon className="w-4 h-4 text-primary mb-2" />
+      <Icon className={`w-4 h-4 mb-2 ${accent ? "" : "text-primary"}`} style={accent ? { color: accent } : undefined} />
       <div className="text-muted-foreground text-[10.5px] tracking-wide mb-0.5">{label}</div>
-      <div className="text-foreground font-semibold text-[13px] leading-snug">{value}</div>
+      <div className="text-foreground font-semibold text-[13px] leading-snug" style={accent ? { color: accent } : undefined}>{value}</div>
     </div>
   );
 }

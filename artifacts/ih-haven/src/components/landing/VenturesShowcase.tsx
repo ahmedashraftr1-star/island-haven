@@ -7,6 +7,7 @@ import { imageUrl } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { ventureIdentity } from "@/lib/ventureIdentity";
 
 interface Venture {
   id: number;
@@ -50,6 +51,7 @@ function VentureCard({
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-9%", "9%"]);
   const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
+  const vid = ventureIdentity(v.sector, v.id);
   const stage = lang === "ar" ? STAGE_AR[v.stage] ?? v.stage : STAGE_EN[v.stage] ?? v.stage;
   const n = (lang === "ar" ? (index + 1).toLocaleString("ar-EG") : String(index + 1)).padStart(2, "0");
 
@@ -71,6 +73,9 @@ function VentureCard({
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
             className="absolute inset-0 h-[118%] w-full object-cover object-center saturate-[1.05] transition-transform duration-[1300ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.045]"
           />
+          {/* sector identity wash — a deep, distinct hue per venture (soft-light,
+              so the photograph stays intact) */}
+          <div aria-hidden className="absolute inset-0 opacity-[0.22] mix-blend-soft-light" style={{ background: vid.gradient }} />
           {/* deep cinematic scrim — text always sits on the dark foot */}
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#05070F] via-[#05070F]/45 to-[#05070F]/5" />
 
@@ -91,7 +96,15 @@ function VentureCard({
             {/* metadata line — the honest "badges": stage (crimson) / sector / founder */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal">
               <span className="text-primary">{stage}</span>
-              {v.sector && (<><span aria-hidden className="text-white/25">/</span><span className="text-white/75">{v.sector}</span></>)}
+              {v.sector && (
+                <>
+                  <span aria-hidden className="text-white/25">/</span>
+                  <span className="inline-flex items-center gap-1.5" style={{ color: vid.accent }}>
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+                    {v.sector}
+                  </span>
+                </>
+              )}
               {v.founderName && (<><span aria-hidden className="text-white/25">/</span><span className="text-white/75">{v.founderName}</span></>)}
             </div>
 
