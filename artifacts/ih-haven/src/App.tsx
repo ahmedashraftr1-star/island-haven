@@ -1,7 +1,9 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, lazy, Suspense } from "react";
 import { usePageView } from "@/hooks/use-tracking";
+import { CustomCursor } from "@/components/landing/CustomCursor";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
@@ -207,6 +209,24 @@ function Router() {
   );
 }
 
+// Per-navigation enter transition — a quiet fade + rise keyed on the location,
+// so each route arrives with intent (spec's page transition). Enter-only (no
+// exit choreography) keeps it robust with lazy/Suspense; reduced-motion → instant.
+function AnimatedRoutes() {
+  const [loc] = useLocation();
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      key={loc}
+      initial={reduce ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Router />
+    </motion.div>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -215,8 +235,9 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <RouteEffects />
             <main id="main-content" tabIndex={-1}>
-              <Router />
+              <AnimatedRoutes />
             </main>
+            <CustomCursor />
           </WouterRouter>
           <Toaster />
         </TooltipProvider>

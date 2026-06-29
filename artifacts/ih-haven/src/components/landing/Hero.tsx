@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, Phone, ArrowDown, Heart } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
@@ -104,11 +104,61 @@ function KineticLine({
   );
 }
 
+// The crimson object word of the headline, cycling through a small set so the
+// hero's promise reads as dreams → ventures → future → talent. Slides up on
+// first paint (with the headline cascade delay), then swaps in place. The word
+// sits on its own line, so width changes never shift the rest of the layout.
+// Reduced-motion → the first word, static.
+function RotatingWord({
+  words,
+  delay = 0,
+  reduce = false,
+}: {
+  words: string[];
+  delay?: number;
+  reduce?: boolean;
+}) {
+  const [i, setI] = useState(0);
+  const first = useRef(true);
+  useEffect(() => {
+    if (reduce || words.length < 2) return;
+    const id = setInterval(() => {
+      first.current = false;
+      setI((p) => (p + 1) % words.length);
+    }, 2800);
+    return () => clearInterval(id);
+  }, [reduce, words.length]);
+
+  return (
+    <span className="relative block overflow-hidden pt-[0.22em] pb-[0.18em]">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={words[i]}
+          className="block text-primary will-change-transform"
+          initial={reduce ? false : { y: "115%" }}
+          animate={{ y: 0 }}
+          exit={reduce ? { opacity: 0 } : { y: "-115%" }}
+          transition={{ duration: 0.62, delay: first.current ? delay : 0, ease: EASE_OUT_EXPO }}
+        >
+          {words[i]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 export function Hero() {
   const { lang } = useLanguage();
   const cms = useContentSection("hero", FALLBACK);
   const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
+  // Headline is composed (prefix · rotating object word · suffix) so the promise
+  // can cycle. Code-defined (the CMS title is a flat string and can't express
+  // the swap); keeps the loved register — only the object word animates.
+  const headline =
+    lang === "en"
+      ? { prefix: "We grow Gaza's", words: ["ventures", "dreams", "futures", "talent"], suffix: "for the world." }
+      : { prefix: "نَحضن", words: ["مشاريعك", "أحلامك", "مستقبلك", "طاقاتك"], suffix: "في قلب غزّة." };
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   // Live community figures — same /numbers source NumbersBand uses, so the hero
@@ -298,10 +348,11 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(3.05rem, 8.9vw, 8.6rem)", fontWeight: 900, lineHeight: 0.93, letterSpacing: "-0.045em" }}
+              style={{ fontSize: "clamp(2.8rem, 7.6vw, 7.5rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.045em" }}
             >
-              <KineticLine text={c.title1} delay={0.45} reduce={!!reduce} />
-              <KineticLine text={c.title2} delay={0.62} accent reduce={!!reduce} />
+              <KineticLine text={headline.prefix} delay={0.45} reduce={!!reduce} />
+              <RotatingWord words={headline.words} delay={0.64} reduce={!!reduce} />
+              <KineticLine text={headline.suffix} delay={0.82} reduce={!!reduce} />
             </h1>
           </div>
 
