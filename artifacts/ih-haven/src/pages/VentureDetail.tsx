@@ -145,7 +145,7 @@ export default function VentureDetail() {
           />
           {/* sector identity wash — a distinct deep hue (soft-light keeps the photo) */}
           <div aria-hidden className="absolute inset-0 opacity-[0.24] mix-blend-soft-light" style={{ background: vid.gradient }} />
-          <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, hsl(225 44% 5% / 0.96) 6%, hsl(225 44% 5% / 0.5) 46%, transparent 82%)" }} />
+          <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.96) 6%, hsl(0 0% 4% / 0.5) 46%, transparent 82%)" }} />
           {v.featured && (
             <div className="absolute top-4 end-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-100 border border-amber-400/30 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5" /> {t({ ar: "مشروع مميّز", en: "Featured venture" })}
@@ -377,7 +377,7 @@ function MilestoneTimeline({ ventureId }: { ventureId: number }) {
                 )}
                 <span
                   aria-hidden
-                  className="absolute top-1 right-[5px] w-3 h-3 rounded-full bg-primary border-2 border-[#0A0E1A] shadow-[0_0_0_2px_rgba(220,68,84,0.4)]"
+                  className="absolute top-1 right-[5px] w-3 h-3 rounded-full bg-primary border-2 border-[#0a0a0a] shadow-[0_0_0_2px_rgba(220,68,84,0.4)]"
                 />
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   <span className="px-2 py-0.5 rounded-full text-[10.5px] tracking-[0.14em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">

@@ -45,7 +45,7 @@ export function AuthShell({
   return (
     <div
       dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
+      className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <AuthBackgroundAura />

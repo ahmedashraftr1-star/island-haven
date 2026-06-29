@@ -164,7 +164,7 @@ export function WhyIslandHaven() {
             style={{
               background: `linear-gradient(${
                 dir === "rtl" ? 270 : 90
-              }deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.55) 45%, transparent 80%)`,
+              }deg, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.55) 45%, transparent 80%)`,
             }}
           />
           <div className="absolute inset-0 flex items-end">

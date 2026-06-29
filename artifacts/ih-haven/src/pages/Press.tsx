@@ -69,7 +69,7 @@ const NAME_SPELLINGS = [
 
 const BRAND_COLORS = [
   { name: "Primary Red", hex: "#DC2637" },
-  { name: "Deep Navy", hex: "#0A0E1A" },
+  { name: "Deep Navy", hex: "#0a0a0a" },
   { name: "Ink", hex: "#15171F" },
 ];
 

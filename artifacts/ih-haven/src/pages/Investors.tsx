@@ -49,7 +49,7 @@ const TYPE_DOT: Record<string, string> = {
   vc: "hsl(217 91% 64%)",
   corporate: "hsl(160 84% 44%)",
   ngo: "hsl(350 89% 64%)",
-  individual: "hsl(224 20% 60%)",
+  individual: "hsl(30 6% 60%)",
 };
 
 export default function Investors() {

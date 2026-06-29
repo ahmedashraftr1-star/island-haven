@@ -116,7 +116,7 @@ export default function Profile() {
     return (
       <div
         dir={dir}
-        className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center"
+        className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white flex items-center justify-center"
       >
         <AuthBackgroundAura />
         <div className="relative z-10 flex items-center gap-3 text-white/55">
@@ -325,7 +325,7 @@ function ProfileInner({
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white"
+      className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <AuthBackgroundAura />
@@ -406,7 +406,7 @@ function ProfileInner({
                   onChange={handleAvatarChange}
                   data-testid="input-avatar-file"
                 />
-                <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#0A0E1A] border border-primary/40 text-primary text-[9.5px] tracking-[0.18em] uppercase font-bold">
+                <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#0a0a0a] border border-primary/40 text-primary text-[9.5px] tracking-[0.18em] uppercase font-bold">
                   {lang === "ar" ? ROLE_LABELS[user.role] : ROLE_LABELS_EN[user.role]}
                 </div>
                 {user.avatarUrl && (
@@ -415,7 +415,7 @@ function ProfileInner({
                       type="button"
                       onClick={() => !avatarDeleting && !avatarUploading && setAvatarDeleteConfirm(true)}
                       disabled={avatarDeleting || avatarUploading}
-                      className="w-6 h-6 rounded-full bg-[#0A0E1A] border border-red-500/40 text-red-400 hover:bg-red-500/15 hover:border-red-400 transition-colors flex items-center justify-center disabled:opacity-50"
+                      className="w-6 h-6 rounded-full bg-[#0a0a0a] border border-red-500/40 text-red-400 hover:bg-red-500/15 hover:border-red-400 transition-colors flex items-center justify-center disabled:opacity-50"
                       title={t({ ar: "حذف الصورة الشخصيّة", en: "Delete profile photo" })}
                       aria-label={t({ ar: "حذف الصورة الشخصيّة", en: "Delete profile photo" })}
                       data-testid="button-delete-avatar"

@@ -118,7 +118,7 @@ export function Audience() {
             style={{ y: photoY }}
             className="w-full aspect-[16/9] object-cover scale-110 will-change-transform"
           />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/70 via-transparent to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/70 via-transparent to-transparent" />
         </motion.figure>
 
         {/* The four tracks — a quiet big-type editorial sequence, one idea per line.

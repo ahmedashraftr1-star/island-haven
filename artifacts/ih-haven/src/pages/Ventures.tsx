@@ -251,7 +251,7 @@ function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(0deg, hsl(225 44% 5% / 0.95) 4%, hsl(225 44% 5% / 0.55) 42%, transparent 80%)",
+                  "linear-gradient(0deg, hsl(0 0% 4% / 0.95) 4%, hsl(0 0% 4% / 0.55) 42%, transparent 80%)",
               }}
             />
             <div className="absolute inset-0 flex items-end">
@@ -499,7 +499,7 @@ function EmptyPortfolio() {
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{ background: "linear-gradient(90deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 45%, transparent 80%)" }}
+            style={{ background: "linear-gradient(90deg, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.5) 45%, transparent 80%)" }}
           />
           <div className="absolute inset-0 flex items-end">
             <div className="w-full p-[clamp(1.5rem,4vw,3.5rem)]">

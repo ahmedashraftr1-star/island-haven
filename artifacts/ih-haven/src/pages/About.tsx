@@ -473,7 +473,7 @@ function TeamTeaser() {
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{ background: "linear-gradient(to top, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 45%, transparent 80%)" }}
+            style={{ background: "linear-gradient(to top, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.5) 45%, transparent 80%)" }}
           />
           <div className="absolute inset-0 flex items-end">
             <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">

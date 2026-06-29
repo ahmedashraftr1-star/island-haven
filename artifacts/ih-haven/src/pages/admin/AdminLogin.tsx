@@ -50,7 +50,7 @@ export default function AdminLogin() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen relative overflow-hidden bg-[#0A0E1A] text-white flex items-center justify-center px-6"
+      className="min-h-screen relative overflow-hidden bg-[#0a0a0a] text-white flex items-center justify-center px-6"
     >
       {/* Layer 1 — photo underlay */}
       <div

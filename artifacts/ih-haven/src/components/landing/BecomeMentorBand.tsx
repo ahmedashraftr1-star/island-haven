@@ -118,7 +118,7 @@ export function BecomeMentorBand() {
               />
               <div
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/55 via-transparent to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/55 via-transparent to-transparent"
               />
             </div>
           </motion.div>

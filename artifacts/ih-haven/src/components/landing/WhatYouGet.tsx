@@ -126,7 +126,7 @@ export function WhatYouGet() {
             style={{ y }}
             className="w-full aspect-[16/10] sm:aspect-[2/1] object-cover scale-110 will-change-transform"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/10 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-[clamp(1.5rem,4vw,3.5rem)]">
             <p
               className="font-display text-white max-w-2xl"

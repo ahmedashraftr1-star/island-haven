@@ -184,7 +184,7 @@ export function Campaign() {
             aria-hidden
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(${dir === "rtl" ? 270 : 90}deg, hsl(225 44% 5% / 0.92) 0%, hsl(225 44% 5% / 0.5) 48%, transparent 82%)`,
+              background: `linear-gradient(${dir === "rtl" ? 270 : 90}deg, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.5) 48%, transparent 82%)`,
             }}
           />
           <div className="absolute inset-0 flex items-end">

@@ -345,7 +345,7 @@ function HowItWorks() {
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, hsl(225 44% 5% / 0.32) 0%, hsl(225 44% 5% / 0.42) 45%, hsl(225 44% 5% / 0.9) 100%)" }}
+            style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.32) 0%, hsl(0 0% 4% / 0.42) 45%, hsl(0 0% 4% / 0.9) 100%)" }}
           />
           <div className="absolute inset-0 flex items-end">
             <div className="w-full p-[clamp(1.75rem,5vw,3.5rem)]">
@@ -504,7 +504,7 @@ function CohortPhoto() {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, hsl(225 44% 5% / 0.32) 0%, hsl(225 44% 5% / 0.42) 45%, hsl(225 44% 5% / 0.9) 100%)" }}
+          style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.32) 0%, hsl(0 0% 4% / 0.42) 45%, hsl(0 0% 4% / 0.9) 100%)" }}
         />
         <div className="absolute inset-0 flex items-end">
           <div className="w-full p-[clamp(1.75rem,5vw,3.5rem)]">
@@ -675,7 +675,7 @@ function ApplyBand() {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, hsl(225 44% 5% / 0.4) 0%, hsl(225 44% 5% / 0.6) 40%, hsl(225 44% 5% / 0.94) 100%)" }}
+          style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.4) 0%, hsl(0 0% 4% / 0.6) 40%, hsl(0 0% 4% / 0.94) 100%)" }}
         />
         <div className="relative w-full p-[clamp(1.75rem,6vw,4rem)] max-w-3xl">
           <h2

@@ -63,7 +63,7 @@ function VentureCard({
         data-testid={`showcase-venture-${v.id}`}
         className="group block relative overflow-hidden rounded-[24px] ring-1 ring-white/10"
       >
-        <div className="relative h-[clamp(440px,64vh,720px)] overflow-hidden bg-[#05070F]">
+        <div className="relative h-[clamp(440px,64vh,720px)] overflow-hidden bg-[#070707]">
           <motion.img
             style={{ y, willChange: "transform" }}
             src={cover}
@@ -77,7 +77,7 @@ function VentureCard({
               so the photograph stays intact) */}
           <div aria-hidden className="absolute inset-0 opacity-[0.22] mix-blend-soft-light" style={{ background: vid.gradient }} />
           {/* deep cinematic scrim — text always sits on the dark foot */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#05070F] via-[#05070F]/45 to-[#05070F]/5" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/45 to-[#070707]/5" />
 
           {/* index numeral, quiet, top corner */}
           <div className="absolute top-6 inset-x-6 sm:top-8 sm:inset-x-9 flex items-start justify-between">
@@ -189,7 +189,7 @@ export function VenturesShowcase() {
           <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
             <div className="relative overflow-hidden rounded-[24px] ring-1 ring-white/10 h-[clamp(420px,58vh,640px)]">
               <img src={frameFor(1)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#05070F] via-[#05070F]/55 to-[#05070F]/15" />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/55 to-[#070707]/15" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-9 lg:p-12 max-w-3xl">
                 <div className="text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal text-primary mb-4">
                   {t({ ar: "الدفعة الأولى", en: "Cohort 01" })}

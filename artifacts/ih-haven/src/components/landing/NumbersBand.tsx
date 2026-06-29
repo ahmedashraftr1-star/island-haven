@@ -227,7 +227,7 @@ export function NumbersBand() {
               loading="lazy"
               className="w-full h-[clamp(220px,32vw,360px)] object-cover object-center saturate-[1.05] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none will-change-transform group-hover:scale-[1.04]"
             />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/85 via-[#0A0E1A]/10 to-transparent" />
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/85 via-[#0a0a0a]/10 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 lg:p-8">
               <div className="text-[11px] tracking-[0.2em] uppercase text-white/80 font-semibold mb-1.5">
                 {t({ ar: "من داخل المساحة", en: "Inside the space" })}

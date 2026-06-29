@@ -203,7 +203,7 @@ export function Support() {
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{ background: "linear-gradient(to top, hsl(225 44% 5% / 0.94) 0%, hsl(225 44% 5% / 0.55) 48%, hsl(225 44% 5% / 0.2) 100%)" }}
+            style={{ background: "linear-gradient(to top, hsl(0 0% 4% / 0.94) 0%, hsl(0 0% 4% / 0.55) 48%, hsl(0 0% 4% / 0.2) 100%)" }}
           />
           <div className="absolute inset-0 flex items-end">
             <div className="container-ih w-full pb-[clamp(2.5rem,7vh,5rem)]">

@@ -12,7 +12,7 @@ const WHATSAPP = "https://wa.me/972567536815";
  * backdrop under a deep navy scrim carries the brand belief in oversized
  * editorial serif (a single italic crimson accent word), one primary crimson
  * CTA (Apply), a quiet glass secondary (Book a seat), a low-weight WhatsApp text
- * link, and a TrustStrip for credibility. Hardcoded dark (bg-[#0A0E1A] + white)
+ * link, and a TrustStrip for credibility. Hardcoded dark (bg-[#0a0a0a] + white)
  * — NOT theme-light. The TrustStrip's token-driven colours are restored to the
  * dark register via a scoped CSS-var reset on the section root, so it never
  * inherits the page's light theme.
@@ -38,7 +38,7 @@ export function FinalCTA() {
     <section
       id="final-cta"
       style={DARK_TOKENS}
-      className="relative overflow-hidden bg-[#0A0E1A] text-white section-y"
+      className="relative overflow-hidden bg-[#0a0a0a] text-white section-y"
     >
       {/* Cinematic place backdrop + deep navy scrim — the photo breathes, the
           copy stays crisp. Start-anchored gradient (RTL-safe via symmetry). */}

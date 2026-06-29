@@ -232,7 +232,7 @@ export function Hero() {
     <section
       id="hero"
       ref={ref}
-      className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#05070F] text-white"
+      className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#070707] text-white"
     >
       <motion.div
         style={{ y: photoY, scale: photoScale }}

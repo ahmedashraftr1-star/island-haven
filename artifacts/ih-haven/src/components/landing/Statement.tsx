@@ -28,7 +28,7 @@ export function Statement() {
   return (
     <section
       ref={ref}
-      className="relative bg-[#0A0E1A] overflow-hidden"
+      className="relative bg-[#0a0a0a] overflow-hidden"
       style={{ paddingBlock: "clamp(6.5rem, 17vh, 13rem)" }}
       data-testid="statement-band"
     >

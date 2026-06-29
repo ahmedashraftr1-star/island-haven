@@ -74,7 +74,7 @@ export function Gallery() {
   return (
     <section
       id="gallery"
-      className="relative bg-[#0A0E1A] text-white overflow-hidden"
+      className="relative bg-[#0a0a0a] text-white overflow-hidden"
       aria-label="معرض صور آيلاند هيفن"
     >
       <div aria-hidden className="absolute inset-0 opacity-[0.10] pointer-events-none">
@@ -337,7 +337,7 @@ function ClosingScene({ frames }: { frames: Frame[] }) {
 
   return (
     <section
-      className="relative bg-[#0A0E1A] text-white py-24 lg:py-36 overflow-hidden border-t border-white/[0.06]"
+      className="relative bg-[#0a0a0a] text-white py-24 lg:py-36 overflow-hidden border-t border-white/[0.06]"
       aria-label="خاتمة المعرض"
     >
       <div aria-hidden className="absolute inset-0 opacity-[0.18] pointer-events-none">

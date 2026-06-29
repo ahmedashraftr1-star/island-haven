@@ -181,7 +181,7 @@ export default function CohortDetail() {
               <Layers className="w-20 h-20 text-primary/40" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
           <div className="absolute bottom-4 left-4 sm:left-6 right-4 sm:right-6">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span
@@ -369,7 +369,7 @@ function CohortJourney({ slug }: { slug: string }) {
                 transition={{ delay: i * 0.04 }}
                 className="relative ps-7"
               >
-                <span className="absolute right-0 top-1.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-[#0A0E1A]" />
+                <span className="absolute right-0 top-1.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-[#0a0a0a]" />
                 <div className="rounded-2xl p-4 bg-surface-2 border border-border-strong">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">

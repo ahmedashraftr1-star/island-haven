@@ -515,7 +515,7 @@ function ProgramHero({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(0deg, hsl(225 44% 5% / 0.97) 5%, hsl(225 44% 5% / 0.55) 46%, hsl(225 44% 5% / 0.12) 82%)",
+              "linear-gradient(0deg, hsl(0 0% 4% / 0.97) 5%, hsl(0 0% 4% / 0.55) 46%, hsl(0 0% 4% / 0.12) 82%)",
           }}
         />
 

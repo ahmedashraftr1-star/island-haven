@@ -137,13 +137,13 @@ export function HoursLocation() {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(90deg, hsl(225 44% 5% / 0.94) 0%, hsl(225 44% 5% / 0.6) 46%, transparent 82%)",
+                "linear-gradient(90deg, hsl(0 0% 4% / 0.94) 0%, hsl(0 0% 4% / 0.6) 46%, transparent 82%)",
             }}
           />
           <div
             aria-hidden
             className="absolute inset-x-0 bottom-0 h-1/2"
-            style={{ background: "linear-gradient(0deg, hsl(225 44% 5% / 0.55) 0%, transparent 100%)" }}
+            style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.55) 0%, transparent 100%)" }}
           />
 
           <div className="absolute inset-0 flex items-end">

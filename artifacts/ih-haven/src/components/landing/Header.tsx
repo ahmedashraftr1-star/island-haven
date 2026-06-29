@@ -52,7 +52,7 @@ export function Header() {
     <header
       className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "bg-[#0A0E1A]/80 backdrop-blur-xl border-b border-white/10 py-2.5"
+          ? "bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10 py-2.5"
           : "bg-transparent py-4"
       }`}
     >
@@ -63,7 +63,7 @@ export function Header() {
               aria-hidden
               className="absolute -inset-1 rounded-2xl bg-primary/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             />
-            <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-[#0A0E1A] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
+            <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
               <img
                 src={imageUrl(c.logo)}
                 alt={c.brand}
@@ -128,7 +128,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="xl:hidden border-t border-white/10 bg-[#0A0E1A]/95 backdrop-blur-xl"
+            className="xl:hidden border-t border-white/10 bg-[#0a0a0a]/95 backdrop-blur-xl"
           >
             <nav className="container mx-auto px-6 py-4 flex flex-col">
               {[...NAV_ITEMS, ...NAV_SECONDARY].map((l) => {

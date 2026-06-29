@@ -18,7 +18,7 @@ export default function NotFound() {
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-[#0A0E1A] text-white flex flex-col"
+      className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white flex flex-col"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       {/* Aura */}

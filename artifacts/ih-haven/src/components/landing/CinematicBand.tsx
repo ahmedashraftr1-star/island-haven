@@ -28,7 +28,7 @@ export function CinematicBand() {
   return (
     <section
       ref={ref}
-      className="relative h-[78vh] min-h-[520px] w-full overflow-hidden bg-[#0A0E1A] text-white"
+      className="relative h-[78vh] min-h-[520px] w-full overflow-hidden bg-[#0a0a0a] text-white"
       aria-label={t({ ar: "من قلب غزّة", en: "From the heart of Gaza" })}
     >
       <motion.div

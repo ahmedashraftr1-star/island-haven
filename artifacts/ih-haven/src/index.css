@@ -93,40 +93,43 @@
    space, real photography, and disciplined typography.
    ============================================================ */
 :root {
-  /* ── Dark cinematic theme (matches PageShell #0A0E1A). Image-forward,
+  /* ── Dark cinematic theme (matches PageShell #0a0a0a). Image-forward,
      deep navy-black, warm red brand, subtle light borders. ── */
-  --button-outline: hsl(225 18% 22%);
-  --badge-outline: hsl(225 18% 20%);
+  --button-outline: hsl(28 8% 22%);
+  --badge-outline: hsl(28 8% 20%);
 
   /* Component border tokens (referenced by ui/button + ui/badge). Subtle lit
      edges that sit on the brand/secondary/destructive fills without muddying
      them on the dark canvas. */
-  --primary-border: hsl(355 80% 64%);
-  --secondary-border: hsl(225 16% 27%);
+  --primary-border: hsl(7 80% 62%);
+  --secondary-border: hsl(28 8% 27%);
   --destructive-border: hsl(0 72% 60%);
 
   /* ── CANVAS / SURFACES — DIMENSIONAL staircase. Wider L steps + a touch more
      chroma so panels read as genuinely raised material, not flat-on-flat murk.
      (Premium-dark register: Linear/Vercel separate surfaces clearly; murky
      dark-on-dark reads as weak/cheap.) ── */
-  --background: 224 70% 2.5%;        /* deepest space-navy canvas — cinematic */
-  --surface-1: 224 55% 6%;           /* lifted SECTION bg */
-  --surface-2: 223 45% 9%;           /* default card — clearly above canvas */
-  --surface-3: 222 38% 13%;          /* raised / modal — pops */
-  --foreground: 210 30% 99%;         /* headings — crisp white */
+  /* Identity re-skin → near-black WARM canvas + warm-white ink (spec: void
+     #080808, warm grays, gold). A faint warm tint on the blacks pairs them with
+     gold as luxury, not cold-digital. */
+  --background: 24 9% 4%;            /* warm near-black void (≈#0b0a09) */
+  --surface-1: 26 8% 6%;             /* lifted SECTION bg */
+  --surface-2: 26 7% 9%;             /* default card — clearly above canvas */
+  --surface-3: 26 6% 13%;            /* raised / modal — pops */
+  --foreground: 35 33% 93%;          /* warm white #F2EDE6 — headings */
 
-  /* ── BORDERS — edges must actually read on the dark canvas. ── */
-  --border: 225 17% 24%;             /* hairline */
-  --border-strong: 224 20% 34%;      /* card edges / dividers — crisp */
+  /* ── BORDERS — warm hairlines that read on the near-black canvas. ── */
+  --border: 28 8% 17%;               /* hairline */
+  --border-strong: 28 8% 27%;        /* card edges / dividers — crisp */
 
   /* Default card = surface-2. */
-  --card: 223 45% 9%;
-  --card-foreground: 210 30% 99%;
-  --card-border: 224 20% 34%;
+  --card: 26 7% 9%;
+  --card-foreground: 35 33% 93%;
+  --card-border: 28 8% 27%;
 
-  --popover: 222 28% 18%;
-  --popover-foreground: 210 30% 99%;
-  --popover-border: 224 20% 34%;
+  --popover: 26 8% 14%;
+  --popover-foreground: 35 33% 93%;
+  --popover-border: 28 8% 27%;
 
   /* ── PRIMARY — Alizarin Crimson #E32738, the brand's signature red. ──
      Two-rung system tuned for the dark canvas:
@@ -135,32 +138,32 @@
        --primary-cta   (~46% L) — darker FILL behind WHITE labels so white-on-red
                                   reaches ≈4.8:1 (WCAG AA).
        --primary-pressed        — Carmine #9B0013, the brand's deep pressed red. */
-  --primary: 354 92% 58%;            /* Alizarin Crimson — more saturated, more authority */
-  --primary-cta: 354 88% 49%;        /* AA fill behind white CTA labels */
-  --primary-pressed: 353 100% 30%;   /* Carmine #9B0013 — pressed / active red */
+  --primary: 7 84% 56%;              /* Island red #E8341C — accents / red text on near-black */
+  --primary-cta: 7 84% 48%;          /* AA fill behind white CTA labels */
+  --primary-pressed: 7 90% 34%;      /* deep pressed red */
   --primary-foreground: 0 0% 100%;
-  --primary-soft: 354 60% 15%;       /* icon tiles / soft red wash */
-  --primary-bright: 356 100% 65%;    /* brighter brand crimson — gradient END (still red, no coral) */
+  --primary-soft: 7 55% 14%;         /* icon tiles / soft red wash */
+  --primary-bright: 9 90% 62%;       /* brighter red — gradient END */
 
-  --secondary: 224 22% 14%;
-  --secondary-foreground: 210 24% 98%;
+  --secondary: 26 7% 13%;
+  --secondary-foreground: 35 30% 95%;
 
-  /* ── FOREGROUND STAIRCASE — brighter, more confident/legible on dark. ── */
-  --fg-secondary: 214 20% 85%;       /* BODY copy (use this, NOT foreground/65) */
-  --fg-faint: 220 12% 50%;           /* disabled */
+  /* ── FOREGROUND STAIRCASE — warm grays, confident/legible on near-black. ── */
+  --fg-secondary: 30 8% 65%;         /* BODY copy — warm gray (≈#a9a39b) */
+  --fg-faint: 30 6% 42%;             /* disabled */
 
   /* Soft dark surface + readable muted text. */
-  --muted: 224 24% 13%;
-  --muted-foreground: 217 17% 67%;   /* captions / meta — now clears AA */
+  --muted: 26 7% 12%;
+  --muted-foreground: 30 7% 57%;     /* captions / meta — warm, clears AA */
 
-  --accent: 224 24% 14%;
-  --accent-foreground: 210 24% 98%;
+  --accent: 26 7% 13%;
+  --accent-foreground: 35 30% 95%;
 
   /* ── SECONDARY ACCENT — brand Dark Cerulean (data/links/glints, never CTAs). ──
      Shifted off the old cyan (199°, an AI-slop tell) onto the brand's true azure
      hue family so it reads as the identity's cerulean, not generic neon-on-dark. */
-  --accent-2: 211 95% 63%;           /* bright brand azure/cerulean */
-  --accent-2-soft: 213 75% 15%;      /* Dark Cerulean #083E7F family — soft cool fill */
+  --accent-2: 38 48% 60%;            /* warm GOLD #BFA06A — data / links / glints */
+  --accent-2-soft: 36 35% 13%;       /* deep gold — soft fill */
 
   /* ── BRAND COOL ACCENT — Dark Cerulean family (#083E7F). ──
      The identity's supporting tone that pairs with crimson on navy (see the
@@ -169,17 +172,18 @@
      (those stay Alizarin Crimson). Kept under the legacy "sand" var names so the
      wired utilities (.chip-sand / .eyebrow-sand / .hairline-sand) stay intact;
      they now resolve to the authentic brand cerulean. Tuned to read luminous on
-     the matte #0A0E1A canvas while the -soft/-deep rungs give fills & borders. */
-  --sand: 211 95% 65%;               /* bright cerulean — numerals / highlights */
-  --sand-bright: 205 100% 72%;       /* brighter azure — large display emphasis */
-  --sand-soft: 213 80% 12%;          /* deep cerulean tint — chip / wash fills */
-  --sand-deep: 213 55% 26%;          /* cerulean border on cool chips */
+     the matte #0a0a0a canvas while the -soft/-deep rungs give fills & borders. */
+  --sand: 38 48% 60%;                /* warm GOLD #BFA06A — numerals / highlights */
+  --sand-bright: 40 58% 68%;         /* brighter gold — large display emphasis */
+  --sand-soft: 36 35% 12%;           /* deep gold tint — chip / wash fills */
+  --sand-deep: 36 32% 30%;           /* gold border on warm chips */
+  --gold: 38 48% 60%;                /* explicit gold token (spec --c-gold) */
 
   --destructive: 0 72% 52%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 224 22% 14%;
-  --ring: 355 80% 58%;
+  --input: 26 7% 13%;
+  --ring: 7 82% 56%;
 
   /* Typography — IBM Plex Sans Arabic stays primary for Arabic.
      Inter is the Latin display partner (matches Galata, modern, neutral).
@@ -266,8 +270,8 @@
 }
 
 .dark {
-  --background: 226 41% 6%;
-  --foreground: 210 24% 98%;
+  --background: 24 9% 4%;
+  --foreground: 35 33% 93%;
 }
 
 /* ============================================================
@@ -292,18 +296,18 @@
   --card-border: 215 25% 80%;
   --muted: 214 32% 95%;
   --muted-foreground: 218 17% 42%;    /* captions on light — AA */
-  --primary: 354 78% 47%;             /* crimson, deepened for AA on white */
-  --primary-soft: 354 84% 95%;        /* light crimson wash */
-  --primary-bright: 354 80% 52%;
+  --primary: 7 78% 47%;               /* Island red, deepened for AA on white */
+  --primary-soft: 8 84% 95%;          /* light red wash */
+  --primary-bright: 9 80% 52%;
   --secondary: 214 30% 94%;
   --accent: 214 30% 94%;
-  /* cerulean (legacy "sand" alias) deepened for contrast on white */
-  --sand: 213 84% 40%;
-  --sand-bright: 214 88% 34%;
-  --sand-soft: 211 92% 94%;
-  --sand-deep: 213 55% 78%;
-  --accent-2: 211 84% 42%;
-  --accent-2-soft: 211 92% 93%;
+  /* gold (legacy "sand" alias) deepened for contrast on white */
+  --sand: 36 55% 38%;
+  --sand-bright: 36 60% 32%;
+  --sand-soft: 40 60% 92%;
+  --sand-deep: 36 40% 78%;
+  --accent-2: 36 55% 40%;
+  --accent-2-soft: 40 60% 92%;
   --input: 214 28% 92%;
   background-color: hsl(var(--background));
   color: hsl(var(--fg-secondary));
@@ -510,8 +514,8 @@
   border-radius: var(--card-radius);
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
-    0 1px 2px hsl(226 60% 2% / 0.4),
-    0 12px 32px -12px hsl(226 60% 2% / 0.6);
+    0 1px 2px hsl(0 0% 3% / 0.4),
+    0 12px 32px -12px hsl(0 0% 3% / 0.6);
   transition:
     border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -526,7 +530,7 @@
   transform: translateY(-3px);
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
-    0 2px 6px hsl(226 60% 2% / 0.45),
+    0 2px 6px hsl(0 0% 3% / 0.45),
     0 20px 48px -16px hsl(354 82% 30% / 0.32);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -670,19 +674,19 @@
 }
 
 /* ── Elevation, tuned for the DARK canvas ──
-   On #0A0E1A a faint black shadow is invisible, so depth comes from a
+   On #0a0a0a a faint black shadow is invisible, so depth comes from a
    deep cast shadow PLUS a 1px top inset highlight that reads as a lit edge. */
 @utility shadow-soft {
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
-    0 1px 2px hsl(226 60% 2% / 0.4),
-    0 12px 32px -12px hsl(226 60% 2% / 0.6);
+    0 1px 2px hsl(0 0% 3% / 0.4),
+    0 12px 32px -12px hsl(0 0% 3% / 0.6);
 }
 
 @utility shadow-soft-hover {
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
-    0 2px 6px hsl(226 60% 2% / 0.45),
+    0 2px 6px hsl(0 0% 3% / 0.45),
     0 20px 48px -16px hsl(354 82% 30% / 0.32);
 }
 
@@ -724,24 +728,24 @@
 }
 
 /* Graduated raised surfaces. Each lifts the fill a touch and adds depth so
-   panels never sit flush with the #0A0E1A page (the flat-on-flat dark bug). */
+   panels never sit flush with the #0a0a0a page (the flat-on-flat dark bug). */
 @utility surface-1 {
   background-color: hsl(var(--surface-1));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.04) inset,
-    0 8px 24px -10px hsl(226 60% 2% / 0.5);
+    0 8px 24px -10px hsl(0 0% 3% / 0.5);
 }
 @utility surface-2 {
   background-color: hsl(var(--surface-2));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.05) inset,
-    0 12px 36px -12px hsl(226 60% 2% / 0.6);
+    0 12px 36px -12px hsl(0 0% 3% / 0.6);
 }
 @utility surface-3 {
   background-color: hsl(var(--surface-3));
   box-shadow:
     0 1px 0 0 hsl(0 0% 100% / 0.06) inset,
-    0 24px 60px -16px hsl(226 60% 1% / 0.7);
+    0 24px 60px -16px hsl(0 0% 2% / 0.7);
 }
 
 /* Consistent brand focus ring for custom interactive elements that aren't

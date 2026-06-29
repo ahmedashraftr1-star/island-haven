@@ -347,7 +347,7 @@ function FeaturedCohort({ c, liveCount }: { c: CohortRow; liveCount: number }) {
               <div
                 aria-hidden
                 className="absolute inset-0"
-                style={{ background: "linear-gradient(0deg, hsl(225 44% 4% / 0.94) 0%, hsl(225 44% 4% / 0.45) 42%, transparent 78%)" }}
+                style={{ background: "linear-gradient(0deg, hsl(0 0% 3% / 0.94) 0%, hsl(0 0% 3% / 0.45) 42%, transparent 78%)" }}
               />
 
               <div className="absolute inset-0 flex items-end">
