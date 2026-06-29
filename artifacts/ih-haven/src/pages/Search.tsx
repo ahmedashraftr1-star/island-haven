@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { Search as SearchIcon, ArrowLeft, Award, Rocket, Layers, BookOpen, Users } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Search as SearchIcon, ArrowLeft, X, Award, Rocket, Layers, BookOpen, Users } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 interface Hit {
   id: number;
@@ -38,6 +39,7 @@ const EMPTY: Results = { experts: [], ventures: [], programs: [], courses: [], m
 
 export default function Search() {
   const { lang, t } = useLanguage();
+  const reduce = useReducedMotion();
   const [q, setQ] = useState(() => {
     try {
       return new URLSearchParams(window.location.search).get("q") ?? "";
@@ -106,16 +108,48 @@ export default function Search() {
       })}
       maxWidth="max-w-3xl"
     >
-      <div className="relative mb-8">
-        <SearchIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-fg-faint pointer-events-none" />
+      <div className="relative mb-6">
         <input
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t({ ar: "اكتب اسمًا، مهارة، أو موضوعًا…", en: "Type a name, skill, or topic…" })}
-          className="w-full h-14 pe-12 ps-4 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[15px] placeholder-white/50 outline-none focus:border-primary/50 focus:bg-surface-2 transition-colors"
+          className="peer w-full h-16 ps-12 pe-12 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[16px] tracking-tight placeholder-fg-faint shadow-soft outline-none transition-colors focus:border-primary/50"
           data-testid="input-global-search"
         />
+        <SearchIcon
+          className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-fg-faint transition-colors peer-focus:text-primary"
+          aria-hidden
+        />
+        {q.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setQ("");
+              inputRef.current?.focus();
+            }}
+            aria-label={t({ ar: "مسح البحث", en: "Clear search" })}
+            className="absolute end-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-white/[0.06] transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Live result tally — cerulean data accent, hairline-set above the rows. */}
+      <div className="flex items-center gap-3 mb-8 min-h-[1.25rem]" aria-live="polite">
+        <span className="hairline flex-1" aria-hidden />
+        {results && total > 0 ? (
+          <span className="text-[12px] tracking-[0.18em] uppercase text-accent-2 font-semibold tabular-nums rtl:tracking-normal">
+            {lang === "ar"
+              ? `${total} ${total === 1 ? "نتيجة" : "نتائج"}`
+              : `${total} ${total === 1 ? "result" : "results"}`}
+          </span>
+        ) : (
+          <span className="text-[12px] tracking-[0.18em] uppercase text-fg-faint font-semibold rtl:tracking-normal">
+            {t({ ar: "الحاضنة كاملةً", en: "The whole incubator" })}
+          </span>
+        )}
       </div>
 
       {error && <GlassCard className="p-5 text-destructive text-center">{error}</GlassCard>}
@@ -126,9 +160,13 @@ export default function Search() {
           hint={t({ ar: "اكتب حرفين على الأقلّ لعرض النتائج.", en: "Type at least two characters to see results." })}
         />
       ) : loading && !results ? (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-16 rounded-2xl bg-white/[0.035] border border-border-strong animate-pulse" />
+            <div
+              key={i}
+              className="h-[4.25rem] rounded-2xl border border-border-strong skeleton-shimmer"
+              style={{ opacity: 1 - i * 0.14 }}
+            />
           ))}
         </div>
       ) : results && total === 0 ? (
@@ -141,47 +179,50 @@ export default function Search() {
           }
         />
       ) : (
-        <div className="space-y-9">
+        <div className="space-y-12">
           {CATEGORIES.map((c) => {
             const items = r[c.key];
             if (!items?.length) return null;
             const Icon = c.icon;
             return (
               <section key={c.key}>
-                <div className="flex items-center gap-2.5 mb-3">
-                  <Icon className="w-4 h-4 text-primary" />
-                  <h2 className="text-foreground font-bold text-[15.5px]">{t(c.label)}</h2>
-                  <span className="text-muted-foreground text-[12px] tabular-nums">({items.length})</span>
+                {/* Category header — editorial caption row, hairline-set, cerulean count. */}
+                <div className="flex items-baseline gap-3 pb-3 mb-3.5 border-b border-border-strong/60">
+                  <Icon className="w-4 h-4 text-primary self-center shrink-0" aria-hidden />
+                  <h2 className="text-foreground font-bold text-[12px] tracking-[0.16em] uppercase rtl:tracking-normal rtl:text-[14px]">
+                    {t(c.label)}
+                  </h2>
+                  <span className="text-accent-2 text-[12px] font-semibold tabular-nums">{items.length}</span>
                 </div>
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {items.map((h, i) => (
                     <motion.div
                       key={`${c.key}-${h.id}`}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.35, delay: Math.min(i, 5) * 0.03 }}
+                      initial={reduce ? false : { opacity: 0, y: 8 }}
+                      animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                      transition={{ duration: 0.45, delay: Math.min(i, 5) * 0.04, ease: EASE_OUT_EXPO }}
                     >
                       <Link
                         href={c.to(h)}
-                        className="group flex items-center gap-3.5 rounded-2xl p-3.5 bg-surface-2 border border-border-strong hover:border-primary/40 hover:bg-surface-2 transition-colors"
+                        className="group flex items-center gap-4 rounded-2xl p-3.5 bg-surface-2 border border-border-strong shadow-soft hover:border-primary/40 transition-colors"
                         data-testid={`search-hit-${c.key}-${h.id}`}
                       >
                         {h.avatarUrl ? (
-                          <img src={h.avatarUrl} alt="" className="w-11 h-11 rounded-xl object-cover border border-border-strong shrink-0" />
+                          <img src={h.avatarUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-border-strong shrink-0" />
                         ) : (
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/30 to-primary/5 border border-border-strong flex items-center justify-center shrink-0">
-                            <Icon className="w-5 h-5 text-primary/80" />
+                          <div className="w-12 h-12 rounded-xl bg-primary-soft border border-border-strong flex items-center justify-center shrink-0">
+                            <Icon className="w-5 h-5 text-primary" aria-hidden />
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <div className="text-foreground font-semibold text-[14px] truncate group-hover:text-primary transition-colors">
+                          <div className="text-foreground font-semibold text-[14.5px] tracking-tight truncate group-hover:text-primary transition-colors">
                             {h.title}
                           </div>
                           {h.subtitle ? (
-                            <div className="text-muted-foreground text-[12.5px] truncate">{h.subtitle}</div>
+                            <div className="text-muted-foreground text-[12.5px] truncate mt-0.5">{h.subtitle}</div>
                           ) : null}
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0" />
+                        <ArrowLeft className="w-4 h-4 text-fg-faint group-hover:text-primary transition-all shrink-0 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                       </Link>
                     </motion.div>
                   ))}

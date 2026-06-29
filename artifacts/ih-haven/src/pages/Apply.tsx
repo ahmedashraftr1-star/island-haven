@@ -372,11 +372,24 @@ export default function Apply() {
       {/* Main */}
       <div className="relative z-10 px-5 sm:px-8 lg:px-14 pb-24">
         <div className="mx-auto max-w-2xl">
-          {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+          {/* ── Monumental header — one calm line, one crimson word, acres of space.
+              An eyebrow leads, a lead follows, and a hairline rule closes the
+              header so the form begins on a clean editorial baseline. ── */}
           <header
             className="mb-[clamp(3.5rem,8vw,6rem)]"
             style={{ paddingBlock: "clamp(3rem, 9vh, 6rem) 0" }}
           >
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              animate={reduce ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+              className="flex items-center gap-3 mb-[clamp(1.25rem,2.5vw,1.75rem)]"
+            >
+              <span aria-hidden className="h-px w-9 bg-primary/50" />
+              <span className="eyebrow text-primary">
+                {t({ ar: "طلب الانضمام · الدفعة الأولى", en: "Application · First cohort" })}
+              </span>
+            </motion.div>
             <h1
               className="font-display text-foreground"
               style={{
@@ -395,7 +408,7 @@ export default function Apply() {
                   className="block will-change-transform"
                   initial={reduce ? false : { opacity: 0, y: 30 }}
                   animate={reduce ? undefined : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+                  transition={{ duration: 0.85, delay: 0.1 + i * 0.09, ease: EASE_OUT_EXPO }}
                 >
                   {ln}
                 </motion.span>
@@ -410,6 +423,13 @@ export default function Apply() {
             >
               {c.subtitle}
             </motion.p>
+            <motion.div
+              aria-hidden
+              initial={reduce ? false : { opacity: 0, scaleX: 0 }}
+              animate={reduce ? undefined : { opacity: 1, scaleX: 1 }}
+              transition={{ duration: 1, delay: 0.45, ease: EASE_OUT_EXPO }}
+              className="hairline mt-[clamp(2.5rem,5vw,4rem)] origin-left rtl:origin-right"
+            />
           </header>
 
           {/* Who should apply & what we look for — a concise eligibility block so
@@ -432,7 +452,7 @@ export default function Apply() {
             <div className="relative">
               <div className="relative space-y-12 sm:space-y-14">
                 {/* Section: identity */}
-                <SectionHeader title={c.sec1Title} sub={c.sec1Sub} />
+                <SectionHeader title={c.sec1Title} sub={c.sec1Sub} step={1} />
 
                 <Field
                   id="fullName"
@@ -477,7 +497,7 @@ export default function Apply() {
 
                 {/* Section: category */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec2Title} sub={c.sec2Sub} />
+                  <SectionHeader title={c.sec2Title} sub={c.sec2Sub} step={2} />
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-1">
                     {CATEGORIES.map((cat) => {
                       const active = form.category === cat.id;
@@ -488,12 +508,21 @@ export default function Apply() {
                           type="button"
                           onClick={() => update("category", cat.id)}
                           aria-pressed={active}
-                          className={`group relative rounded-2xl p-3.5 text-center transition-all duration-200 border ${
+                          className={`group relative overflow-hidden rounded-2xl p-3.5 text-center transition-[background-color,border-color,transform] duration-200 border ${
                             active
-                              ? "bg-primary/[0.08] border-primary/45 shadow-[0_0_0_1px_hsl(354_78%_47%/0.25),0_10px_30px_-14px_hsl(354_78%_47%/0.35)]"
-                              : "bg-surface-2 border-border-strong hover:bg-surface-3 hover:border-primary/30"
+                              ? "bg-primary/[0.08] border-primary/45"
+                              : "bg-surface-2 border-border-strong hover:bg-surface-3 hover:border-primary/30 hover:-translate-y-0.5"
                           }`}
                         >
+                          {/* A quiet crimson baseline rule marks the chosen track — depth, not glow. */}
+                          {active && (
+                            <motion.span
+                              aria-hidden
+                              layoutId="apply-category-rule"
+                              className="absolute inset-x-0 bottom-0 h-[2px] bg-primary/70"
+                              transition={{ duration: reduce ? 0 : 0.32, ease: EASE_OUT_EXPO }}
+                            />
+                          )}
                           <Icon
                             className={`w-5 h-5 mx-auto mb-2 transition-colors ${
                               active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
@@ -518,7 +547,7 @@ export default function Apply() {
 
                 {/* Section: bio + motivation */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec3Title} sub={c.sec3Sub} />
+                  <SectionHeader title={c.sec3Title} sub={c.sec3Sub} step={3} />
                   <div className="space-y-5">
                     <FieldWrap
                       id="bio"
@@ -563,7 +592,7 @@ export default function Apply() {
 
                 {/* Section 04: Professional */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec4Title} sub={c.sec4Sub} />
+                  <SectionHeader title={c.sec4Title} sub={c.sec4Sub} step={4} />
                   <div className="space-y-5">
                     <Field
                       id="skills"
@@ -623,7 +652,7 @@ export default function Apply() {
 
                 {/* Section 05: Links */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec5Title} sub={c.sec5Sub} />
+                  <SectionHeader title={c.sec5Title} sub={c.sec5Sub} step={5} />
                   <div className="grid sm:grid-cols-2 gap-5">
                     <Field
                       id="linkedinUrl"
@@ -652,7 +681,7 @@ export default function Apply() {
 
                 {/* Section 06: Previous work */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec6Title} sub={c.sec6Sub} />
+                  <SectionHeader title={c.sec6Title} sub={c.sec6Sub} step={6} />
                   <FieldWrap
                     id="previousWork"
                     label={c.previousWorkLabel}
@@ -676,7 +705,7 @@ export default function Apply() {
 
                 {/* Section 07: Availability */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec7Title} sub={c.sec7Sub} />
+                  <SectionHeader title={c.sec7Title} sub={c.sec7Sub} step={7} />
                   <div className="space-y-5">
                     {/* Weekly hours chips */}
                     <div>
@@ -741,7 +770,7 @@ export default function Apply() {
 
                 {/* Section 08: CV Upload */}
                 <div className="pt-2">
-                  <SectionHeader title={c.sec8Title} sub={c.sec8Sub} />
+                  <SectionHeader title={c.sec8Title} sub={c.sec8Sub} step={8} />
                   <input
                     ref={cvInputRef}
                     id="cv-upload-input"
@@ -1014,20 +1043,46 @@ function ProcessStrip() {
   );
 }
 
-// SectionHeader — a calm editorial step heading. No 01/02 ledger, no gradient
-// hairline: just the section name set quietly large, the latin counterpart aside,
-// and a single full hairline beneath.
+// SectionHeader — a calm editorial step heading. A single cerulean tabular
+// numeral leads (the house bar's hard-data tone), the section name sits quietly
+// large beside it, the latin counterpart trails, and one full hairline closes.
 function SectionHeader({
   title,
   sub,
+  step,
 }: {
   title: string;
   sub: string;
+  step?: number;
 }) {
+  const { lang } = useLanguage();
+  const reduce = useReducedMotion();
+  const num =
+    step != null
+      ? (lang === "ar"
+          ? step.toLocaleString("ar-EG")
+          : String(step)
+        ).padStart(2, lang === "ar" ? "٠" : "0")
+      : null;
   return (
-    <div className="flex items-baseline justify-between gap-4 mb-6 pb-3 border-b border-border-strong">
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 14 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+      className="flex items-baseline gap-x-[clamp(0.85rem,2.5vw,1.4rem)] mb-6 pb-3 border-b border-border-strong"
+    >
+      {num && (
+        <span
+          aria-hidden
+          className="font-display font-bold text-sand tnum leading-none shrink-0"
+          style={{ fontSize: "clamp(0.95rem,1.7vw,1.2rem)", letterSpacing: "-0.01em" }}
+        >
+          {num}
+        </span>
+      )}
       <h2
-        className="font-display font-bold text-foreground"
+        className="font-display font-bold text-foreground flex-1"
         style={{ fontSize: "clamp(1.15rem,2.2vw,1.5rem)", letterSpacing: "-0.02em", lineHeight: 1.1 }}
       >
         {title}
@@ -1035,7 +1090,7 @@ function SectionHeader({
       <span className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-semibold whitespace-nowrap">
         {sub}
       </span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -1145,12 +1200,20 @@ function BackgroundAura() {
 }
 
 function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c: ApplyContent }) {
-  const { lang, dir } = useLanguage();
+  const { lang, dir, t } = useLanguage();
   const reduce = useReducedMotion();
   const fmtNum = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   const ref = String(id).padStart(5, "0");
   const refDisplay = lang === "ar" ? fmtNum(id).padStart(5, "٠") : ref;
   const bodyLines = c.successBody.split("\n");
+
+  // The honest, three-beat journey from here — same voice as the ProcessStrip
+  // above the form, so the promise reads consistently after submitting.
+  const nextSteps = [
+    { label: t({ ar: "مراجعة الطلب", en: "Review" }), meta: t({ ar: "خلال أيّام", en: "Within days" }) },
+    { label: t({ ar: "مقابلة قصيرة", en: "Short interview" }), meta: t({ ar: "عبر واتساب", en: "Over WhatsApp" }) },
+    { label: t({ ar: "انضمام إلى دفعة", en: "Onboard" }), meta: t({ ar: "إلى المجتمع", en: "Into the cohort" }) },
+  ];
   return (
     <div
       dir={dir}
@@ -1190,15 +1253,39 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
                 </span>
               ))}
             </p>
-            <div className="inline-block rounded-xl px-4 py-2 bg-surface-2 border border-border-strong text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mb-7">
-              {c.successRefLabel} · #{refDisplay}
+
+            {/* What happens from here — the honest journey, as quiet hairline rows. */}
+            <ul className="mb-7 border-t border-border-strong/60 text-start">
+              {nextSteps.map((s, i) => (
+                <li key={i}>
+                  <motion.div
+                    initial={reduce ? false : { opacity: 0, y: 8 }}
+                    animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, delay: 0.35 + i * 0.08, ease: EASE_OUT_EXPO }}
+                    className="flex items-baseline justify-between gap-4 py-3 border-b border-border-strong/60"
+                  >
+                    <span className="text-foreground text-[13.5px] font-semibold">
+                      <span className="text-sand tnum me-2.5">{lang === "ar" ? fmtNum(i + 1) : i + 1}</span>
+                      {s.label}
+                    </span>
+                    <span className="text-muted-foreground text-[11.5px] tracking-wide whitespace-nowrap">{s.meta}</span>
+                  </motion.div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="inline-flex items-center gap-2.5 rounded-xl px-4 py-2 bg-surface-2 border border-border-strong mb-7">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">
+                {c.successRefLabel}
+              </span>
+              <span className="text-sand tnum text-[13px] font-bold">#{refDisplay}</span>
             </div>
             <div>
               <Link
                 href="/"
-                className="cta-fill inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
+                className="cta-fill group inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 {c.successCta}
               </Link>
             </div>

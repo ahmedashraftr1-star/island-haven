@@ -6,6 +6,7 @@ import {
   Clock,
   Users,
   CheckCircle2,
+  Check,
   ArrowLeft,
   Briefcase,
   GraduationCap,
@@ -105,6 +106,14 @@ export default function Book() {
   const { lang, t } = useLanguage();
   const reduce = useReducedMotion();
   const [step, setStep] = useState<Step>(0);
+  // Track navigation direction so step transitions read as a deliberate
+  // forward / back motion (+1 next, -1 back) instead of a flat fade.
+  const [navDir, setNavDir] = useState<1 | -1>(1);
+  const goStep = (next: Step) =>
+    setStep((s) => {
+      setNavDir(next >= s ? 1 : -1);
+      return next;
+    });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ id: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -253,6 +262,17 @@ export default function Book() {
       <div className="relative z-10 px-6 lg:px-10 pb-24 max-w-[1280px] mx-auto">
         {/* ── Monumental header — one quiet thesis on acres of space, one crimson line ── */}
         <header className="max-w-4xl pt-[clamp(3rem,8vh,6rem)] pb-[clamp(3.5rem,8vh,6rem)]">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={reduce ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+            className="flex items-center gap-3 mb-[clamp(1.25rem,2.5vw,2rem)]"
+          >
+            <span aria-hidden className="h-px w-9 bg-primary/50" />
+            <span className="eyebrow text-primary">
+              {lang === "en" ? "Book a seat · Free" : "احجز مقعدك · مجّانًا"}
+            </span>
+          </motion.div>
           <h1
             className="font-display text-foreground"
             style={{
@@ -268,7 +288,7 @@ export default function Book() {
                 className="block will-change-transform"
                 initial={reduce ? false : { opacity: 0, y: 30 }}
                 animate={reduce ? undefined : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+                transition={{ duration: 0.85, delay: 0.08 + i * 0.09, ease: EASE_OUT_EXPO }}
               >
                 {ln}
               </motion.span>
@@ -277,7 +297,7 @@ export default function Book() {
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 18 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+            transition={{ duration: 0.85, delay: 0.5, ease: EASE_OUT_EXPO }}
             className="mt-[clamp(1.75rem,3.5vw,2.5rem)] max-w-2xl text-fg-secondary"
             style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
           >
@@ -285,6 +305,13 @@ export default function Book() {
               ? "Pick a day, a time slot, and — if you like — an expert to meet. No login, no fees, no hassle. Just four steps, completely free."
               : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه إن شئت. لا تسجيل دخول، ولا رسوم، ولا تعقيد — أربع خطوات فقط، ومجّانًا تمامًا."}
           </motion.p>
+          <motion.div
+            aria-hidden
+            initial={reduce ? false : { opacity: 0 }}
+            animate={reduce ? undefined : { opacity: 1 }}
+            transition={{ duration: 0.85, delay: 0.6, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(2.25rem,4.5vw,3.25rem)] h-px w-full bg-gradient-to-r from-border-strong via-border-strong/40 to-transparent rtl:bg-gradient-to-l"
+          />
         </header>
 
         <Stepper step={step} />
@@ -293,10 +320,11 @@ export default function Book() {
           {/* Form panel */}
           <div className="relative">
             <Panel>
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" custom={navDir}>
                 {step === 0 && (
                   <StepOne
                     key="s0"
+                    navDir={navDir}
                     form={form}
                     update={update}
                     monthCursor={monthCursor}
@@ -305,14 +333,15 @@ export default function Book() {
                   />
                 )}
                 {step === 1 && (
-                  <StepTwo key="s1" form={form} update={update} />
+                  <StepTwo key="s1" navDir={navDir} form={form} update={update} />
                 )}
                 {step === 2 && (
-                  <StepExpert key="s2" form={form} update={update} experts={experts} visitDate={form.visitDate} onSlotMetaChange={setSelectedSlotMeta} />
+                  <StepExpert key="s2" navDir={navDir} form={form} update={update} experts={experts} visitDate={form.visitDate} onSlotMetaChange={setSelectedSlotMeta} />
                 )}
                 {step === 3 && (
                   <StepThree
                     key="s3"
+                    navDir={navDir}
                     form={form}
                     update={update}
                     issues={issues}
@@ -328,7 +357,7 @@ export default function Book() {
 
               <div className="mt-8 flex items-center justify-between gap-3">
                 <button
-                  onClick={() => setStep((s) => Math.max(0, s - 1) as Step)}
+                  onClick={() => goStep(Math.max(0, step - 1) as Step)}
                   disabled={step === 0}
                   className="h-11 px-5 rounded-full text-[13px] font-medium text-fg-secondary hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center gap-2"
                   data-testid="button-back"
@@ -338,9 +367,7 @@ export default function Book() {
                 </button>
                 {step < 3 ? (
                   <button
-                    onClick={() =>
-                      setStep((s) => Math.min(3, s + 1) as Step)
-                    }
+                    onClick={() => goStep(Math.min(3, step + 1) as Step)}
                     disabled={
                       (step === 0 && !canStep1) ||
                       (step === 1 && !canStep2) ||
@@ -389,7 +416,7 @@ export default function Book() {
 // no gradient wash; restraint and space carry it.
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative rounded-[24px] p-7 lg:p-11 bg-surface-2 border border-border-strong">
+    <div className="relative rounded-[24px] p-7 lg:p-11 surface-2 border border-border-strong overflow-hidden">
       {children}
     </div>
   );
@@ -410,7 +437,7 @@ function Stepper({ step }: { step: Step }) {
             <div
               className={`flex items-center gap-2.5 px-4 h-10 rounded-full transition ${
                 active
-                  ? "bg-primary text-primary-foreground"
+                  ? "cta-fill"
                   : done
                     ? "bg-sand-soft text-foreground"
                     : "bg-surface-3 text-fg-faint"
@@ -425,7 +452,7 @@ function Stepper({ step }: { step: Step }) {
                       : "bg-foreground/[0.06]"
                 }`}
               >
-                {done ? "✓" : it.n}
+                {done ? <Check className="w-3 h-3" strokeWidth={3} /> : it.n}
               </span>
               <span className="text-[12.5px] font-semibold whitespace-nowrap">
                 {it.label}
@@ -444,28 +471,35 @@ function Stepper({ step }: { step: Step }) {
 function StepShell({
   title,
   hint,
+  navDir = 1,
   children,
 }: {
   title: string;
   hint: string;
+  navDir?: 1 | -1;
   children: React.ReactNode;
 }) {
   const reduce = useReducedMotion();
+  // Direction-aware slide: forward steps enter from the leading edge, back steps
+  // from the trailing edge. RTL-agnostic — we shift along x by a small amount and
+  // let AnimatePresence's `custom` carry the sign.
+  const enterX = navDir === 1 ? 26 : -26;
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={reduce ? undefined : { opacity: 1, y: 0 }}
-      exit={reduce ? undefined : { opacity: 0, y: -14 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      custom={navDir}
+      initial={reduce ? false : { opacity: 0, x: enterX }}
+      animate={reduce ? undefined : { opacity: 1, x: 0 }}
+      exit={reduce ? undefined : { opacity: 0, x: -enterX }}
+      transition={{ duration: 0.42, ease: EASE_OUT_EXPO }}
     >
       <div className="mb-8">
         <h2
           className="font-display font-bold text-foreground"
-          style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+          style={{ fontSize: "clamp(1.55rem, 3vw, 2.1rem)", letterSpacing: "-0.032em", lineHeight: 1.08 }}
         >
           {title}
         </h2>
-        <p className="text-fg-secondary text-[13.5px] mt-2.5 leading-relaxed">{hint}</p>
+        <p className="text-fg-secondary text-[13.5px] mt-3 leading-relaxed max-w-xl">{hint}</p>
       </div>
       {children}
     </motion.div>
@@ -478,6 +512,7 @@ function StepOne({
   monthCursor,
   setMonthCursor,
   monthGrid,
+  navDir,
 }: {
   form: ReturnType<typeof useState<any>>[0] & {
     visitDate: string;
@@ -492,10 +527,12 @@ function StepOne({
     disabled: boolean;
     label: string;
   }>;
+  navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
   return (
     <StepShell
+      navDir={navDir}
       title={lang === "en" ? "Pick your day & time slot" : "اختر يومك وفترتك"}
       hint={lang === "en" ? "Open Sat–Thu · Closed Friday · Gaza time" : "مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"}
     >
@@ -606,13 +643,16 @@ function StepOne({
 function StepTwo({
   form,
   update,
+  navDir,
 }: {
   form: { purpose: string; attendees: number; notes: string };
   update: (k: any, v: any) => void;
+  navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
   return (
     <StepShell
+      navDir={navDir}
       title={lang === "en" ? "What's the purpose of your visit?" : "ما الهدف من زيارتك؟"}
       hint={lang === "en" ? "Your choice helps us prepare the best space for you" : "اختياراتك تساعدنا نُجهّز لك المساحة الأنسب"}
     >
@@ -933,12 +973,14 @@ function StepExpert({
   experts,
   visitDate,
   onSlotMetaChange,
+  navDir,
 }: {
   form: { expertId: number | null; slotId: number | null };
   update: (k: any, v: any) => void;
   experts: ExpertOption[] | null;
   visitDate: string;
   onSlotMetaChange: (slot: AvailableSlot | null) => void;
+  navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
   const reduce = useReducedMotion();
@@ -1017,6 +1059,7 @@ function StepExpert({
   return (
     <>
     <StepShell
+      navDir={navDir}
       title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
       hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
     >
@@ -1226,14 +1269,17 @@ function StepThree({
   form,
   update,
   issues,
+  navDir,
 }: {
   form: { fullName: string; phone: string; email: string };
   update: (k: any, v: any) => void;
   issues: Record<string, string>;
+  navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
   return (
     <StepShell
+      navDir={navDir}
       title={lang === "en" ? "Your info" : "بياناتك"}
       hint={lang === "en" ? "We'll reach you on WhatsApp to confirm your booking" : "نتواصل معك على واتساب لتأكيد الحجز"}
     >
@@ -1380,10 +1426,13 @@ function SummaryCard({
 
   return (
     <aside className="lg:sticky lg:top-8 self-start">
-      <div className="relative rounded-[20px] p-6 bg-surface-2 border border-border-strong">
+      <div className="relative rounded-[20px] p-6 surface-2 border border-border-strong">
         <div>
           <div className="pb-4 mb-2 border-b border-border-strong">
-            <div className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.05rem, 2vw, 1.25rem)", letterSpacing: "-0.02em" }}>
+            <div className="eyebrow text-sand mb-2">
+              {lang === "en" ? "Summary" : "الملخّص"}
+            </div>
+            <div className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.1rem, 2vw, 1.3rem)", letterSpacing: "-0.02em" }}>
               {lang === "en" ? "Your booking" : "ملخّص حجزك"}
             </div>
           </div>
