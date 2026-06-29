@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, lazy, Suspense } from "react";
 import { usePageView } from "@/hooks/use-tracking";
 import { CustomCursor } from "@/components/landing/CustomCursor";
+import { CommandPalette } from "@/components/CommandPalette";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
@@ -70,6 +71,12 @@ const Alumni = lazy(() => import("@/pages/Alumni"));
 const Jobs = lazy(() => import("@/pages/Jobs"));
 const Investors = lazy(() => import("@/pages/Investors"));
 const BecomeMentor = lazy(() => import("@/pages/BecomeMentor"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Media = lazy(() => import("@/pages/Media"));
+const PartnersPage = lazy(() => import("@/pages/PartnersPage"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const Terms = lazy(() => import("@/pages/Terms"));
 
 const queryClient = new QueryClient();
 
@@ -101,6 +108,12 @@ const ROUTE_TITLES: Record<string, string> = {
   "/alumni": "خرّيجو الحاضنة — Island Haven",
   "/jobs": "لوحة الوظائف — Island Haven",
   "/investors": "المستثمرون والداعمون — Island Haven",
+  "/partners": "الشركاء — Island Haven",
+  "/contact": "تواصل معنا — Island Haven",
+  "/media": "الغرفة الإعلاميّة — Island Haven",
+  "/blog": "المدوّنة والرّؤى — Island Haven",
+  "/privacy": "سياسة الخصوصيّة — Island Haven",
+  "/terms": "شروط الاستخدام — Island Haven",
   "/gallery": "معرض الصّور — Island Haven",
   "/about": "من نحن — Island Haven",
   "/team": "فريق آيلاند — Island Haven",
@@ -200,6 +213,12 @@ function Router() {
       <Route path="/jobs" component={Jobs} />
       <Route path="/investors" component={Investors} />
       <Route path="/become-mentor" component={BecomeMentor} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/media" component={Media} />
+      <Route path="/partners" component={PartnersPage} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/notifications" component={NotificationSettings} />
       <Route path="/u/:id" component={PublicProfile} />
       <Route path="/admin" component={AdminDashboard} />
@@ -238,6 +257,7 @@ function App() {
               <AnimatedRoutes />
             </main>
             <CustomCursor />
+            <CommandPalette />
           </WouterRouter>
           <Toaster />
         </TooltipProvider>
