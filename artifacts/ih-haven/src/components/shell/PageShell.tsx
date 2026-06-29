@@ -1,13 +1,9 @@
 import { type ReactNode } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, LogIn, UserCircle2, Search } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { HavenMark } from "@/components/landing/HavenMark";
-import { useAuth } from "@/lib/auth";
-import { NavRail } from "@/components/nav/NavRail";
-import { NotificationBell } from "@/components/shell/NotificationBell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LangToggle } from "@/components/nav/LangToggle";
+import { Header } from "@/components/landing/Header";
 
 export function PageShell({
   eyebrow,
@@ -27,9 +23,7 @@ export function PageShell({
    * item from the current route, so this is no longer needed. */
   active?: string;
 }) {
-  const { user, loading } = useAuth();
-  const { dir, lang, t } = useLanguage();
-  const navLabel = t({ ar: "التنقّل الرئيسيّ", en: "Main navigation" });
+  const { dir } = useLanguage();
 
   return (
     <div
@@ -39,81 +33,10 @@ export function PageShell({
     >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[45vh] brand-aura opacity-50" />
 
-      <header className="relative z-30 px-5 sm:px-8 lg:px-14 pt-6 sm:pt-8">
-        <div className={`mx-auto ${maxWidth} flex items-center justify-between gap-4`}>
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-2.5 hover-elevate active-elevate-2 rounded-full px-2.5 py-1.5 -mx-2.5"
-          >
-            <HavenMark size={32} strokeColor="hsl(354 80% 60%)" />
-            <div className="leading-tight text-right">
-              <div className="text-[13px] font-bold tracking-tight">Island Haven</div>
-              <div className="text-[10px] text-muted-foreground tracking-[0.16em] uppercase">
-                آيلاند هيفن
-              </div>
-            </div>
-          </Link>
+      {/* Unified site header — the same mega-menu + ⌘K nav used everywhere. */}
+      <Header />
 
-          <nav
-            aria-label={navLabel}
-            className="hidden xl:flex items-center gap-0.5 rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md"
-          >
-            <NavRail tone="onDark" pillId="shell-rail" />
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/search"
-              aria-label={t({ ar: "بحث", en: "Search" })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
-              data-testid="link-search"
-            >
-              <Search className="w-4 h-4 text-white/70" />
-            </Link>
-            <LangToggle tone="onDark" />
-            {!loading && user ? <NotificationBell /> : null}
-            {!loading && user ? (
-              <Link
-                href="/profile"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold text-white hover:bg-white/[0.1] transition-colors"
-                data-testid="link-profile"
-              >
-                <UserCircle2 className="w-4 h-4 text-primary" />
-                <span className="max-w-[120px] truncate">{user.fullName}</span>
-              </Link>
-            ) : !loading ? (
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/15 text-[12.5px] font-semibold text-white hover:bg-white/[0.1] transition-colors"
-                data-testid="link-login"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                {lang === "en" ? "Login" : "دخول"}
-              </Link>
-            ) : null}
-            {/* Primary CTA — consistent with the homepage header (was missing here) */}
-            <Link
-              href="/apply"
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold cta-fill shadow-soft hover:scale-[1.03] transition-transform"
-              data-testid="shell-apply"
-            >
-              {lang === "en" ? "Apply" : "انتسب"}
-              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Same rail, horizontally scrollable below xl — identical items, so the
-            bar never changes shape between breakpoints or pages. */}
-        <nav
-          aria-label={navLabel}
-          className="xl:hidden mt-4 flex items-center gap-0.5 overflow-x-auto rounded-full p-1 bg-white/[0.04] border border-white/10 backdrop-blur-md [&::-webkit-scrollbar]:hidden"
-        >
-          <NavRail tone="onDark" pillId="shell-scroll" />
-        </nav>
-      </header>
-
-      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-10 sm:pt-14 pb-16">
+      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
           {(eyebrow || title || subtitle) && (
             <motion.div
