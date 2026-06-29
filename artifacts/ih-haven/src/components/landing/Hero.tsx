@@ -130,15 +130,16 @@ function RotatingWord({
   }, [reduce, words.length]);
 
   return (
-    <span className="relative block overflow-hidden pt-[0.22em] pb-[0.18em]">
+    <span className="relative block overflow-hidden pt-[0.22em] pb-[0.18em]" style={{ perspective: "900px" }}>
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={words[i]}
           className="block text-primary will-change-transform"
-          initial={reduce ? false : { y: "115%" }}
-          animate={{ y: 0 }}
-          exit={reduce ? { opacity: 0 } : { y: "-115%" }}
-          transition={{ duration: 0.62, delay: first.current ? delay : 0, ease: EASE_OUT_EXPO }}
+          initial={reduce ? false : { y: "55%", rotateX: -38, opacity: 0, filter: "blur(5px)" }}
+          animate={{ y: 0, rotateX: 0, opacity: 1, filter: "blur(0px)" }}
+          exit={reduce ? { opacity: 0 } : { y: "-55%", rotateX: 38, opacity: 0, filter: "blur(5px)" }}
+          transition={{ duration: 0.66, delay: first.current ? delay : 0, ease: EASE_OUT_EXPO }}
+          style={{ transformOrigin: "center" }}
         >
           {words[i]}
         </motion.span>
