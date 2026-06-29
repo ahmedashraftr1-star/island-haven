@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -9,6 +10,10 @@ import {
   Send,
   Linkedin,
   Instagram,
+  CheckCircle2,
+  UserCheck,
+  Globe,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 import { PageShell } from "@/components/shell/PageShell";
@@ -75,9 +80,44 @@ const SOCIALS: SocialLink[] = [
   { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/islandhaven" },
 ];
 
+// Who's reaching out — a quiet self-select so we can route the message right.
+const ENQUIRY_TYPES: { ar: string; en: string }[] = [
+  { ar: "رائد أعمال", en: "Founder" },
+  { ar: "مستثمر", en: "Investor" },
+  { ar: "شريك مؤسّسيّ", en: "Partner" },
+  { ar: "صحفيّ / إعلاميّ", en: "Press" },
+  { ar: "خبير / مرشد", en: "Mentor" },
+  { ar: "أخرى", en: "Other" },
+];
+
+// Response-time indicators (Linear-style honesty strip).
+const INDICATORS: { icon: LucideIcon; label: { ar: string; en: string }; value: { ar: string; en: string }; accent?: boolean }[] = [
+  { icon: Clock, label: { ar: "وقت الرّدّ", en: "Response time" }, value: { ar: "أقلّ من ٢٤ ساعة", en: "Under 24 hours" } },
+  { icon: UserCheck, label: { ar: "النّوع", en: "Type" }, value: { ar: "إنسانٌ فعليّ", en: "A real human" } },
+  { icon: Globe, label: { ar: "اللغات", en: "Languages" }, value: { ar: "عربي · English", en: "Arabic · English" } },
+  { icon: MapPin, label: { ar: "الموقع", en: "Location" }, value: { ar: "غزّة · فلسطين", en: "Gaza · Palestine" }, accent: true },
+];
+
 export default function Contact() {
   const { lang, t } = useLanguage();
   const reduce = useReducedMotion();
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [enquiry, setEnquiry] = useState<string>("");
+  const [sent, setSent] = useState(false);
+
+  // No backend lead endpoint — compose a real email the visitor can send. This
+  // keeps the form genuinely functional (no silent /dev/null) and needs no API.
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const who = enquiry ? ` — ${enquiry}` : "";
+    const body = `${form.message}\n\n— ${form.name}${who}\n${form.email}`;
+    const subject = form.subject || (lang === "ar" ? "رسالة من موقع آيلاند هيفن" : "Message from Island Haven");
+    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setSent(true);
+  }
+
+  const field =
+    "w-full bg-surface-2 border border-border-strong rounded-2xl px-5 py-3.5 text-foreground text-[15px] outline-none transition-[border-color,box-shadow] placeholder:text-fg-faint focus:border-primary/50 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]";
 
   return (
     <PageShell
@@ -149,13 +189,23 @@ export default function Contact() {
             })}
           </ul>
 
-          {/* Response-time note */}
-          <Reveal delay={0.08} className="mt-[clamp(1.75rem,4vw,2.5rem)]">
-            <div className="inline-flex items-center gap-3 rounded-full border border-sand/30 bg-sand-soft px-5 py-2.5">
-              <Clock className="w-4 h-4 text-sand-bright shrink-0" />
-              <span className="t-caption text-sand-bright tnum">
-                {t({ ar: "نردّ خلال ٢٤ ساعة", en: "We reply within 24 hours" })}
-              </span>
+          {/* Response indicators — a calm honesty strip (Linear register) */}
+          <Reveal delay={0.08} className="mt-[clamp(2rem,4.5vw,3rem)]">
+            <div className="flex flex-wrap items-center gap-x-[clamp(1.5rem,4vw,3rem)] gap-y-5 border-t border-border-strong/60 pt-[clamp(1.5rem,3vw,2rem)]">
+              {INDICATORS.map((it) => {
+                const ItIcon = it.icon;
+                return (
+                  <div key={it.label.en} className="inline-flex items-center gap-2.5">
+                    <ItIcon className={`w-4 h-4 shrink-0 ${it.accent ? "text-primary" : "text-sand"}`} />
+                    <div className="leading-tight">
+                      <div className="font-mono text-[9.5px] tracking-[0.18em] uppercase text-muted-foreground rtl:tracking-normal">
+                        {t(it.label)}
+                      </div>
+                      <div className="text-[13.5px] font-semibold text-foreground">{t(it.value)}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Reveal>
         </section>
@@ -193,34 +243,107 @@ export default function Contact() {
                   })}
                 </p>
 
-                <div className="mt-[clamp(2rem,4vw,2.75rem)] flex items-center gap-3 flex-wrap">
-                  <a
-                    href={`mailto:${EMAIL}`}
-                    className="group inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] motion-reduce:transition-none"
-                  >
-                    <Send className="w-4 h-4" />
-                    {t({ ar: "اكتب لنا", en: "Write to us" })}
-                  </a>
-
-                  {/* Social links */}
-                  <div className="inline-flex items-center gap-2">
-                    {SOCIALS.map((s) => {
-                      const SIcon = s.icon;
-                      return (
-                        <a
-                          key={s.label}
-                          href={s.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={s.label}
-                          className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-border-strong text-fg-secondary hover:border-foreground/30 hover:text-foreground transition-colors"
-                        >
-                          <SIcon className="w-[18px] h-[18px]" />
-                        </a>
-                      );
-                    })}
+                {sent ? (
+                  <div className="mt-[clamp(2rem,4vw,2.75rem)] inline-flex items-start gap-3 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] px-5 py-4">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-emerald-300 text-[14px]">
+                        {t({ ar: "فُتح بريدك ورسالتك جاهزة.", en: "Your email opened with the message ready." })}
+                      </div>
+                      <div className="t-caption text-fg-secondary mt-0.5">
+                        {t({ ar: "أرسلها وسيردّ عليك إنسانٌ خلال ٢٤ ساعة.", en: "Send it and a real person will reply within 24 hours." })}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <form onSubmit={onSubmit} className="mt-[clamp(2rem,4vw,2.75rem)] grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <input
+                      required
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder={t({ ar: "الاسم الكامل", en: "Full name" })}
+                      aria-label={t({ ar: "الاسم الكامل", en: "Full name" })}
+                      className={field}
+                    />
+                    <input
+                      required
+                      type="email"
+                      dir="ltr"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="you@example.com"
+                      aria-label={t({ ar: "البريد الإلكترونيّ", en: "Email" })}
+                      className={`${field} text-start`}
+                    />
+                    <input
+                      required
+                      value={form.subject}
+                      onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                      placeholder={t({ ar: "الموضوع", en: "Subject" })}
+                      aria-label={t({ ar: "الموضوع", en: "Subject" })}
+                      className={`${field} sm:col-span-2`}
+                    />
+                    <div className="sm:col-span-2">
+                      <div className="font-mono text-[10px] tracking-[0.15em] uppercase text-sand mb-2.5 rtl:tracking-normal">
+                        {t({ ar: "نوع التواصل", en: "I am a…" })}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {ENQUIRY_TYPES.map((ty) => {
+                          const on = enquiry === t(ty);
+                          return (
+                            <button
+                              type="button"
+                              key={ty.en}
+                              onClick={() => setEnquiry(on ? "" : t(ty))}
+                              className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${
+                                on
+                                  ? "border-primary/60 bg-primary/10 text-primary"
+                                  : "border-border-strong text-fg-secondary hover:text-foreground hover:border-foreground/30"
+                              }`}
+                            >
+                              {t(ty)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <textarea
+                      required
+                      rows={5}
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      placeholder={t({ ar: "اكتب رسالتك هنا…", en: "Write your message here…" })}
+                      aria-label={t({ ar: "رسالتك", en: "Your message" })}
+                      className={`${field} sm:col-span-2 resize-y`}
+                    />
+                    <div className="sm:col-span-2 flex items-center justify-between gap-3 flex-wrap">
+                      <div className="inline-flex items-center gap-2">
+                        {SOCIALS.map((s) => {
+                          const SIcon = s.icon;
+                          return (
+                            <a
+                              key={s.label}
+                              href={s.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={s.label}
+                              className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-border-strong text-fg-secondary hover:border-foreground/30 hover:text-foreground transition-colors"
+                            >
+                              <SIcon className="w-[18px] h-[18px]" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                      <button
+                        type="submit"
+                        className="group inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] motion-reduce:transition-none"
+                      >
+                        {t({ ar: "أرسل الرسالة", en: "Send message" })}
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
             </div>
           </Reveal>

@@ -213,7 +213,7 @@ function VentureBentoCard({
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.7, delay: Math.min(i, 7) * 0.05, ease: EASE_OUT_EXPO }}
-      className={`will-change-transform ${SIZE_CLASS[size]}`}
+      className={`will-change-transform [perspective:1000px] ${SIZE_CLASS[size]}`}
     >
       <Link
         href={`/ventures/${v.id}`}
@@ -221,6 +221,20 @@ function VentureBentoCard({
         className="group relative block h-full overflow-hidden rounded-[20px] ring-1 ring-white/10"
         style={{ background: vid.gradient }}
         aria-label={v.name}
+        onMouseMove={(e) => {
+          if (reduce || window.matchMedia("(pointer: coarse)").matches) return;
+          const el = e.currentTarget;
+          const r = el.getBoundingClientRect();
+          const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
+          const ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
+          el.style.transition = "transform 0.1s ease-out";
+          el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget;
+          el.style.transition = "transform 0.5s cubic-bezier(0.16,1,0.3,1)";
+          el.style.transform = "";
+        }}
       >
         <img
           src={cover}
