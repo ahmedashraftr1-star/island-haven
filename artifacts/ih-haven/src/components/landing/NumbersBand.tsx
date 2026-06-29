@@ -74,9 +74,18 @@ export function NumbersBand() {
       );
   }, []);
 
-  // Lead with the strongest live figures from the database.
-  const stats = [
-    { key: "enrollments", value: n?.enrollments ?? 0, label: t({ ar: "تسجيل في برامجنا", en: "Program enrollments" }), en: "Enrollments" },
+  // One headline figure carries the section; three more give it body.
+  const lead = {
+    key: "enrollments",
+    value: n?.enrollments ?? 0,
+    label: t({ ar: "تسجيل في برامجنا ودوراتنا", en: "Enrollments across our programs" }),
+    en: "Enrollments",
+    meaning: t({
+      ar: "تعلّمٌ حقيقيّ يحدث هنا كلّ أسبوع — لا وعودٌ، بل مقاعدُ مشغولة.",
+      en: "Real learning happening here every week — not promises, seats taken.",
+    }),
+  };
+  const rest = [
     { key: "members", value: n?.members ?? 0, label: t({ ar: "منتسب في المجتمع", en: "Community members" }), en: "Members" },
     { key: "works", value: n?.works ?? 0, label: t({ ar: "عمل منشور في المعرض", en: "Works in the showcase" }), en: "Works" },
     { key: "events", value: n?.events ?? 0, label: t({ ar: "فعاليّة وورشة", en: "Events & workshops" }), en: "Events" },
@@ -122,45 +131,61 @@ export function NumbersBand() {
           </p>
         </Reveal>
 
-        {/* Hero stat grid — oversized count-up numerals, hairline cells */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-2 lg:grid-cols-4 border-t border-border-strong">
-          {stats.map((s, i) => (
-            <Reveal
-              key={s.key}
-              delay={i * 0.06}
-              className={`border-b border-border-strong ${i % 2 === 1 ? "border-s" : ""} lg:[&:not(:first-child)]:border-s py-8 sm:py-10 px-1 sm:px-5 first:ps-0`}
+        {/* Headline stat (one monumental figure) + a supporting leaderboard */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-[clamp(2.5rem,5vw,3.5rem)] border-t border-border-strong pt-[clamp(2rem,4vw,3.5rem)]">
+          {/* Feature — the single number that carries the proof */}
+          <Reveal className="lg:col-span-5 flex flex-col">
+            <div className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mb-4">{lead.en}</div>
+            <motion.div
+              data-testid="numbers-lead-enrollments"
+              initial={reduce ? false : { opacity: 0, scale: 0.94, y: 8 }}
+              whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
+              className="font-display font-black tabular-nums text-sand-bright leading-[0.76] origin-[0%_100%] rtl:origin-[100%_100%]"
+              style={{ fontSize: "clamp(5rem, 12vw, 11rem)", letterSpacing: "-0.06em", willChange: "transform, opacity" }}
             >
-              <motion.div
-                data-testid={`numbers-row-${s.key}`}
-                className="group relative transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-1"
-                whileHover={reduce ? undefined : { transition: { duration: 0.22 } }}
+              {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
+            </motion.div>
+            <motion.span
+              aria-hidden
+              className="block mt-5 h-px bg-sand/45 origin-[0%_50%] rtl:origin-[100%_50%]"
+              initial={reduce ? false : { scaleX: 0 }}
+              whileInView={reduce ? undefined : { scaleX: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.75, delay: 0.18, ease: EASE_OUT_EXPO }}
+              style={{ willChange: "transform" }}
+            />
+            <div className="mt-5 text-[clamp(1.05rem,1.7vw,1.4rem)] font-bold text-foreground leading-snug">{lead.label}</div>
+            <p className="t-body text-[14px] md:text-[15px] mt-2.5 max-w-sm">{lead.meaning}</p>
+          </Reveal>
+
+          {/* Supporting trio — big figure, label aside; fills the height beside the feature */}
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            {rest.map((s, i) => (
+              <Reveal
+                key={s.key}
+                delay={0.1 + i * 0.07}
+                className="group flex items-center justify-between gap-6 py-[clamp(1.35rem,2.6vw,2.1rem)] border-t border-border-strong/70 first:border-t-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-0.5"
               >
-                {/* Settle-in emphasis on the numeral — synced with the count-up */}
-                <motion.div
+                <motion.span
+                  data-testid={`numbers-row-${s.key}`}
                   initial={reduce ? false : { opacity: 0, scale: 0.94, y: 6 }}
                   whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.55, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-                  className="font-display font-black tabular-nums text-sand-bright leading-[0.82] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
-                  style={{ fontSize: "clamp(4rem, 9vw, 8rem)", letterSpacing: "-0.055em", willChange: "transform, opacity" }}
+                  viewport={{ once: true, amount: 0.7 }}
+                  transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE_OUT_EXPO }}
+                  className="font-display font-black tabular-nums text-sand-bright leading-[0.85] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
+                  style={{ fontSize: "clamp(2.75rem, 6vw, 4.75rem)", letterSpacing: "-0.05em", willChange: "transform, opacity" }}
                 >
                   {n ? <CountUp value={s.value} lang={lang} /> : "—"}
-                </motion.div>
-                {/* Hairline that draws in beneath the figure — crafted underscore */}
-                <motion.span
-                  aria-hidden
-                  className="block mt-3.5 h-px bg-sand/45 origin-[0%_50%] rtl:origin-[100%_50%]"
-                  initial={reduce ? false : { scaleX: 0 }}
-                  whileInView={reduce ? undefined : { scaleX: 1 }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.7, delay: 0.2 + i * 0.06, ease: EASE_OUT_EXPO }}
-                  style={{ willChange: "transform" }}
-                />
-                <div className="mt-3.5 text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
-                <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1.5 transition-colors duration-300 group-hover:text-fg-secondary">{s.en}</div>
-              </motion.div>
-            </Reveal>
-          ))}
+                </motion.span>
+                <div className="text-end min-w-0">
+                  <div className="text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
+                  <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1 transition-colors duration-300 group-hover:text-fg-secondary">{s.en}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
 
         {/* Composition + CTA */}

@@ -2,21 +2,18 @@ import { ExternalLink } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { BrandMark } from "@/components/landing/BrandLogos";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * Partners — the ecosystem behind every member, told HONESTLY (not a logo wall).
+ * Partners — the ecosystem behind every member, told HONESTLY and now SEEN.
  *
- * The key integrity move: we cleanly SEPARATE two groups so no claim is inflated.
- *   • BACKERS & PARTNERS — real organisational relationships (NasToNas, Gaza Sky
- *     Geeks, Mercy Corps Ventures) who actually back / partner with us.
- *   • TOOLS & CREDITS WE UNLOCK — programs and platforms we help members access
- *     (Replit, AWS Activate, Google for Startups, Payoneer, Freelancer). These
- *     are NOT called "partners"; they're real value we open the door to.
- *
- * Grandeur pass: a single monumental headline on acres of space, no eyebrow rule,
- * no medallions, no card decks, no aura. The two honest groups are now calm
- * editorial rows — a name, what it unlocks — separated by hairlines, not boxes.
+ * The integrity move is unchanged: we cleanly SEPARATE two groups so no claim is
+ * inflated — real organisational backers/partners vs. tools & credits we merely
+ * open the door to. What's new is recognition: real brand marks (Google, Replit,
+ * Payoneer, Freelancer) carried by a gently-moving logo marquee, the tools group
+ * promoted to a premium bento card grid. Brands appear only as "tools we use /
+ * unlock," monochrome and undistorted — never as overstated partnerships.
  */
 
 type Cat = "backing" | "training" | "cloud" | "payments" | "market" | "funding";
@@ -36,6 +33,7 @@ interface Node {
   url: string; // hostname, no protocol
   cat: Cat;
   group: Group;
+  featured?: boolean; // gets the wide bento tile
   ar: string;
   en: string;
 }
@@ -72,6 +70,15 @@ const PARTNERS: Node[] = [
 // organisational partners. Framed honestly so claims stay defensible.
 const TOOLS: Node[] = [
   {
+    name: "Freelancer",
+    url: "freelancer.com",
+    cat: "market",
+    group: "tool",
+    featured: true,
+    ar: "أكبر سوق عمل حرّ في العالم — فرص حقيقيّة عابرة للحدود لأعضائنا.",
+    en: "The world's largest freelance marketplace — real, cross-border work for our members.",
+  },
+  {
     name: "Replit",
     url: "replit.com",
     cat: "cloud",
@@ -103,15 +110,9 @@ const TOOLS: Node[] = [
     ar: "استقبال المدفوعات الدوليّة — يصل المستقلّ الغزّي بعميله في العالم.",
     en: "International payments — connecting Gaza's freelancers to clients worldwide.",
   },
-  {
-    name: "Freelancer",
-    url: "freelancer.com",
-    cat: "market",
-    group: "tool",
-    ar: "أكبر سوق عمل حرّ في العالم — فرص حقيقيّة عابرة للحدود لأعضائنا.",
-    en: "The world's largest freelance marketplace — real, cross-border work for our members.",
-  },
 ];
+
+const ALL = [...PARTNERS, ...TOOLS];
 
 export function Partners() {
   const { t, lang } = useLanguage();
@@ -168,20 +169,42 @@ export function Partners() {
           </motion.p>
         </header>
 
+        {/* ── Logo marquee — the network in motion (real marks, calm cerulean) ── */}
+        <Reveal className="mt-[clamp(2.75rem,5.5vw,4rem)]">
+          <div className="relative overflow-hidden py-1.5 [mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]">
+            <div
+              className="flex w-max items-center gap-3 hover:[animation-play-state:paused] motion-reduce:![animation:none] motion-reduce:flex-wrap motion-reduce:justify-center"
+              style={{ animation: "ih-marquee 46s linear infinite" }}
+            >
+              {[...ALL, ...ALL].map((p, i) => (
+                <span
+                  key={`${p.name}-${i}`}
+                  className="inline-flex items-center gap-2.5 shrink-0 rounded-full border border-border-strong bg-surface-2 ps-2.5 pe-4 py-2"
+                >
+                  <span className="grid place-items-center h-7 w-7 rounded-full bg-sand-soft text-sand-bright shrink-0">
+                    <BrandMark name={p.name} variant="sm" />
+                  </span>
+                  <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
         {/* ── Group 1: REAL backers & partners — actual relationships ── */}
-        <div className="mt-[clamp(5rem,11vw,9rem)]">
+        <div className="mt-[clamp(4rem,9vw,7.5rem)]">
           <GroupHeading
             title={t({ ar: "داعمونا وشركاؤنا", en: "Our backers & partners" })}
             note={t({ ar: "جهاتٌ تدعمنا وتشاركنا فعلًا", en: "organisations that actually back & partner with us" })}
           />
           <ul>
             {PARTNERS.map((p, i) => (
-              <NetworkRow key={p.name} p={p} i={i} t={t} />
+              <PartnerRow key={p.name} p={p} i={i} t={t} />
             ))}
           </ul>
         </div>
 
-        {/* ── Group 2: TOOLS & CREDITS we unlock — NOT partners ── */}
+        {/* ── Group 2: TOOLS & CREDITS we unlock — a premium bento, NOT partners ── */}
         <div className="mt-[clamp(3.5rem,7vw,6rem)]">
           <GroupHeading
             title={t({ ar: "أدوات وأرصدة نفتحها لك", en: "Tools & credits we unlock for you" })}
@@ -189,11 +212,11 @@ export function Partners() {
             aside={t({ ar: "أرصدةٌ بآلاف الدولارات — مجّانًا", en: "$1,000s in credits — free" })}
             asideValue={lang === "en" ? "$1,000s" : "آلاف $"}
           />
-          <ul>
+          <div className="mt-[clamp(1.5rem,3vw,2.25rem)] grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {TOOLS.map((p, i) => (
-              <NetworkRow key={p.name} p={p} i={i} t={t} />
+              <ToolCard key={p.name} p={p} i={i} t={t} />
             ))}
-          </ul>
+          </div>
         </div>
 
         {/* CTA */}
@@ -255,9 +278,9 @@ function GroupHeading({
   );
 }
 
-// One ecosystem entry — a calm editorial row (no card, no medallion). The name,
-// the real value it unlocks, and the honest category — separated by a hairline.
-function NetworkRow({
+// One real backer/partner — an editorial row, now led by its brand mark so the
+// relationship reads at a glance. Name, the real value it brings, honest category.
+function PartnerRow({
   p,
   i,
   t,
@@ -274,13 +297,18 @@ function NetworkRow({
           target="_blank"
           rel="noreferrer"
           data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
-          className="group grid grid-cols-1 md:grid-cols-[minmax(0,15rem)_1fr_auto] items-baseline gap-x-8 gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+          className="group grid grid-cols-1 md:grid-cols-[minmax(0,19rem)_1fr_auto] items-center gap-x-8 gap-y-3 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
         >
-          <span
-            className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
-            style={{ fontSize: "clamp(1.25rem,2.2vw,1.75rem)", letterSpacing: "-0.022em", lineHeight: 1.15 }}
-          >
-            {p.name}
+          <span className="flex items-center gap-4 min-w-0">
+            <span className="grid place-items-center h-12 w-12 rounded-2xl bg-sand-soft text-sand-bright shrink-0 ring-1 ring-sand/20 transition-colors group-hover:bg-sand/15">
+              <BrandMark name={p.name} variant="lg" />
+            </span>
+            <span
+              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
+              style={{ fontSize: "clamp(1.2rem,2vw,1.5rem)", letterSpacing: "-0.022em", lineHeight: 1.12 }}
+            >
+              {p.name}
+            </span>
           </span>
           <p className="t-body text-[15px] md:text-[16px] max-w-xl">{t({ ar: p.ar, en: p.en })}</p>
           <span className="inline-flex items-center gap-2 t-caption text-fg-secondary whitespace-nowrap group-hover:text-foreground transition-colors">
@@ -290,5 +318,50 @@ function NetworkRow({
         </a>
       </Reveal>
     </li>
+  );
+}
+
+// One tool/credit we unlock — a premium bento card with the real brand mark, the
+// concrete value, and an honest category chip. The featured tile spans two cols.
+function ToolCard({
+  p,
+  i,
+  t,
+}: {
+  p: Node;
+  i: number;
+  t: (s: { ar: string; en: string }) => string;
+}) {
+  return (
+    <Reveal delay={Math.min(i, 6) * 0.05} className={p.featured ? "sm:col-span-2" : ""}>
+      <a
+        href={`https://${p.url}`}
+        target="_blank"
+        rel="noreferrer"
+        data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
+        className="card-base card-hover group flex h-full flex-col p-6 sm:p-7"
+      >
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <span className="grid place-items-center h-12 w-12 rounded-[14px] bg-sand-soft text-sand-bright shrink-0 ring-1 ring-sand/20 transition-colors group-hover:bg-sand/15">
+              <BrandMark name={p.name} variant="lg" />
+            </span>
+            <span
+              className="font-display font-bold text-foreground group-hover:text-primary transition-colors leading-tight"
+              style={{ fontSize: p.featured ? "clamp(1.2rem,2vw,1.6rem)" : "1.0625rem", letterSpacing: "-0.02em" }}
+            >
+              {p.name}
+            </span>
+          </div>
+          <ExternalLink className="w-4 h-4 text-fg-faint group-hover:text-primary transition-colors shrink-0" />
+        </div>
+        <p className={`t-body flex-1 ${p.featured ? "text-[15px] md:text-[17px] max-w-xl" : "text-[14px] md:text-[15px]"}`}>
+          {t({ ar: p.ar, en: p.en })}
+        </p>
+        <span className="mt-5 inline-flex items-center self-start chip-sand rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide">
+          {t(CAT[p.cat])}
+        </span>
+      </a>
+    </Reveal>
   );
 }
