@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
@@ -93,10 +93,8 @@ export default function Ventures() {
 
   const featured = (rows ?? []).filter((v) => v.featured);
   const rest = (rows ?? []).filter((v) => !v.featured);
-  // The lead venture anchors the asymmetric feature; the next featured ones (if
-  // any) join the editorial roster below, so the page never becomes a deck.
-  const lead = featured[0] ?? null;
-  const roster = [...featured.slice(1), ...rest];
+  // Featured ventures lead the masonry; the first gets the big feature tile.
+  const all = [...featured, ...rest];
   const total = rows?.length ?? 0;
   const launched = (rows ?? []).filter(
     (v) => v.stage === "launched" || v.stage === "scaling",
@@ -139,23 +137,8 @@ export default function Ventures() {
             </p>
           </motion.div>
 
-          {/* The lead venture — one asymmetric, full-bleed feature, not a card */}
-          {lead && <LeadVenture v={lead} reduce={!!reduce} />}
-
-          {/* The roster — calm editorial hairline rows, large names, real frames */}
-          {roster.length > 0 && (
-            <section className="mt-[clamp(4rem,9vw,7rem)]">
-              <SectionLine
-                lead={t({ ar: "كلّ مشروعٍ", en: "Every venture" })}
-                accent={lead ? t({ ar: "آخر.", en: "else." }) : t({ ar: "في المحفظة.", en: "in the portfolio." })}
-              />
-              <ul className="mt-[clamp(2.5rem,5vw,4rem)] border-t border-border-strong/60">
-                {roster.map((v, i) => (
-                  <VentureRow key={v.id} v={v} i={i} reduce={!!reduce} />
-                ))}
-              </ul>
-            </section>
-          )}
+          {/* The portfolio — a bento masonry; each venture wears its sector colour */}
+          <VentureMasonry ventures={all} reduce={!!reduce} />
 
           {/* Terminal CTA — your venture is the next line */}
           <ClosingCTA />
@@ -183,231 +166,132 @@ function Figure({ value, label }: { value: string; label: string }) {
   );
 }
 
-// A monumental section line — one calm headline, at most one crimson word, the
-// house bar. No eyebrow kicker, no oversized stroke numeral.
-function SectionLine({ lead, accent }: { lead: string; accent: string }) {
-  const reduce = useReducedMotion();
+// ── Bento masonry — every venture as a colour-identity card (per-sector hue),
+// the first wearing the big feature tile. Sizes cycle to make a varied, premium
+// grid; grid-auto-flow dense packs it. The /ventures/:id link + venture-card-*
+// testid are preserved. ──
+const BENTO_SEQ = ["feature", "tall", "tall", "medium", "small", "medium", "small"];
+function bentoSize(i: number): string {
+  return i < BENTO_SEQ.length ? BENTO_SEQ[i] : BENTO_SEQ[3 + ((i - 3) % 4)];
+}
+const SIZE_CLASS: Record<string, string> = {
+  feature: "sm:col-span-2 lg:col-span-4 lg:row-span-2 min-h-[22rem] lg:min-h-0",
+  tall: "lg:col-span-2",
+  medium: "sm:col-span-2 lg:col-span-3",
+  small: "lg:col-span-2",
+};
+
+function VentureMasonry({ ventures, reduce }: { ventures: Venture[]; reduce: boolean }) {
   return (
-    <h2
-      className="font-display text-foreground"
-      style={{ fontSize: "clamp(2.4rem, 6.4vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
-    >
-      {[lead, <span key="a" className="text-primary">{accent}</span>].map((ln, i) => (
-        <motion.span
-          key={i}
-          className="block will-change-transform"
-          initial={reduce ? false : { opacity: 0, y: 26 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, delay: i * 0.09, ease: EASE_OUT_EXPO }}
-        >
-          {ln}
-        </motion.span>
+    <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 auto-rows-[clamp(10rem,15vw,13.5rem)] [grid-auto-flow:dense]">
+      {ventures.map((v, i) => (
+        <VentureBentoCard key={v.id} v={v} size={bentoSize(i)} i={i} reduce={reduce} />
       ))}
-    </h2>
+    </div>
   );
 }
 
-/**
- * LeadVenture — the spotlight, told the Apple way: a large full-bleed cover with
- * a slow parallax, a calm crimson stage line, the name at display scale, and a
- * quiet "full story" action. No featured-star chip, no medallion, no glass deck.
- */
-function LeadVenture({ v, reduce }: { v: Venture; reduce: boolean }) {
+function VentureBentoCard({
+  v,
+  size,
+  i,
+  reduce,
+}: {
+  v: Venture;
+  size: string;
+  i: number;
+  reduce: boolean;
+}) {
   const { lang, t } = useLanguage();
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
-  const cover = v.coverUrl || frameFor(v.id);
   const vid = ventureIdentity(v.sector, v.id);
-
+  const cover = v.coverUrl || frameFor(v.id);
+  const feature = size === "feature";
+  const small = size === "small";
   return (
-    <section ref={ref} className="mt-[clamp(3.5rem,8vw,6rem)]">
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 22 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.7, delay: Math.min(i, 7) * 0.05, ease: EASE_OUT_EXPO }}
+      className={`will-change-transform ${SIZE_CLASS[size]}`}
+    >
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`venture-card-${v.id}`}
-        className="group block"
+        className="group relative block h-full overflow-hidden rounded-[20px] ring-1 ring-white/10"
+        style={{ background: vid.gradient }}
         aria-label={v.name}
       >
-        <motion.div
-          initial={reduce ? false : { opacity: 0 }}
-          whileInView={reduce ? undefined : { opacity: 1 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 1, ease: EASE_OUT_EXPO }}
-          className="relative w-full overflow-hidden rounded-[clamp(20px,2.5vw,32px)] ring-1 ring-white/10"
-        >
-          <div className="relative h-[clamp(22rem,62vh,40rem)]">
-            <motion.img
-              src={cover}
-              alt={v.name}
-              loading="lazy"
-              style={{ y }}
-              className="absolute inset-0 h-[114%] w-full object-cover object-center saturate-[1.04] will-change-transform transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
-            />
-            {/* sector identity wash — a distinct deep hue per venture (soft-light) */}
-            <div aria-hidden className="absolute inset-0 opacity-[0.20] mix-blend-soft-light" style={{ background: vid.gradient }} />
-            <div
-              aria-hidden
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(0deg, hsl(0 0% 4% / 0.95) 4%, hsl(0 0% 4% / 0.55) 42%, transparent 80%)",
-              }}
-            />
-            <div className="absolute inset-0 flex items-end">
-              <div className="w-full p-[clamp(1.5rem,4vw,3.5rem)]">
-                {/* Stage · sector — crimson stage, the one accent */}
-                <motion.p
-                  initial={reduce ? false : { opacity: 0, y: 16 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT_EXPO }}
-                  className="mb-3 inline-flex items-center gap-2 text-[clamp(0.85rem,1.4vw,1.05rem)] font-semibold"
-                >
-                  <span className="text-primary">{stageLabel(v.stage, lang)}</span>
-                  {v.sector ? (
-                    <span className="inline-flex items-center gap-2" style={{ color: vid.accent }}>
-                      <span aria-hidden className="text-white/30">·</span>
-                      <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-                      {v.sector}
-                    </span>
-                  ) : null}
-                </motion.p>
-
-                <motion.h3
-                  initial={reduce ? false : { opacity: 0, y: 22 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.8, delay: 0.16, ease: EASE_OUT_EXPO }}
-                  className="font-display text-white max-w-[18ch]"
-                  style={{ fontSize: "clamp(2.2rem,5.4vw,4.25rem)", lineHeight: 1.0, letterSpacing: "-0.035em", fontWeight: 700 }}
-                >
-                  {v.name}
-                </motion.h3>
-
-                {v.tagline && (
-                  <motion.p
-                    initial={reduce ? false : { opacity: 0, y: 16 }}
-                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.8, delay: 0.26, ease: EASE_OUT_EXPO }}
-                    className="mt-4 max-w-2xl text-white/75"
-                    style={{ fontSize: "clamp(1rem,1.8vw,1.4rem)", lineHeight: 1.55 }}
-                  >
-                    {v.tagline}
-                  </motion.p>
-                )}
-
-                <motion.div
-                  initial={reduce ? false : { opacity: 0, y: 14 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.75, delay: 0.36, ease: EASE_OUT_EXPO }}
-                  className="mt-[clamp(1.5rem,3vw,2.25rem)] flex flex-wrap items-center gap-x-7 gap-y-3"
-                >
-                  {v.founderName && (
-                    <span className="text-white/80 font-semibold" style={{ fontSize: "clamp(0.9rem,1.4vw,1.05rem)" }}>
-                      {v.founderName}
-                    </span>
-                  )}
-                  {v.teamSize > 0 && (
-                    <span className="text-white/55 tnum" style={{ fontSize: "clamp(0.9rem,1.4vw,1.05rem)" }}>
-                      {num(v.teamSize, lang)} {t({ ar: "في الفريق", en: "on the team" })}
-                    </span>
-                  )}
-                  {v.foundedYear ? (
-                    <span className="text-white/55 tnum" style={{ fontSize: "clamp(0.9rem,1.4vw,1.05rem)" }}>
-                      {num(v.foundedYear, lang)}
-                    </span>
-                  ) : null}
-                  <span className="inline-flex items-center gap-2 text-white group-hover:text-primary transition-colors font-bold" style={{ fontSize: "clamp(0.9rem,1.4vw,1.05rem)" }}>
-                    {t({ ar: "القصّة الكاملة", en: "Full story" })}
-                    <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                  </span>
-                </motion.div>
+        <img
+          src={cover}
+          alt=""
+          loading="lazy"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
+          className="absolute inset-0 h-full w-full object-cover opacity-[0.45] transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:opacity-[0.62] group-hover:scale-[1.05]"
+        />
+        <div aria-hidden className="absolute inset-0 opacity-[0.28] mix-blend-soft-light" style={{ background: vid.gradient }} />
+        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.95) 0%, hsl(0 0% 4% / 0.34) 58%, transparent 100%)" }} />
+        <div className="relative flex h-full flex-col justify-between p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <StagePill stage={v.stage} lang={lang} />
+            {v.foundedYear > 0 && (
+              <span className="text-white/55 text-[12px] tnum">{num(v.foundedYear, lang)}</span>
+            )}
+          </div>
+          <div>
+            {v.sector && (
+              <div className="mb-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal" style={{ color: vid.accent }}>
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+                {v.sector}
               </div>
-            </div>
-          </div>
-        </motion.div>
-      </Link>
-    </section>
-  );
-}
-
-/**
- * VentureRow — one portfolio entry as a calm editorial hairline row: a real
- * frame (cover or evergreen photograph, never a medallion), a large display
- * name, the tagline as prose, and a quiet stage/action at the logical end. The
- * /ventures/:id link and venture-card-* testid are preserved.
- */
-function VentureRow({ v, i, reduce }: { v: Venture; i: number; reduce: boolean }) {
-  const { lang, t } = useLanguage();
-  const cover = v.coverUrl || frameFor(v.id);
-  const vid = ventureIdentity(v.sector, v.id);
-  return (
-    <li>
-      <motion.div
-        initial={reduce ? false : { opacity: 0, y: 20 }}
-        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.06, ease: EASE_OUT_EXPO }}
-        className="will-change-transform"
-      >
-        <Link
-          href={`/ventures/${v.id}`}
-          data-testid={`venture-card-${v.id}`}
-          className="group grid grid-cols-[auto_minmax(0,1fr)] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
-        >
-          {/* A dignified landscape frame — real imagery, no initial-medallion.
-              A thin sector-identity bar at the foot gives each row its colour. */}
-          <div className="relative h-[clamp(4rem,8vw,6rem)] w-[clamp(6rem,12vw,9rem)] shrink-0 overflow-hidden rounded-[14px] ring-1 ring-white/10 bg-surface-3">
-            <img
-              src={cover}
-              alt={v.name}
-              loading="lazy"
-              className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-            />
-            <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: vid.accent }} />
-          </div>
-
-          <div className="min-w-0">
+            )}
             <h3
-              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
-              style={{ fontSize: "clamp(1.4rem,3.2vw,2.4rem)", letterSpacing: "-0.03em", lineHeight: 1.08 }}
+              className="font-display font-bold text-white"
+              style={{ fontSize: feature ? "clamp(2rem,3.4vw,3.4rem)" : "clamp(1.3rem,2vw,1.9rem)", lineHeight: 1.02, letterSpacing: "-0.03em" }}
             >
               {v.name}
             </h3>
-            <p className="mt-2 inline-flex flex-wrap items-baseline gap-x-2.5 text-[14px] md:text-[15px]">
-              <span className="text-primary font-semibold">{stageLabel(v.stage, lang)}</span>
-              {v.sector ? (
-                <span className="font-semibold" style={{ color: vid.accent }}>· {v.sector}</span>
-              ) : null}
-              {v.founderName ? (
-                <span className="text-fg-secondary">· {v.founderName}</span>
-              ) : null}
-            </p>
-            {v.tagline && (
-              <p className="t-body text-[15px] md:text-[16px] mt-2.5 line-clamp-2 max-w-2xl">
+            {v.tagline && !small && (
+              <p className="mt-2 text-white/72 line-clamp-2" style={{ fontSize: feature ? "clamp(1rem,1.4vw,1.2rem)" : "14px", lineHeight: 1.5 }}>
                 {v.tagline}
               </p>
             )}
+            <div className="mt-3 flex items-center justify-between gap-2">
+              {v.founderName ? (
+                <span className="text-white/55 text-[12px] truncate">{v.founderName}</span>
+              ) : (
+                <span />
+              )}
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white group-hover:text-primary transition-colors shrink-0">
+                {small ? t({ ar: "القصّة", en: "Story" }) : t({ ar: "القصّة الكاملة", en: "Full story" })}
+                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              </span>
+            </div>
           </div>
-
-          {/* Quiet action + year, start-aligned to the logical end */}
-          <div className="hidden md:flex items-center gap-x-6 whitespace-nowrap justify-self-end">
-            {v.foundedYear ? (
-              <span className="t-caption text-fg-secondary tnum">{num(v.foundedYear, lang)}</span>
-            ) : null}
-            <span className="inline-flex items-center gap-2 t-caption text-fg-secondary group-hover:text-foreground transition-colors">
-              {t({ ar: "القصّة", en: "Story" })}
-              <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </span>
-          </div>
-        </Link>
-      </motion.div>
-    </li>
+        </div>
+      </Link>
+    </motion.div>
   );
 }
+
+// Stage pill — launched/scaling = solid red (live in market), mvp = gold outline,
+// idea = quiet neutral. Mirrors the spec's stage colour language.
+function StagePill({ stage, lang }: { stage: VentureStage; lang: Lang }) {
+  const tone = stage === "launched" || stage === "scaling" ? "live" : stage === "mvp" ? "gold" : "idle";
+  const cls =
+    tone === "live"
+      ? "bg-primary text-white"
+      : tone === "gold"
+        ? "bg-sand-soft text-sand-bright ring-1 ring-sand/30"
+        : "bg-white/10 text-white/75 ring-1 ring-white/15";
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}`}>
+      {stageLabel(stage, lang)}
+    </span>
+  );
+}
+
+
 
 /**
  * EmptyPortfolio — educational, not a bare "coming soon". The portfolio is
