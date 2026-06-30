@@ -16,6 +16,7 @@ const Apply = lazy(() => import("@/pages/Apply"));
 const Book = lazy(() => import("@/pages/Book"));
 const Careers = lazy(() => import("@/pages/Careers"));
 const Freelancers = lazy(() => import("@/pages/Freelancers"));
+const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
@@ -165,6 +166,7 @@ function Router() {
       <Route path="/book" component={Book} />
       <Route path="/careers" component={Careers} />
       <Route path="/freelancers" component={Freelancers} />
+      <Route path="/dashboard" component={DashboardPage} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
