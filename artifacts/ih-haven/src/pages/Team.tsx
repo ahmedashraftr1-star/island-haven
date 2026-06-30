@@ -325,11 +325,12 @@ function TeamSection({
         <p className="t-body text-[15px] md:text-[16px] mt-2.5 max-w-xl">{t(group.blurb)}</p>
       </Reveal>
 
-      {/* The roster — dignified editorial hairline rows. A real portrait where
-          one exists, a large name, the role as prose, quiet links. Not a deck. */}
-      <ul>
+      {/* The roster — a premium card grid: an avatar (a real face where one
+          exists, else an elegant gold-initials panel), the name, the role, a
+          short bio, and quiet links. */}
+      <ul className="mt-[clamp(2rem,4vw,3rem)] grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {members.map((m, i) => (
-          <TeamRow key={m.id} m={m} i={i} variant={group.variant} />
+          <TeamCard key={m.id} m={m} i={i} />
         ))}
       </ul>
     </section>
@@ -338,112 +339,101 @@ function TeamSection({
 
 /* ────────────────────────────── Row ────────────────────────────── */
 
-function TeamRow({ m, i, variant }: { m: TeamMember; i: number; variant: "lead" | "compact" }) {
+function TeamCard({ m, i }: { m: TeamMember; i: number }) {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
-  const isLead = variant === "lead";
+  const initials = m.fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("");
   const hasLinks = m.linkedinUrl || m.websiteUrl || m.email;
 
   return (
-    <li>
+    <li className="h-full">
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 20 }}
         whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.06, ease: EASE_OUT_EXPO }}
-        className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-3 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong will-change-transform"
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6, delay: Math.min(i, 6) * 0.05, ease: EASE_OUT_EXPO }}
+        className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40 will-change-transform"
       >
-        {/* Portrait — a real dignified face where one exists; otherwise the name
-            simply stands alone. No initial-medallion fallback, no aura. */}
-        {m.avatarUrl ? (
-          <div
-            className={`relative shrink-0 overflow-hidden rounded-full ring-1 ring-white/10 ${
-              isLead
-                ? "h-[clamp(4rem,8vw,6rem)] w-[clamp(4rem,8vw,6rem)]"
-                : "h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)]"
-            }`}
-          >
+        {/* Avatar panel — a real face where one exists, else an elegant
+            gold-initials panel (not a circular medallion). */}
+        <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-sand-soft">
+          {m.avatarUrl ? (
             <img
               src={m.avatarUrl}
               alt={m.fullName}
               loading="lazy"
-              className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+              className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.05]"
             />
-          </div>
-        ) : (
-          <span
-            aria-hidden
-            className={`shrink-0 w-px bg-border-strong/0 ${
-              isLead ? "h-[clamp(4rem,8vw,6rem)]" : "h-[clamp(3.5rem,7vw,5rem)]"
-            }`}
-          />
-        )}
-
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h3
-              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
-              style={{
-                fontSize: isLead ? "clamp(1.5rem,3.4vw,2.5rem)" : "clamp(1.35rem,2.8vw,2.1rem)",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-              }}
-            >
-              {m.fullName}
-            </h3>
-            {m.featured && (
-              <span className="t-caption text-sand whitespace-nowrap">
-                {t({ ar: "· مؤسِّس", en: "· Founding" })}
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <span
+                aria-hidden
+                className="font-mono font-black text-sand-bright"
+                style={{ fontSize: "clamp(2rem,4vw,2.75rem)", letterSpacing: "0.04em" }}
+              >
+                {initials}
               </span>
-            )}
-          </div>
-          {m.role && (
-            <p className="t-body text-[15px] md:text-[16px] mt-1.5 text-fg-secondary">{m.role}</p>
+            </div>
           )}
-          {m.bio && (
-            <p className={`t-body text-[14.5px] md:text-[15px] mt-3 max-w-2xl ${isLead ? "" : "line-clamp-2"}`}>
-              {m.bio}
-            </p>
+          {m.featured && (
+            <span className="absolute top-3 end-3 inline-flex items-center rounded-full bg-[#0a0a0a]/70 backdrop-blur-md px-2.5 h-6 text-[10.5px] font-semibold text-sand">
+              {t({ ar: "مؤسِّس", en: "Founding" })}
+            </span>
           )}
         </div>
 
-        {/* Quiet links, start-aligned to the logical end — text, not icon tiles. */}
-        {hasLinks && (
-          <div className="md:justify-self-end md:text-end flex flex-wrap md:flex-col items-center md:items-end gap-x-5 gap-y-2 whitespace-nowrap">
-            {m.linkedinUrl && (
-              <a
-                href={m.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`LinkedIn — ${m.fullName}`}
-                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
-              >
-                <Linkedin className="w-3.5 h-3.5" /> LinkedIn
-              </a>
-            )}
-            {m.websiteUrl && (
-              <a
-                href={m.websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={t({ ar: `الموقع — ${m.fullName}`, en: `Website — ${m.fullName}` })}
-                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
-              >
-                <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
-              </a>
-            )}
-            {m.email && (
-              <a
-                href={`mailto:${m.email}`}
-                aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
-                className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
-              >
-                <Mail className="w-3.5 h-3.5" />
-                <span dir="ltr" className="truncate max-w-[150px]">{m.email}</span>
-              </a>
-            )}
-          </div>
-        )}
+        {/* Body */}
+        <div className="flex flex-1 flex-col p-5">
+          <h3
+            title={m.fullName}
+            className="font-display font-bold text-foreground text-[18px] leading-tight line-clamp-1 group-hover:text-primary transition-colors"
+          >
+            {m.fullName}
+          </h3>
+          {m.role && <p className="t-caption text-fg-secondary mt-1 line-clamp-1">{m.role}</p>}
+          {m.bio && <p className="t-body text-[14px] mt-3 line-clamp-3">{m.bio}</p>}
+
+          {hasLinks && (
+            <div className="mt-auto pt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {m.linkedinUrl && (
+                <a
+                  href={m.linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`LinkedIn — ${m.fullName}`}
+                  className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+                >
+                  <Linkedin className="w-3.5 h-3.5" /> LinkedIn
+                </a>
+              )}
+              {m.websiteUrl && (
+                <a
+                  href={m.websiteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t({ ar: `الموقع — ${m.fullName}`, en: `Website — ${m.fullName}` })}
+                  className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+                >
+                  <Globe className="w-3.5 h-3.5" /> {t({ ar: "الموقع", en: "Website" })}
+                </a>
+              )}
+              {m.email && (
+                <a
+                  href={`mailto:${m.email}`}
+                  aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
+                  className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+          )}
+        </div>
       </motion.div>
     </li>
   );
