@@ -180,7 +180,8 @@ export default function PublicProfile() {
         href="/members"
         label={t({ ar: "كلّ المنتسبين", en: "All members" })}
       />
-      <GlassCard className="p-6 sm:p-10 mb-6">
+      <div className="grid lg:grid-cols-[1.9fr_1fr] gap-6 mb-6 items-start">
+        <GlassCard className="p-6 sm:p-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">
           <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-foreground shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
             {u.avatarUrl ? (
@@ -215,15 +216,6 @@ export default function PublicProfile() {
                 <b className="text-foreground font-bold">{data.followingCount ?? 0}</b>{" "}
                 {t({ ar: "يتابِع", en: "following" })}
               </span>
-              {u.createdAt && (
-                <span className="text-fg-faint">
-                  {t({ ar: "انضمّ ", en: "joined " })}
-                  {new Date(u.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </span>
-              )}
             </div>
             {u.bio && (
               <p className="text-fg-secondary text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
@@ -278,12 +270,6 @@ export default function PublicProfile() {
                 <Phone className="w-3.5 h-3.5" /> {t({ ar: "واتساب", en: "WhatsApp" })}
               </a>
             )}
-            <Link
-              href="/contact"
-              className="cta-fill inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold"
-            >
-              {t({ ar: "تواصل عبر آيلاند", en: "Reach via Island Haven" })}
-            </Link>
           </div>
         </div>
 
@@ -317,6 +303,40 @@ export default function PublicProfile() {
           </div>
         )}
       </GlassCard>
+
+        <aside className="lg:sticky lg:top-28">
+          <GlassCard className="p-6 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <span className="t-caption text-fg-secondary">{t({ ar: "الأعمال المنشورة", en: "Published work" })}</span>
+              <span className="font-mono font-black text-sand-bright tnum text-2xl">{data.works.length.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</span>
+            </div>
+            <hr className="border-border-strong" />
+            <div className="flex items-center justify-between gap-3">
+              <span className="t-caption text-fg-secondary">{t({ ar: "يتابعه", en: "Followers" })}</span>
+              <span className="font-mono font-bold text-foreground tnum text-xl">{followers.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}</span>
+            </div>
+            <hr className="border-border-strong" />
+            <div className="flex items-center justify-between gap-3">
+              <span className="t-caption text-fg-secondary">{t({ ar: "انضمّ في", en: "Joined" })}</span>
+              <span className="text-[13px] text-foreground">
+                {u.createdAt
+                  ? new Date(u.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", { month: "long", year: "numeric" })
+                  : "—"}
+              </span>
+            </div>
+            <hr className="border-border-strong" />
+            <div className="flex items-center justify-between gap-3">
+              <span className="t-caption text-fg-secondary">{t({ ar: "الفئة", en: "Category" })}</span>
+              <span className="px-2 py-0.5 rounded border border-border-strong text-[11px] font-mono text-foreground">
+                {lang === "ar" ? ROLE_LABELS[u.role] : ROLE_LABELS_EN[u.role]}
+              </span>
+            </div>
+            <Link href="/contact" className="cta-fill mt-2 block w-full rounded-lg py-3 text-center text-[14px] font-semibold">
+              {t({ ar: "تواصل عبر آيلاند هيفن", en: "Reach via Island Haven" })}
+            </Link>
+          </GlassCard>
+        </aside>
+      </div>
 
       {data.badges && data.badges.length > 0 && (
         <div className="mb-6">

@@ -314,11 +314,14 @@ function Overview({ member }: { member: MemberPrivate }) {
 
 function StatCard({ value, label, hint, gold }: { value: string; label: string; hint?: string; gold?: boolean }) {
   return (
-    <Card className="p-4 sm:p-5">
-      <div className={`font-mono font-black tnum leading-none ${gold ? "text-sand-bright" : "text-foreground"}`} style={{ fontSize: "clamp(1.9rem,4vw,2.5rem)" }}>
+    <Card className={`p-4 sm:p-5 ${gold ? "border-t-2 border-t-sand" : ""}`}>
+      <div
+        className={`font-mono font-black tnum leading-none ${gold ? "text-sand-bright" : "text-foreground"}`}
+        style={{ fontSize: gold ? "clamp(2.4rem,5vw,3.1rem)" : "clamp(1.9rem,4vw,2.5rem)" }}
+      >
         {value}
       </div>
-      <div className="t-caption text-fg-secondary mt-2.5">{label}</div>
+      <div className="font-mono text-[10px] uppercase tracking-wider rtl:tracking-normal text-fg-secondary mt-3">{label}</div>
       {hint && <div className="text-[11px] text-fg-faint mt-0.5">{hint}</div>}
     </Card>
   );
