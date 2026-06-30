@@ -36,6 +36,55 @@ const SWATCHES: Swatch[] = [
   { name: { ar: "أبيض دافئ", en: "Warm-white" }, hex: "#F2EDE6", light: true },
 ];
 
+interface Typeface {
+  /** The literal sample glyphs — language-neutral, rendered in the face itself. */
+  sample: string;
+  /** A short living line so the face is seen "in use", not just as specimens. */
+  line: { ar: string; en: string };
+  /** Honest face name (the family the app actually renders with). */
+  family: string;
+  /** font- utility that maps to the real app stack for this role. */
+  fontClass: string;
+  /** Force a direction on the specimen line (Arabic display must read RTL). */
+  sampleDir?: "rtl" | "ltr";
+  use: { ar: string; en: string };
+}
+
+const TYPEFACES: Typeface[] = [
+  {
+    sample: "أ ب ت",
+    line: { ar: "نبني من غزّة", en: "نبني من غزّة" },
+    family: "IBM Plex Sans Arabic",
+    fontClass: "font-editorial",
+    sampleDir: "rtl",
+    use: { ar: "العناوين العربيّة العريضة", en: "Display headings" },
+  },
+  {
+    sample: "Aa Bb Cc",
+    line: { ar: "Built in Gaza", en: "Built in Gaza" },
+    family: "Inter",
+    fontClass: "font-display",
+    sampleDir: "ltr",
+    use: { ar: "العناوين اللاتينيّة", en: "Latin headings" },
+  },
+  {
+    sample: "01 02 03",
+    line: { ar: "ABOUT · 2024 · 100%", en: "ABOUT · 2024 · 100%" },
+    family: "IBM Plex Mono",
+    fontClass: "font-mono",
+    sampleDir: "ltr",
+    use: { ar: "الوسوم والأرقام", en: "Labels & numbers" },
+  },
+];
+
+/** The four brand dots, reused by the hero press card. */
+const BRAND_DOTS: { hex: string; light?: boolean }[] = [
+  { hex: "#080808" },
+  { hex: "#E8341C" },
+  { hex: "#BFA06A" },
+  { hex: "#F2EDE6", light: true },
+];
+
 /** A copy-to-clipboard pill with reduced-motion-safe success feedback. */
 function CopyButton({
   text,
@@ -75,6 +124,61 @@ function CopyButton({
   );
 }
 
+/** Decorative hero visual — a mock "press card" preview: wordmark + tagline +
+ *  the four brand dots. Mirrors the kit's identity at a glance. Pure decoration,
+ *  hidden from assistive tech. */
+function PressCardPreview() {
+  const { t } = useLanguage();
+  const reduce = useReducedMotion();
+
+  return (
+    <div
+      aria-hidden
+      className="relative w-full max-w-[24rem] mx-auto lg:mx-0 select-none"
+    >
+      <div className="card-base p-[clamp(1.4rem,3vw,1.9rem)]">
+        {/* top row — a press-pass micro label + a live identity dot */}
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[9.5px] tracking-[0.24em] uppercase text-sand rtl:tracking-[0.12em]">
+            {t({ ar: "بطاقة صحفيّة", en: "Press card" })}
+          </span>
+          <span className="block w-1.5 h-1.5 rounded-full bg-primary" />
+        </div>
+
+        {/* wordmark */}
+        <div
+          className="mt-[clamp(1.6rem,5vw,2.4rem)] font-editorial font-bold text-foreground"
+          style={{ fontSize: "clamp(1.55rem,5vw,2.1rem)", lineHeight: 1.02, letterSpacing: "-0.03em" }}
+          dir="ltr"
+        >
+          Island <span className="text-primary">Haven</span>
+        </div>
+
+        {/* tagline */}
+        <p className="mt-2.5 t-caption text-fg-secondary max-w-[20rem]" dir="ltr">
+          A free startup incubator in Gaza.
+        </p>
+
+        {/* hairline + the four brand-colour dots */}
+        <div aria-hidden className="mt-[clamp(1.4rem,4vw,1.9rem)] h-px w-full bg-border-strong" />
+        <div className="mt-4 flex items-center gap-2.5">
+          {BRAND_DOTS.map((d, i) => (
+            <motion.span
+              key={d.hex}
+              className={`block w-3.5 h-3.5 rounded-full ${d.light ? "ring-1 ring-inset ring-border-strong" : ""}`}
+              style={{ backgroundColor: d.hex }}
+              initial={reduce ? false : { opacity: 0, scale: 0.4 }}
+              animate={reduce ? undefined : { opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.35 + i * 0.07, ease: EASE_OUT_EXPO }}
+            />
+          ))}
+          <span className="ms-auto font-mono text-[10px] text-fg-faint tnum">2024</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Media() {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
@@ -85,6 +189,7 @@ export default function Media() {
       eyebrow={t({ ar: "الغرفة الإعلاميّة", en: "Media Kit" })}
       title={t({ ar: "الغرفة", en: "Media" })}
       highlight={t({ ar: "الإعلاميّة", en: "Kit" })}
+      heroAside={<PressCardPreview />}
       subtitle={t({
         ar: "كلّ ما تحتاجه لتكتب عنّا: نبذة جاهزة للنسخ، ألوان العلامة، الشعار، وجهة اتّصال صحفيّة واحدة.",
         en: "Everything you need to write about us: a copy-ready boilerplate, our brand colours, the logo, and a single press contact.",
@@ -166,6 +271,76 @@ export default function Media() {
                       {s.hex}
                     </div>
                   </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Typography — the three brand typefaces, each shown in use ── */}
+        <section>
+          <Reveal>
+            <span className="eyebrow eyebrow-sand">
+              {t({ ar: "الخطوط", en: "Typography" })}
+            </span>
+            <motion.h2
+              className="font-display font-bold text-foreground mt-4"
+              style={{
+                fontSize: "clamp(1.7rem, 4vw, 2.8rem)",
+                lineHeight: 1.06,
+                letterSpacing: "-0.032em",
+              }}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.8, ease: EASE_OUT_EXPO }}
+            >
+              {t({ ar: "ثلاثة خطوط، ", en: "Three faces, " })}
+              <span className="text-primary">
+                {t({ ar: "صوت واحد.", en: "one voice." })}
+              </span>
+            </motion.h2>
+          </Reveal>
+
+          <div className="mt-[clamp(1.75rem,4vw,2.75rem)] grid gap-[clamp(0.875rem,2vw,1.25rem)] md:grid-cols-3">
+            {TYPEFACES.map((tf, i) => (
+              <Reveal key={tf.family} delay={Math.min(i, 3) * 0.06}>
+                <div className="card-base h-full p-[clamp(1.5rem,3vw,2rem)] flex flex-col">
+                  {/* large specimen */}
+                  <div
+                    dir={tf.sampleDir}
+                    className={`${tf.fontClass} font-bold text-foreground leading-none`}
+                    style={{ fontSize: "clamp(2.4rem,6vw,3.4rem)", letterSpacing: "-0.02em" }}
+                  >
+                    {tf.sample}
+                  </div>
+
+                  {/* the face seen "in use" */}
+                  <div
+                    dir={tf.sampleDir}
+                    className={`${tf.fontClass} text-fg-secondary mt-[clamp(1.25rem,3vw,1.75rem)]`}
+                    style={{ fontSize: "clamp(1.05rem,2.4vw,1.35rem)" }}
+                  >
+                    {t(tf.line)}
+                  </div>
+
+                  <div aria-hidden className="mt-auto pt-[clamp(1.5rem,4vw,2rem)]">
+                    <div className="h-px w-full bg-border-strong" />
+                  </div>
+
+                  {/* family name + usage note */}
+                  <div className="mt-4 flex items-baseline justify-between gap-3">
+                    <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-sand rtl:tracking-[0.06em]" dir="ltr">
+                      {tf.family}
+                    </span>
+                    <span className="font-mono text-[10px] text-fg-faint tnum">
+                      {`0${i + 1}`}
+                    </span>
+                  </div>
+                  <p className="t-caption text-fg-secondary mt-1.5">
+                    {t({ ar: "تُستخدم لـ: ", en: "Used for: " })}
+                    <span className="text-foreground">{t(tf.use)}</span>
+                  </p>
                 </div>
               </Reveal>
             ))}

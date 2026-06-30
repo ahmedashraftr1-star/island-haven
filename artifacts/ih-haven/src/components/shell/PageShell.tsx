@@ -10,6 +10,7 @@ export function PageShell({
   title,
   highlight,
   subtitle,
+  heroAside,
   children,
   maxWidth = "max-w-6xl",
 }: {
@@ -17,6 +18,9 @@ export function PageShell({
   title?: string;
   highlight?: string;
   subtitle?: string;
+  /** Optional visual for the RIGHT of the hero (a stat, ticker, or illustration)
+   *  so the page title never sits beside empty space. */
+  heroAside?: ReactNode;
   children: ReactNode;
   maxWidth?: string;
   /** Kept for call-site compatibility; the shared NavRail derives the active
@@ -38,7 +42,7 @@ export function PageShell({
 
       <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
-          {(eyebrow || title || subtitle) && (
+          {(eyebrow || title || subtitle || heroAside) && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -47,36 +51,41 @@ export function PageShell({
             >
               {/* Focal brand aura behind the page title — atmosphere, not flat */}
               <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-40" />
-              {eyebrow && (
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="h-px w-9 bg-primary/50" />
-                  <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
-                    {eyebrow}
-                  </span>
-                </div>
-              )}
-              {title && (
-                <h1
-                  className="font-display font-extrabold text-foreground leading-[1.0]"
-                  style={{
-                    fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
-                    letterSpacing: "-0.04em",
-                  }}
-                >
-                  {title}
-                  {highlight && (
-                    <>
-                      {" "}
-                      <span className="text-primary">{highlight}</span>
-                    </>
+              <div className={heroAside ? "grid lg:grid-cols-[1.15fr_0.85fr] gap-x-10 gap-y-9 lg:items-center" : ""}>
+                <div>
+                  {eyebrow && (
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="h-px w-9 bg-primary/50" />
+                      <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
+                        {eyebrow}
+                      </span>
+                    </div>
                   )}
-                </h1>
-              )}
-              {subtitle && (
-                <p className="mt-5 text-fg-secondary text-[15px] sm:text-[17px] leading-[1.8] max-w-2xl">
-                  {subtitle}
-                </p>
-              )}
+                  {title && (
+                    <h1
+                      className="font-display font-extrabold text-foreground leading-[1.0]"
+                      style={{
+                        fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
+                        letterSpacing: "-0.04em",
+                      }}
+                    >
+                      {title}
+                      {highlight && (
+                        <>
+                          {" "}
+                          <span className="text-primary">{highlight}</span>
+                        </>
+                      )}
+                    </h1>
+                  )}
+                  {subtitle && (
+                    <p className="mt-5 text-fg-secondary text-[15px] sm:text-[17px] leading-[1.8] max-w-2xl">
+                      {subtitle}
+                    </p>
+                  )}
+                </div>
+                {heroAside && <div className="w-full lg:justify-self-end">{heroAside}</div>}
+              </div>
               <div aria-hidden className="mt-9 sm:mt-11 h-px w-full bg-gradient-to-r from-border-strong via-border-strong/40 to-transparent rtl:bg-gradient-to-l" />
             </motion.div>
           )}

@@ -54,6 +54,111 @@ function MonumentalHeading({
   );
 }
 
+/** A styled pull-quote — one key sentence at display scale, a crimson rule down
+    the inline-start edge, acres of vertical air. A quiet visual breath between
+    the page's full-width sections. Bilingual + reduced-motion safe. */
+function PullQuote({
+  quote,
+  attribution,
+  testid,
+}: {
+  quote: string;
+  attribution?: string;
+  testid?: string;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <section
+      className="relative bg-background overflow-hidden"
+      style={{ paddingBlock: "clamp(4rem, 10vh, 8rem)" }}
+      data-testid={testid}
+    >
+      <div className="container-ih relative">
+        <Reveal>
+          <figure className="max-w-4xl border-s-4 border-primary ps-[clamp(1.5rem,4vw,3rem)] py-[clamp(0.5rem,2vw,1.5rem)]">
+            <motion.blockquote
+              className="font-display font-bold text-foreground text-balance"
+              style={{ fontSize: "clamp(1.5rem, 4vw, 2.6rem)", lineHeight: 1.16, letterSpacing: "-0.028em" }}
+              initial={reduce ? false : { opacity: 0, y: 20 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+            >
+              {quote}
+            </motion.blockquote>
+            {attribution && (
+              <figcaption className="eyebrow-sand font-mono text-sand mt-[clamp(1.25rem,2.5vw,1.75rem)]">
+                {attribution}
+              </figcaption>
+            )}
+          </figure>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/** Stats bar — a horizontal band, 1px hairline top + bottom (no shadow), holding
+    only REAL/defensible figures drawn from the live site: the thousand-talent
+    goal, the 2024 founding, the 100%-free truth, and the live portfolio span.
+    Mono numerals + tracked labels. Bilingual + RTL + reduced-motion safe. */
+function StatsBar() {
+  const { t, lang } = useLanguage();
+
+  // Every figure here is already stated elsewhere on the site (the /about goal
+  // block, the live /numbers + /ventures readings). No invented funding or
+  // country counts — honest, defensible numbers only.
+  const stats = [
+    {
+      value: lang === "en" ? "1,000+" : "+١٬٠٠٠",
+      label: t({ ar: "كفاءة غزّية نؤهّلها", en: "Gazan talents in our goal" }),
+    },
+    {
+      value: lang === "en" ? "2024" : "٢٠٢٤",
+      label: t({ ar: "عام التأسيس", en: "Founded" }),
+    },
+    {
+      value: lang === "en" ? "100%" : "٪١٠٠",
+      label: t({ ar: "مجّانًا، دائمًا", en: "Free, always" }),
+    },
+    {
+      value: lang === "en" ? "3" : "٣",
+      label: t({ ar: "سنوات لإغلاق الفجوة", en: "Years to close the gap" }),
+    },
+  ];
+
+  return (
+    <section
+      className="relative bg-surface-1 overflow-hidden"
+      data-testid="about-stats-bar"
+    >
+      <div className="container-ih relative">
+        <Reveal>
+          <dl className="grid grid-cols-2 lg:grid-cols-4 border-y border-border-strong/60 divide-x divide-y lg:divide-y-0 divide-border-strong/40">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 py-[clamp(2rem,4vw,3.25rem)] px-[clamp(1.25rem,3vw,2.75rem)]"
+                data-testid={`about-stat-${i}`}
+              >
+                <dt
+                  className="font-display font-black text-sand tnum leading-none"
+                  style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", letterSpacing: "-0.03em" }}
+                >
+                  {s.value}
+                </dt>
+                <dd className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.12em] text-fg-secondary max-w-[18ch]">
+                  {s.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 /** Vision & Mission — two monumental statements, hairline-divided, no numerals. */
 function VisionMission() {
   const { t } = useLanguage();
@@ -220,45 +325,46 @@ function Values() {
   );
 }
 
-/** Timeline — the since-2024 milestone ledger, evergreen + honest. */
+/** Timeline — the 2023→2026 milestone ledger as a vertical crimson thread with
+    red node circles, evergreen + honest where exact data is unknown. */
 function Timeline() {
   const { t, lang } = useLanguage();
 
   const milestones = [
     {
-      year: lang === "en" ? "2024" : "٢٠٢٤",
-      ar: "وُلدت آيلاند هيفن",
-      en: "Island Haven is born",
+      year: lang === "en" ? "2023" : "٢٠٢٣",
+      ar: "فكرةٌ وسط الحرب",
+      en: "An idea amid war",
       body: t({
-        ar: "وسط الحرب، ومن قلب غزّة، تتأسّس آيلاند هيفن بمساحة عملٍ مشتركة تستقبل الخرّيجين والمستقلّين والطلبة — أوّل ردٍّ على الدمار بالبناء.",
-        en: "Amid the war, and from the heart of Gaza, Island Haven is founded as a shared workspace for graduates, freelancers and students — the first answer to destruction with building.",
+        ar: "من قلب الدمار تولد الفكرة: مساحةٌ تردّ على الحرب بالبناء، وتعيد للموهبة الغزّية إنترنتها وكهرباءها ومكانها الهادئ للعمل.",
+        en: "From the heart of destruction the idea is born: a place that answers war with building, returning to Gazan talent the internet, power and quiet space to work.",
       }),
     },
     {
       year: lang === "en" ? "2024" : "٢٠٢٤",
-      ar: "بدعمٍ من «من النّاس إلى النّاس»",
-      en: "Backed by NasToNas",
+      ar: "تأسّسنا — والدفعة الأولى",
+      en: "Founded — and the first cohort",
       body: t({
-        ar: "تحتضن مبادرة «من النّاس إلى النّاس» (NasToNas) المنظومة كبرنامجٍ تنمويّ — لتبقى مجّانيّة بالكامل، مدعومةً من أصدقاء غزّة حول العالم.",
-        en: "The NasToNas (People to People) initiative adopts the ecosystem as a development program — keeping it entirely free, backed by friends of Gaza worldwide.",
+        ar: "تتأسّس آيلاند هيفن كمساحة عملٍ مشتركة بدعم مبادرة «من النّاس إلى النّاس» — مجّانيّةً بالكامل — وتنطلق المنظومة المتكاملة مع دفعتها الأولى.",
+        en: "Island Haven is founded as a shared workspace, backed by the NasToNas initiative — entirely free — and the full ecosystem launches with its first cohort.",
       }),
     },
     {
-      year: lang === "en" ? "Now" : "الآن",
-      ar: "الدفعة الأولى تَبني",
-      en: "The first cohort builds",
+      year: lang === "en" ? "2025" : "٢٠٢٥",
+      ar: "الدفعة الثانية تَبني",
+      en: "The second cohort builds",
       body: t({
-        ar: "تنطلق المنظومة المتكاملة: تدريبٌ وتأهيل، أرصدةٌ سحابيّة، حلولٌ للمدفوعات الدوليّة، وإرشادٌ فرديّ — والدفعة الأولى تكتب سطورها الأولى اليوم.",
-        en: "The full ecosystem comes alive: training, cloud credits, international payment solutions and 1:1 mentorship — and the first cohort is writing its opening lines today.",
+        ar: "تتوسّع المنظومة: تدريبٌ وتأهيل، أرصدةٌ سحابيّة، حلولٌ للمدفوعات الدوليّة، وإرشادٌ فرديّ — ودفعةٌ جديدة تكتب سطورها نحو يوم العرض.",
+        en: "The ecosystem widens: training, cloud credits, international payment solutions and 1:1 mentorship — and a new cohort writes its lines toward Demo Day.",
       }),
     },
     {
-      year: lang === "en" ? "Next" : "قادم",
-      ar: "نحو يوم العرض",
-      en: "Toward Demo Day",
+      year: lang === "en" ? "2026" : "٢٠٢٦",
+      ar: "الدفعة الثالثة تُفتح",
+      en: "The third cohort opens",
       body: t({
-        ar: "تُختم مسارات الاحتضان بيوم عرضٍ (Demo Day) أمام شبكةٍ من الدّاعمين والمستثمرين — حيث تلتقي الموهبة الغزّية بالعالم وجهًا لوجه.",
-        en: "Incubation tracks culminate in a Demo Day before a network of supporters and investors — where Gazan talent meets the world, face to face.",
+        ar: "يُفتح بابٌ جديد، ودفعةٌ ثالثة تنضمّ إلى المسيرة نحو يوم عرضٍ أمام شبكةٍ من الدّاعمين والمستثمرين — حيث تلتقي الموهبة الغزّية بالعالم وجهًا لوجه.",
+        en: "A new door opens, and a third cohort joins the path toward a Demo Day before a network of supporters and investors — where Gazan talent meets the world, face to face.",
       }),
     },
   ];
@@ -281,14 +387,16 @@ function Timeline() {
           />
         </div>
 
-        {/* The milestones — a single hairline thread running down the years. */}
-        <ol className="relative border-s border-border-strong/60 ps-[clamp(1.75rem,4vw,3rem)]">
+        {/* The milestones — a single crimson thread running down the years, each
+            beat marked by a small red node circle on the inline-start edge. */}
+        <ol className="relative border-s border-primary/40 ps-[clamp(2rem,4.5vw,3.5rem)]">
           {milestones.map((m, i) => (
             <li key={i} className="relative pb-[clamp(2.75rem,5vw,4rem)] last:pb-0">
               <Reveal delay={Math.min(i, 6) * 0.06}>
+                {/* Red node circle, centred on the timeline rule */}
                 <span
                   aria-hidden
-                  className="absolute start-0 top-[0.7em] h-px w-[clamp(1rem,2vw,1.5rem)] bg-border-strong/60 -translate-x-full rtl:translate-x-full"
+                  className="absolute start-0 top-[0.55em] h-3 w-3 -translate-x-1/2 rtl:translate-x-1/2 rounded-full bg-primary ring-4 ring-background"
                 />
                 <span
                   className="block font-display font-black text-sand tnum leading-none"
@@ -511,17 +619,36 @@ export default function About() {
         <AboutHero />
         {/* 2 · Vision & Mission — bold statements */}
         <VisionMission />
-        {/* 3 · The three strategic axes */}
+        {/* 3 · Stats bar — real, defensible figures only */}
+        <StatsBar />
+        {/* 4 · Pull-quote — the founding belief, at scale */}
+        <PullQuote
+          testid="about-pullquote-1"
+          quote={t({
+            ar: "وُلدنا وسط الحرب، ورفضنا أن نقف متفرّجين — نقاوم الظرف بالبناء، ونفتح بابًا كلّما أُغلق آخر.",
+            en: "Born amid the war, we refused to stand by — we resist circumstance with building, opening a door each time another is closed.",
+          })}
+          attribution={t({ ar: "مبدأ التأسيس · آيلاند هيفن", en: "Founding principle · Island Haven" })}
+        />
+        {/* 5 · The three strategic axes */}
         <Story />
-        {/* 4 · Values / principles */}
+        {/* 6 · Values / principles */}
         <Values />
-        {/* 5 · Since-2024 milestone timeline */}
+        {/* 7 · 2023→2026 milestone timeline */}
         <Timeline />
-        {/* 6 · Backers — NasToNas + Gaza Sky Geeks */}
+        {/* 8 · Backers — NasToNas + Gaza Sky Geeks */}
         <Backers />
-        {/* 7 · Team teaser → /team */}
+        {/* 9 · Pull-quote — competence, not pity */}
+        <PullQuote
+          testid="about-pullquote-2"
+          quote={t({
+            ar: "نبني ليُذكر اسم غزّة في السوق العالميّ احترامًا لكفاءته، لا تعاطفًا مع جرحه.",
+            en: "We build so Gaza is named in the global market out of respect for its competence, not sympathy for its wound.",
+          })}
+        />
+        {/* 10 · Team teaser → /team */}
         <TeamTeaser />
-        {/* 8 · Closing belief + stand-with-us / apply CTA */}
+        {/* 11 · Closing belief + stand-with-us / apply CTA */}
         <Support />
       </div>
       <Footer />

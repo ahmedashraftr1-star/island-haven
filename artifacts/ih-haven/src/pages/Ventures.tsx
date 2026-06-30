@@ -8,6 +8,21 @@ import { api, ApiError } from "@/lib/api";
 import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ventureIdentity } from "@/lib/ventureIdentity";
+import { Ticker } from "@/components/landing/Ticker";
+
+// The sectors the incubator builds across — a calm, evergreen roster that glides
+// in the hero aside (font-mono, faint). Not live data; a qualitative register of
+// the problem-spaces the portfolio spans.
+const SECTOR_TAGS = [
+  "LegalTech",
+  "HealthTech",
+  "ReliefTech",
+  "EdTech",
+  "FinTech",
+  "AgriTech",
+  "WellTech",
+  "ConstructionTech",
+];
 
 interface Venture {
   id: number;
@@ -99,6 +114,11 @@ export default function Ventures() {
   const launched = (rows ?? []).filter(
     (v) => v.stage === "launched" || v.stage === "scaling",
   ).length;
+  // Real, defensible third figure — the count of distinct sectors the live
+  // portfolio actually spans (derived from the /ventures data, no invention).
+  const sectorCount = new Set(
+    (rows ?? []).map((v) => v.sector?.trim().toLowerCase()).filter(Boolean),
+  ).size;
 
   return (
     <PageShell
@@ -110,6 +130,7 @@ export default function Ventures() {
         ar: "من فكرة على ورقة، إلى يوم عرضٍ أمام الدّاعمين، إلى منتجٍ يخدم النّاس ويصنع فرص عمل في غزّة — هذه هي المحفظة التي تنمو داخل مساحتنا.",
         en: "From an idea on paper, to a Demo Day in front of our backers, to a product that serves people and creates jobs in Gaza — this is the portfolio growing inside our space.",
       })}
+      heroAside={<SectorTickerAside />}
     >
       {error && (
         <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
@@ -121,21 +142,17 @@ export default function Ventures() {
         <EmptyPortfolio />
       ) : (
         <>
-          {/* Live portfolio reading — quiet tnum figures, cerulean for hard data only */}
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT_EXPO }}
-            className="flex flex-wrap items-baseline gap-x-[clamp(2rem,5vw,4rem)] gap-y-4 pb-[clamp(2rem,4vw,3rem)] border-b border-border-strong/60"
-          >
-            <Figure value={num(total, lang)} label={t({ ar: "في المحفظة", en: "in the portfolio" })} />
-            {launched > 0 && (
-              <Figure value={num(launched, lang)} label={t({ ar: "في السّوق الآن", en: "live in market" })} />
-            )}
-            <p className="t-caption text-fg-secondary self-end pb-1.5">
-              {t({ ar: "كلّها صُنعت داخل الحاضنة", en: "Every one built inside the incubator" })}
-            </p>
-          </motion.div>
+          {/* Live portfolio reading — three stat boxes, divided by hairline
+              borders (no shadows). Real figures only: portfolio count, live in
+              market, and the number of sectors the portfolio spans (or, when the
+              spread is too thin to read, the 100%-free truth). */}
+          <StatRow
+            total={total}
+            launched={launched}
+            sectorCount={sectorCount}
+            lang={lang}
+            reduce={!!reduce}
+          />
 
           {/* The portfolio — a bento masonry; each venture wears its sector colour */}
           <VentureMasonry ventures={all} reduce={!!reduce} />
@@ -148,21 +165,127 @@ export default function Ventures() {
   );
 }
 
-// A single live reading — a large tnum figure in cerulean (hard data) and a calm
-// label. Replaces the pill-chip cluster; no boxes, no borders.
-function Figure({ value, label }: { value: string; label: string }) {
+// ── Hero aside — a calm, edge-masked strip of sector tags gliding past in
+// font-mono / fg-faint. Sits to the right of the page title so the hero never
+// reads as empty space. Two strips drifting at different speeds give the aside a
+// quiet sense of vertical depth without ever shouting. Reduced-motion → the
+// Ticker itself falls back to a static centred wrap. ──
+function SectorTickerAside() {
+  const { t } = useLanguage();
+  const tag = (label: string) => (
+    <span
+      key={label}
+      className="inline-flex items-center gap-2 font-mono text-fg-faint"
+      style={{ fontSize: "clamp(0.72rem,0.9vw,0.82rem)", letterSpacing: "0.06em" }}
+    >
+      <span aria-hidden className="h-1 w-1 rounded-full bg-sand/60" />
+      {label}
+    </span>
+  );
+  const items = SECTOR_TAGS.map(tag);
+  const itemsAlt = [...SECTOR_TAGS].reverse().map(tag);
   return (
-    <span className="inline-flex items-baseline gap-2.5">
-      <span
-        className="font-display font-bold tnum text-sand leading-none"
-        style={{ fontSize: "clamp(2rem,4vw,3.25rem)", letterSpacing: "-0.03em" }}
+    <div
+      aria-hidden
+      className="relative w-full select-none"
+    >
+      {/* faint mono caption — names what the strip is, RTL-safe */}
+      <div
+        className="mb-3 font-mono text-fg-faint"
+        style={{ fontSize: "0.6875rem", letterSpacing: "0.18em" }}
+      >
+        <span className="rtl:tracking-normal">
+          {t({ ar: "القطاعات", en: "SECTORS" })}
+        </span>
+      </div>
+      <Ticker
+        speedSeconds={56}
+        gapClass="gap-x-7"
+        ariaLabel={t({ ar: "القطاعات التي نبني فيها", en: "Sectors we build across" })}
+        items={items}
+      />
+      <div className="mt-3">
+        <Ticker speedSeconds={72} gapClass="gap-x-7" items={itemsAlt} />
+      </div>
+      <div aria-hidden className="mt-4 h-px w-full hairline-sand opacity-50" />
+    </div>
+  );
+}
+
+// ── Stat row — three boxes side by side, divided only by 1px hairline borders
+// (no shadows, per the house bar). Big font-mono numerals + small mono labels.
+// Stacks to a single column on the narrowest screens; RTL handled by border
+// utilities (border-s / border-e flip automatically). ──
+function StatRow({
+  total,
+  launched,
+  sectorCount,
+  lang,
+  reduce,
+}: {
+  total: number;
+  launched: number;
+  sectorCount: number;
+  lang: Lang;
+  reduce: boolean;
+}) {
+  const { t } = useLanguage();
+  // Third box: prefer the real sector spread; if it's too thin to read as a
+  // figure (a forming portfolio), fall back to the 100%-free truth.
+  const thirdIsSectors = sectorCount >= 2;
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT_EXPO }}
+      className="grid grid-cols-1 sm:grid-cols-3 border border-border-strong rounded-[20px] overflow-hidden divide-y sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse divide-border-strong"
+    >
+      <StatBox
+        value={num(total, lang)}
+        label={t({ ar: "في المحفظة", en: "in the portfolio" })}
+        hint={t({ ar: "كلّها صُنعت داخل الحاضنة", en: "all built inside the incubator" })}
+      />
+      <StatBox
+        value={launched > 0 ? num(launched, lang) : "—"}
+        label={t({ ar: "في السّوق الآن", en: "live in market" })}
+        hint={t({ ar: "بمرحلة الإطلاق أو التوسّع", en: "at launch or scaling stage" })}
+      />
+      {thirdIsSectors ? (
+        <StatBox
+          value={num(sectorCount, lang)}
+          label={t({ ar: "قطاعات نبني فيها", en: "sectors represented" })}
+          hint={t({ ar: "من القانون إلى الصحّة إلى التعليم", en: "from legal to health to education" })}
+        />
+      ) : (
+        <StatBox
+          value={t({ ar: "١٠٠٪", en: "100%" })}
+          label={t({ ar: "مجّانًا بالكامل", en: "free for founders" })}
+          hint={t({ ar: "لا رسوم، لا حصص ملكيّة", en: "no fees, no equity taken" })}
+        />
+      )}
+    </motion.div>
+  );
+}
+
+// A single stat box — a monumental font-mono numeral, a calm mono label, and a
+// faint supporting line. tnum keeps numerals aligned.
+function StatBox({ value, label, hint }: { value: string; label: string; hint: string }) {
+  return (
+    <div className="p-[clamp(1.25rem,2.6vw,2rem)]">
+      <div
+        className="font-mono font-medium tnum text-foreground leading-none"
+        style={{ fontSize: "clamp(2.5rem,6vw,3.5rem)", letterSpacing: "-0.02em" }}
       >
         {value}
-      </span>
-      <span className="text-fg-secondary" style={{ fontSize: "clamp(0.95rem,1.4vw,1.1rem)" }}>
-        {label}
-      </span>
-    </span>
+      </div>
+      <div
+        className="mt-3 font-mono text-fg-secondary"
+        style={{ fontSize: "clamp(0.8rem,1vw,0.9rem)", letterSpacing: "0.04em" }}
+      >
+        <span className="rtl:tracking-normal">{label}</span>
+      </div>
+      <p className="mt-1.5 t-caption text-fg-faint">{hint}</p>
+    </div>
   );
 }
 
