@@ -342,12 +342,7 @@ function TeamSection({
 function TeamCard({ m, i }: { m: TeamMember; i: number }) {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
-  const initials = m.fullName
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("");
+  const initial = m.fullName.trim().charAt(0);
   const hasLinks = m.linkedinUrl || m.websiteUrl || m.email;
 
   return (
@@ -359,9 +354,9 @@ function TeamCard({ m, i }: { m: TeamMember; i: number }) {
         transition={{ duration: 0.6, delay: Math.min(i, 6) * 0.05, ease: EASE_OUT_EXPO }}
         className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40 will-change-transform"
       >
-        {/* Avatar panel — a real face where one exists, else an elegant
-            gold-initials panel (not a circular medallion). */}
-        <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-sand-soft">
+        {/* Avatar panel — a real face where one exists, else a neutral panel with
+            a single gold initial (not a circular medallion, not a brown wash). */}
+        <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-white/[0.03]">
           {m.avatarUrl ? (
             <img
               src={m.avatarUrl}
@@ -373,10 +368,10 @@ function TeamCard({ m, i }: { m: TeamMember; i: number }) {
             <div className="flex h-full w-full items-center justify-center">
               <span
                 aria-hidden
-                className="font-mono font-black text-sand-bright"
-                style={{ fontSize: "clamp(2rem,4vw,2.75rem)", letterSpacing: "0.04em" }}
+                className="font-display font-black text-sand-bright"
+                style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", letterSpacing: "0.02em" }}
               >
-                {initials}
+                {initial}
               </span>
             </div>
           )}

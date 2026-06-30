@@ -194,23 +194,29 @@ export default function Experts() {
         en: "1:1 sessions with founders, experts, and specialists worldwide — with you session after session, turning ideas into ventures and ventures into impact. Talent isn't bound by geography.",
       })}
       heroAside={
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[20px] border border-border-strong bg-border-strong">
-          <div className="bg-background p-6 sm:p-7">
-            <div className="font-mono font-black text-sand-bright tnum leading-none" style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)" }}>
-              {num(total, lang)}
-            </div>
-            <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted-foreground mt-3 rtl:tracking-normal">
-              {t({ ar: "مرشدًا في الشبكة", en: "mentors in the network" })}
-            </div>
+        <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-6 sm:p-8">
+          <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "شبكة المرشدين", en: "Mentor network" })}
+          </p>
+          <p
+            className="font-display font-black text-sand-bright tnum leading-none mt-4"
+            style={{ fontSize: "clamp(2.8rem,6vw,4rem)" }}
+          >
+            {num(total, lang)}
+          </p>
+          <p className="t-caption text-fg-secondary mt-1.5">
+            {t({ ar: "مرشدًا في الشبكة", en: "mentors in the network" })}
+          </p>
+          <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
+          <div className="flex items-center justify-between text-[14px]">
+            <span className="text-fg-secondary">{t({ ar: "متاحون للحجز", en: "available to book" })}</span>
+            <span className="font-mono font-medium text-foreground tnum">{num(availableCount, lang)}</span>
           </div>
-          <div className="bg-background p-6 sm:p-7">
-            <div className="font-mono font-black text-primary tnum leading-none" style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)" }}>
-              {num(availableCount, lang)}
-            </div>
-            <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted-foreground mt-3 rtl:tracking-normal">
-              {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
-            </div>
-          </div>
+          <div aria-hidden className="my-4 h-px w-full bg-border-strong" />
+          <p className="flex items-center gap-2 t-caption text-fg-secondary">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            {t({ ar: "الجلسة الأولى مجّانيّة دائمًا", en: "First session always free" })}
+          </p>
         </div>
       }
     >
@@ -487,12 +493,7 @@ function TeamSection({
 function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolean }) {
   const { lang, t } = useLanguage();
   const areas = splitTags(e.expertise).slice(0, 3);
-  const initials = e.fullName
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("");
+  const initial = e.fullName.trim().charAt(0);
 
   return (
     <li className="h-full">
@@ -508,8 +509,8 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
           data-testid={`expert-card-${e.id}`}
           className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
         >
-          {/* Avatar panel — real face, else an elegant gold-initials panel */}
-          <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-sand-soft">
+          {/* Avatar panel — real face, else a neutral panel with a single gold initial */}
+          <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-white/[0.03]">
             {e.avatarUrl ? (
               <img
                 src={e.avatarUrl}
@@ -521,10 +522,10 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
               <div className="flex h-full w-full items-center justify-center">
                 <span
                   aria-hidden
-                  className="font-mono font-black text-sand-bright"
-                  style={{ fontSize: "clamp(2rem,4vw,2.75rem)", letterSpacing: "0.04em" }}
+                  className="font-display font-black text-sand-bright"
+                  style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", letterSpacing: "0.02em" }}
                 >
-                  {initials}
+                  {initial}
                 </span>
               </div>
             )}

@@ -35,7 +35,7 @@ export function FreelancerCard({ f, i }: { f: Freelancer; i: number }) {
           <div className="flex items-center gap-3 min-w-0">
             <span
               aria-hidden
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-sand-soft font-mono font-black text-sand-bright"
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-border-strong bg-white/[0.04] font-display font-black text-sand-bright"
               style={{ fontSize: "1.05rem", letterSpacing: "0.03em" }}
             >
               {initials}
