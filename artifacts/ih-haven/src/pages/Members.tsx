@@ -136,6 +136,37 @@ export default function Members() {
       eyebrow={c.eyebrow}
       title={c.title}
       subtitle={c.subtitle}
+      heroAside={
+        <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "مجتمع المنتسبين", en: "Community members" })}
+          </div>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span
+              className="font-mono font-black text-sand-bright tnum leading-none"
+              style={{ fontSize: "clamp(2.8rem,6vw,4rem)" }}
+            >
+              {total != null ? total.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
+            </span>
+            <span className="t-caption text-fg-secondary">
+              {t({ ar: "منتسبًا في المجتمع", en: "members & alumni" })}
+            </span>
+          </div>
+          <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
+          <p className="t-body text-[14px]">
+            {t({
+              ar: "مستقلّون، خرّيجون، طلّاب، وأعضاء — مجتمعٌ واحد ينمو كلّ أسبوع.",
+              en: "Freelancers, graduates, students and members — one community, growing every week.",
+            })}
+          </p>
+          <div className="mt-5 flex items-center gap-2.5">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span className="text-[13px] font-semibold text-foreground">
+              {t({ ar: "يُضاف أعضاء جدد أسبوعيًّا", en: "New members added weekly" })}
+            </span>
+          </div>
+        </div>
+      }
     >
       <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-8 items-center">
         <div className="relative">
@@ -175,6 +206,13 @@ export default function Members() {
               </button>
             );
           })}
+          <Link
+            href="/apply?type=freelancer"
+            className="ms-1 inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary/10"
+          >
+            {t({ ar: "انضمّ كفريلانسر", en: "Join as freelancer" })}
+            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+          </Link>
         </div>
       </div>
 
