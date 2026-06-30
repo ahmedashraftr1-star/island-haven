@@ -125,8 +125,9 @@ export default function Ventures() {
     <PageShell
       active="ventures"
       eyebrow={t({ ar: "صُنِع في آيلاند · Made in Gaza", en: "Made in Island Haven · Made in Gaza" })}
-      title={t({ ar: "مشاريع وُلدت في", en: "Ventures built at" })}
-      highlight={t({ ar: "آيلاند", en: "Island Haven" })}
+      title={t({ ar: "مشاريع وُلدت", en: "Ventures built" })}
+      highlight={t({ ar: "في آيلاند", en: "at Island Haven" })}
+      titleClassName="text-foreground/50"
       subtitle={t({
         ar: "من فكرة على ورقة، إلى يوم عرضٍ أمام الدّاعمين، إلى منتجٍ يخدم النّاس ويصنع فرص عمل في غزّة — هذه هي المحفظة التي تنمو داخل مساحتنا.",
         en: "From an idea on paper, to a Demo Day in front of our backers, to a product that serves people and creates jobs in Gaza — this is the portfolio growing inside our space.",
@@ -190,6 +191,7 @@ function SectorTickerAside() {
       aria-hidden
       className="relative w-full select-none"
     >
+      <div aria-hidden className="mb-5 h-px w-full hairline-sand opacity-50" />
       {/* faint mono caption — names what the strip is, RTL-safe */}
       <div
         className="mb-3 font-mono text-fg-faint"

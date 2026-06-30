@@ -155,10 +155,26 @@ export default function Members() {
           <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
           <p className="t-body text-[14px]">
             {t({
-              ar: "مستقلّون، خرّيجون، طلّاب، وأعضاء — مجتمعٌ واحد ينمو كلّ أسبوع.",
-              en: "Freelancers, graduates, students and members — one community, growing every week.",
+              ar: "مجتمعٌ واحد ينمو كلّ أسبوع.",
+              en: "One community, growing every week.",
             })}
           </p>
+          <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
+          <div className="space-y-2">
+            {[
+              { label: t({ ar: "مستقلّون", en: "Freelancers" }), n: 21 },
+              { label: t({ ar: "خرّيجون", en: "Graduates" }), n: 15 },
+              { label: t({ ar: "طلّاب", en: "Students" }), n: 9 },
+              { label: t({ ar: "أعضاء", en: "Members" }), n: 1 },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between text-[13.5px]">
+                <span className="text-fg-secondary">{row.label}</span>
+                <span className="font-mono font-medium text-foreground tnum">
+                  {row.n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+                </span>
+              </div>
+            ))}
+          </div>
           <div className="mt-5 flex items-center gap-2.5">
             <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
             <span className="text-[13px] font-semibold text-foreground">
@@ -168,7 +184,7 @@ export default function Members() {
         </div>
       }
     >
-      <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-8 items-center">
+      <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-6 items-center">
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
           <input

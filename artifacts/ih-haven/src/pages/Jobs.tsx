@@ -58,11 +58,11 @@ const CAT_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  "full-time": "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  "part-time": "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  remote: "bg-violet-500/15 text-violet-400 border-violet-500/20",
-  contract: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-  internship: "bg-rose-500/15 text-rose-400 border-rose-500/20",
+  "full-time": "bg-white/[0.06] text-fg-secondary border-border-strong",
+  "part-time": "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  remote: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  contract: "bg-white/[0.06] text-fg-secondary border-border-strong",
+  internship: "bg-amber-500/10 text-amber-400 border-amber-500/20",
 };
 
 function JobCard({ job, index }: { job: Job; index: number }) {

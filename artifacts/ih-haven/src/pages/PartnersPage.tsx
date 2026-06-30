@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -188,6 +189,33 @@ export default function PartnersPage() {
         ar: "المؤسّسات والمنصّات التي تجعل آيلاند هيفن ممكنًا — مرويّةً بصدق، بلا مبالغة.",
         en: "The institutions and platforms that make Island Haven possible — told honestly, with no inflation.",
       })}
+      heroAside={
+        <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
+          <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "شبكة الشركاء", en: "Partner network" })}
+          </p>
+          <p className="t-body text-[15px] mt-4 leading-relaxed">
+            {t({
+              ar: "مؤسّسات وشركات ومنظّمات دوليّة تقف خلف موهبة غزّة — بالدّعم والشبكة والفرص الحقيقيّة.",
+              en: "Institutions, companies and global organisations backing Gaza's talent — with support, network and real opportunity.",
+            })}
+          </p>
+          <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span className="text-[14px] font-semibold text-foreground">
+              {t({ ar: "مفتوحون لشراكات جديدة", en: "Open to new partnerships" })}
+            </span>
+          </div>
+          <Link
+            href="/contact"
+            className="cta-fill mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold"
+          >
+            {t({ ar: "كُن شريكًا", en: "Become a partner" })}
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          </Link>
+        </div>
+      }
     >
       <div className="space-y-[clamp(5rem,11vw,9rem)]">
         {/* ── WHY PARTNER — a monumental statement over a numbered hairline ledger ── */}

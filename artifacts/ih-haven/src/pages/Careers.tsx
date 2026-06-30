@@ -179,8 +179,8 @@ export default function Careers() {
             </p>
             <p className="t-caption text-fg-secondary mt-1">
               {t({
-                ar: "استعرض فرص العمل من شركائنا المحلّيّين والدوليّين.",
-                en: "Browse roles from our local & global partners.",
+                ar: "٢٤ فرصة من شركاء محلّيّين ودوليّين.",
+                en: "24 roles from local & global partners.",
               })}
             </p>
           </div>
