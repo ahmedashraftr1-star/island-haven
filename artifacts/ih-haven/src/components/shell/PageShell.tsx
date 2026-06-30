@@ -12,6 +12,8 @@ export function PageShell({
   highlight,
   subtitle,
   heroAside,
+  titleClassName,
+  highlightClassName,
   children,
   maxWidth = "max-w-6xl",
 }: {
@@ -19,6 +21,11 @@ export function PageShell({
   title?: string;
   highlight?: string;
   subtitle?: string;
+  /** Optional class for the leading title word (e.g. "text-sand" for a gold accent
+   *  in place of the default warm-white). */
+  titleClassName?: string;
+  /** Optional class for the highlight word (defaults to "text-primary" red). */
+  highlightClassName?: string;
   /** Optional visual for the RIGHT of the hero (a stat, ticker, or illustration)
    *  so the page title never sits beside empty space. */
   heroAside?: ReactNode;
@@ -70,11 +77,11 @@ export function PageShell({
                         letterSpacing: "-0.04em",
                       }}
                     >
-                      {title}
+                      <span className={titleClassName}>{title}</span>
                       {highlight && (
                         <>
                           {" "}
-                          <span className="text-primary">{highlight}</span>
+                          <span className={highlightClassName ?? "text-primary"}>{highlight}</span>
                         </>
                       )}
                     </h1>

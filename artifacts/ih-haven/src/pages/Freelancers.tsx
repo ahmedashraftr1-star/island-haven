@@ -48,6 +48,8 @@ export default function Freelancers() {
       eyebrow={t({ ar: "فريلانسر دائم · Freelancers", en: "Freelancers · Hire from Gaza" })}
       title={t({ ar: "موهبة", en: "Talent" })}
       highlight={t({ ar: "لا تُحدّها الجغرافيا", en: "without borders" })}
+      titleClassName="text-sand"
+      highlightClassName="text-foreground"
       subtitle={t({
         ar: "فريلانسرز محترفون من قلب غزّة — يعملون مع عملاء حول العالم. وثّق عملك، ابنِ سمعتك، واكسب من أيّ مكان.",
         en: "Professional freelancers from the heart of Gaza — working with clients worldwide. Build your reputation, and earn from anywhere.",
