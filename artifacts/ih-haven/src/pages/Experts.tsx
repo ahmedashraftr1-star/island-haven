@@ -193,6 +193,26 @@ export default function Experts() {
         ar: "جلسات فرديّة مع مؤسّسين وخبراء ومتخصّصين من حول العالم — يرافقونك جلسةً بعد جلسة، حتّى تتحوّل الفكرة إلى مشروع، والمشروع إلى أثر. نؤمن أنّ الموهبة لا تحدّها الجغرافيا.",
         en: "1:1 sessions with founders, experts, and specialists worldwide — with you session after session, turning ideas into ventures and ventures into impact. Talent isn't bound by geography.",
       })}
+      heroAside={
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[20px] border border-border-strong bg-border-strong">
+          <div className="bg-background p-6 sm:p-7">
+            <div className="font-mono font-black text-sand-bright tnum leading-none" style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)" }}>
+              {num(total, lang)}
+            </div>
+            <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted-foreground mt-3 rtl:tracking-normal">
+              {t({ ar: "مرشدًا في الشبكة", en: "mentors in the network" })}
+            </div>
+          </div>
+          <div className="bg-background p-6 sm:p-7">
+            <div className="font-mono font-black text-primary tnum leading-none" style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)" }}>
+              {num(availableCount, lang)}
+            </div>
+            <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-muted-foreground mt-3 rtl:tracking-normal">
+              {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
+            </div>
+          </div>
+        </div>
+      }
     >
       {error && (
         <GlassCard className="p-5 text-primary text-center">{error}</GlassCard>
@@ -206,11 +226,7 @@ export default function Experts() {
         <>
           {/* ── Monumental opening line — one crimson word, acres of space, and the
                only hard numbers in cerulean (real data). No icon-tile pillar grid. ── */}
-          <StatementLead
-            total={total}
-            availableCount={availableCount}
-            reduce={!!reduce}
-          />
+          <StatementLead reduce={!!reduce} />
 
           {/* Search + expertise filter — a calm bar, no glass tiles */}
           <motion.div
@@ -351,16 +367,8 @@ function FilterTag({
    line (one crimson word), then the only hard figures on the page in cerulean
    (real data). No eyebrow kicker, no icon-tile pillars, no aura.
    ────────────────────────────────────────────────────────────────────────── */
-function StatementLead({
-  total,
-  availableCount,
-  reduce,
-}: {
-  total: number;
-  availableCount: number;
-  reduce: boolean;
-}) {
-  const { lang, t } = useLanguage();
+function StatementLead({ reduce }: { reduce: boolean }) {
+  const { t } = useLanguage();
 
   return (
     <section className="max-w-4xl">
@@ -402,35 +410,6 @@ function StatementLead({
         })}
       </motion.p>
 
-      {/* The only hard figures on the page — cerulean numerals, a hairline ledger. */}
-      {total > 0 && (
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 14 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
-          transition={{ duration: 0.75, delay: 0.46, ease: EASE_OUT_EXPO }}
-          className="mt-[clamp(2.25rem,4vw,3.25rem)] flex flex-wrap items-baseline gap-x-[clamp(2rem,4vw,3.5rem)] gap-y-4"
-        >
-          <Figure
-            value={num(total, lang)}
-            label={t({ ar: "مرشدًا في الشبكة", en: "mentors in the network" })}
-          />
-          {availableCount > 0 && (
-            <div className="inline-flex items-baseline gap-2.5">
-              <span className="self-center inline-flex h-1.5 w-1.5 rounded-full bg-sand" aria-hidden />
-              <span
-                className="font-display font-black text-sand-bright tnum leading-none"
-                style={{ fontSize: "clamp(1.6rem, 3vw, 2.1rem)", letterSpacing: "-0.04em" }}
-              >
-                {num(availableCount, lang)}
-              </span>
-              <span className="t-caption text-fg-secondary">
-                {t({ ar: "يستقبل جلسات الآن", en: "available to book now" })}
-              </span>
-            </div>
-          )}
-        </motion.div>
-      )}
     </section>
   );
 }
@@ -492,88 +471,108 @@ function TeamSection({
         )}
       </motion.header>
 
-      <ul>
+      <ul className="mt-[clamp(2rem,4vw,3rem)] grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {experts.map((e, i) => (
-          <ExpertRow key={e.id} e={e} i={i} reduce={reduce} />
+          <ExpertCard key={e.id} e={e} i={i} reduce={reduce} />
         ))}
       </ul>
     </section>
   );
 }
 
-// One mentor — a calm editorial hairline row (no card, no medallion). A real
-// dignified portrait where one exists; otherwise the name simply stands alone.
-function ExpertRow({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolean }) {
+// One mentor — a premium card. A real portrait where one exists; otherwise an
+// elegant gold-initials panel (restrained, NOT a circular medallion). Name,
+// discipline, specialization pills, rating/experience, a status dot, and a
+// "Book a session →" link. The /experts/:id link + expert-card-* testid stay.
+function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolean }) {
   const { lang, t } = useLanguage();
   const areas = splitTags(e.expertise).slice(0, 3);
-  const detail = e.headline || areas.join(lang === "en" ? " · " : " • ");
+  const initials = e.fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("");
 
   return (
-    <li>
+    <li className="h-full">
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 20 }}
         whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.05, ease: EASE_OUT_EXPO }}
-        className="will-change-transform"
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6, delay: Math.min(i, 6) * 0.05, ease: EASE_OUT_EXPO }}
+        className="h-full will-change-transform"
       >
         <Link
           href={`/experts/${e.id}`}
           data-testid={`expert-card-${e.id}`}
-          className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+          className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
         >
-          {/* Portrait — a real face where one exists; no initial-medallion fallback. */}
-          {e.avatarUrl ? (
-            <div className="relative h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 overflow-hidden rounded-full ring-1 ring-white/10">
+          {/* Avatar panel — real face, else an elegant gold-initials panel */}
+          <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-sand-soft">
+            {e.avatarUrl ? (
               <img
                 src={e.avatarUrl}
                 alt={e.fullName}
                 loading="lazy"
-                className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.05]"
               />
-            </div>
-          ) : (
-            <span aria-hidden className="h-[clamp(3.5rem,7vw,5rem)] w-px shrink-0" />
-          )}
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <span
+                  aria-hidden
+                  className="font-mono font-black text-sand-bright"
+                  style={{ fontSize: "clamp(2rem,4vw,2.75rem)", letterSpacing: "0.04em" }}
+                >
+                  {initials}
+                </span>
+              </div>
+            )}
+            <span className="absolute top-3 end-3 inline-flex items-center gap-1.5 rounded-full bg-[#0a0a0a]/70 backdrop-blur-md px-2.5 h-6 text-[10.5px] font-semibold">
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${e.acceptingSessions ? "bg-emerald-400" : "bg-fg-faint"}`} />
+              <span className={e.acceptingSessions ? "text-emerald-300" : "text-fg-secondary"}>
+                {e.acceptingSessions ? t({ ar: "متاح", en: "Open" }) : t({ ar: "مشغول", en: "Busy" })}
+              </span>
+            </span>
+          </div>
 
-          <div className="min-w-0">
+          {/* Body */}
+          <div className="flex flex-1 flex-col p-5">
             <h3
               title={e.fullName}
-              className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
-              style={{ fontSize: "clamp(1.4rem,3.2vw,2.4rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+              className="font-display font-bold text-foreground text-[18px] leading-tight line-clamp-1 group-hover:text-primary transition-colors"
             >
               {e.fullName}
             </h3>
-            {detail && (
-              <p title={detail} className="t-body text-[15px] md:text-[16px] mt-1.5 line-clamp-1">{detail}</p>
+            {e.headline && (
+              <p title={e.headline} className="t-caption text-fg-secondary mt-1 line-clamp-1">{e.headline}</p>
             )}
-          </div>
-
-          {/* Quiet status + experience + rating, start-aligned to the logical end. */}
-          <div className="hidden md:flex items-center gap-x-6 whitespace-nowrap justify-self-end">
-            {e.ratingCount > 0 && e.ratingAvg != null && (
-              <span className="t-caption text-fg-secondary tnum">
-                {e.ratingAvg.toFixed(1)} · {num(e.ratingCount, lang)}
-              </span>
+            {areas.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {areas.map((a) => (
+                  <span key={a} className="inline-flex items-center rounded-full border border-border-strong px-2.5 py-0.5 text-[11px] text-fg-secondary">
+                    {a}
+                  </span>
+                ))}
+              </div>
             )}
-            {e.yearsExperience > 0 && (
-              <span className="t-caption text-fg-secondary tnum">
-                {lang === "en"
-                  ? `${e.yearsExperience}+ yrs`
-                  : `${toArabicNum(e.yearsExperience)}+ سنة`}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-2 t-caption">
-              {e.acceptingSessions ? (
-                <>
-                  <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-sand" />
-                  <span className="text-sand font-semibold">{t({ ar: "متاح", en: "Open" })}</span>
-                </>
+            <div className="mt-auto pt-4 flex items-center justify-between gap-2">
+              {e.ratingCount > 0 && e.ratingAvg != null ? (
+                <span className="font-mono text-[12px] text-sand tnum">
+                  {e.ratingAvg.toFixed(1)} · {num(e.ratingCount, lang)}
+                </span>
+              ) : e.yearsExperience > 0 ? (
+                <span className="font-mono text-[12px] text-fg-secondary tnum">
+                  {lang === "en" ? `${e.yearsExperience}+ yrs` : `${toArabicNum(e.yearsExperience)}+ سنة`}
+                </span>
               ) : (
-                <span className="text-fg-secondary">{t({ ar: "مشغول", en: "Busy" })}</span>
+                <span />
               )}
-              <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </span>
+              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary">
+                {t({ ar: "احجز جلسة", en: "Book a session" })}
+                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              </span>
+            </div>
           </div>
         </Link>
       </motion.div>
