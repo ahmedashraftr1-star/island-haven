@@ -54,12 +54,15 @@ export const NAV_STRUCTURE: NavEntry[] = [
         label: { ar: "عن آيلاند هيفن", en: "About Us" },
         items: [
           { icon: "Heart", title: { ar: "رؤيتنا وقصّتنا", en: "Our Vision" }, desc: { ar: "من نحن وكيف بدأت الفكرة", en: "Who we are & how it began" }, href: "/about" },
+          { icon: "Users", title: { ar: "الفريق", en: "Our Team" }, desc: { ar: "الوجوه التي تقف خلف الحاضنة", en: "The people behind Island Haven" }, href: "/team" },
+          { icon: "Briefcase", title: { ar: "الوظائف", en: "Careers" }, desc: { ar: "انضمّ إلى فريق آيلاند", en: "Join the Island Haven team" }, href: "/careers", badge: "new" },
           { icon: "Newspaper", title: { ar: "الغرفة الإعلاميّة", en: "Media Kit" }, desc: { ar: "شعارات، صور، وملفّ صحفيّ", en: "Logos, photos & press kit" }, href: "/media" },
           { icon: "Phone", title: { ar: "تواصل معنا", en: "Contact" }, desc: { ar: "نردّ خلال ٢٤ ساعة", en: "We reply within 24 hours" }, href: "/contact" },
         ],
       },
     ],
   },
+  { label: { ar: "الوظائف", en: "Careers" }, href: "/careers" },
   { label: { ar: "المستثمرون", en: "Investors" }, href: "/investors" },
   { label: { ar: "الشركاء", en: "Partners" }, href: "/partners" },
 ];
@@ -74,6 +77,8 @@ export const MOBILE_LINKS: { label: Bi; href: string }[] = [
   { label: { ar: "الفعاليّات", en: "Events" }, href: "/events" },
   { label: { ar: "المدوّنة", en: "Blog" }, href: "/blog" },
   { label: { ar: "رؤيتنا", en: "About" }, href: "/about" },
+  { label: { ar: "الفريق", en: "Team" }, href: "/team" },
+  { label: { ar: "الوظائف", en: "Careers" }, href: "/careers" },
 ];
 
 export interface FooterCol {

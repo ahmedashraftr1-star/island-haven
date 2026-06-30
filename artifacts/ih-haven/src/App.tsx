@@ -14,6 +14,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 const Apply = lazy(() => import("@/pages/Apply"));
 const Book = lazy(() => import("@/pages/Book"));
+const Careers = lazy(() => import("@/pages/Careers"));
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
@@ -161,6 +162,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/apply" component={Apply} />
       <Route path="/book" component={Book} />
+      <Route path="/careers" component={Careers} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
