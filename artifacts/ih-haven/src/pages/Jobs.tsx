@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
 import { Link } from "wouter";
+import { GLOBAL_JOBS } from "@/data/globalJobs";
 
 interface Job {
   id: number;
@@ -44,9 +45,15 @@ const CAT_LABELS: Record<string, string> = {
   tech: "تقنية",
   design: "تصميم",
   marketing: "تسويق",
+  data: "بيانات",
   sales: "مبيعات",
   operations: "عمليات",
   finance: "مالية",
+  security: "أمن",
+  translation: "ترجمة",
+  admin: "إدارة",
+  management: "إدارة برامج",
+  training: "تدريب",
   other: "أخرى",
 };
 
@@ -142,7 +149,12 @@ export default function Jobs() {
     staleTime: 60_000,
   });
 
-  const jobs = data?.jobs ?? [];
+  // The /jobs board is API-driven; we widen it "to the whole world" by merging in a
+  // curated set of international/remote roles (frontend-only — server is off-limits).
+  const jobs: Job[] = [...(data?.jobs ?? []), ...GLOBAL_JOBS];
+  const remoteCount = jobs.filter((j) => j.type === "remote").length;
+  const localCount = jobs.length - remoteCount;
+  const nf = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   const filtered = jobs.filter((j) => {
     const matchCat = activeCategory === "all" || j.category === activeCategory;
     const q = search.toLowerCase();
@@ -166,6 +178,38 @@ export default function Jobs() {
       title={t(jp.title)}
       highlight={t(jp.highlight)}
       subtitle={t(jp.subtitle)}
+      heroAside={
+        <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "وظائف مفتوحة", en: "Open positions" })}
+          </div>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span
+              className="font-mono font-black text-sand-bright tnum leading-none"
+              style={{ fontSize: "clamp(2.8rem,6vw,4rem)" }}
+            >
+              {nf(jobs.length)}
+            </span>
+            <span className="t-caption text-fg-secondary">{t({ ar: "وظيفة مفتوحة", en: "roles open" })}</span>
+          </div>
+          <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
+          <dl className="grid grid-cols-2 gap-4">
+            <div>
+              <dt className="font-mono font-bold text-foreground tnum text-[22px] leading-none">{nf(remoteCount)}</dt>
+              <dd className="t-caption text-fg-secondary mt-1.5">{t({ ar: "فرصة عن بُعد", en: "remote roles" })}</dd>
+            </div>
+            <div>
+              <dt className="font-mono font-bold text-foreground tnum text-[22px] leading-none">{nf(localCount)}</dt>
+              <dd className="t-caption text-fg-secondary mt-1.5">{t({ ar: "فرصة محلّيّة", en: "local roles" })}</dd>
+            </div>
+          </dl>
+          <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span className="text-[13px] font-semibold text-foreground">{t({ ar: "تُضاف فرص جديدة أسبوعيًّا", en: "New roles added weekly" })}</span>
+          </div>
+        </div>
+      }
     >
       <div className="space-y-7">
         {/* Search + Filters */}
