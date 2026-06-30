@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/landing/Header";
+import { Footer } from "@/components/landing/Footer";
 
 export function PageShell({
   eyebrow,
@@ -32,7 +33,7 @@ export function PageShell({
   return (
     <div
       dir={dir}
-      className="relative min-h-screen overflow-hidden bg-background text-foreground"
+      className="relative flex min-h-screen flex-col overflow-hidden bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[45vh] brand-aura opacity-50" />
@@ -40,7 +41,7 @@ export function PageShell({
       {/* Unified site header — the same mega-menu + ⌘K nav used everywhere. */}
       <Header />
 
-      <div className="relative z-10 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
+      <div className="relative z-10 flex-1 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
           {(eyebrow || title || subtitle || heroAside) && (
             <motion.div
@@ -92,6 +93,10 @@ export function PageShell({
           {children}
         </div>
       </div>
+
+      {/* Unified site footer — the same one Home/About render, now on every
+          PageShell page so no inner page ends on an abrupt black void. */}
+      <Footer />
     </div>
   );
 }
