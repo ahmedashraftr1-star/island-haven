@@ -215,6 +215,15 @@ export default function PublicProfile() {
                 <b className="text-foreground font-bold">{data.followingCount ?? 0}</b>{" "}
                 {t({ ar: "يتابِع", en: "following" })}
               </span>
+              {u.createdAt && (
+                <span className="text-fg-faint">
+                  {t({ ar: "انضمّ ", en: "joined " })}
+                  {new Date(u.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
             </div>
             {u.bio && (
               <p className="text-fg-secondary text-[14.5px] leading-[1.95] mb-4 whitespace-pre-wrap">
@@ -269,6 +278,12 @@ export default function PublicProfile() {
                 <Phone className="w-3.5 h-3.5" /> {t({ ar: "واتساب", en: "WhatsApp" })}
               </a>
             )}
+            <Link
+              href="/contact"
+              className="cta-fill inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold"
+            >
+              {t({ ar: "تواصل عبر آيلاند", en: "Reach via Island Haven" })}
+            </Link>
           </div>
         </div>
 
