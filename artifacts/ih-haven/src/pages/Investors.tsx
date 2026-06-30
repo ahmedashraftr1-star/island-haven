@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -75,6 +76,33 @@ export default function Investors() {
       title={t(p.title)}
       highlight={t(p.highlight)}
       subtitle={t(p.subtitle)}
+      heroAside={
+        <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "شبكة الدّاعمين", en: "Backer network" })}
+          </div>
+          <p className="t-body text-[15px] mt-4 leading-relaxed">
+            {t({
+              ar: "نعمل مع مستثمرين ومانحين دوليّين ومحلّيّين يؤمنون أنّ موهبة غزّة استثمارٌ لا صدقة. القائمة الكاملة في الأسفل.",
+              en: "We work with international and local investors and donors who believe Gaza's talent is an investment, not charity. The full roster is below.",
+            })}
+          </p>
+          <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span className="text-[14px] font-semibold text-foreground">
+              {t({ ar: "مفتوحون لشراكات جديدة", en: "Open to new partnerships" })}
+            </span>
+          </div>
+          <Link
+            href="/contact"
+            className="cta-fill mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold"
+          >
+            {t({ ar: "تحدّث مع الفريق", en: "Talk to the team" })}
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          </Link>
+        </div>
+      }
     >
       <div className="space-y-[clamp(5rem,11vw,9rem)]">
         {/* ── Why Invest — a monumental statement over a numbered hairline ledger ── */}
