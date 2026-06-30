@@ -143,6 +143,19 @@ export default function Programs() {
         ar: "نأخذ مشروعك من فكرةٍ نيّئة إلى منتجٍ يقف على قدميه — في مسارٍ منظَّم: تقديم، دفعة، إرشاد فرديّ وأدوات حقيقيّة، ثمّ Demo Day أمام شبكة من الدّاعمين. مجّانًا، من قلب غزّة.",
         en: "We take your venture from a raw idea to a product that stands on its own — through a structured track: apply, join a cohort, get 1:1 mentorship and real tooling, then a Demo Day to our network of backers. Free, from the heart of Gaza.",
       })}
+      heroAside={
+        <div className="inline-flex items-center gap-5 rounded-[20px] border border-border-strong bg-surface-2/40 px-7 py-8">
+          <span
+            className="font-mono font-black text-sand-bright tnum leading-none"
+            style={{ fontSize: "clamp(3.25rem,8vw,5.5rem)" }}
+          >
+            {num(rows?.length ?? 0, lang)}
+          </span>
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-muted-foreground rtl:tracking-normal leading-relaxed max-w-[8rem]">
+            {t({ ar: "مسارات احتضان مفتوحة", en: "active incubation tracks" })}
+          </span>
+        </div>
+      }
     >
       {error && (
         <GlassCard className="p-5 text-primary text-center" testId="programs-error">
@@ -197,7 +210,7 @@ export default function Programs() {
               </motion.div>
             )}
 
-            <ul className="mt-[clamp(2.5rem,5vw,4rem)] border-t border-border-strong/60">
+            <ul className="mt-[clamp(2.5rem,5vw,4rem)] space-y-3 sm:space-y-4">
               {sorted.map((p, i) => (
                 <ProgramRowItem key={p.id} p={p} i={i} reduce={!!reduce} />
               ))}
@@ -778,7 +791,7 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
         <Link
           href={`/programs/${p.id}`}
           data-testid={`program-card-${p.id}`}
-          className={`group grid items-center gap-x-[clamp(1.25rem,3vw,2.75rem)] gap-y-3 border-b border-border-strong/60 py-[clamp(1.75rem,3.5vw,3rem)] transition-colors hover:border-border-strong ${
+          className={`group grid items-center gap-x-[clamp(1.25rem,3vw,2.5rem)] gap-y-3 rounded-[18px] border border-border-strong bg-surface-2/40 px-[clamp(1.25rem,3vw,2rem)] py-[clamp(1.5rem,3vw,2rem)] transition-[background-color,border-color] duration-300 hover:border-primary/40 hover:bg-primary/[0.04] ${
             p.coverUrl
               ? "grid-cols-[auto_1fr] md:grid-cols-[clamp(7rem,12vw,11rem)_minmax(0,1fr)_auto]"
               : "grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto]"
@@ -801,9 +814,9 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 mb-2">
               {open ? (
-                <span className="inline-flex items-center gap-1.5 t-caption text-fg-secondary">
-                  <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-                  <span className="font-semibold">{statusLabel}</span>
+                <span className="inline-flex items-center gap-1.5 t-caption">
+                  <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="font-semibold text-emerald-300">{statusLabel}</span>
                 </span>
               ) : (
                 <span className="t-caption text-fg-secondary">{statusLabel}</span>
