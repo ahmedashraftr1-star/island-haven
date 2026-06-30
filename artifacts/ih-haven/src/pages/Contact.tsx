@@ -129,6 +129,43 @@ export default function Contact() {
         ar: "سؤال، فكرة، أو شراكة — اكتب لنا متى شئت. الباب مفتوح، والرّدّ مضمون.",
         en: "A question, an idea, a partnership — write to us anytime. The door is open, and a reply is guaranteed.",
       })}
+      heroAside={
+        <div
+          className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8"
+          data-testid="contact-location-card"
+        >
+          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+            {t({ ar: "موقعنا", en: "Our location" })}
+          </span>
+          <h3
+            className="font-display font-bold text-foreground mt-3 leading-tight"
+            style={{ fontSize: "clamp(1.6rem,3.4vw,2.4rem)", letterSpacing: "-0.02em" }}
+          >
+            {t({ ar: "غزّة، فلسطين", en: "Gaza, Palestine" })}
+          </h3>
+          <p className="font-mono text-[12px] text-fg-faint tracking-[0.06em] mt-2" dir="ltr">
+            31°30′N&nbsp;&nbsp;34°28′E
+          </p>
+
+          <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
+
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span className="text-[14px] font-semibold text-foreground">
+              {t({ ar: "متاحون الآن", en: "Available now" })}
+            </span>
+          </div>
+          <p className="t-caption text-fg-secondary mt-2">
+            {t({
+              ar: "الأحد – الخميس · ٩ص – ٦م بتوقيت غزّة",
+              en: "Sun – Thu · 9am – 6pm Gaza time",
+            })}
+          </p>
+          <p className="t-caption text-fg-faint mt-1">
+            {t({ ar: "نردّ خلال ٢٤ ساعة.", en: "We reply within 24 hours." })}
+          </p>
+        </div>
+      }
     >
       <div className="space-y-[clamp(4rem,9vw,7rem)]">
         {/* ── Channels — three monumental tappable rows ── */}

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform, useInView } from "framer-motion";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
 import { About as AboutHero } from "@/components/landing/About";
@@ -11,6 +11,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { useCountUp } from "@/hooks/use-count-up";
 
 /* ────────────────────────────────────────────────────────────────────────────
    /about — the story, told the Apple way: SCALE + SPACE + RESTRAINT. Eight beats:
@@ -104,25 +105,42 @@ function PullQuote({
     Mono numerals + tracked labels. Bilingual + RTL + reduced-motion safe. */
 function StatsBar() {
   const { t, lang } = useLanguage();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const nf = (n: number) =>
+    new Intl.NumberFormat(lang === "en" ? "en-US" : "ar-EG").format(n);
 
   // Every figure here is already stated elsewhere on the site (the /about goal
   // block, the live /numbers + /ventures readings). No invented funding or
-  // country counts — honest, defensible numbers only.
+  // country counts — honest, defensible numbers only. The founding YEAR never
+  // counts up (it's a date, not a quantity).
   const stats = [
     {
-      value: lang === "en" ? "1,000+" : "+١٬٠٠٠",
+      target: 1000,
+      animate: true,
+      duration: 1500,
+      render: (v: number) => (lang === "en" ? `${nf(v)}+` : `+${nf(v)}`),
       label: t({ ar: "كفاءة غزّية نؤهّلها", en: "Gazan talents in our goal" }),
     },
     {
-      value: lang === "en" ? "2024" : "٢٠٢٤",
+      target: 2024,
+      animate: false,
+      duration: 0,
+      render: () => (lang === "en" ? "2024" : "٢٠٢٤"),
       label: t({ ar: "عام التأسيس", en: "Founded" }),
     },
     {
-      value: lang === "en" ? "100%" : "٪١٠٠",
+      target: 100,
+      animate: true,
+      duration: 1200,
+      render: (v: number) => (lang === "en" ? `${nf(v)}%` : `٪${nf(v)}`),
       label: t({ ar: "مجّانًا، دائمًا", en: "Free, always" }),
     },
     {
-      value: lang === "en" ? "3" : "٣",
+      target: 3,
+      animate: true,
+      duration: 800,
+      render: (v: number) => nf(v),
       label: t({ ar: "سنوات لإغلاق الفجوة", en: "Years to close the gap" }),
     },
   ];
@@ -132,7 +150,7 @@ function StatsBar() {
       className="relative bg-surface-1 overflow-hidden"
       data-testid="about-stats-bar"
     >
-      <div className="container-ih relative">
+      <div className="container-ih relative" ref={ref}>
         <Reveal>
           <dl className="grid grid-cols-2 lg:grid-cols-4 border-y border-border-strong/60 divide-x divide-y lg:divide-y-0 divide-border-strong/40">
             {stats.map((s, i) => (
@@ -145,7 +163,13 @@ function StatsBar() {
                   className="font-display font-black text-sand tnum leading-none"
                   style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", letterSpacing: "-0.03em" }}
                 >
-                  {s.value}
+                  <StatFigure
+                    target={s.target}
+                    animate={s.animate}
+                    duration={s.duration}
+                    render={s.render}
+                    inView={inView}
+                  />
                 </dt>
                 <dd className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.12em] text-fg-secondary max-w-[18ch]">
                   {s.label}
@@ -157,6 +181,25 @@ function StatsBar() {
       </div>
     </section>
   );
+}
+
+// One figure in the bar — counts 0→target on first view; a static figure (the
+// founding year) simply renders its final value, never animating.
+function StatFigure({
+  target,
+  animate,
+  duration,
+  render,
+  inView,
+}: {
+  target: number;
+  animate: boolean;
+  duration: number;
+  render: (v: number) => string;
+  inView: boolean;
+}) {
+  const count = useCountUp(target, duration || 1200, animate && inView);
+  return <>{render(animate ? count : target)}</>;
 }
 
 /** Vision & Mission — two monumental statements, hairline-divided, no numerals. */

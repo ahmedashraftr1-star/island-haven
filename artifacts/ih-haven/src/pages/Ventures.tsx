@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useInView } from "framer-motion";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
@@ -9,6 +9,7 @@ import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ventureIdentity } from "@/lib/ventureIdentity";
 import { Ticker } from "@/components/landing/Ticker";
+import { useCountUp } from "@/hooks/use-count-up";
 
 // The sectors the incubator builds across — a calm, evergreen roster that glides
 // in the hero aside (font-mono, faint). Not live data; a qualitative register of
@@ -230,29 +231,32 @@ function StatRow({
   reduce: boolean;
 }) {
   const { t } = useLanguage();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
   // Third box: prefer the real sector spread; if it's too thin to read as a
   // figure (a forming portfolio), fall back to the 100%-free truth.
   const thirdIsSectors = sectorCount >= 2;
   return (
     <motion.div
+      ref={ref}
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT_EXPO }}
       className="grid grid-cols-1 sm:grid-cols-3 border border-border-strong rounded-[20px] overflow-hidden divide-y sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse divide-border-strong"
     >
       <StatBox
-        value={num(total, lang)}
+        value={<AnimatedNum target={total} lang={lang} inView={inView} duration={1000} />}
         label={t({ ar: "في المحفظة", en: "in the portfolio" })}
         hint={t({ ar: "كلّها صُنعت داخل الحاضنة", en: "all built inside the incubator" })}
       />
       <StatBox
-        value={launched > 0 ? num(launched, lang) : "—"}
+        value={launched > 0 ? <AnimatedNum target={launched} lang={lang} inView={inView} duration={900} /> : "—"}
         label={t({ ar: "في السّوق الآن", en: "live in market" })}
         hint={t({ ar: "بمرحلة الإطلاق أو التوسّع", en: "at launch or scaling stage" })}
       />
       {thirdIsSectors ? (
         <StatBox
-          value={num(sectorCount, lang)}
+          value={<AnimatedNum target={sectorCount} lang={lang} inView={inView} duration={800} />}
           label={t({ ar: "قطاعات نبني فيها", en: "sectors represented" })}
           hint={t({ ar: "من القانون إلى الصحّة إلى التعليم", en: "from legal to health to education" })}
         />
@@ -267,9 +271,26 @@ function StatRow({
   );
 }
 
+// Counts 0→target on first view, then renders the Arabic/Latin numeral via the
+// page's own num() formatter. Honours reduced-motion (snaps) inside useCountUp.
+function AnimatedNum({
+  target,
+  lang,
+  inView,
+  duration = 1100,
+}: {
+  target: number;
+  lang: Lang;
+  inView: boolean;
+  duration?: number;
+}) {
+  const count = useCountUp(target, duration, inView);
+  return <>{num(count, lang)}</>;
+}
+
 // A single stat box — a monumental font-mono numeral, a calm mono label, and a
 // faint supporting line. tnum keeps numerals aligned.
-function StatBox({ value, label, hint }: { value: string; label: string; hint: string }) {
+function StatBox({ value, label, hint }: { value: ReactNode; label: string; hint: string }) {
   return (
     <div className="p-[clamp(1.25rem,2.6vw,2rem)]">
       <div

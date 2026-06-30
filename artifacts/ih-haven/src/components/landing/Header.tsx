@@ -28,6 +28,7 @@ import {
   type LucideProps,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { LangToggle } from "@/components/nav/LangToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -236,6 +237,11 @@ export function Header() {
   const isHome = loc === "/" || loc === "";
   const scrolled = scrolledRaw || !isHome;
 
+  // Slide the bar out of the way on scroll-down, bring it back on scroll-up.
+  // Never while a menu is open, never near the top, never under reduced-motion.
+  const scrollDir = useScrollDirection(8);
+  const hidden = !reduce && scrollDir === "down" && !megaOpen && !open;
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
     onScroll();
@@ -304,7 +310,9 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      } ${
         scrolled || megaOpen
           ? "bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10 py-2.5"
           : "bg-transparent py-4"
