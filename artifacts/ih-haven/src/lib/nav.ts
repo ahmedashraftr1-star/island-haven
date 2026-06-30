@@ -40,12 +40,15 @@ export const NAV_STRUCTURE: NavEntry[] = [
           { icon: "Rocket", title: { ar: "مشاريعنا", en: "Ventures" }, desc: { ar: "محفظة المشاريع المحتضَنة", en: "Our incubated portfolio" }, href: "/ventures" },
           { icon: "CalendarDays", title: { ar: "الفعاليّات", en: "Events" }, desc: { ar: "ورش عمل وجلسات وأيّام عرض", en: "Workshops, talks & demo days" }, href: "/events" },
           { icon: "FileText", title: { ar: "المدوّنة والرّؤى", en: "Blog & Insights" }, desc: { ar: "تقارير واستراتيجيّات من الخبراء", en: "Reports & strategy from experts" }, href: "/blog", badge: "new" },
+          { icon: "Briefcase", title: { ar: "لوحة الفرص", en: "Job Board" }, desc: { ar: "وظائف من شركاء محلّيّين ودوليّين", en: "Roles from local & global partners" }, href: "/jobs" },
         ],
       },
       {
         label: { ar: "الشبكة", en: "Network" },
         items: [
           { icon: "Users", title: { ar: "مرشدونا", en: "Experts" }, desc: { ar: "خبراء ومرشدون من كلّ القطاعات", en: "Mentors across every sector" }, href: "/experts" },
+          { icon: "Sparkles", title: { ar: "فريلانسر دائم", en: "Freelancers" }, desc: { ar: "وظّف موهبة غزّة لمشروعك", en: "Hire Gaza's talent for your project" }, href: "/freelancers", badge: "new" },
+          { icon: "Users", title: { ar: "المنتسبون", en: "Members" }, desc: { ar: "دليل مجتمع آيلاند هيفن", en: "The Island Haven community" }, href: "/members" },
           { icon: "Briefcase", title: { ar: "المستثمرون", en: "Investors" }, desc: { ar: "شركاء استثماريّون ومانحون دوليّون", en: "Investors & international donors" }, href: "/investors" },
           { icon: "Handshake", title: { ar: "الشركاء", en: "Partners" }, desc: { ar: "مؤسّسات وشركات داعمة للنظام", en: "Institutions backing the ecosystem" }, href: "/partners", badge: "new" },
         ],
@@ -55,14 +58,14 @@ export const NAV_STRUCTURE: NavEntry[] = [
         items: [
           { icon: "Heart", title: { ar: "رؤيتنا وقصّتنا", en: "Our Vision" }, desc: { ar: "من نحن وكيف بدأت الفكرة", en: "Who we are & how it began" }, href: "/about" },
           { icon: "Users", title: { ar: "الفريق", en: "Our Team" }, desc: { ar: "الوجوه التي تقف خلف الحاضنة", en: "The people behind Island Haven" }, href: "/team" },
-          { icon: "Briefcase", title: { ar: "الوظائف", en: "Careers" }, desc: { ar: "انضمّ إلى فريق آيلاند", en: "Join the Island Haven team" }, href: "/careers", badge: "new" },
+          { icon: "Heart", title: { ar: "انضمّ لفريقنا", en: "Join Our Team" }, desc: { ar: "وظائف آيلاند هيفن الدّاخليّة", en: "Island Haven's internal roles" }, href: "/careers", badge: "new" },
           { icon: "Newspaper", title: { ar: "الغرفة الإعلاميّة", en: "Media Kit" }, desc: { ar: "شعارات، صور، وملفّ صحفيّ", en: "Logos, photos & press kit" }, href: "/media" },
           { icon: "Phone", title: { ar: "تواصل معنا", en: "Contact" }, desc: { ar: "نردّ خلال ٢٤ ساعة", en: "We reply within 24 hours" }, href: "/contact" },
         ],
       },
     ],
   },
-  { label: { ar: "الوظائف", en: "Careers" }, href: "/careers" },
+  { label: { ar: "الوظائف", en: "Jobs" }, href: "/jobs" },
   { label: { ar: "المستثمرون", en: "Investors" }, href: "/investors" },
   { label: { ar: "الشركاء", en: "Partners" }, href: "/partners" },
 ];
@@ -78,7 +81,10 @@ export const MOBILE_LINKS: { label: Bi; href: string }[] = [
   { label: { ar: "المدوّنة", en: "Blog" }, href: "/blog" },
   { label: { ar: "رؤيتنا", en: "About" }, href: "/about" },
   { label: { ar: "الفريق", en: "Team" }, href: "/team" },
-  { label: { ar: "الوظائف", en: "Careers" }, href: "/careers" },
+  { label: { ar: "المنتسبون", en: "Members" }, href: "/members" },
+  { label: { ar: "فريلانسر دائم", en: "Freelancers" }, href: "/freelancers" },
+  { label: { ar: "لوحة الفرص", en: "Jobs" }, href: "/jobs" },
+  { label: { ar: "انضمّ لفريقنا", en: "Careers" }, href: "/careers" },
 ];
 
 export interface FooterCol {

@@ -168,6 +168,28 @@ export default function Careers() {
           </div>
         </section>
 
+        {/* ── Cross-link to the global job board ── */}
+        <Link
+          href="/jobs"
+          className="group flex items-center justify-between gap-4 rounded-[14px] border border-primary/25 bg-primary/[0.05] px-5 py-4 transition-colors hover:border-primary/50"
+        >
+          <div className="min-w-0">
+            <p className="font-display font-bold text-foreground text-[15px]">
+              {t({ ar: "هل تبحث عن فرصٍ خارج آيلاند؟", en: "Looking beyond Island Haven?" })}
+            </p>
+            <p className="t-caption text-fg-secondary mt-1">
+              {t({
+                ar: "استعرض فرص العمل من شركائنا المحلّيّين والدوليّين.",
+                en: "Browse roles from our local & global partners.",
+              })}
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-primary">
+            {t({ ar: "لوحة الفرص", en: "Job board" })}
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </span>
+        </Link>
+
         {/* ── Open positions ── */}
         <section>
           <motion.div

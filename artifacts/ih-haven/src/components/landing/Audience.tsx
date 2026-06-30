@@ -1,8 +1,11 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useContentSection } from "@/hooks/use-content";
+import { Link } from "wouter";
+import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { FREELANCERS } from "@/data/freelancers";
 
 /**
  * Audience — "لِمَن آيلاند؟". Reframed for العظمة: scale, space, restraint.
@@ -12,7 +15,7 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  * medallions, no aura blob, no uniform card grid. Type and one image carry it.
  */
 export function Audience() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   // Preserve the CMS hook so the section stays editable from the content panel.
   const cms = useContentSection("audience", {});
@@ -101,6 +104,36 @@ export function Audience() {
               en: "Talent is bound neither by geography nor by circumstance. Four tracks find their place here.",
             })}
           </motion.p>
+
+          {/* Talent cross-link — a quiet, compact bridge to the freelancer marketplace */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8%" }}
+            transition={{ duration: 0.7, delay: 0.2, ease: EASE_OUT_EXPO }}
+            className="mt-10 sm:mt-12"
+          >
+            <Link
+              href="/freelancers"
+              className="group inline-flex items-center gap-4 rounded-[14px] border border-border-strong bg-surface-2/40 px-5 py-4 transition-colors hover:border-primary/40"
+            >
+              <span
+                className="font-mono font-black text-sand-bright tnum leading-none"
+                style={{ fontSize: "1.9rem" }}
+              >
+                {new Intl.NumberFormat(lang === "en" ? "en-US" : "ar-EG").format(FREELANCERS.length)}
+              </span>
+              <span className="text-start">
+                <span className="block t-caption text-fg-secondary">
+                  {t({ ar: "موهبة فريلانسر في الشبكة", en: "freelancers listed" })}
+                </span>
+                <span className="mt-0.5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary">
+                  {t({ ar: "استعرض المواهب", en: "Browse talent" })}
+                  <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                </span>
+              </span>
+            </Link>
+          </motion.div>
         </div>
 
         {/* One large, calm full-bleed photograph — restraint, not a card deck. */}
