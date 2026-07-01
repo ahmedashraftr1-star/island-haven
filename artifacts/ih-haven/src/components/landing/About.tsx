@@ -49,46 +49,76 @@ export function About() {
   ];
 
   return (
-    <section id="about" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="about" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(3.5rem, 8vh, 6rem)" }}>
       <div className="container-ih relative">
-        {/* ── Monumental opening — one quiet line, one crimson word, acres of space ── */}
-        <header className="max-w-4xl">
-          <motion.h2
-            className="font-display text-foreground"
-            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
-          >
-            {[
-              t({ ar: "وُلدنا في", en: "Born in the" }),
-              t({ ar: "قلب", en: "heart of" }),
-              <span key="accent" className="text-primary">{t({ ar: "غزّة.", en: "Gaza." })}</span>,
-            ].map((ln, i) => (
-              <motion.span
-                key={i}
-                className="block will-change-transform"
-                initial={reduce ? false : { opacity: 0, y: 30 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
-              >
-                {ln}
-              </motion.span>
-            ))}
-          </motion.h2>
+        {/* ── Hero split: monumental heading (start) ↔ hook + mini-stats (opposite) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-[clamp(3rem,6vw,8rem)] gap-y-12 items-start">
+          <div className="order-first">
+            <div className="mb-6 flex items-center gap-3">
+              <span aria-hidden className="block h-px w-5 shrink-0 bg-primary" />
+              <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary rtl:tracking-normal">
+                <span className="opacity-50">OUR STORY · </span>قصّتنا
+              </span>
+            </div>
+            <motion.h2
+              className="font-display text-foreground"
+              style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+            >
+              {[
+                t({ ar: "وُلدنا في", en: "Born in the" }),
+                t({ ar: "قلب", en: "heart of" }),
+                <span key="accent" className="text-primary">{t({ ar: "غزّة.", en: "Gaza." })}</span>,
+              ].map((ln, i) => (
+                <motion.span
+                  key={i}
+                  className="block will-change-transform"
+                  initial={reduce ? false : { opacity: 0, y: 30 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
+                >
+                  {ln}
+                </motion.span>
+              ))}
+            </motion.h2>
+          </div>
 
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 18 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-8%" }}
-            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
-            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
-            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
-          >
-            {t({
-              ar: "لم تولد آيلاند هيفن في مكتبٍ مريح، ولا في ظروفٍ مثالية — بل وسط حربٍ لم تُبقِ حجرًا على حجر، ولا حلمًا بلا جرح. لكنّنا رفضنا أن نقف متفرّجين.",
-              en: "Island Haven wasn't born in a comfortable office or ideal conditions — but amid a war that left no stone, and no dream, untouched. We refused to stand by.",
-            })}
-          </motion.p>
-        </header>
+          <div className="order-last flex flex-col gap-8 lg:pt-[clamp(1rem,3vw,2.5rem)]">
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
+              className="text-fg-secondary"
+              style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
+            >
+              {t({
+                ar: "لم تولد آيلاند هيفن في مكتبٍ مريح، ولا في ظروفٍ مثالية — بل وسط حربٍ لم تُبقِ حجرًا على حجر، ولا حلمًا بلا جرح. لكنّنا رفضنا أن نقف متفرّجين.",
+                en: "Island Haven wasn't born in a comfortable office or ideal conditions — but amid a war that left no stone, and no dream, untouched. We refused to stand by.",
+              })}
+            </motion.p>
+            <Reveal delay={0.06}>
+              <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border-strong bg-border-strong">
+                {[
+                  { n: lang === "en" ? "2024" : "٢٠٢٤", ar: "تأسّسنا", en: "EST" },
+                  { n: lang === "en" ? "57+" : "٥٧+", ar: "منتسب", en: "MEMBERS" },
+                  { n: lang === "en" ? "100%" : "١٠٠٪", ar: "مجّانًا", en: "FREE" },
+                ].map((stat) => (
+                  <div key={stat.en} className="bg-background px-4 py-5 text-center">
+                    <div
+                      className="font-mono font-bold text-sand tabular-nums leading-none"
+                      style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)" }}
+                    >
+                      {stat.n}
+                    </div>
+                    <div className="t-caption text-fg-secondary mt-1">{stat.ar}</div>
+                    <div className="font-mono text-[9px] tracking-widest uppercase text-fg-faint mt-0.5">{stat.en}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </div>
 
         {/* ── The narrative — calm editorial prose, no boxes ── */}
         <div className="mt-[clamp(3.5rem,7vw,6rem)] max-w-3xl space-y-7" style={{ fontSize: "clamp(1.05rem,1.5vw,1.2rem)", lineHeight: 1.85 }}>
