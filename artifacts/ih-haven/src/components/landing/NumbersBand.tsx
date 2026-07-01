@@ -101,7 +101,7 @@ export function NumbersBand() {
   const fmt = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
 
   return (
-    <section id="numbers" className="relative bg-surface-1 section-y overflow-hidden">
+    <section id="numbers" className="relative bg-surface-1 section-y overflow-hidden border-t border-white/[0.06]">
       <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-60" />
 
       <div className="container-ih relative">

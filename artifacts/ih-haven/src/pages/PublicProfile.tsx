@@ -184,10 +184,10 @@ export default function PublicProfile() {
         {/* Apple-grade unified header — a subtle radial aura behind avatar + info + actions */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.045]"
+          className="pointer-events-none absolute inset-0 opacity-[0.08]"
           style={{
             background:
-              "radial-gradient(circle at 15% 50%, #BFA06A 0%, transparent 60%), radial-gradient(circle at 85% 20%, #E8341C 0%, transparent 50%)",
+              "radial-gradient(ellipse 80% 70% at 50% 0%, #E8341C 0%, transparent 60%), radial-gradient(circle at 12% 60%, #BFA06A 0%, transparent 55%)",
           }}
         />
         <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">

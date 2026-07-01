@@ -85,7 +85,7 @@ export function WhatYouGet() {
   return (
     <section
       id="what-you-get"
-      className="relative bg-background overflow-hidden"
+      className="relative bg-surface-1 overflow-hidden border-t border-white/[0.06]"
       style={{ paddingBlock: "clamp(3.5rem, 8vh, 6rem)" }}
     >
       <div className="container-ih relative">
