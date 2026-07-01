@@ -87,9 +87,9 @@ export function NumbersBand() {
     }),
   };
   const rest = [
-    { key: "members", value: n?.members ?? 0, label: t({ ar: "منتسب في المجتمع", en: "Community members" }), en: "Members" },
-    { key: "works", value: n?.works ?? 0, label: t({ ar: "عمل منشور في المعرض", en: "Works in the showcase" }), en: "Works" },
-    { key: "events", value: n?.events ?? 0, label: t({ ar: "فعاليّة وورشة", en: "Events & workshops" }), en: "Events" },
+    { key: "members", value: n?.members ?? 0, label: t({ ar: "منتسب في المجتمع", en: "Community members" }), en: "Members", context: t({ ar: "بُنيَت تحت القصف.", en: "Built under bombardment." }) },
+    { key: "works", value: n?.works ?? 0, label: t({ ar: "عمل منشور في المعرض", en: "Works in the showcase" }), en: "Works", context: t({ ar: "من عملٍ حقيقيّ لعميلٍ يدفع.", en: "Real work, paying clients." }) },
+    { key: "events", value: n?.events ?? 0, label: t({ ar: "فعاليّة وورشة", en: "Events & workshops" }), en: "Events", context: t({ ar: "تعلّمٌ لا يتوقّف.", en: "Learning that never stops." }) },
   ];
 
   const composition = [
@@ -172,6 +172,8 @@ export function NumbersBand() {
                 <div className="min-w-0">
                   <div className="text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
                   <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1 transition-colors duration-300 group-hover:text-fg-secondary">{s.en}</div>
+                  {/* Narrative armor — turns a data point into proof of mission. */}
+                  <div className="text-[12.5px] text-sand mt-1.5">{s.context}</div>
                 </div>
               </Reveal>
             ))}

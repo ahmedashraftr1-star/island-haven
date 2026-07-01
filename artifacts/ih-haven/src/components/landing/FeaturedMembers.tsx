@@ -22,7 +22,7 @@ export function FeaturedMembers() {
   useEffect(() => {
     let cancelled = false;
     api<{ members: FMember[] }>("/members?page=1")
-      .then((r) => !cancelled && setMembers((r.members ?? []).slice(0, 3)))
+      .then((r) => !cancelled && setMembers((r.members ?? []).slice(0, 5)))
       .catch(() => !cancelled && setMembers([]));
     return () => {
       cancelled = true;
@@ -53,7 +53,7 @@ export function FeaturedMembers() {
           </div>
         </div>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {members.map((m) => {
             const initial = m.fullName.trim().charAt(0);
             return (
