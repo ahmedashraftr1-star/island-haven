@@ -192,7 +192,7 @@ export default function Members() {
         </div>
       }
     >
-      <div className="grid lg:grid-cols-[1fr_auto] gap-4 mb-6 items-center">
+      <div className="sticky top-[68px] z-30 -mx-4 px-4 py-3 mb-6 bg-[#0a0a0a]/85 backdrop-blur-xl border-b border-white/10 grid lg:grid-cols-[1fr_auto] gap-4 items-center">
         <div className="relative">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
           <input

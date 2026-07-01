@@ -40,7 +40,7 @@ export function PageShell({
   return (
     <div
       dir={dir}
-      className="relative flex min-h-screen flex-col overflow-hidden bg-background text-foreground"
+      className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground"
       style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[45vh] brand-aura opacity-50" />

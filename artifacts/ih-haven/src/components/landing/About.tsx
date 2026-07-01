@@ -104,7 +104,7 @@ export function About() {
                   { n: lang === "en" ? "57+" : "٥٧+", ar: "منتسب", en: "MEMBERS" },
                   { n: lang === "en" ? "100%" : "١٠٠٪", ar: "مجّانًا", en: "FREE" },
                 ].map((stat) => (
-                  <div key={stat.en} className="bg-background px-4 py-5 text-center">
+                  <div key={stat.en} className="bg-surface-1 px-4 py-5 text-center">
                     <div
                       className="font-mono font-bold text-sand tabular-nums leading-none"
                       style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)" }}
