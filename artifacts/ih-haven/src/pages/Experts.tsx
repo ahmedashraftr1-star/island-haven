@@ -256,6 +256,43 @@ export default function Experts() {
         <MentorsEmptyState reduce={!!reduce} />
       ) : (
         <>
+          {/* Meet-the-mentors strip — real faces up front so the roster is visible
+               in the first fold, before the editorial lead + filters. Horizontal
+               scroll on mobile, wraps on desktop; each chip links to the profile. */}
+          {rows && rows.length > 0 && (
+            <div className="-mx-4 px-4 mb-[clamp(1.75rem,4vw,2.75rem)] flex gap-2.5 overflow-x-auto sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {rows.slice(0, 8).map((e) => {
+                const initial = e.fullName.trim().charAt(0);
+                return (
+                  <Link
+                    key={e.id}
+                    href={`/experts/${e.id}`}
+                    className="group flex shrink-0 items-center gap-3 rounded-full border border-border-strong bg-surface-1 py-2 ps-2 pe-4 transition-colors hover:border-primary/40"
+                  >
+                    {e.avatarUrl ? (
+                      <img
+                        src={e.avatarUrl}
+                        alt={e.fullName}
+                        loading="lazy"
+                        className="h-10 w-10 rounded-full object-cover ring-1 ring-white/10"
+                      />
+                    ) : (
+                      <span className="grid h-10 w-10 place-items-center rounded-full border border-border-strong bg-white/[0.03] font-display font-black text-sand-bright">
+                        {initial}
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-[13.5px] font-semibold text-foreground leading-tight line-clamp-1 transition-colors group-hover:text-primary">
+                        {e.fullName}
+                      </span>
+                      <span className="block t-caption text-fg-secondary line-clamp-1">{e.headline || e.expertise}</span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           {/* ── Monumental opening line — one crimson word, acres of space, and the
                only hard numbers in cerulean (real data). No icon-tile pillar grid. ── */}
           <StatementLead reduce={!!reduce} />
