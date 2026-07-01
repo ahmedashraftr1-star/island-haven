@@ -29,6 +29,8 @@ export function WhyIslandHaven() {
   const axes = [
     {
       id: "infrastructure",
+      num: "٠١",
+      tag: "Infrastructure",
       label: t({ ar: "نوفّر الأساس", en: "We provide the foundation" }),
       body: t({
         ar: "مساحة عمل احترافيّة، أرصدة سحابيّة وأدوات مدفوعة، وحلول دفع دوليّة — الأساس الذي يتعذّر الوصول إليه من غزّة، نسلّمه جاهزًا.",
@@ -37,6 +39,8 @@ export function WhyIslandHaven() {
     },
     {
       id: "development",
+      num: "٠٢",
+      tag: "Mentorship",
       label: t({ ar: "نبني القدرة", en: "We build the capability" }),
       body: t({
         ar: "تدريب مستمرّ، مسارات احتضان منظّمة، وذكاءٌ اصطناعيّ مدمجٌ في عمل كلّ منتسب — لا أملًا مؤجّلًا، بل قدرةً تُبنى يومًا بيوم.",
@@ -45,6 +49,8 @@ export function WhyIslandHaven() {
     },
     {
       id: "networking",
+      num: "٠٣",
+      tag: "Global Access",
       label: t({ ar: "نفتح الباب على العالم", en: "We open the door to the world" }),
       body: t({
         ar: "روابط حقيقيّة بالعمل والتدريب والاستثمار خارج الحدود — المنفّذ الموثوق داخل غزّة، بأثرٍ يُقاس لا يُدّعى.",
@@ -57,7 +63,7 @@ export function WhyIslandHaven() {
     <section
       id="why-island-haven"
       className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(6.5rem, 16vh, 12rem)" }}
+      style={{ paddingBlock: "clamp(4rem, 8vh, 7rem)" }}
       data-testid="why-island-haven"
     >
       <div className="container-ih relative">
@@ -92,48 +98,45 @@ export function WhyIslandHaven() {
           </motion.span>
         </motion.h2>
 
-        {/* ── The three axes, woven as calm large prose — one idea per row, but each
-             with its own measure and offset so the cadence breaks: the first axis
-             opens full-width and wide, the next two settle into an offset right-hand
-             column. Not a grid, not numbered, no rails — woven, not listed. ── */}
-        <div className="mt-[clamp(4rem,9vh,7.5rem)] space-y-[clamp(2.75rem,5vh,4.25rem)]">
-          {axes.map((axis, i) => {
-            // Vary measure + alignment per row to escape the uniform 3-row list.
-            const isLead = i === 0;
-            const rowClass = isLead ? "max-w-4xl me-auto" : "max-w-3xl ms-auto";
-            const bodyClass = isLead ? "max-w-3xl" : "max-w-2xl";
-            return (
-              <motion.div
-                key={axis.id}
-                data-testid={`why-axis-${axis.id}`}
-                className={`will-change-transform ${rowClass}`}
-                initial={reduce ? false : { opacity: 0, y: 22 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.8, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-              >
+        {/* ── The three axes as a dense feature grid — number + tag + title + body,
+             with a hover accent line. Scannable in one screen, not three. ── */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 md:grid-cols-3 gap-px bg-border-strong rounded-2xl overflow-hidden border border-border-strong">
+          {axes.map((axis, i) => (
+            <motion.div
+              key={axis.id}
+              data-testid={`why-axis-${axis.id}`}
+              className="group flex flex-col gap-6 bg-surface-1 p-7 sm:p-8 transition-colors duration-300 hover:bg-surface-2 motion-reduce:transition-none will-change-transform"
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: i * 0.08, ease: EASE_OUT_EXPO }}
+            >
+              <div className="flex items-start justify-between">
+                <span
+                  className="font-mono font-bold text-sand/30 tabular-nums leading-none"
+                  style={{ fontSize: "clamp(2.25rem,4vw,3rem)" }}
+                >
+                  {axis.num}
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-fg-faint border border-border-strong rounded-full px-2.5 py-1">
+                  {axis.tag}
+                </span>
+              </div>
+              <div>
                 <h3
-                  className="font-display text-foreground"
-                  style={{
-                    fontSize: isLead
-                      ? "clamp(1.65rem, 3.4vw, 2.6rem)"
-                      : "clamp(1.5rem, 3vw, 2.25rem)",
-                    lineHeight: 1.08,
-                    letterSpacing: "-0.025em",
-                    fontWeight: 600,
-                  }}
+                  className="font-display font-semibold text-foreground leading-tight mb-3"
+                  style={{ fontSize: "clamp(1.25rem,2vw,1.6rem)", letterSpacing: "-0.02em" }}
                 >
                   {axis.label}
                 </h3>
-                <p
-                  className={`mt-4 text-fg-secondary ${bodyClass}`}
-                  style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.65 }}
-                >
-                  {axis.body}
-                </p>
-              </motion.div>
-            );
-          })}
+                <p className="t-body text-[14px] leading-relaxed">{axis.body}</p>
+              </div>
+              <div
+                aria-hidden
+                className="mt-auto h-px w-0 bg-primary transition-[width] duration-500 ease-out group-hover:w-full motion-reduce:transition-none"
+              />
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -141,7 +144,7 @@ export function WhyIslandHaven() {
            thesis points to. Real photo, real number, no decoration. ── */}
       <motion.div
         ref={mediaRef}
-        className="relative mt-[clamp(5rem,11vh,9rem)] w-full overflow-hidden"
+        className="relative mt-[clamp(3rem,6vh,5rem)] w-full overflow-hidden"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
