@@ -4,6 +4,7 @@ import { ArrowLeft, Monitor, Users, Layers, Globe } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { SectionHeader } from "@/components/SectionHeader";
 
 /**
  * WhatYouGet — the incubator's promise, told the Apple way: one monumental calm
@@ -85,46 +86,29 @@ export function WhatYouGet() {
     <section
       id="what-you-get"
       className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(6rem, 15vh, 12rem)" }}
+      style={{ paddingBlock: "clamp(3.5rem, 8vh, 6rem)" }}
     >
       <div className="container-ih relative">
-        {/* MONUMENTAL promise — one calm idea, acres of space. */}
-        <motion.h2
-          className="font-display text-foreground max-w-[18ch]"
-          style={{
-            fontSize: "clamp(2.6rem, 8vw, 5rem)",
-            lineHeight: 1.0,
-            letterSpacing: "-0.04em",
-            fontWeight: 700,
-          }}
-        >
-          {headline.map((ln, i) => (
-            <motion.span
-              key={i}
-              className={`block will-change-transform ${ln.accent ? "text-primary" : ""}`}
-              initial={reduce ? false : { opacity: 0, y: 32 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.85, delay: i * 0.1, ease: EASE_OUT_EXPO }}
-            >
-              {t(ln)}
-            </motion.span>
-          ))}
-        </motion.h2>
-
-        <motion.p
-          initial={reduce ? false : { opacity: 0, y: 18 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
-          transition={{ duration: 0.85, delay: 0.3, ease: EASE_OUT_EXPO }}
-          className="mt-8 sm:mt-10 max-w-xl text-fg-secondary"
-          style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.4rem)", lineHeight: 1.6 }}
-        >
-          {t({
+        {/* Split header — headline (start) + subline/CTA (opposite column) so the
+            heading never sits beside an empty half. */}
+        <SectionHeader
+          eyebrow={t({ ar: "ما تحصل عليه", en: "What you get" })}
+          eyebrowEN="WHAT YOU GET"
+          headline={
+            <>
+              {headline.map((ln, i) => (
+                <span key={i} className={`block ${ln.accent ? "text-primary" : ""}`}>
+                  {t(ln)}
+                </span>
+              ))}
+            </>
+          }
+          subline={t({
             ar: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
             en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
           })}
-        </motion.p>
+          cta={{ label: t({ ar: "اعرف أكثر", en: "Learn more" }), href: "/programs" }}
+        />
 
         {/* One large photograph of the place — shown, not described. */}
         <motion.div

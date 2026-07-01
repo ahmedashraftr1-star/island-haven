@@ -249,7 +249,7 @@
   /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
      sections produced ~3000px of pure air. This denser rhythm reads as
      confident (Linear/Stripe), not padded-out. */
-  --section-py: clamp(4rem, 6.5vw, 7.5rem);          /* tightened rhythm — less void, denser scan */
+  --section-py: clamp(3.5rem, 6vw, 6rem);          /* Apple-tight rhythm — minimal void */
   --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
