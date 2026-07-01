@@ -148,6 +148,24 @@ export default function Team() {
               of space. No eyebrow rule, no card panel, no ping dot. */}
           <FoundingNarrative total={total} teams={sections.length} />
 
+          {/* Mission — one monumental editorial statement between the narrative
+              and the photograph, so the page never opens on a void. */}
+          <div className="py-16 sm:py-20 max-w-3xl mx-auto text-center">
+            <p className="eyebrow eyebrow-sand font-mono mb-6">{t({ ar: "رسالتنا", en: "Our mission" })}</p>
+            <blockquote
+              className="font-display text-foreground leading-relaxed"
+              style={{ fontSize: "clamp(1.4rem,3vw,2rem)", letterSpacing: "-0.01em" }}
+            >
+              {t({
+                ar: "نحن لا نبني مبنًى — نبني نظامًا يجعل كلّ موهبة في غزّة قادرة على المنافسة العالميّة بنفس الأدوات الّتي يملكها أيّ مطوّر في برلين أو سنغافورة.",
+                en: "We're not building a space — we're building a system that lets every talent in Gaza compete globally with the same tools a developer in Berlin or Singapore has.",
+              })}
+            </blockquote>
+            <p className="t-caption text-fg-secondary mt-6">
+              {t({ ar: "— فريق التأسيس، آيلاند هيفن ٢٠٢٤", en: "— The founding team, Island Haven 2024" })}
+            </p>
+          </div>
+
           {/* One monumental full-bleed photograph with a slow scroll parallax —
               the page's single large-photography moment, mirroring Statement. */}
           <PhotoBand />

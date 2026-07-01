@@ -136,6 +136,67 @@ export function Audience() {
           </motion.div>
         </div>
 
+        {/* Talent-proof rows — the "talent has no borders" claim, answered in real
+            figures + prose so the section is never a heading over a void. */}
+        <div className="mt-16 sm:mt-20 border-t border-border-strong">
+          {[
+            {
+              num: { ar: "٥٧", en: "57" },
+              title: t({ ar: "موهبة نشطة", en: "active talents" }),
+              desc: t({
+                ar: "مستقلّون وخرّيجون وطلّاب يبنون من غزّة — يعملون مع عملاء في أوروبا وأمريكا والخليج في الوقت ذاته.",
+                en: "Freelancers, graduates and students building from Gaza — working with clients in Europe, the US and the Gulf at once.",
+              }),
+            },
+            {
+              num: { ar: "+٣٥٨", en: "358+" },
+              title: t({ ar: "مشروع مُنجز", en: "projects delivered" }),
+              desc: t({
+                ar: "من SaaS إلى هويّات بصريّة وتطبيقات جوّال — كلّ رقم وراءه إنسان حقيقيّ وعميل دفع.",
+                en: "From SaaS to brand identities and mobile apps — behind every number is a real person and a paying client.",
+              }),
+            },
+            {
+              num: { ar: "١٠٠٪", en: "100%" },
+              title: t({ ar: "مجّانًا للمنتسب", en: "free for members" }),
+              desc: t({
+                ar: "مساحة عمل + إنترنت + تدريب + إرشاد + أدوات بآلاف الدولارات — كلّها مجّانًا. لأنّ الموهبة لا ثمن لها.",
+                en: "Workspace + internet + training + mentorship + thousands of dollars in tools — all free. Because talent shouldn't have a price.",
+              }),
+            },
+          ].map((row, i) => (
+            <div key={i} className="grid grid-cols-12 gap-4 sm:gap-6 py-8 sm:py-10 border-b border-border-strong items-start">
+              <div className="col-span-3 sm:col-span-2">
+                <span
+                  className="font-mono font-black text-sand-bright tnum leading-none"
+                  style={{ fontSize: "clamp(2rem,4vw,3.5rem)" }}
+                >
+                  {lang === "en" ? row.num.en : row.num.ar}
+                </span>
+              </div>
+              <div className="col-span-9 sm:col-span-3">
+                <p className="font-display font-bold text-foreground leading-snug" style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)" }}>
+                  {row.title}
+                </p>
+              </div>
+              <div className="col-span-12 sm:col-span-7">
+                <p className="t-body text-[15px] leading-relaxed">{row.desc}</p>
+              </div>
+            </div>
+          ))}
+          <div className="py-8 sm:py-10 flex flex-wrap gap-3 items-center justify-end">
+            <Link
+              href="/members"
+              className="rounded-full border border-border-strong px-5 py-2.5 text-[14px] font-medium text-foreground hover:border-primary/50 transition-colors"
+            >
+              {t({ ar: "استعرض المجتمع ←", en: "Explore the community →" })}
+            </Link>
+            <Link href="/jobs" className="cta-fill rounded-full px-5 py-2.5 text-[14px] font-semibold">
+              {t({ ar: "لوحة الفرص", en: "Job board" })}
+            </Link>
+          </div>
+        </div>
+
         {/* One large, calm full-bleed photograph — restraint, not a card deck. */}
         <motion.figure
           className="relative mt-16 sm:mt-24 overflow-hidden rounded-[24px] ring-1 ring-border-strong"

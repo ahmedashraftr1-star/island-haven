@@ -20,6 +20,7 @@ const FinalCTA = lazy(() => named(import("@/components/landing/FinalCTA"), "Fina
 const VenturesShowcase = lazy(() => named(import("@/components/landing/VenturesShowcase"), "VenturesShowcase"));
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
 const Audience = lazy(() => named(import("@/components/landing/Audience"), "Audience"));
+const FeaturedMembers = lazy(() => named(import("@/components/landing/FeaturedMembers"), "FeaturedMembers"));
 const GazaToGlobal = lazy(() => named(import("@/components/landing/GazaToGlobal"), "GazaToGlobal"));
 const SuccessStories = lazy(() => named(import("@/components/landing/SuccessStories"), "SuccessStories"));
 const CinematicBand = lazy(() => named(import("@/components/landing/CinematicBand"), "CinematicBand"));
@@ -65,6 +66,7 @@ export default function Home() {
             <VenturesShowcase />
             <ExpertsBand />
             <Audience />
+            <FeaturedMembers />
             <GazaToGlobal />
             <SuccessStories />
             <CinematicBand />
