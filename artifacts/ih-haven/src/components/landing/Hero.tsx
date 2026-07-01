@@ -177,10 +177,13 @@ export function Hero() {
 
   const stills = useMemo(
     () =>
-      [c.image1, c.image2, c.image3, c.image4, c.image5, c.image6]
+      // image4 (IMG_8357) is intentionally excluded from the rotation — it's the
+      // most heavily Eid-decorated frame; the cycle leads with the clean coder
+      // shot (image1 = IMG_8341) and keeps the packed-room energy via 8358/8300.
+      [c.image1, c.image2, c.image3, c.image5, c.image6]
         .map(imageUrl)
         .filter(Boolean),
-    [c.image1, c.image2, c.image3, c.image4, c.image5, c.image6],
+    [c.image1, c.image2, c.image3, c.image5, c.image6],
   );
 
   useEffect(() => {
