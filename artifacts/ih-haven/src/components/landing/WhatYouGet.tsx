@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Monitor, Users, Layers, Globe } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -32,6 +32,11 @@ export function WhatYouGet() {
   // not identical CTA cards. Routes / testids preserved.
   const gives = [
     {
+      num: "٠١",
+      tag: "WORKSPACE",
+      Icon: Monitor,
+      wide: true,
+      stat: "٦",
       title: t({ ar: "مساحة عمل مجّانيّة", en: "A free workspace" }),
       body: t({
         ar: "مقعد ثابت في مساحة هادئة، بإنترنت موثوق وكهرباء — احجزه متى احتجت.",
@@ -40,6 +45,9 @@ export function WhatYouGet() {
       href: "/book",
     },
     {
+      num: "٠٢",
+      tag: "MENTORSHIP",
+      Icon: Users,
       title: t({ ar: "إرشاد من خبراء", en: "Expert mentorship" }),
       body: t({
         ar: "جلسات فرديّة مع مرشدين وروّاد أعمال ومتخصّصين — هندسةً وتصميمًا وأعمالًا.",
@@ -48,6 +56,9 @@ export function WhatYouGet() {
       href: "/experts",
     },
     {
+      num: "٠٣",
+      tag: "PROGRAMS",
+      Icon: Layers,
       title: t({ ar: "برامج ودفعات + Demo Day", en: "Programs, cohorts & Demo Day" }),
       body: t({
         ar: "مسارات احتضان وتسريع منظّمة، تُختم بيوم عرضٍ أمام شبكة من الدّاعمين.",
@@ -56,6 +67,11 @@ export function WhatYouGet() {
       href: "/programs",
     },
     {
+      num: "٠٤",
+      tag: "COMMUNITY",
+      Icon: Globe,
+      wide: true,
+      accent: true,
       title: t({ ar: "شبكة ومجتمع", en: "A network & community" }),
       body: t({
         ar: "مجتمع من المستقلّين والخرّيجين والمؤسّسين — تعاون، أعمال، وفرص.",
@@ -142,37 +158,71 @@ export function WhatYouGet() {
 
         {/* Quiet asymmetric index — what membership gives. Hairline-divided
             editorial lines, NOT numbered cards or identical CTA tiles. */}
-        <div className="mt-[clamp(3.5rem,8vh,6.5rem)] grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)]">
-          <div className="lg:col-span-3" aria-hidden="true" />
-          <ul className="lg:col-span-9 lg:col-start-4">
-            {gives.map((g, i) => (
-              <motion.li
-                key={g.href}
-                initial={reduce ? false : { opacity: 0, y: 22 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-                className="border-t border-border-strong first:border-t-0"
+        {/* Dense feature bento — number + icon + tag + title + body, whole cell a
+            link (routes + testids preserved). Card 1 wide with a mini-stat, card 4
+            wide with a red accent. */}
+        <div className="mt-[clamp(3rem,6vh,5rem)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-border-strong bg-border-strong">
+          {gives.map((g, i) => (
+            <motion.div
+              key={g.href}
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
+              className={g.wide ? "sm:col-span-2" : ""}
+            >
+              <Link
+                href={g.href}
+                data-testid={`pillar-${g.href.slice(1)}`}
+                className={`group relative flex h-full flex-col gap-6 overflow-hidden p-7 sm:p-8 transition-colors duration-300 motion-reduce:transition-none ${
+                  g.accent
+                    ? "bg-background hover:bg-primary/[0.04] border-e-2 border-e-primary/30"
+                    : "bg-background hover:bg-surface-2"
+                }`}
               >
-                <Link
-                  href={g.href}
-                  className="group block py-[clamp(1.75rem,3.5vw,2.75rem)] first:pt-0"
-                  data-testid={`pillar-${g.href.slice(1)}`}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute top-4 start-6 select-none font-mono leading-none tnum motion-reduce:hidden ${
+                    g.accent ? "text-primary/[0.08]" : "text-primary/[0.06]"
+                  }`}
+                  style={{ fontSize: "clamp(4rem,10vw,7rem)" }}
                 >
-                  <div className="flex items-baseline justify-between gap-6">
-                    <h3
-                      className="font-display font-bold text-foreground transition-colors group-hover:text-primary"
-                      style={{ fontSize: "clamp(1.4rem, 3vw, 2.4rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
-                    >
-                      {g.title}
-                    </h3>
-                    <ArrowLeft className="mt-1 h-5 w-5 shrink-0 rtl:rotate-180 text-fg-faint transition-all group-hover:text-primary group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
-                  </div>
-                  <p className="t-body mt-3 max-w-2xl">{g.body}</p>
-                </Link>
-              </motion.li>
-            ))}
-          </ul>
+                  {g.num}
+                </span>
+                <span
+                  className={`relative z-[1] grid h-10 w-10 place-items-center rounded-full border transition-colors duration-300 motion-reduce:transition-none ${
+                    g.accent
+                      ? "border-primary/40 text-primary"
+                      : "border-border-strong text-foreground group-hover:border-primary/40"
+                  }`}
+                >
+                  <g.Icon className="h-[18px] w-[18px]" strokeWidth={1.5} aria-hidden />
+                </span>
+                <div className="relative z-[1] flex flex-1 flex-col gap-3">
+                  <p className={`font-mono text-[11px] tracking-[0.15em] uppercase ${g.accent ? "text-primary" : "text-fg-faint"}`}>
+                    {g.tag}
+                  </p>
+                  <h3
+                    className="font-display font-bold text-foreground leading-snug transition-colors group-hover:text-primary"
+                    style={{ fontSize: "clamp(1.15rem,2vw,1.4rem)", letterSpacing: "-0.02em" }}
+                  >
+                    {g.title}
+                  </h3>
+                  <p className="t-body text-[14px] leading-relaxed">{g.body}</p>
+                  {g.stat && (
+                    <div className="mt-1 inline-flex items-baseline gap-2">
+                      <span className="font-mono text-2xl font-bold text-primary tnum">{g.stat}</span>
+                      <span className="t-caption text-fg-faint">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
+                    </div>
+                  )}
+                  <span className="mt-auto inline-flex items-center gap-1.5 self-start pt-2 text-[13px] font-semibold text-primary transition-all duration-200 group-hover:gap-2.5 motion-reduce:transition-none">
+                    {t({ ar: "اعرف المزيد", en: "Learn more" })}
+                    <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden />
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
