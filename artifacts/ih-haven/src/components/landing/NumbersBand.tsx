@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { SectionHeader } from "@/components/SectionHeader";
 
 interface Numbers {
   members: number;
@@ -104,32 +105,21 @@ export function NumbersBand() {
       <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-60" />
 
       <div className="container-ih relative">
-        {/* Header */}
-        <Reveal as="header" className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="eyebrow">{t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}</span>
-            <span className="chip-accent-2 inline-flex items-center gap-1.5 px-2.5 h-[22px] rounded-full text-[10px] font-bold tracking-[0.12em]">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-2" />
-              </span>
-              LIVE
-            </span>
-          </div>
-          <h2
-            className="font-display font-extrabold text-foreground"
-            style={{ fontSize: "clamp(2rem, 4.4vw, 3.6rem)", lineHeight: 1.04, letterSpacing: "-0.028em" }}
-          >
-            {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
-            <span className="text-sand-bright">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
-          </h2>
-          <p className="t-body-lg mt-5 max-w-2xl">
-            {t({
-              ar: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
-              en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
-            })}
-          </p>
-        </Reveal>
+        {/* Header — split layout (live-data eyebrow carries the LIVE signal) */}
+        <SectionHeader
+          eyebrow={t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
+          eyebrowEN="LIVE DATA"
+          headline={
+            <>
+              {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
+              <span className="text-primary italic">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
+            </>
+          }
+          subline={t({
+            ar: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
+            en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
+          })}
+        />
 
         {/* Headline stat (one monumental figure) + a supporting leaderboard */}
         <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 lg:grid-cols-12 gap-x-10 gap-y-[clamp(2.5rem,5vw,3.5rem)] border-t border-border-strong pt-[clamp(2rem,4vw,3.5rem)]">

@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { FREELANCERS } from "@/data/freelancers";
+import { SectionHeader } from "@/components/SectionHeader";
 
 /**
  * Audience — "لِمَن آيلاند؟". Reframed for العظمة: scale, space, restraint.
@@ -63,48 +64,41 @@ export function Audience() {
     },
   ];
 
+  // Per-category bento metadata (indexed to `tracks`): a ghost figure, a mono tag,
+  // and a destination — turning the editorial rows into scannable cards.
+  const bentoMeta = [
+    { num: "١٥", tag: "GRADUATE", href: "/members?role=graduate", cta: t({ ar: "استعرض الخرّيجين", en: "Browse graduates" }) },
+    { num: "٢١", tag: "FREELANCER", href: "/freelancers", cta: t({ ar: "استعرض المواهب", en: "Browse talent" }), gold: true },
+    { num: "٩", tag: "STUDENT", href: "/members?role=student", cta: t({ ar: "استعرض الطلّاب", en: "Browse students" }) },
+    { num: "∞", tag: "FOUNDER", href: "/apply", cta: t({ ar: "سجّل مشروعك", en: "Register your venture" }), accent: true },
+  ];
+
   return (
     <section
       id="audience"
       ref={ref}
       className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(6.5rem, 16vh, 12rem)" }}
+      style={{ paddingBlock: "clamp(3.5rem, 8vh, 6rem)" }}
     >
       <div className="container-ih relative">
-        {/* Monumental opening — one calm idea, acres of space, no eyebrow. */}
+        {/* Split header — headline (start) + subline (opposite column). */}
+        <SectionHeader
+          eyebrow={t({ ar: "من يستفيد", en: "Who it's for" })}
+          eyebrowEN="WHO IT'S FOR"
+          headline={
+            <>
+              {t({ ar: "مكانٌ لكلّ ", en: "A place for every " })}
+              <span className="text-primary">{t({ ar: "موهبة.", en: "talent." })}</span>
+            </>
+          }
+          subline={t({
+            ar: "الموهبة لا تحدّها الجغرافيا، ولا يحدّها الظرف. أربع فئات تجد مكانها هنا.",
+            en: "Talent is bound neither by geography nor by circumstance. Four tracks find their place here.",
+          })}
+          className="mb-[clamp(2rem,4vw,3.5rem)]"
+        />
+
         <div className="max-w-5xl">
-          <motion.h2
-            className="font-display text-foreground"
-            style={{
-              fontSize: "clamp(2.6rem, 7.6vw, 5rem)",
-              lineHeight: 1.0,
-              letterSpacing: "-0.04em",
-              fontWeight: 700,
-            }}
-            initial={reduce ? false : { opacity: 0, y: 28 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-          >
-            {t({ ar: "مكانٌ لكلّ ", en: "A place for every " })}
-            <span className="text-primary">{t({ ar: "موهبة", en: "talent" })}</span>
-            {t({ ar: ".", en: "." })}
-          </motion.h2>
-
-          <motion.p
-            className="mt-9 sm:mt-11 max-w-2xl text-fg-secondary"
-            style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.5rem)", lineHeight: 1.6 }}
-            initial={reduce ? false : { opacity: 0, y: 18 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-8%" }}
-            transition={{ duration: 0.85, delay: 0.12, ease: EASE_OUT_EXPO }}
-          >
-            {t({
-              ar: "الموهبة لا تحدّها الجغرافيا، ولا يحدّها الظرف. أربع فئات تجد مكانها هنا.",
-              en: "Talent is bound neither by geography nor by circumstance. Four tracks find their place here.",
-            })}
-          </motion.p>
-
           {/* Talent cross-link — a quiet, compact bridge to the freelancer marketplace */}
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 14 }}
@@ -215,38 +209,56 @@ export function Audience() {
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/70 via-transparent to-transparent" />
         </motion.figure>
 
-        {/* The four tracks — a quiet big-type editorial sequence, one idea per line.
-            No numbers, no per-row eyebrows, no medallions, no uniform grid. */}
-        <div className="mt-20 sm:mt-28 max-w-4xl">
-          {tracks.map((track, i) => (
-            <motion.div
-              key={track.key}
-              data-testid={`audience-track-${track.key}`}
-              className="border-t border-border-strong py-9 sm:py-12 first:border-t-0 first:pt-0"
-              initial={reduce ? false : { opacity: 0, y: 22 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-            >
-              <h3
-                className="font-display text-foreground"
-                style={{
-                  fontSize: "clamp(1.6rem, 3.4vw, 2.6rem)",
-                  lineHeight: 1.08,
-                  letterSpacing: "-0.03em",
-                  fontWeight: 700,
-                }}
+        {/* The four tracks as a scannable bento — ghost figure, tag, title, line,
+            and a destination per category. */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-border-strong bg-border-strong">
+          {tracks.map((track, i) => {
+            const m = bentoMeta[i];
+            return (
+              <motion.div
+                key={track.key}
+                data-testid={`audience-track-${track.key}`}
+                className={`group relative flex flex-col gap-3 overflow-hidden p-6 lg:p-8 transition-colors duration-200 motion-reduce:transition-none ${
+                  m.accent ? "bg-background hover:bg-primary/[0.04] border-e-2 border-e-primary/30" : "bg-background hover:bg-surface-2"
+                }`}
+                initial={reduce ? false : { opacity: 0, y: 22 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: i * 0.06, ease: EASE_OUT_EXPO }}
               >
-                {track.title}
-              </h3>
-              <p
-                className="mt-4 max-w-2xl text-fg-secondary"
-                style={{ fontSize: "clamp(1rem, 1.5vw, 1.2rem)", lineHeight: 1.6 }}
-              >
-                {track.line}
-              </p>
-            </motion.div>
-          ))}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute top-3 start-4 select-none font-mono leading-none tnum motion-reduce:hidden ${
+                    m.accent ? "text-primary/[0.07]" : m.gold ? "text-sand/[0.10]" : "text-sand/[0.06]"
+                  }`}
+                  style={{ fontSize: "5rem" }}
+                >
+                  {m.num}
+                </span>
+                <p
+                  className={`relative z-[1] font-mono text-[10px] tracking-[0.2em] uppercase ${
+                    m.accent ? "text-primary" : m.gold ? "text-sand" : "text-fg-faint"
+                  }`}
+                >
+                  {m.tag}
+                </p>
+                <h3 className="relative z-[1] font-display font-bold text-foreground text-[clamp(1.1rem,2vw,1.35rem)] leading-snug">
+                  {track.title}
+                </h3>
+                <p className="relative z-[1] t-body text-[13.5px] leading-relaxed">{track.line}</p>
+                <Link
+                  href={m.href}
+                  className={`relative z-[1] mt-auto inline-flex items-center gap-1.5 self-start pt-2 text-[12px] font-semibold transition-colors motion-reduce:transition-none hover:text-foreground ${
+                    m.accent ? "text-primary" : m.gold ? "text-sand" : "text-fg-secondary"
+                  }`}
+                  aria-label={m.cta}
+                >
+                  {m.cta}
+                  <ArrowLeft className="h-3 w-3 rtl:rotate-180" aria-hidden />
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
