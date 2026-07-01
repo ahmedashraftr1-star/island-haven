@@ -71,6 +71,14 @@ interface Member {
   createdAt: string;
 }
 
+/** Role-coloured badge styles — gold freelancers, red graduates, neutral rest. */
+const ROLE_BADGE: Partial<Record<UserRole, string>> = {
+  freelancer: "bg-sand/15 text-sand border-sand/30",
+  graduate: "bg-primary/10 text-primary border-primary/25",
+  student: "bg-white/[0.06] text-fg-secondary border-border-strong",
+  other: "bg-white/[0.06] text-fg-secondary border-border-strong",
+};
+
 export default function Members() {
   const { lang, t } = useLanguage();
   const [role, setRole] = useState<"" | UserRole>("");
@@ -322,9 +330,13 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[10px] tracking-[0.18em] uppercase text-primary font-bold mb-1">
+            <span
+              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-mono font-semibold mb-1.5 ${
+                ROLE_BADGE[m.role] ?? "bg-white/[0.06] text-fg-secondary border-border-strong"
+              }`}
+            >
               {ROLE_LABELS[m.role]}
-            </div>
+            </span>
             <h3 className="text-foreground font-bold text-[16.5px] leading-tight truncate group-hover:text-primary transition-colors">
               {m.fullName}
             </h3>

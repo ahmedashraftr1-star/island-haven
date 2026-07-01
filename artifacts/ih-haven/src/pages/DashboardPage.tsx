@@ -281,7 +281,11 @@ function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
       {/* Row 1 — 4 stat cards */}
       <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard value={ar(member.remainingDays)} label="أيّام متبقّية" hint="في عضويّتك الحاليّة" gold />
-        <StatCard value={ar(member.totalHoursThisMonth)} label="ساعات هذا الشهر" />
+        <StatCard
+          value={ar(member.totalHoursThisMonth)}
+          label="ساعات هذا الشهر"
+          progress={{ value: member.totalHoursThisMonth, max: 160 }}
+        />
         <StatCard value={`${ar(member.attendanceThisMonth)}/${ar(30)}`} label="أيّام الحضور" />
         <StatCard value={ar(member.worksCount)} label="الأعمال المنشورة" />
       </div>
@@ -344,7 +348,20 @@ function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
   );
 }
 
-function StatCard({ value, label, hint, gold }: { value: string; label: string; hint?: string; gold?: boolean }) {
+function StatCard({
+  value,
+  label,
+  hint,
+  gold,
+  progress,
+}: {
+  value: string;
+  label: string;
+  hint?: string;
+  gold?: boolean;
+  progress?: { value: number; max: number };
+}) {
+  const pct = progress ? Math.min((progress.value / progress.max) * 100, 100) : 0;
   return (
     <Card className={`p-4 sm:p-5 ${gold ? "border-t-2 border-t-sand" : ""}`}>
       <div
@@ -354,7 +371,25 @@ function StatCard({ value, label, hint, gold }: { value: string; label: string; 
         {value}
       </div>
       <div className="font-mono text-[10px] uppercase tracking-wider rtl:tracking-normal text-fg-secondary mt-3">{label}</div>
-      {hint && <div className="text-[11px] text-fg-faint mt-0.5">{hint}</div>}
+      {progress ? (
+        <div className="mt-3">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-border-strong">
+            <div
+              className="h-full rounded-full bg-sand transition-[width] duration-700 ease-out motion-reduce:transition-none"
+              style={{ width: `${pct}%` }}
+              role="progressbar"
+              aria-valuenow={progress.value}
+              aria-valuemax={progress.max}
+              aria-label={`${ar(progress.value)} ساعة من أصل ${ar(progress.max)}`}
+            />
+          </div>
+          <p className="mt-1.5 font-mono text-[11px] text-fg-faint">
+            {ar(Math.max(progress.max - progress.value, 0))} ساعة متبقّية
+          </p>
+        </div>
+      ) : (
+        hint && <div className="text-[11px] text-fg-faint mt-0.5">{hint}</div>
+      )}
     </Card>
   );
 }
