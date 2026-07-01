@@ -35,10 +35,10 @@ const FALLBACK = {
   stat2Label: "منتسب",
   stat3Value: "١٠٠٪",
   stat3Label: "مجّانيّ",
-  image1: "/photos/IMG_8357.webp",
+  image1: "/photos/IMG_8341.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
-  image4: "/photos/IMG_8341.webp",
+  image4: "/photos/IMG_8357.webp",
   image5: "/photos/IMG_8352.webp",
   image6: "/photos/IMG_8300.webp",
 };
@@ -71,10 +71,10 @@ const EN_FALLBACK = {
   stat2Label: "members",
   stat3Value: "100%",
   stat3Label: "free",
-  image1: "/photos/IMG_8357.webp",
+  image1: "/photos/IMG_8341.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
-  image4: "/photos/IMG_8341.webp",
+  image4: "/photos/IMG_8357.webp",
   image5: "/photos/IMG_8352.webp",
   image6: "/photos/IMG_8300.webp",
 };
@@ -263,13 +263,16 @@ export function Hero() {
       </motion.div>
 
       <motion.div style={{ opacity: overlayOpacity }} aria-hidden className="absolute inset-0 z-[1]">
-        {/* Base vertical scrim — lighter bottom (0.70) so the photo breathes,
-            a fine top-vignette so the brand mark + live clock float clearly. */}
+        {/* Base vertical scrim — a heavy top band (0.86→0.64 over the first ~16%)
+            deliberately drowns the ceiling — the space is decorated for Eid in
+            most frames and the party fans/stars read off-brand for a serious
+            incubator hero; it clears to 0.18 by 38% so the packed room, faces
+            and energy stay fully visible, then re-darkens toward the bottom. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(5,7,15,0.55) 0%, rgba(5,7,15,0.10) 30%, rgba(5,7,15,0.34) 58%, rgba(5,7,15,0.84) 100%)",
+              "linear-gradient(180deg, rgba(5,7,15,0.86) 0%, rgba(5,7,15,0.64) 16%, rgba(5,7,15,0.18) 38%, rgba(5,7,15,0.34) 60%, rgba(5,7,15,0.86) 100%)",
           }}
         />
         {/* Focused scrim behind the headline (right side, RTL) so text stays
