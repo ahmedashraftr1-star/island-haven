@@ -166,7 +166,7 @@ export function NumbersBand() {
               <Reveal
                 key={s.key}
                 delay={0.1 + i * 0.07}
-                className="group flex items-center justify-between gap-6 py-[clamp(1.35rem,2.6vw,2.1rem)] border-t border-border-strong/70 first:border-t-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-0.5"
+                className="group flex flex-col gap-1 py-[clamp(1.5rem,3vw,2.5rem)] border-t border-border-strong/70 first:border-t-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-0.5"
               >
                 <motion.span
                   data-testid={`numbers-row-${s.key}`}
@@ -174,12 +174,12 @@ export function NumbersBand() {
                   whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.7 }}
                   transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE_OUT_EXPO }}
-                  className="font-display font-black tabular-nums text-sand-bright leading-[0.85] transition-colors duration-300 group-hover:text-sand origin-[0%_100%] rtl:origin-[100%_100%]"
-                  style={{ fontSize: "clamp(2.75rem, 6vw, 4.75rem)", letterSpacing: "-0.05em", willChange: "transform, opacity" }}
+                  className="font-display font-black tabular-nums text-sand-bright leading-[0.9] transition-colors duration-300 group-hover:text-sand"
+                  style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
                 >
                   {n ? <CountUp value={s.value} lang={lang} /> : "—"}
                 </motion.span>
-                <div className="text-end min-w-0">
+                <div className="min-w-0">
                   <div className="text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
                   <div className="text-[10.5px] tracking-[0.2em] uppercase text-muted-foreground font-semibold mt-1 transition-colors duration-300 group-hover:text-fg-secondary">{s.en}</div>
                 </div>
