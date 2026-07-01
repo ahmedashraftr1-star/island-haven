@@ -144,16 +144,39 @@ export default function Programs() {
         en: "We take your venture from a raw idea to a product that stands on its own — through a structured track: apply, join a cohort, get 1:1 mentorship and real tooling, then a Demo Day to our network of backers. Free, from the heart of Gaza.",
       })}
       heroAside={
-        <div className="inline-flex items-center gap-5 rounded-[20px] border border-border-strong bg-surface-2/40 px-7 py-8">
-          <span
-            className="font-mono font-black text-sand-bright tnum leading-none"
-            style={{ fontSize: "clamp(3.25rem,8vw,5.5rem)" }}
+        <div className="rounded-[20px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
+          <div className="flex items-center gap-4">
+            <span
+              className="font-mono font-black text-sand-bright tnum leading-none"
+              style={{ fontSize: "clamp(2.6rem,6vw,3.6rem)" }}
+            >
+              {num(rows?.length ?? 0, lang)}
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-muted-foreground rtl:tracking-normal leading-relaxed max-w-[8rem]">
+              {t({ ar: "مسارات احتضان مفتوحة", en: "active incubation tracks" })}
+            </span>
+          </div>
+          {rows && rows.length > 0 && (
+            <div className="mt-6 border-t border-border-strong pt-4">
+              {rows.slice(0, 5).map((p, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 py-2 border-b border-border-strong/60 last:border-0"
+                >
+                  <span className="font-mono text-[11px] text-sand tnum shrink-0">
+                    {num(i + 1, lang).padStart(2, lang === "ar" ? "٠" : "0")}
+                  </span>
+                  <span className="text-[13px] text-fg-secondary line-clamp-1">{p.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <Link
+            href="/apply"
+            className="cta-fill mt-5 block w-full rounded-lg py-2.5 text-center text-[14px] font-semibold"
           >
-            {num(rows?.length ?? 0, lang)}
-          </span>
-          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-muted-foreground rtl:tracking-normal leading-relaxed max-w-[8rem]">
-            {t({ ar: "مسارات احتضان مفتوحة", en: "active incubation tracks" })}
-          </span>
+            {t({ ar: "سجّل مشروعك الآن", en: "Register your venture" })}
+          </Link>
         </div>
       }
     >

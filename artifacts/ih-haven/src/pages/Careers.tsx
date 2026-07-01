@@ -122,6 +122,21 @@ export default function Careers() {
               {t({ ar: "التوظيف مفتوح الآن", en: "Hiring open now" })}
             </span>
           </div>
+          <div className="mt-6 border-t border-border-strong pt-4">
+            {[
+              { title: t({ ar: "مدير برامج الاحتضان", en: "Programs Lead" }), type: t({ ar: "دوام كامل", en: "Full-time" }) },
+              { title: t({ ar: "منسّق محتوى ومجتمع", en: "Content & Community" }), type: t({ ar: "دوام جزئيّ", en: "Part-time" }) },
+              { title: t({ ar: "مطوّر منتج", en: "Product Engineer" }), type: t({ ar: "تطوّع", en: "Volunteer" }) },
+            ].map((pos, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 py-2.5 border-b border-border-strong/60 last:border-0"
+              >
+                <span className="font-mono text-[11px] text-fg-secondary">{pos.type}</span>
+                <span className="text-[13.5px] font-medium text-foreground text-end">{pos.title}</span>
+              </div>
+            ))}
+          </div>
         </div>
       }
     >

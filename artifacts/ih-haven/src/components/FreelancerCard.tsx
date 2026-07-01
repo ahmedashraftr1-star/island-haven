@@ -28,7 +28,9 @@ export function FreelancerCard({ f, i }: { f: Freelancer; i: number }) {
       <Link
         href={`/contact?type=hire&ref=${encodeURIComponent(f.name)}`}
         data-testid={`freelancer-card-${f.id}`}
-        className="group flex h-full flex-col rounded-[18px] border border-border-strong bg-surface-2/40 p-5 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
+        className={`group flex h-full flex-col rounded-[18px] border border-border-strong bg-surface-2/40 p-5 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40 ${
+          f.available ? "border-t-2 border-t-sand/60" : "border-t-2 border-t-primary"
+        }`}
       >
         {/* Top — avatar + availability */}
         <div className="flex items-start justify-between gap-3">

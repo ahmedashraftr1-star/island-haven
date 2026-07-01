@@ -359,8 +359,15 @@ export default function PublicProfile() {
         </div>
       )}
 
-      <div className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold mb-4">
-        {t({ ar: "الأعمال", en: "Work" })} — {data.works.length}
+      <div className="flex items-center gap-2.5 mb-4">
+        <span className="text-[10.5px] tracking-[0.22em] uppercase text-primary font-bold">
+          {t({ ar: "معرض الأعمال", en: "Work" })}
+        </span>
+        {data.works.length > 0 && (
+          <span className="inline-flex items-center rounded-full bg-sand/15 px-2.5 py-0.5 text-[13px] font-mono text-sand tnum">
+            {data.works.length.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+          </span>
+        )}
       </div>
 
       {data.works.length === 0 ? (
@@ -371,7 +378,7 @@ export default function PublicProfile() {
           })}
         />
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {data.works.map((w) => (
             <Link
               key={w.id}

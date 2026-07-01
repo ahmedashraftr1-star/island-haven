@@ -154,6 +154,18 @@ export default function DashboardPage() {
       <div className="flex flex-1">
         {/* Sidebar — right in RTL (first flex child) */}
         <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-l border-white/[0.08] bg-[#0D0D0D] p-4">
+          {/* Member identity */}
+          <div className="mb-3 flex items-center justify-end gap-3 border-b border-white/[0.08] px-1 pb-4">
+            <div className="min-w-0 text-end">
+              <p className="text-[13.5px] font-bold text-foreground truncate">{member.fullName}</p>
+              <p className="t-caption text-fg-secondary truncate">
+                {member.membershipType} · {member.deskNumber}
+              </p>
+            </div>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-sand/30 bg-sand/[0.12] font-display font-bold text-sand text-sm">
+              {member.fullName.trim().charAt(0)}
+            </span>
+          </div>
           <nav className="flex flex-1 flex-col gap-1">
             {NAV.map((item) => {
               const Icon = item.icon;
@@ -197,7 +209,7 @@ export default function DashboardPage() {
 
         {/* Main */}
         <main className="min-w-0 flex-1 p-4 pb-24 sm:p-6 md:pb-6">
-          {tab === "overview" && <Overview member={member} />}
+          {tab === "overview" && <Overview member={member} works={works} />}
           {tab === "portfolio" && <Portfolio works={works} />}
           {tab === "announcements" && <Announcements />}
           {tab === "schedule" && <Schedule />}
@@ -256,7 +268,7 @@ function SectionTitle({ children, count }: { children: ReactNode; count?: number
 
 /* ─────────── B-1 Overview ─────────── */
 
-function Overview({ member }: { member: MemberPrivate }) {
+function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
   return (
     <div>
       <h1 className="font-display font-bold text-[clamp(1.6rem,3.6vw,2.4rem)] leading-tight" style={{ letterSpacing: "-0.02em" }}>
@@ -308,6 +320,26 @@ function Overview({ member }: { member: MemberPrivate }) {
         <QuickLink label="تحرير ملفّي العام" href={`/u/${member.id}`} />
         <QuickLink label="تواصل مع الإدارة" href="/contact" />
       </div>
+
+      {/* Row 4 — recent activity */}
+      <Card className="mt-5 p-5">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-fg-secondary mb-4">آخر نشاط</p>
+        <div>
+          {[
+            { text: `حضرت الحاضنة ${ar(13)} ساعة أمس`, time: "أمس" },
+            { text: `عمل «${works[0]?.title ?? "مشروعك"}» مرئيّ للجميع`, time: "منذ ٣ أيّام" },
+            { text: "انضممت إلى المجتمع", time: "يونيو ٢٠٢٦" },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-3 py-3 border-b border-white/[0.06] last:border-0"
+            >
+              <span className="font-mono text-[11.5px] text-fg-secondary">{item.time}</span>
+              <span className="text-[13.5px] text-foreground text-end">{item.text}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
