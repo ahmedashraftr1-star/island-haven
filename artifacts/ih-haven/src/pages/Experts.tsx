@@ -217,6 +217,32 @@ export default function Experts() {
             <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
             {t({ ar: "الجلسة الأولى مجّانيّة دائمًا", en: "First session always free" })}
           </p>
+          <div className="mt-5 border-t border-border-strong pt-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-fg-faint mb-3">
+              {t({ ar: "التخصّصات", en: "Specialties" })}
+            </p>
+            <div className="space-y-2">
+              {[
+                t({ ar: "ريادة الأعمال", en: "Entrepreneurship" }),
+                t({ ar: "تطوير المنتج", en: "Product" }),
+                t({ ar: "بناء الشبكات", en: "Networking" }),
+                t({ ar: "صناعة المحتوى", en: "Content" }),
+                t({ ar: "استراتيجيّة المشاريع", en: "Venture strategy" }),
+              ].map((spec) => (
+                <div key={spec} className="flex items-center justify-between text-[13.5px]">
+                  <span className="text-fg-secondary">{spec}</span>
+                  <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-sand/60" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <a
+            href="#experts-grid"
+            className="cta-fill mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[14px] font-semibold"
+            aria-label={t({ ar: "احجز جلسة إرشاد مجّانيّة", en: "Book a free mentoring session" })}
+          >
+            {t({ ar: "احجز جلسة مجّانًا", en: "Book a free session" })}
+          </a>
         </div>
       }
     >
@@ -282,6 +308,8 @@ export default function Experts() {
               </div>
             )}
           </motion.div>
+
+          <div id="experts-grid" className="scroll-mt-28" aria-hidden />
 
           {/* Empty state when search/filter matches nothing — held in register */}
           {isFiltering && (filtered?.length ?? 0) === 0 ? (

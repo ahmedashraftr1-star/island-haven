@@ -83,10 +83,25 @@ export default function Investors() {
           </div>
           <p className="t-body text-[15px] mt-4 leading-relaxed">
             {t({
-              ar: "نعمل مع مستثمرين ومانحين دوليّين ومحلّيّين يؤمنون أنّ موهبة غزّة استثمارٌ لا صدقة. القائمة الكاملة في الأسفل.",
-              en: "We work with international and local investors and donors who believe Gaza's talent is an investment, not charity. The full roster is below.",
+              ar: "نعمل مع مستثمرين ومانحين دوليّين ومحلّيّين يؤمنون أنّ موهبة غزّة استثمارٌ لا صدقة.",
+              en: "We work with international and local investors and donors who believe Gaza's talent is an investment, not charity.",
             })}
           </p>
+          <div className="mt-5 border-t border-border-strong pt-4 space-y-3">
+            {[
+              { num: { ar: "+١٠٠٠", en: "1000+" }, label: t({ ar: "كفاءة غزّيّة مستفيدة", en: "Gazan talents reached" }) },
+              { num: { ar: "٣", en: "3" }, label: t({ ar: "سنوات تشغيل مستمرّ", en: "years running" }) },
+              { num: { ar: "٨", en: "8" }, label: t({ ar: "مشاريع ناشئة في المحفظة", en: "ventures in the portfolio" }) },
+              { num: { ar: "١٠٠٪", en: "100%" }, label: t({ ar: "مجّانيّ للمنتسب", en: "free for members" }) },
+            ].map((r) => (
+              <div key={r.label} className="flex items-start justify-between gap-3">
+                <span className="text-[13px] text-fg-secondary leading-snug">{r.label}</span>
+                <span className="font-mono font-bold text-sand tnum text-xl shrink-0">
+                  {lang === "en" ? r.num.en : r.num.ar}
+                </span>
+              </div>
+            ))}
+          </div>
           <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
           <div className="flex items-center gap-2.5">
             <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />

@@ -62,7 +62,7 @@ const CHANNELS: ChannelRow[] = [
   {
     icon: MessageCircle,
     label: { ar: "واتساب", en: "WhatsApp" },
-    value: PHONE_DISPLAY,
+    value: "wa.me/97256753681",
     hint: { ar: "محادثة سريعة ومباشرة", en: "A quick, direct chat" },
     href: WHATSAPP_URL,
     external: true,

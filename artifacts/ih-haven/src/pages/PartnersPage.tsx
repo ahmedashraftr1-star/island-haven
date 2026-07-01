@@ -200,6 +200,18 @@ export default function PartnersPage() {
               en: "Institutions, companies and global organisations backing Gaza's talent — with support, network and real opportunity.",
             })}
           </p>
+          <div className="mt-5 border-t border-border-strong pt-4 space-y-3">
+            {[
+              { num: t({ ar: "٤", en: "4" }), label: t({ ar: "جهات داعمة رسميّة", en: "official backers" }) },
+              { num: t({ ar: "+٥", en: "5+" }), label: t({ ar: "منصّات وأدوات مفتوحة", en: "open platforms & tools" }) },
+              { num: t({ ar: "١٠٠٪", en: "100%" }), label: t({ ar: "مجّانيّ للمنتسب", en: "free for members" }) },
+            ].map((r) => (
+              <div key={r.label} className="flex items-start justify-between gap-3">
+                <span className="text-[13px] text-fg-secondary leading-snug">{r.label}</span>
+                <span className="font-mono font-bold text-sand tnum text-xl shrink-0">{r.num}</span>
+              </div>
+            ))}
+          </div>
           <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
           <div className="flex items-center gap-2.5">
             <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
