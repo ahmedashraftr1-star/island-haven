@@ -339,7 +339,7 @@ function ToolCard({
         target="_blank"
         rel="noreferrer"
         data-testid={`partner-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
-        className="card-base card-hover group flex h-full flex-col p-6 sm:p-7"
+        className="card-glass card-hover group flex h-full flex-col p-6 sm:p-7"
       >
         <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3.5 min-w-0">
