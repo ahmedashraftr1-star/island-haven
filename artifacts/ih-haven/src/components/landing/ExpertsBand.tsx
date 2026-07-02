@@ -18,6 +18,20 @@ interface ExpertCard {
 }
 
 /**
+ * Initials for the avatar fallback — first letters of the first two meaningful
+ * name words, skipping single-letter honorifics ("م.", "أ.", "د."). Derived, not
+ * hardcoded, so it holds for any mentor the API returns.
+ */
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const words = parts.filter((w) => w.replace(/\./g, "").length > 1);
+  return (words.length ? words : parts)
+    .slice(0, 2)
+    .map((w) => w.charAt(0))
+    .join("");
+}
+
+/**
  * ExpertsBand — the mentor roster, told the Apple way: SCALE + SPACE + RESTRAINT.
  *
  * Grandeur pass: gone are the crimson medallion card-deck, the featured-star
@@ -252,8 +266,9 @@ export function ExpertsBand() {
                     data-testid={`home-expert-${e.id}`}
                     className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
                   >
-                    {/* Portrait — a real dignified face where one exists; otherwise the
-                        name simply stands alone. No initial-medallion fallback. */}
+                    {/* Portrait — a real face where one exists; otherwise a toned
+                        initial-avatar (crimson / cerulean, alternating) so every
+                        mentor carries a visual identity in the booking list. */}
                     {e.avatarUrl ? (
                       <div className="relative h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 overflow-hidden rounded-full ring-1 ring-white/10">
                         <img
@@ -264,7 +279,17 @@ export function ExpertsBand() {
                         />
                       </div>
                     ) : (
-                      <span aria-hidden className="h-[clamp(3.5rem,7vw,5rem)] w-px shrink-0 bg-border-strong/0" />
+                      <span
+                        aria-hidden
+                        className={`inline-flex h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 items-center justify-center rounded-full ring-1 font-display font-black leading-none transition-transform duration-500 group-hover:scale-[1.05] ${
+                          i % 2 === 0
+                            ? "bg-primary/15 ring-primary/30 text-primary"
+                            : "bg-sand/15 ring-sand/30 text-sand-bright"
+                        }`}
+                        style={{ fontSize: "clamp(1.05rem,2vw,1.6rem)" }}
+                      >
+                        {initials(e.fullName)}
+                      </span>
                     )}
 
                     <div className="min-w-0">
