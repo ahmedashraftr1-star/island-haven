@@ -158,6 +158,12 @@ export function SuccessStories() {
                   {lead.quote}
                 </motion.blockquote>
 
+                {lang === "en" && (
+                  <p className="mt-4 text-fg-faint text-[11px] tracking-[0.2em] uppercase">
+                    Original · Arabic
+                  </p>
+                )}
+
                 <motion.figcaption
                   initial={reduce ? false : { opacity: 0, y: 14 }}
                   whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -216,6 +222,11 @@ export function SuccessStories() {
                     >
                       {s.quote}
                     </blockquote>
+                    {lang === "en" && (
+                      <p className="mt-3 text-fg-faint text-[11px] tracking-[0.2em] uppercase">
+                        Original · Arabic
+                      </p>
+                    )}
                     <figcaption className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <span className="font-bold text-foreground text-[15px]">{s.personName}</span>
                       <span className="text-muted-foreground t-caption">
