@@ -31,30 +31,30 @@ export function HoursLocation() {
   });
   const imgY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
 
+  // The CMS "hours" section only ships the Arabic fields (titleA/titleB/…),
+  // never their EN counterparts — so we mirror the about-section pattern:
+  // the Arabic comes from the CMS (or the AR fallback here), and a static EN
+  // fallback (…En) carries English until the CMS grows those fields. If the CMS
+  // later adds e.g. titleAEn, it wins automatically via the override merge.
   const FALLBACK = {
-    titleA: t({ ar: "زرنا.", en: "Visit us." }),
-    titleB: t({ ar: "اعرف أين", en: "Find out where" }),
-    titleAccent: t({ ar: "نحن.", en: "we are." }),
-    sub: t({
-      ar: "ساعات العمل، الموقع، وكلّ ما تحتاج معرفته قبل أن تأتي.",
-      en: "Opening hours, our location, and everything you need to know before you come.",
-    }),
-    locationTitle: t({
-      ar: "في قلب غزّة، على ضفّة المتوسّط.",
-      en: "In the heart of Gaza, on the Mediterranean shore.",
-    }),
-    locationBody: t({
-      ar: "المساحة في موقع آمن ومركزيّ نُرسله عبر الرسائل الخاصّة بعد تأكيد الانتساب.",
-      en: "The space sits in a safe, central location we share by private message once your membership is confirmed.",
-    }),
-    locationStatus: t({
-      ar: "مفتوح الآن للزوّار بموعد مسبق",
-      en: "Open now for visitors with an appointment",
-    }),
-    locationCoords: t({
-      ar: "٣١.٥٠° ش · ٣٤.٤٧° شرق",
-      en: "31.50° N · 34.47° E",
-    }),
+    titleA: "تابعنا، سجّل،",
+    titleAEn: "Follow us, sign up,",
+    titleB: "أو",
+    titleBEn: "or",
+    titleAccent: "زرنا.",
+    titleAccentEn: "visit us.",
+    sub: "نحن متواجدون على كلّ المنصّات الرئيسيّة. اختر القناة التي تناسبك واختبر المساحة قبل أن تقرّر.",
+    subEn: "We're on every major platform. Choose your channel and get a feel for the space before you decide.",
+    locationTitle: "في قلب غزّة، على ضفّة المتوسّط.",
+    locationTitleEn: "In the heart of Gaza, on the shores of the Mediterranean.",
+    locationBody:
+      "المساحة في موقع آمن ومركزيّ نُرسله عبر الرسائل الخاصّة بعد تأكيد الانتساب. النقطة النابضة على الخريطة تدلّ على الحيّ تقريباً — لا الإحداثيّات الدقيقة.",
+    locationBodyEn:
+      "The space is in a secure, central location — we share the exact address privately after your membership is confirmed. The pulsing dot on the map shows the approximate neighbourhood.",
+    locationStatus: "مفتوح الآن للزوّار بموعد مسبق",
+    locationStatusEn: "Open now for visitors with an appointment",
+    locationCoords: "٣١.٥٠° ش · ٣٤.٤٧° شرق",
+    locationCoordsEn: "31.50° N · 34.47° E",
   };
 
   const c = useContentSection("hours", FALLBACK);
@@ -78,9 +78,9 @@ export function HoursLocation() {
             }}
           >
             {[
-              c.titleA,
-              c.titleB,
-              <span key="accent" className="text-primary">{c.titleAccent}</span>,
+              t({ ar: c.titleA, en: c.titleAEn }),
+              t({ ar: c.titleB, en: c.titleBEn }),
+              <span key="accent" className="text-primary">{t({ ar: c.titleAccent, en: c.titleAccentEn })}</span>,
             ].map((ln, i) => (
               <motion.span
                 key={i}
@@ -103,7 +103,7 @@ export function HoursLocation() {
             className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
             style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
           >
-            {c.sub}
+            {t({ ar: c.sub, en: c.subEn })}
           </motion.p>
         </header>
 
@@ -157,7 +157,7 @@ export function HoursLocation() {
                   viewport={{ once: true, amount: 0.5 }}
                   transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
                 >
-                  {c.locationTitle}
+                  {t({ ar: c.locationTitle, en: c.locationTitleEn })}
                 </motion.h3>
 
                 <motion.p
@@ -168,7 +168,7 @@ export function HoursLocation() {
                   viewport={{ once: true, amount: 0.5 }}
                   transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
                 >
-                  {c.locationBody}
+                  {t({ ar: c.locationBody, en: c.locationBodyEn })}
                 </motion.p>
 
                 {/* Quiet co-ordinate line — the hand-drawn map reads as a mark
@@ -184,9 +184,9 @@ export function HoursLocation() {
                   <div className="min-w-0">
                     <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/90">
                       <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
-                      {c.locationStatus}
+                      {t({ ar: c.locationStatus, en: c.locationStatusEn })}
                     </div>
-                    <div className="mt-1.5 text-[13px] font-mono tnum text-white/55">{c.locationCoords}</div>
+                    <div className="mt-1.5 text-[13px] font-mono tnum text-white/55">{t({ ar: c.locationCoords, en: c.locationCoordsEn })}</div>
                   </div>
                 </motion.div>
 
