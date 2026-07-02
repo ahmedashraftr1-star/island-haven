@@ -152,6 +152,7 @@ export function NewsSlider() {
             </p>
           </div>
         ) : (
+          <div className="relative -mx-6 lg:-mx-12">
           <div
             ref={trackRef}
             role="region"
@@ -166,7 +167,7 @@ export function NewsSlider() {
                 scrollBy(-1);
               }
             }}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth scrollbar-thin rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 px-6 lg:px-12 scroll-smooth scrollbar-thin rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             style={{ scrollbarColor: "transparent transparent" }}
           >
             {posts.map((p, i) => {
@@ -238,6 +239,11 @@ export function NewsSlider() {
                 </Reveal>
               );
             })}
+          </div>
+            {/* Edge fades — signal that the track scrolls; physical left/right so
+                they read correctly in both RTL and LTR. */}
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-14 bg-gradient-to-r from-surface-1 to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-14 bg-gradient-to-l from-surface-1 to-transparent" />
           </div>
         )}
 
