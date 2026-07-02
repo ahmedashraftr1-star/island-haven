@@ -154,7 +154,19 @@ export function NewsSlider() {
         ) : (
           <div
             ref={trackRef}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth scrollbar-thin"
+            role="region"
+            aria-label={lang === "en" ? "Events carousel" : "شريط الفعاليّات"}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowRight") {
+                e.preventDefault();
+                scrollBy(1);
+              } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                scrollBy(-1);
+              }
+            }}
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth scrollbar-thin rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             style={{ scrollbarColor: "transparent transparent" }}
           >
             {posts.map((p, i) => {
