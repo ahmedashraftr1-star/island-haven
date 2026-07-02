@@ -206,7 +206,7 @@ export function Footer() {
                         "inline-flex items-center gap-1.5 transition-colors w-fit " +
                         (link.accent
                           ? "text-primary font-semibold hover:text-primary-bright"
-                          : "text-fg-secondary hover:text-primary")
+                          : "link-hover-slide text-fg-secondary hover:text-primary")
                       }
                     >
                       {t(link.label)}

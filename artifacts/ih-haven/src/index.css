@@ -567,6 +567,39 @@
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+/* ── LINK UNDERLINE SLIDE — a hairline that wipes in from the leading edge on
+   hover and out to the trailing edge on leave. currentColor so it inherits the
+   link's own colour. For text links only (never CTAs). ── */
+.link-hover-slide {
+  position: relative;
+}
+.link-hover-slide::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  inset-inline: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s ease;
+}
+[dir="ltr"] .link-hover-slide::after {
+  transform-origin: left;
+}
+.link-hover-slide:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+[dir="ltr"] .link-hover-slide:hover::after {
+  transform-origin: right;
+}
+@media (prefers-reduced-motion: reduce) {
+  .link-hover-slide::after {
+    transition: none;
+  }
+}
+
 /* ── PRIMARY CTA FILL — AA-compliant. Use on filled red buttons that carry
    WHITE labels instead of bare `bg-primary text-primary-foreground` (which fails
    AA at 3.95:1). White on this darker red reaches ≈4.76:1. Hover lifts toward the
