@@ -295,6 +295,20 @@ export function Hero() {
         />
       </motion.div>
 
+      {/* Ambient color field — a slow crimson/gold breathing glow settled into the
+          dark corners, giving the hero a living, iOS-like depth. Framer-driven (no
+          new keyframe); reduced-motion holds it perfectly still. */}
+      <motion.div
+        aria-hidden
+        className="absolute inset-0 z-[1] pointer-events-none will-change-transform"
+        style={{
+          background:
+            "radial-gradient(50% 45% at 84% 16%, rgba(233,74,51,0.10) 0%, transparent 62%), radial-gradient(52% 50% at 14% 86%, rgba(224,178,102,0.07) 0%, transparent 64%)",
+        }}
+        animate={reduce ? undefined : { scale: [1, 1.08, 1], opacity: [0.82, 1, 0.82] }}
+        transition={reduce ? undefined : { duration: 20, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       <motion.div
         initial={{ y: -10 }}
         animate={{ opacity: 1, y: 0 }}
