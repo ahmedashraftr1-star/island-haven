@@ -195,6 +195,23 @@ export function NewsSlider() {
                           : { background: "radial-gradient(130% 120% at 50% 0%, hsl(var(--primary) / 0.20) 0%, hsl(var(--surface-3)) 70%)" }
                       }
                     >
+                      {/* Imageless cover — a subtle gold dot-grid over the crimson
+                          wash so the card reads as editorial, never an empty void. */}
+                      {!p.coverUrl && (
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-0 opacity-60"
+                          style={{
+                            backgroundImage:
+                              "radial-gradient(hsl(var(--sand) / 0.16) 1px, transparent 1.5px)",
+                            backgroundSize: "14px 14px",
+                            WebkitMaskImage:
+                              "radial-gradient(125% 100% at 50% 0%, #000 28%, transparent 76%)",
+                            maskImage:
+                              "radial-gradient(125% 100% at 50% 0%, #000 28%, transparent 76%)",
+                          }}
+                        />
+                      )}
                       {p.coverUrl ? (
                         <img
                           src={p.coverUrl}
