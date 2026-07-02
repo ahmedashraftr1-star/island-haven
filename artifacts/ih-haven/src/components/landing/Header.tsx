@@ -25,6 +25,7 @@ import {
   Heart,
   Newspaper,
   Phone,
+  LogIn,
   type LucideProps,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -416,6 +417,13 @@ export function Header() {
           </button>
           <LangToggle tone="onDark" />
           <Link
+            href="/login"
+            className="hidden xl:inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-[12.5px] font-medium text-white/70 transition-colors duration-200 hover:text-white hover:bg-white/[0.06]"
+          >
+            <LogIn className="w-3.5 h-3.5 rtl:-scale-x-100" aria-hidden />
+            {t({ ar: "دخول الأعضاء", en: "Member Login" })}
+          </Link>
+          <Link
             href="/book"
             className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] bg-white/10 backdrop-blur-md border border-white/15 text-white hover:bg-white/15"
           >
@@ -543,6 +551,14 @@ export function Header() {
               }}
               className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10"
             >
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="mb-3 inline-flex items-center gap-2 text-[13.5px] font-medium text-white/70 transition-colors hover:text-white"
+              >
+                <LogIn className="w-4 h-4 rtl:-scale-x-100" aria-hidden />
+                {t({ ar: "دخول الأعضاء", en: "Member Login" })}
+              </Link>
               <div className="flex items-center gap-3">
                 <LangToggle tone="onDark" />
                 <Link
