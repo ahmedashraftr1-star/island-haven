@@ -68,7 +68,13 @@ export function CinematicBand() {
         className="relative z-10 h-full flex items-center will-change-transform"
       >
         <div className="container-ih w-full">
-          <div className="max-w-3xl">
+          <div className="relative max-w-3xl ps-6 sm:ps-8">
+            {/* Crimson spine — a quiet typographic anchor on the logical-start
+                edge, ~60% height and centered. RTL-safe (start/ps). */}
+            <span
+              aria-hidden
+              className="absolute inset-y-[20%] start-0 w-[3px] rounded-full bg-primary"
+            />
             <div className="flex items-center gap-3 mb-6">
               <span className="h-px w-10 bg-white/50" />
               <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold rtl:tracking-normal">
