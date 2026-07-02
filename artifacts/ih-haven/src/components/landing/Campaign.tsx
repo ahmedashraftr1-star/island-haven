@@ -68,8 +68,9 @@ export function Campaign() {
       data-testid="campaign-band"
     >
       <div className="container-ih relative">
-        {/* ── The monumental ask — one calm line, one crimson word, acres of space ── */}
-        <header className="max-w-[20ch]">
+        {/* ── The monumental ask — headline (start) balanced by its supporting
+             paragraph (end) so the opposite viewport half is never a void. ── */}
+        <header className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:gap-x-[clamp(2.5rem,6vw,6rem)]">
           <h2
             className="font-display text-foreground"
             style={{
@@ -104,7 +105,7 @@ export function Campaign() {
             whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-8%" }}
             transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
-            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] max-w-2xl text-fg-secondary"
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] lg:mt-0 max-w-2xl text-fg-secondary"
             style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
           >
             {t({
