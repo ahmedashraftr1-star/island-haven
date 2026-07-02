@@ -12,6 +12,7 @@ import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 // Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
 const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: K) =>
   p.then((m) => ({ default: m[k] }));
+const LiveWorkTicker = lazy(() => named(import("@/components/landing/LiveWorkTicker"), "LiveWorkTicker"));
 const Partners = lazy(() => named(import("@/components/landing/Partners"), "Partners"));
 const WhatYouGet = lazy(() => named(import("@/components/landing/WhatYouGet"), "WhatYouGet"));
 const WhyIslandHaven = lazy(() => named(import("@/components/landing/WhyIslandHaven"), "WhyIslandHaven"));
@@ -60,6 +61,7 @@ export default function Home() {
         <NumbersBand />
         <SectionErrorBoundary>
           <Suspense fallback={null}>
+            <LiveWorkTicker />
             <Partners />
             <WhatYouGet />
             <WhyIslandHaven />
