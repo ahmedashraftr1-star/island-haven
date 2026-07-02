@@ -42,7 +42,7 @@ const OPEN_GREEN = "hsl(160 64% 34%)"; // AA-safe green cursor when open now
  * every data-testid (day-tile-*).
  */
 export function OpeningHours() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15%" });
 
@@ -276,11 +276,14 @@ export function OpeningHours() {
               role="img"
               aria-labelledby="oh-title oh-desc"
             >
-              <title id="oh-title">ساعة آيلاند هيفن — ٢٤ ساعة</title>
+              <title id="oh-title">
+                {t({ ar: "ساعة آيلاند هيفن — ٢٤ ساعة", en: "Island Haven Clock — 24 Hours" })}
+              </title>
               <desc id="oh-desc">
-                ساعة دائريّة بأربعٍ وعشرين قسماً، يُظهر فيها قوسٌ ملوّن ساعات
-                العمل من الثامنة صباحاً حتّى الخامسة مساءً، ومؤشّر متحرّك
-                يعكس الوقت الحالي بتوقيت غزّة.
+                {t({
+                  ar: "ساعة دائريّة بأربعٍ وعشرين قسماً، يُظهر فيها قوسٌ ملوّن ساعات العمل من الثامنة صباحاً حتّى الخامسة مساءً، ومؤشّر متحرّك يعكس الوقت الحالي بتوقيت غزّة.",
+                  en: "A circular 24-hour clock; a coloured arc marks the working hours and a moving hand reflects the current time in Gaza.",
+                })}
               </desc>
               <defs>
                 <linearGradient id="oh-arc" x1="0" y1="0" x2="1" y2="1">
