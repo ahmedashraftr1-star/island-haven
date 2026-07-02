@@ -38,7 +38,6 @@ const FALLBACK = {
   image1: "/photos/IMG_8341.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
-  image4: "/photos/IMG_8357.webp",
   image5: "/photos/IMG_8352.webp",
   image6: "/photos/IMG_8300.webp",
 };
@@ -74,7 +73,6 @@ const EN_FALLBACK = {
   image1: "/photos/IMG_8341.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
-  image4: "/photos/IMG_8357.webp",
   image5: "/photos/IMG_8352.webp",
   image6: "/photos/IMG_8300.webp",
 };
@@ -177,9 +175,9 @@ export function Hero() {
 
   const stills = useMemo(
     () =>
-      // image4 (IMG_8357) is intentionally excluded from the rotation — it's the
-      // most heavily Eid-decorated frame; the cycle leads with the clean coder
-      // shot (image1 = IMG_8341) and keeps the packed-room energy via 8358/8300.
+      // IMG_8357 (the most Eid-decorated frame) is removed from the source
+      // entirely — there is no image4 key. The cycle leads with the clean coder
+      // shot (image1 = IMG_8341); packed-room energy stays via 8358/8300.
       [c.image1, c.image2, c.image3, c.image5, c.image6]
         .map(imageUrl)
         .filter(Boolean),
