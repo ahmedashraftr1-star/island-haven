@@ -32,6 +32,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { LangToggle } from "@/components/nav/LangToggle";
+import { LiveNewsDot } from "@/components/landing/LiveNewsDot";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   NAV_STRUCTURE,
@@ -415,6 +416,7 @@ export function Header() {
               <Command className="w-2.5 h-2.5" aria-hidden />K
             </span>
           </button>
+          <LiveNewsDot />
           <LangToggle tone="onDark" />
           <Link
             href="/login"
@@ -448,6 +450,9 @@ export function Header() {
           >
             <Search className="w-4 h-4" aria-hidden />
           </button>
+          <span className="lg:hidden">
+            <LiveNewsDot />
+          </span>
           <LangToggle tone="onDark" />
           <button
             onClick={() => setOpen((v) => !v)}
