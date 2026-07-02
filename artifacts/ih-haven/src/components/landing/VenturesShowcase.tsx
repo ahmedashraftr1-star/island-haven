@@ -54,6 +54,7 @@ function VentureCard({
   const vid = ventureIdentity(v.sector, v.id);
   const stage = lang === "ar" ? STAGE_AR[v.stage] ?? v.stage : STAGE_EN[v.stage] ?? v.stage;
   const n = (lang === "ar" ? (index + 1).toLocaleString("ar-EG") : String(index + 1)).padStart(2, "0");
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <Reveal as="div">
@@ -70,8 +71,15 @@ function VentureCard({
             alt={v.name}
             loading="lazy"
             decoding="async"
+            onLoad={() => setLoaded(true)}
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
             className="absolute inset-0 h-[118%] w-full object-cover object-center saturate-[1.05] transition-transform duration-[1300ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.045]"
+          />
+          {/* Loading veil — a branded shimmer so a below-fold card never flashes
+              pure black before its lazy cover paints. Fades out on load. */}
+          <div
+            aria-hidden
+            className={`absolute inset-0 skeleton-shimmer pointer-events-none transition-opacity duration-500 ease-out motion-reduce:transition-none ${loaded ? "opacity-0" : "opacity-100"}`}
           />
           {/* sector identity wash — a deep, distinct hue per venture (soft-light,
               so the photograph stays intact) */}
