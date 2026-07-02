@@ -37,6 +37,7 @@ export function WhatYouGet() {
       tag: "WORKSPACE",
       Icon: Monitor,
       wide: true,
+      lead: true,
       stat: "٦",
       title: t({ ar: "مساحة عمل مجّانيّة", en: "A free workspace" }),
       body: t({
@@ -159,6 +160,8 @@ export function WhatYouGet() {
                 href={g.href}
                 data-testid={`pillar-${g.href.slice(1)}`}
                 className={`group relative flex h-full flex-col gap-6 overflow-hidden p-7 sm:p-8 transition-colors duration-300 motion-reduce:transition-none ${
+                  g.lead ? "border-t-2 border-t-primary" : ""
+                } ${
                   g.accent
                     ? "bg-background hover:bg-primary/[0.04] border-e-2 border-e-primary/30"
                     : "bg-background hover:bg-surface-2"
