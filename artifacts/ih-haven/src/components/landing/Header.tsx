@@ -332,6 +332,7 @@ export function Header() {
               <img
                 src={imageUrl(c.logo)}
                 alt={c.brand}
+                decoding="async"
                 className="w-full h-full object-contain"
               />
             </div>
