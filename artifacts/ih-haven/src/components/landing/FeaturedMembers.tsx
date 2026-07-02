@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,6 +18,7 @@ interface FMember {
  *  Renders nothing on error so the homepage never shows a broken section. */
 export function FeaturedMembers() {
   const { t } = useLanguage();
+  const reduce = useReducedMotion();
   const [members, setMembers] = useState<FMember[] | null>(null);
 
   useEffect(() => {
@@ -57,10 +59,14 @@ export function FeaturedMembers() {
           {members.map((m) => {
             const initial = m.fullName.trim().charAt(0);
             return (
-              <li key={m.id}>
+              <motion.li
+                key={m.id}
+                whileHover={reduce ? undefined : { y: -4, scale: 1.01 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
                 <Link
                   href={`/u/${m.id}`}
-                  className="group flex h-full flex-col rounded-[18px] border border-border-strong bg-surface-2/40 p-5 transition-[transform,border-color] duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+                  className="group flex h-full flex-col rounded-[18px] border border-border-strong bg-surface-2/40 p-5 transition-colors duration-300 hover:border-primary/40"
                 >
                   <div className="flex items-center gap-3">
                     {m.avatarUrl ? (
@@ -98,7 +104,7 @@ export function FeaturedMembers() {
                     <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                   </span>
                 </Link>
-              </li>
+              </motion.li>
             );
           })}
         </ul>
