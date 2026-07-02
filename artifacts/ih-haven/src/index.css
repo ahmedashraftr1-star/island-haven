@@ -543,6 +543,30 @@
   .card-hover:hover { transform: none; }
 }
 
+/* ── LIQUID GLASS SURFACE (iOS-26 register) — a barely-perceptible translucent
+   panel that reads as depth over the near-black canvas, clarifying on hover.
+   Calibrated, not frosted-glass-2019. Use on discrete containers only (never on
+   the hairline bento or full-bleed cinematic bands). Plain class (pseudo-state +
+   vendor-prefixed backdrop-filter). ── */
+.card-glass {
+  background: rgba(255, 255, 255, 0.035);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--card-radius);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.15) inset,
+    0 4px 24px rgba(0, 0, 0, 0.25);
+  transition:
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-glass:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 /* ── PRIMARY CTA FILL — AA-compliant. Use on filled red buttons that carry
    WHITE labels instead of bare `bg-primary text-primary-foreground` (which fails
    AA at 3.95:1). White on this darker red reaches ≈4.76:1. Hover lifts toward the
