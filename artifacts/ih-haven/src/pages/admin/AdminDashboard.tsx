@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import {
   LayoutDashboard,
+  ListChecks,
   Inbox,
   FileText,
   BarChart3,
@@ -37,6 +38,7 @@ import AdminBookings from "./AdminBookings";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
+import AdminTasks from "./AdminTasks";
 import AdminCourses from "./AdminCourses";
 import AdminDaily from "./AdminDaily";
 import AdminUsers from "./AdminUsers";
@@ -62,6 +64,7 @@ import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
   | "overview"
+  | "tasks"
   | "bookings"
   | "applications"
   | "users"
@@ -90,6 +93,7 @@ type Tab =
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
+  { id: "tasks", label: "المهام والتواصل", Icon: ListChecks },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
   { id: "applications", label: "الطلبات", Icon: Inbox },
   { id: "users", label: "المستخدمون", Icon: Users },
@@ -311,6 +315,7 @@ export default function AdminDashboard() {
 
         <div className="p-5 lg:p-8 max-w-[1400px] mx-auto">
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
+          {tab === "tasks" && <AdminTasks />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "applications" && <AdminApplications />}
           {tab === "users" && <AdminUsers />}

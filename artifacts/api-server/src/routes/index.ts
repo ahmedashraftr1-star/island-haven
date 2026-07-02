@@ -40,6 +40,7 @@ import searchRouter from "./search";
 import jobsRouter from "./jobs";
 import newsletterRouter from "./newsletter";
 import investorsRouter from "./investors";
+import tasksRouter from "./tasks";
 
 const router: IRouter = Router();
 
@@ -84,5 +85,6 @@ router.use(searchRouter);
 router.use(jobsRouter);
 router.use(newsletterRouter);
 router.use(investorsRouter);
+router.use(tasksRouter);
 
 export default router;
