@@ -63,7 +63,7 @@ export function ExpertsBand() {
       <section
         id="experts"
         className="relative bg-surface-1 overflow-hidden"
-        style={{ paddingBlock: "clamp(6.5rem, 17vh, 13rem)" }}
+        style={{ paddingTop: "clamp(4rem, 10vh, 8rem)", paddingBottom: "clamp(6.5rem, 17vh, 13rem)" }}
         data-testid="experts-band"
       >
         <div className="container-ih relative">
