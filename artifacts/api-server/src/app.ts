@@ -7,6 +7,11 @@ import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { rateLimitStore } from "./lib/rateLimitStore";
+import {
+  metricsMiddleware,
+  metricsHandler,
+  rateLimitEvents,
+} from "./lib/metrics";
 
 const app: Express = express();
 
@@ -38,6 +43,15 @@ app.use((_req, res, next) => {
   next();
 });
 
+// ─── Metrics ──────────────────────────────────────────────────────────────────
+// Record count + latency for every request, and expose Prometheus text at
+// /metrics. Mounted before rate limiting so the scrape itself is never limited.
+// NOTE: /metrics is UNAUTHENTICATED — it must NOT be reachable from the public
+// internet. Restrict it at the reverse proxy (IP allowlist to the Prometheus
+// scraper, or basic auth). That is a deployment/infra decision — not done here.
+app.use(metricsMiddleware);
+app.get("/metrics", metricsHandler);
+
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 // Strict limiter on auth endpoints (login, register, password reset) to block
 // brute-force and credential-stuffing attacks.
@@ -49,6 +63,10 @@ const authLimiter = rateLimit({
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
   skipSuccessfulRequests: false,
   store: rateLimitStore("rl:auth:"),
+  handler: (_req, res, _next, options) => {
+    rateLimitEvents.inc({ limiter: "auth", result: "blocked" });
+    res.status(options.statusCode).json(options.message);
+  },
 });
 
 // General limiter for all other API routes — prevents DDoS / scraping.
@@ -62,6 +80,10 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
   store: rateLimitStore("rl:general:"),
+  handler: (_req, res, _next, options) => {
+    rateLimitEvents.inc({ limiter: "general", result: "blocked" });
+    res.status(options.statusCode).json(options.message);
+  },
 });
 
 app.use(
@@ -161,6 +183,12 @@ app.use(STRICT_AUTH_PATHS, (req, res, next) => {
   return authLimiter(req, res, next);
 });
 app.use("/api", generalLimiter);
+// A request that reaches here passed the general limiter (blocked ones are
+// short-circuited in the limiter's handler above).
+app.use("/api", (_req, _res, next) => {
+  rateLimitEvents.inc({ limiter: "general", result: "allowed" });
+  next();
+});
 
 // ─── Edge/browser caching for ANONYMOUS public reads ─────────────────────────
 // The biggest scale lever without new infra: let a CDN/browser absorb the read

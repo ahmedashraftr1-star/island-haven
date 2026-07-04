@@ -14,6 +14,11 @@ import { logger } from "./logger";
 let redisClient: Redis | null = null;
 let redisReady = false;
 
+/** Whether the shared Redis rate-limit store is connected (for /metrics gauge). */
+export function isRedisReady(): boolean {
+  return redisReady;
+}
+
 /**
  * Probe Redis once at startup. Must run BEFORE the app assembles its limiters
  * (see index.ts), because express-rate-limit binds its store at creation time.
