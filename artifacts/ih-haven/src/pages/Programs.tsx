@@ -16,7 +16,9 @@ import {
 export interface ProgramRow {
   id: number;
   title: string;
+  titleEn: string | null;
   summary: string;
+  summaryEn: string | null;
   coverUrl: string | null;
   durationWeeks: number;
   seats: number;
@@ -166,7 +168,9 @@ export default function Programs() {
                   <span className="font-mono text-[11px] text-sand tnum shrink-0">
                     {num(i + 1, lang).padStart(2, lang === "ar" ? "٠" : "0")}
                   </span>
-                  <span className="text-[13px] text-fg-secondary line-clamp-1">{p.title}</span>
+                  <span className="text-[13px] text-fg-secondary line-clamp-1">
+                    {lang === "en" ? p.titleEn || p.title : p.title}
+                  </span>
                 </div>
               ))}
             </div>
@@ -792,6 +796,9 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
   const statusLabel =
     lang === "ar" ? PROGRAM_STATUS_LABELS[p.status] : PROGRAM_STATUS_LABELS_EN[p.status];
   const tags = splitTags(p.tags).slice(0, 3);
+  // Arabic-first content with an EN fallback from the DB (null → keep Arabic).
+  const title = lang === "en" ? p.titleEn || p.title : p.title;
+  const summary = lang === "en" ? p.summaryEn || p.summary : p.summary;
 
   // Real DATA only — cerulean (sand) is reserved for these hard figures.
   const facts: string[] = [];
@@ -827,7 +834,7 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
             <div className="relative h-[clamp(4.5rem,9vw,7rem)] w-[clamp(6rem,12vw,11rem)] shrink-0 overflow-hidden rounded-[14px] ring-1 ring-white/10 bg-surface-3">
               <img
                 src={p.coverUrl}
-                alt={p.title}
+                alt={title}
                 loading="lazy"
                 className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
               />
@@ -857,11 +864,11 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
               className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
               style={{ fontSize: "clamp(1.4rem,3vw,2.3rem)", letterSpacing: "-0.028em", lineHeight: 1.1 }}
             >
-              {p.title}
+              {title}
             </h3>
-            {p.summary && (
+            {summary && (
               <p className="t-body text-[15px] md:text-[16px] mt-2 max-w-xl line-clamp-2">
-                {p.summary}
+                {summary}
               </p>
             )}
             {(facts.length > 0 || p.applyDeadline) && (

@@ -45,7 +45,9 @@ router.get("/programs", async (_req, res) => {
       .select({
         id: programsTable.id,
         title: programsTable.title,
+        titleEn: programsTable.titleEn,
         summary: programsTable.summary,
+        summaryEn: programsTable.summaryEn,
         coverUrl: programsTable.coverUrl,
         durationWeeks: programsTable.durationWeeks,
         seats: programsTable.seats,
@@ -246,7 +248,9 @@ router.post("/admin/programs", requireAdmin, async (req, res) => {
       .insert(programsTable)
       .values({
         title: d.title,
+        titleEn: d.titleEn ?? null,
         summary: d.summary,
+        summaryEn: d.summaryEn ?? null,
         description: d.description,
         coverUrl: d.coverUrl ?? null,
         durationWeeks: d.durationWeeks,
@@ -282,7 +286,9 @@ router.patch("/admin/programs/:id", requireAdmin, async (req, res) => {
     const update: Record<string, unknown> = { updatedAt: new Date() };
     for (const k of [
       "title",
+      "titleEn",
       "summary",
+      "summaryEn",
       "description",
       "durationWeeks",
       "seats",

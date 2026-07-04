@@ -27,7 +27,11 @@ export const programsTable = pgTable(
   {
     id: serial("id").primaryKey(),
     title: varchar("title", { length: 200 }).notNull(),
+    // Optional English counterparts. Null = not yet translated → the client
+    // falls back to the Arabic title/summary. Content is Arabic-first.
+    titleEn: varchar("title_en", { length: 200 }),
     summary: varchar("summary", { length: 400 }).default("").notNull(),
+    summaryEn: varchar("summary_en", { length: 400 }),
     description: text("description").default("").notNull(),
     coverUrl: text("cover_url"),
     durationWeeks: integer("duration_weeks").default(0).notNull(),
@@ -99,7 +103,9 @@ const safeText = (max: number) =>
 
 export const upsertProgramSchema = z.object({
   title: safeText(200).min(2, "العنوان قصير جدًّا"),
+  titleEn: safeText(200).optional().nullable(),
   summary: safeText(400).default(""),
+  summaryEn: safeText(400).optional().nullable(),
   description: safeText(8000).default(""),
   coverUrl: z.string().trim().max(800).optional().nullable(),
   durationWeeks: z.number().int().min(0).max(520).default(0),
