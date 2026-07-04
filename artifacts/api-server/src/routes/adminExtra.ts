@@ -10,6 +10,7 @@ import {
   coursesTable,
   pageViewsTable,
   siteSettingsTable,
+  auditLogTable,
   ALL_USER_ROLES,
   USER_STATUSES,
   WORK_STATUSES,
@@ -21,6 +22,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { writeAudit } from "../lib/audit";
 import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
@@ -98,6 +100,12 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
     return;
   }
   try {
+    // Read the old role/status first so the audit trail can record old→new.
+    const [before] = await db
+      .select({ role: usersTable.role, status: usersTable.status })
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     for (const [k, v] of Object.entries(parsed.data)) {
       if (k === "password" && typeof v === "string" && v.length >= 8) {
@@ -114,6 +122,28 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
     if (!row) {
       res.status(404).json({ error: "غير موجود" });
       return;
+    }
+    // Audit privileged transitions (role, status). Fire-and-forget.
+    if (before && (before.role !== row.role || before.status !== row.status)) {
+      const actor = (await getAdminEmail()) ?? "admin";
+      if (before.role !== row.role)
+        void writeAudit({
+          actor,
+          action: "user_role_changed",
+          targetType: "user",
+          targetId: id,
+          oldValue: before.role,
+          newValue: row.role,
+        });
+      if (before.status !== row.status)
+        void writeAudit({
+          actor,
+          action: "user_status_changed",
+          targetType: "user",
+          targetId: id,
+          oldValue: before.status,
+          newValue: row.status,
+        });
     }
     invalidateNumbersCache();
     res.json({ user: publicUser(row) });
@@ -199,6 +229,12 @@ router.patch("/admin/works/:id", requireAdmin, async (req, res) => {
     return;
   }
   try {
+    // Capture old status first so a moderation change is auditable old→new.
+    const [before] = await db
+      .select({ status: worksTable.status })
+      .from(worksTable)
+      .where(eq(worksTable.id, id))
+      .limit(1);
     const [row] = await db
       .update(worksTable)
       .set({ ...parsed.data, updatedAt: new Date() })
@@ -208,11 +244,40 @@ router.patch("/admin/works/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    if (before && before.status !== row.status) {
+      const actor = (await getAdminEmail()) ?? "admin";
+      void writeAudit({
+        actor,
+        action: "work_status_changed",
+        targetType: "work",
+        targetId: id,
+        oldValue: before.status,
+        newValue: row.status,
+      });
+    }
     invalidateNumbersCache();
     res.json({ work: row });
   } catch (err) {
     logger.error({ err, id }, "PATCH /admin/works failed");
     res.status(500).json({ error: "تعذّر التحديث" });
+  }
+});
+
+// Paginated audit trail (newest first) — see lib/audit.ts + the audit_log table.
+router.get("/admin/audit", requireAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+    const offset = Math.max(0, Number(req.query.offset) || 0);
+    const rows = await db
+      .select()
+      .from(auditLogTable)
+      .orderBy(desc(auditLogTable.createdAt))
+      .limit(limit)
+      .offset(offset);
+    res.json({ audit: rows, limit, offset });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/audit failed");
+    res.status(500).json({ error: "تعذّر التحميل" });
   }
 });
 

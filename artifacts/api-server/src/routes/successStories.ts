@@ -11,6 +11,7 @@ import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail, storyDeletedEmail } from "../lib/email";
 import { queueEmail } from "../queues/enqueue";
+import { writeAudit } from "../lib/audit";
 import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
@@ -385,6 +386,19 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
       return;
     }
     res.json({ story: row });
+
+    // Audit any moderation status transition (approve / reject / …).
+    if (existing && existing.status !== row.status) {
+      const actor = (await getAdminEmail()) ?? "admin";
+      void writeAudit({
+        actor,
+        action: "story_status_changed",
+        targetType: "story",
+        targetId: id,
+        oldValue: existing.status,
+        newValue: row.status,
+      });
+    }
 
     // Notify the member if their story status changed to published or rejected
     const newStatus = parsed.data.status;
