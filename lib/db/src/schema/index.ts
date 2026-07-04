@@ -40,3 +40,4 @@ export * from "./worksComments";
 export * from "./worksSaves";
 export * from "./passwordResetTokens";
 export * from "./tasks";
+export * from "./auditLog";
