@@ -6,6 +6,7 @@ import {
   varchar,
   integer,
   date,
+  index,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { expertProfilesTable } from "./experts";
@@ -32,7 +33,13 @@ export const bookingsTable = pgTable("bookings", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (t) => ({
+  // Every booking-create runs two capacity SUM(attendees) queries inside the
+  // txn — one on (visit_date, time_slot), one on (visit_date). This composite
+  // serves both (the second via the leading column) so the hot write path
+  // never seq-scans the bookings table.
+  slotIdx: index("bookings_visit_slot_idx").on(t.visitDate, t.timeSlot),
+}));
 
 // Reject any HTML brackets / control chars to keep stored data clean
 // (React escapes on render, but we also export to admin lists / future emails).

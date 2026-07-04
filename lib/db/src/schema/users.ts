@@ -8,6 +8,7 @@ import {
   jsonb,
   integer,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { z } from "zod";
 // Role + link contracts live in a pure, dependency-free module (./user-roles)
 // so the frontends can import the TYPES via the pg-free "@workspace/db/contracts"
@@ -54,6 +55,13 @@ export const usersTable = pgTable(
   (t) => ({
     emailIdx: index("users_email_idx").on(t.email),
     roleIdx: index("users_role_idx").on(t.role),
+    // Public stats + directory filter `WHERE status = 'active'`, frequently
+    // combined with a role (the numbers.ts homepage counts). A *partial* index
+    // over only active rows, keyed by role, lets those COUNTs run as narrow
+    // index-only scans instead of scanning the full (wide) users heap.
+    activeRoleIdx: index("users_active_role_idx")
+      .on(t.role)
+      .where(sql`status = 'active'`),
   }),
 );
 

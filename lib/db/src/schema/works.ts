@@ -42,6 +42,11 @@ export const worksTable = pgTable(
   },
   (t) => ({
     userIdx: index("works_user_idx").on(t.userId),
+    // Serves the public gallery feed too: `WHERE status IN ('visible','featured')
+    // ORDER BY created_at DESC LIMIT n` is an Index-Scan-Backward + Filter here
+    // (reads ~LIMIT rows, ~0.04ms at 200k rows). A composite (status, created_at)
+    // was measured and NOT chosen — visible+featured are the row majority — so it
+    // would be dead write-cost. Profile lists filter by user_id (userIdx).
     createdIdx: index("works_created_idx").on(t.createdAt),
   }),
 );

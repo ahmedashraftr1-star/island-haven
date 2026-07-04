@@ -5,6 +5,7 @@ import {
   timestamp,
   integer,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -28,6 +29,14 @@ export const sessionRatingsTable = pgTable(
   },
   (t) => ({
     sessionUniq: uniqueIndex("session_ratings_session_uniq").on(t.sessionId),
+    // The experts list computes per-expert `AVG(rating)` + `COUNT(*)` as
+    // correlated subqueries (`WHERE expert_id = ?`), one pair per expert row.
+    // A composite (expert_id, rating) index answers both from the index alone
+    // (index-only scan) — no heap fetch per rating.
+    expertRatingIdx: index("session_ratings_expert_rating_idx").on(
+      t.expertId,
+      t.rating,
+    ),
   }),
 );
 
