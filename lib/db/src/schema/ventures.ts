@@ -60,6 +60,9 @@ export const venturesTable = pgTable(
   (t) => ({
     statusIdx: index("ventures_status_idx").on(t.status),
     featuredIdx: index("ventures_featured_idx").on(t.featured),
+    // Founder lookups ("my ventures") filter by user_id — index it so the
+    // scan doesn't grow linear with the table.
+    userIdx: index("ventures_user_idx").on(t.userId),
   }),
 );
 
