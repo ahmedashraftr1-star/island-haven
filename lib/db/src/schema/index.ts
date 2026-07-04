@@ -3,6 +3,7 @@ export * from "./applications";
 export * from "./pageViews";
 export * from "./bookings";
 export * from "./users";
+export * from "./contact";
 export * from "./courses";
 export * from "./enrollments";
 export * from "./works";

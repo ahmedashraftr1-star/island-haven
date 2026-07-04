@@ -20,6 +20,10 @@ import { PageShell } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { api, ApiError } from "@/lib/api";
+// SAME validation schema the backend runs (pg-free contracts export) → the
+// client can't drift from server rules and shows the identical messages.
+import { insertContactSchema } from "@workspace/db/contracts";
 
 /* ────────────────────────────────────────────────────────────────────────────
    /contact — a warm, calm contact page. Three monumental tappable rows (email,
@@ -104,16 +108,59 @@ export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [enquiry, setEnquiry] = useState<string>("");
   const [sent, setSent] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  // No backend lead endpoint — compose a real email the visitor can send. This
-  // keeps the form genuinely functional (no silent /dev/null) and needs no API.
-  function onSubmit(e: React.FormEvent) {
+  // Validate client-side with the shared insertContactSchema, then POST to
+  // /api/contact (which re-validates with the SAME schema). Field errors mirror
+  // the server exactly because it is one schema.
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const who = enquiry ? ` — ${enquiry}` : "";
-    const body = `${form.message}\n\n— ${form.name}${who}\n${form.email}`;
-    const subject = form.subject || (lang === "ar" ? "رسالة من موقع آيلاند هيفن" : "Message from Island Haven");
-    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setServerError(null);
+    const payload = {
+      name: form.name,
+      email: form.email,
+      subject: (form.subject || enquiry) || undefined,
+      message: form.message,
+    };
+    const parsed = insertContactSchema.safeParse(payload);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const k = String(issue.path[0] ?? "");
+        if (k && !errs[k]) errs[k] = issue.message;
+      }
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    setSubmitting(true);
+    try {
+      await api("/contact", { method: "POST", body: JSON.stringify(parsed.data) });
+      setSent(true);
+    } catch (err) {
+      if (
+        err instanceof ApiError &&
+        err.data &&
+        typeof err.data === "object" &&
+        "issues" in err.data
+      ) {
+        const errs: Record<string, string> = {};
+        for (const issue of (err.data as { issues: { path: string; message: string }[] }).issues) {
+          const k = issue.path.split(".")[0];
+          if (k && !errs[k]) errs[k] = issue.message;
+        }
+        setErrors(errs);
+      }
+      setServerError(
+        err instanceof ApiError
+          ? err.message
+          : t({ ar: "تعذّر الإرسال، حاول مجدّدًا.", en: "Couldn't send, please try again." }),
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const field =
@@ -285,41 +332,50 @@ export default function Contact() {
                     <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-semibold text-emerald-300 text-[14px]">
-                        {t({ ar: "فُتح بريدك ورسالتك جاهزة.", en: "Your email opened with the message ready." })}
+                        {t({ ar: "وصلت رسالتك — شكرًا لتواصلك.", en: "Your message was sent — thank you." })}
                       </div>
                       <div className="t-caption text-fg-secondary mt-0.5">
-                        {t({ ar: "أرسلها وسيردّ عليك إنسانٌ خلال ٢٤ ساعة.", en: "Send it and a real person will reply within 24 hours." })}
+                        {t({ ar: "سيردّ عليك إنسانٌ فعليّ خلال ٢٤ ساعة.", en: "A real person will reply within 24 hours." })}
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={onSubmit} className="mt-[clamp(2rem,4vw,2.75rem)] grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <input
-                      required
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder={t({ ar: "الاسم الكامل", en: "Full name" })}
-                      aria-label={t({ ar: "الاسم الكامل", en: "Full name" })}
-                      className={field}
-                    />
-                    <input
-                      required
-                      type="email"
-                      dir="ltr"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="you@example.com"
-                      aria-label={t({ ar: "البريد الإلكترونيّ", en: "Email" })}
-                      className={`${field} text-start`}
-                    />
-                    <input
-                      required
-                      value={form.subject}
-                      onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      placeholder={t({ ar: "الموضوع", en: "Subject" })}
-                      aria-label={t({ ar: "الموضوع", en: "Subject" })}
-                      className={`${field} sm:col-span-2`}
-                    />
+                  <form onSubmit={onSubmit} noValidate className="mt-[clamp(2rem,4vw,2.75rem)] grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <input
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder={t({ ar: "الاسم الكامل", en: "Full name" })}
+                        aria-label={t({ ar: "الاسم الكامل", en: "Full name" })}
+                        aria-invalid={errors.name ? "true" : "false"}
+                        className={field}
+                      />
+                      {errors.name && <p className="mt-1.5 text-[12px] text-primary">{errors.name}</p>}
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        dir="ltr"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="you@example.com"
+                        aria-label={t({ ar: "البريد الإلكترونيّ", en: "Email" })}
+                        aria-invalid={errors.email ? "true" : "false"}
+                        className={`${field} text-start`}
+                      />
+                      {errors.email && <p className="mt-1.5 text-[12px] text-primary">{errors.email}</p>}
+                    </div>
+                    <div className="sm:col-span-2">
+                      <input
+                        value={form.subject}
+                        onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                        placeholder={t({ ar: "الموضوع (اختياريّ)", en: "Subject (optional)" })}
+                        aria-label={t({ ar: "الموضوع", en: "Subject" })}
+                        aria-invalid={errors.subject ? "true" : "false"}
+                        className={field}
+                      />
+                      {errors.subject && <p className="mt-1.5 text-[12px] text-primary">{errors.subject}</p>}
+                    </div>
                     <div className="sm:col-span-2">
                       <div className="font-mono text-[10px] tracking-[0.15em] uppercase text-sand mb-2.5 rtl:tracking-normal">
                         {t({ ar: "نوع التواصل", en: "I am a…" })}
@@ -344,15 +400,23 @@ export default function Contact() {
                         })}
                       </div>
                     </div>
-                    <textarea
-                      required
-                      rows={5}
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      placeholder={t({ ar: "اكتب رسالتك هنا…", en: "Write your message here…" })}
-                      aria-label={t({ ar: "رسالتك", en: "Your message" })}
-                      className={`${field} sm:col-span-2 resize-y`}
-                    />
+                    <div className="sm:col-span-2">
+                      <textarea
+                        rows={5}
+                        value={form.message}
+                        onChange={(e) => setForm({ ...form, message: e.target.value })}
+                        placeholder={t({ ar: "اكتب رسالتك هنا…", en: "Write your message here…" })}
+                        aria-label={t({ ar: "رسالتك", en: "Your message" })}
+                        aria-invalid={errors.message ? "true" : "false"}
+                        className={`${field} resize-y`}
+                      />
+                      {errors.message && <p className="mt-1.5 text-[12px] text-primary">{errors.message}</p>}
+                    </div>
+                    {serverError && (
+                      <p className="sm:col-span-2 text-[13px] font-semibold text-primary" role="alert">
+                        {serverError}
+                      </p>
+                    )}
                     <div className="sm:col-span-2 flex items-center justify-between gap-3 flex-wrap">
                       <div className="inline-flex items-center gap-2">
                         {SOCIALS.map((s) => {
@@ -373,9 +437,12 @@ export default function Contact() {
                       </div>
                       <button
                         type="submit"
-                        className="group inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] motion-reduce:transition-none"
+                        disabled={submitting}
+                        className="group inline-flex items-center gap-2.5 h-12 px-7 rounded-full cta-fill font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] motion-reduce:transition-none disabled:opacity-60 disabled:pointer-events-none"
                       >
-                        {t({ ar: "أرسل الرسالة", en: "Send message" })}
+                        {submitting
+                          ? t({ ar: "جارٍ الإرسال…", en: "Sending…" })
+                          : t({ ar: "أرسل الرسالة", en: "Send message" })}
                         <Send className="w-4 h-4" />
                       </button>
                     </div>
