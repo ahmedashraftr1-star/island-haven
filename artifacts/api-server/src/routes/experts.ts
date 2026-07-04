@@ -25,6 +25,11 @@ import { createResetToken } from "./auth";
 import { schedulePendingReminder } from "../lib/mentorReminderJob";
 import { logger } from "../lib/logger";
 import { cached } from "../lib/cache";
+import { makeUserRateLimit } from "../lib/rateLimit";
+
+// Per-user cap on session requests so one account can't spam every expert
+// (in-memory, per-process — matches the rlWork/rlToggle precedent in works.ts).
+const rlSession = makeUserRateLimit({ max: 10, windowMs: 60 * 60_000 });
 import {
   sendEmail,
   sessionConfirmedEmail,
@@ -484,7 +489,7 @@ router.patch("/experts/me/sessions/:id", requireUser, async (req, res) => {
 
 // ─── Mentee: request / list / cancel sessions ────────────────────────────────
 
-router.post("/experts/:id/sessions", requireUser, async (req, res) => {
+router.post("/experts/:id/sessions", requireUser, rlSession, async (req, res) => {
   try {
     const session = sessionOf(req)!;
     const expertId = Number(req.params.id);

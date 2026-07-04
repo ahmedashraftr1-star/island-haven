@@ -9,9 +9,14 @@ import {
   startConversationSchema,
 } from "@workspace/db";
 import { requireUser, type UserSession } from "../lib/auth";
+import { makeUserRateLimit } from "../lib/rateLimit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
+
+// Per-user cap on outbound messages so one account can't flood conversations
+// (in-memory, per-process — matches the rlWork/rlToggle precedent in works.ts).
+const rlMessage = makeUserRateLimit({ max: 30, windowMs: 60_000 });
 
 function sessionOf(req: Request): UserSession {
   return (req as Request & { userSession: UserSession }).userSession;
@@ -184,6 +189,7 @@ router.get(
 router.post(
   "/me/conversations/:id/messages",
   requireUser,
+  rlMessage,
   async (req, res) => {
     try {
       const me = sessionOf(req).userId;
