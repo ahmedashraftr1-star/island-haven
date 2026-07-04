@@ -60,6 +60,14 @@ export const rateLimitEvents = {
   },
 };
 
+// Public: cache hit/miss counter (used by lib/cache.ts). Labels: {cache,result}
+// where result ∈ {"hit","miss"} — mirrors rate_limit_events_total's shape.
+export const cacheEvents = {
+  inc(labels: Labels): void {
+    incCounter("cache_events_total", labels);
+  },
+};
+
 // Collapse numeric id path segments to bound label cardinality.
 function normalizeRoute(req: Request): string {
   const matched = req.route?.path;
@@ -101,6 +109,11 @@ export function metricsHandler(_req: Request, res: Response): void {
   out.push("# TYPE rate_limit_events_total counter");
   for (const [lk, v] of counters.get("rate_limit_events_total") ?? [])
     out.push(`rate_limit_events_total{${lk}} ${v}`);
+
+  out.push("# HELP cache_events_total Response-cache hits and misses.");
+  out.push("# TYPE cache_events_total counter");
+  for (const [lk, v] of counters.get("cache_events_total") ?? [])
+    out.push(`cache_events_total{${lk}} ${v}`);
 
   out.push("# HELP http_request_duration_seconds Request duration.");
   out.push("# TYPE http_request_duration_seconds histogram");
