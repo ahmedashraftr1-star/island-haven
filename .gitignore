@@ -58,3 +58,6 @@ attached_assets/
 exports/
 ih-haven-export.tar.gz
 *.tar.gz
+
+# macOS AppleDouble metadata
+._*
