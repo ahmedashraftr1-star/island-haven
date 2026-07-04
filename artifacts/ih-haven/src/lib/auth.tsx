@@ -9,13 +9,11 @@ import {
   type ReactNode,
 } from "react";
 import { api, ApiError } from "./api";
-
-export type UserRole = "freelancer" | "graduate" | "student" | "other" | "expert";
-
-export interface ExtraLink {
-  label: string;
-  url: string;
-}
+// Single source of truth — imported types-only (no runtime) from the pg-free
+// "@workspace/db/contracts" export so frontend and backend can never drift.
+// Re-exported so every existing `from "@/lib/auth"` import keeps working.
+import type { UserRole, ExtraLink } from "@workspace/db/contracts";
+export type { UserRole, ExtraLink };
 
 export interface AuthUser {
   id: number;

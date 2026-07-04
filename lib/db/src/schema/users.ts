@@ -9,23 +9,13 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
-
-// Roles a visitor may self-register as.
-export const USER_ROLES = ["freelancer", "graduate", "student", "other"] as const;
-// Roles only an admin can assign (never self-registerable). Experts/mentors
-// power the incubator's mentorship system and can log in to their own dashboard.
-export const STAFF_ROLES = ["expert"] as const;
-// Every role the `role` column may hold.
-export const ALL_USER_ROLES = [...USER_ROLES, ...STAFF_ROLES] as const;
-export type UserRole = (typeof ALL_USER_ROLES)[number];
-
-export const USER_STATUSES = ["active", "banned"] as const;
-export type UserStatus = (typeof USER_STATUSES)[number];
-
-export interface ExtraLink {
-  label: string;
-  url: string;
-}
+// Role + link contracts live in a pure, dependency-free module (./user-roles)
+// so the frontends can import the TYPES via the pg-free "@workspace/db/contracts"
+// export without pulling server runtime. Re-exported here so @workspace/db's
+// public API — and every existing `from "@workspace/db"` import — is unchanged.
+import { USER_ROLES } from "./user-roles";
+import type { ExtraLink, UserRole, UserStatus } from "./user-roles";
+export * from "./user-roles";
 
 export const usersTable = pgTable(
   "users",
