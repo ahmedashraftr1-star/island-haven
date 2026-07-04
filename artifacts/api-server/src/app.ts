@@ -26,6 +26,17 @@ app.use(
   }),
 );
 
+// Permissions-Policy — helmet no longer sets this. Lock down powerful browser
+// features the app never uses, as defense-in-depth on any response that ends up
+// in a browsing context.
+app.use((_req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  );
+  next();
+});
+
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 // Strict limiter on auth endpoints (login, register, password reset) to block
 // brute-force and credential-stuffing attacks.
