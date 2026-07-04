@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { logger } from "./logger";
 import { sendEmail, dailyDigestEmail, type DigestSection } from "./email";
+import { getQueue, queuesEnabled } from "../queues";
 
 // ─── Daily community digest ───────────────────────────────────────────────────
 // Summarises the last 24h of new community activity and emails it to every
@@ -223,11 +224,47 @@ function msUntilNextHour(hour: number): number {
 }
 
 /**
+ * Registers the digest as a BullMQ REPEATABLE job. Because a repeatable job is
+ * keyed (fixed jobId + pattern), every instance that calls this ends up with the
+ * SAME single scheduled job — so the digest fires exactly once per day no matter
+ * how many api instances run. This is the fix for the duplicate-emails-to-all-
+ * members bug that the in-process setInterval had across instances. The worker's
+ * "daily-digest" processor runs sendDailyDigest().
+ */
+async function registerDailyDigestRepeatable(hour: number): Promise<void> {
+  const q = getQueue("daily-digest");
+  if (!q) return;
+  await q.add(
+    "run",
+    {},
+    {
+      repeat: { pattern: `0 ${hour} * * *` }, // daily at hour:00 (server local)
+      jobId: "daily-digest", // fixed key → dedup across instances
+      removeOnComplete: true,
+      removeOnFail: 50,
+    },
+  );
+  logger.info({ hour }, "daily digest registered as repeatable job (singleton)");
+}
+
+/**
  * Schedules the daily digest to run once a day at `hour` (local time) when
  * ENABLE_DAILY_DIGEST_CRON=1. No-op otherwise. Safe to call once at startup.
+ *
+ * With Redis/queues present it registers a repeatable job (multi-instance safe,
+ * fires exactly once); without Redis it falls back to the in-process
+ * setInterval — correct for a single instance only.
  */
 export function startDailyDigestSchedule(hour = 8): void {
   if (process.env.ENABLE_DAILY_DIGEST_CRON !== "1") return;
+
+  if (queuesEnabled()) {
+    void registerDailyDigestRepeatable(hour).catch((err) =>
+      logger.error({ err }, "failed to register daily digest repeatable job"),
+    );
+    return;
+  }
+
   if (digestTimer) return; // already scheduled
 
   const run = () => {
