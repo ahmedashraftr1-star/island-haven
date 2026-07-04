@@ -76,7 +76,9 @@ function num(n: number, lang: Lang): string {
 interface ProgramFull {
   id: number;
   title: string;
+  titleEn: string | null;
   summary: string;
+  summaryEn: string | null;
   description: string;
   coverUrl: string | null;
   durationWeeks: number;
@@ -128,8 +130,16 @@ export default function ProgramDetail() {
   }, [id]);
 
   usePageMeta({
-    title: data?.program?.title,
-    description: data?.program?.summary,
+    title: data?.program
+      ? lang === "en"
+        ? data.program.titleEn || data.program.title
+        : data.program.title
+      : undefined,
+    description: data?.program
+      ? lang === "en"
+        ? data.program.summaryEn || data.program.summary
+        : data.program.summary
+      : undefined,
     image: data?.program?.coverUrl ?? undefined,
     type: "article",
   });
@@ -193,6 +203,8 @@ export default function ProgramDetail() {
   }
 
   const p = data.program;
+  // Arabic-first content with a DB EN fallback (null → keep Arabic).
+  const pSummary = lang === "en" ? p.summaryEn || p.summary : p.summary;
   const perks = p.perks
     .split(/\n+/)
     .map((s) => s.trim())
@@ -248,7 +260,7 @@ export default function ProgramDetail() {
       <div className="mt-[clamp(2.5rem,6vw,4.5rem)] grid gap-[clamp(2.5rem,5vw,4rem)] lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start">
         {/* ── EDITORIAL BODY ── */}
         <div>
-          {p.summary && (
+          {pSummary && (
             <Reveal>
               <p
                 className="font-display text-foreground max-w-2xl"
@@ -259,7 +271,7 @@ export default function ProgramDetail() {
                   fontWeight: 600,
                 }}
               >
-                {p.summary}
+                {pSummary}
               </p>
             </Reveal>
           )}
@@ -474,9 +486,10 @@ function ProgramHero({
   open: boolean;
   facts: { label: string; value: string }[];
 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
+  const title = lang === "en" ? p.titleEn || p.title : p.title;
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -500,7 +513,7 @@ function ProgramHero({
       <div className="relative h-[clamp(24rem,62vh,40rem)]">
         <motion.img
           src={cover}
-          alt={p.title}
+          alt={title}
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = frameFor(p.id);
           }}
@@ -551,7 +564,7 @@ function ProgramHero({
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.85, delay: 0.16, ease: EASE_OUT_EXPO }}
             >
-              {p.title}
+              {title}
             </motion.h1>
 
             {/* hard facts — cerulean figures over a hairline, reserved for data */}
