@@ -3,6 +3,7 @@ import { db, usersTable, pendingRemindersTable } from "@workspace/db";
 import { createResetToken } from "../routes/auth";
 import { sendEmail, mentorPasswordReminderEmail } from "./email";
 import { logger } from "./logger";
+import { getQueue, queuesEnabled } from "../queues";
 
 const FRESH_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24-hour window for the mentor
 
@@ -104,8 +105,36 @@ export function schedulePendingReminder(row: {
   fullName: string;
   sendAt: Date;
 }): void {
-  const delayMs = row.sendAt.getTime() - Date.now();
+  const delayMs = Math.max(0, row.sendAt.getTime() - Date.now());
 
+  // With queues enabled, enqueue a DELAYED job keyed by the row id. The
+  // deterministic jobId makes re-scheduling idempotent — the startup replay can
+  // re-add the same row after a restart and BullMQ dedups it, so a reminder is
+  // never double-sent, and a delayed job survives this instance going down.
+  if (queuesEnabled()) {
+    const q = getQueue("mentor-reminders");
+    if (q) {
+      void q
+        .add(
+          "remind",
+          { id: row.id },
+          { delay: delayMs, jobId: `reminder-${row.id}` },
+        )
+        .catch((err) =>
+          logger.error(
+            { err, id: row.id },
+            "mentorReminderJob: enqueue failed — falling back to in-process",
+          ),
+        );
+      logger.info(
+        { id: row.id, delayMinutes: Math.round(delayMs / 60_000) },
+        "mentorReminderJob: enqueued delayed reminder job",
+      );
+      return;
+    }
+  }
+
+  // No queue → in-process setTimeout (single-instance).
   if (delayMs <= 0) {
     void fireReminder(row);
   } else {
