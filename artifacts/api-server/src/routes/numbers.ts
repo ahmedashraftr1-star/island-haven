@@ -13,27 +13,28 @@ import {
   type UserRole,
 } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { cached, bust } from "../lib/cache";
 
 const router: IRouter = Router();
 
-let cache: { at: number; data: unknown } | null = null;
-const TTL = 30_000;
+const CACHE_KEY = "numbers";
+const TTL_SEC = 30;
 
 /**
  * Invalidate the /api/numbers cache so the next request recomputes from DB.
- * Call this from any route that mutates data feeding into the aggregate, e.g.:
- *   - routes/admin.ts        (user status changes, role changes, deletions)
+ * Now backed by the shared Redis cache (see lib/cache.ts): a bust from ANY
+ * instance clears it everywhere (previously per-process only). Call from any
+ * route that mutates data feeding the aggregate, e.g.:
  *   - routes/adminExtra.ts   (bulk admin actions)
  *   - routes/works.ts        (work create/update/delete, visibility toggles)
  *   - routes/auth.ts         (registration → new user counted)
- *   - routes/members.ts      (profile/status updates affecting active counts)
  *   - routes/programs.ts, routes/ventures.ts, routes/experts.ts,
  *     routes/partners.ts, routes/successStories.ts (when they affect totals)
  * Anything touching: users, works, courses, enrollments, bookings,
  * applications, or daily_posts tables.
  */
 export function invalidateNumbersCache(): void {
-  cache = null;
+  void bust(CACHE_KEY);
 }
 
 /**
@@ -42,10 +43,7 @@ export function invalidateNumbersCache(): void {
  */
 router.get("/numbers", async (_req, res) => {
   try {
-    if (cache && Date.now() - cache.at < TTL) {
-      res.json(cache.data);
-      return;
-    }
+    const data = await cached(CACHE_KEY, TTL_SEC, async () => {
     const [totals] = await db
       .select({
         members: sql<number>`(SELECT COUNT(*)::int FROM users WHERE status = 'active') + COALESCE((SELECT (value::jsonb->>'members')::int FROM site_settings WHERE key = 'numbers_base'), 0)`,
@@ -65,8 +63,8 @@ router.get("/numbers", async (_req, res) => {
     void enrollmentsTable; void bookingsTable; void applicationsTable;
     void dailyPostsTable;
 
-    const data = { numbers: totals };
-    cache = { at: Date.now(), data };
+      return { numbers: totals };
+    });
     res.json(data);
     void and; void eq; void gte;
   } catch (err) {

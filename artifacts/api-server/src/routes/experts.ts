@@ -24,6 +24,7 @@ import {
 import { createResetToken } from "./auth";
 import { schedulePendingReminder } from "../lib/mentorReminderJob";
 import { logger } from "../lib/logger";
+import { cached } from "../lib/cache";
 import {
   sendEmail,
   sessionConfirmedEmail,
@@ -90,22 +91,27 @@ const expertCardSelect = {
 
 router.get("/experts", async (_req, res) => {
   try {
-    const rows = await db
-      .select(expertCardSelect)
-      .from(expertProfilesTable)
-      .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
-      .where(
-        and(
-          eq(expertProfilesTable.status, "active"),
-          eq(usersTable.status, "active"),
-        ),
-      )
-      .orderBy(
-        desc(expertProfilesTable.featured),
-        asc(expertProfilesTable.sortOrder),
-        desc(expertProfilesTable.createdAt),
-      );
-    res.json({ experts: rows });
+    // Public, session-independent directory (ratingAvg/Count are the same for
+    // everyone). 60s cache matches the Cache-Control app.ts sets for this route.
+    const data = await cached("experts", 60, async () => {
+      const rows = await db
+        .select(expertCardSelect)
+        .from(expertProfilesTable)
+        .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+        .where(
+          and(
+            eq(expertProfilesTable.status, "active"),
+            eq(usersTable.status, "active"),
+          ),
+        )
+        .orderBy(
+          desc(expertProfilesTable.featured),
+          asc(expertProfilesTable.sortOrder),
+          desc(expertProfilesTable.createdAt),
+        );
+      return { experts: rows };
+    });
+    res.json(data);
   } catch (err) {
     logger.error({ err }, "GET /experts failed");
     res.status(500).json({ error: "خطأ في الخادم" });

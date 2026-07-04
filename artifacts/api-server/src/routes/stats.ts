@@ -11,37 +11,29 @@ import {
   dailyPostsTable,
 } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { cached, bust } from "../lib/cache";
 
 const router: IRouter = Router();
 
-// In-memory micro-cache (5s) keeps the homepage fast under burst traffic
-// without going stale for human-visible numbers.
-let cache: { at: number; data: unknown } | null = null;
-const TTL = 5_000;
+// Shared Redis cache (5s) keeps the homepage fast under burst traffic without
+// going stale for human-visible numbers. Falls back to a per-process map when
+// Redis is absent (see lib/cache.ts).
+const CACHE_KEY = "stats";
+const TTL_SEC = 5;
 
 /**
  * Invalidate the /api/stats cache so the next request recomputes from DB.
- * Call this from any route that mutates data feeding into the aggregate, e.g.:
- *   - routes/admin.ts        (user status/role changes, deletions)
- *   - routes/adminExtra.ts   (bulk admin actions)
- *   - routes/works.ts        (work create/update/delete)
- *   - routes/auth.ts         (registration → new user counted)
- *   - routes/members.ts      (profile/status updates)
- *   - routes/programs.ts, routes/ventures.ts, routes/experts.ts,
- *     routes/partners.ts, routes/successStories.ts (when they affect totals)
- * Anything touching: users, applications, bookings, courses, enrollments,
- * works, or daily_posts tables.
+ * Backed by the shared Redis cache — busts everywhere, not just this process.
+ * Call from any route that mutates data feeding the aggregate (users,
+ * applications, bookings, courses, enrollments, works, daily_posts).
  */
 export function invalidateStatsCache(): void {
-  cache = null;
+  void bust(CACHE_KEY);
 }
 
 router.get("/stats", async (_req, res) => {
   try {
-    if (cache && Date.now() - cache.at < TTL) {
-      res.json(cache.data);
-      return;
-    }
+    const data = await cached(CACHE_KEY, TTL_SEC, async () => {
     const [row] = await db
       .select({
         users: sql<number>`(SELECT COUNT(*)::int FROM ${usersTable})`,
@@ -53,8 +45,8 @@ router.get("/stats", async (_req, res) => {
         daily: sql<number>`(SELECT COUNT(*)::int FROM ${dailyPostsTable})`,
       })
       .from(sql`(SELECT 1) AS _`);
-    const data = { stats: row };
-    cache = { at: Date.now(), data };
+      return { stats: row };
+    });
     res.json(data);
   } catch (err) {
     logger.error({ err }, "GET /stats failed");

@@ -3,6 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { db, partnersTable, upsertPartnerSchema } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
+import { cached } from "../lib/cache";
 
 const router: IRouter = Router();
 
@@ -21,12 +22,18 @@ function badData(
 
 router.get("/partners", async (_req, res) => {
   try {
-    const rows = await db
-      .select()
-      .from(partnersTable)
-      .where(eq(partnersTable.status, "visible"))
-      .orderBy(asc(partnersTable.sortOrder), desc(partnersTable.createdAt));
-    res.json({ partners: rows });
+    // Public, session-independent list. 60s cache matches the Cache-Control
+    // max-age app.ts already sets, so no explicit bust is needed (bounded
+    // staleness); admin edits become visible within the TTL.
+    const data = await cached("partners", 60, async () => {
+      const rows = await db
+        .select()
+        .from(partnersTable)
+        .where(eq(partnersTable.status, "visible"))
+        .orderBy(asc(partnersTable.sortOrder), desc(partnersTable.createdAt));
+      return { partners: rows };
+    });
+    res.json(data);
   } catch (err) {
     logger.error({ err }, "GET /partners failed");
     res.status(500).json({ error: "خطأ في الخادم" });
