@@ -6,6 +6,7 @@ import pinoHttp from "pino-http";
 import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { rateLimitStore } from "./lib/rateLimitStore";
 
 const app: Express = express();
 
@@ -47,6 +48,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
   skipSuccessfulRequests: false,
+  store: rateLimitStore("rl:auth:"),
 });
 
 // General limiter for all other API routes — prevents DDoS / scraping.
@@ -59,6 +61,7 @@ const generalLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+  store: rateLimitStore("rl:general:"),
 });
 
 app.use(

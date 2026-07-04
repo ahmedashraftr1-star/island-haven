@@ -1,10 +1,16 @@
-import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureAuthConfigured } from "./lib/auth";
+import { initRateLimitStore } from "./lib/rateLimitStore";
 import { startDailyDigestSchedule } from "./lib/dailyDigest";
 import { startMentorReminderJob } from "./lib/mentorReminderJob";
 
 ensureAuthConfigured();
+
+// Probe the shared rate-limit store (Redis) BEFORE importing the app, because
+// express-rate-limit binds its store when the limiters are created at app load.
+// Falls back to in-memory if REDIS_URL is unset/unreachable.
+await initRateLimitStore();
+const { default: app } = await import("./app");
 
 const rawPort = process.env["PORT"];
 
