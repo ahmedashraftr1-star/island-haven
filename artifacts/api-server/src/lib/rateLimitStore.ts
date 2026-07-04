@@ -1,62 +1,23 @@
 import { RedisStore } from "rate-limit-redis";
-import Redis from "ioredis";
 import type { Store } from "express-rate-limit";
-import { logger } from "./logger";
+import { getRedis, initRedis, isRedisReady } from "./redis";
 
 // Shared rate-limit store. When several api-server instances run behind a load
 // balancer, an in-memory limiter counts per-process — so the effective global
-// limit becomes N × the configured max. Backing express-rate-limit with Redis
-// makes the counter shared across every instance.
+// limit becomes N × the configured max. Backing express-rate-limit with the
+// shared Redis connection (see ./redis) makes the counter shared across every
+// instance. Falls back to the default in-memory store when Redis is unavailable.
 //
-// Fallback: if REDIS_URL is unset OR Redis is unreachable at boot, we fall back
-// to the default in-memory store (correct for local dev / single instance).
+// The Redis client itself now lives in ./redis (one connection shared by the
+// rate limiter, the response cache, and BullMQ). This module keeps its original
+// public API — initRateLimitStore / rateLimitStore / isRedisReady — unchanged.
 
-let redisClient: Redis | null = null;
-let redisReady = false;
+// Re-export so existing importers (metrics.ts) keep working without edits.
+export { isRedisReady };
 
-/** Whether the shared Redis rate-limit store is connected (for /metrics gauge). */
-export function isRedisReady(): boolean {
-  return redisReady;
-}
-
-/**
- * Probe Redis once at startup. Must run BEFORE the app assembles its limiters
- * (see index.ts), because express-rate-limit binds its store at creation time.
- */
+/** Back-compat init used by index.ts — delegates to the shared Redis boot probe. */
 export async function initRateLimitStore(): Promise<void> {
-  const url = process.env.REDIS_URL;
-  if (!url) {
-    logger.info(
-      "[rate-limit] REDIS_URL not set — using in-memory store (per-process; single-instance only)",
-    );
-    return;
-  }
-  const client = new Redis(url, {
-    lazyConnect: true,
-    maxRetriesPerRequest: 2,
-    enableOfflineQueue: true,
-    retryStrategy: (times) => Math.min(times * 200, 2000),
-  });
-  try {
-    await client.connect();
-    await client.ping();
-    redisClient = client;
-    redisReady = true;
-    client.on("error", (err) =>
-      logger.error({ err }, "[rate-limit] redis error (limiter continues)"),
-    );
-    logger.info("[rate-limit] shared Redis store active (multi-instance safe)");
-  } catch (err) {
-    logger.warn(
-      { err },
-      "[rate-limit] REDIS_URL set but Redis unreachable — falling back to in-memory",
-    );
-    try {
-      client.disconnect();
-    } catch {
-      /* noop */
-    }
-  }
+  await initRedis();
 }
 
 /**
@@ -64,8 +25,8 @@ export async function initRateLimitStore(): Promise<void> {
  * so express-rate-limit uses its built-in in-memory MemoryStore.
  */
 export function rateLimitStore(prefix: string): Store | undefined {
-  if (!redisReady || !redisClient) return undefined;
-  const client = redisClient;
+  const client = getRedis();
+  if (!client) return undefined;
   return new RedisStore({
     prefix,
     // ioredis: call(command, ...args)
