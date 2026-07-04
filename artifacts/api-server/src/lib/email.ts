@@ -9,6 +9,20 @@ import { logger } from "./logger";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM =
   process.env.EMAIL_FROM ?? "Island Haven <onboarding@resend.dev>";
+// Provider endpoint is overridable (defaults to Resend). Lets the queue worker
+// be pointed at a stub in tests without touching the real API.
+const EMAIL_API_URL =
+  process.env.EMAIL_API_URL ?? "https://api.resend.com/emails";
+
+/**
+ * Whether a real email provider is configured. The queue's email processor uses
+ * this to decide: a `false` return from sendEmail with NO provider is a dev
+ * no-op (job succeeds), but with a provider configured it's a real delivery
+ * failure worth retrying.
+ */
+export function emailConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY);
+}
 
 export interface SendEmailOptions {
   to: string;
@@ -47,7 +61,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<boolean> {
   }
 
   try {
-    const r = await fetch("https://api.resend.com/emails", {
+    const r = await fetch(EMAIL_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

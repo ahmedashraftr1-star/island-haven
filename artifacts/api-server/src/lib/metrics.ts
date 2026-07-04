@@ -68,6 +68,27 @@ export const cacheEvents = {
   },
 };
 
+// Public: queue job outcome counter (used by queues/worker.ts). Labels:
+// {queue,status} where status ∈ {"completed","failed"}.
+export const queueEvents = {
+  inc(labels: Labels): void {
+    incCounter("queue_jobs_total", labels);
+  },
+};
+
+// ── dynamic gauges: metric name → (labelKey → value) ──
+// For values sampled at runtime (e.g. queue_depth per queue). The queue module
+// refreshes these on a timer; redis_up stays a hardcoded gauge below.
+const gauges = new Map<string, Map<string, number>>();
+export function setGauge(metric: string, labels: Labels, value: number): void {
+  let series = gauges.get(metric);
+  if (!series) {
+    series = new Map();
+    gauges.set(metric, series);
+  }
+  series.set(labelKey(labels), value);
+}
+
 // Collapse numeric id path segments to bound label cardinality.
 function normalizeRoute(req: Request): string {
   const matched = req.route?.path;
@@ -115,6 +136,11 @@ export function metricsHandler(_req: Request, res: Response): void {
   for (const [lk, v] of counters.get("cache_events_total") ?? [])
     out.push(`cache_events_total{${lk}} ${v}`);
 
+  out.push("# HELP queue_jobs_total Background job outcomes by queue.");
+  out.push("# TYPE queue_jobs_total counter");
+  for (const [lk, v] of counters.get("queue_jobs_total") ?? [])
+    out.push(`queue_jobs_total{${lk}} ${v}`);
+
   out.push("# HELP http_request_duration_seconds Request duration.");
   out.push("# TYPE http_request_duration_seconds histogram");
   for (const [lk, h] of durations) {
@@ -132,6 +158,12 @@ export function metricsHandler(_req: Request, res: Response): void {
   out.push("# HELP redis_up Shared rate-limit Redis store (1=up,0=down/in-memory).");
   out.push("# TYPE redis_up gauge");
   out.push(`redis_up ${isRedisReady() ? 1 : 0}`);
+
+  // Dynamic gauges (e.g. queue_depth{queue="email"}), refreshed on a timer.
+  for (const [metric, series] of gauges) {
+    out.push(`# TYPE ${metric} gauge`);
+    for (const [lk, v] of series) out.push(`${metric}{${lk}} ${v}`);
+  }
 
   res.setHeader("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
   res.end(out.join("\n") + "\n");

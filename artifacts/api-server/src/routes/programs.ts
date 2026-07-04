@@ -17,8 +17,8 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, programAcceptedEmail } from "../lib/email";
-import { notify } from "./notifications";
+import { programAcceptedEmail } from "../lib/email";
+import { queueEmail, queueNotify } from "../queues/enqueue";
 import { prefAllows } from "./notificationPrefs";
 
 const router: IRouter = Router();
@@ -383,9 +383,9 @@ router.patch(
         if (u && p) {
           const mail = programAcceptedEmail(u.fullName, p.title);
           if (await prefAllows(row.userId, "emailPrograms")) {
-            void sendEmail({ to: u.email, ...mail });
+            void queueEmail({ to: u.email, ...mail });
           }
-          void notify(row.userId, {
+          void queueNotify(row.userId, {
             type: "program_accepted",
             title: "تمّ قبولك في البرنامج 🎉",
             body: `قُبِل طلبك للانضمام إلى «${p.title}».`,

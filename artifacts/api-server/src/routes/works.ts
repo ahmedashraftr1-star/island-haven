@@ -21,7 +21,7 @@ import { logger } from "../lib/logger";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
 import { awardBadgeByKey } from "./gamification";
-import { notify } from "./notifications";
+import { queueNotify, queueBadge } from "../queues/enqueue";
 
 const router: IRouter = Router();
 
@@ -414,7 +414,7 @@ router.post("/works", requireUser, rlWork, async (req, res) => {
       .returning();
     invalidateNumbersCache();
     // Auto-award the "first work" badge (idempotent; no-op if not minted).
-    void awardBadgeByKey(session.userId, "first_work");
+    void queueBadge(session.userId, "first_work");
     // …and the "prolific" milestone once they've published 5+ works.
     void awardWorksMilestone(session.userId);
     // Notify followers of the new work (fire-and-forget; never blocks the response).
@@ -653,7 +653,7 @@ router.post("/users/:id/follow", requireUser, rlFollow, async (req, res) => {
           .from(usersTable)
           .where(eq(usersTable.id, session.userId))
           .limit(1);
-        void notify(targetId, {
+        void queueNotify(targetId, {
           type: "new_follower",
           title: "متابِع جديد",
           body: `بدأ ${me?.fullName ?? "أحد الأعضاء"} بمتابعتك`,
@@ -973,7 +973,7 @@ router.post("/works/:id/comments", requireUser, rlComment, async (req, res) => {
     void awardCommentsMilestone(session.userId);
     // Notify the person being replied to (skip self).
     if (parent && parent.userId !== session.userId) {
-      void notify(parent.userId, {
+      void queueNotify(parent.userId, {
         type: "work_comment",
         title: "ردّ على تعليقك 💬",
         body: `ردّ ${name} على تعليقك في «${work.title}».`,
@@ -983,7 +983,7 @@ router.post("/works/:id/comments", requireUser, rlComment, async (req, res) => {
     // Tell the work's author someone engaged (skip self, and skip if they were
     // already notified above as the replied-to commenter).
     if (work.userId !== session.userId && work.userId !== parent?.userId) {
-      void notify(work.userId, {
+      void queueNotify(work.userId, {
         type: "work_comment",
         title: parent ? "ردّ جديد على عملك 💬" : "تعليق جديد على عملك 💬",
         body: parent

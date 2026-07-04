@@ -33,10 +33,9 @@ import {
   adminMentorApplicationEmail,
   mentorPasswordReminderEmail,
 } from "../lib/email";
-import { notify } from "./notifications";
 import { prefAllows } from "./notificationPrefs";
-import { awardBadgeByKey } from "./gamification";
 import { getAdminEmail } from "./adminExtra";
+import { queueEmail, queueNotify, queueBadge } from "../queues/enqueue";
 
 const router: IRouter = Router();
 
@@ -205,7 +204,7 @@ router.post("/experts/apply", async (req, res) => {
 
     // Fire-and-forget confirmation email to the applicant
     const mail = mentorApplicationEmail(fullName);
-    void sendEmail({ to: email, ...mail });
+    void queueEmail({ to: email, ...mail });
 
     // Fire-and-forget admin notification
     const adminEmail = await getAdminEmail();
@@ -217,7 +216,7 @@ router.post("/experts/apply", async (req, res) => {
         expertise,
         `${appUrl}/admin`,
       );
-      void sendEmail({ to: adminEmail, ...adminMail });
+      void queueEmail({ to: adminEmail, ...adminMail });
 
       // In-app bell notification for the admin user (looked up by role, not email)
       const [adminUser] = await db
@@ -226,7 +225,7 @@ router.post("/experts/apply", async (req, res) => {
         .where(eq(usersTable.role, "expert" as any))
         .limit(0); // Admin users live outside the users table; this is a no-op placeholder
       if (adminUser) {
-        void notify(adminUser.id, {
+        void queueNotify(adminUser.id, {
           type: "mentor_application",
           title: "طلب انضمام مرشد جديد",
           body: `${fullName} يطلب الانضمام كمرشد (${expertise}).`,
@@ -316,9 +315,9 @@ async function notifySessionConfirmed(row: {
         row.topic,
       );
       if (await prefAllows(row.menteeId, "emailSessions")) {
-        void sendEmail({ to: mentee.email, ...mail });
+        void queueEmail({ to: mentee.email, ...mail });
       }
-      void notify(row.menteeId, {
+      void queueNotify(row.menteeId, {
         type: "session_confirmed",
         title: "تأكّدت جلسة الإرشاد ✅",
         body: `أكّد ${expert.fullName} جلسة «${row.topic}».`,
@@ -535,14 +534,14 @@ router.post("/experts/:id/sessions", requireUser, async (req, res) => {
       })
       .returning();
     // Let the expert know a request is waiting (they're a user → in-app bell).
-    void notify(expert.userId, {
+    void queueNotify(expert.userId, {
       type: "session_requested",
       title: "طلب جلسة إرشاد جديد",
       body: `طلب أحد المنتسبين جلسة حول «${d.topic}».`,
       link: "/expert/dashboard",
     });
     // Auto-award the mentee the "active learner" badge for engaging mentorship.
-    void awardBadgeByKey(session.userId, "mentor_fan");
+    void queueBadge(session.userId, "mentor_fan");
     res.json({ session: row });
   } catch (err) {
     logger.error({ err }, "POST /experts/:id/sessions failed");
@@ -804,7 +803,7 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
             process.env.FRONTEND_URL ?? "https://islandhaven.replit.app";
           const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
           const mail = mentorApplicationApprovedEmail(user.fullName, resetUrl);
-          void sendEmail({ to: user.email, ...mail });
+          void queueEmail({ to: user.email, ...mail });
 
           const approvedAt = new Date();
 

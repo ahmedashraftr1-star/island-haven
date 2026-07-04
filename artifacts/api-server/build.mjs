@@ -17,6 +17,7 @@ async function buildAll() {
   await esbuild({
     entryPoints: [
       path.resolve(artifactDir, "src/index.ts"),
+      path.resolve(artifactDir, "src/worker.ts"),
       path.resolve(artifactDir, "src/seed/experts.ts"),
       path.resolve(artifactDir, "src/seed/migrate-stories.ts"),
     ],

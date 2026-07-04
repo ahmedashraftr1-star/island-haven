@@ -69,6 +69,26 @@ async function fireReminder(row: {
 }
 
 /**
+ * Fire a reminder by its pending_reminders id — the queue worker's processor.
+ * Loads the row, skips if it's gone or already sent, then delegates to
+ * fireReminder (which is idempotent via the `sent` flag).
+ */
+export async function fireReminderById(id: number): Promise<void> {
+  const [row] = await db
+    .select({
+      id: pendingRemindersTable.id,
+      email: pendingRemindersTable.email,
+      fullName: pendingRemindersTable.fullName,
+      sent: pendingRemindersTable.sent,
+    })
+    .from(pendingRemindersTable)
+    .where(eq(pendingRemindersTable.id, id))
+    .limit(1);
+  if (!row || row.sent) return;
+  await fireReminder(row);
+}
+
+/**
  * Schedules a single pending reminder for in-process delivery.
  * - If sendAt is in the past (or now): fires immediately.
  * - If sendAt is in the future: registers a setTimeout that fires at the

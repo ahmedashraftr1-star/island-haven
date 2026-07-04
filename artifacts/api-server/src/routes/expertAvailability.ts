@@ -13,9 +13,8 @@ import {
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { sendEmail, sessionConfirmedEmail } from "../lib/email";
-import { notify } from "./notifications";
 import { prefAllows } from "./notificationPrefs";
-import { awardBadgeByKey } from "./gamification";
+import { queueNotify, queueBadge } from "../queues/enqueue";
 
 const router: IRouter = Router();
 
@@ -187,7 +186,7 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
     const { slot, session: sessionRow } = result.ok;
 
     // Auto-award the mentee the "active learner" badge for booking a session.
-    void awardBadgeByKey(sessionRow.menteeId, "mentor_fan");
+    void queueBadge(sessionRow.menteeId, "mentor_fan");
 
     // Best-effort confirmation email (don't block response on this).
     void (async () => {
@@ -212,7 +211,7 @@ router.post("/slots/:id/book", requireUser, async (req, res) => {
           if (await prefAllows(sessionRow.menteeId, "emailSessions")) {
             await sendEmail({ to: user.email, ...mail });
           }
-          void notify(sessionRow.menteeId, {
+          void queueNotify(sessionRow.menteeId, {
             type: "session_confirmed",
             title: "تأكّدت جلسة الإرشاد ✅",
             body: `حجزت جلسة «${d.topic}» مع ${expert.fullName}.`,

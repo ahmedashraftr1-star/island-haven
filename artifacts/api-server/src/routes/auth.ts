@@ -20,7 +20,8 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, passwordResetEmail } from "../lib/email";
+import { passwordResetEmail } from "../lib/email";
+import { queueEmail } from "../queues/enqueue";
 import { getFlag } from "./adminExtra";
 import { invalidateNumbersCache } from "./numbers";
 
@@ -433,7 +434,7 @@ router.post("/auth/forgot-password", async (req, res) => {
       const { subject, html, text } = passwordResetEmail(resetUrl, user.fullName);
       // Fire-and-forget: never let provider latency/failure leak timing info or
       // block the constant-time success response below.
-      void sendEmail({ to: email, subject, html, text });
+      void queueEmail({ to: email, subject, html, text });
     }
 
     // Always return ok (don't reveal whether email exists)

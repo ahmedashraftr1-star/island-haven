@@ -9,7 +9,8 @@ import {
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { sendEmail, adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail, storyDeletedEmail } from "../lib/email";
+import { adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail, storyDeletedEmail } from "../lib/email";
+import { queueEmail } from "../queues/enqueue";
 import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
@@ -152,7 +153,7 @@ router.post("/me/story", requireUser, async (req, res) => {
         (process.env.APP_URL ?? "https://islandhaven.io") +
         "/admin/stories";
       const mail = adminNewStoryEmail(user.fullName, d.quote, adminUrl);
-      void sendEmail({ to: adminEmail, ...mail });
+      void queueEmail({ to: adminEmail, ...mail });
     } else {
       logger.warn(
         "ADMIN_EMAIL not configured — new-story admin notification skipped",
@@ -262,7 +263,7 @@ router.post("/me/story/resubmit", requireUser, async (req, res) => {
         (process.env.APP_URL ?? "https://islandhaven.io") + "/admin/stories";
       const notifyQuote = d.quote ?? existing.quote;
       const mail = adminNewStoryEmail(existing.personName, notifyQuote, adminUrl);
-      void sendEmail({ to: adminEmail, ...mail });
+      void queueEmail({ to: adminEmail, ...mail });
     }
   } catch (err) {
     logger.error({ err }, "POST /me/story/resubmit failed");
@@ -405,7 +406,7 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
           newStatus === "published"
             ? storyPublishedEmail(member.fullName)
             : storyRejectedEmail(member.fullName, noteFromBody);
-        void sendEmail({ to: member.email, ...mail });
+        void queueEmail({ to: member.email, ...mail });
       } else {
         logger.warn(
           { storyId: id, submittedByUserId: existing.submittedByUserId },
@@ -466,7 +467,7 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
         .where(eq(usersTable.id, existing.submittedByUserId))
         .limit(1);
       if (member) {
-        void sendEmail({ to: member.email, ...storyDeletedEmail(member.fullName, deleteReason) });
+        void queueEmail({ to: member.email, ...storyDeletedEmail(member.fullName, deleteReason) });
       }
     }
   } catch (err) {

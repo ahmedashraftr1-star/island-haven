@@ -6,7 +6,7 @@ import {
   type NextFunction,
 } from "express";
 import { insertContactSchema } from "@workspace/db";
-import { sendEmail } from "../lib/email";
+import { queueEmail } from "../queues/enqueue";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -75,7 +75,7 @@ router.post("/contact", rateLimit, async (req, res) => {
   const d = parsed.data;
   const to = process.env.CONTACT_TO || process.env.EMAIL_FROM || "";
   if (to) {
-    void sendEmail({
+    void queueEmail({
       to,
       subject: `[Contact] ${d.subject || d.enquiry || "message"} — ${d.name}`,
       html: `<p>${esc(d.message)}</p><hr/><p>${esc(d.name)} &lt;${esc(d.email)}&gt;${d.enquiry ? ` · ${esc(d.enquiry)}` : ""}</p>`,
