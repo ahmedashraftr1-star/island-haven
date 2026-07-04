@@ -352,34 +352,29 @@ router.get("/works/:id", optionalUser, async (req, res) => {
       ? authorSafe
       : { ...authorSafe, phone: null as unknown as string };
 
-    const [{ likesCount }] = await db
-      .select({ likesCount: count() })
-      .from(worksLikesTable)
-      .where(eq(worksLikesTable.workId, id));
-    let likedByMe = false;
-    if (session) {
-      const [liked] = await db
-        .select({ id: worksLikesTable.id })
-        .from(worksLikesTable)
-        .where(and(eq(worksLikesTable.workId, id), eq(worksLikesTable.userId, session.userId)))
-        .limit(1);
-      likedByMe = !!liked;
-    }
-    const [{ commentsCount }] = await db
-      .select({ commentsCount: count() })
-      .from(worksCommentsTable)
-      .where(eq(worksCommentsTable.workId, id));
-    let savedByMe = false;
-    if (session) {
-      const [saved] = await db
-        .select({ id: worksSavesTable.id })
-        .from(worksSavesTable)
-        .where(and(eq(worksSavesTable.workId, id), eq(worksSavesTable.userId, session.userId)))
-        .limit(1);
-      savedByMe = !!saved;
-    }
+    // Likes + comments counts AND the viewer's liked/saved state in ONE
+    // round-trip (was up to 4 sequential queries: 2 COUNTs + 2 existence
+    // checks). uid = -1 for anonymous viewers → the EXISTS checks are false.
+    // work_id / user_id on all three tables are indexed.
+    const uid = session?.userId ?? -1;
+    const [counts] = await db
+      .select({
+        likesCount: sql<number>`(SELECT COUNT(*)::int FROM works_likes WHERE work_id = ${id})`,
+        commentsCount: sql<number>`(SELECT COUNT(*)::int FROM works_comments WHERE work_id = ${id})`,
+        likedByMe: sql<boolean>`EXISTS(SELECT 1 FROM works_likes WHERE work_id = ${id} AND user_id = ${uid})`,
+        savedByMe: sql<boolean>`EXISTS(SELECT 1 FROM works_saves WHERE work_id = ${id} AND user_id = ${uid})`,
+      })
+      .from(sql`(SELECT 1) AS _`);
 
-    res.json({ work: row.work, author, isOwner, likesCount, likedByMe, commentsCount, savedByMe });
+    res.json({
+      work: row.work,
+      author,
+      isOwner,
+      likesCount: counts?.likesCount ?? 0,
+      likedByMe: counts?.likedByMe ?? false,
+      commentsCount: counts?.commentsCount ?? 0,
+      savedByMe: counts?.savedByMe ?? false,
+    });
   } catch (err) {
     logger.error({ err }, "GET /works/:id failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -532,58 +527,60 @@ router.get("/users/:id", optionalUser, async (req, res) => {
     }
     const session = (req as Request & { userSession?: UserSession }).userSession;
     const isOwner = session?.userId === id;
-    const works = await db
-      .select()
-      .from(worksTable)
-      .where(
-        isOwner
-          ? eq(worksTable.userId, id)
-          : and(
-              eq(worksTable.userId, id),
-              inArray(worksTable.status, PUBLIC_WORK_STATUSES),
-            ),
-      )
-      .orderBy(desc(worksTable.createdAt));
-    // Earned badges (public — same data the leaderboard already exposes).
-    const badges = await db
-      .select({
-        id: badgesTable.id,
-        key: badgesTable.key,
-        name: badgesTable.name,
-        description: badgesTable.description,
-        icon: badgesTable.icon,
-        color: badgesTable.color,
-      })
-      .from(userBadgesTable)
-      .innerJoin(badgesTable, eq(badgesTable.id, userBadgesTable.badgeId))
-      .where(eq(userBadgesTable.userId, id))
-      .orderBy(desc(userBadgesTable.awardedAt));
-    // Follow graph: follower/following counts (public) + whether the viewer
-    // already follows this member (only meaningful when signed in).
-    const [[followers], [following]] = await Promise.all([
-      db
-        .select({ c: count() })
-        .from(userFollowsTable)
-        .where(eq(userFollowsTable.followingId, id)),
-      db
-        .select({ c: count() })
-        .from(userFollowsTable)
-        .where(eq(userFollowsTable.followerId, id)),
-    ]);
-    let followedByMe = false;
-    if (session && !isOwner) {
-      const [edge] = await db
-        .select({ id: userFollowsTable.id })
-        .from(userFollowsTable)
-        .where(
-          and(
-            eq(userFollowsTable.followerId, session.userId),
-            eq(userFollowsTable.followingId, id),
-          ),
-        )
-        .limit(1);
-      followedByMe = Boolean(edge);
-    }
+    // This member's public sub-resources are independent, so fetch them in ONE
+    // parallel batch instead of 4 sequential stages: portfolio works, earned
+    // badges, follower/following counts, and — only when signed in and viewing
+    // someone else — whether the viewer already follows them.
+    const [works, badges, [followers], [following], followEdge] =
+      await Promise.all([
+        db
+          .select()
+          .from(worksTable)
+          .where(
+            isOwner
+              ? eq(worksTable.userId, id)
+              : and(
+                  eq(worksTable.userId, id),
+                  inArray(worksTable.status, PUBLIC_WORK_STATUSES),
+                ),
+          )
+          .orderBy(desc(worksTable.createdAt)),
+        // Earned badges (public — same data the leaderboard already exposes).
+        db
+          .select({
+            id: badgesTable.id,
+            key: badgesTable.key,
+            name: badgesTable.name,
+            description: badgesTable.description,
+            icon: badgesTable.icon,
+            color: badgesTable.color,
+          })
+          .from(userBadgesTable)
+          .innerJoin(badgesTable, eq(badgesTable.id, userBadgesTable.badgeId))
+          .where(eq(userBadgesTable.userId, id))
+          .orderBy(desc(userBadgesTable.awardedAt)),
+        db
+          .select({ c: count() })
+          .from(userFollowsTable)
+          .where(eq(userFollowsTable.followingId, id)),
+        db
+          .select({ c: count() })
+          .from(userFollowsTable)
+          .where(eq(userFollowsTable.followerId, id)),
+        session && !isOwner
+          ? db
+              .select({ id: userFollowsTable.id })
+              .from(userFollowsTable)
+              .where(
+                and(
+                  eq(userFollowsTable.followerId, session.userId),
+                  eq(userFollowsTable.followingId, id),
+                ),
+              )
+              .limit(1)
+          : Promise.resolve([] as { id: number }[]),
+      ]);
+    const followedByMe = followEdge.length > 0;
     // Strip internal fields before sending: status is for server-side checks only.
     // Phone is contact info — only expose to authenticated members
     // to prevent anonymous scraping by ID enumeration.

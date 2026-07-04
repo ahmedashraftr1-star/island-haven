@@ -253,7 +253,18 @@ router.patch("/admin/tasks/:id", requireAdmin, async (req, res) => {
       activities.push(["assigned", existing.assignee, rest.assignee]);
 
     const [task] = await db.update(ihTasksTable).set(update).where(eq(ihTasksTable.id, id)).returning();
-    for (const [action, from, to] of activities) await logActivity(id, actor, action, from, to);
+    // Log every field change in ONE multi-row insert (was one round-trip per
+    // change). Mirrors logActivity's actor/value truncation exactly.
+    if (activities.length)
+      await db.insert(ihTaskActivityTable).values(
+        activities.map(([action, from, to]) => ({
+          taskId: id,
+          actor: actor.slice(0, 120) || "admin",
+          action,
+          fromValue: String(from).slice(0, 200),
+          toValue: String(to).slice(0, 200),
+        })),
+      );
 
     return res.json({ task: serialize(task) });
   } catch (err) {
