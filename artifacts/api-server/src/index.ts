@@ -1,8 +1,9 @@
+import { pool } from "@workspace/db";
 import { logger } from "./lib/logger";
 import { ensureAuthConfigured } from "./lib/auth";
 import { initRateLimitStore } from "./lib/rateLimitStore";
-import { initQueues } from "./queues";
-import { startWorkers } from "./queues/worker";
+import { initQueues, closeQueues } from "./queues";
+import { startWorkers, stopWorkers } from "./queues/worker";
 import { startDailyDigestSchedule } from "./lib/dailyDigest";
 import { startMentorReminderJob } from "./lib/mentorReminderJob";
 
@@ -31,7 +32,7 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);
@@ -51,3 +52,28 @@ app.listen(port, (err) => {
   // Mentor password-setup reminder job (sends reminders before links expire).
   startMentorReminderJob();
 });
+
+// Graceful shutdown for zero-downtime rolling deploys: stop accepting new
+// connections, drain in-flight jobs (stopWorkers waits on active jobs), then
+// close the Redis + DB connections. Force-exit if it hangs past 10s.
+let shuttingDown = false;
+async function shutdown(sig: string): Promise<void> {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info({ sig }, "graceful shutdown starting");
+  const force = setTimeout(() => {
+    logger.error("graceful shutdown timed out — forcing exit");
+    process.exit(1);
+  }, 10_000);
+  force.unref();
+  server.close();
+  await stopWorkers().catch(() => undefined);
+  await closeQueues().catch(() => undefined);
+  await pool.end().catch(() => undefined);
+  clearTimeout(force);
+  logger.info("graceful shutdown complete");
+  process.exit(0);
+}
+for (const sig of ["SIGTERM", "SIGINT"] as const) {
+  process.once(sig, () => void shutdown(sig));
+}
