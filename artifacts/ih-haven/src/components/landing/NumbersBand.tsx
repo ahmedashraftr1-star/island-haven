@@ -25,22 +25,33 @@ interface Numbers {
 function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
+  const reduce = useReducedMotion();
   const [n, setN] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
-    const start = performance.now();
-    const dur = 1200;
-    let raf = 0;
-    const tick = (t: number) => {
-      const k = Math.min(1, (t - start) / dur);
-      const eased = 1 - Math.pow(1 - k, 3);
-      setN(Math.round(value * eased));
-      if (k < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, value]);
+    // Reduced motion, or a zero/absent value → show the final figure at once.
+    if (reduce || value <= 0) {
+      setN(value);
+      return;
+    }
+    if (inView) {
+      const start = performance.now();
+      const dur = 1200;
+      let raf = 0;
+      const tick = (t: number) => {
+        const k = Math.min(1, (t - start) / dur);
+        setN(Math.round(value * (1 - Math.pow(1 - k, 3))));
+        if (k < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }
+    // Safety net: if the element never registers as in-view (observer misses,
+    // off-screen mount, tall/short viewport), snap to the real value instead of
+    // stalling at 0 — the count-up is an enhancement, the figure is the point.
+    const fallback = window.setTimeout(() => setN(value), 1400);
+    return () => clearTimeout(fallback);
+  }, [inView, value, reduce]);
 
   return (
     <span ref={ref} className="tnum">
@@ -129,8 +140,7 @@ export function NumbersBand() {
             <motion.div
               data-testid="numbers-lead-enrollments"
               initial={reduce ? false : { opacity: 0, scale: 0.94, y: 8 }}
-              whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
+              animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
               className="font-display font-black tabular-nums text-sand-bright leading-[0.76] origin-[0%_100%] rtl:origin-[100%_100%]"
               style={{ fontSize: "clamp(5rem, 12vw, 11rem)", letterSpacing: "-0.06em", willChange: "transform, opacity" }}
@@ -161,8 +171,7 @@ export function NumbersBand() {
                 <motion.span
                   data-testid={`numbers-row-${s.key}`}
                   initial={reduce ? false : { opacity: 0, scale: 0.94, y: 6 }}
-                  whileInView={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.7 }}
+                  animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE_OUT_EXPO }}
                   className="font-display font-black tabular-nums text-sand-bright leading-[0.9] transition-colors duration-300 group-hover:text-sand"
                   style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
