@@ -1,3 +1,4 @@
+import path from "node:path";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -226,5 +227,36 @@ app.use((req, res, next) => {
 });
 
 app.use("/api", router);
+
+// ─── Production: serve the built SPA from the same origin ─────────────────────
+// The frontend fetches same-origin "/api", so serving it here lets ONE process
+// serve both the API and the site — the simplest VPS topology (no nginx needed).
+// Gated on NODE_ENV=production; set SERVE_STATIC=0 when a CDN/nginx fronts it.
+if (
+  process.env.NODE_ENV === "production" &&
+  process.env.SERVE_STATIC !== "0"
+) {
+  const clientDir =
+    process.env.CLIENT_DIR ??
+    path.resolve(process.cwd(), "../ih-haven/dist/public");
+  app.use(
+    express.static(clientDir, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        // Content-hashed assets can be cached hard; index.html must not be.
+        if (/[.-][A-Za-z0-9_]{8,}\.(js|css|woff2?|png|jpe?g|svg|webp|avif)$/.test(filePath))
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      },
+    }),
+  );
+  // SPA fallback: any non-API GET returns index.html so the client router runs.
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api") || req.path === "/metrics")
+      return next();
+    res.sendFile(path.join(clientDir, "index.html"), (err) =>
+      err ? next() : undefined,
+    );
+  });
+}
 
 export default app;
