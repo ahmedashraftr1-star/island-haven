@@ -172,7 +172,7 @@ export function WhatYouGet() {
                   className={`pointer-events-none absolute top-4 start-6 select-none font-mono leading-none tnum motion-reduce:hidden ${
                     g.accent ? "text-primary/[0.08]" : "text-primary/[0.06]"
                   }`}
-                  style={{ fontSize: "clamp(4rem,10vw,7rem)" }}
+                  style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)" }}
                 >
                   {g.num}
                 </span>

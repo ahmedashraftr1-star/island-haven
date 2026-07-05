@@ -157,7 +157,7 @@ export function OpeningHours() {
             dir="ltr"
             className="font-display font-extrabold text-sand tnum leading-none flex items-baseline gap-3 lg:gap-5 mb-7 rtl:justify-end"
             style={{
-              fontSize: "clamp(4.5rem, 10vw, 9rem)",
+              fontSize: "clamp(2rem, 3.4vw, 3.25rem)",
               letterSpacing: "-0.045em",
             }}
           >

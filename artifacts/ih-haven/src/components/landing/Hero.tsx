@@ -234,7 +234,7 @@ export function Hero() {
     <section
       id="hero"
       ref={ref}
-      className="relative h-[100svh] min-h-[680px] w-full overflow-hidden bg-[#070707] text-white"
+      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#070707] text-white"
     >
       <motion.div
         style={{ y: photoY, scale: photoScale }}
@@ -367,7 +367,7 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(2.8rem, 7.6vw, 7.5rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.045em" }}
+              style={{ fontSize: "clamp(2.5rem, 4.8vw, 5rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.045em" }}
             >
               <KineticLine text={headline.prefix} delay={0.45} reduce={!!reduce} />
               <RotatingWord words={headline.words} delay={0.64} reduce={!!reduce} />

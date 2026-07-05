@@ -50,7 +50,8 @@ export function Reveal({
     return () => window.clearTimeout(t);
   }, [delay]);
 
-  const hidden = reduce ? { opacity: 0 } : { opacity: 0, y: distance };
+  // Reduced motion → render the final (visible) state immediately, no fade.
+  const hidden = reduce ? { opacity: 1 } : { opacity: 0, y: distance };
   const shown = reduce ? { opacity: 1 } : { opacity: 1, y: 0 };
 
   return (

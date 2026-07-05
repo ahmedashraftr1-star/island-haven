@@ -207,19 +207,21 @@
      clamp + line-height + tracking + weight contract. Section agents:
      apply via the .t-* helper classes below or read these vars directly.
      ============================================================ */
-  --t-display-size: clamp(3.2rem, 9.5vw, 9.5rem);
-  --t-display-lh: 0.93;
-  --t-display-ls: -0.048em;
+  /* Restraint pass (owner: fonts read "big + trivial"). Capped ~35% smaller and
+     line-heights nudged up so the smaller sizes stay comfortable. */
+  --t-display-size: clamp(2.5rem, 5.2vw, 5.25rem);   /* was up to 152px → ~84px */
+  --t-display-lh: 0.98;
+  --t-display-ls: -0.04em;
   --t-display-weight: 900;
 
-  --t-h1-size: clamp(2.4rem, 5.5vw, 4.2rem);
-  --t-h1-lh: 1.04;
-  --t-h1-ls: -0.034em;
+  --t-h1-size: clamp(1.85rem, 3.4vw, 2.9rem);        /* was up to 67px → ~46px */
+  --t-h1-lh: 1.1;
+  --t-h1-ls: -0.028em;
   --t-h1-weight: 900;
 
-  --t-h2-size: clamp(2rem, 4vw, 3.2rem);
-  --t-h2-lh: 1.08;
-  --t-h2-ls: -0.026em;
+  --t-h2-size: clamp(1.5rem, 2.6vw, 2.15rem);        /* was up to 51px → ~34px */
+  --t-h2-lh: 1.15;
+  --t-h2-ls: -0.02em;
   --t-h2-weight: 800;
 
   --t-h3-size: 1.25rem;
@@ -249,7 +251,7 @@
   /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
      sections produced ~3000px of pure air. This denser rhythm reads as
      confident (Linear/Stripe), not padded-out. */
-  --section-py: clamp(4rem, 7vw, 7rem);          /* the 7rem sweet spot — rhythm without void */
+  --section-py: clamp(2.75rem, 4.5vw, 4.75rem);  /* restraint pass: ~112px → ~76px, denser rhythm */
   --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);

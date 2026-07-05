@@ -142,8 +142,8 @@ export function NumbersBand() {
               initial={reduce ? false : { opacity: 0, scale: 0.94, y: 8 }}
               animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
-              className="font-display font-black tabular-nums text-sand-bright leading-[0.76] origin-[0%_100%] rtl:origin-[100%_100%]"
-              style={{ fontSize: "clamp(5rem, 12vw, 11rem)", letterSpacing: "-0.06em", willChange: "transform, opacity" }}
+              className="font-display font-black tabular-nums text-sand-bright leading-[0.88] origin-[0%_100%] rtl:origin-[100%_100%]"
+              style={{ fontSize: "clamp(2.75rem, 4.5vw, 4.25rem)", letterSpacing: "-0.03em", willChange: "transform, opacity" }}
             >
               {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
             </motion.div>
@@ -166,15 +166,15 @@ export function NumbersBand() {
               <Reveal
                 key={s.key}
                 delay={0.1 + i * 0.07}
-                className="group flex flex-col gap-1 py-[clamp(1.5rem,3vw,2.5rem)] border-t border-border-strong/70 first:border-t-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-0.5"
+                className="group flex flex-col gap-1 py-[clamp(1rem,2vw,1.75rem)] border-t border-border-strong/70 first:border-t-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:hover:-translate-y-0.5"
               >
                 <motion.span
                   data-testid={`numbers-row-${s.key}`}
                   initial={reduce ? false : { opacity: 0, scale: 0.94, y: 6 }}
                   animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE_OUT_EXPO }}
-                  className="font-display font-black tabular-nums text-sand-bright leading-[0.9] transition-colors duration-300 group-hover:text-sand"
-                  style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
+                  className="font-display font-black tabular-nums text-sand-bright leading-[0.95] transition-colors duration-300 group-hover:text-sand"
+                  style={{ fontSize: "clamp(1.75rem, 2.8vw, 2.5rem)", letterSpacing: "-0.02em", willChange: "transform, opacity" }}
                 >
                   {n ? <CountUp value={s.value} lang={lang} /> : "—"}
                 </motion.span>

@@ -95,7 +95,7 @@ export function Audience() {
             ar: "الموهبة لا تحدّها الجغرافيا، ولا يحدّها الظرف. أربع فئات تجد مكانها هنا.",
             en: "Talent is bound neither by geography nor by circumstance. Four tracks find their place here.",
           })}
-          className="mb-[clamp(2rem,4vw,3.5rem)]"
+          className="mb-[clamp(1.6rem,2.6vw,2.4rem)]"
         />
 
         <div className="max-w-5xl">
@@ -163,7 +163,7 @@ export function Audience() {
               <div className="col-span-3 sm:col-span-2">
                 <span
                   className="font-mono font-black text-sand-bright tnum leading-none"
-                  style={{ fontSize: "clamp(2rem,4vw,3.5rem)" }}
+                  style={{ fontSize: "clamp(1.6rem,2.6vw,2.4rem)" }}
                 >
                   {lang === "en" ? row.num.en : row.num.ar}
                 </span>

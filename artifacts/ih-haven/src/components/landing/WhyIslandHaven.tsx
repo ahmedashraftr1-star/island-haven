@@ -71,7 +71,7 @@ export function WhyIslandHaven() {
         <motion.h2
           className="font-display text-foreground max-w-[18ch]"
           style={{
-            fontSize: "clamp(2.6rem, 8.6vw, 6.25rem)",
+            fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
             lineHeight: 1.0,
             letterSpacing: "-0.04em",
             fontWeight: 700,

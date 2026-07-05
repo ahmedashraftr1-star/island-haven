@@ -28,7 +28,7 @@ export function CinematicBand() {
   return (
     <section
       ref={ref}
-      className="relative h-[78vh] min-h-[520px] w-full overflow-hidden bg-[#0a0a0a] text-white"
+      className="relative h-[60vh] min-h-[420px] w-full overflow-hidden bg-[#0a0a0a] text-white"
       aria-label={t({ ar: "من قلب غزّة", en: "From the heart of Gaza" })}
     >
       <motion.div
@@ -88,7 +88,7 @@ export function CinematicBand() {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="font-display font-extrabold text-white"
-              style={{ fontSize: "clamp(2.6rem, 6.5vw, 5.5rem)", lineHeight: 1.02, letterSpacing: "-0.035em" }}
+              style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.25rem)", lineHeight: 1.02, letterSpacing: "-0.035em" }}
             >
               {t({ ar: "مساحة تتّسع لأحلامك.", en: "A space wide enough for your dreams." })}
             </motion.h2>

@@ -45,7 +45,7 @@ export function Statement() {
             <h2
               className="font-display text-white"
               style={{
-                fontSize: "clamp(2.7rem, 8.4vw, 7.25rem)",
+                fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
                 lineHeight: 0.99,
                 letterSpacing: "-0.045em",
                 fontWeight: 700,

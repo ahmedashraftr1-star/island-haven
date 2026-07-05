@@ -40,7 +40,7 @@ export function BecomeMentorBand() {
             <motion.h2
               className="font-display text-foreground max-w-[16ch]"
               style={{
-                fontSize: "clamp(2.4rem, 6.6vw, 4.5rem)",
+                fontSize: "clamp(1.85rem, 3.4vw, 2.9rem)",
                 lineHeight: 1.0,
                 letterSpacing: "-0.04em",
                 fontWeight: 700,

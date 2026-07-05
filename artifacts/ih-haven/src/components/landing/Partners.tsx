@@ -130,7 +130,7 @@ export function Partners() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)",
+              fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
               lineHeight: 1.0,
               letterSpacing: "-0.04em",
               fontWeight: 700,

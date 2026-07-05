@@ -74,7 +74,7 @@ export function Campaign() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.7rem, 8.4vw, 7rem)",
+              fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
               lineHeight: 0.99,
               letterSpacing: "-0.045em",
               fontWeight: 700,

@@ -71,7 +71,7 @@ export function HoursLocation() {
           <h2
             className="font-display text-foreground"
             style={{
-              fontSize: "clamp(2.8rem, 8vw, 6rem)",
+              fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
               lineHeight: 0.99,
               letterSpacing: "-0.04em",
               fontWeight: 700,

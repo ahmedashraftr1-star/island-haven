@@ -61,7 +61,7 @@ export function SuccessStories() {
             <blockquote
               className="font-display text-foreground"
               style={{
-                fontSize: "clamp(2.6rem, 7.4vw, 5rem)",
+                fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
                 lineHeight: 1.02,
                 letterSpacing: "-0.04em",
                 fontWeight: 700,
@@ -149,7 +149,7 @@ export function SuccessStories() {
                   transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
                   className="font-display text-foreground"
                   style={{
-                    fontSize: "clamp(2.6rem, 6.4vw, 5.25rem)",
+                    fontSize: "clamp(1.8rem, 3vw, 2.8rem)",
                     lineHeight: 1.04,
                     letterSpacing: "-0.04em",
                     fontWeight: 700,
