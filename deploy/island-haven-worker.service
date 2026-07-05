@@ -1,0 +1,27 @@
+# Island Haven background worker (email/notifications/badges/digest/reminders).
+# ONLY needed when REDIS_URL is set (queues enabled). Without Redis the api
+# process handles jobs inline and this unit should stay disabled.
+# Install: sudo cp deploy/island-haven-worker.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now island-haven-worker
+[Unit]
+Description=Island Haven background worker
+After=network.target redis-server.service
+Requires=redis-server.service
+
+[Service]
+Type=simple
+User=islandhaven
+WorkingDirectory=/opt/island-haven/artifacts/api-server
+Environment=NODE_ENV=production
+# Register the daily digest here (repeatable singleton — safe across instances).
+Environment=ENABLE_DAILY_DIGEST_CRON=1
+ExecStart=/usr/bin/node --env-file=.env --enable-source-maps dist/worker.mjs
+Restart=on-failure
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=15
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

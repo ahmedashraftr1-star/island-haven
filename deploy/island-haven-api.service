@@ -1,0 +1,26 @@
+# Island Haven API + site (single process serves both in production).
+# Install: sudo cp deploy/island-haven-api.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now island-haven-api
+# Assumes the repo at /opt/island-haven and a dedicated `islandhaven` user.
+[Unit]
+Description=Island Haven API + site
+After=network.target postgresql.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=islandhaven
+WorkingDirectory=/opt/island-haven/artifacts/api-server
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node --env-file=.env --enable-source-maps dist/index.mjs
+Restart=on-failure
+RestartSec=3
+# The app traps SIGTERM and drains gracefully (see index.ts).
+KillSignal=SIGTERM
+TimeoutStopSec=15
+# Basic hardening.
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
