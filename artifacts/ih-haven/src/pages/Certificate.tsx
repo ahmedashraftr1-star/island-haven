@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Printer, Award } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/labels";
 
 interface CertificateData {
@@ -15,10 +16,19 @@ interface CertificateData {
 
 export default function Certificate() {
   const { lang, dir, t } = useLanguage();
+  const { user, loading: authLoading } = useAuth();
+  const [, navigate] = useLocation();
   const [, params] = useRoute("/certificate/:courseId");
   const courseId = params?.courseId;
   const [data, setData] = useState<CertificateData | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Certificates are per-member — send guests to login (returning here after),
+  // matching the gate on Saved/Messages/Onboarding, instead of showing an error.
+  useEffect(() => {
+    if (!authLoading && !user)
+      navigate(`/login?next=/certificate/${courseId ?? ""}`);
+  }, [authLoading, user, courseId, navigate]);
 
   useEffect(() => {
     document.title =
@@ -28,7 +38,7 @@ export default function Certificate() {
   }, [lang]);
 
   useEffect(() => {
-    if (!courseId) return;
+    if (!courseId || !user) return; // wait for auth; guests are redirected above
     let cancelled = false;
     api<CertificateData>(`/me/certificate/${courseId}`)
       .then((r) => !cancelled && setData(r))
@@ -44,7 +54,7 @@ export default function Certificate() {
     return () => {
       cancelled = true;
     };
-  }, [courseId, lang]);
+  }, [courseId, lang, user]);
 
   if (error && !data) {
     return (
