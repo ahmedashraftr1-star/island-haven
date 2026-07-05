@@ -11,14 +11,21 @@ export function useCountUp(target: number, duration = 1200, active = false): num
   const start = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!active) return;
-
     const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setValue(target);
       return;
+    }
+
+    if (!active) {
+      // Safety net: if the activation trigger never arrives (IntersectionObserver
+      // miss, off-screen/tall-viewport mount), still show the real figure after a
+      // short grace period instead of stalling at 0. The count-up is the
+      // enhancement; the number is the point.
+      const fallback = window.setTimeout(() => setValue(target), 1400);
+      return () => clearTimeout(fallback);
     }
 
     start.current = undefined;

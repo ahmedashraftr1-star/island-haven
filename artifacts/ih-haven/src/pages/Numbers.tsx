@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 import {
   Users,
@@ -57,22 +57,30 @@ interface Numbers {
 function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
+  const reduce = useReducedMotion();
   const [n, setN] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
-    const start = performance.now();
-    const dur = 1300;
-    let raf = 0;
-    const tick = (timer: number) => {
-      const k = Math.min(1, (timer - start) / dur);
-      const eased = 1 - Math.pow(1 - k, 3);
-      setN(Math.round(value * eased));
-      if (k < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, value]);
+    if (reduce || value <= 0) {
+      setN(value);
+      return;
+    }
+    if (inView) {
+      const start = performance.now();
+      const dur = 1300;
+      let raf = 0;
+      const tick = (timer: number) => {
+        const k = Math.min(1, (timer - start) / dur);
+        setN(Math.round(value * (1 - Math.pow(1 - k, 3))));
+        if (k < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }
+    // Safety net: never stall at 0 if the element never registers as in-view.
+    const fallback = window.setTimeout(() => setN(value), 1400);
+    return () => clearTimeout(fallback);
+  }, [inView, value, reduce]);
 
   return (
     <span ref={ref} className="tabular-nums">
