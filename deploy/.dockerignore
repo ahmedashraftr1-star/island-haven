@@ -1,0 +1,10 @@
+# Keep the build context small + reproducible (deps come from the lockfile).
+**/node_modules
+**/dist
+**/.git
+**/.turbo
+**/*.log
+**/.env
+**/.env.*
+artifacts/*/dist
+scratch
