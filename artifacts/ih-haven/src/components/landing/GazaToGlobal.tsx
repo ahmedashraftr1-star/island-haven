@@ -98,7 +98,7 @@ export function GazaToGlobal() {
             </span>
           </div>
           <h2
-            className="font-editorial text-foreground"
+            className="font-display text-foreground"
             style={{ fontSize: "clamp(2rem, 4.6vw, 3.7rem)", lineHeight: 1.03, letterSpacing: "-0.02em", fontWeight: 600 }}
           >
             {t({ ar: "من غزّة ", en: "From Gaza " })}
@@ -131,7 +131,7 @@ export function GazaToGlobal() {
                     className="group grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-border-strong py-6 sm:py-7"
                   >
                     <span
-                      className="font-editorial tnum text-sand leading-none"
+                      className="font-display tnum text-sand leading-none"
                       style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 600, letterSpacing: "-0.03em" }}
                     >
                       {num(s.value)}
@@ -152,7 +152,7 @@ export function GazaToGlobal() {
         {/* ── Closing line + CTA — confident, plain, inviting ── */}
         <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
-            className="font-editorial text-foreground max-w-2xl"
+            className="font-display text-foreground max-w-2xl"
             style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 500 }}
           >
             {t({ ar: "موهبتك من غزّة — ", en: "Your talent is from Gaza — " })}

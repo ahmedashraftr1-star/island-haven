@@ -35,7 +35,7 @@ export function Statement() {
     <section
       ref={ref}
       className="relative bg-[#0a0a0a] overflow-hidden border-t border-white/[0.06]"
-      style={{ paddingBlock: "clamp(4.5rem, 11vh, 8rem)" }}
+      style={{ paddingBlock: "clamp(2.75rem, 5.5vh, 4.75rem)" }}
       data-testid="statement-band"
     >
       <div className="container-ih relative">

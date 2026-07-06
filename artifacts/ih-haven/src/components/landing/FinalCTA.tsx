@@ -74,7 +74,7 @@ export function FinalCTA() {
           {/* Belief headline — editorial serif on white, one italic crimson word */}
           <Reveal as="div" delay={0.05}>
             <h2
-              className="font-editorial text-white"
+              className="font-display text-white"
               style={{
                 fontSize: "clamp(2.1rem, 5vw, 4rem)",
                 lineHeight: 1.05,

@@ -33,7 +33,7 @@ export function CredibilityBar() {
           {/* The quiet credibility line — editorial serif, one crimson accent.
               Names our REAL backers only (NasToNas + Gaza Sky Geeks). */}
           <p
-            className="font-editorial text-fg-secondary shrink-0"
+            className="font-display text-fg-secondary shrink-0"
             style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)", lineHeight: 1.3, letterSpacing: "-0.01em", fontWeight: 500 }}
           >
             {t({ ar: "تأسّست ٢٠٢٤", en: "Founded 2024" })}

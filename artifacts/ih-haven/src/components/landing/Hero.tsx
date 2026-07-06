@@ -1,8 +1,7 @@
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowLeft, Phone, ArrowDown, Heart } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { ArrowLeft, ArrowDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
-import { HavenMark } from "./HavenMark";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
@@ -13,22 +12,10 @@ const FALLBACK = {
   title2: "في قلب غزّة.",
   subtitle:
     "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء.",
-  backedByLabel: "بُني في غزّة",
-  backedByBrand: "Made in Gaza",
   ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
-  ctaSecondary: "تحدّث معنا",
-  ctaSecondaryHref: "https://wa.me/972567536815",
-  topRight: "Season · 2026 · open",
-  onAirLabel: "On Air · غزّة",
   bookCtaLabel: "احجز مقعدك",
   scrollLabel: "Scroll",
-  greetingMorning: "صباح الخير",
-  greetingNoon: "نهارك مُبارك",
-  greetingEvening: "مساء النّور",
-  greetingNight: "ليلة هانئة",
-  estLabel: "Est · 2024",
-  placeLabel: "فلسطين · Gaza",
   stat1Value: "٣٩",
   stat1Label: "مقعد",
   stat2Value: "٨٠+",
@@ -48,22 +35,10 @@ const EN_FALLBACK = {
   title2: "for the world.",
   subtitle:
     "Gaza's business incubator. We take your idea from paper to product, and from product to market — through mentorship, incubation programs, and a global network of experts and partners.",
-  backedByLabel: "Built in Gaza",
-  backedByBrand: "Made in Gaza",
   ctaPrimary: "Apply to Island Haven",
   ctaPrimaryHref: "/apply",
-  ctaSecondary: "Chat with us",
-  ctaSecondaryHref: "https://wa.me/972567536815",
-  topRight: "Season · 2026 · open",
-  onAirLabel: "On Air · Gaza",
   bookCtaLabel: "Book a Seat",
   scrollLabel: "Scroll",
-  greetingMorning: "Good Morning",
-  greetingNoon: "Good Afternoon",
-  greetingEvening: "Good Evening",
-  greetingNight: "Good Night",
-  estLabel: "Est · 2024",
-  placeLabel: "Gaza · Palestine",
   stat1Value: "39",
   stat1Label: "seats",
   stat2Value: "80+",
@@ -77,6 +52,9 @@ const EN_FALLBACK = {
   image6: "/photos/IMG_8300.webp",
 };
 
+// A single headline line that rises up from behind a clipping mask on first
+// paint (transform-only, GPU) — calm and confident, no cycling gimmick.
+// Reduced motion → static.
 function KineticLine({
   text,
   delay = 0,
@@ -94,54 +72,10 @@ function KineticLine({
         className={`block ${accent ? "text-primary" : ""}`}
         initial={reduce ? false : { y: "115%" }}
         animate={{ y: 0 }}
-        transition={{ duration: 1.2, delay, ease: EASE_OUT_EXPO }}
+        transition={{ duration: 1.1, delay, ease: EASE_OUT_EXPO }}
       >
         {text}
       </motion.span>
-    </span>
-  );
-}
-
-// The crimson object word of the headline, cycling through a small set so the
-// hero's promise reads as dreams → ventures → future → talent. Slides up on
-// first paint (with the headline cascade delay), then swaps in place. The word
-// sits on its own line, so width changes never shift the rest of the layout.
-// Reduced-motion → the first word, static.
-function RotatingWord({
-  words,
-  delay = 0,
-  reduce = false,
-}: {
-  words: string[];
-  delay?: number;
-  reduce?: boolean;
-}) {
-  const [i, setI] = useState(0);
-  const first = useRef(true);
-  useEffect(() => {
-    if (reduce || words.length < 2) return;
-    const id = setInterval(() => {
-      first.current = false;
-      setI((p) => (p + 1) % words.length);
-    }, 2800);
-    return () => clearInterval(id);
-  }, [reduce, words.length]);
-
-  return (
-    <span className="relative block overflow-hidden pt-[0.22em] pb-[0.18em]" style={{ perspective: "900px" }}>
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={words[i]}
-          className="block text-primary will-change-transform"
-          initial={reduce ? false : { y: "55%", rotateX: -38, opacity: 0, filter: "blur(5px)" }}
-          animate={{ y: 0, rotateX: 0, opacity: 1, filter: "blur(0px)" }}
-          exit={reduce ? { opacity: 0 } : { y: "-55%", rotateX: 38, opacity: 0, filter: "blur(5px)" }}
-          transition={{ duration: 0.66, delay: first.current ? delay : 0, ease: EASE_OUT_EXPO }}
-          style={{ transformOrigin: "center" }}
-        >
-          {words[i]}
-        </motion.span>
-      </AnimatePresence>
     </span>
   );
 }
@@ -151,33 +85,20 @@ export function Hero() {
   const cms = useContentSection("hero", FALLBACK);
   const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
-  // Headline is composed (prefix · rotating object word · suffix) so the promise
-  // can cycle. Code-defined (the CMS title is a flat string and can't express
-  // the swap); keeps the loved register — only the object word animates.
+  // Static, confident headline (prefix · accent · suffix) — the promise reads
+  // in one calm breath. No word-cycling: Apple-register heroes hold still.
   const headline =
     lang === "en"
-      ? { prefix: "We grow Gaza's", words: ["ventures", "dreams", "futures", "talent"], suffix: "for the world." }
-      : { prefix: "نَحضن", words: ["مشاريعك", "أحلامك", "مستقبلك", "طاقاتك"], suffix: "في قلب غزّة." };
+      ? { prefix: "We grow Gaza's", accent: "ventures,", suffix: "for the world." }
+      : { prefix: "نَحضن", accent: "أحلامك،", suffix: "في قلب غزّة." };
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   // Live community figures — same /numbers source NumbersBand uses, so the hero
   // can never contradict the "real numbers from our database" section below.
   const [live, setLive] = useState<{ members: number; seatsHosted: number } | null>(null);
-  const [now, setNow] = useState<string>("");
-  const [hour, setHour] = useState<number>(() => new Date().getHours());
-
-  const greeting = useMemo(() => {
-    if (hour >= 5 && hour <= 11) return c.greetingMorning;
-    if (hour >= 12 && hour <= 16) return c.greetingNoon;
-    if (hour >= 17 && hour <= 19) return c.greetingEvening;
-    return c.greetingNight;
-  }, [hour, c.greetingMorning, c.greetingNoon, c.greetingEvening, c.greetingNight]);
 
   const stills = useMemo(
     () =>
-      // IMG_8357 (the most Eid-decorated frame) is removed from the source
-      // entirely — there is no image4 key. The cycle leads with the clean coder
-      // shot (image1 = IMG_8341); packed-room energy stays via 8358/8300.
       [c.image1, c.image2, c.image3, c.image5, c.image6]
         .map(imageUrl)
         .filter(Boolean),
@@ -198,19 +119,6 @@ export function Hero() {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    function tick() {
-      const d = new Date();
-      const hh = d.getHours().toString().padStart(2, "0");
-      const mm = d.getMinutes().toString().padStart(2, "0");
-      setNow(`${hh}:${mm}`);
-      setHour(d.getHours());
-    }
-    tick();
-    const id = setInterval(tick, 30_000);
-    return () => clearInterval(id);
-  }, []);
-
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -218,8 +126,7 @@ export function Hero() {
   const smooth = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.4, restDelta: 0.001 });
   const photoY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "10%"]);
   const photoScale = useTransform(smooth, [0, 1], [1, reduce ? 1 : 1.08]);
-  const textY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "-25%"]);
-  const overlayOpacity = useTransform(smooth, [0, 1], [1, reduce ? 1 : 1.3]);
+  const textY = useTransform(smooth, [0, 1], ["0%", reduce ? "0%" : "-22%"]);
 
   // Format a live count in the active locale (Arabic-Indic in AR, Western in EN)
   // so the hero stats read identically to NumbersBand and never disagree.
@@ -234,8 +141,10 @@ export function Hero() {
     <section
       id="hero"
       ref={ref}
-      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#070707] text-white"
+      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#060608] text-white"
     >
+      {/* ── Full-bleed photography, kept sharp (the room's real energy is the
+          soul of the page). Slow Ken-Burns cross-fade between stills. ── */}
       <motion.div
         style={{ y: photoY, scale: photoScale }}
         className="absolute inset-0 will-change-transform"
@@ -255,7 +164,7 @@ export function Hero() {
               opacity: { duration: 1.6, ease: [0.16, 1, 0.3, 1] },
               scale: { duration: 7, ease: "linear" },
             }}
-            className="absolute inset-0 w-full h-full object-cover saturate-[1.08] contrast-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover saturate-[1.06] contrast-[1.04]"
             loading={i === 0 ? "eager" : "lazy"}
             decoding="async"
             {...(i === 0 ? { fetchPriority: "high" as any } : {})}
@@ -263,100 +172,53 @@ export function Hero() {
         ))}
       </motion.div>
 
-      <motion.div style={{ opacity: overlayOpacity }} aria-hidden className="absolute inset-0 z-[1]">
-        {/* Base vertical scrim — a heavy top band (0.86→0.64 over the first ~16%)
-            deliberately drowns the ceiling — the space is decorated for Eid in
-            most frames and the party fans/stars read off-brand for a serious
-            incubator hero; it clears to 0.18 by 38% so the packed room, faces
-            and energy stay fully visible, then re-darkens toward the bottom. */}
+      {/* ── Cinematic scrim — sharp in the middle (image breathes), dark only at
+          the top (behind the nav) and bottom (behind stats/CTAs). Much lighter
+          than before so the photograph reads crisp, not muddy. ── */}
+      <div aria-hidden className="absolute inset-0 z-[1]">
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(5,7,15,0.86) 0%, rgba(5,7,15,0.64) 16%, rgba(5,7,15,0.18) 38%, rgba(5,7,15,0.34) 60%, rgba(5,7,15,0.86) 100%)",
+              "linear-gradient(180deg, rgba(6,6,10,0.80) 0%, rgba(6,6,10,0.44) 17%, rgba(6,6,10,0.12) 46%, rgba(6,6,10,0.52) 78%, rgba(6,6,10,0.93) 100%)",
           }}
         />
-        {/* Focused scrim behind the headline (right side, RTL) so text stays
-            crisp while the rest of the photo breathes. */}
+        {/* Focused directional scrim behind the headline (right side in RTL) so
+            the type stays razor-crisp while the rest of the frame stays open. */}
         <div
-          className="absolute inset-y-0 right-0 w-full lg:w-[66%]"
+          className="absolute inset-y-0 right-0 w-full lg:w-[62%]"
           style={{
             background:
-              "linear-gradient(270deg, rgba(5,7,15,0.68) 0%, rgba(5,7,15,0.36) 42%, transparent 78%)",
+              "linear-gradient(270deg, rgba(6,6,10,0.72) 0%, rgba(6,6,10,0.38) 46%, transparent 82%)",
           }}
         />
-        {/* Fine grain — editorial, not noisy (0.05). */}
-        <div
-          className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
-          }}
-        />
-      </motion.div>
+      </div>
 
-      {/* Ambient color field — a slow crimson/gold breathing glow settled into the
-          dark corners, giving the hero a living, iOS-like depth. Framer-driven (no
-          new keyframe); reduced-motion holds it perfectly still. */}
+      {/* Ambient depth — a slow crimson/gold breathing glow in the dark corners,
+          giving the hero a living, iOS-like depth. Reduced-motion holds still. */}
       <motion.div
         aria-hidden
         className="absolute inset-0 z-[1] pointer-events-none will-change-transform"
         style={{
           background:
-            "radial-gradient(50% 45% at 84% 16%, rgba(233,74,51,0.10) 0%, transparent 62%), radial-gradient(52% 50% at 14% 86%, rgba(224,178,102,0.07) 0%, transparent 64%)",
+            "radial-gradient(50% 45% at 84% 14%, rgba(233,74,51,0.10) 0%, transparent 62%), radial-gradient(52% 50% at 14% 88%, rgba(224,178,102,0.06) 0%, transparent 64%)",
         }}
         animate={reduce ? undefined : { scale: [1, 1.08, 1], opacity: [0.82, 1, 0.82] }}
         transition={reduce ? undefined : { duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <motion.div
-        initial={{ y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5, ease: EASE_OUT_EXPO }}
-        className="absolute top-24 lg:top-28 inset-x-0 z-20"
-      >
-        <div className="container-ih flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.2em] uppercase font-semibold">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-2 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-2 shadow-[0_0_8px_hsl(var(--accent-2)/0.9)]" />
-              </span>
-              {c.onAirLabel} · {now}
-            </div>
-            {greeting && (
-              <motion.div
-                key={greeting}
-                initial={{ x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.42, ease: EASE_OUT_EXPO }}
-                className="hidden sm:inline-flex items-center h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/95"
-                aria-live="polite"
-              >
-                {greeting}
-              </motion.div>
-            )}
-          </div>
-          {c.topRight && (
-            <div className="hidden md:flex items-center gap-2 h-8 px-3.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 text-[11px] tracking-[0.2em] uppercase font-semibold text-white/85">
-              {c.topRight}
-            </div>
-          )}
-        </div>
-      </motion.div>
-
+      {/* ── The message. One eyebrow, one monumental headline, one line of
+          support, one decisive action. Nothing else competes. ── */}
       <motion.div
         style={{ y: textY }}
         className="relative z-10 h-full flex items-center will-change-transform"
       >
         <div className="container-ih w-full">
-          {/* Clean, monumental headline — no glass box. Crimson hairline + an
-              oversized black display set on the focused scrim. Stronger, calmer. */}
           <div className="relative max-w-4xl">
             <motion.div
               initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
+              transition={{ delay: 0.1, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
               className="mb-6 lg:mb-8 flex items-center gap-3"
             >
               <span className="h-[2px] w-12 bg-primary" />
@@ -367,42 +229,29 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(2.5rem, 4.8vw, 5rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.045em" }}
+              style={{ fontSize: "clamp(2.75rem, 5.2vw, 5.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.045em" }}
             >
-              <KineticLine text={headline.prefix} delay={0.45} reduce={!!reduce} />
-              <RotatingWord words={headline.words} delay={0.64} reduce={!!reduce} />
-              <KineticLine text={headline.suffix} delay={0.82} reduce={!!reduce} />
+              <KineticLine text={headline.prefix} delay={0.1} reduce={!!reduce} />
+              <KineticLine text={headline.accent} delay={0.22} accent reduce={!!reduce} />
+              <KineticLine text={headline.suffix} delay={0.34} reduce={!!reduce} />
             </h1>
           </div>
 
           <motion.p
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.25, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 max-w-2xl text-[1.0625rem] lg:text-xl text-white/82 font-normal leading-[1.7] whitespace-pre-line"
+            transition={{ delay: 0.7, duration: 0.5, ease: EASE_OUT_EXPO }}
+            className="mt-7 lg:mt-9 max-w-2xl text-[1.0625rem] lg:text-xl text-white/85 font-normal leading-[1.7] whitespace-pre-line"
           >
             {c.subtitle}
           </motion.p>
 
-          <motion.div
-            initial={{ y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.35, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-6 lg:mt-7 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[12px] font-semibold text-white/85"
-          >
-            <Heart className="h-3.5 w-3.5 text-primary fill-primary/70" />
-            <span className="text-white/70">{c.backedByLabel} ·</span>
-            <span className="text-white">{c.backedByBrand}</span>
-          </motion.div>
-
-          {/* ── ONE primary (Apply) + one quiet secondary (Book a seat).
-              "Chat" is demoted to a low-weight text/icon link so the hero leads
-              with a single decisive action, not three near-equal pills. ── */}
+          {/* One primary action (Apply) + one quiet secondary (Book a seat). */}
           <motion.div
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.45, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+            transition={{ delay: 0.82, duration: 0.5, ease: EASE_OUT_EXPO }}
+            className="mt-9 lg:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
             <a
               href={c.ctaPrimaryHref || "/apply"}
@@ -420,45 +269,24 @@ export function Hero() {
               <span className="relative z-10">{c.bookCtaLabel}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
-            {c.ctaSecondary && (
-              <a
-                href={c.ctaSecondaryHref || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="cta-chat"
-                className="group inline-flex items-center justify-center sm:justify-start gap-2 h-12 sm:h-auto px-2 text-white/75 font-semibold text-[14px] hover:text-white transition-colors duration-200"
-              >
-                <Phone className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
-                <span className="underline-offset-[6px] group-hover:underline">{c.ctaSecondary}</span>
-              </a>
-            )}
           </motion.div>
         </div>
       </motion.div>
 
+      {/* ── Slim proof bar: three real figures + a quiet scroll cue. ── */}
       <motion.div
         initial={{ y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.7, duration: 1, ease: EASE_OUT_EXPO }}
+        transition={{ delay: 1.05, duration: 1, ease: EASE_OUT_EXPO }}
         className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9"
       >
         <div className="container-ih">
-          <div className="flex items-end justify-between gap-6 flex-wrap">
-            <div className="flex items-end gap-3">
-              <HavenMark size={56} className="text-white" delay={1.6} />
-              <div className="pb-1.5 leading-tight">
-                <div className="text-[10px] tracking-[0.2em] uppercase text-white/65 font-semibold">
-                  {c.estLabel}
-                </div>
-                <div className="text-[12px] text-white/85 font-medium">{c.placeLabel}</div>
-              </div>
-            </div>
-
+          <div className="flex items-end justify-between gap-6">
             <div className="flex items-stretch gap-0">
               {stats.map((s, i) => (
                 <div
                   key={`${s.l}-${i}`}
-                  className={`flex flex-col justify-end px-6 lg:px-8 ${i > 0 ? "border-s border-white/[0.22]" : ""}`}
+                  className={`flex flex-col justify-end px-5 lg:px-7 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
                 >
                   <div className="t-h2 !text-white tnum leading-none">
                     {s.v}
@@ -473,7 +301,7 @@ export function Hero() {
             <motion.div
               animate={reduce ? undefined : { y: [0, 6, 0] }}
               transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-              className="hidden md:flex flex-col items-center gap-2 text-white/65"
+              className="hidden md:flex flex-col items-center gap-2 text-white/60"
             >
               <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
               <ArrowDown className="w-4 h-4" />

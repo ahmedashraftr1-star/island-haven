@@ -188,7 +188,7 @@ export function OpeningHours() {
 
           {/* Editorial serif headline + single italic crimson accent (YC register) */}
           <h3
-            className="font-editorial text-foreground leading-[1.08] mb-4"
+            className="font-display text-foreground leading-[1.08] mb-4"
             style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)", letterSpacing: "-0.018em", fontWeight: 600 }}
           >
             {lang === "en" ? (
