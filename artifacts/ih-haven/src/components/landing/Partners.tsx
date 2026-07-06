@@ -119,7 +119,9 @@ export function Partners() {
   const reduce = useReducedMotion();
 
   return (
-    <section id="partners" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="partners" className="relative bg-[#060608] overflow-hidden border-t border-white/[0.06]" style={{ paddingBlock: "clamp(3rem, 6.5vh, 5.5rem)" }}>
+      {/* Depth glow so the network sits on a lit field, not flat black. */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(60% 80% at 78% 0%, rgba(233,74,51,0.08) 0%, transparent 58%), radial-gradient(50% 70% at 12% 100%, rgba(224,178,102,0.06) 0%, transparent 60%)" }} />
       <div className="container-ih relative">
         {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
         <header className="max-w-4xl">

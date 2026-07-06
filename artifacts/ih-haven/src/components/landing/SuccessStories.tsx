@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
-import { EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
+import { EASE_OUT_EXPO, DURATION, VIEWPORT } from "@/lib/motion";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
+import { imageUrl } from "@/hooks/use-content";
 
 interface Story {
   id: number;
@@ -16,23 +18,19 @@ interface Story {
 }
 
 /**
- * SuccessStories — member voices rendered as a single MONUMENTAL pull-quote on
- * acres of space, the Apple/Statement way. No eyebrow kicker, no quote-icon
- * medallions, no circular crimson avatar plates, no uniform card grid, no aura
- * blob. One huge quote against full-bleed Gaza-space photography; supporting
- * voices become a quiet, hairline-ruled editorial list — scale + restraint, not
- * decoration. The never-empty evergreen fallback is preserved in the same key.
+ * SuccessStories — member voices rendered CINEMATIC, matching the homepage's
+ * hero power: the featured testimonial lives as large white type living directly
+ * ON a full-bleed Gaza-space photograph (via the shared CinematicMedia primitive),
+ * with the supporting voices flowing below on deep dark as a quiet, hairline-ruled
+ * editorial list. Big bold modern-sans, dark cinematic — no sidebar photo, no
+ * card grid, no serif. The never-empty evergreen fallback is preserved in the
+ * same key, now a monumental statement on the same cinematic backdrop.
  */
 export function SuccessStories() {
   const reduce = useReducedMotion();
   const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Story[] | null>(null);
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["8%", "-8%"]);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,27 +42,36 @@ export function SuccessStories() {
     };
   }, []);
 
+  const photo = imageUrl("/photos/IMG_8307.webp");
+
   // EVERGREEN fallback — before the first member story is recorded, this CORE
   // proof section must still stand monumental. We lead with the founding belief
-  // itself, attributed to the team, on acres of calm space + an apply CTA.
+  // itself, attributed to the team, as large white type on the cinematic photo
+  // + an apply CTA.
   if (rows !== null && rows.length === 0) {
     return (
-      <section
+      <CinematicMedia
+        as="section"
         id="stories"
-        ref={ref}
-        className="relative bg-surface-1 overflow-hidden"
-        style={{ paddingBlock: "clamp(6rem, 15vh, 12rem)" }}
-        data-testid="stories-band"
+        src={photo}
+        scrim="heavy"
+        sideScrim
+        contentParallax
+        className="border-t border-white/[0.06]"
+        aria-label={t({ ar: "قصص النجاح", en: "Success stories" })}
       >
-        <div className="container-ih relative">
-          <motion.figure style={{ y }} className="max-w-5xl will-change-transform">
+        <div className="container-ih section-y" data-testid="stories-band">
+          <figure className="max-w-5xl">
+            <p className="text-sand-bright t-caption mb-6 sm:mb-8">
+              {t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
+            </p>
             <blockquote
-              className="font-display text-foreground"
+              className="font-display text-white"
               style={{
                 fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-                lineHeight: 1.02,
+                lineHeight: 1.08,
                 letterSpacing: "-0.04em",
-                fontWeight: 700,
+                fontWeight: 900,
               }}
             >
               {lang === "ar" ? (
@@ -81,9 +88,9 @@ export function SuccessStories() {
             <motion.p
               initial={reduce ? false : { opacity: 0, y: 18 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.85, delay: 0.4, ease: EASE_OUT_EXPO }}
-              className="mt-9 sm:mt-12 max-w-2xl text-fg-secondary"
+              viewport={VIEWPORT}
+              transition={{ duration: DURATION.xl, delay: 0.4, ease: EASE_OUT_EXPO }}
+              className="mt-9 sm:mt-12 max-w-2xl text-white/75"
               style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.5rem)", lineHeight: 1.6 }}
             >
               {t({
@@ -95,11 +102,11 @@ export function SuccessStories() {
             <motion.figcaption
               initial={reduce ? false : { opacity: 0, y: 14 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.7, delay: 0.55, ease: EASE_OUT_EXPO }}
+              viewport={VIEWPORT}
+              transition={{ duration: DURATION.lg, delay: 0.55, ease: EASE_OUT_EXPO }}
               className="mt-10 sm:mt-12 flex flex-wrap items-center gap-x-6 gap-y-5"
             >
-              <span className="text-muted-foreground t-caption">
+              <span className="text-white/55 t-caption">
                 {t({ ar: "فريق آيلاند هيفن — قناعتنا التأسيسيّة", en: "The Island Haven team — our founding belief" })}
               </span>
               <Link
@@ -111,133 +118,132 @@ export function SuccessStories() {
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
             </motion.figcaption>
-          </motion.figure>
+          </figure>
+        </div>
+      </CinematicMedia>
+    );
+  }
+
+  // Loading — a single calm placeholder on dark, no card deck.
+  if (!rows) {
+    return (
+      <section
+        id="stories"
+        ref={ref}
+        className="relative bg-[#060608] overflow-hidden"
+        style={{ paddingBlock: "clamp(6rem, 15vh, 12rem)" }}
+        data-testid="stories-band"
+      >
+        <div className="container-ih">
+          <div className="h-[clamp(14rem,30vh,22rem)] max-w-5xl rounded-[20px] bg-white/[0.04] skeleton-shimmer" />
         </div>
       </section>
     );
   }
 
-  const lead = rows?.[0] ?? null;
-  const rest = rows ? rows.slice(1, 4) : [];
+  const lead = rows[0];
+  const rest = rows.slice(1, 4);
 
   return (
-    <section
-      id="stories"
-      ref={ref}
-      className="relative bg-surface-1 overflow-hidden"
-      style={{ paddingBlock: "clamp(6rem, 15vh, 12rem)" }}
-      data-testid="stories-band"
-    >
-      {/* Loading — a single calm placeholder, no card deck. */}
-      {!rows && (
-        <div className="container-ih">
-          <div className="h-[clamp(14rem,30vh,22rem)] max-w-5xl rounded-[20px] card-base skeleton-shimmer" />
-        </div>
-      )}
+    <section id="stories" ref={ref} data-testid="stories-band">
+      {/* LEAD — the featured testimonial as large white type living directly on a
+          full-bleed Gaza-space photograph, hero-power via the shared primitive. */}
+      <CinematicMedia
+        as="div"
+        src={photo}
+        scrim="heavy"
+        sideScrim
+        contentParallax
+        className="border-t border-white/[0.06]"
+        aria-label={t({ ar: "قصّة عضو مميّزة", en: "Featured member story" })}
+      >
+        <div className="container-ih section-y">
+          <figure className="max-w-5xl">
+            <p className="text-sand-bright t-caption mb-6 sm:mb-8">
+              {t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
+            </p>
 
-      {/* MONUMENTAL featured testimonial — one huge quote on acres of space,
-          paired with full-bleed Gaza-space photography. Asymmetric, start-aligned. */}
-      {lead && (
-        <div className="container-ih relative">
-          <motion.figure style={{ y }} className="will-change-transform">
-            <div className="grid lg:grid-cols-12 gap-x-[clamp(2.5rem,6vw,6rem)] gap-y-12 items-end">
-              <div className="lg:col-span-7">
-                <motion.blockquote
-                  initial={reduce ? false : { opacity: 0, y: 30 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={VIEWPORT}
-                  transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-                  className="font-display text-foreground"
-                  style={{
-                    fontSize: "clamp(1.8rem, 3vw, 2.8rem)",
-                    lineHeight: 1.04,
-                    letterSpacing: "-0.04em",
-                    fontWeight: 700,
-                  }}
-                >
-                  {lead.quote}
-                </motion.blockquote>
+            <motion.blockquote
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={VIEWPORT}
+              transition={{ duration: DURATION.xl, ease: EASE_OUT_EXPO }}
+              className="font-display text-white"
+              style={{
+                fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)",
+                lineHeight: 1.15,
+                letterSpacing: "-0.03em",
+                fontWeight: 700,
+              }}
+            >
+              {lead.quote}
+            </motion.blockquote>
 
-                {lang === "en" && (
-                  <p className="mt-4 text-fg-faint text-[11px] tracking-[0.2em] uppercase">
-                    Original · Arabic
-                  </p>
-                )}
-
-                <motion.figcaption
-                  initial={reduce ? false : { opacity: 0, y: 14 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={VIEWPORT}
-                  transition={{ duration: 0.7, delay: 0.45, ease: EASE_OUT_EXPO }}
-                  className="mt-10 sm:mt-12"
-                >
-                  <div className="font-bold text-foreground text-[clamp(1rem,1.6vw,1.2rem)]">
-                    {lead.personName}
-                  </div>
-                  <div className="text-muted-foreground t-caption mt-1.5">
-                    {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
-                  </div>
-                </motion.figcaption>
-              </div>
-
-              <motion.div
-                initial={reduce ? false : { opacity: 0, scale: 0.98 }}
-                whileInView={reduce ? undefined : { opacity: 1, scale: 1 }}
-                viewport={VIEWPORT}
-                transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT_EXPO }}
-                className="lg:col-span-5 will-change-transform"
-              >
-                <div className="overflow-hidden rounded-[20px] ring-1 ring-white/10">
-                  <img
-                    src="/photos/IMG_8352.webp"
-                    alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
-                    loading="lazy"
-                    className="w-full aspect-[4/5] object-cover saturate-[1.03]"
-                  />
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Supporting voices — a quiet, hairline-ruled editorial list. NOT a
-                uniform card grid: each is a calm line of space, separated by a rule. */}
-            {rest.length > 0 && (
-              <div className="mt-[clamp(4rem,9vh,7rem)] max-w-4xl">
-                {rest.map((s, i) => (
-                  <motion.figure
-                    key={s.id}
-                    initial={reduce ? false : { opacity: 0, y: 22 }}
-                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                    viewport={VIEWPORT}
-                    transition={{ duration: 0.7, delay: Math.min(i, 3) * 0.08, ease: EASE_OUT_EXPO }}
-                    className="border-t border-border-strong py-[clamp(2rem,4vh,3.25rem)] first:border-t-0 first:pt-0"
-                  >
-                    <blockquote
-                      className="font-display text-fg-secondary"
-                      style={{
-                        fontSize: "clamp(1.3rem, 2.6vw, 2rem)",
-                        lineHeight: 1.32,
-                        letterSpacing: "-0.02em",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {s.quote}
-                    </blockquote>
-                    {lang === "en" && (
-                      <p className="mt-3 text-fg-faint text-[11px] tracking-[0.2em] uppercase">
-                        Original · Arabic
-                      </p>
-                    )}
-                    <figcaption className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span className="font-bold text-foreground text-[15px]">{s.personName}</span>
-                      <span className="text-muted-foreground t-caption">
-                        {[s.role, s.ventureName].filter(Boolean).join(" · ")}
-                      </span>
-                    </figcaption>
-                  </motion.figure>
-                ))}
-              </div>
+            {lang === "en" && (
+              <p className="mt-4 text-white/55 text-[11px] tracking-[0.2em] uppercase">
+                Original · Arabic
+              </p>
             )}
-          </motion.figure>
+
+            <motion.figcaption
+              initial={reduce ? false : { opacity: 0, y: 14 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={VIEWPORT}
+              transition={{ duration: DURATION.lg, delay: 0.45, ease: EASE_OUT_EXPO }}
+              className="mt-10 sm:mt-12"
+            >
+              <div className="font-bold text-white text-[clamp(1rem,1.6vw,1.2rem)]">
+                {lead.personName}
+              </div>
+              <div className="text-white/55 t-caption mt-1.5">
+                {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
+              </div>
+            </motion.figcaption>
+          </figure>
+        </div>
+      </CinematicMedia>
+
+      {/* SUPPORTING VOICES — a quiet, hairline-ruled editorial list on deep dark.
+          NOT a card grid: each is a calm line of space, separated by a rule. */}
+      {rest.length > 0 && (
+        <div className="relative bg-[#060608] overflow-hidden" style={{ paddingBlock: "clamp(4rem, 12vh, 9rem)" }}>
+          <div className="container-ih">
+            <div className="max-w-4xl">
+              {rest.map((s, i) => (
+                <motion.figure
+                  key={s.id}
+                  initial={reduce ? false : { opacity: 0, y: 22 }}
+                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                  viewport={VIEWPORT}
+                  transition={{ duration: DURATION.lg, delay: Math.min(i, 3) * 0.08, ease: EASE_OUT_EXPO }}
+                  className="border-t border-white/10 py-[clamp(2rem,4vh,3.25rem)] first:border-t-0 first:pt-0"
+                >
+                  <blockquote
+                    className="font-display text-white/75"
+                    style={{
+                      fontSize: "clamp(1.3rem, 2.6vw, 2rem)",
+                      lineHeight: 1.32,
+                      letterSpacing: "-0.02em",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {s.quote}
+                  </blockquote>
+                  {lang === "en" && (
+                    <p className="mt-3 text-white/55 text-[11px] tracking-[0.2em] uppercase">
+                      Original · Arabic
+                    </p>
+                  )}
+                  <figcaption className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="font-bold text-white text-[15px]">{s.personName}</span>
+                    <span className="text-white/55 t-caption">
+                      {[s.role, s.ventureName].filter(Boolean).join(" · ")}
+                    </span>
+                  </figcaption>
+                </motion.figure>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </section>

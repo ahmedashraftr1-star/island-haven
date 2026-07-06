@@ -3,23 +3,27 @@ import { ArrowLeft } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
+import { imageUrl } from "@/hooks/use-content";
 
 /**
  * GazaToGlobal — "من غزّة إلى العالم / From Gaza to the World", the brand's wow
  * moment, built on the thesis "الموهبة لا تحدّها الجغرافيا" (talent isn't bounded
- * by geography). Light editorial canvas (warm-white, deep-navy ink, crimson
- * accent, cerulean data — inherited from .theme-light), a serif font-editorial
- * headline carrying one italic crimson accent.
+ * by geography). It sits on a full-bleed workspace PHOTOGRAPH (CinematicMedia,
+ * heavy scrim) so the animated reach arcs feel like they radiate from a real
+ * place — bold display headline, white type, crimson + gold accents over the
+ * dimmed photo.
  *
  * The centerpiece is a HAND-BUILT viewBox SVG of REACH — a single crimson origin
- * (Gaza) from which stylised arcs sweep outward to a constellation of cerulean
- * global nodes. On scroll-into-view the arcs DRAW (framer-motion pathLength) and
- * the nodes fade + pulse in a stagger. No external map data. Everything is
+ * (Gaza) from which stylised arcs sweep outward to a constellation of global
+ * nodes. On scroll-into-view the arcs DRAW (framer-motion pathLength) and the
+ * nodes fade + pulse in a stagger. No external map data. Everything is
  * transform/opacity only (GPU) and fully short-circuited under reduced-motion.
+ * The SVG lives in a subtle glass card so the photo shows through slightly.
  *
- * Alongside it, four reach stats (cerulean tnum numerals, Arabic-Indic in AR)
- * drawn from the real value props — Payoneer payments, Freelancer marketplace,
- * cloud credits, global mentors — then a confident closing line + an /apply CTA.
+ * Alongside it, four reach stats (gold tnum numerals, Arabic-Indic in AR) drawn
+ * from the real value props — Payoneer payments, Freelancer marketplace, cloud
+ * credits, global mentors — then a confident closing line + an /apply CTA.
  */
 
 /* Destination constellation — fixed points in the 760×440 viewBox. The origin
@@ -81,30 +85,33 @@ export function GazaToGlobal() {
   ];
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="gaza-to-global"
       data-testid="gaza-to-global"
-      className="relative bg-background section-y overflow-hidden"
+      src={imageUrl("/photos/IMG_8358.webp")}
+      scrim="heavy"
+      sideScrim={false}
+      className="border-t border-white/[0.06]"
+      aria-label={t({ ar: "من غزّة إلى العالم", en: "From Gaza to the world" })}
     >
-      <div aria-hidden className="absolute inset-x-0 top-0 h-[55%] brand-aura opacity-50" />
-
-      <div className="container-ih relative">
+      <div className="container-ih section-y">
         {/* ── Header — the thesis, stated with one italic crimson accent ── */}
         <Reveal as="header" className="max-w-3xl">
           <div className="flex items-center gap-3 mb-5">
-            <span className="h-px w-9 bg-primary/50" />
+            <span className="h-px w-9 bg-primary/60" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
               {t({ ar: "وصولٌ بلا حدود", en: "Reach without borders" })}
             </span>
           </div>
           <h2
-            className="font-display text-foreground"
-            style={{ fontSize: "clamp(2rem, 4.6vw, 3.7rem)", lineHeight: 1.03, letterSpacing: "-0.02em", fontWeight: 600 }}
+            className="font-display text-white"
+            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.05em" }}
           >
             {t({ ar: "من غزّة ", en: "From Gaza " })}
             <span className="italic text-primary">{t({ ar: "إلى العالم.", en: "to the world." })}</span>
           </h2>
-          <p className="t-body-lg mt-6 max-w-xl">
+          <p className="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-white/70">
             {t({
               ar: "الموهبة لا تحدّها الجغرافيا. نفتح الباب من قلب غزّة إلى سوقٍ عالميّ، بمدفوعاتٍ تَعبر الحدود وشبكةٍ تمتدّ عبر القارّات.",
               en: "Talent isn't bounded by geography. From the heart of Gaza we open the door to a global market — with payments that cross borders and a network that spans continents.",
@@ -116,29 +123,29 @@ export function GazaToGlobal() {
         <div className="mt-[clamp(2.5rem,5vw,4rem)] grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
           {/* The reach visual — hand-built SVG, arcs draw + nodes pulse on view */}
           <Reveal as="div" className="lg:col-span-7" delay={0.04}>
-            <div className="card-base p-5 sm:p-7 lg:p-8">
+            <div className="rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-sm p-5 sm:p-7 lg:p-8">
               <ReachVisual reduce={!!reduce} ar={ar} t={t} />
             </div>
           </Reveal>
 
-          {/* Reach stats — cerulean tnum numerals, hairline ledger (no chips) */}
+          {/* Reach stats — gold tnum numerals, hairline ledger (no chips) */}
           <div className="lg:col-span-5">
-            <div className="border-t border-border-strong">
+            <div className="border-t border-white/10">
               {stats.map((s, i) => (
                 <Reveal key={i} delay={i * 0.06}>
                   <div
                     data-testid={`reach-stat-${i}`}
-                    className="group grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-border-strong py-6 sm:py-7"
+                    className="group grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-white/10 py-6 sm:py-7"
                   >
                     <span
-                      className="font-display tnum text-sand leading-none"
-                      style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 600, letterSpacing: "-0.03em" }}
+                      className="font-display tnum text-sand-bright leading-none"
+                      style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em" }}
                     >
                       {num(s.value)}
                     </span>
                     <div>
-                      <div className="text-[15px] font-semibold text-foreground leading-snug">{s.label}</div>
-                      <div className="mt-1 text-[12px] tracking-[0.04em] text-muted-foreground font-semibold rtl:tracking-normal">
+                      <div className="text-[15px] font-semibold text-white leading-snug">{s.label}</div>
+                      <div className="mt-1 text-[12px] tracking-[0.04em] text-white/55 font-semibold rtl:tracking-normal">
                         {s.sub}
                       </div>
                     </div>
@@ -152,8 +159,8 @@ export function GazaToGlobal() {
         {/* ── Closing line + CTA — confident, plain, inviting ── */}
         <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
-            className="font-display text-foreground max-w-2xl"
-            style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 500 }}
+            className="font-display text-white max-w-2xl"
+            style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 700 }}
           >
             {t({ ar: "موهبتك من غزّة — ", en: "Your talent is from Gaza — " })}
             <span className="italic text-primary">{t({ ar: "وأثرها للعالم كلّه.", en: "its impact is for the whole world." })}</span>
@@ -168,7 +175,7 @@ export function GazaToGlobal() {
           </Link>
         </Reveal>
       </div>
-    </section>
+    </CinematicMedia>
   );
 }
 
@@ -220,8 +227,8 @@ function ReachVisual({
         })}
       >
         {/* Faint latitude/meridian field — gives the constellation a "world" frame
-            without depending on real map data. Cerulean, very low opacity. */}
-        <g stroke="hsl(var(--sand))" strokeWidth="0.75" opacity="0.12">
+            without depending on real map data. Gold, very low opacity. */}
+        <g stroke="hsl(var(--sand-bright))" strokeWidth="0.75" opacity="0.16">
           <path d="M 40 120 Q 380 96 720 120" />
           <path d="M 40 220 Q 380 196 720 220" />
           <path d="M 40 320 Q 380 296 720 320" />
@@ -232,7 +239,7 @@ function ReachVisual({
 
         {/* Reach arcs — sweep from Gaza to each global node, drawing on view */}
         <g
-          stroke="hsl(var(--sand))"
+          stroke="hsl(var(--sand-bright))"
           strokeWidth="1.6"
           strokeLinecap="round"
           fill="none"
@@ -254,7 +261,7 @@ function ReachVisual({
             {!reduce && (
               <motion.circle
                 r={n.r}
-                fill="hsl(var(--sand))"
+                fill="hsl(var(--sand-bright))"
                 opacity={0.4}
                 initial={{ scale: 0, opacity: 0.45 }}
                 whileInView={{ scale: [0, 3.2, 3.2], opacity: [0.45, 0, 0] }}
@@ -265,8 +272,8 @@ function ReachVisual({
             )}
             <motion.circle
               r={n.r}
-              fill="hsl(var(--sand))"
-              stroke="hsl(var(--background))"
+              fill="hsl(var(--sand-bright))"
+              stroke="#060608"
               strokeWidth="2"
               {...popNode(n.delay)}
               style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
@@ -303,7 +310,7 @@ function ReachVisual({
           <motion.circle
             r="9"
             fill="hsl(var(--primary))"
-            stroke="hsl(var(--background))"
+            stroke="#060608"
             strokeWidth="2.5"
             {...(reduce
               ? {}
@@ -329,11 +336,11 @@ function ReachVisual({
       </svg>
 
       {/* Caption — names the thesis under the visual, low and quiet */}
-      <div className="mt-4 flex items-center gap-2.5 text-[12.5px] text-muted-foreground">
+      <div className="mt-4 flex items-center gap-2.5 text-[12.5px] text-white/55">
         <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-primary" />
-        <span className="font-semibold text-fg-secondary">{t({ ar: "نقطة الانطلاق: غزّة", en: "Origin: Gaza" })}</span>
-        <span className="text-border-strong">·</span>
-        <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-sand" />
+        <span className="font-semibold text-white/80">{t({ ar: "نقطة الانطلاق: غزّة", en: "Origin: Gaza" })}</span>
+        <span className="text-white/25">·</span>
+        <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-sand-bright" />
         <span>{t({ ar: "وجهات حول العالم", en: "Destinations worldwide" })}</span>
       </div>
     </div>
