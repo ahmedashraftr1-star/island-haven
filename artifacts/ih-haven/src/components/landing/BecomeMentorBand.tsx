@@ -49,7 +49,7 @@ export function BecomeMentorBand() {
               className="block will-change-transform"
               initial={reduce ? false : { opacity: 0, y: 30 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.15, margin: "0px 0px -12% 0px" }}
               transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
             >
               {t({ ar: "أرشِد موهبةً", en: "Mentor a talent" })}
@@ -58,7 +58,7 @@ export function BecomeMentorBand() {
               className="block will-change-transform"
               initial={reduce ? false : { opacity: 0, y: 30 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.15, margin: "0px 0px -12% 0px" }}
               transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
             >
               {t({ ar: "لا تحدّها ", en: "no border " })}
