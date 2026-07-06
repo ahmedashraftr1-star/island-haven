@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { imageUrl } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
-import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ventureIdentity } from "@/lib/ventureIdentity";
 
+interface Metric { v: string; ar: string; en: string }
 interface Venture {
   id: number;
   name: string;
@@ -19,6 +19,7 @@ interface Venture {
   featured: boolean;
   coverUrl: string | null;
   logoUrl: string | null;
+  metrics?: Metric[]; // real, from the API/CMS when present
 }
 
 const STAGE_EN: Record<string, string> = {
@@ -28,112 +29,107 @@ const STAGE_AR: Record<string, string> = {
   idea: "فكرة", mvp: "نموذج أوّليّ", launched: "انطلق", scaling: "توسّع", growth: "نموّ",
 };
 
-// Evergreen frames so a cover-less venture still wears real, dignified imagery
-// (deterministic by id — a venture always keeps the same frame).
+// Evergreen frames so a cover-less venture still wears real, dignified imagery.
 const FRAMES = [
   "/photos/IMG_8344.webp", "/photos/IMG_8347.webp", "/photos/IMG_8349.webp",
   "/photos/IMG_8353.webp", "/photos/IMG_8357.webp", "/photos/IMG_8358.webp",
 ];
 const frameFor = (id: number) => FRAMES[Math.abs(id) % FRAMES.length];
 
-/**
- * VentureCard — one full-bleed, image-forward project band (the jonnyczar register):
- * a large cover under a slow scroll parallax + a deep bottom scrim, with the metadata,
- * a monumental venture name, the tagline, and a "Case study →" affordance overlaid at the
- * foot. The whole band is the link; the cover lifts on hover. Cinematic, not a card deck.
- */
-function VentureCard({
-  v, index, lang, t, reduce,
-}: {
-  v: Venture; index: number; lang: Lang; t: ReturnType<typeof useLanguage>["t"]; reduce: boolean;
-}) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-9%", "9%"]);
-  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
+// ── OWNER-PROVIDED metrics (from the design brief), keyed by normalised name.
+//    TEMPORARY: shown so the "proof inside the card" reads now; the code prefers
+//    real `venture.metrics` from the API/CMS whenever present. Verify + move
+//    these into the venture records before production — do NOT invent numbers. ──
+const norm = (s: string) => s.replace(/[ً-ٰٟ]/g, "").replace(/\s+/g, "").trim();
+const OWNER_METRICS: Record<string, Metric[]> = {
+  [norm("مُستشارك")]: [{ v: "٤٬٠٠٠+", ar: "مستخدم", en: "users" }, { v: "2ⁿᵈ", ar: "هاكثون البنّائين", en: "builders' hackathon" }],
+  [norm("إغاثة+")]: [{ v: "٤٠K", ar: "أسرة", en: "families reached" }, { v: "٠٪", ar: "ازدواجيّة", en: "duplication" }],
+  [norm("طبيبك عن بُعد")]: [{ v: "٢٤/٧", ar: "وصول", en: "access" }],
+  [norm("مَنهجي")]: [{ v: "Offline", ar: "يعمل بلا شبكة", en: "works offline" }],
+};
+const metricsFor = (v: Venture): Metric[] => v.metrics ?? OWNER_METRICS[norm(v.name)] ?? [];
+
+function MetricRow({ metrics, lang }: { metrics: Metric[]; lang: Lang }) {
+  if (!metrics.length) return null;
+  return (
+    <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/12 pt-5 list-none">
+      {metrics.map((m, i) => (
+        <li key={i}>
+          <div className="font-display font-black tabular-nums text-white leading-none" style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em" }}>
+            {m.v}
+          </div>
+          <div className="mt-1.5 text-[11.5px] text-white/50 font-medium">{lang === "ar" ? m.ar : m.en}</div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Meta({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
   const vid = ventureIdentity(v.sector, v.id);
   const stage = lang === "ar" ? STAGE_AR[v.stage] ?? v.stage : STAGE_EN[v.stage] ?? v.stage;
-  const n = (lang === "ar" ? (index + 1).toLocaleString("ar-EG") : String(index + 1)).padStart(2, "0");
-  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal">
+      <span className="text-primary">{stage}</span>
+      {v.sector && (
+        <>
+          <span aria-hidden className="text-white/22">/</span>
+          <span className="inline-flex items-center gap-1.5" style={{ color: vid.accent }}>
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+            {v.sector}
+          </span>
+        </>
+      )}
+      {v.founderName && (<><span aria-hidden className="text-white/22">/</span><span className="text-white/70">{v.founderName}</span></>)}
+    </div>
+  );
+}
 
+/**
+ * FlagshipCard — the portfolio's headline project. The cover leads on TOP (fully
+ * intact, not fighting overlaid text), then a readable dark panel carries the
+ * name at display scale, the tagline, the proof metrics, and the case-study CTA.
+ */
+function FlagshipCard({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
+  const vid = ventureIdentity(v.sector, v.id);
   return (
     <Reveal as="div">
       <Link
-        ref={ref}
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group block relative overflow-hidden rounded-[24px] ring-1 ring-white/10"
+        className="group block overflow-hidden rounded-[26px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_40px_80px_-40px_rgba(0,0,0,0.7)]"
       >
-        <div className="relative h-[clamp(440px,64vh,720px)] overflow-hidden bg-[#070707]">
-          <motion.img
-            style={{ y, willChange: "transform" }}
+        <div className="relative aspect-[21/9] overflow-hidden bg-[#070707]">
+          <img
             src={cover}
             alt={v.name}
             loading="lazy"
             decoding="async"
-            onLoad={() => setLoaded(true)}
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
-            className="absolute inset-0 h-[118%] w-full object-cover object-center saturate-[1.05] transition-transform duration-[1300ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.045]"
+            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none group-hover:scale-[1.04]"
           />
-          {/* Loading veil — a branded shimmer so a below-fold card never flashes
-              pure black before its lazy cover paints. Fades out on load. */}
-          <div
-            aria-hidden
-            className={`absolute inset-0 skeleton-shimmer pointer-events-none transition-opacity duration-500 ease-out motion-reduce:transition-none ${loaded ? "opacity-0" : "opacity-100"}`}
-          />
-          {/* sector identity wash — a deep, distinct hue per venture (soft-light,
-              so the photograph stays intact) */}
-          <div aria-hidden className="absolute inset-0 opacity-[0.22] mix-blend-soft-light" style={{ background: vid.gradient }} />
-          {/* deep cinematic scrim — text always sits on the dark foot */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/45 to-[#070707]/5" />
+          <div aria-hidden className="absolute inset-0 opacity-[0.18] mix-blend-soft-light" style={{ background: vid.gradient }} />
+          <span className="absolute top-5 inset-inline-start-5 text-[10px] tracking-[0.2em] uppercase font-bold text-white bg-primary-cta rounded-full px-3.5 h-7 inline-flex items-center rtl:tracking-normal">
+            {t({ ar: "مشروع مميّز", en: "Flagship" })}
+          </span>
+        </div>
 
-          {/* index numeral, quiet, top corner */}
-          <div className="absolute top-6 inset-x-6 sm:top-8 sm:inset-x-9 flex items-start justify-between">
-            <span className="font-display font-black tabular-nums text-white/35 leading-none text-[clamp(1.6rem,2.4vw,2.4rem)]" style={{ letterSpacing: "-0.04em" }}>
-              {n}
-            </span>
-            {v.featured && (
-              <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-white/75 rtl:tracking-normal bg-white/10 backdrop-blur-md border border-white/15 rounded-full px-3 h-7 inline-flex items-center">
-                {t({ ar: "مميّز", en: "Featured" })}
-              </span>
-            )}
-          </div>
-
-          {/* foot content */}
-          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-9 lg:p-12">
-            {/* metadata line — the honest "badges": stage (crimson) / sector / founder */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-4 text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal">
-              <span className="text-primary">{stage}</span>
-              {v.sector && (
-                <>
-                  <span aria-hidden className="text-white/25">/</span>
-                  <span className="inline-flex items-center gap-1.5" style={{ color: vid.accent }}>
-                    <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-                    {v.sector}
-                  </span>
-                </>
-              )}
-              {v.founderName && (<><span aria-hidden className="text-white/25">/</span><span className="text-white/75">{v.founderName}</span></>)}
-            </div>
-
-            <h3
-              className="font-display font-black text-white"
-              style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.96, letterSpacing: "-0.042em" }}
-            >
-              {v.name}
-            </h3>
-
-            {v.tagline && (
-              <p className="mt-4 max-w-2xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1rem, 1.5vw, 1.3rem)" }}>
-                {v.tagline}
-              </p>
-            )}
-
-            <span className="mt-7 inline-flex items-center gap-2.5 text-[14px] font-bold text-white">
-              {t({ ar: "دراسة الحالة", en: "Case study" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
-            </span>
-          </div>
+        <div className="p-[clamp(1.75rem,3.5vw,3rem)]">
+          <Meta v={v} lang={lang} t={t} />
+          <h3 className="mt-4 font-display font-black text-white" style={{ fontSize: "clamp(2.2rem,4.4vw,3.75rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}>
+            {v.name}
+          </h3>
+          {v.tagline && (
+            <p className="mt-4 max-w-2xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1.05rem,1.6vw,1.35rem)" }}>
+              {v.tagline}
+            </p>
+          )}
+          <MetricRow metrics={metricsFor(v)} lang={lang} />
+          <span className="mt-7 inline-flex items-center gap-2.5 text-[14px] font-bold text-white">
+            {t({ ar: "دراسة الحالة", en: "Case study" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
+          </span>
         </div>
       </Link>
     </Reveal>
@@ -141,14 +137,60 @@ function VentureCard({
 }
 
 /**
- * VenturesShowcase — the portfolio, in the jonnyczar register: a vertical sequence of
- * full-bleed, image-forward venture bands flowing down the page, each one a cinematic
- * cover with the name at display scale and a case-study affordance. Real /ventures data,
- * never-empty evergreen fallback. The signature "عرض المشاريع".
+ * VentureRow — a supporting project: cover on the logical-start side, the readable
+ * panel on the other. Uneven against the flagship, so the sequence has rhythm.
+ */
+function VentureRow({ v, index, lang, t }: { v: Venture; index: number; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
+  const vid = ventureIdentity(v.sector, v.id);
+  return (
+    <Reveal as="div" delay={0.04 * index}>
+      <Link
+        href={`/ventures/${v.id}`}
+        data-testid={`showcase-venture-${v.id}`}
+        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] overflow-hidden rounded-[24px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_30px_60px_-36px_rgba(0,0,0,0.7)]"
+      >
+        <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[300px] overflow-hidden bg-[#070707]">
+          <img
+            src={cover}
+            alt={v.name}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
+            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none group-hover:scale-[1.04]"
+          />
+          <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
+        </div>
+        <div className="p-[clamp(1.5rem,2.6vw,2.5rem)] flex flex-col justify-center">
+          <Meta v={v} lang={lang} t={t} />
+          <h3 className="mt-3.5 font-display font-black text-white" style={{ fontSize: "clamp(1.7rem,2.8vw,2.6rem)", lineHeight: 1.0, letterSpacing: "-0.03em" }}>
+            {v.name}
+          </h3>
+          {v.tagline && (
+            <p className="mt-3 text-white/70 leading-relaxed" style={{ fontSize: "clamp(0.98rem,1.3vw,1.1rem)" }}>
+              {v.tagline}
+            </p>
+          )}
+          <MetricRow metrics={metricsFor(v)} lang={lang} />
+          <span className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-bold text-white">
+            {t({ ar: "دراسة الحالة", en: "Case study" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
+          </span>
+        </div>
+      </Link>
+    </Reveal>
+  );
+}
+
+/**
+ * VenturesShowcase — the portfolio as THE flagship section: one headline project
+ * (cover on top, readable panel below) followed by an uneven sequence of
+ * supporting projects, each carrying real proof. Real /ventures data, never-empty
+ * evergreen fallback. The signature "معرض المشاريع".
  */
 export function VenturesShowcase() {
   const { t, lang } = useLanguage();
-  const reduce = useReducedMotion();
+  useReducedMotion();
   const [rows, setRows] = useState<Venture[] | null>(null);
 
   useEffect(() => {
@@ -168,7 +210,6 @@ export function VenturesShowcase() {
   return (
     <section id="ventures-band" className="relative bg-background section-y overflow-hidden">
       <div className="container-ih relative">
-        {/* Header */}
         <Reveal as="header" className="max-w-3xl">
           <div className="flex items-center gap-3 mb-5">
             <span aria-hidden className="h-px w-9 bg-primary" />
@@ -176,10 +217,7 @@ export function VenturesShowcase() {
               {t({ ar: "معرض المشاريع", en: "The portfolio" })}
             </span>
           </div>
-          <h2
-            className="font-display font-black text-foreground"
-            style={{ fontSize: "clamp(2.1rem, 4.2vw, 3.6rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}
-          >
+          <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.98, letterSpacing: "-0.045em" }}>
             {t({ ar: "مشاريع وُلدت في ", en: "Ventures built at " })}
             <span className="text-primary">{t({ ar: "آيلاند.", en: "Island Haven." })}</span>
           </h2>
@@ -192,8 +230,6 @@ export function VenturesShowcase() {
         </Reveal>
 
         {rows.length === 0 ? (
-          /* EVERGREEN — a core proof section must never vanish. One full-bleed frame
-             tells the true present-tense story: the first cohort is building now. */
           <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
             <div className="relative overflow-hidden rounded-[24px] ring-1 ring-white/10 h-[clamp(420px,58vh,640px)]">
               <img src={frameFor(1)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
@@ -221,8 +257,9 @@ export function VenturesShowcase() {
         ) : (
           <>
             <div className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col gap-[clamp(1.5rem,3vw,2.75rem)]">
-              {rows.map((v, i) => (
-                <VentureCard key={v.id} v={v} index={i} lang={lang} t={t} reduce={!!reduce} />
+              <FlagshipCard v={rows[0]} lang={lang} t={t} />
+              {rows.slice(1).map((v, i) => (
+                <VentureRow key={v.id} v={v} index={i} lang={lang} t={t} />
               ))}
             </div>
 

@@ -101,7 +101,7 @@
   /* Component border tokens (referenced by ui/button + ui/badge). Subtle lit
      edges that sit on the brand/secondary/destructive fills without muddying
      them on the dark canvas. */
-  --primary-border: hsl(7 80% 62%);
+  --primary-border: hsl(12 72% 58%);
   --secondary-border: hsl(28 8% 27%);
   --destructive-border: hsl(0 72% 60%);
 
@@ -138,12 +138,12 @@
        --primary-cta   (~46% L) — darker FILL behind WHITE labels so white-on-red
                                   reaches ≈4.8:1 (WCAG AA).
        --primary-pressed        — Carmine #9B0013, the brand's deep pressed red. */
-  --primary: 7 84% 56%;              /* Island red #E8341C — accents / red text on near-black */
-  --primary-cta: 7 84% 48%;          /* AA fill behind white CTA labels */
-  --primary-pressed: 7 90% 34%;      /* deep pressed red */
+  --primary: 12 70% 52%;              /* Island red #E8341C — accents / red text on near-black */
+  --primary-cta: 12 72% 44%;          /* AA fill behind white CTA labels */
+  --primary-pressed: 12 78% 32%;      /* deep pressed red */
   --primary-foreground: 0 0% 100%;
-  --primary-soft: 7 55% 14%;         /* icon tiles / soft red wash */
-  --primary-bright: 9 90% 62%;       /* brighter red — gradient END */
+  --primary-soft: 12 45% 15%;         /* icon tiles / soft red wash */
+  --primary-bright: 13 74% 57%;       /* brighter red — gradient END */
 
   --secondary: 26 7% 13%;
   --secondary-foreground: 35 30% 95%;
@@ -299,9 +299,9 @@
   --card-border: 215 25% 80%;
   --muted: 214 32% 95%;
   --muted-foreground: 218 17% 42%;    /* captions on light — AA */
-  --primary: 7 78% 47%;               /* Island red, deepened for AA on white */
-  --primary-soft: 8 84% 95%;          /* light red wash */
-  --primary-bright: 9 80% 52%;
+  --primary: 11 70% 43%;               /* Island red, deepened for AA on white */
+  --primary-soft: 12 70% 94%;          /* light red wash */
+  --primary-bright: 13 72% 49%;
   --secondary: 214 30% 94%;
   --accent: 214 30% 94%;
   /* gold (legacy "sand" alias) deepened for contrast on white */
