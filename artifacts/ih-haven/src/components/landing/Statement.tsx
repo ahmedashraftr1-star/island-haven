@@ -37,7 +37,7 @@ export function Statement() {
           <div>
             <h2
               className="font-display text-white"
-              style={{ fontSize: "clamp(2.1rem, 4.2vw, 3.6rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 800 }}
+              style={{ fontSize: "clamp(2.6rem, 5.8vw, 5.5rem)", lineHeight: 0.95, letterSpacing: "-0.05em", fontWeight: 900 }}
             >
               {lines.map((ln, i) => (
                 <span key={i} className="block overflow-hidden pt-[0.14em] pb-[0.05em]">

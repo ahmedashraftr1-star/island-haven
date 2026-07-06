@@ -127,7 +127,7 @@ export function NumbersBand() {
           </div>
           <h2
             className="font-display text-white"
-            style={{ fontSize: "clamp(2rem, 3.9vw, 3.35rem)", lineHeight: 1.02, letterSpacing: "-0.04em", fontWeight: 800 }}
+            style={{ fontSize: "clamp(2.4rem, 5.2vw, 4.9rem)", lineHeight: 0.98, letterSpacing: "-0.05em", fontWeight: 900 }}
           >
             {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
             <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
@@ -150,7 +150,7 @@ export function NumbersBand() {
               animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
               className="font-display font-black tabular-nums text-sand-bright leading-[0.88] origin-[0%_100%] rtl:origin-[100%_100%]"
-              style={{ fontSize: "clamp(3.25rem, 6vw, 5.5rem)", letterSpacing: "-0.03em", willChange: "transform, opacity" }}
+              style={{ fontSize: "clamp(3.75rem, 8vw, 7.5rem)", letterSpacing: "-0.04em", willChange: "transform, opacity" }}
             >
               {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
             </motion.div>

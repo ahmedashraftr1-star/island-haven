@@ -59,7 +59,7 @@ export function FeaturedMembers() {
             <p className="eyebrow eyebrow-sand mb-3">{t({ ar: "المجتمع", en: "Community" })}</p>
             <h2
               className="font-display font-extrabold text-white"
-              style={{ fontSize: "clamp(1.9rem,3.6vw,3rem)", letterSpacing: "-0.03em", lineHeight: 1.04 }}
+              style={{ fontSize: "clamp(2.4rem,4.8vw,4.5rem)", letterSpacing: "-0.045em", lineHeight: 1.0 }}
             >
               {t({ ar: "مواهب تصنع الفارق", en: "Talent that makes a difference" })}
             </h2>

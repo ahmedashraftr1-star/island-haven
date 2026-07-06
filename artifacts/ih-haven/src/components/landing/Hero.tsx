@@ -1,4 +1,4 @@
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
@@ -53,8 +53,7 @@ const EN_FALLBACK = {
 };
 
 // A single headline line that rises up from behind a clipping mask on first
-// paint (transform-only, GPU) — calm and confident, no cycling gimmick.
-// Reduced motion → static.
+// paint (transform-only, GPU). Reduced motion → static.
 function KineticLine({
   text,
   delay = 0,
@@ -67,7 +66,7 @@ function KineticLine({
   reduce?: boolean;
 }) {
   return (
-    <span className="block overflow-hidden pt-[0.22em] pb-[0.18em]">
+    <span className="block overflow-hidden pt-[0.14em] pb-[0.1em]">
       <motion.span
         className={`block ${accent ? "text-primary" : ""}`}
         initial={reduce ? false : { y: "115%" }}
@@ -80,17 +79,62 @@ function KineticLine({
   );
 }
 
+// The crimson object-word of the headline, cycling through the promise
+// (ventures → dreams → futures → talent). Slides up on first paint (with the
+// headline cascade delay), then swaps in place — the kinetic heartbeat of the
+// hero. On its own line so width changes never shift the rest of the layout.
+// Reduced-motion → the first word, static.
+function RotatingWord({
+  words,
+  delay = 0,
+  reduce = false,
+}: {
+  words: string[];
+  delay?: number;
+  reduce?: boolean;
+}) {
+  const [i, setI] = useState(0);
+  const first = useRef(true);
+  useEffect(() => {
+    if (reduce || words.length < 2) return;
+    const id = setInterval(() => {
+      first.current = false;
+      setI((p) => (p + 1) % words.length);
+    }, 2600);
+    return () => clearInterval(id);
+  }, [reduce, words.length]);
+
+  return (
+    <span className="relative block overflow-hidden pt-[0.14em] pb-[0.1em]" style={{ perspective: "1000px" }}>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={words[i]}
+          className="block text-primary will-change-transform"
+          initial={reduce ? false : { y: "60%", rotateX: -42, opacity: 0, filter: "blur(6px)" }}
+          animate={{ y: 0, rotateX: 0, opacity: 1, filter: "blur(0px)" }}
+          exit={reduce ? { opacity: 0 } : { y: "-60%", rotateX: 42, opacity: 0, filter: "blur(6px)" }}
+          transition={{ duration: 0.7, delay: first.current ? delay : 0, ease: EASE_OUT_EXPO }}
+          style={{ transformOrigin: "center" }}
+        >
+          {words[i]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
 export function Hero() {
   const { lang } = useLanguage();
   const cms = useContentSection("hero", FALLBACK);
   const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
-  // Static, confident headline (prefix · accent · suffix) — the promise reads
-  // in one calm breath. No word-cycling: Apple-register heroes hold still.
+  // Monumental headline (prefix · rotating object-word · suffix) — the crimson
+  // word cycles the promise (ventures → dreams → futures → talent), the kinetic
+  // heartbeat of the hero. Big, bold, alive.
   const headline =
     lang === "en"
-      ? { prefix: "We grow Gaza's", accent: "ventures,", suffix: "for the world." }
-      : { prefix: "نَحضن", accent: "أحلامك،", suffix: "في قلب غزّة." };
+      ? { prefix: "We grow Gaza's", words: ["ventures", "dreams", "futures", "talent"], suffix: "for the world." }
+      : { prefix: "نَحضن", words: ["مشاريعك", "أحلامك", "مستقبلك", "طاقاتك"], suffix: "في قلب غزّة." };
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   // Live community figures — same /numbers source NumbersBand uses, so the hero
@@ -229,11 +273,11 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(2.75rem, 5.2vw, 5.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.045em" }}
+              style={{ fontSize: "clamp(3rem, 7.6vw, 7.75rem)", fontWeight: 900, lineHeight: 0.94, letterSpacing: "-0.05em" }}
             >
-              <KineticLine text={headline.prefix} delay={0.1} reduce={!!reduce} />
-              <KineticLine text={headline.accent} delay={0.22} accent reduce={!!reduce} />
-              <KineticLine text={headline.suffix} delay={0.34} reduce={!!reduce} />
+              <KineticLine text={headline.prefix} delay={0.4} reduce={!!reduce} />
+              <RotatingWord words={headline.words} delay={0.6} reduce={!!reduce} />
+              <KineticLine text={headline.suffix} delay={0.78} reduce={!!reduce} />
             </h1>
           </div>
 
