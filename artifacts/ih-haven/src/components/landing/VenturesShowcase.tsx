@@ -118,7 +118,7 @@ function VentureCard({
 
             <h3
               className="font-display font-black text-white"
-              style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)", lineHeight: 0.96, letterSpacing: "-0.042em" }}
+              style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.96, letterSpacing: "-0.042em" }}
             >
               {v.name}
             </h3>
@@ -178,7 +178,7 @@ export function VenturesShowcase() {
           </div>
           <h2
             className="font-display font-black text-foreground"
-            style={{ fontSize: "clamp(1.8rem, 3.2vw, 2.9rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}
+            style={{ fontSize: "clamp(2.1rem, 4.2vw, 3.6rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}
           >
             {t({ ar: "مشاريع وُلدت في ", en: "Ventures built at " })}
             <span className="text-primary">{t({ ar: "آيلاند.", en: "Island Haven." })}</span>

@@ -69,7 +69,7 @@ export function ExpertsBand() {
         <div className="container-ih relative">
           <motion.h2
             className="font-display text-foreground max-w-[15ch]"
-            style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
           >
             {[
               t({ ar: "المرشدون", en: "The mentors" }),
@@ -184,7 +184,7 @@ export function ExpertsBand() {
         <header className="max-w-4xl">
           <motion.h2
             className="font-display text-foreground"
-            style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.1rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.99, letterSpacing: "-0.045em", fontWeight: 700 }}
           >
             {[
               t({ ar: "خبراءٌ يأخذون", en: "Experts who take" }),
