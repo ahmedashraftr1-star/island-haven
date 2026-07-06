@@ -1,32 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  type Variants,
-} from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
+import { imageUrl } from "@/hooks/use-content";
 import { formatDate, type CohortStatus } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { CinematicMedia } from "./CinematicMedia";
 
 /**
  * ApplyProcess — "How to join", stated with funded-incubator transparency,
- * now carried by SCALE and SPACE instead of a templated numbered card row.
+ * rendered as an Apple-caliber DARK cinematic band.
+ *
+ * A full-bleed CinematicMedia header carries the monumental thesis (eyebrow +
+ * headline + the one real data point: next cohort) on the journey photograph.
+ * Below it, on deep near-black, the four truthful steps are read as clean
+ * editorial rows: a big ghost step numeral, a display title, a quiet body, and
+ * hairline dividers — roomy, aligned, de-densified. One prominent Apply CTA.
  *
  * World-class incubators make joining legible: Antler publishes cohort dates,
- * YC states the 3-month model + Demo Day. This section mirrors that — four plain,
- * truthful steps (Apply → Review → Onboard into a cohort → Demo Day), a concrete
- * "next cohort" line pulled from /api/cohorts when available (otherwise a clean
- * evergreen rolling-admissions line), and one prominent Apply CTA.
- *
- * The steps are read as large editorial type on acres of dark space — quiet index
- * numerals as a restrained margin detail, full-bleed photography opening the band,
- * one calm monumental thesis line. No eyebrow, no medallions, no icon tiles, no
- * uniform card grid, no aura blobs.
+ * YC states the 3-month model + Demo Day. This mirrors that — four plain steps
+ * (Apply → Review → Onboard into a cohort → Demo Day), a concrete "next cohort"
+ * line from /api/cohorts when available (else a clean evergreen line), one CTA.
  */
 
 interface CohortRow {
@@ -52,8 +48,8 @@ const stagger: Variants = {
 function Dot() {
   return (
     <span className="relative flex h-2 w-2">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-accent-2/60 animate-ping" />
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-2" />
+      <span className="absolute inline-flex h-full w-full rounded-full bg-primary/60 animate-ping" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
     </span>
   );
 }
@@ -62,17 +58,6 @@ export function ApplyProcess() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   const [cohort, setCohort] = useState<CohortRow | null>(null);
-
-  const mediaRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: mediaRef,
-    offset: ["start end", "end start"],
-  });
-  const imgY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    reduce ? ["0%", "0%"] : ["-7%", "7%"],
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -138,13 +123,13 @@ export function ApplyProcess() {
   const cohortLine = cohort ? (
     <>
       {cohort.status === "open" && <Dot />}
-      <CalendarDays className="w-3.5 h-3.5 text-accent-2" strokeWidth={2} />
+      <CalendarDays className="w-3.5 h-3.5 text-sand-bright" strokeWidth={2} />
       <span>
         {cohort.status === "open"
           ? t({ ar: "التقديم مفتوح الآن", en: "Applications open now" })
           : t({ ar: "الدفعة القادمة", en: "Next cohort" })}
         {" · "}
-        <span className="text-foreground font-semibold">{cohort.name}</span>
+        <span className="text-white font-semibold">{cohort.name}</span>
         {cohort.startsAt && (
           <>
             {" — "}
@@ -155,7 +140,7 @@ export function ApplyProcess() {
     </>
   ) : (
     <>
-      <Clock className="w-3.5 h-3.5 text-accent-2" strokeWidth={2} />
+      <Clock className="w-3.5 h-3.5 text-sand-bright" strokeWidth={2} />
       <span>
         {t({
           ar: "التقديم مفتوح على مدار العام — والدفعة القادمة قريبًا.",
@@ -166,111 +151,110 @@ export function ApplyProcess() {
   );
 
   return (
-    <section
-      id="how-to-join"
-      className="relative bg-surface-1 overflow-hidden"
-      style={{ paddingBlock: "clamp(5.5rem, 13vh, 11rem)" }}
-    >
-      {/* ── Monumental thesis — one calm line on acres of space. ── */}
-      <div className="container-ih relative">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 30 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-          className="max-w-5xl"
-        >
-          <h2
-            className="font-display text-foreground"
-            style={{
-              fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              lineHeight: 1.0,
-              letterSpacing: "-0.04em",
-              fontWeight: 700,
-            }}
-          >
-            {t({ ar: "من طلبٍ واحد،", en: "From one application," })}
-            <br />
-            <span className="text-primary">
-              {t({ ar: "إلى يوم العرض.", en: "to Demo Day." })}
-            </span>
-          </h2>
-
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 18 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-8%" }}
-            transition={{ duration: 0.85, delay: 0.45, ease: EASE_OUT_EXPO }}
-            className="mt-9 sm:mt-11 max-w-2xl text-fg-secondary"
-            style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.45rem)", lineHeight: 1.62 }}
-          >
-            {t({
-              ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
-              en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
-            })}
-          </motion.p>
-
-          {/* Next-cohort / rolling-intake line — the one real data point, quiet. */}
-          <div className="mt-8 inline-flex items-center gap-2.5 t-caption text-fg-secondary tnum">
-            {cohortLine}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ── Full-bleed photography — the journey, shown not decorated. ── */}
-      <div
-        ref={mediaRef}
-        className="relative mt-16 sm:mt-24 h-[44vh] min-h-[320px] max-h-[560px] overflow-hidden"
+    <section id="how-to-join" className="relative bg-[#060608] text-white">
+      {/* ── Cinematic header — monumental thesis on the journey photograph. ── */}
+      <CinematicMedia
+        as="div"
+        src={imageUrl("/photos/IMG_8357.webp")}
+        alt={t({
+          ar: "مؤسّسون يعملون في مساحة آيلاند هيفن",
+          en: "Founders at work in the Island Haven space",
+        })}
+        scrim="heavy"
+        sideScrim
+        aria-label={t({ ar: "كيف تنضمّ", en: "How to join" })}
+        className="min-h-[62vh] flex items-center"
       >
-        <motion.img
-          style={{ y: imgY }}
-          src={`${import.meta.env.BASE_URL}photos/IMG_8357.webp`}
-          alt={t({
-            ar: "مؤسّسون يعملون في مساحة آيلاند هيفن",
-            en: "Founders at work in the Island Haven space",
-          })}
-          loading="lazy"
-          className="absolute inset-0 h-[114%] w-full object-cover will-change-transform"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-surface-1 via-surface-1/35 to-transparent" />
-      </div>
+        <div className="container-ih w-full py-[clamp(5rem,14vh,9rem)]">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 30 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+            className="max-w-5xl"
+          >
+            {/* Eyebrow — hairline + tracked label. */}
+            <div className="flex items-center gap-3 mb-7">
+              <span className="h-px w-10 bg-sand-bright/70" />
+              <span className="text-[11px] tracking-[0.22em] uppercase text-sand-bright font-semibold rtl:tracking-normal">
+                {t({ ar: "كيف تنضمّ", en: "How to join" })}
+              </span>
+            </div>
 
-      {/* ── The four steps — large editorial type, generous rhythm, no cards. ── */}
-      <div className="container-ih relative">
+            <h2
+              className="font-display text-white"
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
+                fontWeight: 900,
+                lineHeight: 0.98,
+                letterSpacing: "-0.05em",
+              }}
+            >
+              {t({ ar: "من طلبٍ واحد،", en: "From one application," })}
+              <br />
+              <span className="text-primary">
+                {t({ ar: "إلى يوم العرض.", en: "to Demo Day." })}
+              </span>
+            </h2>
+
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.85, delay: 0.35, ease: EASE_OUT_EXPO }}
+              className="mt-8 sm:mt-10 max-w-2xl text-white/75"
+              style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.45rem)", lineHeight: 1.6 }}
+            >
+              {t({
+                ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
+                en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
+              })}
+            </motion.p>
+
+            {/* Next-cohort / rolling-intake line — the one real data point, quiet. */}
+            <div className="mt-8 inline-flex items-center gap-2.5 text-[13px] sm:text-sm text-white/70 tnum">
+              {cohortLine}
+            </div>
+          </motion.div>
+        </div>
+      </CinematicMedia>
+
+      {/* ── The four steps — clean editorial rows on deep near-black. ── */}
+      <div className="container-ih relative" style={{ paddingBlock: "clamp(4.5rem, 11vh, 9rem)" }}>
         <motion.ol
           variants={reduce ? undefined : stagger}
           initial={reduce ? undefined : "hidden"}
           whileInView={reduce ? undefined : "show"}
           viewport={{ once: true, margin: "-8% 0px" }}
-          className="mt-[clamp(3.5rem,8vh,7rem)] max-w-4xl"
+          className="max-w-4xl"
         >
           {steps.map((s, i) => (
             <motion.li
               key={i}
               variants={reduce ? undefined : rise}
-              className="grid grid-cols-[auto_1fr] gap-x-[clamp(1.5rem,5vw,4rem)] items-baseline border-t border-border-strong/70 py-[clamp(2.25rem,5vh,4rem)] first:border-t-0 first:pt-0"
+              className="grid grid-cols-[auto_1fr] gap-x-[clamp(1.75rem,6vw,4.5rem)] items-baseline border-t border-white/10 py-[clamp(2.5rem,6vh,4.5rem)] first:border-t-0 first:pt-0"
             >
               <span
-                className="font-display tabular-nums text-fg-faint leading-none select-none"
-                style={{ fontSize: "clamp(0.95rem, 1.3vw, 1.2rem)", letterSpacing: "0.04em" }}
+                className="font-display font-black tabular-nums text-white/15 leading-none select-none"
+                style={{ fontSize: "clamp(2.75rem, 6vw, 5rem)", letterSpacing: "-0.03em" }}
                 aria-hidden="true"
               >
                 {idx(i)}
               </span>
               <div>
                 <h3
-                  className="font-display text-foreground"
+                  className="font-display text-white"
                   style={{
                     fontSize: "clamp(1.75rem, 3.6vw, 2.85rem)",
                     lineHeight: 1.06,
                     letterSpacing: "-0.03em",
-                    fontWeight: 700,
+                    fontWeight: 800,
                   }}
                 >
                   {s.title}
                 </h3>
                 <p
-                  className="mt-4 sm:mt-5 max-w-2xl text-fg-secondary"
+                  className="mt-4 sm:mt-5 max-w-2xl text-white/60"
                   style={{ fontSize: "clamp(1.02rem, 1.5vw, 1.2rem)", lineHeight: 1.66 }}
                 >
                   {s.body}
@@ -286,7 +270,7 @@ export function ApplyProcess() {
           whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
-          className="mt-[clamp(3rem,7vh,6rem)] flex flex-wrap items-center gap-x-8 gap-y-4"
+          className="mt-[clamp(3.5rem,8vh,6rem)] pt-[clamp(2.5rem,6vh,4rem)] border-t border-white/10 flex flex-wrap items-center gap-x-8 gap-y-4"
         >
           <Link
             href="/apply"
@@ -298,13 +282,13 @@ export function ApplyProcess() {
           </Link>
           <Link
             href="/process"
-            className="inline-flex items-center gap-2 t-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
           </Link>
           <Link
             href="/cohorts"
-            className="inline-flex items-center gap-2 t-caption font-semibold text-fg-secondary hover:text-foreground transition-colors underline-offset-8 hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline"
           >
             {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
           </Link>
