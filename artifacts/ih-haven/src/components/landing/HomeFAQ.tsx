@@ -12,13 +12,18 @@ type QA = {
 };
 
 /**
- * HomeFAQ — the homepage's honest answers, told the Apple way: SCALE + SPACE +
- * RESTRAINT. One monumental headline on the dark canvas (a single crimson word),
- * then the questions as calm, hairline-divided editorial rows — no eyebrow rule,
- * no 01/02/03 ledger, no circular medallion marker, no cards or glass. Each row is
- * a real <button> (aria-expanded / aria-controls) and the panel opens with a
- * grid-template-rows 0fr→1fr transition (not height) so it animates smoothly with
- * zero layout jank; a single thin marker line rotates into a × on open. RTL-safe.
+ * HomeFAQ — the homepage's PREMIUM LIGHT "breather". Between the dark cinematic
+ * sections this one flips to `theme-light` (warm-white bg, dark ink, AA crimson,
+ * white cards) and reads in the Apple support-page register: clean bright surface,
+ * acres of whitespace, big crisp questions, calm answers. No serif, no gradient
+ * text, no glass — just type + air on white. Tokens (text-foreground /
+ * text-fg-secondary / bg-surface-2 / border-border / bg-primary-soft) auto-resolve
+ * to the light palette via `theme-light`, so nothing is hardcoded.
+ *
+ * Each row is a real <button> (aria-expanded / aria-controls) and the panel opens
+ * with a grid-template-rows 0fr→1fr transition (not height) so it animates with
+ * zero layout jank; a single thin crimson marker line rotates into a × on open,
+ * and a subtle crimson-soft wash lifts the open row. RTL-safe, reduced-motion safe.
  */
 export function HomeFAQ() {
   const { t } = useLanguage();
@@ -85,20 +90,19 @@ export function HomeFAQ() {
   return (
     <section
       id="home-faq"
-      className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}
+      className="theme-light section-y relative bg-background text-foreground border-y border-border overflow-hidden"
       data-testid="home-faq"
     >
       <div className="container-ih relative">
-        {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+        {/* ── Big, crisp header on warm white — one crimson word, acres of space ── */}
         <header className="max-w-[20ch]">
           <motion.h2
             className="font-display text-foreground"
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              lineHeight: 1.0,
+              lineHeight: 0.98,
               letterSpacing: "-0.04em",
-              fontWeight: 700,
+              fontWeight: 900,
             }}
           >
             {[
@@ -135,8 +139,9 @@ export function HomeFAQ() {
           </motion.p>
         </header>
 
-        {/* ── The questions — calm, hairline-divided editorial rows. No numbered
-             ledger, no medallion marker, no cards. Type and air carry it. ── */}
+        {/* ── The questions — big, crisp rows on white, hairline-divided, roomy.
+             The open row gets a subtle crimson-soft wash + a soft rounded lift.
+             Type and air carry it — no cards, no numbered ledger. ── */}
         <div className="mt-[clamp(4rem,9vh,7.5rem)]">
           {faqs.map((f, i) => {
             const isOpen = open === f.id;
@@ -146,7 +151,9 @@ export function HomeFAQ() {
               <motion.div
                 key={f.id}
                 data-testid={`faq-item-${f.id}`}
-                className="border-t border-border-strong/60 first:border-t-0 will-change-transform"
+                className={`relative border-t border-border first:border-t-0 rounded-2xl transition-colors duration-300 will-change-transform ${
+                  isOpen ? "bg-primary-soft" : ""
+                }`}
                 initial={reduce ? false : { opacity: 0, y: 22 }}
                 whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
@@ -160,24 +167,23 @@ export function HomeFAQ() {
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     data-testid={`faq-trigger-${f.id}`}
-                    className="group grid grid-cols-[1fr_auto] items-baseline gap-x-[clamp(1.5rem,4vw,3rem)] w-full text-start py-[clamp(1.75rem,4vh,2.75rem)]"
+                    className="group grid grid-cols-[1fr_auto] items-baseline gap-x-[clamp(1.5rem,4vw,3rem)] w-full text-start px-[clamp(0.75rem,2vw,1.75rem)] py-[clamp(1.75rem,4vh,2.75rem)]"
                   >
                     <span
-                      className={`font-display transition-colors duration-300 ${
+                      className={`font-display font-bold transition-colors duration-300 ${
                         isOpen
                           ? "text-primary"
                           : "text-foreground group-hover:text-primary"
                       }`}
                       style={{
-                        fontSize: "clamp(1.4rem, 3vw, 2.25rem)",
-                        letterSpacing: "-0.025em",
-                        lineHeight: 1.12,
-                        fontWeight: 600,
+                        fontSize: "clamp(1.15rem, 2.6vw, 1.9rem)",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.15,
                       }}
                     >
                       {t(f.q)}
                     </span>
-                    {/* Thin + → × marker — two hairlines, no circular medallion. */}
+                    {/* Thin + → × marker — two crimson hairlines, no medallion. */}
                     <span
                       aria-hidden
                       className="relative mt-2 inline-flex h-5 w-5 shrink-0 self-start translate-y-1"
@@ -208,10 +214,10 @@ export function HomeFAQ() {
                 >
                   <div className="overflow-hidden">
                     <p
-                      className={`max-w-2xl text-fg-secondary pb-[clamp(1.75rem,4vh,2.75rem)] transition-opacity duration-300 ${
+                      className={`max-w-2xl text-fg-secondary px-[clamp(0.75rem,2vw,1.75rem)] pb-[clamp(1.75rem,4vh,2.75rem)] transition-opacity duration-300 ${
                         isOpen ? "opacity-100" : "opacity-0"
                       }`}
-                      style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.65 }}
+                      style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.3rem)", lineHeight: 1.7 }}
                     >
                       {t(f.a)}
                     </p>

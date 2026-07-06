@@ -1,35 +1,28 @@
-import { useRef } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { GazaPulseMap } from "./GazaPulseMap";
 import { OpeningHours } from "./OpeningHours";
-import { useContentSection } from "@/hooks/use-content";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
- * HoursLocation — "Visit us", told in the homepage's monumental editorial voice.
+ * HoursLocation — "Visit us", reframed as a PREMIUM LIGHT breather.
  *
- * Grandeur pass: SCALE + SPACE + RESTRAINT. One calm, oversized headline with a
- * single crimson word opens the chapter — no eyebrow kicker, no aura blob. The
- * OpeningHours dial keeps its own crafted treatment (and day testids). The place
- * is no longer a packed two-card deck: it's a single full-bleed photograph of the
- * real space, with the address line and CTA overlaid calmly, and the hand-drawn
- * GazaPulseMap reading as a quiet co-ordinate beside the prose — not boxed, not
- * chipped, not floating on a void. Keeps id="visit", the child components + their
- * testids, the content fetch, routes and forms.
+ * This section deliberately breaks the run of dark cinematic chapters: it flips to
+ * the warm-white `theme-light` register (Apple product-page: bright, crisp, acres
+ * of whitespace) so the eye rests before the page closes. The photograph is no
+ * longer a full-bleed dark plate — it's a clean, softly-shadowed FRAMED product
+ * shot sitting on white, its caption legible behind a small local scrim only. The
+ * opening-hours dial keeps its own crafted light treatment (and day testids); the
+ * place reads as a calm 2-column: framed photo beside address, status, coords and
+ * CTAs — all on light tokens, no glass, no serif. Keeps id="visit", the child
+ * components + their testids, the content fetch, routes and forms.
  */
 export function HoursLocation() {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
-
-  const mediaRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: mediaRef,
-    offset: ["start end", "end start"],
-  });
-  const imgY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-8%", "8%"]);
 
   // The CMS "hours" section only ships the Arabic fields (titleA/titleB/…),
   // never their EN counterparts — so we mirror the about-section pattern:
@@ -55,6 +48,7 @@ export function HoursLocation() {
     locationStatusEn: "Open now for visitors with an appointment",
     locationCoords: "٣١.٥٠° ش · ٣٤.٤٧° شرق",
     locationCoordsEn: "31.50° N · 34.47° E",
+    photo: "/photos/IMG_8353.webp",
   };
 
   const c = useContentSection("hours", FALLBACK);
@@ -62,19 +56,18 @@ export function HoursLocation() {
   return (
     <section
       id="visit"
-      className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(6.5rem, 16vh, 12rem)" }}
+      className="theme-light section-y relative bg-background text-foreground border-y border-border overflow-hidden"
     >
       <div className="container-ih relative">
-        {/* ── Monumental header — one calm line, one crimson word, acres of space ── */}
+        {/* ── Header — one calm monumental line, one crimson word, on white ── */}
         <header className="max-w-4xl">
           <h2
             className="font-display text-foreground"
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              lineHeight: 0.99,
+              fontWeight: 900,
+              lineHeight: 0.98,
               letterSpacing: "-0.04em",
-              fontWeight: 700,
             }}
           >
             {[
@@ -107,118 +100,99 @@ export function HoursLocation() {
           </motion.p>
         </header>
 
-        {/* Opening hours — the dial keeps its own crafted treatment + day testids */}
+        {/* Opening hours — the dial keeps its own crafted light treatment + day testids */}
         <div className="mt-[clamp(3.5rem,7vw,6rem)]">
           <OpeningHours />
         </div>
-      </div>
 
-      {/* ── The place — one full-bleed photograph of the real space, the address
-           line and CTA overlaid calmly. No card deck, no chips, no boxed map. ── */}
-      <motion.div
-        ref={mediaRef}
-        className="relative mt-[clamp(4.5rem,9vw,8rem)] w-full overflow-hidden"
-        initial={reduce ? false : { opacity: 0 }}
-        whileInView={reduce ? undefined : { opacity: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
-      >
-        <div className="relative h-[clamp(26rem,72vh,46rem)]">
-          <motion.img
-            src="/photos/IMG_8353.webp"
-            alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
-            loading="lazy"
-            style={{ y: imgY }}
-            className="absolute inset-0 h-[118%] w-full object-cover object-center will-change-transform"
-          />
-          {/* Calm legibility wash — start-aligned, not a centered card. */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(90deg, hsl(0 0% 4% / 0.94) 0%, hsl(0 0% 4% / 0.6) 46%, transparent 82%)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-1/2"
-            style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.55) 0%, transparent 100%)" }}
-          />
+        {/* ── The place — Apple product-shot: a clean FRAMED photograph beside a
+             calm address / status / coords / CTA column. Bright, aligned, airy. ── */}
+        <div className="mt-[clamp(4rem,8vw,7rem)] grid grid-cols-1 lg:grid-cols-2 gap-[clamp(2.5rem,5vw,4.5rem)] items-center">
+          {/* Framed image — soft shadow on white, rounded corners, caption scrim only. */}
+          <motion.figure
+            className="relative w-full"
+            initial={reduce ? false : { opacity: 0, y: 26 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+          >
+            <div className="relative overflow-hidden rounded-[24px] bg-surface-2 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_20px_50px_-20px_rgba(16,24,40,0.22)]">
+              <img
+                src={imageUrl(c.photo)}
+                alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
+                loading="lazy"
+                className="w-full aspect-[4/3] object-cover object-center"
+              />
+              {/* Small local scrim ONLY behind the caption so it stays legible. */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-1/3"
+                style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.62) 0%, transparent 100%)" }}
+              />
+              <figcaption className="absolute inset-x-0 bottom-0 p-[clamp(1.25rem,3vw,2rem)]">
+                <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-white">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/90 animate-pulse" />
+                  {t({ ar: c.locationStatus, en: c.locationStatusEn })}
+                </div>
+              </figcaption>
+            </div>
+          </motion.figure>
 
-          <div className="absolute inset-0 flex items-end">
-            <div className="container-ih w-full pb-[clamp(2.5rem,6vh,5rem)]">
-              <div className="max-w-2xl">
-                <motion.h3
-                  className="font-display text-white whitespace-pre-line"
-                  style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.12, letterSpacing: "-0.025em", fontWeight: 700 }}
-                  initial={reduce ? false : { opacity: 0, y: 22 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-                >
-                  {t({ ar: c.locationTitle, en: c.locationTitleEn })}
-                </motion.h3>
+          {/* Address / status / coords / CTAs — clean dark ink on white. */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 22 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT_EXPO }}
+          >
+            <h3
+              className="font-display text-foreground whitespace-pre-line"
+              style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.12, letterSpacing: "-0.025em", fontWeight: 800 }}
+            >
+              {t({ ar: c.locationTitle, en: c.locationTitleEn })}
+            </h3>
 
-                <motion.p
-                  className="mt-5 max-w-xl text-white/70 whitespace-pre-line"
-                  style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.25rem)", lineHeight: 1.65 }}
-                  initial={reduce ? false : { opacity: 0, y: 18 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
-                >
-                  {t({ ar: c.locationBody, en: c.locationBodyEn })}
-                </motion.p>
+            <p
+              className="mt-5 max-w-xl text-fg-secondary whitespace-pre-line"
+              style={{ fontSize: "clamp(1.0625rem, 1.6vw, 1.25rem)", lineHeight: 1.65 }}
+            >
+              {t({ ar: c.locationBody, en: c.locationBodyEn })}
+            </p>
 
-                {/* Quiet co-ordinate line — the hand-drawn map reads as a mark
-                    beside the address, status and coords. Not boxed, not chipped. */}
-                <motion.div
-                  className="mt-8 flex items-center gap-5"
-                  initial={reduce ? false : { opacity: 0, y: 16 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.8, delay: 0.18, ease: EASE_OUT_EXPO }}
-                >
-                  <GazaPulseMap className="w-16 h-16 shrink-0 opacity-90" />
-                  <div className="min-w-0">
-                    <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/90">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent-2 animate-pulse" />
-                      {t({ ar: c.locationStatus, en: c.locationStatusEn })}
-                    </div>
-                    <div className="mt-1.5 text-[13px] font-mono tnum text-white/55">{t({ ar: c.locationCoords, en: c.locationCoordsEn })}</div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4"
-                  initial={reduce ? false : { opacity: 0, y: 16 }}
-                  whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.8, delay: 0.26, ease: EASE_OUT_EXPO }}
-                >
-                  <Link
-                    href="/apply"
-                    data-testid="visit-apply"
-                    className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-                  >
-                    {t({ ar: "انتسب لتعرف العنوان", en: "Join to get the address" })}
-                    <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                  </Link>
-                  <Link
-                    href="/contact"
-                    data-testid="visit-contact"
-                    className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/85 hover:text-white transition-colors"
-                  >
-                    <MapPin className="w-4 h-4 text-primary" />
-                    {t({ ar: "اسأل عن الزيارة", en: "Ask about visiting" })}
-                  </Link>
-                </motion.div>
+            {/* Quiet co-ordinate line — the hand-drawn map reads as a mark beside
+                the live status and coords, on light tokens. Not a card. */}
+            <div className="mt-8 flex items-center gap-5">
+              <GazaPulseMap className="w-16 h-16 shrink-0" />
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-2 text-[13px] font-semibold text-primary">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  {t({ ar: c.locationStatus, en: c.locationStatusEn })}
+                </div>
+                <div className="mt-1.5 text-[13px] font-mono tnum text-fg-faint">{t({ ar: c.locationCoords, en: c.locationCoordsEn })}</div>
               </div>
             </div>
-          </div>
+
+            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+              <Link
+                href="/apply"
+                data-testid="visit-apply"
+                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                {t({ ar: "انتسب لتعرف العنوان", en: "Join to get the address" })}
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href="/contact"
+                data-testid="visit-contact"
+                className="group inline-flex items-center gap-2 text-[14px] font-semibold text-fg-secondary hover:text-foreground transition-colors"
+              >
+                <MapPin className="w-4 h-4 text-primary" />
+                {t({ ar: "اسأل عن الزيارة", en: "Ask about visiting" })}
+              </Link>
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
