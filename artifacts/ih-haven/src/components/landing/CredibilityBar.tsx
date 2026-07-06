@@ -2,62 +2,58 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 
 /**
- * CredibilityBar — a slim, quiet trust strip that sits right under the hero.
- * Light (inherits the warm-white canvas), compact (section-y-compact). One calm
- * editorial line names our REAL backers — NasToNas + Gaza Sky Geeks — with a
- * single crimson accent. Then a hairline-divided row of wordmarks labelled
- * honestly as "tools & credits we unlock for you" (NOT partners): Replit, AWS,
- * Google for Startups, Payoneer, Freelancer. Truthful + internally consistent
- * with Partners + HomeFAQ. Confident, not loud. No glass, no icon tiles, no
- * gradient text, no fake logos.
+ * CredibilityBar — a slim DARK proof band directly under the hero, holding the
+ * cinematic spell (near-black, a crimson hairline glow echoing the hero accent)
+ * instead of breaking it with a pale strip. One confident editorial line names
+ * our REAL backers (NasToNas + Gaza Sky Geeks), then hairline-divided wordmarks
+ * of the tools/credits we unlock — labelled honestly, no invented logos.
  */
 export function CredibilityBar() {
   const { t } = useLanguage();
 
-  // Tools & credits we help members UNLOCK — honest text chips, not "partners"
-  // (no invented logos). Backers are named in the editorial line instead.
+  // Tools & credits we help members UNLOCK — honest text wordmarks, not "partners".
   const tools = ["Replit", "AWS Activate", "Google for Startups", "Payoneer", "Freelancer"];
 
   return (
     <section
       id="credibility-bar"
       data-testid="credibility-bar"
-      className="relative bg-surface-1 section-y-compact border-y border-border-strong"
+      className="relative bg-[#060608] text-white section-y-compact overflow-hidden border-t border-white/[0.07]"
     >
-      <div className="container-ih">
+      {/* Crimson hairline + a faint top aura — the hero's accent, carried one beat further. */}
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)" }} />
+      <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(70% 140% at 50% -30%, rgba(233,74,51,0.07) 0%, transparent 62%)" }} />
+
+      <div className="container-ih relative">
         <Reveal
           as="div"
           distance={16}
-          className="flex flex-col gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-6 lg:flex-row lg:items-center lg:justify-between"
+          className="flex flex-col gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-5 lg:flex-row lg:items-center lg:justify-between"
         >
-          {/* The quiet credibility line — editorial serif, one crimson accent.
-              Names our REAL backers only (NasToNas + Gaza Sky Geeks). */}
+          {/* The credibility line — REAL backers only, confident on dark. */}
           <p
-            className="font-display text-fg-secondary shrink-0"
-            style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)", lineHeight: 1.3, letterSpacing: "-0.01em", fontWeight: 500 }}
+            className="font-display shrink-0"
+            style={{ fontSize: "clamp(1rem, 1.6vw, 1.3rem)", lineHeight: 1.3, letterSpacing: "-0.02em", fontWeight: 600 }}
           >
-            {t({ ar: "تأسّست ٢٠٢٤", en: "Founded 2024" })}
-            <span className="mx-2 text-border-strong">·</span>
-            <span className="text-primary italic">{t({ ar: "١٠٠٪ مجّانًا", en: "100% free" })}</span>
-            <span className="mx-2 text-border-strong">·</span>
-            {t({ ar: "بدعم من ", en: "Backed by " })}
-            <span className="text-foreground font-semibold not-italic">NasToNas</span>
-            {t({ ar: " و", en: " & " })}
-            <span className="text-foreground font-semibold not-italic">Gaza Sky Geeks</span>
+            <span className="text-white/45 font-medium">{t({ ar: "تأسّست ٢٠٢٤", en: "Founded 2024" })}</span>
+            <span className="mx-2.5 text-white/20">·</span>
+            <span className="text-sand-bright">{t({ ar: "١٠٠٪ مجّانًا", en: "100% free" })}</span>
+            <span className="mx-2.5 text-white/20">·</span>
+            <span className="text-white/55 font-medium">{t({ ar: "بدعم من", en: "Backed by" })} </span>
+            <span className="text-white font-bold not-italic">NasToNas</span>
+            <span className="text-white/45">{t({ ar: " و ", en: " & " })}</span>
+            <span className="text-white font-bold not-italic">Gaza Sky Geeks</span>
           </p>
 
-          {/* Tools & credits we UNLOCK — honest wordmarks, labelled truthfully
-              (NOT "partners"). Hairline-divided text chips, no fake logos. */}
+          {/* Tools & credits we UNLOCK — honest wordmarks, hairline-divided. */}
           <div className="flex flex-wrap items-center gap-x-1 gap-y-2 lg:justify-end">
             <span className="eyebrow eyebrow-sand me-3 hidden sm:inline">
               {t({ ar: "أدوات نفتحها لك", en: "Tools we unlock" })}
             </span>
             {tools.map((name, i) => (
               <span key={name} className="inline-flex items-center">
-                {i > 0 && (
-                  <span aria-hidden className="mx-1 h-3.5 w-px bg-border-strong" />
-                )}
-                <span className="px-1.5 text-[13px] font-semibold tracking-tight text-muted-foreground transition-colors hover:text-foreground">
+                {i > 0 && <span aria-hidden className="mx-1 h-3.5 w-px bg-white/15" />}
+                <span className="px-1.5 text-[13px] font-semibold tracking-tight text-white/60 transition-colors hover:text-white">
                   {name}
                 </span>
               </span>
