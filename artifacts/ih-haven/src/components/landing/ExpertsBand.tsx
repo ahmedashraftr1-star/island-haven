@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
 import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { EASE_OUT_EXPO } from "@/lib/motion";
-import { CinematicMedia } from "@/components/landing/CinematicMedia";
-import { imageUrl } from "@/hooks/use-content";
+import { Reveal } from "@/components/landing/Reveal";
 
 interface ExpertCard {
   id: number;
@@ -34,51 +31,32 @@ function initials(name: string): string {
 }
 
 /**
- * ExpertsBand — mentor proof, told photo-first with the hero's "power".
+ * ExpertsBand — the PREMIUM LIGHT "Mentors" section.
  *
- * Inverted grandeur pass: the section now LEADS with a monumental full-bleed
- * photograph (shared CinematicMedia primitive — spring parallax + calibrated
- * scrim) carrying the eyebrow + the monumental headline + intro as a LIVE white
- * caption on the frame. Below, on a quieter dark canvas, the mentors follow as a
- * calm counterpoint: hairline rows, a dignified portrait, a large name, the
- * discipline as prose. Big bold modern-sans type, no serif, tasteful motion.
- * The never-empty evergreen fallback, the /experts link and the testids stay.
+ * A calm, editorial breather on warm paper: theme-light flips the tokens, a big
+ * quiet headline with one terracotta accent word, and a roomy, breathing grid of
+ * white mentor cards (avatar/initials · name · role · an "Available to book"
+ * tag). No dark photo lead, no CinematicMedia, no glass, no gradients, no glowing
+ * blobs — space + type + white cards carry it. Motion via the reduced-motion-safe
+ * Reveal. The evergreen empty state (roster gathering + Be-a-mentor CTA) lives on
+ * the same light register. All data fetch / i18n / routes / testids preserved.
  */
 export function ExpertsBand() {
   const { t, lang } = useLanguage();
-  const reduce = useReducedMotion();
   const [rows, setRows] = useState<ExpertCard[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     api<{ experts: ExpertCard[] }>("/experts")
-      .then((r) => { if (!cancelled) setRows(r.experts.slice(0, 5)); })
+      .then((r) => { if (!cancelled) setRows(r.experts.slice(0, 6)); })
       .catch(() => { if (!cancelled) setRows([]); });
     return () => { cancelled = true; };
   }, []);
 
   const isEmpty = rows !== null && rows.length === 0;
-  const experts = rows ?? Array.from({ length: 5 }).map(() => null);
+  const experts = rows ?? Array.from({ length: 6 }).map(() => null);
   const available = rows?.filter((e) => e.acceptingSessions).length ?? 0;
   const availableLabel = lang === "en" ? available.toString() : available.toLocaleString("ar-EG");
-
-  // ── Headline lines — one crimson word. The evergreen branch (thin/unseeded DB)
-  //    holds the same monumental register and tells the true story: the roster
-  //    is forming — and invites the reader to be one of the first. ──
-  const headlineLines: React.ReactNode[] = isEmpty
-    ? [
-        t({ ar: "المرشدون", en: "The mentors" }),
-        t({ ar: "يتجمّعون.", en: "are gathering." }),
-        <span key="accent" className="text-primary">{t({ ar: "كن منهم.", en: "Be one." })}</span>,
-      ]
-    : [
-        t({ ar: "خبراءٌ يأخذون", en: "Experts who take" }),
-        t({ ar: "بيدك نحو ", en: "your hand " }),
-        <span key="accent">
-          {t({ ar: "", en: "toward " })}
-          <span className="text-primary">{t({ ar: "الأثر.", en: "impact." })}</span>
-        </span>,
-      ];
 
   const intro = isEmpty
     ? t({
@@ -90,231 +68,203 @@ export function ExpertsBand() {
         en: "Book a free one-to-one session, and turn your idea into a venture that can scale.",
       });
 
+  const bookLabel = t({ ar: "متاح للحجز", en: "Available to book" });
+  const busyLabel = t({ ar: "قائمة الانتظار", en: "Waitlist" });
+
   return (
-    <section id="experts" className="bg-[#060608]" data-testid="experts-band">
-      {/* ══ PART A — the lead: a monumental full-bleed photograph carrying the
-           headline as a live white caption. Spring parallax + heavy scrim keep
-           the type razor-crisp. Generous section-y padding gives the ~60vh feel. ══ */}
-      <CinematicMedia
-        as="div"
-        src={imageUrl("/photos/IMG_8313.webp")}
-        alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}
-        scrim="heavy"
-        sideScrim
-        className="border-b border-white/[0.06]"
-        aria-label={t({ ar: "الخبراء والمرشدون", en: "Experts and mentors" })}
-      >
-        <div className="container-ih section-y flex min-h-[60vh] flex-col justify-end">
-          {/* Eyebrow — quiet gold signature above the monument. */}
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 14 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
-            className="mb-[clamp(1.25rem,2.5vw,2rem)] inline-flex items-center gap-3"
-          >
-            <span aria-hidden className="h-px w-8 bg-sand-bright/70" />
-            <span className="font-display font-semibold uppercase tracking-[0.22em] text-sand-bright" style={{ fontSize: "clamp(0.7rem,1vw,0.82rem)" }}>
+    <section
+      id="experts"
+      className="theme-light section-y relative bg-background text-foreground border-y border-border overflow-hidden"
+      data-testid="experts-band"
+    >
+      <div className="container-ih relative">
+        {/* Header — calm eyebrow, one monumental line with a single terracotta
+            accent word, a roomy sub, and (default path) live availability. The
+            evergreen branch keeps the same register and tells the true story. */}
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+          <Reveal className="lg:col-span-7" duration={0.7}>
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
               {t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
-            </span>
-          </motion.div>
-
-          <motion.h2
-            className="font-display text-white"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.05em" }}
-          >
-            {headlineLines.map((ln, i) => (
-              <motion.span
-                key={i}
-                className="block will-change-transform"
-                initial={reduce ? false : { opacity: 0, y: 30 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, delay: i * 0.09, ease: EASE_OUT_EXPO }}
-              >
-                {ln}
-              </motion.span>
-            ))}
-          </motion.h2>
-
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 18 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-8%" }}
-            transition={{ duration: 0.85, delay: 0.42, ease: EASE_OUT_EXPO }}
-            className="mt-[clamp(1.5rem,3vw,2.25rem)] max-w-2xl text-white/70"
-            style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
-          >
-            {intro}
-          </motion.p>
-
-          {/* Live availability (default path) / dual CTA (evergreen path). */}
-          {isEmpty ? (
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.8, delay: 0.52, ease: EASE_OUT_EXPO }}
-              className="mt-[clamp(2rem,4vw,2.75rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
+            </p>
+            <h2
+              className="font-display text-foreground"
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
+                fontWeight: 900,
+                lineHeight: 0.98,
+                letterSpacing: "-0.04em",
+              }}
             >
-              <Link
-                href="/become-mentor?ref=home-experts-empty"
-                data-testid="experts-empty-become-mentor"
-                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-              >
-                {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </Link>
-              <Link
-                href="/experts#how-it-works"
-                className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/85 hover:text-white transition-colors"
-              >
-                {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </Link>
-            </motion.div>
-          ) : (
-            rows && available > 0 && (
-              <motion.div
-                initial={reduce ? false : { opacity: 0, y: 12 }}
-                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-8%" }}
-                transition={{ duration: 0.7, delay: 0.54, ease: EASE_OUT_EXPO }}
-                className="mt-[clamp(1.75rem,3vw,2.5rem)] inline-flex items-center gap-2.5 text-sand-bright"
-              >
-                <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-sand-bright" />
-                <span className="font-display font-semibold tnum" style={{ fontSize: "clamp(1rem,1.4vw,1.15rem)" }}>
+              {isEmpty ? (
+                <>
+                  {t({ ar: "المرشدون يتجمّعون. ", en: "The mentors are gathering. " })}
+                  <span className="text-primary">{t({ ar: "كن منهم.", en: "Be one." })}</span>
+                </>
+              ) : (
+                <>
+                  {t({ ar: "خبراءٌ يأخذون بيدك نحو ", en: "Experts who take your hand toward " })}
+                  <span className="text-primary">{t({ ar: "الأثر.", en: "impact." })}</span>
+                </>
+              )}
+            </h2>
+          </Reveal>
+
+          <Reveal className="lg:col-span-5" delay={0.08} duration={0.7}>
+            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-fg-secondary">
+              {intro}
+            </p>
+            {!isEmpty && rows && available > 0 && (
+              <p className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary">
+                <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                <span className="tnum">
                   {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
                 </span>
-              </motion.div>
-            )
-          )}
+              </p>
+            )}
+          </Reveal>
         </div>
-      </CinematicMedia>
 
-      {/* ══ PART B — the roster, a quieter counterpoint on the dark canvas: calm
-           editorial hairline rows. A dignified portrait (real face, no medallion),
-           a large name, the discipline as prose. White/70 text, hairline dividers.
-           Skipped on the evergreen branch — the photo caption CTA carries it. ══ */}
-      {!isEmpty && (
-        <div className="container-ih" style={{ paddingBlock: "clamp(4rem, 10vh, 8rem)" }}>
-          <ul className="border-t border-white/10">
-            {experts.map((e, i) => {
-              if (!e) {
-                return (
-                  <li key={i} className="border-b border-white/10 py-[clamp(1.5rem,3vw,2.5rem)]">
-                    <div className="flex items-center gap-5">
-                      <div className="h-14 w-14 rounded-full bg-white/[0.06] animate-pulse shrink-0" />
-                      <div className="h-7 w-48 max-w-[60%] rounded bg-white/[0.06] animate-pulse" />
+        {/* ── Mentor grid — roomy white cards on paper, or the evergreen empty
+             state. A restrained 2–3 column grid with generous gaps. ── */}
+        {isEmpty ? (
+          <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
+            <div className="flex flex-col items-start gap-6 rounded-[20px] border border-border bg-surface-2 p-8 sm:p-10 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_12px_28px_-12px_rgba(16,24,40,0.12)]">
+              <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-fg-secondary">
+                {t({
+                  ar: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
+                  en: "The roster is forming. If you're a founder or specialist willing to give an hour of your time, be one of the first mentors.",
+                })}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Link
+                  href="/become-mentor?ref=home-experts-empty"
+                  data-testid="experts-empty-become-mentor"
+                  className="cta-fill group inline-flex h-12 items-center gap-2.5 rounded-full px-7 text-[14px] font-bold transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                >
+                  {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                </Link>
+                <Link
+                  href="/experts#how-it-works"
+                  className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
+                >
+                  {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        ) : (
+          <>
+            <div className="mt-[clamp(3rem,7vh,5rem)] grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+              {experts.map((e, i) => {
+                if (!e) {
+                  return (
+                    <div
+                      key={i}
+                      className="flex flex-col gap-5 rounded-[20px] border border-border bg-surface-2 p-6 sm:p-7"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 shrink-0 rounded-full bg-border/60 animate-pulse" />
+                        <div className="flex flex-1 flex-col gap-2">
+                          <div className="h-5 w-32 rounded bg-border/60 animate-pulse" />
+                          <div className="h-3.5 w-24 rounded bg-border/50 animate-pulse" />
+                        </div>
+                      </div>
                     </div>
-                  </li>
-                );
-              }
-              const tags = splitTags(e.expertise).slice(0, 2);
-              return (
-                <li key={e.id}>
-                  <motion.div
-                    initial={reduce ? false : { opacity: 0, y: 20 }}
-                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.4 }}
-                    transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-                    className="will-change-transform"
-                  >
+                  );
+                }
+                const tags = splitTags(e.expertise).slice(0, 2);
+                const role = e.headline || tags.join(lang === "en" ? " · " : " • ");
+                return (
+                  <Reveal key={e.id} as="div" delay={i * 0.06} duration={0.6}>
                     <Link
                       href={`/experts/${e.id}`}
                       data-testid={`home-expert-${e.id}`}
-                      className="group grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[clamp(1.25rem,2.5vw,2.5rem)] gap-y-2 py-[clamp(1.5rem,3vw,2.5rem)] border-b border-white/10 transition-colors hover:border-white/25"
+                      className="group flex h-full flex-col gap-5 rounded-[20px] border border-border bg-surface-2 p-6 sm:p-7 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_12px_28px_-12px_rgba(16,24,40,0.12)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
-                      {/* Portrait — a real face where one exists; otherwise a toned
-                          initial-avatar (crimson / gold, alternating) so every
-                          mentor carries a visual identity in the booking list. */}
-                      {e.avatarUrl ? (
-                        <div className="relative h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 overflow-hidden rounded-full ring-1 ring-white/15">
-                          <img
-                            src={e.avatarUrl}
-                            alt={e.fullName}
-                            loading="lazy"
-                            className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
-                          />
-                        </div>
-                      ) : (
-                        <span
-                          aria-hidden
-                          className={`inline-flex h-[clamp(3.5rem,7vw,5rem)] w-[clamp(3.5rem,7vw,5rem)] shrink-0 items-center justify-center rounded-full ring-1 font-display font-black leading-none transition-transform duration-500 group-hover:scale-[1.05] ${
-                            i % 2 === 0
-                              ? "bg-primary/15 ring-primary/30 text-primary"
-                              : "bg-sand/15 ring-sand/30 text-sand-bright"
-                          }`}
-                          style={{ fontSize: "clamp(1.05rem,2vw,1.6rem)" }}
-                        >
-                          {initials(e.fullName)}
-                        </span>
-                      )}
-
-                      <div className="min-w-0">
-                        <h3
-                          className="font-display font-bold text-white group-hover:text-primary transition-colors"
-                          style={{ fontSize: "clamp(1.4rem,3.2vw,2.4rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
-                        >
-                          {e.fullName}
-                        </h3>
-                        {(e.headline || tags.length > 0) && (
-                          <p className="text-white/55 text-[15px] md:text-[16px] mt-1.5 line-clamp-1">
-                            {e.headline || tags.join(lang === "en" ? " · " : " • ")}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Quiet status + experience, start-aligned to the logical end. */}
-                      <div className="hidden md:flex items-center gap-x-6 whitespace-nowrap justify-self-end">
-                        {e.yearsExperience > 0 && (
-                          <span className="text-white/55 text-[13px] tnum">
-                            {lang === "en"
-                              ? `${e.yearsExperience}+ yrs`
-                              : `${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
+                      <div className="flex items-center gap-4">
+                        {/* Avatar — a real face where one exists; otherwise calm
+                            terracotta initials so every mentor carries a face. */}
+                        {e.avatarUrl ? (
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
+                            <img
+                              src={e.avatarUrl}
+                              alt={e.fullName}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <span
+                            aria-hidden
+                            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20 font-display text-[1.05rem] font-black leading-none text-primary"
+                          >
+                            {initials(e.fullName)}
                           </span>
                         )}
-                        <span className="inline-flex items-center gap-2 text-[13px]">
-                          {e.acceptingSessions ? (
-                            <>
-                              <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-sand-bright" />
-                              <span className="text-sand-bright font-semibold">{t({ ar: "متاح", en: "Open" })}</span>
-                            </>
-                          ) : (
-                            <span className="text-white/55">{t({ ar: "مشغول", en: "Busy" })}</span>
+
+                        <div className="min-w-0 flex-1">
+                          <h3
+                            className="font-display font-bold text-foreground transition-colors group-hover:text-primary"
+                            style={{ fontSize: "clamp(1.15rem, 1.8vw, 1.35rem)", letterSpacing: "-0.02em", lineHeight: 1.2 }}
+                          >
+                            {e.fullName}
+                          </h3>
+                          {e.yearsExperience > 0 && (
+                            <p className="mt-0.5 text-[13px] text-fg-faint tnum">
+                              {lang === "en"
+                                ? `${e.yearsExperience}+ yrs experience`
+                                : `خبرة ${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
+                            </p>
                           )}
-                          <ArrowLeft className="w-4 h-4 text-white/40 rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                        </span>
+                        </div>
+                      </div>
+
+                      {role && (
+                        <p className="text-[15px] leading-relaxed text-fg-secondary line-clamp-2">
+                          {role}
+                        </p>
+                      )}
+
+                      {/* Availability tag + a quiet cue, pinned to the card foot. */}
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+                        {e.acceptingSessions ? (
+                          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[12.5px] font-semibold text-primary">
+                            <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                            {bookLabel}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[12.5px] font-semibold text-fg-faint">
+                            {busyLabel}
+                          </span>
+                        )}
+                        <ArrowLeft className="h-4 w-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
                       </div>
                     </Link>
-                  </motion.div>
-                </li>
-              );
-            })}
-          </ul>
+                  </Reveal>
+                );
+              })}
+            </div>
 
-          {/* Terminal CTA — a calm confident line, no icon tile. */}
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 16 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-8%" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: EASE_OUT_EXPO }}
-            className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3"
-          >
-            <p className="text-white/70" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
-              {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
-            </p>
-            <Link
-              href="/experts"
-              className="group inline-flex items-center gap-2 text-white hover:text-primary transition-colors"
-              style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)", fontWeight: 600 }}
-            >
-              {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
-          </motion.div>
-        </div>
-      )}
+            {/* Terminal CTA — a calm confident line, no icon tile. */}
+            <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3" delay={0.1} duration={0.7}>
+              <p className="text-fg-secondary" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
+                {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
+              </p>
+              <Link
+                href="/experts"
+                className="group inline-flex items-center gap-2 font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
+                style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}
+              >
+                {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              </Link>
+            </Reveal>
+          </>
+        )}
+      </div>
     </section>
   );
 }

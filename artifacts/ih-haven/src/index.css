@@ -285,24 +285,24 @@
    section root (its bg-surface/bg-background utilities then resolve light).
    ============================================================ */
 .theme-light {
-  --background: 216 38% 98%;
-  --foreground: 219 47% 13%;          /* Dark Gunmetal ink */
-  --fg-secondary: 218 24% 30%;        /* body on light */
-  --fg-faint: 218 15% 55%;
-  --surface-1: 214 34% 96%;           /* lifted light section bg */
+  --background: 40 33% 96%;
+  --foreground: 30 24% 8%;          /* Dark Gunmetal ink */
+  --fg-secondary: 33 9% 27%;        /* body on light */
+  --fg-faint: 36 9% 52%;
+  --surface-1: 41 28% 92%;           /* lifted light section bg */
   --surface-2: 0 0% 100%;             /* white card */
-  --surface-3: 214 32% 93%;
-  --border: 215 24% 88%;
-  --border-strong: 215 25% 80%;
+  --surface-3: 40 24% 90%;
+  --border: 38 26% 86%;
+  --border-strong: 37 22% 78%;
   --card: 0 0% 100%;
   --card-foreground: 219 47% 13%;
   --card-border: 215 25% 80%;
-  --muted: 214 32% 95%;
-  --muted-foreground: 218 17% 42%;    /* captions on light — AA */
+  --muted: 40 26% 92%;
+  --muted-foreground: 34 10% 40%;    /* captions on light — AA */
   --primary: 11 70% 43%;               /* Island red, deepened for AA on white */
   --primary-soft: 12 70% 94%;          /* light red wash */
   --primary-bright: 13 72% 49%;
-  --secondary: 214 30% 94%;
+  --secondary: 40 24% 91%;
   --accent: 214 30% 94%;
   /* gold (legacy "sand" alias) deepened for contrast on white */
   --sand: 36 55% 38%;
