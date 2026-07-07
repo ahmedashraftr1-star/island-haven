@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useReducedMotion } from "framer-motion";
-import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useDaily } from "@/hooks/use-public-data";
 
 interface DailyPost {
   publishedAt: string;
@@ -23,32 +23,22 @@ export function LiveNewsDot() {
   const { t, dir } = useLanguage();
   const reduce = useReducedMotion();
   const [loc] = useLocation();
-  const [fresh, setFresh] = useState(false);
   const [seen, setSeen] = useState(false);
   const [hovered, setHovered] = useState(false);
 
   const onHome = loc === "/";
 
-  // Is there genuinely fresh news? Reuse the same /daily source as NewsSlider.
-  useEffect(() => {
-    if (!onHome) return;
-    let cancelled = false;
-    api<{ posts: DailyPost[] }>("/daily")
-      .then((r) => {
-        if (cancelled) return;
-        const now = Date.now();
-        const hasFresh = (r.posts ?? []).some(
-          (p) => now - new Date(p.publishedAt).getTime() < FRESH_MS,
-        );
-        setFresh(hasFresh);
-      })
-      .catch(() => {
-        /* stay silent — no dot rather than a wrong dot */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [onHome]);
+  // Same SHARED /daily query NewsSlider uses (deduped by React Query — one
+  // request, not two). Only enabled on home; on error `data` is undefined →
+  // no dot rather than a wrong dot.
+  const { data } = useDaily<DailyPost>({ enabled: onHome });
+  const fresh = useMemo(() => {
+    if (!onHome || !data?.posts) return false;
+    const now = Date.now();
+    return data.posts.some(
+      (p) => now - new Date(p.publishedAt).getTime() < FRESH_MS,
+    );
+  }, [onHome, data]);
 
   // Hide once the events section has been reached. The section is lazily
   // mounted, so retry attaching the observer until the element exists.

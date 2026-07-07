@@ -82,10 +82,11 @@ export function useCohorts<T = unknown>() {
   });
 }
 
-export function useDaily<T = unknown>() {
+export function useDaily<T = unknown>(opts?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["daily"],
     queryFn: () => api<{ posts: T[] }>("/daily"),
+    enabled: opts?.enabled ?? true,
     ...PUBLIC,
   });
 }
