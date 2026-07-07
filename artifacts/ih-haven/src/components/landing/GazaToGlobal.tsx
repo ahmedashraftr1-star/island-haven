@@ -171,29 +171,29 @@ export function GazaToGlobal() {
   const reduce = useReducedMotion();
   const ar = lang === "ar";
 
-  const num = (v: string) => (ar ? v.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : v);
-
   // Reach stats — straight from the real value props the incubator hands over.
-  // (Gold tnum figures; none invented beyond the vetted marketplace value props.)
+  // FIGURES stay Western/Latin numerals regardless of site language (owner ask);
+  // labels read English-primary so the block reads as a tidy English data ledger.
+  // None invented beyond the vetted marketplace value props — only reformatted.
   const stats = [
     {
       value: "190+",
-      label: t({ ar: "دولة يصلها العمل عبر الحدود", en: "Countries reached across borders" }),
-      sub: t({ ar: "سوق عمل عالميّ", en: "Global work marketplace" }),
+      label: "countries reached",
+      sub: t({ ar: "سوق عمل عالميّ عبر الحدود", en: "Global work marketplace" }),
     },
     {
       value: "100%",
-      label: t({ ar: "مدفوعات دوليّة تصل غزّة", en: "International payments into Gaza" }),
-      sub: t({ ar: "Payoneer", en: "via Payoneer" }),
+      label: "Payoneer payouts to Gaza",
+      sub: t({ ar: "مدفوعات دوليّة تصل غزّة", en: "International payments in" }),
     },
     {
       value: "$25K",
-      label: t({ ar: "أرصدة سحابيّة وأدوات عالميّة", en: "Cloud credits & global tooling" }),
-      sub: t({ ar: "بنية جاهزة", en: "Ready infrastructure" }),
+      label: "cloud credits",
+      sub: t({ ar: "أدوات وبنية جاهزة", en: "Tooling & infrastructure" }),
     },
     {
       value: "40+",
-      label: t({ ar: "مرشد وشريك حول العالم", en: "Mentors & partners worldwide" }),
+      label: "mentors & partners",
       sub: t({ ar: "شبكة عالميّة", en: "Global network" }),
     },
   ];
@@ -244,24 +244,41 @@ export function GazaToGlobal() {
                 <ReachVisual reduce={!!reduce} ar={ar} t={t} />
               </div>
 
-              {/* Reach stats — gold tnum numerals, hairline ledger (no chips) */}
+              {/* Reach stats — a tidy data ledger. FIGURES are ALWAYS Western/Latin
+                  numerals (owner ask) in gold tnum on a fixed-width column so every
+                  baseline aligns; English label leads, muted bilingual sub beneath.
+                  Hairline separators, even rhythm — reads as one clean data block. */}
               <div className="lg:col-span-5">
+                <p
+                  className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sand-bright/80"
+                  dir="ltr"
+                >
+                  Reach in numbers
+                </p>
                 <div className="border-t border-white/10">
                   {stats.map((s, i) => (
                     <div
                       key={i}
                       data-testid={`reach-stat-${i}`}
-                      className="grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-white/10 py-6 sm:py-7"
+                      className="grid grid-cols-[5.25rem_1fr] items-baseline gap-x-4 sm:gap-x-6 border-b border-white/10 py-5 sm:py-6"
                     >
+                      {/* Figure — Western numerals always; dir=ltr so RTL never flips
+                          digit/glyph order, right-aligned into a fixed-width column so
+                          every baseline lines up cleanly down the ledger. */}
                       <span
-                        className="font-display tnum text-sand-bright leading-none"
-                        style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em" }}
+                        className="font-display tnum text-sand-bright leading-none text-end"
+                        dir="ltr"
+                        style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.85rem)", fontWeight: 700, letterSpacing: "-0.03em" }}
                       >
-                        {num(s.value)}
+                        {s.value}
                       </span>
-                      <div>
-                        <div className="text-[15px] font-semibold text-white leading-snug">{s.label}</div>
-                        <div className="mt-1 text-[12px] tracking-[0.04em] text-white/55 font-semibold rtl:tracking-normal">
+                      <div className="min-w-0">
+                        {/* English label — primary line, LTR regardless of site language */}
+                        <div className="text-[14.5px] font-semibold text-white leading-snug" dir="ltr">
+                          {s.label}
+                        </div>
+                        {/* Bilingual context — muted, follows the site language */}
+                        <div className="mt-0.5 text-[12px] tracking-[0.03em] text-white/50 font-medium rtl:tracking-normal">
                           {s.sub}
                         </div>
                       </div>

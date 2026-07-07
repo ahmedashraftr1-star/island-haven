@@ -56,31 +56,87 @@ function Seat({
   taken,
   index,
   reduce,
+  seatNo,
+  statusLabel,
+  tipLabel,
 }: {
   taken: boolean;
   index: number;
   reduce: boolean;
+  /** 1-based seat number shown to people (index + 1). */
+  seatNo: string;
+  /** Localised status word: "مشغول" / "متاح". */
+  statusLabel: string;
+  /** Full accessible label, e.g. "Seat 12 · taken". */
+  tipLabel: string;
 }) {
   // A gentle diagonal stagger so the board "fills in" wave-by-wave, not all at once.
   const col = index % COLS;
   const row = Math.floor(index / COLS);
   const delay = reduce ? 0 : (row + col) * 0.028;
 
+  // Keep the tooltip inside the panel: the top row flips below the seat, and the
+  // outermost columns anchor to their edge instead of centering (avoids clipping).
+  const flipBelow = row === 0;
+  const nearStart = col === 0;
+  const nearEnd = col === COLS - 1;
+  const vPos = flipBelow
+    ? "top-[calc(100%+8px)] group-hover/seat:translate-y-0 group-focus-within/seat:translate-y-0"
+    : "bottom-[calc(100%+8px)] group-hover/seat:translate-y-0 group-focus-within/seat:translate-y-0";
+  const vRest = flipBelow ? "-translate-y-1" : "translate-y-1";
+  const hPos = nearStart
+    ? "left-0"
+    : nearEnd
+      ? "right-0"
+      : "left-1/2 -translate-x-1/2";
+
   return (
     <motion.span
-      aria-hidden
       initial={reduce ? false : { opacity: 0, scale: 0.6 }}
       whileInView={reduce ? undefined : { opacity: 1, scale: 1 }}
       viewport={{ once: true, amount: 0.4 }}
       transition={{ duration: 0.5, delay, ease: EASE_OUT_EXPO }}
-      className={
-        taken
-          ? // Occupied — filled terracotta with a soft lit glow.
-            "group/seat block aspect-square rounded-[7px] bg-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.55),0_6px_16px_-6px_hsl(var(--primary)/0.75)]"
-          : // Available — faint glass outline that gently brightens on hover.
-            "group/seat block aspect-square rounded-[7px] bg-white/[0.04] ring-1 ring-inset ring-white/20 transition-[background-color,box-shadow] duration-300 hover:bg-white/[0.12] hover:ring-white/45 hover:shadow-[0_0_16px_-4px_hsl(0_0%_100%/0.4)]"
-      }
-    />
+      className="group/seat relative block aspect-square"
+    >
+      {/* The seat glyph itself — a focusable button so hover AND keyboard focus
+          both surface the honest status tooltip. No occupant identity is ever
+          shown; only status + seat number, since there is no real seat-map data. */}
+      <button
+        type="button"
+        tabIndex={0}
+        aria-label={tipLabel}
+        className={
+          "block h-full w-full rounded-[7px] transition-[background-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent group-hover/seat:scale-[1.06] " +
+          (taken
+            ? // Occupied — filled terracotta with a soft lit glow.
+              "bg-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.55),0_6px_16px_-6px_hsl(var(--primary)/0.75)] group-hover/seat:shadow-[0_0_0_1px_hsl(var(--primary)/0.7),0_8px_22px_-6px_hsl(var(--primary)/0.9)]"
+            : // Available — faint glass outline that gently brightens on hover.
+              "bg-white/[0.04] ring-1 ring-inset ring-white/20 group-hover/seat:bg-white/[0.12] group-hover/seat:ring-white/45 group-hover/seat:shadow-[0_0_16px_-4px_hsl(0_0%_100%/0.4)]")
+        }
+      />
+
+      {/* Honest tooltip — status + seat number ONLY. Appears on hover of the tile
+          and on keyboard focus of the button (group-focus-within). GPU-only.
+          Position adapts by row/col so it never clips outside the board. */}
+      <span
+        role="tooltip"
+        aria-hidden
+        className={
+          "pointer-events-none absolute z-20 flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-white/15 bg-[#0b0a0c]/95 px-2.5 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-[0_16px_36px_-12px_hsl(0_0%_0%/0.85)] backdrop-blur-md transition-[opacity,transform] duration-200 group-hover/seat:opacity-100 group-focus-within/seat:opacity-100 " +
+          `${vPos} ${vRest} ${hPos}`
+        }
+      >
+        <span
+          aria-hidden
+          className={
+            "h-2 w-2 shrink-0 rounded-[3px] " +
+            (taken ? "bg-primary" : "bg-white/25 ring-1 ring-inset ring-white/40")
+          }
+        />
+        <span className="tabular-nums text-white/60">#{seatNo}</span>
+        <span className={taken ? "text-primary" : "text-white/90"}>{statusLabel}</span>
+      </span>
+    </motion.span>
   );
 }
 
@@ -232,9 +288,10 @@ export function SeatsBoard() {
                 </span>
               </div>
 
-              {/* The precise 10×5 seat grid */}
+              {/* The precise 10×5 seat grid. Group as a labelled region; each seat
+                  is an individually focusable control with its own honest status. */}
               <div
-                role="img"
+                role="group"
                 aria-label={t({
                   ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول و${fmt(free)} متاح الآن`,
                   en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken and ${fmt(free)} available now`,
@@ -242,9 +299,27 @@ export function SeatsBoard() {
                 className="grid gap-[clamp(0.4rem,1vw,0.65rem)]"
                 style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
               >
-                {seats.map((isTaken, i) => (
-                  <Seat key={i} taken={isTaken} index={i} reduce={reduce} />
-                ))}
+                {seats.map((isTaken, i) => {
+                  const seatNo = fmt(i + 1);
+                  const statusLabel = isTaken
+                    ? t({ ar: "مشغول", en: "taken" })
+                    : t({ ar: "متاح", en: "available" });
+                  const tipLabel = t({
+                    ar: `مقعد ${seatNo} · ${statusLabel}`,
+                    en: `Seat ${seatNo} · ${statusLabel}`,
+                  });
+                  return (
+                    <Seat
+                      key={i}
+                      taken={isTaken}
+                      index={i}
+                      reduce={reduce}
+                      seatNo={seatNo}
+                      statusLabel={statusLabel}
+                      tipLabel={tipLabel}
+                    />
+                  );
+                })}
               </div>
 
               {/* Footer meta — capacity + rows note, kept quiet */}

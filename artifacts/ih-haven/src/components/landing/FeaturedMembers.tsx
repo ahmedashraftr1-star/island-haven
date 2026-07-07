@@ -62,13 +62,17 @@ export function FeaturedMembers() {
               <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
             <div className="text-end">
-              <span className="mb-3 flex items-center justify-end gap-2.5">
-                <span aria-hidden className="h-px w-9 bg-primary/70" />
-                <span className="eyebrow">{t({ ar: "المجتمع · غزّة", en: "Community · Gaza" })}</span>
+              <span className="mb-6 flex items-center justify-end gap-3">
+                <span aria-hidden className="h-px w-9 bg-primary" />
+                <span className="eyebrow text-white/85">
+                  {t({ ar: "المجتمع", en: "Community" })}
+                  <span className="text-white/45"> · </span>
+                  <span className="text-primary">{t({ ar: "غزّة", en: "Gaza" })}</span>
+                </span>
               </span>
               <h2
                 className="font-display text-white"
-                style={{ fontSize: "clamp(2.4rem,5vw,4.5rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 0.98 }}
+                style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, letterSpacing: "-0.05em", lineHeight: 0.98 }}
               >
                 {t({ ar: "مواهب ", en: "Talent that " })}
                 <span className="text-primary">{t({ ar: "تصنع الفارق", en: "makes a difference" })}</span>

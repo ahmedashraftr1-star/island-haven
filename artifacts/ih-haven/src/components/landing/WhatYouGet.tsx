@@ -8,12 +8,13 @@ import { Reveal } from "./Reveal";
 /**
  * WhatYouGet — the value-of-membership section, told at hero power: glass tiles
  * FLOATING on a vivid full-bleed Gaza photograph + an ambient lit field, the
- * same "Vision Pro" register as FeaturedMembers. A big calm headline, and each
- * value of membership (workspace, mentorship, programs, community) set as a
- * hairline-separated editorial ROW inside a single frosted `glass-panel` tile:
- * a large display title on the start, a concise description on a readable
- * measure, a small terracotta index. Depth + type carry it. Terracotta is the
- * sole accent. All data / i18n / routes / testids kept.
+ * same "Vision Pro" register as FeaturedMembers. A strong calm headline, and the
+ * four values of membership (workspace, mentorship, programs, community) set as
+ * clean editorial ROWS inside a single frosted `glass-panel` tile: a terracotta
+ * index numeral, a large display title, a concise description on a readable
+ * measure, and a quiet directional cue — impeccable alignment, generous
+ * whitespace, a refined terracotta hover. Terracotta is the sole accent.
+ * All data / i18n / routes / testids kept.
  */
 export function WhatYouGet() {
   const { t } = useLanguage();
@@ -114,25 +115,33 @@ export function WhatYouGet() {
         {/* Editorial value list — the whole rows list FLOATS inside one frosted
             glass tile on the vivid photo. Each membership value on its own
             hairline-separated row: terracotta index + large display title on the
-            start, a concise description on a readable measure. Routes + testids kept. */}
+            start, a concise description on a readable measure, a quiet cue on the
+            end. Generous whitespace, refined terracotta hover. Routes + testids kept. */}
         <Reveal
           distance={20}
           amount={0.2}
-          className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3.25rem)] py-[clamp(0.75rem,2.5vh,1.75rem)] shadow-[0_44px_100px_-40px_hsl(0_0%_0%/0.8)]"
+          className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(0.5rem,2vh,1.25rem)] shadow-[0_44px_100px_-40px_hsl(0_0%_0%/0.8)]"
         >
           {gives.map((g, i) => (
             <Link
               key={g.href}
               href={g.href}
               data-testid={`pillar-${g.href.slice(1)}`}
-              className={`group grid grid-cols-1 items-baseline gap-x-10 gap-y-4 rounded-2xl py-[clamp(1.75rem,4vh,3rem)] transition-[border-color] duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none md:grid-cols-12 ${
+              className={`group relative grid grid-cols-1 items-baseline gap-x-10 gap-y-4 py-[clamp(1.75rem,4.5vh,3.25rem)] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none md:grid-cols-12 ${
                 i > 0 ? "border-t border-white/10" : ""
               }`}
             >
+              {/* Terracotta hover rail on the logical-start edge — a quiet accent
+                  that grows on hover, giving the row weight without a medallion. */}
+              <span
+                aria-hidden
+                className="absolute inset-y-6 start-0 w-[2px] origin-top scale-y-0 rounded-full bg-primary transition-transform duration-300 ease-out group-hover:scale-y-100 motion-reduce:transition-none"
+              />
+
               {/* Index + title */}
               <div className="flex items-baseline gap-4 md:col-span-6 lg:col-span-5">
                 <span
-                  className="shrink-0 font-mono text-[13px] font-semibold tabular-nums text-primary"
+                  className="shrink-0 font-mono text-[13px] font-semibold tabular-nums text-primary transition-opacity duration-300 group-hover:opacity-100 opacity-80 motion-reduce:transition-none"
                   aria-hidden
                 >
                   {String(i + 1).padStart(2, "0")}
@@ -140,8 +149,8 @@ export function WhatYouGet() {
                 <h3
                   className="font-display font-bold text-white leading-[1.05] transition-[color,transform] duration-300 group-hover:text-primary group-hover:translate-x-1 rtl:group-hover:-translate-x-1 motion-reduce:transition-none"
                   style={{
-                    fontSize: "clamp(1.4rem, 2.4vw, 2rem)",
-                    letterSpacing: "-0.02em",
+                    fontSize: "clamp(1.5rem, 2.6vw, 2.15rem)",
+                    letterSpacing: "-0.025em",
                   }}
                 >
                   {g.title}
@@ -150,11 +159,11 @@ export function WhatYouGet() {
 
               {/* Description on a readable measure */}
               <div className="md:col-span-6 lg:col-span-6 lg:col-start-6">
-                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/80 lg:text-[1.0625rem]">
+                <p className="max-w-[52ch] text-[15px] leading-[1.65] text-white/80 transition-colors duration-300 group-hover:text-white/90 lg:text-[1.0625rem] motion-reduce:transition-none">
                   {g.body}
                 </p>
                 {g.stat && (
-                  <div className="mt-3 inline-flex items-baseline gap-2">
+                  <div className="mt-3.5 inline-flex items-baseline gap-2">
                     <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
                     <span className="text-[13px] text-white/65">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
                   </div>
@@ -164,7 +173,7 @@ export function WhatYouGet() {
               {/* Hairline tick — a quiet directional cue, no medallion */}
               <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
                 <ArrowLeft
-                  className="h-4 w-4 text-white/55 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
+                  className="h-4 w-4 text-white/45 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
                 />
               </div>

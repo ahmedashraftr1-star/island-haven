@@ -141,9 +141,10 @@ export function ExpertsBand() {
           </Reveal>
         </div>
 
-        {/* ── Mentor grid — roomy frosted-glass cards floating on the vivid photo,
+        {/* ── Mentor grid — a clean, evenly-aligned grid of refined glass cards
+             floating on the vivid photo, each led by a generous mentor PHOTO;
              or the evergreen empty state. A restrained 2–3 column grid with
-             generous gaps. ── */}
+             consistent heights + gaps. ── */}
         {isEmpty ? (
           <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
             <div className="glass-panel flex flex-col items-start gap-6 p-8 sm:p-10">
@@ -174,91 +175,105 @@ export function ExpertsBand() {
           </Reveal>
         ) : (
           <>
-            <div className="mt-[clamp(3rem,7vh,5rem)] grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            <div className="mt-[clamp(3rem,7vh,5rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
               {experts.map((e, i) => {
                 if (!e) {
                   return (
                     <div
                       key={i}
-                      className="glass-panel flex flex-col gap-5 p-6 sm:p-7"
+                      className="glass-panel flex h-full flex-col items-center gap-5 p-7 text-center sm:p-8"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 shrink-0 rounded-full bg-white/10 animate-pulse" />
-                        <div className="flex flex-1 flex-col gap-2">
-                          <div className="h-5 w-32 rounded bg-white/10 animate-pulse" />
-                          <div className="h-3.5 w-24 rounded bg-white/[0.07] animate-pulse" />
-                        </div>
+                      <div className="h-24 w-24 shrink-0 rounded-full bg-white/10 animate-pulse" />
+                      <div className="flex w-full flex-col items-center gap-2.5">
+                        <div className="h-5 w-36 rounded bg-white/10 animate-pulse" />
+                        <div className="h-3.5 w-28 rounded bg-white/[0.07] animate-pulse" />
                       </div>
+                      <div className="mt-auto h-8 w-28 rounded-full bg-white/[0.07] animate-pulse" />
                     </div>
                   );
                 }
                 const tags = splitTags(e.expertise).slice(0, 2);
                 const role = e.headline || tags.join(lang === "en" ? " · " : " • ");
+                const photo = e.avatarUrl ? imageUrl(e.avatarUrl) : "";
                 return (
                   <Reveal key={e.id} as="div" delay={i * 0.06} duration={0.6}>
                     <Link
                       href={`/experts/${e.id}`}
                       data-testid={`home-expert-${e.id}`}
-                      className="group glass-panel flex h-full flex-col gap-5 p-6 sm:p-7 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.18),0_36px_80px_-30px_hsl(0_0%_0%/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                      className="group relative glass-panel flex h-full flex-col items-center gap-5 overflow-hidden p-7 text-center sm:p-8 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1.5 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.2),0_44px_96px_-32px_hsl(0_0%_0%/0.88)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
-                      <div className="flex items-center gap-4">
-                        {/* Avatar — a real face where one exists; otherwise calm
-                            terracotta initials so every mentor carries a face. */}
-                        {e.avatarUrl ? (
-                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-1 ring-white/15">
+                      {/* Hairline gold detail — a quiet luxe seam at the card head,
+                          lit fully on hover. */}
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(38_80%_60%/0.35)] to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
+                      />
+
+                      {/* Mentor PHOTO — the focal element. A generous circular
+                          portrait with a hairline gold ring; a soft terracotta
+                          halo blooms on hover. Terracotta initials only when no
+                          photo, so every mentor still carries a face. */}
+                      <div className="relative shrink-0">
+                        <span
+                          aria-hidden
+                          className="pointer-events-none absolute -inset-2 rounded-full bg-primary/20 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100"
+                        />
+                        {photo ? (
+                          <div className="relative h-24 w-24 overflow-hidden rounded-full ring-1 ring-[hsl(38_80%_60%/0.4)] shadow-[0_12px_30px_-12px_hsl(0_0%_0%/0.7)] transition-transform duration-500 group-hover:scale-[1.04]">
                             <img
-                              src={e.avatarUrl}
+                              src={photo}
                               alt={e.fullName}
                               loading="lazy"
                               decoding="async"
                               className="h-full w-full object-cover"
                             />
+                            <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
                           </div>
                         ) : (
                           <span
                             aria-hidden
-                            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/25 font-display text-[1.05rem] font-black leading-none text-primary"
+                            className="relative inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/30 font-display text-[1.6rem] font-black leading-none text-primary shadow-[0_12px_30px_-12px_hsl(0_0%_0%/0.7)] transition-transform duration-500 group-hover:scale-[1.04]"
                           >
                             {initials(e.fullName)}
                           </span>
                         )}
-
-                        <div className="min-w-0 flex-1">
-                          <h3
-                            className="font-display font-bold text-white transition-colors group-hover:text-primary"
-                            style={{ fontSize: "clamp(1.15rem, 1.8vw, 1.35rem)", letterSpacing: "-0.02em", lineHeight: 1.2 }}
-                          >
-                            {e.fullName}
-                          </h3>
-                          {e.yearsExperience > 0 && (
-                            <p className="mt-0.5 text-[13px] text-white/65 tnum">
-                              {lang === "en"
-                                ? `${e.yearsExperience}+ yrs experience`
-                                : `خبرة ${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
-                            </p>
-                          )}
-                        </div>
                       </div>
 
-                      {role && (
-                        <p className="text-[15px] leading-relaxed text-white/75 line-clamp-2">
-                          {role}
-                        </p>
-                      )}
+                      {/* Name → role hierarchy, optically centred. */}
+                      <div className="flex w-full flex-col items-center gap-1.5">
+                        <h3
+                          className="font-display font-bold text-white transition-colors group-hover:text-primary"
+                          style={{ fontSize: "clamp(1.2rem, 1.9vw, 1.4rem)", letterSpacing: "-0.02em", lineHeight: 1.15 }}
+                        >
+                          {e.fullName}
+                        </h3>
+                        {role && (
+                          <p className="text-[14.5px] leading-relaxed text-white/75 line-clamp-2">
+                            {role}
+                          </p>
+                        )}
+                        {e.yearsExperience > 0 && (
+                          <p className="text-[12.5px] font-medium uppercase tracking-[0.08em] text-white/50 tnum">
+                            {lang === "en"
+                              ? `${e.yearsExperience}+ yrs experience`
+                              : `خبرة ${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
+                          </p>
+                        )}
+                      </div>
 
-                      {/* Availability pill + a quiet cue, pinned to the card foot. */}
-                      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+                      {/* Availability pill — pinned to the card foot so every card
+                          shares an aligned baseline. */}
+                      <div className="mt-auto pt-2">
                         {e.acceptingSessions ? (
-                          <span className="inline-flex items-center gap-2 rounded-full bg-primary/12 border border-primary/25 px-3 py-1.5 text-[12.5px] font-semibold text-primary">
+                          <span className="inline-flex items-center gap-2 rounded-full bg-primary/12 border border-primary/25 px-4 py-1.5 text-[12.5px] font-semibold text-primary transition-colors duration-300 group-hover:bg-primary/18 group-hover:border-primary/40">
                             <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
                             {bookLabel}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-[12.5px] font-semibold text-white/65">
+                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-1.5 text-[12.5px] font-semibold text-white/65">
                             {busyLabel}
                           </span>
                         )}
-                        <ArrowLeft className="h-4 w-4 text-white/45 rtl:rotate-180 transition-[color,transform] duration-300 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
                       </div>
                     </Link>
                   </Reveal>
