@@ -219,89 +219,129 @@ export function ApplyProcess() {
         </div>
       </CinematicMedia>
 
-      {/* ── The four steps — clean editorial rows floated into dark glass. ── */}
-      <div
-        className="relative overflow-hidden"
-        style={{ paddingBlock: "clamp(4.5rem, 11vh, 9rem)" }}
+      {/* ── The four steps — ONE connected vertical journey floated on a vivid
+          community photograph. A terracotta spine links four nodes down a single
+          glass panel: قدّم → المراجعة → الدفعة → يوم العرض, read as one path. ── */}
+      <CinematicMedia
+        as="div"
+        src={imageUrl("/photos/IMG_8347.webp")}
+        alt={t({
+          ar: "مجتمع آيلاند هيفن في مساحة العمل المشتركة",
+          en: "The Island Haven community in the shared workspace",
+        })}
+        scrim="medium"
+        sideScrim={false}
+        className="section-y"
+        overlay={
+          <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
+        }
       >
-        {/* Ambient depth field — lit space behind the glass, not flat black. */}
-        <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
-
         <div className="container-ih relative">
-        <motion.ol
-          variants={reduce ? undefined : stagger}
-          initial={reduce ? undefined : "hidden"}
-          whileInView={reduce ? undefined : "show"}
-          viewport={{ once: true, margin: "-8% 0px" }}
-          className="max-w-4xl grid gap-[clamp(1rem,2.4vh,1.75rem)]"
-        >
-          {steps.map((s, i) => (
-            <motion.li
-              key={i}
-              variants={reduce ? undefined : rise}
-              className="group glass-panel grid grid-cols-[auto_1fr] gap-x-[clamp(1.75rem,6vw,4.5rem)] items-baseline p-[clamp(1.75rem,4.5vw,3rem)] transition-colors duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/25"
-            >
-              <span
-                className="font-display font-black tabular-nums text-white/15 leading-none select-none"
-                style={{ fontSize: "clamp(2.75rem, 6vw, 5rem)", letterSpacing: "-0.03em" }}
-                aria-hidden="true"
-              >
-                {idx(i)}
-              </span>
-              <div>
-                <h3
-                  className="font-display text-white"
-                  style={{
-                    fontSize: "clamp(1.75rem, 3.6vw, 2.85rem)",
-                    lineHeight: 1.06,
-                    letterSpacing: "-0.03em",
-                    fontWeight: 800,
-                  }}
+          <motion.ol
+            variants={reduce ? undefined : stagger}
+            initial={reduce ? undefined : "hidden"}
+            whileInView={reduce ? undefined : "show"}
+            viewport={{ once: true, margin: "-8% 0px" }}
+            className="glass-panel-lg relative max-w-4xl p-[clamp(1.5rem,4.5vw,3.25rem)] divide-y divide-white/[0.08]"
+          >
+            {steps.map((s, i) => {
+              const last = i === steps.length - 1;
+              return (
+                <motion.li
+                  key={i}
+                  variants={reduce ? undefined : rise}
+                  className="relative grid grid-cols-[auto_1fr] items-start gap-x-[clamp(1.25rem,4vw,2.5rem)] py-[clamp(1.75rem,4vw,2.75rem)] first:pt-0 last:pb-0"
                 >
-                  {s.title}
-                </h3>
-                <p
-                  className="mt-4 sm:mt-5 max-w-2xl text-white/60"
-                  style={{ fontSize: "clamp(1.02rem, 1.5vw, 1.2rem)", lineHeight: 1.66 }}
-                >
-                  {s.body}
-                </p>
-              </div>
-            </motion.li>
-          ))}
-        </motion.ol>
+                  {/* Node column — the dot on the spine, with the quiet index.
+                      Each non-final row carries the terracotta rail segment down
+                      to the next node, so the four segments read as ONE continuous
+                      spine that ends exactly on the last node. The rail draws in on
+                      scroll — double-gated on reduced motion (then simply present). */}
+                  <div className="relative flex flex-col items-center">
+                    {!last && (
+                      <motion.span
+                        aria-hidden
+                        className="pointer-events-none absolute top-[0.6rem] w-px origin-top bg-primary/60"
+                        style={{
+                          // From just under this dot down into the next row until it
+                          // meets the next dot: the two rows' stacked vertical
+                          // padding (this row's pb + next row's pt) = 2 × py.
+                          insetInlineStart: "calc(50% - 0.5px)",
+                          bottom: "calc(-2 * clamp(1.75rem, 4vw, 2.75rem))",
+                        }}
+                        initial={reduce ? false : { scaleY: 0 }}
+                        whileInView={reduce ? undefined : { scaleY: 1 }}
+                        viewport={{ once: true, margin: "-12% 0px" }}
+                        transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+                      />
+                    )}
+                    <span className="relative z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary shadow-[0_0_0_5px_hsl(24_14%_5%/0.85),0_0_18px_-2px_hsl(12_88%_56%/0.7)]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
+                    </span>
+                    <span
+                      className="mt-3 font-display font-black tabular-nums leading-none text-primary/85 select-none"
+                      style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", letterSpacing: "-0.03em" }}
+                      aria-hidden="true"
+                    >
+                      {idx(i)}
+                    </span>
+                  </div>
 
-        {/* ── One prominent Apply CTA — calm, generous. ── */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 18 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
-          className="mt-[clamp(3.5rem,8vh,6rem)] pt-[clamp(2.5rem,6vh,4rem)] border-t border-white/10 flex flex-wrap items-center gap-x-8 gap-y-4"
-        >
-          <Link
-            href="/apply"
-            data-testid="apply-process-cta"
-            className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full cta-fill font-bold text-[14.5px] tracking-wide transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
+                  <div className="min-w-0 pt-0.5">
+                    <h3
+                      className="font-display text-white"
+                      style={{
+                        fontSize: "clamp(1.75rem, 3.6vw, 2.85rem)",
+                        lineHeight: 1.06,
+                        letterSpacing: "-0.03em",
+                        fontWeight: 800,
+                      }}
+                    >
+                      {s.title}
+                    </h3>
+                    <p
+                      className="mt-4 sm:mt-5 max-w-2xl text-white/75"
+                      style={{ fontSize: "clamp(1.02rem, 1.5vw, 1.2rem)", lineHeight: 1.66 }}
+                    >
+                      {s.body}
+                    </p>
+                  </div>
+                </motion.li>
+              );
+            })}
+          </motion.ol>
+
+          {/* ── One prominent Apply CTA — calm, generous. ── */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+            className="mt-[clamp(2.5rem,6vh,4rem)] max-w-4xl flex flex-wrap items-center gap-x-8 gap-y-4"
           >
-            {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-          </Link>
-          <Link
-            href="/process"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline"
-          >
-            {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
-          </Link>
-          <Link
-            href="/cohorts"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline"
-          >
-            {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
-          </Link>
-        </motion.div>
+            <Link
+              href="/apply"
+              data-testid="apply-process-cta"
+              className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full cta-fill font-bold text-[14.5px] tracking-wide transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
+            >
+              {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/process"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] rounded-sm"
+            >
+              {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
+            </Link>
+            <Link
+              href="/cohorts"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] rounded-sm"
+            >
+              {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
+            </Link>
+          </motion.div>
         </div>
-      </div>
+      </CinematicMedia>
     </section>
   );
 }

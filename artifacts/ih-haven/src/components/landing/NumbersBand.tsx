@@ -127,7 +127,7 @@ export function NumbersBand() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 motion-safe:animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            <span className="eyebrow text-white/55">
+            <span className="eyebrow">
               {t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
             </span>
             <span className="eyebrow">

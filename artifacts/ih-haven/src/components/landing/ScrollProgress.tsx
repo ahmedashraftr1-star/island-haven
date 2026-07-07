@@ -24,7 +24,6 @@ export function ScrollProgress() {
         scaleX: reduce ? scrollYProgress : scaleX,
         backgroundImage:
           "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary-bright)) 78%, hsl(var(--accent-2)) 100%)",
-        boxShadow: "0 0 12px -2px hsl(var(--primary) / 0.55)",
       }}
     />
   );

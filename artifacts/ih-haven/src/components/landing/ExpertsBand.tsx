@@ -165,7 +165,7 @@ export function ExpertsBand() {
                 </Link>
                 <Link
                   href="/experts#how-it-works"
-                  className="group inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
+                  className="group inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                 >
                   {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
                   <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
@@ -200,7 +200,7 @@ export function ExpertsBand() {
                     <Link
                       href={`/experts/${e.id}`}
                       data-testid={`home-expert-${e.id}`}
-                      className="group relative glass-panel flex h-full flex-col items-center gap-5 overflow-hidden p-7 text-center sm:p-8 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1.5 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.2),0_44px_96px_-32px_hsl(0_0%_0%/0.88)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                      className="group relative glass-panel flex h-full flex-col items-center gap-5 overflow-hidden p-7 text-center sm:p-8 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1.5 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.2),0_44px_96px_-32px_hsl(0_0%_0%/0.88)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                       {/* Hairline gold detail — a quiet luxe seam at the card head,
                           lit fully on hover. */}
@@ -288,7 +288,7 @@ export function ExpertsBand() {
               </p>
               <Link
                 href="/experts"
-                className="group inline-flex items-center gap-2 rounded-md font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
+                className="group inline-flex items-center gap-2 rounded-md font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                 style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}
               >
                 {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}

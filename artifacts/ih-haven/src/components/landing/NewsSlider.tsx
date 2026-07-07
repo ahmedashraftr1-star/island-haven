@@ -168,7 +168,7 @@ export function NewsSlider() {
                       <div className="mt-3 h-5 w-2/3 rounded bg-white/[0.05] skeleton-shimmer" />
                       <div className="mt-2.5 h-3.5 w-4/5 rounded bg-white/[0.04] skeleton-shimmer" />
                     </div>
-                    <div className="h-16 w-20 shrink-0 rounded-xl bg-white/[0.04] skeleton-shimmer" />
+                    <div className="h-16 w-20 shrink-0 rounded-lg bg-white/[0.04] skeleton-shimmer" />
                   </div>
                 ))}
               </div>
@@ -249,7 +249,7 @@ export function NewsSlider() {
                         <Link
                           href={`/events/${selected.id}`}
                           data-testid={`event-read-${selected.id}`}
-                          className="group mt-5 inline-flex items-center gap-1.5 rounded-full text-[14px] font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608]"
+                          className="group mt-5 inline-flex items-center gap-1.5 rounded-full text-[14px] font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
                         >
                           {c.ctaCard}
                           <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />

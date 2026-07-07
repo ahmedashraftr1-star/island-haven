@@ -408,8 +408,8 @@ export function SeatsBoard() {
           {/* ── Left: the message ── */}
           <div className="max-w-xl">
             <Reveal as="div" className="mb-6 flex items-center gap-3">
-              <span className="h-px w-9 bg-primary" />
-              <span className="eyebrow text-white/85">
+              <span aria-hidden className="h-px w-9 bg-primary/70" />
+              <span className="eyebrow">
                 {t({ ar: "توفّر المقاعد", en: "Seat availability" })}
                 <span className="text-white/45"> · </span>
                 <span className="text-primary">{t({ ar: "غزّة", en: "Gaza" })}</span>

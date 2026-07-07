@@ -435,7 +435,7 @@ function ReachVisual({
               tabIndex={0}
               aria-label={label}
               aria-pressed={isActive ? "true" : "false"}
-              className="cursor-pointer focus:outline-none [&:focus-visible>circle.node-ring]:opacity-100"
+              className="cursor-pointer focus-visible:outline-none [&:focus-visible>circle.node-ring]:opacity-100"
               onMouseEnter={() => setActiveId(n.id)}
               onMouseLeave={() => setActiveId((cur) => (cur === n.id ? null : cur))}
               onFocus={() => setActiveId(n.id)}

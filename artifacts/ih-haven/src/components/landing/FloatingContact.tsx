@@ -8,7 +8,7 @@ const WHATSAPP = "https://wa.me/972567536815";
 /**
  * FloatingContact — a persistent, on-brand WhatsApp pill (start-aligned bottom
  * corner) that fades in after the user scrolls past the hero and hides near the
- * footer. Brand crimson (cta-fill) with a live emerald "online" dot. Reuses the
+ * footer. Brand crimson (cta-fill) with a warm gold "available" dot. Reuses the
  * scroll-visibility pattern from the former FloatingLivePill. RTL-safe.
  */
 export function FloatingContact() {
@@ -47,8 +47,8 @@ export function FloatingContact() {
           <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
             <MessageCircle className="h-4 w-4" />
             <span className="absolute -top-0.5 -end-0.5 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[hsl(var(--primary-cta))]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sand opacity-80" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-sand-bright ring-2 ring-[hsl(var(--primary-cta))]" />
             </span>
           </span>
           <span className="text-[13.5px] font-bold">{t({ ar: "تواصل معنا", en: "Chat with us" })}</span>

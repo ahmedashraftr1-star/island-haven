@@ -104,7 +104,7 @@ export function WhatYouGet() {
             </p>
             <Link
               href="/programs"
-              className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
+              className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "اعرف أكثر", en: "Learn more" })}
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
@@ -127,7 +127,7 @@ export function WhatYouGet() {
               key={g.href}
               href={g.href}
               data-testid={`pillar-${g.href.slice(1)}`}
-              className={`group relative grid grid-cols-1 items-baseline gap-x-10 gap-y-4 py-[clamp(1.75rem,4.5vh,3.25rem)] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none md:grid-cols-12 ${
+              className={`group relative grid grid-cols-1 items-baseline gap-x-10 gap-y-4 py-[clamp(1.75rem,4.5vh,3.25rem)] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none md:grid-cols-12 ${
                 i > 0 ? "border-t border-white/10" : ""
               }`}
             >

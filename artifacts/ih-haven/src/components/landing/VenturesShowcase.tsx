@@ -156,7 +156,7 @@ function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; 
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group glass-panel-lg block p-3 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_48px_100px_-38px_hsl(0_0%_0%/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        className="group glass-panel-lg block p-3 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_48px_100px_-38px_hsl(0_0%_0%/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
       >
         <div className="relative aspect-[21/9] overflow-hidden rounded-[24px] ring-1 ring-white/10 bg-[#070707]">
           <img
@@ -219,7 +219,7 @@ function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number;
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[clamp(0.5rem,1vw,0.75rem)] glass-panel p-3 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[clamp(0.5rem,1vw,0.75rem)] glass-panel p-3 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
       >
         <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[340px] overflow-hidden rounded-[20px] ring-1 ring-white/10 bg-[#070707]">
           <img
@@ -327,7 +327,7 @@ export function VenturesShowcase() {
                     en: "This is where the names of ventures born at Island Haven will live — and your seat is on the next page.",
                   })}
                 </p>
-                <Link href="/apply" data-testid="showcase-apply" className="cta-fill group mt-7 inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                <Link href="/apply" data-testid="showcase-apply" className="cta-fill group mt-7 inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                   {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 </Link>
@@ -348,7 +348,7 @@ export function VenturesShowcase() {
               <Link
                 href="/ventures"
                 data-testid="showcase-all"
-                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {t({ ar: "كلّ المشاريع", en: "All ventures" })}
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
