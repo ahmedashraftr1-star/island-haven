@@ -80,6 +80,8 @@ const PartnersPage = lazy(() => import("@/pages/PartnersPage"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));
+const Visit = lazy(() => import("@/pages/Visit"));
+const Support = lazy(() => import("@/pages/Support"));
 
 const queryClient = new QueryClient();
 
@@ -222,6 +224,8 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/media" component={Media} />
       <Route path="/partners" component={PartnersPage} />
+      <Route path="/visit" component={Visit} />
+      <Route path="/support" component={Support} />
       <Route path="/blog" component={Blog} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
