@@ -103,7 +103,7 @@ export function FinalCTA() {
               <Link
                 href="/book"
                 data-testid="final-cta-book"
-                className="group inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-white font-semibold text-[14px] tracking-[-0.005em] transition-colors duration-300 hover:bg-white/15 hover:border-white/30 active:bg-white/20"
+                className="glass-panel group inline-flex items-center justify-center gap-3 h-14 px-7 !rounded-full text-white font-semibold text-[14px] tracking-[-0.005em] transition-[transform,filter] duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
               >
                 {t({ ar: "احجز مقعدك", en: "Book a seat" })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />

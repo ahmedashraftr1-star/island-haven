@@ -18,7 +18,7 @@ export function CredibilityBar() {
     <section
       id="credibility-bar"
       data-testid="credibility-bar"
-      className="relative bg-[#060608] text-white section-y-compact overflow-hidden border-t border-white/[0.07]"
+      className="relative glass-rail text-white section-y-compact overflow-hidden"
     >
       {/* Crimson hairline + a faint top aura — the hero's accent, carried one beat further. */}
       <div aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)" }} />

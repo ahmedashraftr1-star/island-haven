@@ -219,20 +219,27 @@ export function ApplyProcess() {
         </div>
       </CinematicMedia>
 
-      {/* ── The four steps — clean editorial rows on deep near-black. ── */}
-      <div className="container-ih relative" style={{ paddingBlock: "clamp(4.5rem, 11vh, 9rem)" }}>
+      {/* ── The four steps — clean editorial rows floated into dark glass. ── */}
+      <div
+        className="relative overflow-hidden"
+        style={{ paddingBlock: "clamp(4.5rem, 11vh, 9rem)" }}
+      >
+        {/* Ambient depth field — lit space behind the glass, not flat black. */}
+        <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+
+        <div className="container-ih relative">
         <motion.ol
           variants={reduce ? undefined : stagger}
           initial={reduce ? undefined : "hidden"}
           whileInView={reduce ? undefined : "show"}
           viewport={{ once: true, margin: "-8% 0px" }}
-          className="max-w-4xl"
+          className="max-w-4xl grid gap-[clamp(1rem,2.4vh,1.75rem)]"
         >
           {steps.map((s, i) => (
             <motion.li
               key={i}
               variants={reduce ? undefined : rise}
-              className="grid grid-cols-[auto_1fr] gap-x-[clamp(1.75rem,6vw,4.5rem)] items-baseline border-t border-white/10 py-[clamp(2.5rem,6vh,4.5rem)] first:border-t-0 first:pt-0"
+              className="group glass-panel grid grid-cols-[auto_1fr] gap-x-[clamp(1.75rem,6vw,4.5rem)] items-baseline p-[clamp(1.75rem,4.5vw,3rem)] transition-colors duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/25"
             >
               <span
                 className="font-display font-black tabular-nums text-white/15 leading-none select-none"
@@ -293,6 +300,7 @@ export function ApplyProcess() {
             {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
           </Link>
         </motion.div>
+        </div>
       </div>
     </section>
   );

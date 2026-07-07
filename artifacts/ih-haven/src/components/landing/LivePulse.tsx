@@ -142,15 +142,8 @@ export function LivePulse() {
       aria-label={t({ ar: "نبض المجتمع الحيّ", en: "The community's live pulse" })}
       className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
     >
-      {/* Deep aura so the black reads alive, not flat. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(60% 90% at 50% 30%, rgba(233,74,51,0.10) 0%, transparent 60%), radial-gradient(40% 60% at 82% 100%, rgba(224,178,102,0.06) 0%, transparent 62%)",
-        }}
-      />
+      {/* Deep ambient depth field so the black reads as lit space, not flat. */}
+      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
 
       <div className="container-ih relative">
         {/* Header */}
@@ -229,7 +222,7 @@ export function LivePulse() {
                 >
                   <Link
                     href={`/u/${current.authorId}`}
-                    className="group inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/[0.06] backdrop-blur-md ps-3 pe-4 py-2"
+                    className="group inline-flex items-center gap-3 glass-panel rounded-full ps-3 pe-4 py-2"
                   >
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/20 text-primary text-[11px]">✦</span>
                     <span className="text-[13.5px] text-white/90">
@@ -247,7 +240,7 @@ export function LivePulse() {
         </div>
 
         {/* ── LIVE FIGURES (breathe + re-poll) ── */}
-        <div className="mt-[clamp(2.5rem,5vw,3.5rem)] flex flex-wrap items-end gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-6">
+        <div className="mt-[clamp(2.5rem,5vw,3.5rem)] glass-panel flex flex-wrap items-end gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-6 px-[clamp(1.5rem,4vw,2.75rem)] py-[clamp(1.5rem,3vw,2.25rem)]">
           <LiveStat value={nums?.members ?? 57} label={t({ ar: "يبنون في المجتمع", en: "building in the community" })} reduce={reduce} />
           <LiveStat value={nums?.works ?? 48} label={t({ ar: "عمل حقيقيّ مُنجز", en: "real works shipped" })} reduce={reduce} />
           <LiveStat value={nums?.enrollments ?? 116} label={t({ ar: "تسجيل في البرامج", en: "program enrollments" })} reduce={reduce} />
