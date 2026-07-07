@@ -4,7 +4,9 @@ import { useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
+import { imageUrl } from "@/hooks/use-content";
 
 interface Numbers {
   members: number;
@@ -57,12 +59,12 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
 }
 
 /**
- * NumbersBand — the incubator's live proof, now in the site-wide DARK GLASS
- * "Vision Pro" register. Deep near-black canvas lit by a soft terracotta/gold
- * ambient field; the figures float on frosted `glass-panel` tiles with hairline
- * lit edges. The figures ARE the design: a monumental gold lead over a column of
- * supporting metrics on glass, refined depth and obsessive spacing. Every figure
- * is live from `/numbers` (with a fallback) and never invented. Tokens only.
+ * NumbersBand — the incubator's live proof, told at the site's strongest register:
+ * a VIVID full-bleed Gaza photograph anchors the section, an ambient glow lifts it
+ * off flat black, and the figures FLOAT above it on frosted `glass-panel` tiles.
+ * The figures ARE the design: a monumental gold lead over a column of supporting
+ * metrics on glass, refined depth and obsessive spacing. Every figure is live from
+ * `/numbers` (with a fallback) and never invented. Tokens only.
  */
 export function NumbersBand() {
   const { lang, t } = useLanguage();
@@ -105,15 +107,19 @@ export function NumbersBand() {
   const fmt = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="numbers"
-      className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
+      src={imageUrl("/photos/IMG_8308.webp")}
+      scrim="medium"
+      sideScrim={false}
+      className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
     >
-      {/* Ambient depth — soft terracotta/gold light field behind the glass. */}
-      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+      {/* Ambient glow — lifts the glass off the photo, terracotta/gold light field. */}
+      <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
-      <div className="container-ih relative">
+      <div className="container-ih section-y relative">
         {/* Header — a quiet LIVE signal + one monumental line, roomy sub. */}
         <Reveal className="max-w-3xl">
           <div className="mb-5 flex items-center gap-2.5">
@@ -148,8 +154,11 @@ export function NumbersBand() {
         <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 gap-[clamp(1.25rem,2.5vw,1.75rem)] lg:grid-cols-12">
           {/* Lead figure — enrollments, the largest, on a feature tile. */}
           <Reveal className="lg:col-span-5">
-            <div className="glass-panel-lg flex h-full flex-col p-[clamp(1.75rem,3vw,2.5rem)]">
-              <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">{lead.en}</div>
+            <div
+              style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
+              className="glass-panel-lg flex h-full -translate-y-0 flex-col p-[clamp(1.75rem,3vw,2.5rem)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]"
+            >
+              <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">{lead.en}</div>
               <div
                 data-testid="numbers-lead-enrollments"
                 aria-label={`${fmt(lead.value)} — ${lead.label}`}
@@ -165,7 +174,10 @@ export function NumbersBand() {
 
           {/* Supporting metrics — a column of tiles on a single glass panel. */}
           <div className="lg:col-span-7">
-            <div className="glass-panel flex h-full flex-col divide-y divide-white/[0.08] px-[clamp(1.5rem,2.5vw,2rem)]">
+            <div
+              style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
+              className="glass-panel flex h-full -translate-y-0 flex-col divide-y divide-white/[0.08] px-[clamp(1.5rem,2.5vw,2rem)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]"
+            >
               {rest.map((s, i) => (
                 <Reveal
                   key={s.key}
@@ -174,7 +186,7 @@ export function NumbersBand() {
                 >
                   <div className="min-w-0">
                     <div className="text-[15px] font-semibold leading-snug text-white">{s.label}</div>
-                    <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-white/45">{s.en}</div>
+                    <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-white/50">{s.en}</div>
                     <div className="mt-1.5 text-[12.5px] text-primary">{s.context}</div>
                   </div>
                   <span
@@ -193,9 +205,12 @@ export function NumbersBand() {
 
         {/* Composition line + CTA — a quiet footer on a slim glass rail. */}
         <Reveal className="mt-[clamp(1.25rem,2.5vw,1.75rem)]">
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-x-6 gap-y-4 px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.25rem,2.5vw,1.75rem)]">
+          <div
+            style={{ transition: "border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
+            className="glass-panel flex flex-wrap items-center justify-between gap-x-6 gap-y-4 px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.25rem,2.5vw,1.75rem)] hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]"
+          >
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-white/70">
-              <span className="text-white/45">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
+              <span className="text-white/50">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
               {composition.map((cmp, i) => (
                 <span key={i} className="inline-flex items-center gap-1.5">
                   {i > 0 && <span className="px-1 text-white/45">·</span>}
@@ -215,6 +230,6 @@ export function NumbersBand() {
           </div>
         </Reveal>
       </div>
-    </section>
+    </CinematicMedia>
   );
 }

@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
 import { Reveal } from "@/components/landing/Reveal";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
+import { imageUrl } from "@/hooks/use-content";
 
 interface Story {
   id: number;
@@ -15,14 +17,17 @@ interface Story {
 }
 
 /**
- * SuccessStories — member voices rendered as a DARK GLASS "Vision Pro" newsroom.
- * A deep-black section lit by a slow ambient field; ONE featured pull-quote set
- * large in white inside a floating `glass-panel-lg` tile, then the supporting
- * voices as a hairline-divided editorial LIST (quote + attribution rows) — NOT a
- * card deck, NOT paper, NOT icon circles. The never-empty evergreen fallback is
- * preserved on the same dark glass register. Terracotta is the sole accent.
+ * SuccessStories — member voices told at hero power on a VIVID full-bleed Gaza
+ * photograph (the FeaturedMembers standard), not on flat black. Glass tiles
+ * FLOAT on the photo + a slow ambient field: ONE featured pull-quote set large
+ * in white inside a `glass-panel-lg` tile with a terracotta quote mark, then the
+ * supporting voices as small `glass-panel` rows. The never-empty evergreen
+ * fallback stands on the same lit photo register. Terracotta is the sole accent.
  * All data / quotes / i18n / routes / testids kept.
  */
+
+const PHOTO = imageUrl("/photos/IMG_8307.webp");
+
 export function SuccessStories() {
   const { lang, t } = useLanguage();
   const [rows, setRows] = useState<Story[] | null>(null);
@@ -43,36 +48,44 @@ export function SuccessStories() {
     </p>
   );
 
-  // Loading — a single calm glass placeholder floating on the dark field.
+  // Loading — a single calm glass placeholder floating on the lit photo field.
   if (!rows) {
     return (
-      <section
+      <CinematicMedia
+        as="section"
         id="stories"
-        className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
+        src={PHOTO}
+        scrim="medium"
+        sideScrim={false}
+        className="relative overflow-hidden border-t border-white/[0.06]"
         data-testid="stories-band"
       >
         <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
-        <div className="container-ih relative">
+        <div className="container-ih section-y relative">
           <div className="h-[clamp(14rem,30vh,20rem)] max-w-4xl rounded-[32px] glass-panel-lg skeleton-shimmer" />
         </div>
-      </section>
+      </CinematicMedia>
     );
   }
 
   // EVERGREEN fallback — before the first member story is recorded, this CORE
   // proof section must still stand. We lead with the founding belief itself,
-  // attributed to the team, as a large white pull-quote inside a glass tile on
-  // the dark ambient field + an apply CTA. No invented testimonials.
+  // attributed to the team, as a large white pull-quote inside a glass tile
+  // floating on the vivid photo + an apply CTA. No invented testimonials.
   if (rows.length === 0) {
     return (
-      <section
+      <CinematicMedia
+        as="section"
         id="stories"
-        className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
+        src={PHOTO}
+        scrim="medium"
+        sideScrim={false}
+        className="relative overflow-hidden border-t border-white/[0.06]"
         aria-label={t({ ar: "قصص النجاح", en: "Success stories" })}
         data-testid="stories-band"
       >
         <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
-        <div className="container-ih relative">
+        <div className="container-ih section-y relative">
           <figure className="relative max-w-4xl glass-panel-lg p-[clamp(1.75rem,4vw,3.5rem)]">
             {/* Terracotta quote mark — sole accent. */}
             <span
@@ -141,7 +154,7 @@ export function SuccessStories() {
             </div>
           </figure>
         </div>
-      </section>
+      </CinematicMedia>
     );
   }
 
@@ -149,14 +162,18 @@ export function SuccessStories() {
   const rest = rows.slice(1, 4);
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="stories"
-      className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
+      src={PHOTO}
+      scrim="medium"
+      sideScrim={false}
+      className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
       data-testid="stories-band"
     >
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
-      <div className="container-ih relative">
+      <div className="container-ih section-y relative">
         {/* Header — calm eyebrow + one monumental line. */}
         <Reveal as="div" className="max-w-4xl">
           {eyebrow}
@@ -175,7 +192,7 @@ export function SuccessStories() {
         </Reveal>
 
         {/* FEATURED — the lead testimonial set large in white inside a glass tile
-            floating on the ambient field, with a terracotta quote mark. */}
+            floating on the vivid photo, with a terracotta quote mark. */}
         <Reveal as="div" delay={0.06} className="mt-[clamp(2.5rem,6vh,4.5rem)] max-w-5xl">
           <figure className="relative glass-panel-lg p-[clamp(1.75rem,4vw,3.5rem)]">
             <span
@@ -210,36 +227,58 @@ export function SuccessStories() {
                 </p>
               )}
 
-              <figcaption className="mt-8 sm:mt-10">
-                <div className="font-bold text-white text-[clamp(1rem,1.6vw,1.2rem)]">
-                  {lead.personName}
-                </div>
-                <div className="mt-1.5 text-[13px] uppercase tracking-[0.14em] text-white/55">
-                  {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
+              <figcaption className="mt-8 sm:mt-10 flex items-center gap-4">
+                {lead.avatarUrl ? (
+                  <img
+                    src={lead.avatarUrl}
+                    alt={lead.personName}
+                    loading="lazy"
+                    className="h-14 w-14 rounded-full object-cover ring-1 ring-white/20"
+                  />
+                ) : (
+                  <span className="grid h-14 w-14 place-items-center rounded-full border border-white/20 bg-white/[0.06] font-display text-xl font-black text-sand-bright">
+                    {lead.personName.trim().charAt(0)}
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <div className="font-bold text-white text-[clamp(1rem,1.6vw,1.2rem)] leading-tight">
+                    {lead.personName}
+                  </div>
+                  <div className="mt-1.5 text-[13px] uppercase tracking-[0.14em] text-white/55">
+                    {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
+                  </div>
                 </div>
               </figcaption>
             </div>
           </figure>
         </Reveal>
 
-        {/* SUPPORTING VOICES — a clean, hairline-divided editorial LIST on the
-            dark field. Each is a calm quote + attribution row separated by a
-            white hairline rule. NOT a card deck. */}
+        {/* SUPPORTING VOICES — small frosted glass rows floating on the photo,
+            each a calm quote + attribution. NOT a hairline list on flat black. */}
         {rest.length > 0 && (
-          <div className="mt-[clamp(3rem,7vh,5rem)] max-w-4xl border-t border-white/10">
+          <div className="mt-[clamp(2rem,5vh,3.25rem)] grid max-w-5xl gap-3 sm:gap-4 lg:grid-cols-3">
             {rest.map((s, i) => (
               <Reveal
                 as="div"
                 key={s.id}
                 delay={Math.min(i, 3) * 0.06}
-                className="border-b border-white/10 py-[clamp(1.75rem,4vh,2.75rem)]"
+                className="h-full"
               >
-                <figure>
+                <figure
+                  className="group relative flex h-full flex-col glass-panel p-[clamp(1.25rem,2.5vw,1.75rem)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]"
+                >
+                  <span
+                    aria-hidden
+                    className="font-display text-primary/80 leading-none select-none"
+                    style={{ fontSize: "clamp(2rem,4vw,3rem)" }}
+                  >
+                    &ldquo;
+                  </span>
                   <blockquote
-                    className="font-display text-white/85"
+                    className="mt-1 font-display text-white/85"
                     style={{
-                      fontSize: "clamp(1.2rem, 2.3vw, 1.7rem)",
-                      lineHeight: 1.34,
+                      fontSize: "clamp(1.05rem, 1.7vw, 1.3rem)",
+                      lineHeight: 1.36,
                       letterSpacing: "-0.015em",
                       fontWeight: 600,
                     }}
@@ -247,13 +286,13 @@ export function SuccessStories() {
                     {s.quote}
                   </blockquote>
                   {lang === "en" && (
-                    <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/45">
+                    <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-white/40">
                       {t({ ar: "", en: "Original · Arabic" })}
                     </p>
                   )}
-                  <figcaption className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="font-bold text-white text-[15px]">{s.personName}</span>
-                    <span className="text-[13px] uppercase tracking-[0.14em] text-white/55">
+                  <figcaption className="mt-auto flex flex-col gap-0.5 pt-5">
+                    <span className="font-bold text-white text-[14px] leading-tight">{s.personName}</span>
+                    <span className="text-[12px] uppercase tracking-[0.14em] text-white/55">
                       {[s.role, s.ventureName].filter(Boolean).join(" · ")}
                     </span>
                   </figcaption>
@@ -263,6 +302,6 @@ export function SuccessStories() {
           </div>
         )}
       </div>
-    </section>
+    </CinematicMedia>
   );
 }

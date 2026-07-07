@@ -3,8 +3,9 @@ import { Link } from "wouter";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { api } from "@/lib/api";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
-import { useContentSection } from "@/hooks/use-content";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 
 const FALLBACK = {
@@ -39,15 +40,15 @@ function trimExcerpt(s: string, n = 110): string {
 }
 
 /**
- * NewsSlider — the incubator's Journal, rebuilt on the site-wide DARK GLASS
- * ("Vision Pro") material: frosted translucent panels floating on the deep
- * canvas, terracotta the sole accent. NOT a carousel of identical cards: one
- * large FEATURE story inside a `glass-panel-lg` tile (a cover ringed in white/10,
- * a terracotta type tag + mono date, a white font-display headline), and the
- * rest as a hairline editorial LIST — each row a mono date, a terracotta type
- * tag (خبر/قصّة/نصيحة), a title, and a thin ringed cover thumb, ruled by
- * white/10 dividers. Space + type carry it. All data / fallback / i18n / routes
- * / testids kept.
+ * NewsSlider — the incubator's Journal, told at hero power on the site-wide
+ * "Vision Pro" standard (matches FeaturedMembers): frosted glass FLOATING on a
+ * VIVID full-bleed Gaza photograph + an ambient lit-space field, terracotta the
+ * sole accent. NOT a carousel of identical cards: one large FEATURE story inside
+ * a `glass-panel-lg` tile (a cover ringed in white/10, a terracotta type tag +
+ * mono date, a white font-display headline), and the rest as a hairline
+ * editorial LIST — each row a mono date, a terracotta type tag (خبر/قصّة/نصيحة),
+ * a title, and a thin ringed cover thumb, ruled by white/10 dividers. Space +
+ * type carry it. All data / fallback / i18n / routes / testids kept.
  */
 export function NewsSlider() {
   const { lang, t } = useLanguage();
@@ -70,13 +71,18 @@ export function NewsSlider() {
   const list = posts ? posts.slice(1) : [];
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="events-slider"
-      className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
+      src={imageUrl("/photos/IMG_8346.webp")}
+      scrim="medium"
+      sideScrim={false}
+      className="relative overflow-hidden border-t border-white/[0.06]"
+      aria-label={t({ ar: "دفتر آيلاند", en: "Island Journal" })}
     >
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
 
-      <div className="container-ih relative">
+      <div className="container-ih section-y relative">
         {/* Header — calm eyebrow, one monumental white line, roomy sub. */}
         <div className="mb-[clamp(2.5rem,5vw,4rem)] grid gap-8 lg:grid-cols-12 lg:items-end">
           <Reveal as="div" className="lg:col-span-8">
@@ -272,6 +278,6 @@ export function NewsSlider() {
           </Link>
         </div>
       </div>
-    </section>
+    </CinematicMedia>
   );
 }

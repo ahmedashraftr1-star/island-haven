@@ -2,17 +2,17 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { imageUrl } from "@/hooks/use-content";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
 
 /**
- * WhatYouGet — the value-of-membership section, in the site-wide DARK GLASS
- * "Vision Pro" register. A deep near-black canvas lit by a soft ambient field,
- * a big calm headline, one cleanly-framed glass-treated product-shot of the
- * space, and each value of membership (workspace, mentorship, programs,
- * community) set as a hairline-separated editorial ROW floating inside a single
- * frosted `glass-panel` tile: a large display title on the start, a concise
- * description on a readable measure, a small terracotta index. No paper, no icon
- * circles, no card grid, no gradient. Depth + type carry it. Terracotta is the
+ * WhatYouGet — the value-of-membership section, told at hero power: glass tiles
+ * FLOATING on a vivid full-bleed Gaza photograph + an ambient lit field, the
+ * same "Vision Pro" register as FeaturedMembers. A big calm headline, and each
+ * value of membership (workspace, mentorship, programs, community) set as a
+ * hairline-separated editorial ROW inside a single frosted `glass-panel` tile:
+ * a large display title on the start, a concise description on a readable
+ * measure, a small terracotta index. Depth + type carry it. Terracotta is the
  * sole accent. All data / i18n / routes / testids kept.
  */
 export function WhatYouGet() {
@@ -57,14 +57,19 @@ export function WhatYouGet() {
   ];
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="what-you-get"
-      className="section-y relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06]"
+      src={imageUrl("/photos/IMG_8314.webp")}
+      scrim="medium"
+      sideScrim={false}
+      className="relative overflow-hidden border-t border-white/[0.06]"
+      aria-label={t({ ar: "ما تحصل عليه", en: "What you get" })}
     >
-      {/* Ambient depth field — the dark canvas reads as lit space, not flat black. */}
-      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+      {/* Ambient lit-space field so the photo reads as depth, not flat black. */}
+      <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
-      <div className="container-ih relative">
+      <div className="container-ih section-y relative">
         {/* Header — calm eyebrow, one monumental line, roomy sub. Split so the
             headline never sits beside an empty half on wide screens. */}
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
@@ -87,7 +92,7 @@ export function WhatYouGet() {
           </Reveal>
 
           <Reveal className="lg:col-span-5" distance={22} delay={0.08}>
-            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/65">
+            <p className="max-w-xl text-[1.0625rem] leading-[1.7] text-white/75 lg:text-[1.2rem]">
               {t({
                 ar: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
                 en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
@@ -103,27 +108,15 @@ export function WhatYouGet() {
           </Reveal>
         </div>
 
-        {/* One clean, framed product-shot of the place — glass-treated: rounded,
-            a hairline white ring, a soft cast shadow so it floats on the field. */}
+        {/* Editorial value list — the whole rows list FLOATS inside one frosted
+            glass tile on the vivid photo. Each membership value on its own
+            hairline-separated row: terracotta index + large display title on the
+            start, a concise description on a readable measure. Routes + testids kept. */}
         <Reveal
-          distance={24}
+          distance={20}
           amount={0.2}
-          className="mt-[clamp(3rem,7vh,5.5rem)] overflow-hidden rounded-[24px] ring-1 ring-white/10 shadow-[0_40px_90px_-40px_rgba(0,0,0,0.75)]"
+          className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3.25rem)] py-[clamp(0.75rem,2.5vh,1.75rem)] shadow-[0_44px_100px_-40px_hsl(0_0%_0%/0.8)]"
         >
-          <img
-            src={imageUrl("/photos/IMG_8347.webp")}
-            alt={t({ ar: "مساحة عمل آيلاند هيفن في غزّة", en: "The Island Haven workspace in Gaza" })}
-            loading="lazy"
-            decoding="async"
-            className="w-full aspect-[16/10] sm:aspect-[21/9] object-cover"
-          />
-        </Reveal>
-
-        {/* Editorial value list — the whole rows list floats inside one frosted
-            glass tile. Each membership value on its own hairline-separated row:
-            terracotta index + large display title on the start, a concise
-            description on a readable measure. Routes + testids kept. */}
-        <Reveal distance={20} amount={0.2} className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3rem)] py-[clamp(0.5rem,2vh,1.5rem)]">
           {gives.map((g, i) => (
             <Link
               key={g.href}
@@ -154,13 +147,13 @@ export function WhatYouGet() {
 
               {/* Description on a readable measure */}
               <div className="md:col-span-6 lg:col-span-6 lg:col-start-6">
-                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/65 lg:text-[1.0625rem]">
+                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/70 lg:text-[1.0625rem]">
                   {g.body}
                 </p>
                 {g.stat && (
                   <div className="mt-3 inline-flex items-baseline gap-2">
                     <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
-                    <span className="text-[13px] text-white/45">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
+                    <span className="text-[13px] text-white/55">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
                   </div>
                 )}
               </div>
@@ -168,7 +161,7 @@ export function WhatYouGet() {
               {/* Hairline tick — a quiet directional cue, no medallion */}
               <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
                 <ArrowLeft
-                  className="h-4 w-4 text-white/45 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
+                  className="h-4 w-4 text-white/55 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
                 />
               </div>
@@ -176,6 +169,6 @@ export function WhatYouGet() {
           ))}
         </Reveal>
       </div>
-    </section>
+    </CinematicMedia>
   );
 }

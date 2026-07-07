@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { CinematicMedia } from "@/components/landing/CinematicMedia";
+import { imageUrl } from "@/hooks/use-content";
 
 interface ExpertCard {
   id: number;
@@ -31,16 +33,16 @@ function initials(name: string): string {
 }
 
 /**
- * ExpertsBand — the DARK GLASS "Mentors" section.
+ * ExpertsBand — the "Mentors" section, told at hero power.
  *
- * The unified "Vision Pro" register: a deep #060608 canvas lit by a soft ambient
- * field, a big quiet headline with one terracotta accent word, and a roomy,
- * breathing grid of frosted glass mentor cards (avatar/initials · name · role ·
- * an "Available to book" pill). No paper, no icon circles, no glowing blobs —
- * translucent glass floating on lit space carries it. Terracotta is the sole
- * accent. Motion via the reduced-motion-safe Reveal. The evergreen empty state
- * (roster gathering + Be-a-mentor CTA) lives on the same dark glass register.
- * All data fetch / i18n / routes / testids preserved.
+ * The winning register (shared with FeaturedMembers): a VIVID full-bleed Gaza
+ * photograph anchors the section, a soft ambient field adds depth, and a roomy,
+ * breathing grid of frosted glass mentor cards FLOATS on the photo — avatar or
+ * terracotta initials · name · role · an "Available to book" pill. No paper, no
+ * icon circles, no glowing blobs — translucent glass on lit space carries it.
+ * Terracotta is the sole accent. Motion via the reduced-motion-safe Reveal. The
+ * evergreen empty state (roster gathering + Be-a-mentor CTA) rides the same
+ * register. All data fetch / i18n / routes / testids preserved.
  */
 export function ExpertsBand() {
   const { t, lang } = useLanguage();
@@ -73,13 +75,20 @@ export function ExpertsBand() {
   const busyLabel = t({ ar: "قائمة الانتظار", en: "Waitlist" });
 
   return (
-    <section
+    <CinematicMedia
+      as="section"
       id="experts"
-      className="section-y relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06]"
       data-testid="experts-band"
+      src={imageUrl("/photos/IMG_8313.webp")}
+      scrim="medium"
+      sideScrim={false}
+      className="relative overflow-hidden border-t border-white/[0.06]"
+      aria-label={t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
     >
+      {/* Ambient lit-space field so the photo reads as depth, not a flat plate */}
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
-      <div className="container-ih relative">
+
+      <div className="container-ih section-y relative">
         {/* Header — calm eyebrow, one monumental line with a single terracotta
             accent word, a roomy sub, and (default path) live availability. The
             evergreen branch keeps the same register and tells the true story. */}
@@ -112,7 +121,7 @@ export function ExpertsBand() {
           </Reveal>
 
           <Reveal className="lg:col-span-5" delay={0.08} duration={0.7}>
-            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/70">
+            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/75">
               {intro}
             </p>
             {!isEmpty && rows && available > 0 && (
@@ -126,13 +135,13 @@ export function ExpertsBand() {
           </Reveal>
         </div>
 
-        {/* ── Mentor grid — roomy frosted-glass cards on the lit dark field, or
-             the evergreen empty state. A restrained 2–3 column grid with
+        {/* ── Mentor grid — roomy frosted-glass cards floating on the vivid photo,
+             or the evergreen empty state. A restrained 2–3 column grid with
              generous gaps. ── */}
         {isEmpty ? (
           <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
             <div className="glass-panel flex flex-col items-start gap-6 p-8 sm:p-10">
-              <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/70">
+              <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/75">
                 {t({
                   ar: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
                   en: "The roster is forming. If you're a founder or specialist willing to give an hour of your time, be one of the first mentors.",
@@ -216,7 +225,7 @@ export function ExpertsBand() {
                             {e.fullName}
                           </h3>
                           {e.yearsExperience > 0 && (
-                            <p className="mt-0.5 text-[13px] text-white/50 tnum">
+                            <p className="mt-0.5 text-[13px] text-white/55 tnum">
                               {lang === "en"
                                 ? `${e.yearsExperience}+ yrs experience`
                                 : `خبرة ${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
@@ -226,7 +235,7 @@ export function ExpertsBand() {
                       </div>
 
                       {role && (
-                        <p className="text-[15px] leading-relaxed text-white/60 line-clamp-2">
+                        <p className="text-[15px] leading-relaxed text-white/65 line-clamp-2">
                           {role}
                         </p>
                       )}
@@ -239,11 +248,11 @@ export function ExpertsBand() {
                             {bookLabel}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-[12.5px] font-semibold text-white/50">
+                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-[12.5px] font-semibold text-white/55">
                             {busyLabel}
                           </span>
                         )}
-                        <ArrowLeft className="h-4 w-4 text-white/40 rtl:rotate-180 transition-[color,transform] duration-300 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
+                        <ArrowLeft className="h-4 w-4 text-white/45 rtl:rotate-180 transition-[color,transform] duration-300 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
                       </div>
                     </Link>
                   </Reveal>
@@ -253,7 +262,7 @@ export function ExpertsBand() {
 
             {/* Terminal CTA — a calm confident line, no icon tile. */}
             <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3" delay={0.1} duration={0.7}>
-              <p className="text-white/70" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
+              <p className="text-white/75" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
                 {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
               </p>
               <Link
@@ -268,6 +277,6 @@ export function ExpertsBand() {
           </>
         )}
       </div>
-    </section>
+    </CinematicMedia>
   );
 }
