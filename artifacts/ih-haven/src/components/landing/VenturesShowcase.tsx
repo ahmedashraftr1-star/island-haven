@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { ventureIdentity } from "@/lib/ventureIdentity";
@@ -36,18 +36,22 @@ const FRAMES = [
 ];
 const frameFor = (id: number) => FRAMES[Math.abs(id) % FRAMES.length];
 
-// ── OWNER-PROVIDED metrics (from the design brief), keyed by normalised name.
-//    TEMPORARY: shown so the "proof inside the card" reads now; the code prefers
-//    real `venture.metrics` from the API/CMS whenever present. Verify + move
-//    these into the venture records before production — do NOT invent numbers. ──
-const norm = (s: string) => s.replace(/[ً-ٰٟ]/g, "").replace(/\s+/g, "").trim();
-const OWNER_METRICS: Record<string, Metric[]> = {
-  [norm("مُستشارك")]: [{ v: "٤٬٠٠٠+", ar: "مستخدم", en: "users" }, { v: "2ⁿᵈ", ar: "هاكثون البنّائين", en: "builders' hackathon" }],
-  [norm("إغاثة+")]: [{ v: "٤٠K", ar: "أسرة", en: "families reached" }, { v: "٠٪", ar: "ازدواجيّة", en: "duplication" }],
-  [norm("طبيبك عن بُعد")]: [{ v: "٢٤/٧", ar: "وصول", en: "access" }],
-  [norm("مَنهجي")]: [{ v: "Offline", ar: "يعمل بلا شبكة", en: "works offline" }],
-};
-const metricsFor = (v: Venture): Metric[] => v.metrics ?? OWNER_METRICS[norm(v.name)] ?? [];
+// ── Metrics come ONLY from real, confirmed sources: the API `venture.metrics`
+//    field, or a CMS `venture_metrics` section (value = a JSON array of
+//    {v,ar,en}, keyed by venture id or name). If neither is set, the card shows
+//    NO metric row — never an invented number. The owner adds real figures in the
+//    CMS and they appear automatically. (See plan Axis 0 — numbers honesty.) ──
+function resolveMetrics(v: Venture, cms: Record<string, string>): Metric[] {
+  if (v.metrics?.length) return v.metrics;
+  const raw = cms[String(v.id)] ?? cms[v.name];
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as Metric[];
+    } catch { /* malformed CMS value → show nothing, never invent */ }
+  }
+  return [];
+}
 
 function MetricRow({ metrics, lang }: { metrics: Metric[]; lang: Lang }) {
   if (!metrics.length) return null;
@@ -90,7 +94,7 @@ function Meta({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<typeof use
  * intact, not fighting overlaid text), then a readable dark panel carries the
  * name at display scale, the tagline, the proof metrics, and the case-study CTA.
  */
-function FlagshipCard({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
   const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
   const vid = ventureIdentity(v.sector, v.id);
   return (
@@ -115,19 +119,19 @@ function FlagshipCard({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<ty
           </span>
         </div>
 
-        <div className="p-[clamp(1.75rem,3.5vw,3rem)]">
+        <div className="p-[clamp(2.5rem,4vw,4rem)]">
           <Meta v={v} lang={lang} t={t} />
-          <h3 className="mt-4 font-display font-black text-white" style={{ fontSize: "clamp(2.2rem,4.4vw,3.75rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}>
+          <h3 className="mt-4 font-display font-black text-white" style={{ fontSize: "clamp(2.8rem,6vw,4.5rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}>
             {v.name}
           </h3>
           {v.tagline && (
-            <p className="mt-4 max-w-2xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1.05rem,1.6vw,1.35rem)" }}>
+            <p className="mt-5 max-w-2xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1.05rem,1.7vw,1.4rem)" }}>
               {v.tagline}
             </p>
           )}
-          <MetricRow metrics={metricsFor(v)} lang={lang} />
-          <span className="mt-7 inline-flex items-center gap-2.5 text-[14px] font-bold text-white">
-            {t({ ar: "دراسة الحالة", en: "Case study" })}
+          <MetricRow metrics={metrics} lang={lang} />
+          <span className="mt-8 inline-flex items-center gap-2.5 text-[14.5px] font-bold text-white transition-colors group-hover:text-primary">
+            <span className="underline-offset-4 group-hover:underline">{t({ ar: "دراسة الحالة", en: "Case study" })}</span>
             <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
           </span>
         </div>
@@ -140,7 +144,7 @@ function FlagshipCard({ v, lang, t }: { v: Venture; lang: Lang; t: ReturnType<ty
  * VentureRow — a supporting project: cover on the logical-start side, the readable
  * panel on the other. Uneven against the flagship, so the sequence has rhythm.
  */
-function VentureRow({ v, index, lang, t }: { v: Venture; index: number; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
+function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number; metrics: Metric[]; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
   const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
   const vid = ventureIdentity(v.sector, v.id);
   return (
@@ -148,7 +152,7 @@ function VentureRow({ v, index, lang, t }: { v: Venture; index: number; lang: La
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] overflow-hidden rounded-[24px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_30px_60px_-36px_rgba(0,0,0,0.7)]"
+        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] overflow-hidden rounded-[24px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_30px_60px_-36px_rgba(0,0,0,0.7)]"
       >
         <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[300px] overflow-hidden bg-[#070707]">
           <img
@@ -171,9 +175,9 @@ function VentureRow({ v, index, lang, t }: { v: Venture; index: number; lang: La
               {v.tagline}
             </p>
           )}
-          <MetricRow metrics={metricsFor(v)} lang={lang} />
-          <span className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-bold text-white">
-            {t({ ar: "دراسة الحالة", en: "Case study" })}
+          <MetricRow metrics={metrics} lang={lang} />
+          <span className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-bold text-white transition-colors group-hover:text-primary">
+            <span className="underline-offset-4 group-hover:underline">{t({ ar: "دراسة الحالة", en: "Case study" })}</span>
             <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1.5 rtl:group-hover:translate-x-1.5" />
           </span>
         </div>
@@ -191,6 +195,9 @@ function VentureRow({ v, index, lang, t }: { v: Venture; index: number; lang: La
 export function VenturesShowcase() {
   const { t, lang } = useLanguage();
   useReducedMotion();
+  // Confirmed metrics only — the owner adds real per-venture figures in this CMS
+  // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
+  const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
   const [rows, setRows] = useState<Venture[] | null>(null);
 
   useEffect(() => {
@@ -257,9 +264,9 @@ export function VenturesShowcase() {
         ) : (
           <>
             <div className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col gap-[clamp(1.5rem,3vw,2.75rem)]">
-              <FlagshipCard v={rows[0]} lang={lang} t={t} />
+              <FlagshipCard v={rows[0]} metrics={resolveMetrics(rows[0], metricsCms)} lang={lang} t={t} />
               {rows.slice(1).map((v, i) => (
-                <VentureRow key={v.id} v={v} index={i} lang={lang} t={t} />
+                <VentureRow key={v.id} v={v} index={i} metrics={resolveMetrics(v, metricsCms)} lang={lang} t={t} />
               ))}
             </div>
 

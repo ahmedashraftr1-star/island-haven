@@ -18,7 +18,15 @@ export function FloatingContact() {
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const max = document.documentElement.scrollHeight - window.innerHeight - 520;
-    setVisible(latest > 700 && latest < max);
+    // Hide while the projects section is in view — its per-card "Case study" CTAs
+    // sit in the same bottom-start corner and the pill must never overlap them.
+    let overProjects = false;
+    const el = document.getElementById("ventures-band");
+    if (el) {
+      const r = el.getBoundingClientRect();
+      overProjects = r.top < window.innerHeight * 0.9 && r.bottom > window.innerHeight * 0.25;
+    }
+    setVisible(latest > 700 && latest < max && !overProjects);
   });
 
   return (
@@ -34,7 +42,7 @@ export function FloatingContact() {
           exit={{ opacity: 0, y: 16, scale: 0.9 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           aria-label={t({ ar: "تواصل معنا عبر واتساب", en: "Contact us on WhatsApp" })}
-          className="group fixed bottom-5 start-5 z-40 inline-flex items-center gap-2.5 h-12 ps-3 pe-4 rounded-full cta-fill shadow-[0_18px_48px_-12px_hsl(354_82%_35%/0.6)] hover:-translate-y-0.5 transition-transform duration-300"
+          className="group fixed bottom-6 start-5 z-40 inline-flex items-center gap-2.5 h-12 ps-3 pe-4 rounded-full cta-fill shadow-[0_18px_48px_-12px_hsl(354_82%_35%/0.6)] hover:-translate-y-0.5 transition-transform duration-300"
         >
           <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
             <MessageCircle className="h-4 w-4" />
