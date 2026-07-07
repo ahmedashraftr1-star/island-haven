@@ -9,7 +9,9 @@ import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ventureIdentity } from "@/lib/ventureIdentity";
 import { Ticker } from "@/components/landing/Ticker";
+import { Reveal } from "@/components/landing/Reveal";
 import { useCountUp } from "@/hooks/use-count-up";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 
 // The sectors the incubator builds across — a calm, evergreen roster that glides
 // in the hero aside (font-mono, faint). Not live data; a qualitative register of
@@ -25,6 +27,11 @@ const SECTOR_TAGS = [
   "ConstructionTech",
 ];
 
+interface Metric {
+  v: string;
+  ar: string;
+  en: string;
+}
 interface Venture {
   id: number;
   name: string;
@@ -39,6 +46,7 @@ interface Venture {
   foundedYear: number;
   teamSize: number;
   featured: boolean;
+  metrics?: Metric[]; // real, from the API/CMS when present
 }
 
 // English counterparts to the Arabic-only VENTURE_STAGE_LABELS in @/lib/labels.
@@ -81,6 +89,9 @@ export default function Ventures() {
   const [rows, setRows] = useState<Venture[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reduce = useReducedMotion();
+  // Confirmed metrics only — the owner adds real per-venture figures in this CMS
+  // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
+  const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
 
   useEffect(() => {
     document.title =
@@ -109,7 +120,7 @@ export default function Ventures() {
 
   const featured = (rows ?? []).filter((v) => v.featured);
   const rest = (rows ?? []).filter((v) => !v.featured);
-  // Featured ventures lead the masonry; the first gets the big feature tile.
+  // Featured ventures lead the gallery; then the rest, in order.
   const all = [...featured, ...rest];
   const total = rows?.length ?? 0;
   const launched = (rows ?? []).filter(
@@ -156,8 +167,10 @@ export default function Ventures() {
             reduce={!!reduce}
           />
 
-          {/* The portfolio — a bento masonry; each venture wears its sector colour */}
-          <VentureMasonry ventures={all} reduce={!!reduce} />
+          {/* The portfolio — a quiet editorial gallery: one uniform full-width
+              card per venture (cover on top → title → tagline → metadata badges →
+              case-study cue), mirroring the homepage VenturesShowcase. */}
+          <VentureGallery ventures={all} cms={metricsCms} lang={lang} reduce={!!reduce} />
 
           {/* Terminal CTA — your venture is the next line */}
           <ClosingCTA />
@@ -312,141 +325,169 @@ function StatBox({ value, label, hint }: { value: ReactNode; label: string; hint
   );
 }
 
-// ── Bento masonry — every venture as a colour-identity card (per-sector hue),
-// the first wearing the big feature tile. Sizes cycle to make a varied, premium
-// grid; grid-auto-flow dense packs it. The /ventures/:id link + venture-card-*
-// testid are preserved. ──
-const BENTO_SEQ = ["feature", "tall", "tall", "medium", "small", "medium", "small"];
-function bentoSize(i: number): string {
-  return i < BENTO_SEQ.length ? BENTO_SEQ[i] : BENTO_SEQ[3 + ((i - 3) % 4)];
+// ── Metrics come ONLY from real, confirmed sources: the API `venture.metrics`
+//    field, or a CMS `venture_metrics` section (value = a JSON array of
+//    {v,ar,en}, keyed by venture id or name). If neither is set, the card shows
+//    NO metric pills — never an invented number. The owner adds real figures in
+//    the CMS and they appear automatically. (Mirrors VenturesShowcase honesty.) ──
+function resolveMetrics(v: Venture, cms: Record<string, string>): Metric[] {
+  if (v.metrics?.length) return v.metrics;
+  const raw = cms[String(v.id)] ?? cms[v.name];
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as Metric[];
+    } catch { /* malformed CMS value → show nothing, never invent */ }
+  }
+  return [];
 }
-const SIZE_CLASS: Record<string, string> = {
-  feature: "sm:col-span-2 lg:col-span-4 lg:row-span-2 min-h-[22rem] lg:min-h-0",
-  tall: "lg:col-span-2",
-  medium: "sm:col-span-2 lg:col-span-3",
-  small: "lg:col-span-2",
-};
 
-function VentureMasonry({ ventures, reduce }: { ventures: Venture[]; reduce: boolean }) {
+// ── The portfolio gallery — a calm, static editorial list. Every venture wears
+// the SAME uniform full-width card (cover on top → title → tagline → metadata
+// badges → case-study cue), stacked with generous gallery whitespace. A light,
+// staggered entrance (each card fades up as it enters view) rides on Reveal,
+// which double-gates on useReducedMotion internally. The /ventures/:id link and
+// the venture-card-* testid are preserved. ──
+function VentureGallery({
+  ventures,
+  cms,
+  lang,
+  reduce,
+}: {
+  ventures: Venture[];
+  cms: Record<string, string>;
+  lang: Lang;
+  reduce: boolean;
+}) {
+  const { t } = useLanguage();
   return (
-    <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 auto-rows-[clamp(10rem,15vw,13.5rem)] [grid-auto-flow:dense]">
+    <div className="mt-[clamp(3rem,6vw,5rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
       {ventures.map((v, i) => (
-        <VentureBentoCard key={v.id} v={v} size={bentoSize(i)} i={i} reduce={reduce} />
+        <VentureCard
+          key={v.id}
+          v={v}
+          index={i}
+          metrics={resolveMetrics(v, cms)}
+          lang={lang}
+          t={t}
+          reduce={reduce}
+        />
       ))}
     </div>
   );
 }
 
-function VentureBentoCard({
+// The uniform editorial card — identical for every venture. Cover leads on top
+// (16/9, generous), then a clean content block: large font-display title, the
+// tagline subtitle, a tidy metadata badge row, and the case-study cue. Calm and
+// minimal — no lift, no shadow flash: a restrained cover zoom + a slight arrow
+// slide only. The staggered reveal delay is disabled under reduced motion.
+function VentureCard({
   v,
-  size,
-  i,
+  index,
+  metrics,
+  lang,
+  t,
   reduce,
 }: {
   v: Venture;
-  size: string;
-  i: number;
+  index: number;
+  metrics: Metric[];
+  lang: Lang;
+  t: ReturnType<typeof useLanguage>["t"];
   reduce: boolean;
 }) {
-  const { lang, t } = useLanguage();
+  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
   const vid = ventureIdentity(v.sector, v.id);
-  const cover = v.coverUrl || frameFor(v.id);
-  const feature = size === "feature";
-  const small = size === "small";
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 22 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.7, delay: Math.min(i, 7) * 0.05, ease: EASE_OUT_EXPO }}
-      className={`will-change-transform [perspective:1000px] ${SIZE_CLASS[size]}`}
-    >
+    <Reveal as="div" delay={reduce ? 0 : 0.05 * Math.min(index, 8)}>
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`venture-card-${v.id}`}
-        className="group relative block h-full overflow-hidden rounded-[20px] ring-1 ring-white/10"
-        style={{ background: vid.gradient }}
+        className="group glass-panel-lg block p-3 transition-[border-color] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
         aria-label={v.name}
-        onMouseMove={(e) => {
-          if (reduce || window.matchMedia("(pointer: coarse)").matches) return;
-          const el = e.currentTarget;
-          const r = el.getBoundingClientRect();
-          const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
-          const ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
-          el.style.transition = "transform 0.1s ease-out";
-          el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget;
-          el.style.transition = "transform 0.5s cubic-bezier(0.16,1,0.3,1)";
-          el.style.transform = "";
-        }}
       >
-        <img
-          src={cover}
-          alt=""
-          loading="lazy"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
-          className="absolute inset-0 h-full w-full object-cover opacity-[0.45] transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:opacity-[0.62] group-hover:scale-[1.05]"
-        />
-        <div aria-hidden className="absolute inset-0 opacity-[0.28] mix-blend-soft-light" style={{ background: vid.gradient }} />
-        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(0deg, hsl(0 0% 4% / 0.95) 0%, hsl(0 0% 4% / 0.34) 58%, transparent 100%)" }} />
-        <div className="relative flex h-full flex-col justify-between p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-2">
-            <StagePill stage={v.stage} lang={lang} />
-            {v.foundedYear > 0 && (
-              <span className="text-white/55 text-[12px] tnum">{num(v.foundedYear, lang)}</span>
-            )}
+        <div className="relative aspect-[16/9] overflow-hidden rounded-[24px] ring-1 ring-white/10 bg-[#070707]">
+          <img
+            src={cover}
+            alt={v.name}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
+            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none group-hover:scale-[1.03]"
+          />
+          <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
+        </div>
+
+        {/* Content block — large title, tagline subtitle, metadata badges, cue. */}
+        <div className="px-[clamp(1.5rem,3vw,3.25rem)] pb-[clamp(2rem,3vw,3rem)] pt-[clamp(2rem,3vw,3rem)]">
+          <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2.2rem,4vw,3.6rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}>
+            {v.name}
+          </h3>
+          {v.tagline && (
+            <p className="mt-5 max-w-2xl font-display text-white/82" style={{ fontSize: "clamp(1.15rem,1.8vw,1.55rem)", lineHeight: 1.38, letterSpacing: "-0.015em" }}>
+              {v.tagline}
+            </p>
+          )}
+
+          <div className="mt-8">
+            <MetaBadges v={v} metrics={metrics} lang={lang} />
           </div>
-          <div>
-            {v.sector && (
-              <div className="mb-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal" style={{ color: vid.accent }}>
-                <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-                {v.sector}
-              </div>
-            )}
-            <h3
-              className="font-display font-bold text-white"
-              style={{ fontSize: feature ? "clamp(2rem,3.4vw,3.4rem)" : "clamp(1.3rem,2vw,1.9rem)", lineHeight: 1.02, letterSpacing: "-0.03em" }}
-            >
-              {v.name}
-            </h3>
-            {v.tagline && !small && (
-              <p className="mt-2 text-white/72 line-clamp-2" style={{ fontSize: feature ? "clamp(1rem,1.4vw,1.2rem)" : "14px", lineHeight: 1.5 }}>
-                {v.tagline}
-              </p>
-            )}
-            <div className="mt-3 flex items-center justify-between gap-2">
-              {v.founderName ? (
-                <span className="text-white/55 text-[12px] truncate">{v.founderName}</span>
-              ) : (
-                <span />
-              )}
-              <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white group-hover:text-primary transition-colors shrink-0">
-                {small ? t({ ar: "القصّة", en: "Story" }) : t({ ar: "القصّة الكاملة", en: "Full story" })}
-                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </span>
-            </div>
+
+          <div className="mt-8">
+            <CaseStudyCue t={t} />
           </div>
         </div>
       </Link>
-    </motion.div>
+    </Reveal>
   );
 }
 
-// Stage pill — launched/scaling = solid red (live in market), mvp = gold outline,
-// idea = quiet neutral. Mirrors the spec's stage colour language.
-function StagePill({ stage, lang }: { stage: VentureStage; lang: Lang }) {
-  const tone = stage === "launched" || stage === "scaling" ? "live" : stage === "mvp" ? "gold" : "idle";
-  const cls =
-    tone === "live"
-      ? "bg-primary text-white"
-      : tone === "gold"
-        ? "bg-sand-soft text-sand-bright ring-1 ring-sand/30"
-        : "bg-white/10 text-white/75 ring-1 ring-white/15";
+// MetaBadges — the tidy metadata row beneath the title: STAGE · SECTOR · FOUNDER
+// as small monochromatic pills, followed by any REAL metric figures as gold pill
+// badges (text-sand-bright, honesty preserved — an empty metrics list renders no
+// metric pills). Terracotta (primary) is the sole accent; the sector dot uses the
+// venture-identity hue only as a faint locating cue. A pill shows only if its
+// value is real (stage/sector/founder from the row, metrics from API/CMS).
+function MetaBadges({ v, metrics, lang }: { v: Venture; metrics: Metric[]; lang: Lang }) {
+  const vid = ventureIdentity(v.sector, v.id);
+  const stage = stageLabel(v.stage, lang);
+  const pill = "inline-flex items-center gap-2 h-8 px-3.5 rounded-full ring-1 ring-white/12 bg-white/[0.04] text-[11.5px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal";
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}`}>
-      {stageLabel(stage, lang)}
+    <div className="flex flex-wrap items-center gap-2.5">
+      {stage && <span className={`${pill} text-primary ring-primary/25 bg-primary/[0.06]`}>{stage}</span>}
+      {v.sector && (
+        <span className={`${pill} text-white/72`}>
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+          {v.sector}
+        </span>
+      )}
+      {v.founderName && (
+        <span className={`${pill} text-white/72 normal-case tracking-normal`}>
+          <span className="text-white/40">{lang === "ar" ? "المؤسِّس" : "Founder"}</span>
+          <span className="font-semibold text-white/85">{v.founderName}</span>
+        </span>
+      )}
+      {/* Real metric figures only — rendered as gold pill badges, never invented. */}
+      {metrics.map((m, i) => (
+        <span key={i} className={`${pill} text-white/72 normal-case tracking-normal`}>
+          <span className="font-display font-black tabular-nums text-sand-bright text-[14px] leading-none">{m.v}</span>
+          <span className="text-white/60">{lang === "ar" ? m.ar : m.en}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// The "enter the story" affordance — reads like opening a case study, not a
+// button. A slight arrow slide on hover (rtl:rotate-180); no big motion.
+function CaseStudyCue({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
+  return (
+    <span className="inline-flex items-center gap-3 text-[14px] font-bold text-white transition-colors group-hover:text-primary">
+      <span className="tracking-[0.02em] underline-offset-[6px] group-hover:underline decoration-primary/60 decoration-1">
+        {t({ ar: "دراسة الحالة", en: "Case study" })}
+      </span>
+      <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
     </span>
   );
 }
@@ -635,8 +676,9 @@ function ClosingCTA() {
   );
 }
 
-// Skeleton — mirrors the new editorial rhythm: a live-reading row, one large
-// feature block, then hairline rows. No card-deck grid.
+// Skeleton — mirrors the new gallery rhythm: a live-reading stat row, then a
+// stack of uniform full-width cards (16/9 cover placeholder + content lines),
+// spaced with the same generous gallery gap.
 function SkeletonVentures() {
   return (
     <div>
@@ -645,18 +687,22 @@ function SkeletonVentures() {
           <div key={i} className="h-12 w-40 rounded-lg bg-surface-2 animate-pulse" />
         ))}
       </div>
-      <div className="mt-[clamp(3.5rem,8vw,6rem)] h-[clamp(22rem,62vh,40rem)] rounded-[clamp(20px,2.5vw,32px)] bg-surface-2 border border-border-strong animate-pulse" />
-      <ul className="mt-[clamp(4rem,9vw,7rem)] border-t border-border-strong/60">
-        {[0, 1, 2, 3].map((i) => (
-          <li key={i} className="flex items-center gap-6 border-b border-border-strong/60 py-[clamp(1.5rem,3vw,2.5rem)]">
-            <div className="h-[clamp(4rem,8vw,6rem)] w-[clamp(6rem,12vw,9rem)] shrink-0 rounded-[14px] bg-surface-2 animate-pulse" />
-            <div className="flex-1 space-y-3">
-              <div className="h-8 w-2/3 rounded bg-surface-2 animate-pulse" />
-              <div className="h-4 w-1/3 rounded bg-surface-2 animate-pulse" />
+      <div className="mt-[clamp(3rem,6vw,5rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="glass-panel-lg p-3">
+            <div className="aspect-[16/9] rounded-[24px] bg-surface-2 animate-pulse" />
+            <div className="px-[clamp(1.5rem,3vw,3.25rem)] pb-[clamp(2rem,3vw,3rem)] pt-[clamp(2rem,3vw,3rem)] space-y-6">
+              <div className="h-12 w-2/3 rounded-lg bg-surface-2 animate-pulse" />
+              <div className="h-5 w-1/2 rounded bg-surface-2 animate-pulse" />
+              <div className="flex gap-2.5">
+                {[0, 1, 2].map((j) => (
+                  <div key={j} className="h-8 w-28 rounded-full bg-surface-2 animate-pulse" />
+                ))}
+              </div>
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
