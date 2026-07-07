@@ -49,9 +49,21 @@ export function FinalCTA() {
       }
     >
       <div style={DARK_TOKENS} className="container-ih">
-        <div className="max-w-3xl">
+        <div className="relative max-w-3xl">
+          {/* Soft terracotta→gold radial glow anchored behind the headline & CTA
+              area — a single low-opacity wash for depth, NOT a bright blob. Sits
+              under the copy, over the photo scrim. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-16 -top-10 bottom-[-4rem] -z-[1]"
+            style={{
+              background:
+                "radial-gradient(46% 52% at 22% 34%, hsl(var(--primary) / 0.14) 0%, transparent 68%), radial-gradient(38% 44% at 12% 78%, hsl(var(--accent-2) / 0.08) 0%, transparent 70%)",
+            }}
+          />
+
           {/* Hairline-accent eyebrow */}
-          <Reveal as="div" className="mb-6 flex items-center gap-3">
+          <Reveal as="div" index={0} className="mb-6 flex items-center gap-3">
             <span className="h-px w-9 bg-primary" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
               {t({ ar: "خطوتك الأخيرة", en: "Your last step" })}
@@ -59,8 +71,8 @@ export function FinalCTA() {
           </Reveal>
 
           {/* Monumental belief headline — the finale, a touch bigger than the
-              other sections. One crimson accent phrase. */}
-          <Reveal as="div" delay={0.05}>
+              other sections. One terracotta accent phrase. */}
+          <Reveal as="div" index={1}>
             <h2
               className="font-display text-white"
               style={{
@@ -78,7 +90,7 @@ export function FinalCTA() {
           </Reveal>
 
           {/* Tight sub */}
-          <Reveal as="div" delay={0.1}>
+          <Reveal as="div" index={2}>
             <p className="mt-7 max-w-xl text-[1.0625rem] lg:text-lg leading-[1.7] text-white/85">
               {t({
                 ar: "حاضنة كاملة — مجّانًا. قدّم اليوم، أو احجز مقعدك في المساحة وتعرّف علينا عن قرب.",
@@ -87,9 +99,9 @@ export function FinalCTA() {
             </p>
           </Reveal>
 
-          {/* CTAs — one decisive crimson primary, a glass secondary, a quiet
-              WhatsApp text link. Confident, generously spaced. */}
-          <Reveal as="div" delay={0.15}>
+          {/* CTAs — one decisive terracotta primary, a glass ghost secondary, a
+              quiet WhatsApp text link. Confident, generously spaced. */}
+          <Reveal as="div" index={3}>
             <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-5">
               <Link
                 href="/apply"
@@ -103,7 +115,7 @@ export function FinalCTA() {
               <Link
                 href="/book"
                 data-testid="final-cta-book"
-                className="glass-panel group inline-flex items-center justify-center gap-3 h-14 px-7 !rounded-full text-white font-semibold text-[14px] tracking-[-0.005em] transition-[transform,filter] duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+                className="group inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full text-white/90 font-semibold text-[14px] tracking-[-0.005em] bg-white/[0.04] border border-white/20 backdrop-blur-sm transition-[transform,color,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:text-white hover:bg-white/[0.08] hover:border-white/35 active:translate-y-0"
               >
                 {t({ ar: "احجز مقعدك", en: "Book a seat" })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
@@ -127,7 +139,7 @@ export function FinalCTA() {
 
         {/* Credibility row — kept, but faded quieter so it never competes with
             the CTAs. Restored to the dark register via the token reset above. */}
-        <Reveal as="div" delay={0.2}>
+        <Reveal as="div" index={4}>
           <div className="mt-14 lg:mt-16 border-t border-white/10 pt-9 lg:pt-10 opacity-80">
             <TrustStrip />
           </div>

@@ -114,11 +114,11 @@ function VentureCard({ v, index, metrics, lang, t }: { v: Venture; index: number
   const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
   const vid = ventureIdentity(v.sector, v.id);
   return (
-    <Reveal as="div" delay={0.04 * index}>
+    <Reveal as="div" index={index}>
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group glass-panel-lg block p-3 transition-[border-color] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
+        className="group glass-panel-lg block p-3 -translate-y-0 transition-[transform,border-color] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/20 motion-safe:hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
       >
         <div className="relative aspect-[16/9] overflow-hidden rounded-[24px] ring-1 ring-white/10 bg-[#070707]">
           <img
@@ -127,7 +127,7 @@ function VentureCard({ v, index, metrics, lang, t }: { v: Venture; index: number
             loading="lazy"
             decoding="async"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
-            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none group-hover:scale-[1.03]"
+            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none motion-safe:group-hover:scale-[1.03]"
           />
           <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
         </div>

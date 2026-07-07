@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountUp } from "@/hooks/use-count-up";
 import { api } from "@/lib/api";
 import { ParticleField } from "./ParticleField";
 
@@ -69,15 +70,36 @@ function KineticLine({
   return (
     <span className="block overflow-hidden pt-[0.14em] pb-[0.1em]">
       <motion.span
-        className={`block ${accent ? "text-primary" : ""}`}
+        className={`block will-change-transform ${accent ? "text-primary" : ""}`}
         initial={reduce ? false : { y: "115%" }}
         animate={{ y: 0 }}
-        transition={{ duration: 1.1, delay, ease: EASE_OUT_EXPO }}
+        transition={{ duration: 1.05, delay, ease: EASE_OUT_EXPO }}
       >
         {text}
       </motion.span>
     </span>
   );
+}
+
+// A single hero figure. When given a real numeric `target` (a live /numbers
+// value), it counts up 0→target once the bar has entered, then formats it in
+// the active locale (Arabic-Indic in AR). When the value is a non-numeric
+// display string ("100%", "80+", or a pre-fetch fallback), it renders as-is —
+// we NEVER count to an invented number. Reduced-motion → the real value, instant.
+function StatFigure({
+  target,
+  display,
+  active,
+  fmt,
+}: {
+  target: number | null;
+  display: string;
+  active: boolean;
+  fmt: (n: number) => string;
+}) {
+  const count = useCountUp(target ?? 0, 1200, active && target !== null);
+  if (target === null) return <>{display}</>;
+  return <>{fmt(count)}</>;
 }
 
 // The crimson object-word of the headline, cycling through the promise
@@ -138,6 +160,11 @@ export function Hero() {
       : { prefix: "نَحضن", words: ["مشاريعك", "أحلامك", "مستقبلك", "طاقاتك"], suffix: "في قلب غزّة." };
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
+  // Flips true one frame after mount — gates the stats count-up so it begins
+  // only once the bar itself has entered (after the headline cascade), matching
+  // the Apple "figures settle last" rhythm. Reduced-motion still shows real
+  // values instantly (useCountUp snaps regardless of this flag).
+  const [entered, setEntered] = useState(false);
   // Live community figures — same /numbers source NumbersBand uses, so the hero
   // can never contradict the "real numbers from our database" section below.
   const [live, setLive] = useState<{ members: number; seatsHosted: number } | null>(null);
@@ -155,6 +182,13 @@ export function Hero() {
     const id = setInterval(() => setStillIdx((i) => (i + 1) % stills.length), 5500);
     return () => clearInterval(id);
   }, [reduce, stills.length]);
+
+  // Kick the count-up shortly after the headline lines have risen, so the
+  // figures are the last thing to settle (Apple cadence). One-shot.
+  useEffect(() => {
+    const id = window.setTimeout(() => setEntered(true), 1150);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,10 +210,14 @@ export function Hero() {
   // Format a live count in the active locale (Arabic-Indic in AR, Western in EN)
   // so the hero stats read identically to NumbersBand and never disagree.
   const fmt = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
-  const stats = [
-    { v: live ? fmt(live.seatsHosted) : c.stat1Value, l: c.stat1Label },
-    { v: live ? fmt(live.members) : c.stat2Value, l: c.stat2Label },
-    { v: c.stat3Value, l: c.stat3Label },
+  // Each stat carries an optional real numeric `n` (only ever a live /numbers
+  // value) so it can count up; when `n` is null the display string renders
+  // verbatim — so the pre-fetch fallbacks and the non-numeric "100% free" never
+  // animate toward an invented figure.
+  const stats: { n: number | null; v: string; l: string }[] = [
+    { n: live ? live.seatsHosted : null, v: live ? fmt(live.seatsHosted) : c.stat1Value, l: c.stat1Label },
+    { n: live ? live.members : null, v: live ? fmt(live.members) : c.stat2Value, l: c.stat2Label },
+    { n: null, v: c.stat3Value, l: c.stat3Label },
   ].filter((s) => s.v || s.l);
 
   return (
@@ -189,11 +227,20 @@ export function Hero() {
       className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#060608] text-white"
     >
       {/* ── Full-bleed photography, kept sharp (the room's real energy is the
-          soul of the page). Slow Ken-Burns cross-fade between stills. ── */}
+          soul of the page). Two nested transform layers so they never fight:
+          the OUTER runs the one-shot entrance (scale 1.05→1 + fade in over ~1s
+          on first mount), the INNER carries the scroll-driven Ken-Burns
+          (parallax + zoom). Reduced-motion → outer holds static at scale 1. ── */}
+      <motion.div
+        className="absolute inset-0 will-change-transform"
+        aria-hidden
+        initial={reduce ? false : { scale: 1.05, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1, ease: EASE_OUT_EXPO }}
+      >
       <motion.div
         style={{ y: photoY, scale: photoScale }}
         className="absolute inset-0 will-change-transform"
-        aria-hidden
       >
         {stills.map((src, i) => (
           <motion.img
@@ -216,6 +263,7 @@ export function Hero() {
           />
         ))}
       </motion.div>
+      </motion.div>
 
       {/* ── Cinematic scrim — sharp in the middle (image breathes), dark only at
           the top (behind the nav) and bottom (behind stats/CTAs). Much lighter
@@ -225,7 +273,17 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.06) 46%, rgba(6,6,10,0.42) 78%, rgba(6,6,10,0.9) 100%)",
+              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.06) 46%, rgba(6,6,10,0.50) 74%, rgba(6,6,10,0.82) 88%, rgba(6,6,10,0.97) 100%)",
+          }}
+        />
+        {/* Extra deep, tight scrim hugging the very bottom edge so the live
+            stats bar keeps razor WCAG-AA contrast even over the brightest photo
+            regions — kept below the top/side scrims so the image still breathes. */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-[34%]"
+          style={{
+            background:
+              "linear-gradient(180deg, transparent 0%, rgba(6,6,10,0.34) 42%, rgba(6,6,10,0.78) 100%)",
           }}
         />
         {/* Focused directional scrim behind the headline (right side in RTL) so
@@ -326,42 +384,53 @@ export function Hero() {
         </div>
       </motion.div>
 
-      {/* ── Slim proof bar: three real figures + a quiet scroll cue. ── */}
-      <motion.div
-        initial={{ y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.05, duration: 1, ease: EASE_OUT_EXPO }}
-        className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9"
-      >
+      {/* ── Slim proof bar: three real figures + a quiet scroll cue. Enters
+          AFTER the headline, each figure on a gentle ~80ms stagger, the numeric
+          values counting up once from 0 to the live /numbers value. ── */}
+      <div className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9">
         <div className="container-ih">
           <div className="flex items-end justify-between gap-6">
-            <div className="flex items-stretch gap-0">
+            <motion.div
+              className="flex items-stretch gap-0"
+              initial={reduce ? false : "hidden"}
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { delayChildren: 1.0, staggerChildren: 0.08 } },
+              }}
+            >
               {stats.map((s, i) => (
-                <div
+                <motion.div
                   key={`${s.l}-${i}`}
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    visible: { opacity: 1, y: 0, transition: { duration: DURATION.lg, ease: EASE_OUT_EXPO } },
+                  }}
                   className={`flex flex-col justify-end px-5 lg:px-7 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
                 >
-                  <div className="t-h2 !text-white tnum leading-none">
-                    {s.v}
+                  <div className="t-h2 !text-sand-bright tnum leading-none">
+                    <StatFigure target={s.n} display={s.v} active={entered} fmt={fmt} />
                   </div>
                   <div className="text-[11px] text-white/65 mt-2 font-medium tracking-wide">
                     {s.l}
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
+            {/* Quiet scroll cue — a gentle synchronized bob + opacity breathe
+                (motion-safe). Reduced-motion holds it still and fully visible. */}
             <motion.div
-              animate={reduce ? undefined : { y: [0, 6, 0] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-              className="hidden md:flex flex-col items-center gap-2 text-white/60"
+              animate={reduce ? undefined : { y: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              className="hidden md:flex flex-col items-center gap-2 text-white/60 will-change-transform"
             >
               <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
               <ArrowDown className="w-4 h-4" />
             </motion.div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

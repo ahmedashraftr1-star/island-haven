@@ -1,16 +1,46 @@
+import { useEffect, useState } from "react";
 import { ShieldCheck, Gift, Users, Globe2, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { api } from "@/lib/api";
 
 type Item = { icon: LucideIcon; value: string; label: string };
+
+const toArabicDigits = (s: string) => s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 
 /**
  * TrustStrip — a compact row of credibility indicators (icon + value + label),
  * placed near a primary CTA to build trust the way the reference site does
  * ("active since X · 100% free · N members · global network"). On-brand: cerulean
  * icon chips on the dark canvas, tabular figures. Reusable + bilingual + RTL-safe.
+ *
+ * HONESTY: the community-members figure is the REAL live count from `/numbers`
+ * (never a hardcoded/invented number). Until it loads — or if the fetch fails —
+ * the numeric member item is simply omitted rather than showing a fabricated one.
  */
 export function TrustStrip({ className = "" }: { className?: string }) {
   const { t, lang } = useLanguage();
+  const [members, setMembers] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api<{ numbers: { members: number } }>("/numbers")
+      .then((r) => {
+        if (!cancelled) setMembers(r.numbers?.members ?? null);
+      })
+      .catch(() => {
+        /* fetch failed → the member item stays hidden; never invent a number. */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const membersValue =
+    members != null && members > 0
+      ? lang === "en"
+        ? `${members}+`
+        : `${toArabicDigits(String(members))}+`
+      : null;
 
   const items: Item[] = [
     {
@@ -23,11 +53,16 @@ export function TrustStrip({ className = "" }: { className?: string }) {
       value: lang === "en" ? "100%" : "١٠٠٪",
       label: t({ ar: "مجّانًا للأعضاء", en: "Free for members" }),
     },
-    {
-      icon: Users,
-      value: lang === "en" ? "80+" : "٨٠+",
-      label: t({ ar: "عضو في المجتمع", en: "Community members" }),
-    },
+    // Real live member count only — omitted entirely until it resolves.
+    ...(membersValue
+      ? [
+          {
+            icon: Users,
+            value: membersValue,
+            label: t({ ar: "عضو في المجتمع", en: "Community members" }),
+          },
+        ]
+      : []),
     {
       icon: Globe2,
       value: t({ ar: "عالميّة", en: "Global" }),

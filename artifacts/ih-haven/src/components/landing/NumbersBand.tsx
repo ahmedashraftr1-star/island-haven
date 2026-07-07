@@ -181,7 +181,7 @@ export function NumbersBand() {
               {rest.map((s, i) => (
                 <Reveal
                   key={s.key}
-                  delay={0.08 + i * 0.06}
+                  index={i}
                   className="flex flex-1 items-center justify-between gap-6 py-[clamp(1rem,2vw,1.75rem)]"
                 >
                   <div className="min-w-0">

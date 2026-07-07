@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,7 +24,7 @@ interface FMember {
  *  shows a broken/empty section. */
 export function FeaturedMembers() {
   const { t } = useLanguage();
-  const reduce = useReducedMotion();
+  useReducedMotion();
   const [members, setMembers] = useState<FMember[] | null>(null);
 
   useEffect(() => {
@@ -89,18 +89,14 @@ export function FeaturedMembers() {
             return (
               <Reveal
                 key={m.id}
-                delay={i * 0.05}
+                index={i}
                 className={featured ? "col-span-2 lg:row-span-2" : ""}
               >
-                <motion.div
-                  whileHover={reduce ? undefined : { y: -4 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
-                  className="h-full"
-                >
+                <div className="h-full">
                   <Link
                     href={`/u/${m.id}`}
                     style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
-                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]`}
+                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 motion-safe:hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]`}
                   >
                     <div className={`flex items-center gap-4 ${featured ? "lg:flex-col lg:items-start lg:gap-6" : ""}`}>
                       {m.avatarUrl ? (
@@ -142,7 +138,7 @@ export function FeaturedMembers() {
                       <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
                     </span>
                   </Link>
-                </motion.div>
+                </div>
               </Reveal>
             );
           })}

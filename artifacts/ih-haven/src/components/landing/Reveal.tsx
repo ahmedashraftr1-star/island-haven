@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { DURATION, EASE_OUT_EXPO, VIEWPORT } from "@/lib/motion";
+import { EASE_OUT_EXPO, REVEAL, VIEWPORT } from "@/lib/motion";
 
 type RevealAs = "div" | "section" | "article" | "header" | "footer" | "li" | "p" | "span";
 
@@ -14,6 +14,8 @@ type RevealProps = {
   as?: RevealAs;
   className?: string;
   id?: string;
+  /** Auto-stagger within a group: adds index × REVEAL.stagger (~80ms) to delay. */
+  index?: number;
 };
 
 /**
@@ -28,27 +30,30 @@ type RevealProps = {
 export function Reveal({
   children,
   delay = 0,
-  distance = 28,
-  duration = DURATION.md,
+  distance = REVEAL.distance,
+  duration = REVEAL.duration,
   once = true,
   amount = VIEWPORT.amount,
   as = "div",
   className,
   id,
+  index = 0,
 }: RevealProps) {
   const reduce = useReducedMotion();
   const Tag = motion[as] as typeof motion.div;
   const [forced, setForced] = useState(false);
   const fired = useRef(false);
+  // Grouped children cascade at ~80ms each (Apple-calm stagger).
+  const totalDelay = delay + index * REVEAL.stagger;
 
   // Failsafe: if the observer hasn't fired within a short window, reveal anyway
   // so the section can never be stuck at opacity 0.
   useEffect(() => {
     const t = window.setTimeout(() => {
       if (!fired.current) setForced(true);
-    }, 1200 + delay * 1000);
+    }, 1200 + totalDelay * 1000);
     return () => window.clearTimeout(t);
-  }, [delay]);
+  }, [totalDelay]);
 
   // Reduced motion → render the final (visible) state immediately, no fade.
   const hidden = reduce ? { opacity: 1 } : { opacity: 0, y: distance };
@@ -64,7 +69,7 @@ export function Reveal({
         fired.current = true;
       }}
       viewport={{ once, amount, margin: VIEWPORT.margin }}
-      transition={{ duration, delay, ease: EASE_OUT_EXPO }}
+      transition={{ duration, delay: totalDelay, ease: EASE_OUT_EXPO }}
       style={{ willChange: "transform, opacity" }}
       className={className}
     >

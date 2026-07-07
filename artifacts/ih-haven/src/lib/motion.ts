@@ -23,6 +23,16 @@ export const DURATION = {
   xl: 0.85,
 } as const;
 
+/* ── THE canonical Apple-calm entrance — the ONE reveal used site-wide via
+   <Reveal> and useReveal(): opacity 0→1 + translateY 16→0, ~600ms, expo-out,
+   ~80ms stagger between siblings. Central so tuning happens in one place. ── */
+export const REVEAL = {
+  duration: 0.6,
+  distance: 16,
+  stagger: 0.08,
+  ease: EASE_OUT_EXPO,
+} as const;
+
 export const fadeUp = (delay = 0, distance = 16): Variants => ({
   hidden: { opacity: 0, y: distance },
   visible: {

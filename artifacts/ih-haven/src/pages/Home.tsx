@@ -43,6 +43,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
       <ScrollProgress />
+      {/* Barely-perceptible material grain — a static fractal-noise veil over the
+          dark canvas for a premium "material" depth. aria-hidden, never clickable,
+          static (reduced-motion safe), and z-0 so it sits above the background yet
+          under the z-10 content. Kept ultra-low opacity: felt, not seen. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0 mix-blend-soft-light opacity-[0.025]"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+        }}
+      />
       <Header />
       <div className="relative z-10">
         {/* Deliberate narrative in 5 acts (expert-panel IA). Act markers make the
