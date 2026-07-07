@@ -463,33 +463,35 @@
    users get a solid fallback (no blur).
    ============================================================ */
 @utility glass-panel {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.075) 0%, hsl(0 0% 100% / 0.03) 100%);
-  backdrop-filter: blur(20px) saturate(1.35);
-  -webkit-backdrop-filter: blur(20px) saturate(1.35);
-  border: 1px solid hsl(0 0% 100% / 0.12);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.12) 0%, hsl(0 0% 100% / 0.05) 100%);
+  backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  border: 1px solid hsl(0 0% 100% / 0.2);
   border-radius: 24px;
-  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.14), inset 0 0 0 1px hsl(0 0% 100% / 0.02), 0 24px 60px -28px hsl(0 0% 0% / 0.7);
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.28), inset 0 0 0 1px hsl(0 0% 100% / 0.04), 0 26px 64px -26px hsl(0 0% 0% / 0.66);
 }
 @utility glass-panel-lg {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.09) 0%, hsl(0 0% 100% / 0.035) 100%);
-  backdrop-filter: blur(28px) saturate(1.4);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4);
-  border: 1px solid hsl(0 0% 100% / 0.14);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.14) 0%, hsl(0 0% 100% / 0.055) 100%);
+  backdrop-filter: blur(30px) saturate(2) brightness(1.1);
+  -webkit-backdrop-filter: blur(30px) saturate(2) brightness(1.1);
+  border: 1px solid hsl(0 0% 100% / 0.22);
   border-radius: 32px;
-  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.16), 0 40px 90px -40px hsl(0 0% 0% / 0.75);
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.3), 0 44px 96px -38px hsl(0 0% 0% / 0.7);
 }
 @utility glass-rail {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.05) 0%, hsl(0 0% 100% / 0.02) 100%);
-  backdrop-filter: blur(16px) saturate(1.25);
-  -webkit-backdrop-filter: blur(16px) saturate(1.25);
-  border-block: 1px solid hsl(0 0% 100% / 0.08);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.08) 0%, hsl(0 0% 100% / 0.03) 100%);
+  backdrop-filter: blur(18px) saturate(1.6) brightness(1.06);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6) brightness(1.06);
+  border-block: 1px solid hsl(0 0% 100% / 0.12);
 }
-/* Ambient depth — a soft, slow-breathing light field behind the panels so
-   the dark canvas reads as lit space, not flat black (the Vision Pro cue). */
+/* Ambient depth — a VIVID, colourful light field behind the panels so the dark
+   canvas reads as a lit, living space (the Vision Pro cue). Kills the "muddy
+   dark-on-dark" flatness: strong terracotta + gold + a cool counter-light. */
 @utility glass-ambient {
   background:
-    radial-gradient(60% 50% at 78% 8%, hsl(12 70% 52% / 0.10) 0%, transparent 60%),
-    radial-gradient(55% 45% at 12% 96%, hsl(38 48% 60% / 0.06) 0%, transparent 62%);
+    radial-gradient(52% 44% at 82% 4%, hsl(12 88% 56% / 0.26) 0%, transparent 56%),
+    radial-gradient(48% 40% at 8% 100%, hsl(38 80% 60% / 0.18) 0%, transparent 58%),
+    radial-gradient(70% 60% at 50% 46%, hsl(222 70% 46% / 0.09) 0%, transparent 72%);
 }
 @media (prefers-reduced-transparency: reduce) {
   .glass-panel, .glass-panel-lg, .glass-rail {

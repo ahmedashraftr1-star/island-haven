@@ -20,17 +20,17 @@ type Scrim = "light" | "medium" | "heavy";
 // frames) + dark at the bottom (behind stats/CTAs), sharp in the middle.
 const VERTICAL: Record<Scrim, string> = {
   light:
-    "linear-gradient(180deg, rgba(6,6,10,0.46) 0%, rgba(6,6,10,0.12) 34%, rgba(6,6,10,0.40) 72%, rgba(6,6,10,0.86) 100%)",
+    "linear-gradient(180deg, rgba(6,6,10,0.36) 0%, rgba(6,6,10,0.05) 38%, rgba(6,6,10,0.28) 74%, rgba(6,6,10,0.80) 100%)",
   medium:
-    "linear-gradient(180deg, rgba(6,6,10,0.66) 0%, rgba(6,6,10,0.24) 34%, rgba(6,6,10,0.52) 70%, rgba(6,6,10,0.93) 100%)",
+    "linear-gradient(180deg, rgba(6,6,10,0.5) 0%, rgba(6,6,10,0.13) 38%, rgba(6,6,10,0.40) 72%, rgba(6,6,10,0.88) 100%)",
   heavy:
-    "linear-gradient(180deg, rgba(6,6,10,0.82) 0%, rgba(6,6,10,0.48) 30%, rgba(6,6,10,0.66) 66%, rgba(6,6,10,0.96) 100%)",
+    "linear-gradient(180deg, rgba(6,6,10,0.66) 0%, rgba(6,6,10,0.28) 32%, rgba(6,6,10,0.52) 68%, rgba(6,6,10,0.92) 100%)",
 };
 
 // Directional scrim toward the logical-start edge (right in RTL) where headlines
 // sit, so text stays crisp while the far side of the frame stays open.
 const SIDE =
-  "linear-gradient(270deg, rgba(6,6,10,0.70) 0%, rgba(6,6,10,0.32) 48%, transparent 82%)";
+  "linear-gradient(270deg, rgba(6,6,10,0.58) 0%, rgba(6,6,10,0.22) 50%, transparent 84%)";
 
 type CinematicMediaProps = {
   /** already-resolved image url (pass through imageUrl() for stored paths) */
@@ -89,7 +89,7 @@ export function CinematicMedia({
           alt={alt}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          className={`absolute inset-0 w-full h-full object-cover saturate-[1.06] contrast-[1.04] ${imgClassName}`}
+          className={`absolute inset-0 w-full h-full object-cover saturate-[1.22] contrast-[1.1] brightness-[1.06] ${imgClassName}`}
         />
       </motion.div>
 

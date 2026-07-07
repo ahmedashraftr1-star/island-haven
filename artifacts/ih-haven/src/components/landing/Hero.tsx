@@ -208,7 +208,7 @@ export function Hero() {
               opacity: { duration: 1.6, ease: [0.16, 1, 0.3, 1] },
               scale: { duration: 7, ease: "linear" },
             }}
-            className="absolute inset-0 w-full h-full object-cover saturate-[1.06] contrast-[1.04]"
+            className="absolute inset-0 w-full h-full object-cover saturate-[1.24] contrast-[1.12] brightness-[1.08]"
             loading={i === 0 ? "eager" : "lazy"}
             decoding="async"
             {...(i === 0 ? { fetchPriority: "high" as any } : {})}
@@ -224,7 +224,7 @@ export function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(6,6,10,0.80) 0%, rgba(6,6,10,0.44) 17%, rgba(6,6,10,0.12) 46%, rgba(6,6,10,0.52) 78%, rgba(6,6,10,0.93) 100%)",
+              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.06) 46%, rgba(6,6,10,0.42) 78%, rgba(6,6,10,0.9) 100%)",
           }}
         />
         {/* Focused directional scrim behind the headline (right side in RTL) so
