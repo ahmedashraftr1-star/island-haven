@@ -18,9 +18,12 @@ const FALLBACK = {
   ctaPrimaryHref: "/apply",
   bookCtaLabel: "احجز مقعدك",
   scrollLabel: "Scroll",
-  stat1Value: "٣٩",
+  // Live-numeric stats have NO fabricated fallback — the real /numbers value
+  // fills them in (counting up); until then only the label shows. Never a
+  // hardcoded/inflated figure. stat3 (100% free) is an always-true constant.
+  stat1Value: "",
   stat1Label: "مقعد",
-  stat2Value: "٨٠+",
+  stat2Value: "",
   stat2Label: "منتسب",
   stat3Value: "١٠٠٪",
   stat3Label: "مجّانيّ",
@@ -41,9 +44,9 @@ const EN_FALLBACK = {
   ctaPrimaryHref: "/apply",
   bookCtaLabel: "Book a Seat",
   scrollLabel: "Scroll",
-  stat1Value: "39",
+  stat1Value: "",
   stat1Label: "seats",
-  stat2Value: "80+",
+  stat2Value: "",
   stat2Label: "members",
   stat3Value: "100%",
   stat3Label: "free",
