@@ -42,6 +42,7 @@ import jobsRouter from "./jobs";
 import newsletterRouter from "./newsletter";
 import investorsRouter from "./investors";
 import tasksRouter from "./tasks";
+import attendanceRouter from "./attendance";
 
 const router: IRouter = Router();
 
@@ -88,5 +89,6 @@ router.use(jobsRouter);
 router.use(newsletterRouter);
 router.use(investorsRouter);
 router.use(tasksRouter);
+router.use(attendanceRouter);
 
 export default router;

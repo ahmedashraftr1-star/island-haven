@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { imageUrl } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
@@ -18,15 +19,22 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  * backdrop + the site's dark-glass material). Occupied seats are filled terracotta;
  * available seats are a faint glass outline that gently brightens on hover.
  *
- * HONESTY: the occupied count is derived ONLY from REAL figures polled from
- * `/numbers` — the greater of real active bookings and seats hosted, hard-clamped
- * to the 50-seat capacity. Nothing is ever invented: if the API fails we fall back
- * to the same modest real number used across the site (seatsHosted 6). The board
- * says exactly what is true: "50 seats · {taken} taken · {free} free right now".
+ * HONESTY: the occupied count is derived ONLY from REAL figures. The primary
+ * source is the PUBLIC `/attendance/summary` endpoint — `assignedCount` drives the
+ * seats shown occupied and `presentCount` surfaces a live "present now" figure (no
+ * names, ever — privacy). If that endpoint fails OR reports zero assigned seats, we
+ * gracefully fall back to the modest real `/numbers`-based occupancy so the board is
+ * never blank. Nothing is invented: the caption says exactly what is true —
+ * "50 seats · {assigned} taken · {present} present now · {free} free · no fake number".
+ *
+ * SELF CHECK-IN: a logged-in member (via useAuth) additionally sees a tasteful
+ * check-in card driven by the MEMBER `/attendance/me` endpoint — toggling
+ * check-in/check-out against their own assigned seat. Logged-out visitors see only
+ * the public board (no login prompt). Per-seat tooltips stay status+number only.
  *
  * Motion is GPU-only (transform + opacity) and fully reduced-motion safe: the seat
  * stagger and hover brighten both collapse to static under reduced motion. No eval,
- * no innerHTML, no network beyond the single /numbers fetch, no external libs.
+ * no innerHTML, no external libs.
  */
 
 const TOTAL_SEATS = 50;
@@ -50,6 +58,24 @@ function takenFromNumbers(n: Pick<Numbers, "seatsHosted" | "bookings"> | null): 
   if (!n) return Math.min(TOTAL_SEATS, FALLBACK_SEATS_HOSTED);
   const real = Math.max(n.seatsHosted ?? 0, n.bookings ?? 0);
   return Math.max(0, Math.min(TOTAL_SEATS, real));
+}
+
+/** Public presence snapshot — never carries names, only honest aggregate counts. */
+interface AttendanceSummary {
+  totalSeats: number;
+  assignedCount: number;
+  presentCount: number;
+}
+
+/** The signed-in member's own attendance state (member-only endpoint). */
+interface AttendanceMe {
+  seat: number | null;
+  present: boolean;
+  since: string | null;
+}
+
+function clampCount(v: unknown): number {
+  return Math.max(0, Math.min(TOTAL_SEATS, Math.trunc(Number(v) || 0)));
 }
 
 function Seat({
@@ -140,17 +166,188 @@ function Seat({
   );
 }
 
+/**
+ * CheckInCard — the member-only self check-in / check-out control.
+ *
+ * Rendered ONLY when a member is logged in. Reads the member's own attendance
+ * from `/attendance/me` and lets them toggle presence against THEIR assigned seat.
+ * Optimistic UX with refetch-on-settle; the toggle button is disabled while a
+ * request is in flight. The present state is announced via aria-live so screen
+ * readers hear the change. Terracotta is the sole accent; dark-glass material.
+ *
+ * onPresenceChange lets the parent refetch the public summary so the board's
+ * "present now" figure reflects this member's own check-in immediately.
+ */
+function CheckInCard({
+  fmt,
+  onPresenceChange,
+}: {
+  fmt: (v: number) => string;
+  onPresenceChange: () => void;
+}) {
+  const { t, lang } = useLanguage();
+  const [me, setMe] = useState<AttendanceMe | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(() => {
+    let cancelled = false;
+    api<AttendanceMe>("/attendance/me")
+      .then((r) => {
+        if (cancelled) return;
+        setMe(r);
+        setError(false);
+      })
+      .catch(() => !cancelled && setError(true))
+      .finally(() => !cancelled && setLoaded(true));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => load(), [load]);
+
+  const toggle = useCallback(async () => {
+    if (pending || !me || me.seat == null) return;
+    setPending(true);
+    setError(false);
+    const goingIn = !me.present;
+    try {
+      const r = await api<Partial<AttendanceMe>>(
+        goingIn ? "/attendance/check-in" : "/attendance/check-out",
+        { method: "POST" },
+      );
+      // Optimistically merge the server's authoritative reply.
+      setMe((prev) =>
+        prev
+          ? {
+              seat: r.seat ?? prev.seat,
+              present: r.present ?? goingIn,
+              since: goingIn ? r.since ?? new Date().toISOString() : null,
+            }
+          : prev,
+      );
+      onPresenceChange();
+    } catch {
+      setError(true);
+    } finally {
+      setPending(false);
+    }
+  }, [pending, me, onPresenceChange]);
+
+  // Nothing to show until the first load settles (avoids a flash of the card).
+  if (!loaded) return null;
+
+  // Endpoint failed — stay quiet rather than showing a broken control.
+  if (error && !me) return null;
+
+  const sinceLabel = (() => {
+    if (!me?.since) return null;
+    const d = new Date(me.since);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleTimeString(lang === "en" ? "en-US" : "ar-EG-u-nu-arab", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  })();
+
+  return (
+    <div className="mt-[clamp(1rem,2vw,1.5rem)] glass-panel p-[clamp(1rem,2vw,1.35rem)]">
+      {me && me.seat != null ? (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span className="text-[12px] font-medium uppercase tracking-[0.14em] text-white/55">
+                {t({ ar: "مقعدك", en: "Your seat" })}
+              </span>
+              <span className="font-display font-black tabular-nums text-sand-bright text-[1.35rem] leading-none">
+                {t({ ar: "رقم ", en: "#" })}
+                {fmt(me.seat)}
+              </span>
+            </div>
+            {/* Live presence state — announced to assistive tech on change. */}
+            <p aria-live="polite" className="mt-1.5 text-[13px] text-white/70">
+              {me.present ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span aria-hidden className="h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.8)]" />
+                  <span className="text-primary font-medium">
+                    {t({ ar: "أنت حاضر الآن", en: "You're present now" })}
+                  </span>
+                  {sinceLabel && (
+                    <span className="text-white/45">
+                      {t({ ar: " · منذ ", en: " · since " })}
+                      <span className="tabular-nums">{sinceLabel}</span>
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <span className="text-white/60">
+                  {t({ ar: "أنت غير مسجَّل الحضور", en: "You're checked out" })}
+                </span>
+              )}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={toggle}
+            disabled={pending}
+            aria-busy={pending ? true : undefined}
+            className={
+              "inline-flex shrink-0 items-center justify-center gap-2 h-11 px-6 rounded-full font-bold text-[14px] tracking-[-0.005em] transition-[transform,background-color,box-shadow,opacity] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-60 motion-safe:hover:-translate-y-0.5 active:translate-y-0 " +
+              (me.present
+                ? // Check-out — quiet glass so "leaving" isn't the loud action.
+                  "bg-white/[0.06] text-white ring-1 ring-inset ring-white/25 hover:bg-white/[0.12] hover:ring-white/40"
+                : // Check-in — terracotta fill, the sole accent.
+                  "cta-fill shadow-[0_18px_44px_-16px_hsl(354_82%_40%/0.6)]")
+            }
+          >
+            {pending
+              ? t({ ar: "لحظة…", en: "One moment…" })
+              : me.present
+                ? t({ ar: "سجّل انصرافك", en: "Check out" })
+                : t({ ar: "سجّل حضورك", en: "Check in" })}
+          </button>
+        </div>
+      ) : (
+        // Logged in but no seat assigned — an honest, quiet line. No CTA.
+        <p className="text-[13.5px] leading-relaxed text-white/60">
+          {t({
+            ar: "لم يُخصَّص لك مقعد بعد — تواصل مع إدارة المساحة.",
+            en: "No seat has been assigned to you yet — please contact the space management.",
+          })}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function SeatsBoard() {
   const { t, lang } = useLanguage();
+  const { user } = useAuth();
   const reduce = !!useReducedMotion();
   const locale = lang === "ar" ? "ar-EG" : "en-US";
 
   const [nums, setNums] = useState<Numbers | null>(null);
+  const [summary, setSummary] = useState<AttendanceSummary | null>(null);
 
-  // Poll the real figures so the board reflects live availability.
+  // Pull the public presence summary. Extracted so a member's own check-in can
+  // refetch it on demand (keeping "present now" honest and immediate).
+  const refreshSummary = useCallback(() => {
+    api<AttendanceSummary>("/attendance/summary")
+      .then((r) => setSummary(r))
+      // On failure we keep the /numbers-based fallback below — no invention.
+      .catch(() => setSummary(null));
+  }, []);
+
+  // Poll the real figures so the board reflects live availability. Two honest
+  // sources, both public: `/attendance/summary` (preferred — real presence) with
+  // `/numbers` as an always-available fallback so the board is never blank.
   useEffect(() => {
     let cancelled = false;
-    const pull = () =>
+    const pull = () => {
       api<{ numbers: Numbers }>("/numbers")
         .then((r) => !cancelled && setNums(r.numbers))
         .catch(() => {
@@ -167,16 +364,25 @@ export function SeatsBoard() {
               },
             );
         });
+      if (!cancelled) refreshSummary();
+    };
     pull();
     const id = setInterval(pull, 20000);
     return () => {
       cancelled = true;
       clearInterval(id);
     };
-  }, []);
+  }, [refreshSummary]);
 
-  const taken = takenFromNumbers(nums);
+  // Occupancy: prefer the real attendance summary when it reports any assigned
+  // seat; otherwise gracefully fall back to the /numbers-derived count.
+  const summaryAssigned = summary ? clampCount(summary.assignedCount) : 0;
+  const taken = summaryAssigned > 0 ? summaryAssigned : takenFromNumbers(nums);
   const free = TOTAL_SEATS - taken;
+  // "Present now" is only ever shown when the real endpoint provides it; it can
+  // never exceed the assigned seats. Null when unknown (we never fabricate it).
+  const present =
+    summary != null ? Math.min(clampCount(summary.presentCount), taken) : null;
   const seats = useMemo(
     () => Array.from({ length: TOTAL_SEATS }, (_, i) => i < taken),
     [taken],
@@ -247,6 +453,15 @@ export function SeatsBoard() {
                     {t({ ar: "مشغول", en: "taken" })}
                   </span>
                 </span>
+                {present != null && (
+                  <span className="inline-flex items-center gap-2.5">
+                    <span aria-hidden className="h-3 w-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.7)] ring-1 ring-inset ring-primary/60" />
+                    <span className="text-white/85">
+                      <span className="font-display font-bold text-primary tabular-nums">{fmt(present)}</span>{" "}
+                      {t({ ar: "حاضر الآن", en: "present now" })}
+                    </span>
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-2.5">
                   <span aria-hidden className="h-3 w-3 rounded-[4px] bg-white/[0.06] ring-1 ring-inset ring-white/30" />
                   <span className="text-white/85">
@@ -283,8 +498,17 @@ export function SeatsBoard() {
                   {t({ ar: "مقعد", en: "seats" })}
                   <span className="text-white/40"> · </span>
                   <span className="tabular-nums text-white">{fmt(taken)}</span> {t({ ar: "مشغول", en: "taken" })}
+                  {present != null && (
+                    <>
+                      <span className="text-white/40"> · </span>
+                      <span className="tabular-nums text-primary">{fmt(present)}</span>{" "}
+                      <span className="text-primary/90">{t({ ar: "حاضر الآن", en: "present now" })}</span>
+                    </>
+                  )}
                   <span className="text-white/40"> · </span>
-                  <span className="tabular-nums text-white">{fmt(free)}</span> {t({ ar: "متاح الآن", en: "free now" })}
+                  <span className="tabular-nums text-white">{fmt(free)}</span> {t({ ar: "متاح", en: "free" })}
+                  <span className="text-white/40"> · </span>
+                  <span className="text-white/55">{t({ ar: "لا رقم مُختلَق", en: "no fake number" })}</span>
                 </span>
               </div>
 
@@ -293,8 +517,8 @@ export function SeatsBoard() {
               <div
                 role="group"
                 aria-label={t({
-                  ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول و${fmt(free)} متاح الآن`,
-                  en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken and ${fmt(free)} available now`,
+                  ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول${present != null ? ` و${fmt(present)} حاضر الآن` : ""} و${fmt(free)} متاح الآن`,
+                  en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken${present != null ? `, ${fmt(present)} present now` : ""} and ${fmt(free)} available now`,
                 })}
                 className="grid gap-[clamp(0.4rem,1vw,0.65rem)]"
                 style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
@@ -333,6 +557,12 @@ export function SeatsBoard() {
                   {fmt(COLS)}
                 </span>
               </div>
+
+              {/* Member-only self check-in / check-out. Rendered only when a member
+                  is logged in; logged-out visitors see nothing extra. */}
+              {user && (
+                <CheckInCard fmt={fmt} onPresenceChange={refreshSummary} />
+              )}
             </div>
           </Reveal>
         </div>

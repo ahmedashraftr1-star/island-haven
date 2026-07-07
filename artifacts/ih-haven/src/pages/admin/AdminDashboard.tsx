@@ -31,10 +31,12 @@ import {
   Target,
   Award,
   Gift,
+  Armchair,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
 import AdminBookings from "./AdminBookings";
+import AdminAttendance from "./AdminAttendance";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
@@ -66,6 +68,7 @@ type Tab =
   | "overview"
   | "tasks"
   | "bookings"
+  | "attendance"
   | "applications"
   | "users"
   | "experts"
@@ -95,6 +98,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
   { id: "tasks", label: "المهام والتواصل", Icon: ListChecks },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
+  { id: "attendance", label: "الحضور والانصراف", Icon: Armchair },
   { id: "applications", label: "الطلبات", Icon: Inbox },
   { id: "users", label: "المستخدمون", Icon: Users },
   { id: "experts", label: "الخبراء", Icon: Sparkles },
@@ -317,6 +321,7 @@ export default function AdminDashboard() {
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
           {tab === "tasks" && <AdminTasks />}
           {tab === "bookings" && <AdminBookings />}
+          {tab === "attendance" && <AdminAttendance />}
           {tab === "applications" && <AdminApplications />}
           {tab === "users" && <AdminUsers />}
           {tab === "experts" && <AdminExperts />}
