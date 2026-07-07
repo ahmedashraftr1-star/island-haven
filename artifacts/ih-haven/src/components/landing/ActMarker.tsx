@@ -11,12 +11,23 @@ const toAr = (s: string) => s.replace(/\d/g, (d) => AR_DIGITS[Number(d)]);
  * as a seamless chapter break. This is what makes the page's "chaptering"
  * (التقسيم) feel deliberate without adding clutter. Reduced-motion safe via Reveal.
  */
-export function ActMarker({ idx, ar, en }: { idx: number; ar: string; en: string }) {
+export function ActMarker({
+  idx,
+  ar,
+  en,
+  id,
+}: {
+  idx: number;
+  ar: string;
+  en: string;
+  /** Optional anchor id — used by HomeTOC's scroll-spy to observe this act. */
+  id?: string;
+}) {
   const { t, lang } = useLanguage();
   const two = String(idx).padStart(2, "0");
   const num = lang === "ar" ? toAr(two) : two;
   return (
-    <div className="relative bg-[#060608] text-white">
+    <div id={id} className="relative bg-[#060608] text-white">
       <Reveal
         as="div"
         distance={12}

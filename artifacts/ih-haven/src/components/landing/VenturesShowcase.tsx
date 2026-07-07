@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import { Link } from "wouter";
 import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useContentSection } from "@/hooks/use-content";
 import { useVentures } from "@/hooks/use-public-data";
-import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
-import { ventureIdentity } from "@/lib/ventureIdentity";
+import { ShowcaseCard } from "@/components/landing/ShowcaseCard";
 
 interface Metric { v: string; ar: string; en: string }
 interface Venture {
@@ -21,13 +21,6 @@ interface Venture {
   logoUrl: string | null;
   metrics?: Metric[]; // real, from the API/CMS when present
 }
-
-const STAGE_EN: Record<string, string> = {
-  idea: "Idea", mvp: "MVP", launched: "Launched", scaling: "Scaling", growth: "Growth",
-};
-const STAGE_AR: Record<string, string> = {
-  idea: "فكرة", mvp: "نموذج أوّليّ", launched: "انطلق", scaling: "توسّع", growth: "نموّ",
-};
 
 // Evergreen frames so a cover-less venture still wears real, dignified imagery.
 const FRAMES = [
@@ -51,109 +44,6 @@ function resolveMetrics(v: Venture, cms: Record<string, string>): Metric[] {
     } catch { /* malformed CMS value → show nothing, never invent */ }
   }
   return [];
-}
-
-/**
- * MetaBadges — the tidy metadata row beneath the title: STAGE · SECTOR · FOUNDER
- * set as small monochromatic pills, followed by any REAL metric figures as gold
- * pill badges (`text-sand-bright`, honesty preserved — the caller passes an empty
- * list → no metric pills render). Terracotta (primary) is the sole accent; the
- * sector dot uses the venture-identity hue only as a faint locating cue.
- */
-function MetaBadges({ v, metrics, lang }: { v: Venture; metrics: Metric[]; lang: Lang }) {
-  const vid = ventureIdentity(v.sector, v.id);
-  const stage = lang === "ar" ? STAGE_AR[v.stage] ?? v.stage : STAGE_EN[v.stage] ?? v.stage;
-  const pill = "inline-flex items-center gap-2 h-8 px-3.5 rounded-full ring-1 ring-white/12 bg-white/[0.04] text-[11.5px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal";
-  return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      {stage && <span className={`${pill} text-primary ring-primary/25 bg-primary/[0.06]`}>{stage}</span>}
-      {v.sector && (
-        <span className={`${pill} text-white/72`}>
-          <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-          {v.sector}
-        </span>
-      )}
-      {v.founderName && (
-        <span className={`${pill} text-white/72 normal-case tracking-normal`}>
-          <span className="text-white/40">{lang === "ar" ? "المؤسِّس" : "Founder"}</span>
-          <span className="font-semibold text-white/85">{v.founderName}</span>
-        </span>
-      )}
-      {/* Real metric figures only — rendered as gold pill badges, never invented. */}
-      {metrics.map((m, i) => (
-        <span key={i} className={`${pill} text-white/72 normal-case tracking-normal`}>
-          <span className="font-display font-black tabular-nums text-sand-bright text-[14px] leading-none">{m.v}</span>
-          <span className="text-white/60">{lang === "ar" ? m.ar : m.en}</span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
-/** The "enter the story" affordance — reads like opening a case study, not a button. */
-function CaseStudyCue({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
-  return (
-    <span className="inline-flex items-center gap-3 text-[14px] font-bold text-white transition-colors group-hover:text-primary">
-      <span className="tracking-[0.02em] underline-offset-[6px] group-hover:underline decoration-primary/60 decoration-1">
-        {t({ ar: "دراسة الحالة", en: "Case study" })}
-      </span>
-      <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-    </span>
-  );
-}
-
-/**
- * VentureCard — the UNIFORM editorial card, repeated identically for every
- * venture (jonnyczar-style project list). Cover leads on TOP, generous and
- * edge-to-edge within the card; below it a clean content block carries the large
- * title, the tagline subtitle, the tidy metadata badge row (stage · sector ·
- * founder + real metric pills), and the case-study cue. Calm and minimal —
- * no lift, no shadow flash: only a restrained cover zoom + a slight arrow slide.
- */
-function VentureCard({ v, index, metrics, lang, t }: { v: Venture; index: number; metrics: Metric[]; lang: Lang; t: ReturnType<typeof useLanguage>["t"] }) {
-  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
-  const vid = ventureIdentity(v.sector, v.id);
-  return (
-    <Reveal as="div" index={index}>
-      <Link
-        href={`/ventures/${v.id}`}
-        data-testid={`showcase-venture-${v.id}`}
-        className="group glass-panel-lg block p-3 -translate-y-0 transition-[transform,border-color] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/20 motion-safe:hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
-      >
-        <div className="relative aspect-[16/9] overflow-hidden rounded-[24px] ring-1 ring-white/10 bg-[#070707]">
-          <img
-            src={cover}
-            alt={v.name}
-            loading="lazy"
-            decoding="async"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
-            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none motion-safe:group-hover:scale-[1.03]"
-          />
-          <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
-        </div>
-
-        {/* Content block — large title, tagline subtitle, metadata badges, cue. */}
-        <div className="px-[clamp(1.5rem,3vw,3.25rem)] pb-[clamp(2rem,3vw,3rem)] pt-[clamp(2rem,3vw,3rem)]">
-          <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2.2rem,4vw,3.6rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}>
-            {v.name}
-          </h3>
-          {v.tagline && (
-            <p className="mt-5 max-w-2xl font-display text-white/82" style={{ fontSize: "clamp(1.15rem,1.8vw,1.55rem)", lineHeight: 1.38, letterSpacing: "-0.015em" }}>
-              {v.tagline}
-            </p>
-          )}
-
-          <div className="mt-8">
-            <MetaBadges v={v} metrics={metrics} lang={lang} />
-          </div>
-
-          <div className="mt-8">
-            <CaseStudyCue t={t} />
-          </div>
-        </div>
-      </Link>
-    </Reveal>
-  );
 }
 
 /**
@@ -234,9 +124,18 @@ export function VenturesShowcase() {
           <>
             {/* Uniform project list — every venture gets the same editorial card,
                 separated by generous whitespace (gallery rhythm), no dividers. */}
-            <div className="mt-[clamp(3rem,6vw,5rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
+            <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
               {rows.map((v, i) => (
-                <VentureCard key={v.id} v={v} index={i} metrics={resolveMetrics(v, metricsCms)} lang={lang} t={t} />
+                <Reveal as="div" key={v.id} index={i}>
+                  <ShowcaseCard
+                    venture={v}
+                    metrics={resolveMetrics(v, metricsCms)}
+                    lang={lang}
+                    t={t}
+                    testId={`showcase-venture-${v.id}`}
+                    fallbackCover={frameFor(v.id)}
+                  />
+                </Reveal>
               ))}
             </div>
 

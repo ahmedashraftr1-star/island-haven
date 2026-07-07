@@ -5,13 +5,13 @@ import { motion, useReducedMotion, useInView } from "framer-motion";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
-import { VENTURE_STAGE_LABELS, type VentureStage } from "@/lib/labels";
+import { type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
-import { ventureIdentity } from "@/lib/ventureIdentity";
 import { Ticker } from "@/components/landing/Ticker";
 import { Reveal } from "@/components/landing/Reveal";
+import { ShowcaseCard } from "@/components/landing/ShowcaseCard";
 import { useCountUp } from "@/hooks/use-count-up";
-import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useContentSection } from "@/hooks/use-content";
 
 // The sectors the incubator builds across — a calm, evergreen roster that glides
 // in the hero aside (font-mono, faint). Not live data; a qualitative register of
@@ -50,24 +50,12 @@ interface Venture {
   metrics?: Metric[]; // real, from the API/CMS when present
 }
 
-// English counterparts to the Arabic-only VENTURE_STAGE_LABELS in @/lib/labels.
-const VENTURE_STAGE_LABELS_EN: Record<VentureStage, string> = {
-  idea: "Idea",
-  mvp: "MVP",
-  launched: "Launched",
-  scaling: "Scaling",
-};
-
 function toArabicNum(n: number): string {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 }
 // Localised numeral: Arabic-Indic in AR, Western digits in EN.
 function num(n: number, lang: Lang): string {
   return lang === "ar" ? toArabicNum(n) : String(n);
-}
-// Stage label localised by language.
-function stageLabel(stage: VentureStage, lang: Lang): string {
-  return lang === "ar" ? VENTURE_STAGE_LABELS[stage] : VENTURE_STAGE_LABELS_EN[stage];
 }
 
 // A handful of evergreen photographs to give cover-less ventures dignified,
@@ -362,134 +350,20 @@ function VentureGallery({
 }) {
   const { t } = useLanguage();
   return (
-    <div className="mt-[clamp(3rem,6vw,5rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
+    <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
       {ventures.map((v, i) => (
-        <VentureCard
-          key={v.id}
-          v={v}
-          index={i}
-          metrics={resolveMetrics(v, cms)}
-          lang={lang}
-          t={t}
-          reduce={reduce}
-        />
-      ))}
-    </div>
-  );
-}
-
-// The uniform editorial card — identical for every venture. Cover leads on top
-// (16/9, generous), then a clean content block: large font-display title, the
-// tagline subtitle, a tidy metadata badge row, and the case-study cue. Calm and
-// minimal — no lift, no shadow flash: a restrained cover zoom + a slight arrow
-// slide only. The staggered reveal delay is disabled under reduced motion.
-function VentureCard({
-  v,
-  index,
-  metrics,
-  lang,
-  t,
-  reduce,
-}: {
-  v: Venture;
-  index: number;
-  metrics: Metric[];
-  lang: Lang;
-  t: ReturnType<typeof useLanguage>["t"];
-  reduce: boolean;
-}) {
-  const cover = v.coverUrl ? imageUrl(v.coverUrl) : frameFor(v.id);
-  const vid = ventureIdentity(v.sector, v.id);
-  return (
-    <Reveal as="div" delay={reduce ? 0 : 0.05 * Math.min(index, 8)}>
-      <Link
-        href={`/ventures/${v.id}`}
-        data-testid={`venture-card-${v.id}`}
-        className="group glass-panel-lg block p-3 transition-[border-color] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
-        aria-label={v.name}
-      >
-        <div className="relative aspect-[16/9] overflow-hidden rounded-[24px] ring-1 ring-white/10 bg-[#070707]">
-          <img
-            src={cover}
-            alt={v.name}
-            loading="lazy"
-            decoding="async"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
-            className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.05] transition-transform duration-[1100ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none group-hover:scale-[1.03]"
+        <Reveal as="div" key={v.id} delay={reduce ? 0 : 0.05 * Math.min(i, 8)}>
+          <ShowcaseCard
+            venture={v}
+            metrics={resolveMetrics(v, cms)}
+            lang={lang}
+            t={t}
+            testId={`venture-card-${v.id}`}
+            fallbackCover={frameFor(v.id)}
           />
-          <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
-        </div>
-
-        {/* Content block — large title, tagline subtitle, metadata badges, cue. */}
-        <div className="px-[clamp(1.5rem,3vw,3.25rem)] pb-[clamp(2rem,3vw,3rem)] pt-[clamp(2rem,3vw,3rem)]">
-          <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2.2rem,4vw,3.6rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}>
-            {v.name}
-          </h3>
-          {v.tagline && (
-            <p className="mt-5 max-w-2xl font-display text-white/82" style={{ fontSize: "clamp(1.15rem,1.8vw,1.55rem)", lineHeight: 1.38, letterSpacing: "-0.015em" }}>
-              {v.tagline}
-            </p>
-          )}
-
-          <div className="mt-8">
-            <MetaBadges v={v} metrics={metrics} lang={lang} />
-          </div>
-
-          <div className="mt-8">
-            <CaseStudyCue t={t} />
-          </div>
-        </div>
-      </Link>
-    </Reveal>
-  );
-}
-
-// MetaBadges — the tidy metadata row beneath the title: STAGE · SECTOR · FOUNDER
-// as small monochromatic pills, followed by any REAL metric figures as gold pill
-// badges (text-sand-bright, honesty preserved — an empty metrics list renders no
-// metric pills). Terracotta (primary) is the sole accent; the sector dot uses the
-// venture-identity hue only as a faint locating cue. A pill shows only if its
-// value is real (stage/sector/founder from the row, metrics from API/CMS).
-function MetaBadges({ v, metrics, lang }: { v: Venture; metrics: Metric[]; lang: Lang }) {
-  const vid = ventureIdentity(v.sector, v.id);
-  const stage = stageLabel(v.stage, lang);
-  const pill = "inline-flex items-center gap-2 h-8 px-3.5 rounded-full ring-1 ring-white/12 bg-white/[0.04] text-[11.5px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal";
-  return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      {stage && <span className={`${pill} text-primary ring-primary/25 bg-primary/[0.06]`}>{stage}</span>}
-      {v.sector && (
-        <span className={`${pill} text-white/72`}>
-          <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-          {v.sector}
-        </span>
-      )}
-      {v.founderName && (
-        <span className={`${pill} text-white/72 normal-case tracking-normal`}>
-          <span className="text-white/40">{lang === "ar" ? "المؤسِّس" : "Founder"}</span>
-          <span className="font-semibold text-white/85">{v.founderName}</span>
-        </span>
-      )}
-      {/* Real metric figures only — rendered as gold pill badges, never invented. */}
-      {metrics.map((m, i) => (
-        <span key={i} className={`${pill} text-white/72 normal-case tracking-normal`}>
-          <span className="font-display font-black tabular-nums text-sand-bright text-[14px] leading-none">{m.v}</span>
-          <span className="text-white/60">{lang === "ar" ? m.ar : m.en}</span>
-        </span>
+        </Reveal>
       ))}
     </div>
-  );
-}
-
-// The "enter the story" affordance — reads like opening a case study, not a
-// button. A slight arrow slide on hover (rtl:rotate-180); no big motion.
-function CaseStudyCue({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
-  return (
-    <span className="inline-flex items-center gap-3 text-[14px] font-bold text-white transition-colors group-hover:text-primary">
-      <span className="tracking-[0.02em] underline-offset-[6px] group-hover:underline decoration-primary/60 decoration-1">
-        {t({ ar: "دراسة الحالة", en: "Case study" })}
-      </span>
-      <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-    </span>
   );
 }
 

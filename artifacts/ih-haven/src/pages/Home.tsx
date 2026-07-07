@@ -7,6 +7,7 @@ import { NumbersBand } from "@/components/landing/NumbersBand";
 import { CredibilityBar } from "@/components/landing/CredibilityBar";
 import { FloatingContact } from "@/components/landing/FloatingContact";
 import { ActMarker } from "@/components/landing/ActMarker";
+import { HomeTOC } from "@/components/landing/HomeTOC";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
 // Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
@@ -56,33 +57,36 @@ export default function Home() {
         }}
       />
       <Header />
+      <HomeTOC />
       <div className="relative z-10">
         {/* Deliberate narrative in 5 acts (expert-panel IA). Act markers make the
             "chaptering" (التقسيم) legible; the order (الترتيب) front-loads the WORK,
             pairs each claim with a human voice, then climbs steadily to Apply:
             HOOK & PROOF  →  ٠١ THE WORK  →  ٠٢ WHAT YOU GET  →  ٠٣ PLACE & PEOPLE  →
             ٠٤ JOIN. All sections stay in the unified dark-glass world. */}
-        {/* ── Act 0 · Hook & Proof ── */}
-        <Hero />
-        <CredibilityBar />
-        <NumbersBand />
+        {/* ── Act 0 · Hook & Proof (anchor id observed by HomeTOC) ── */}
+        <div id="act-0">
+          <Hero />
+          <CredibilityBar />
+          <NumbersBand />
+        </div>
         <SectionErrorBoundary>
           <Suspense fallback={null}>
             {/* ── Act 1 · The Work — the projects, then a founder's voice ── */}
-            <ActMarker idx={1} ar="العمل" en="The Work" />
+            <ActMarker idx={1} id="act-1" ar="العمل" en="The Work" />
             <VenturesShowcase />
             <SuccessStories />
             {/* ── Act 2 · What You Get — the offer, then the mentors who deliver it ── */}
-            <ActMarker idx={2} ar="ما تحصل عليه" en="What you get" />
+            <ActMarker idx={2} id="act-2" ar="ما تحصل عليه" en="What you get" />
             <WhatYouGet />
             <ExpertsBand />
             {/* ── Act 3 · The Place & The People — the room, the faces, the reach ── */}
-            <ActMarker idx={3} ar="المكان والناس" en="The place & the people" />
+            <ActMarker idx={3} id="act-3" ar="المكان والناس" en="The place & the people" />
             <SeatsBoard />
             <FeaturedMembers />
             <GazaToGlobal />
             {/* ── Act 4 · Join — the living pulse, the path, the door ── */}
-            <ActMarker idx={4} ar="انضمّ إلينا" en="Join us" />
+            <ActMarker idx={4} id="act-4" ar="انضمّ إلينا" en="Join us" />
             <NewsSlider />
             <ApplyProcess />
             <FinalCTA />
