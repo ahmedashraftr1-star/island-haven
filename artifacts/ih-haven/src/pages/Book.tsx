@@ -435,14 +435,14 @@ function Stepper({ step }: { step: Step }) {
     ? [{ n: 1, label: "Date" }, { n: 2, label: "Purpose" }, { n: 3, label: "Expert" }, { n: 4, label: "Your info" }]
     : [{ n: 1, label: "الموعد" }, { n: 2, label: "الهدف" }, { n: 3, label: "الخبير" }, { n: 4, label: "بياناتك" }];
   return (
-    <div className="flex items-center justify-center gap-2 lg:gap-4">
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2 lg:gap-4">
       {items.map((it, i) => {
         const active = i === step;
         const done = i < step;
         return (
-          <div key={it.n} className="flex items-center gap-2 lg:gap-4">
+          <div key={it.n} className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
             <div
-              className={`flex items-center gap-2.5 px-4 h-10 rounded-full border transition ${
+              className={`flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 h-10 rounded-full border transition ${
                 active
                   ? "cta-fill border-transparent"
                   : done
@@ -451,7 +451,7 @@ function Stepper({ step }: { step: Step }) {
               }`}
             >
               <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
                   active
                     ? "bg-white/25 text-primary-foreground"
                     : done
@@ -461,12 +461,18 @@ function Stepper({ step }: { step: Step }) {
               >
                 {done ? <Check className="w-3 h-3" strokeWidth={3} /> : it.n}
               </span>
-              <span className="text-[12.5px] font-semibold whitespace-nowrap">
+              {/* On mobile only the ACTIVE step keeps its label — inactive labels
+                  hide so the 4-step rail fits a 390px viewport without overflow. */}
+              <span
+                className={`text-[12.5px] font-semibold whitespace-nowrap rtl:tracking-normal ${
+                  active ? "" : "hidden sm:inline"
+                }`}
+              >
                 {it.label}
               </span>
             </div>
             {i < items.length - 1 && (
-              <div className="w-6 lg:w-10 h-[1px] bg-white/12" />
+              <div className="w-3 sm:w-6 lg:w-10 h-[1px] bg-white/12 shrink-0" />
             )}
           </div>
         );
