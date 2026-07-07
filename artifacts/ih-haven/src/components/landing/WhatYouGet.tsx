@@ -74,9 +74,12 @@ export function WhatYouGet() {
             headline never sits beside an empty half on wide screens. */}
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <Reveal className="lg:col-span-7" distance={22}>
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
-              {t({ ar: "ما تحصل عليه", en: "What you get" })}
-            </p>
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="h-px w-9 bg-primary/70" />
+              <span className="eyebrow">
+                {t({ ar: "ما تحصل عليه · غزّة", en: "What you get · Gaza" })}
+              </span>
+            </div>
             <h2
               className="font-display text-white"
               style={{
@@ -92,7 +95,7 @@ export function WhatYouGet() {
           </Reveal>
 
           <Reveal className="lg:col-span-5" distance={22} delay={0.08}>
-            <p className="max-w-xl text-[1.0625rem] leading-[1.7] text-white/75 lg:text-[1.2rem]">
+            <p className="max-w-xl text-[1.0625rem] leading-[1.7] text-white/80 lg:text-[1.2rem]">
               {t({
                 ar: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
                 en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
@@ -100,7 +103,7 @@ export function WhatYouGet() {
             </p>
             <Link
               href="/programs"
-              className="group mt-6 inline-flex items-center gap-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
+              className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "اعرف أكثر", en: "Learn more" })}
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
@@ -122,7 +125,7 @@ export function WhatYouGet() {
               key={g.href}
               href={g.href}
               data-testid={`pillar-${g.href.slice(1)}`}
-              className={`group grid grid-cols-1 items-baseline gap-x-10 gap-y-4 py-[clamp(1.75rem,4vh,3rem)] transition-[border-color] duration-300 hover:border-primary/40 motion-reduce:transition-none md:grid-cols-12 ${
+              className={`group grid grid-cols-1 items-baseline gap-x-10 gap-y-4 rounded-2xl py-[clamp(1.75rem,4vh,3rem)] transition-[border-color] duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none md:grid-cols-12 ${
                 i > 0 ? "border-t border-white/10" : ""
               }`}
             >
@@ -147,13 +150,13 @@ export function WhatYouGet() {
 
               {/* Description on a readable measure */}
               <div className="md:col-span-6 lg:col-span-6 lg:col-start-6">
-                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/70 lg:text-[1.0625rem]">
+                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/80 lg:text-[1.0625rem]">
                   {g.body}
                 </p>
                 {g.stat && (
                   <div className="mt-3 inline-flex items-baseline gap-2">
                     <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
-                    <span className="text-[13px] text-white/55">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
+                    <span className="text-[13px] text-white/65">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
                   </div>
                 )}
               </div>

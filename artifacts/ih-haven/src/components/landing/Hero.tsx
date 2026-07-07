@@ -5,6 +5,7 @@ import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
+import { ParticleField } from "./ParticleField";
 
 const FALLBACK = {
   eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
@@ -250,6 +251,14 @@ export function Hero() {
         animate={reduce ? undefined : { scale: [1, 1.08, 1], opacity: [0.82, 1, 0.82] }}
         transition={reduce ? undefined : { duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* ── Constellation of Gaza's talent — an ambient canvas of drifting,
+          connecting glow-points that gently react to the cursor. Sits above the
+          photo + scrim, below the headline; never blocks clicks. Subtle by
+          design; honours reduced-motion (single static frame). ── */}
+      <div aria-hidden className="absolute inset-0 z-[2] pointer-events-none">
+        <ParticleField />
+      </div>
 
       {/* ── The message. One eyebrow, one monumental headline, one line of
           support, one decisive action. Nothing else competes. ── */}

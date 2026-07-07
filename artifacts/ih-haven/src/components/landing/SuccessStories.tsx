@@ -43,9 +43,12 @@ export function SuccessStories() {
   }, []);
 
   const eyebrow = (
-    <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
-      {t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
-    </p>
+    <div className="mb-5 flex items-center gap-3">
+      <span aria-hidden className="h-px w-9 bg-primary/70" />
+      <span className="eyebrow">
+        {t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
+      </span>
+    </div>
   );
 
   // Loading — a single calm glass placeholder floating on the lit photo field.
@@ -139,7 +142,7 @@ export function SuccessStories() {
                 delay={0.18}
                 className="mt-10 sm:mt-12 flex flex-wrap items-center gap-x-6 gap-y-5"
               >
-                <span className="text-[13px] uppercase tracking-[0.16em] text-white/55">
+                <span className="text-[13px] uppercase tracking-[0.16em] text-white/65 rtl:tracking-normal">
                   {t({ ar: "فريق آيلاند هيفن — قناعتنا التأسيسيّة", en: "The Island Haven team — our founding belief" })}
                 </span>
                 <Link
@@ -244,7 +247,7 @@ export function SuccessStories() {
                   <div className="font-bold text-white text-[clamp(1rem,1.6vw,1.2rem)] leading-tight">
                     {lead.personName}
                   </div>
-                  <div className="mt-1.5 text-[13px] uppercase tracking-[0.14em] text-white/55">
+                  <div className="mt-1.5 text-[13px] uppercase tracking-[0.14em] text-white/65 rtl:tracking-normal">
                     {[lead.role, lead.ventureName].filter(Boolean).join(" · ")}
                   </div>
                 </div>
@@ -292,7 +295,7 @@ export function SuccessStories() {
                   )}
                   <figcaption className="mt-auto flex flex-col gap-0.5 pt-5">
                     <span className="font-bold text-white text-[14px] leading-tight">{s.personName}</span>
-                    <span className="text-[12px] uppercase tracking-[0.14em] text-white/55">
+                    <span className="text-[12px] uppercase tracking-[0.14em] text-white/65 rtl:tracking-normal">
                       {[s.role, s.ventureName].filter(Boolean).join(" · ")}
                     </span>
                   </figcaption>

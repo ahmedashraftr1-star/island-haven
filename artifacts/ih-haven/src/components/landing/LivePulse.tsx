@@ -58,8 +58,12 @@ function LiveStat({ value, label, reduce }: { value: number; label: string; redu
   const bumped = prev.current !== value;
   prev.current = value;
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      aria-label={`${value.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")} ${label}`}
+    >
       <motion.span
+        aria-hidden
         key={value}
         initial={reduce || !bumped ? false : { scale: 1.18, color: "hsl(var(--primary))" }}
         animate={{ scale: 1, color: "hsl(var(--sand-bright))" }}
@@ -69,7 +73,7 @@ function LiveStat({ value, label, reduce }: { value: number; label: string; redu
       >
         {value.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
       </motion.span>
-      <span className="mt-2 text-[12px] text-white/55 font-medium">{label}</span>
+      <span aria-hidden className="mt-2 text-[12px] text-white/65 font-medium">{label}</span>
     </div>
   );
 }
@@ -154,7 +158,7 @@ export function LivePulse() {
             )}
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.9)]" />
           </span>
-          <span className="text-[11px] tracking-[0.22em] uppercase text-white/80 font-semibold rtl:tracking-normal">
+          <span className="eyebrow text-white/80">
             {t({ ar: "نبض المجتمع", en: "Community pulse" })} · <span className="text-primary">LIVE</span>
           </span>
         </div>
@@ -222,13 +226,14 @@ export function LivePulse() {
                 >
                   <Link
                     href={`/u/${current.authorId}`}
-                    className="group inline-flex items-center gap-3 glass-panel rounded-full ps-3 pe-4 py-2"
+                    aria-label={`${current.author} — ${current.tech} — ${t({ ar: "الآن", en: "just now" })}`}
+                    className="group inline-flex items-center gap-3 glass-panel rounded-full ps-3 pe-4 py-2 transition-[border-color,box-shadow] duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
                   >
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/20 text-primary text-[11px]">✦</span>
-                    <span className="text-[13.5px] text-white/90">
+                    <span aria-hidden className="grid h-6 w-6 place-items-center rounded-full bg-primary/20 text-primary text-[11px]">✦</span>
+                    <span aria-hidden className="text-[13.5px] text-white/90">
                       <span className="font-display font-bold text-white group-hover:text-sand-bright transition-colors">{current.author}</span>
                       <span className="text-white/45 mx-2">·</span>
-                      <span className="font-mono text-[12px] text-white/55">{current.tech}</span>
+                      <span className="font-mono text-[12px] text-white/65">{current.tech}</span>
                       <span className="text-white/45 mx-2">·</span>
                       {t({ ar: "الآن", en: "just now" })}
                     </span>
@@ -248,10 +253,10 @@ export function LivePulse() {
             <Link
               href="/numbers"
               data-testid="live-pulse-cta"
-              className="group inline-flex items-center gap-2 text-[13px] font-semibold text-white/75 hover:text-white transition-colors"
+              className="group inline-flex items-center gap-2 rounded-md text-[13px] font-semibold text-white/80 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608]"
             >
               {t({ ar: "كل النبض والأرقام", en: "The full pulse" })}
-              <span className="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1">→</span>
+              <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 motion-reduce:transition-none rtl:rotate-180">→</span>
             </Link>
           </div>
         </div>

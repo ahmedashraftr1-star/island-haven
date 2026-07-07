@@ -56,13 +56,16 @@ export function FeaturedMembers() {
           <div className="mb-[clamp(2.25rem,4vw,3.25rem)] flex items-end justify-between gap-6">
             <Link
               href="/members"
-              className="inline-flex items-center gap-1.5 pb-1.5 text-[13px] font-semibold text-white/65 transition-colors hover:text-white"
+              className="group inline-flex items-center gap-1.5 rounded-md pb-1.5 text-[13px] font-semibold text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608]"
             >
               {t({ ar: "عرض الكلّ", en: "View all" })}
-              <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
             <div className="text-end">
-              <p className="eyebrow eyebrow-sand mb-3">{t({ ar: "المجتمع", en: "Community" })}</p>
+              <span className="mb-3 flex items-center justify-end gap-2.5">
+                <span aria-hidden className="h-px w-9 bg-primary/70" />
+                <span className="eyebrow">{t({ ar: "المجتمع · غزّة", en: "Community · Gaza" })}</span>
+              </span>
               <h2
                 className="font-display text-white"
                 style={{ fontSize: "clamp(2.4rem,5vw,4.5rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 0.98 }}
@@ -93,7 +96,7 @@ export function FeaturedMembers() {
                   <Link
                     href={`/u/${m.id}`}
                     style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
-                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]`}
+                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608]`}
                   >
                     <div className={`flex items-center gap-4 ${featured ? "lg:flex-col lg:items-start lg:gap-6" : ""}`}>
                       {m.avatarUrl ? (
@@ -113,7 +116,7 @@ export function FeaturedMembers() {
                           {m.fullName}
                         </h3>
                         {m.jobTitle && (
-                          <p className={`mt-1 text-white/60 line-clamp-1 ${featured ? "text-[14px] lg:text-[15px]" : "text-[12.5px]"}`}>
+                          <p className={`mt-1 text-white/70 line-clamp-1 ${featured ? "text-[14px] lg:text-[15px]" : "text-[12.5px]"}`}>
                             {m.jobTitle}
                           </p>
                         )}

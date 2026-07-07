@@ -56,13 +56,13 @@ function resolveMetrics(v: Venture, cms: Record<string, string>): Metric[] {
 function MetricRow({ metrics, lang }: { metrics: Metric[]; lang: Lang }) {
   if (!metrics.length) return null;
   return (
-    <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/12 pt-5 list-none">
+    <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/10 pt-5 list-none">
       {metrics.map((m, i) => (
         <li key={i}>
-          <div className="font-display font-black tabular-nums text-white leading-none" style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em" }}>
+          <div className="font-display font-black tabular-nums text-sand-bright leading-none" style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em" }}>
             {m.v}
           </div>
-          <div className="mt-1.5 text-[11.5px] text-white/50 font-medium">{lang === "ar" ? m.ar : m.en}</div>
+          <div className="mt-1.5 text-[11.5px] text-white/60 font-medium">{lang === "ar" ? m.ar : m.en}</div>
         </li>
       ))}
     </ul>
@@ -102,7 +102,7 @@ function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; 
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group glass-panel-lg block p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25"
+        className="group glass-panel-lg block p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_48px_100px_-38px_hsl(0_0%_0%/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
       >
         <div className="relative aspect-[21/9] overflow-hidden rounded-[22px] ring-1 ring-white/10 bg-[#070707]">
           <img
@@ -125,7 +125,7 @@ function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; 
             {v.name}
           </h3>
           {v.tagline && (
-            <p className="mt-5 max-w-2xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1.05rem,1.7vw,1.4rem)" }}>
+            <p className="mt-5 max-w-2xl text-white/80 leading-relaxed" style={{ fontSize: "clamp(1.05rem,1.7vw,1.4rem)" }}>
               {v.tagline}
             </p>
           )}
@@ -152,7 +152,7 @@ function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number;
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[clamp(0.5rem,1vw,0.75rem)] glass-panel p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25"
+        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[clamp(0.5rem,1vw,0.75rem)] glass-panel p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
       >
         <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[300px] overflow-hidden rounded-[18px] ring-1 ring-white/10 bg-[#070707]">
           <img
@@ -171,7 +171,7 @@ function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number;
             {v.name}
           </h3>
           {v.tagline && (
-            <p className="mt-3 text-white/70 leading-relaxed" style={{ fontSize: "clamp(0.98rem,1.3vw,1.1rem)" }}>
+            <p className="mt-3 text-white/80 leading-relaxed" style={{ fontSize: "clamp(0.98rem,1.3vw,1.1rem)" }}>
               {v.tagline}
             </p>
           )}
@@ -220,8 +220,8 @@ export function VenturesShowcase() {
       <div className="container-ih relative">
         <Reveal as="header" className="max-w-3xl">
           <div className="flex items-center gap-3 mb-5">
-            <span aria-hidden className="h-px w-9 bg-primary" />
-            <span className="text-[11px] tracking-[0.2em] uppercase text-primary font-bold rtl:tracking-normal">
+            <span aria-hidden className="h-px w-9 bg-primary/70" />
+            <span className="eyebrow">
               {t({ ar: "معرض المشاريع", en: "The portfolio" })}
             </span>
           </div>
@@ -255,7 +255,7 @@ export function VenturesShowcase() {
                     en: "This is where the names of ventures born at Island Haven will live — and your seat is on the next page.",
                   })}
                 </p>
-                <Link href="/apply" data-testid="showcase-apply" className="cta-fill group mt-7 inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5">
+                <Link href="/apply" data-testid="showcase-apply" className="cta-fill group mt-7 inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                   {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 </Link>
@@ -275,7 +275,7 @@ export function VenturesShowcase() {
               <Link
                 href="/ventures"
                 data-testid="showcase-all"
-                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
+                className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {t({ ar: "كلّ المشاريع", en: "All ventures" })}
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />

@@ -47,13 +47,16 @@ export function CredibilityBar() {
 
           {/* Tools & credits we UNLOCK — honest wordmarks, hairline-divided. */}
           <div className="flex flex-wrap items-center gap-x-1 gap-y-2 lg:justify-end">
-            <span className="eyebrow eyebrow-sand me-3 hidden sm:inline">
-              {t({ ar: "أدوات نفتحها لك", en: "Tools we unlock" })}
+            <span className="me-3 hidden items-center gap-2.5 sm:inline-flex">
+              <span aria-hidden className="h-px w-6 bg-primary/70" />
+              <span className="eyebrow eyebrow-sand">
+                {t({ ar: "أدوات نفتحها لك", en: "Tools we unlock" })}
+              </span>
             </span>
             {tools.map((name, i) => (
               <span key={name} className="inline-flex items-center">
                 {i > 0 && <span aria-hidden className="mx-1 h-3.5 w-px bg-white/15" />}
-                <span className="px-1.5 text-[13px] font-semibold tracking-tight text-white/60 transition-colors hover:text-white">
+                <span className="px-1.5 text-[13px] font-semibold tracking-tight text-white/70 transition-colors duration-200 hover:text-white">
                   {name}
                 </span>
               </span>

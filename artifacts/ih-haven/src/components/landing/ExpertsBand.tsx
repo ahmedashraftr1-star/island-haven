@@ -94,9 +94,12 @@ export function ExpertsBand() {
             evergreen branch keeps the same register and tells the true story. */}
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <Reveal className="lg:col-span-7" duration={0.7}>
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
-              {t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
-            </p>
+            <div className="mb-5 flex items-center gap-3">
+              <span aria-hidden className="h-px w-9 bg-primary/70" />
+              <span className="eyebrow">
+                {t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
+              </span>
+            </div>
             <h2
               className="font-display text-white"
               style={{
@@ -121,13 +124,16 @@ export function ExpertsBand() {
           </Reveal>
 
           <Reveal className="lg:col-span-5" delay={0.08} duration={0.7}>
-            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/75">
+            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/80">
               {intro}
             </p>
             {!isEmpty && rows && available > 0 && (
-              <p className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary">
-                <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-                <span className="tnum">
+              <p
+                className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary"
+                aria-label={`${availableLabel} ${t({ ar: "متاحون للحجز الآن", en: "available to book now" })}`}
+              >
+                <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
+                <span className="tnum" aria-hidden>
                   {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
                 </span>
               </p>
@@ -141,7 +147,7 @@ export function ExpertsBand() {
         {isEmpty ? (
           <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
             <div className="glass-panel flex flex-col items-start gap-6 p-8 sm:p-10">
-              <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/75">
+              <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/80">
                 {t({
                   ar: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
                   en: "The roster is forming. If you're a founder or specialist willing to give an hour of your time, be one of the first mentors.",
@@ -151,14 +157,14 @@ export function ExpertsBand() {
                 <Link
                   href="/become-mentor?ref=home-experts-empty"
                   data-testid="experts-empty-become-mentor"
-                  className="cta-fill group inline-flex h-12 items-center gap-2.5 rounded-full px-7 text-[14px] font-bold transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  className="cta-fill group inline-flex h-12 items-center gap-2.5 rounded-full px-7 text-[14px] font-bold transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
                   <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
                 </Link>
                 <Link
                   href="/experts#how-it-works"
-                  className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
+                  className="group inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                 >
                   {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
                   <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
@@ -193,7 +199,7 @@ export function ExpertsBand() {
                     <Link
                       href={`/experts/${e.id}`}
                       data-testid={`home-expert-${e.id}`}
-                      className="group glass-panel flex h-full flex-col gap-5 p-6 sm:p-7 transition-[transform,border-color,box-shadow] duration-300 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.18),0_36px_80px_-30px_hsl(0_0%_0%/0.85)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                      className="group glass-panel flex h-full flex-col gap-5 p-6 sm:p-7 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.18),0_36px_80px_-30px_hsl(0_0%_0%/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                       <div className="flex items-center gap-4">
                         {/* Avatar — a real face where one exists; otherwise calm
@@ -225,7 +231,7 @@ export function ExpertsBand() {
                             {e.fullName}
                           </h3>
                           {e.yearsExperience > 0 && (
-                            <p className="mt-0.5 text-[13px] text-white/55 tnum">
+                            <p className="mt-0.5 text-[13px] text-white/65 tnum">
                               {lang === "en"
                                 ? `${e.yearsExperience}+ yrs experience`
                                 : `خبرة ${e.yearsExperience.toLocaleString("ar-EG")}+ سنة`}
@@ -235,7 +241,7 @@ export function ExpertsBand() {
                       </div>
 
                       {role && (
-                        <p className="text-[15px] leading-relaxed text-white/65 line-clamp-2">
+                        <p className="text-[15px] leading-relaxed text-white/75 line-clamp-2">
                           {role}
                         </p>
                       )}
@@ -248,7 +254,7 @@ export function ExpertsBand() {
                             {bookLabel}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-[12.5px] font-semibold text-white/55">
+                          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-[12.5px] font-semibold text-white/65">
                             {busyLabel}
                           </span>
                         )}
@@ -262,12 +268,12 @@ export function ExpertsBand() {
 
             {/* Terminal CTA — a calm confident line, no icon tile. */}
             <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3" delay={0.1} duration={0.7}>
-              <p className="text-white/75" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
+              <p className="text-white/80" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
                 {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
               </p>
               <Link
                 href="/experts"
-                className="group inline-flex items-center gap-2 font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
+                className="group inline-flex items-center gap-2 rounded-md font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                 style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}
               >
                 {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}

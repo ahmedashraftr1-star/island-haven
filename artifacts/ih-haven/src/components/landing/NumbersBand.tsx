@@ -127,10 +127,10 @@ export function NumbersBand() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 motion-safe:animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/45 rtl:tracking-[0.12em]">
+            <span className="eyebrow text-white/55">
               {t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
+            <span className="eyebrow">
               {t({ ar: "· مباشر", en: "· LIVE" })}
             </span>
           </div>
@@ -141,7 +141,7 @@ export function NumbersBand() {
             {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
             <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
           </h2>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-[1.7] text-white/70">
+          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-[1.7] text-white/80">
             {t({
               ar: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
               en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
@@ -168,7 +168,7 @@ export function NumbersBand() {
                 {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
               </div>
               <div className="mt-5 text-[clamp(1.05rem,1.7vw,1.35rem)] font-bold leading-snug text-white">{lead.label}</div>
-              <p className="mt-2.5 max-w-sm text-[14px] leading-relaxed text-white/70 md:text-[15px]">{lead.meaning}</p>
+              <p className="mt-2.5 max-w-sm text-[14px] leading-relaxed text-white/80 md:text-[15px]">{lead.meaning}</p>
             </div>
           </Reveal>
 
@@ -209,11 +209,15 @@ export function NumbersBand() {
             style={{ transition: "border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
             className="glass-panel flex flex-wrap items-center justify-between gap-x-6 gap-y-4 px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.25rem,2.5vw,1.75rem)] hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]"
           >
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-white/70">
-              <span className="text-white/50">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-white/80">
+              <span className="text-white/55">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
               {composition.map((cmp, i) => (
-                <span key={i} className="inline-flex items-center gap-1.5">
-                  {i > 0 && <span className="px-1 text-white/45">·</span>}
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5"
+                  aria-label={n ? `${fmt(cmp.value)} ${cmp.label}` : undefined}
+                >
+                  {i > 0 && <span aria-hidden className="px-1 text-white/45">·</span>}
                   <span className="tnum font-bold text-sand-bright">{n ? fmt(cmp.value) : "—"}</span>
                   <span>{cmp.label}</span>
                 </span>
@@ -222,7 +226,7 @@ export function NumbersBand() {
             <Link
               href="/numbers"
               data-testid="link-numbers-more"
-              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-white/30 hover:gap-3 motion-reduce:transition-none"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />

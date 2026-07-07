@@ -88,7 +88,7 @@ export function NewsSlider() {
           <Reveal as="div" className="lg:col-span-8">
             <div className="mb-5 flex items-center gap-3">
               <span aria-hidden className="h-px w-9 bg-primary/70" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
+              <span className="eyebrow">
                 {c.eyebrow}
               </span>
             </div>
@@ -118,7 +118,7 @@ export function NewsSlider() {
           <Reveal as="div" delay={0.08} className="hidden lg:col-span-4 lg:flex lg:justify-end">
             <Link
               href="/events"
-              className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 motion-reduce:transition-none"
+              className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
               data-testid="link-all-events"
             >
               {c.ctaAll}
@@ -224,7 +224,7 @@ export function NewsSlider() {
                       <Link
                         href={`/events/${p.id}`}
                         data-testid={`event-card-${p.id}`}
-                        className="group grid grid-cols-[1fr_auto] items-start gap-x-5 gap-y-2 border-b border-white/10 py-[clamp(1.25rem,3vh,1.75rem)] transition-colors duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:transition-none"
+                        className="group grid grid-cols-[1fr_auto] items-start gap-x-5 gap-y-2 rounded-xl border-b border-white/10 py-[clamp(1.25rem,3vh,1.75rem)] transition-colors duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                       >
                         <div className="min-w-0">
                           <div className="mb-2 flex flex-wrap items-center gap-2.5">
