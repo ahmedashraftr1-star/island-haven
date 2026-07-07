@@ -9,6 +9,7 @@ import { imageUrl } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { useNumbers, useAttendanceSummary, type PublicNumbers } from "@/hooks/use-public-data";
 
 /**
  * SeatsBoard — Island Haven's homepage signature: a precise, professional
@@ -44,27 +45,11 @@ const ROWS = TOTAL_SEATS / COLS; // 5
 // Fallback mirrors the modest real numbers used elsewhere on the site (LivePulse).
 const FALLBACK_SEATS_HOSTED = 6;
 
-interface Numbers {
-  members: number;
-  works: number;
-  enrollments: number;
-  events: number;
-  seatsHosted: number;
-  bookings: number;
-}
-
 /** Derive the count of taken seats from REAL data, clamped to real capacity. */
-function takenFromNumbers(n: Pick<Numbers, "seatsHosted" | "bookings"> | null): number {
+function takenFromNumbers(n: Pick<PublicNumbers, "seatsHosted" | "bookings"> | null): number {
   if (!n) return Math.min(TOTAL_SEATS, FALLBACK_SEATS_HOSTED);
   const real = Math.max(n.seatsHosted ?? 0, n.bookings ?? 0);
   return Math.max(0, Math.min(TOTAL_SEATS, real));
-}
-
-/** Public presence snapshot — never carries names, only honest aggregate counts. */
-interface AttendanceSummary {
-  totalSeats: number;
-  assignedCount: number;
-  presentCount: number;
 }
 
 /** The signed-in member's own attendance state (member-only endpoint). */
@@ -330,49 +315,22 @@ export function SeatsBoard() {
   const reduce = !!useReducedMotion();
   const locale = lang === "ar" ? "ar-EG" : "en-US";
 
-  const [nums, setNums] = useState<Numbers | null>(null);
-  const [summary, setSummary] = useState<AttendanceSummary | null>(null);
+  // Two honest, PUBLIC sources — now read through the ONE shared, cached queries
+  // (deduped across the homepage, no duplicate-fetch storm). `/attendance/summary`
+  // is preferred (real presence); `/numbers` is the always-available fallback so
+  // the board is never blank. Both degrade silently: on error `data` is undefined
+  // and we fall back to `takenFromNumbers` — nothing is ever invented.
+  const { data: numbersData } = useNumbers();
+  const nums = numbersData?.numbers ?? null;
 
-  // Pull the public presence summary. Extracted so a member's own check-in can
-  // refetch it on demand (keeping "present now" honest and immediate).
+  const { data: summaryData, refetch: refetchSummary } = useAttendanceSummary();
+  const summary = summaryData ?? null;
+
+  // A member's own check-in refetches the shared summary on demand so "present
+  // now" stays honest and immediate.
   const refreshSummary = useCallback(() => {
-    api<AttendanceSummary>("/attendance/summary")
-      .then((r) => setSummary(r))
-      // On failure we keep the /numbers-based fallback below — no invention.
-      .catch(() => setSummary(null));
-  }, []);
-
-  // Poll the real figures so the board reflects live availability. Two honest
-  // sources, both public: `/attendance/summary` (preferred — real presence) with
-  // `/numbers` as an always-available fallback so the board is never blank.
-  useEffect(() => {
-    let cancelled = false;
-    const pull = () => {
-      api<{ numbers: Numbers }>("/numbers")
-        .then((r) => !cancelled && setNums(r.numbers))
-        .catch(() => {
-          // Never invent occupancy — fall back to the site's modest real number.
-          if (!cancelled)
-            setNums((prev) =>
-              prev ?? {
-                members: 57,
-                works: 48,
-                enrollments: 116,
-                events: 9,
-                seatsHosted: FALLBACK_SEATS_HOSTED,
-                bookings: FALLBACK_SEATS_HOSTED,
-              },
-            );
-        });
-      if (!cancelled) refreshSummary();
-    };
-    pull();
-    const id = setInterval(pull, 20000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [refreshSummary]);
+    void refetchSummary();
+  }, [refetchSummary]);
 
   // Occupancy: prefer the real attendance summary when it reports any assigned
   // seat; otherwise gracefully fall back to the /numbers-derived count.

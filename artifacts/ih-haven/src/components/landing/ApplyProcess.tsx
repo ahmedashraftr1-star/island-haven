@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api } from "@/lib/api";
+import { useCohorts } from "@/hooks/use-public-data";
 import { imageUrl } from "@/hooks/use-content";
 import { formatDate, type CohortStatus } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -57,31 +57,22 @@ function Dot() {
 export function ApplyProcess() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
-  const [cohort, setCohort] = useState<CohortRow | null>(null);
+  const { data } = useCohorts<CohortRow>();
 
-  useEffect(() => {
-    let cancelled = false;
-    api<{ cohorts: CohortRow[] }>("/cohorts")
-      .then((r) => {
-        if (cancelled) return;
-        // Prefer an open cohort, else the next announced one with a start date.
-        const open = r.cohorts.find((c) => c.status === "open");
-        const announced = r.cohorts
-          .filter((c) => c.status === "announced" && c.startsAt)
-          .sort(
-            (a, b) =>
-              new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime(),
-          )[0];
-        setCohort(open ?? announced ?? null);
-      })
-      .catch(() => {
-        // Evergreen fallback — the section still reads cleanly without the API.
-        if (!cancelled) setCohort(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // The one real data point: prefer an open cohort, else the next announced one
+  // with a start date. Undefined data (loading / error) → null → the section
+  // reads cleanly with the evergreen line. Never invents a cohort or a date.
+  const cohort = useMemo<CohortRow | null>(() => {
+    if (!data) return null;
+    const open = data.cohorts.find((c) => c.status === "open");
+    const announced = data.cohorts
+      .filter((c) => c.status === "announced" && c.startsAt)
+      .sort(
+        (a, b) =>
+          new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime(),
+      )[0];
+    return open ?? announced ?? null;
+  }, [data]);
 
   // Quiet two-digit index — a restrained margin detail, not a numbered ledger.
   const idx = (i: number) =>

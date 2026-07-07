@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { ShieldCheck, Gift, Users, Globe2, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api } from "@/lib/api";
+import { useNumbers } from "@/hooks/use-public-data";
 
 type Item = { icon: LucideIcon; value: string; label: string };
 
@@ -19,21 +18,11 @@ const toArabicDigits = (s: string) => s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧�
  */
 export function TrustStrip({ className = "" }: { className?: string }) {
   const { t, lang } = useLanguage();
-  const [members, setMembers] = useState<number | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    api<{ numbers: { members: number } }>("/numbers")
-      .then((r) => {
-        if (!cancelled) setMembers(r.numbers?.members ?? null);
-      })
-      .catch(() => {
-        /* fetch failed → the member item stays hidden; never invent a number. */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Real member count from the ONE shared, cached /numbers query. Undefined until
+  // it resolves and null on error — either way the member item below stays hidden
+  // rather than showing a fabricated figure (honesty rule).
+  const { data } = useNumbers();
+  const members = data?.numbers?.members ?? null;
 
   const membersValue =
     members != null && members > 0

@@ -5,7 +5,7 @@ import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
-import { api } from "@/lib/api";
+import { useNumbers } from "@/hooks/use-public-data";
 import { ParticleField } from "./ParticleField";
 
 const FALLBACK = {
@@ -168,9 +168,14 @@ export function Hero() {
   // the Apple "figures settle last" rhythm. Reduced-motion still shows real
   // values instantly (useCountUp snaps regardless of this flag).
   const [entered, setEntered] = useState(false);
-  // Live community figures — same /numbers source NumbersBand uses, so the hero
-  // can never contradict the "real numbers from our database" section below.
-  const [live, setLive] = useState<{ members: number; seatsHosted: number } | null>(null);
+  // Live community figures — same shared /numbers query NumbersBand reads (ONE
+  // cached request, deduped by React Query), so the hero can never contradict the
+  // "real numbers from our database" section below. Null until it resolves, so the
+  // count-up + honest empty fallbacks keep working exactly as before.
+  const { data: numbersData } = useNumbers();
+  const live = numbersData?.numbers
+    ? { members: numbersData.numbers.members, seatsHosted: numbersData.numbers.seatsHosted }
+    : null;
 
   const stills = useMemo(
     () =>
@@ -191,14 +196,6 @@ export function Hero() {
   useEffect(() => {
     const id = window.setTimeout(() => setEntered(true), 1150);
     return () => window.clearTimeout(id);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    api<{ numbers: { members: number; seatsHosted: number } }>("/numbers")
-      .then((r) => { if (!cancelled) setLive({ members: r.numbers.members, seatsHosted: r.numbers.seatsHosted }); })
-      .catch(() => { /* keep content fallbacks */ });
-    return () => { cancelled = true; };
   }, []);
 
   const { scrollYProgress } = useScroll({

@@ -2,25 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { api } from "@/lib/api";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { imageUrl } from "@/hooks/use-content";
-
-interface Numbers {
-  members: number;
-  freelancers: number;
-  graduates: number;
-  students: number;
-  works: number;
-  courses: number;
-  enrollments: number;
-  bookings: number;
-  seatsHosted: number;
-  applications: number;
-  events: number;
-}
+import { useNumbers } from "@/hooks/use-public-data";
 
 function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -68,20 +54,12 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
  */
 export function NumbersBand() {
   const { lang, t } = useLanguage();
-  const [n, setN] = useState<Numbers | null>(null);
-
-  useEffect(() => {
-    api<{ numbers: Numbers }>("/numbers")
-      .then((r) => setN(r.numbers))
-      // Never strand the section on "—" / zeros if the API hiccups.
-      .catch(() =>
-        setN({
-          members: 57, freelancers: 21, graduates: 15, students: 9,
-          works: 48, courses: 4, enrollments: 116, bookings: 3,
-          seatsHosted: 6, applications: 1, events: 9,
-        }),
-      );
-  }, []);
+  // Live figures from the ONE shared, cached /numbers query (deduped across the
+  // homepage). `n` stays null until it resolves — the "—" placeholders below
+  // cover the loading state, and on error it degrades to those same placeholders
+  // rather than inventing a figure. Every rendered number is real or nothing.
+  const { data } = useNumbers();
+  const n = data?.numbers ?? null;
 
   const lead = {
     value: n?.enrollments ?? 0,

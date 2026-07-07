@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Calendar } from "lucide-react";
-import { api } from "@/lib/api";
+import { useDaily } from "@/hooks/use-public-data";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -61,30 +61,23 @@ function trimExcerpt(s: string, n = 110): string {
 export function NewsSlider() {
   const { lang, t } = useLanguage();
   const reduce = useReducedMotion();
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const { data, isLoading, isError } = useDaily<Post>();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const cAr = useContentSection("newsSlider", FALLBACK);
   const c = lang === "en" ? { ...cAr, ...FALLBACK_EN } : cAr;
   const typeLabels = lang === "en" ? DAILY_TYPE_LABELS_EN : DAILY_TYPE_LABELS;
 
-  useEffect(() => {
-    let cancelled = false;
-    api<{ posts: Post[] }>("/daily")
-      .then((r) => {
-        if (cancelled) return;
-        const next = r.posts.slice(0, 7);
-        setPosts(next);
-        // Default selection = the first item.
-        setSelectedId(next.length > 0 ? next[0].id : null);
-      })
-      .catch(() => !cancelled && setPosts([]));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Loading → null (skeleton branch). Error → [] so the honest empty state
+  // (calendar + "no upcoming events") stands quietly. Resolved → first 7.
+  const posts = useMemo<Post[] | null>(() => {
+    if (isLoading) return null;
+    if (isError || !data) return [];
+    return data.posts.slice(0, 7);
+  }, [data, isLoading, isError]);
 
-  // The selected post drives the feature; fall back to the first item so the
-  // feature is never blank if the selection ever drifts out of the list.
+  // The selected post drives the feature; the user's selection wins, else the
+  // default selection is the first item. Also falls back to the first item so
+  // the feature is never blank if the selection ever drifts out of the list.
   const selected = useMemo<Post | null>(() => {
     if (!posts || posts.length === 0) return null;
     return posts.find((p) => p.id === selectedId) ?? posts[0];

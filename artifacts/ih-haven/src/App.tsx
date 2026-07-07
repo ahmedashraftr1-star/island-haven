@@ -83,7 +83,22 @@ const Terms = lazy(() => import("@/pages/Terms"));
 const Visit = lazy(() => import("@/pages/Visit"));
 const Support = lazy(() => import("@/pages/Support"));
 
-const queryClient = new QueryClient();
+// Shared cache/dedup layer. Public data (numbers, ventures, …) is fetched ONCE
+// per key and reused across every component (see hooks/use-public-data). Retry
+// never storms on 4xx (e.g. /attendance/summary 404 on older builds), and backs
+// off at most twice on 5xx/network — so repeated requests can't cascade into 503s.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: (count, err) => {
+        const status = (err as { status?: number } | null)?.status;
+        if (typeof status === "number" && status >= 400 && status < 500) return false;
+        return count < 2;
+      },
+    },
+  },
+});
 
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Island Haven · حاضنة أعمال في غزّة",

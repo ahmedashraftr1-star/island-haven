@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "wouter";
 import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { api } from "@/lib/api";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { useVentures } from "@/hooks/use-public-data";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { ventureIdentity } from "@/lib/ventureIdentity";
@@ -168,19 +168,17 @@ export function VenturesShowcase() {
   // Confirmed metrics only — the owner adds real per-venture figures in this CMS
   // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
-  const [rows, setRows] = useState<Venture[] | null>(null);
+  const { data, isLoading, isError } = useVentures<Venture>();
 
-  useEffect(() => {
-    let cancelled = false;
-    api<{ ventures: Venture[] }>("/ventures")
-      .then((r) => {
-        if (cancelled) return;
-        const sorted = [...r.ventures].sort((a, b) => Number(b.featured) - Number(a.featured));
-        setRows(sorted.slice(0, 4));
-      })
-      .catch(() => !cancelled && setRows([]));
-    return () => { cancelled = true; };
-  }, []);
+  // Featured-first sort + top-4 slice, memoized off the cached query data.
+  const rows = useMemo<Venture[] | null>(() => {
+    // Loading → null (quiet, render nothing). Error → [] so the evergreen
+    // fallback stands instead of a broken blank.
+    if (isLoading) return null;
+    if (isError || !data) return [];
+    const sorted = [...data.ventures].sort((a, b) => Number(b.featured) - Number(a.featured));
+    return sorted.slice(0, 4);
+  }, [data, isLoading, isError]);
 
   if (!rows) return null;
 

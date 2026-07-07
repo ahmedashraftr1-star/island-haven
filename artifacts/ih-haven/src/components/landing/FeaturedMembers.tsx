@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { api } from "@/lib/api";
+import { useMembers } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
@@ -25,19 +24,12 @@ interface FMember {
 export function FeaturedMembers() {
   const { t } = useLanguage();
   useReducedMotion();
-  const [members, setMembers] = useState<FMember[] | null>(null);
+  const { data } = useMembers<FMember>();
+  // Top-5 slice; undefined until resolved. On loading / error / empty the
+  // section renders nothing (below) so the homepage never shows a broken block.
+  const members = (data?.members ?? []).slice(0, 5);
 
-  useEffect(() => {
-    let cancelled = false;
-    api<{ members: FMember[] }>("/members?page=1")
-      .then((r) => !cancelled && setMembers((r.members ?? []).slice(0, 5)))
-      .catch(() => !cancelled && setMembers([]));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!members || members.length === 0) return null;
+  if (members.length === 0) return null;
 
   return (
     <CinematicMedia

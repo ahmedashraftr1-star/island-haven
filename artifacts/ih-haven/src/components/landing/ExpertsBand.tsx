@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { api } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
+import { useExperts } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
@@ -46,15 +45,14 @@ function initials(name: string): string {
  */
 export function ExpertsBand() {
   const { t, lang } = useLanguage();
-  const [rows, setRows] = useState<ExpertCard[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    api<{ experts: ExpertCard[] }>("/experts")
-      .then((r) => { if (!cancelled) setRows(r.experts.slice(0, 6)); })
-      .catch(() => { if (!cancelled) setRows([]); });
-    return () => { cancelled = true; };
-  }, []);
+  const { data, isLoading, isError } = useExperts<ExpertCard>();
+  // Loading → null (skeleton grid). Error → [] so the evergreen empty state
+  // (roster gathering + become-a-mentor CTA) stands quietly. Resolved → top-6.
+  const rows: ExpertCard[] | null = isLoading
+    ? null
+    : isError || !data
+      ? []
+      : data.experts.slice(0, 6);
 
   const isEmpty = rows !== null && rows.length === 0;
   const experts = rows ?? Array.from({ length: 6 }).map(() => null);

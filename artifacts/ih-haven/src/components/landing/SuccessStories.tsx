@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api } from "@/lib/api";
+import { useStories } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
@@ -69,17 +68,14 @@ function Avatar({
 
 export function SuccessStories() {
   const { lang, t } = useLanguage();
-  const [rows, setRows] = useState<Story[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    api<{ stories: Story[] }>("/stories")
-      .then((r) => !cancelled && setRows(r.stories.slice(0, 6)))
-      .catch(() => !cancelled && setRows([]));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data, isLoading, isError } = useStories<Story>();
+  // Loading → null (skeleton branch). Error → [] so the evergreen fallback
+  // stands quietly instead of a broken blank. Resolved → top-6 slice.
+  const rows: Story[] | null = isLoading
+    ? null
+    : isError || !data
+      ? []
+      : data.stories.slice(0, 6);
 
   const eyebrow = (
     <div className="mb-6 flex items-center gap-3">
