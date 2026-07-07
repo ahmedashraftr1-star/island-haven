@@ -1,37 +1,45 @@
+import { useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
 
 /**
- * GazaToGlobal — "من غزّة إلى العالم / From Gaza to the World", the brand's wow
- * moment, built on the thesis "الموهبة لا تحدّها الجغرافيا" (talent isn't bounded
- * by geography). It sits on a full-bleed workspace PHOTOGRAPH (CinematicMedia,
- * heavy scrim) so the animated reach arcs feel like they radiate from a real
- * place — bold display headline, white type, crimson + gold accents over the
- * dimmed photo.
+ * GazaToGlobal — "من غزّة إلى العالم / From Gaza to the World", the homepage's
+ * living signature, built on the thesis "الموهبة لا تحدّها الجغرافيا" (talent
+ * isn't bounded by geography). It sits on a vivid Gaza PHOTOGRAPH (CinematicMedia
+ * + glass-ambient) with the animated reach map and copy floating in a single
+ * `glass-panel-lg` tile — the site's dark-glass material.
  *
- * The centerpiece is a HAND-BUILT viewBox SVG of REACH — a single crimson origin
- * (Gaza) from which stylised arcs sweep outward to a constellation of global
- * nodes. On scroll-into-view the arcs DRAW (framer-motion pathLength) and the
- * nodes fade + pulse in a stagger. No external map data. Everything is
- * transform/opacity only (GPU) and fully short-circuited under reduced-motion.
- * The SVG lives in a subtle glass card so the photo shows through slightly.
+ * The centerpiece is a HAND-BUILT viewBox SVG of REACH — a pulsing terracotta
+ * origin (Gaza) from which arcs sweep outward to a constellation of global
+ * destination nodes. On scroll-into-view the arcs DRAW (framer-motion
+ * pathLength) and nodes pop + ripple in a stagger.
  *
- * Alongside it, four reach stats (gold tnum numerals, Arabic-Indic in AR) drawn
- * from the real value props — Payoneer payments, Freelancer marketplace, cloud
- * credits, global mentors — then a confident closing line + an /apply CTA.
+ * INTERACTIVE: every destination node is keyboard-focusable and hoverable. The
+ * active node brightens its own arc + node and dims the rest, and its honest
+ * reach line (region + a truthful "our members work with clients here" narrative,
+ * NO invented numbers) surfaces in a caption slot below the map. aria-labels on
+ * every node; the map has a live-region caption so screen-reader users hear the
+ * active reach line.
+ *
+ * PERF/SECURITY: pure local math for the geometry (no eval / innerHTML / network
+ * beyond the honest reach copy). Everything is transform/opacity only (GPU). The
+ * infinite ripple loops are GATED on `useInView` so they PAUSE when the section
+ * is scrolled offscreen. Under prefers-reduced-motion the arcs render drawn and
+ * static, no loops, and hover/focus still switches the caption.
  */
 
-/* Destination constellation — fixed points in the 760×440 viewBox. The origin
-   (Gaza) sits low-left; arcs sweep up and outward. `cp` is the bezier control
-   point that gives each arc its lift. */
+/* ── Geometry — a stylised world frame in a 760×440 viewBox. The origin (Gaza)
+   sits low-left; arcs sweep up and outward to each destination. `cx/cy` is the
+   quadratic-bezier control point that gives each arc its lift. Pure constants —
+   no map data, no runtime math beyond building the path string. ── */
 const ORIGIN = { x: 150, y: 312 };
 
-type Node = {
+type Region = {
   id: string;
   x: number;
   y: number;
@@ -39,28 +47,81 @@ type Node = {
   cy: number;
   r: number;
   delay: number;
+  region: { ar: string; en: string };
+  reach: { ar: string; en: string };
 };
 
-const NODES: Node[] = [
-  { id: "eu", x: 360, y: 96, cx: 230, cy: 150, r: 5, delay: 0.05 },
-  { id: "us", x: 232, y: 150, cx: 168, cy: 232, r: 6, delay: 0.14 },
-  { id: "gulf", x: 540, y: 168, cx: 360, cy: 168, r: 5.5, delay: 0.23 },
-  { id: "asia", x: 660, y: 248, cx: 470, cy: 248, r: 5, delay: 0.32 },
-  { id: "africa", x: 470, y: 332, cx: 320, cy: 360, r: 4.5, delay: 0.41 },
+/* Honest reach narrative per region — a truthful "our members work with clients
+   / partners here" line. NO specific per-region numbers are invented. */
+const REGIONS: Region[] = [
+  {
+    id: "eu",
+    x: 360,
+    y: 96,
+    cx: 230,
+    cy: 150,
+    r: 5.5,
+    delay: 0.05,
+    region: { ar: "أوروبا", en: "Europe" },
+    reach: { ar: "أعضاؤنا يعملون مع عملاء وشركاء هنا.", en: "Our members work with clients & partners here." },
+  },
+  {
+    id: "us",
+    x: 232,
+    y: 150,
+    cx: 168,
+    cy: 232,
+    r: 6,
+    delay: 0.14,
+    region: { ar: "أمريكا الشماليّة", en: "North America" },
+    reach: { ar: "مشاريع تُسلَّم عبر الأطلسي من قلب غزّة.", en: "Projects delivered across the Atlantic from Gaza." },
+  },
+  {
+    id: "gulf",
+    x: 540,
+    y: 168,
+    cx: 360,
+    cy: 168,
+    r: 6,
+    delay: 0.23,
+    region: { ar: "الخليج", en: "The Gulf" },
+    reach: { ar: "شراكات ومهمّات مع فرقٍ في المنطقة.", en: "Partnerships & engagements with teams in the region." },
+  },
+  {
+    id: "asia",
+    x: 660,
+    y: 248,
+    cx: 470,
+    cy: 248,
+    r: 5,
+    delay: 0.32,
+    region: { ar: "آسيا", en: "Asia" },
+    reach: { ar: "عملٌ عن بُعد يصل أسواقًا في القارّة.", en: "Remote work reaching markets across the continent." },
+  },
+  {
+    id: "africa",
+    x: 470,
+    y: 332,
+    cx: 320,
+    cy: 360,
+    r: 4.5,
+    delay: 0.41,
+    region: { ar: "إفريقيا", en: "Africa" },
+    reach: { ar: "تعاونٌ يمتدّ جنوبًا عبر الحدود.", en: "Collaboration reaching south, across borders." },
+  },
 ];
 
-const arcPath = (n: Node) =>
-  `M ${ORIGIN.x} ${ORIGIN.y} Q ${n.cx} ${n.cy} ${n.x} ${n.y}`;
+const arcPath = (n: Region) => `M ${ORIGIN.x} ${ORIGIN.y} Q ${n.cx} ${n.cy} ${n.x} ${n.y}`;
 
 export function GazaToGlobal() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   const ar = lang === "ar";
 
-  const num = (v: string) =>
-    ar ? v.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : v;
+  const num = (v: string) => (ar ? v.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : v);
 
   // Reach stats — straight from the real value props the incubator hands over.
+  // (Gold tnum figures; none invented beyond the vetted marketplace value props.)
   const stats = [
     {
       value: "190+",
@@ -90,26 +151,27 @@ export function GazaToGlobal() {
       id="gaza-to-global"
       data-testid="gaza-to-global"
       src={imageUrl("/photos/IMG_8358.webp")}
-      scrim="heavy"
+      scrim="medium"
       sideScrim={false}
-      className="border-t border-white/[0.06]"
+      className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "من غزّة إلى العالم", en: "From Gaza to the world" })}
     >
-      <div className="container-ih section-y">
-        {/* ── Header — the thesis, stated with one italic crimson accent ── */}
+      {/* Ambient lit-space field so the dark canvas reads as depth, not flat black */}
+      <div className="glass-ambient pointer-events-none absolute inset-0" aria-hidden />
+
+      <div className="container-ih section-y relative">
+        {/* ── Header — the thesis, stated with one terracotta accent word ── */}
         <Reveal as="header" className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="h-px w-9 bg-primary/60" />
-            <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
-              {t({ ar: "وصولٌ بلا حدود", en: "Reach without borders" })}
-            </span>
-          </div>
+          <span className="mb-5 flex items-center gap-2.5">
+            <span aria-hidden className="h-px w-9 bg-primary/70" />
+            <span className="eyebrow">{t({ ar: "وصولٌ بلا حدود", en: "Reach without borders" })}</span>
+          </span>
           <h2
             className="font-display text-white"
             style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.05em" }}
           >
             {t({ ar: "من غزّة ", en: "From Gaza " })}
-            <span className="italic text-primary">{t({ ar: "إلى العالم.", en: "to the world." })}</span>
+            <span className="text-primary">{t({ ar: "إلى العالم.", en: "to the world." })}</span>
           </h2>
           <p className="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-white/70">
             {t({
@@ -119,42 +181,44 @@ export function GazaToGlobal() {
           </p>
         </Reveal>
 
-        {/* ── Centerpiece + reach stats — asymmetric editorial split ── */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,5rem)] gap-y-12 items-center">
-          {/* The reach visual — hand-built SVG, arcs draw + nodes pulse on view */}
-          <Reveal as="div" className="lg:col-span-7" delay={0.04}>
-            <div className="rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-sm p-5 sm:p-7 lg:p-8">
-              <ReachVisual reduce={!!reduce} ar={ar} t={t} />
-            </div>
-          </Reveal>
+        {/* ── Centerpiece + reach stats — floating in one dark-glass tile ── */}
+        <Reveal delay={0.04}>
+          <div className="mt-[clamp(2.5rem,5vw,4rem)] glass-panel-lg p-5 sm:p-7 lg:p-9">
+            <div className="grid lg:grid-cols-12 gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-12 items-center">
+              {/* The interactive reach map — arcs draw + nodes pulse; hover/focus a
+                  node to highlight its arc and surface its honest reach line. */}
+              <div className="lg:col-span-7">
+                <ReachVisual reduce={!!reduce} ar={ar} t={t} />
+              </div>
 
-          {/* Reach stats — gold tnum numerals, hairline ledger (no chips) */}
-          <div className="lg:col-span-5">
-            <div className="border-t border-white/10">
-              {stats.map((s, i) => (
-                <Reveal key={i} delay={i * 0.06}>
-                  <div
-                    data-testid={`reach-stat-${i}`}
-                    className="group grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-white/10 py-6 sm:py-7"
-                  >
-                    <span
-                      className="font-display tnum text-sand-bright leading-none"
-                      style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em" }}
+              {/* Reach stats — gold tnum numerals, hairline ledger (no chips) */}
+              <div className="lg:col-span-5">
+                <div className="border-t border-white/10">
+                  {stats.map((s, i) => (
+                    <div
+                      key={i}
+                      data-testid={`reach-stat-${i}`}
+                      className="grid grid-cols-[auto_1fr] items-baseline gap-x-5 sm:gap-x-7 border-b border-white/10 py-6 sm:py-7"
                     >
-                      {num(s.value)}
-                    </span>
-                    <div>
-                      <div className="text-[15px] font-semibold text-white leading-snug">{s.label}</div>
-                      <div className="mt-1 text-[12px] tracking-[0.04em] text-white/55 font-semibold rtl:tracking-normal">
-                        {s.sub}
+                      <span
+                        className="font-display tnum text-sand-bright leading-none"
+                        style={{ fontSize: "clamp(2rem, 3.6vw, 3rem)", fontWeight: 700, letterSpacing: "-0.03em" }}
+                      >
+                        {num(s.value)}
+                      </span>
+                      <div>
+                        <div className="text-[15px] font-semibold text-white leading-snug">{s.label}</div>
+                        <div className="mt-1 text-[12px] tracking-[0.04em] text-white/55 font-semibold rtl:tracking-normal">
+                          {s.sub}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Reveal>
-              ))}
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* ── Closing line + CTA — confident, plain, inviting ── */}
         <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
@@ -163,7 +227,7 @@ export function GazaToGlobal() {
             style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 700 }}
           >
             {t({ ar: "موهبتك من غزّة — ", en: "Your talent is from Gaza — " })}
-            <span className="italic text-primary">{t({ ar: "وأثرها للعالم كلّه.", en: "its impact is for the whole world." })}</span>
+            <span className="text-primary">{t({ ar: "وأثرها للعالم كلّه.", en: "its impact is for the whole world." })}</span>
           </p>
           <Link
             href="/apply"
@@ -180,10 +244,16 @@ export function GazaToGlobal() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   ReachVisual — the hand-built SVG centerpiece. A crimson Gaza origin radiates
-   stylised arcs to a constellation of cerulean global nodes. Arcs draw on view
-   (pathLength), nodes fade + ripple in a stagger. Transform/opacity only.
-   Under reduced-motion every element renders in its final state immediately.
+   ReachVisual — the interactive SVG centerpiece. A terracotta Gaza origin
+   radiates arcs to a constellation of gold destination nodes. Arcs draw on view
+   (pathLength); nodes pop + ripple in a stagger. Hovering / focusing a node
+   highlights its arc + node and surfaces the region's honest reach line below.
+
+   PERF: the infinite ripple loops are GATED on `useInView` — when the section is
+   scrolled offscreen the loops pause (nodes render in their static resting
+   state). SECURITY: geometry is pure constant math; the only strings rendered
+   are the honest bilingual reach copy. Under reduced-motion everything renders
+   final + static, but hover/focus still switches the caption.
    ───────────────────────────────────────────────────────────────────────── */
 function ReachVisual({
   reduce,
@@ -194,6 +264,14 @@ function ReachVisual({
   ar: boolean;
   t: (bi: { ar: string; en: string }) => string;
 }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  // Gate the infinite ripples: only run while the map is on screen.
+  const onScreen = useInView(wrapRef, { amount: 0.25 });
+  const loop = onScreen && !reduce;
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const active = REGIONS.find((r) => r.id === activeId) ?? null;
+
   // Draw config — short-circuited to "already drawn / shown" under reduced-motion.
   const drawArc = reduce
     ? {}
@@ -214,20 +292,19 @@ function ReachVisual({
         };
 
   return (
-    <div className="relative w-full">
+    <div ref={wrapRef} className="relative w-full">
       <svg
         viewBox="0 0 760 440"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-auto"
+        className="w-full h-auto overflow-visible"
         role="img"
         aria-label={t({
-          ar: "رسمٌ يُظهر وصول المواهب من غزّة إلى نقاطٍ حول العالم",
-          en: "A diagram showing talent reaching from Gaza out to points around the world",
+          ar: "خريطة تفاعليّة تُظهر وصول المواهب من غزّة إلى مناطق حول العالم",
+          en: "An interactive map showing talent reaching from Gaza out to regions around the world",
         })}
       >
-        {/* Faint latitude/meridian field — gives the constellation a "world" frame
-            without depending on real map data. Gold, very low opacity. */}
+        {/* Faint latitude/meridian field — a "world" frame without real map data. */}
         <g stroke="hsl(var(--sand-bright))" strokeWidth="0.75" opacity="0.16">
           <path d="M 40 120 Q 380 96 720 120" />
           <path d="M 40 220 Q 380 196 720 220" />
@@ -237,71 +314,119 @@ function ReachVisual({
           <path d="M 560 40 Q 584 220 560 400" />
         </g>
 
-        {/* Reach arcs — sweep from Gaza to each global node, drawing on view */}
-        <g
-          stroke="hsl(var(--sand-bright))"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          fill="none"
-        >
-          {NODES.map((n) => (
-            <motion.path
-              key={n.id}
-              d={arcPath(n)}
-              opacity={0.55}
-              {...drawArc}
-              transition={{ pathLength: { delay: 0.15 + n.delay, duration: 1.05, ease: "easeOut" }, opacity: { delay: 0.15 + n.delay, duration: 0.3 } }}
-            />
-          ))}
+        {/* Reach arcs — sweep from Gaza to each node, drawing on view. The active
+            arc brightens + thickens; the rest dim when any node is engaged. */}
+        <g strokeLinecap="round" fill="none">
+          {REGIONS.map((n) => {
+            const isActive = activeId === n.id;
+            const dimmed = activeId !== null && !isActive;
+            return (
+              <motion.path
+                key={n.id}
+                d={arcPath(n)}
+                stroke={isActive ? "hsl(var(--primary))" : "hsl(var(--sand-bright))"}
+                strokeWidth={isActive ? 2.6 : 1.6}
+                style={{ transition: "stroke .3s ease, stroke-width .3s ease, opacity .3s ease" }}
+                animate={{ opacity: dimmed ? 0.18 : isActive ? 0.95 : 0.55 }}
+                {...drawArc}
+                transition={{
+                  pathLength: { delay: 0.15 + n.delay, duration: 1.05, ease: "easeOut" },
+                  opacity: { delay: 0.15 + n.delay, duration: 0.3 },
+                }}
+              />
+            );
+          })}
         </g>
 
-        {/* Destination nodes — cerulean, pop + soft ripple in a stagger */}
-        {NODES.map((n) => (
-          <g key={n.id} transform={`translate(${n.x}, ${n.y})`}>
-            {!reduce && (
+        {/* Destination nodes — gold, pop + soft ripple in a stagger. Each is an
+            interactive, keyboard-focusable button that highlights its arc and
+            surfaces its honest reach line. */}
+        {REGIONS.map((n) => {
+          const isActive = activeId === n.id;
+          const label = `${t(n.region)} — ${t(n.reach)}`;
+          return (
+            <g
+              key={n.id}
+              transform={`translate(${n.x}, ${n.y})`}
+              role="button"
+              tabIndex={0}
+              aria-label={label}
+              aria-pressed={isActive ? "true" : "false"}
+              className="cursor-pointer focus:outline-none [&:focus-visible>circle.node-ring]:opacity-100"
+              onMouseEnter={() => setActiveId(n.id)}
+              onMouseLeave={() => setActiveId((cur) => (cur === n.id ? null : cur))}
+              onFocus={() => setActiveId(n.id)}
+              onBlur={() => setActiveId((cur) => (cur === n.id ? null : cur))}
+              style={{ transition: "opacity .3s ease" }}
+            >
+              {/* Generous invisible hit area for pointer + touch */}
+              <circle r={16} fill="transparent" />
+              {/* Focus ring — shown on keyboard focus via the selector above */}
+              <circle
+                className="node-ring"
+                r={n.r + 6}
+                fill="none"
+                stroke="hsl(var(--sand-bright))"
+                strokeWidth={1.5}
+                opacity={0}
+                style={{ transition: "opacity .2s ease" }}
+              />
+              {/* Ripple — GATED on-screen so the loop pauses when scrolled away */}
+              {loop && (
+                <motion.circle
+                  r={n.r}
+                  fill="hsl(var(--sand-bright))"
+                  initial={{ scale: 0, opacity: 0.45 }}
+                  animate={{ scale: [0, 3.2, 3.2], opacity: [0.45, 0, 0] }}
+                  transition={{
+                    delay: 0.7 + n.delay,
+                    duration: 2.2,
+                    repeat: Infinity,
+                    repeatDelay: 0.8,
+                    ease: "easeOut",
+                    times: [0, 0.6, 1],
+                  }}
+                  style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
+                />
+              )}
+              {/* The node itself — scales up + turns terracotta when engaged */}
               <motion.circle
                 r={n.r}
-                fill="hsl(var(--sand-bright))"
-                opacity={0.4}
-                initial={{ scale: 0, opacity: 0.45 }}
-                whileInView={{ scale: [0, 3.2, 3.2], opacity: [0.45, 0, 0] }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ delay: 0.7 + n.delay, duration: 2.2, repeat: Infinity, repeatDelay: 0.8, ease: "easeOut", times: [0, 0.6, 1] }}
-                style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
+                fill={isActive ? "hsl(var(--primary))" : "hsl(var(--sand-bright))"}
+                stroke="#060608"
+                strokeWidth="2"
+                animate={reduce ? undefined : { scale: isActive ? 1.6 : 1 }}
+                transition={{ type: "spring", stiffness: 420, damping: 24 }}
+                style={{
+                  transformBox: "fill-box",
+                  originX: "0.5",
+                  originY: "0.5",
+                  transition: "fill .3s ease",
+                }}
+                {...popNode(n.delay)}
               />
-            )}
-            <motion.circle
-              r={n.r}
-              fill="hsl(var(--sand-bright))"
-              stroke="#060608"
-              strokeWidth="2"
-              {...popNode(n.delay)}
-              style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
-            />
-          </g>
-        ))}
+            </g>
+          );
+        })}
 
-        {/* Origin — Gaza. A crimson pin with a confident heartbeat ripple. */}
+        {/* Origin — Gaza. A terracotta pin with a confident heartbeat ripple
+            (GATED on-screen). */}
         <g transform={`translate(${ORIGIN.x}, ${ORIGIN.y})`}>
-          {!reduce && (
+          {loop && (
             <>
               <motion.circle
                 r="9"
                 fill="hsl(var(--primary))"
-                opacity={0.35}
                 initial={{ scale: 0, opacity: 0.4 }}
-                whileInView={{ scale: [0, 4.5, 4.5], opacity: [0.4, 0, 0] }}
-                viewport={{ once: true, amount: 0.4 }}
+                animate={{ scale: [0, 4.5, 4.5], opacity: [0.4, 0, 0] }}
                 transition={{ delay: 0.3, duration: 2.6, repeat: Infinity, ease: "easeOut", times: [0, 0.55, 1] }}
                 style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
               />
               <motion.circle
                 r="9"
                 fill="hsl(var(--primary))"
-                opacity={0.5}
                 initial={{ scale: 0, opacity: 0.55 }}
-                whileInView={{ scale: [0, 2.8, 2.8], opacity: [0.55, 0, 0] }}
-                viewport={{ once: true, amount: 0.4 }}
+                animate={{ scale: [0, 2.8, 2.8], opacity: [0.55, 0, 0] }}
                 transition={{ delay: 0.5, duration: 2.6, repeat: Infinity, ease: "easeOut", times: [0, 0.55, 1] }}
                 style={{ transformBox: "fill-box", originX: "0.5", originY: "0.5" }}
               />
@@ -335,13 +460,28 @@ function ReachVisual({
         </g>
       </svg>
 
-      {/* Caption — names the thesis under the visual, low and quiet */}
-      <div className="mt-4 flex items-center gap-2.5 text-[12.5px] text-white/55">
-        <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-primary" />
-        <span className="font-semibold text-white/80">{t({ ar: "نقطة الانطلاق: غزّة", en: "Origin: Gaza" })}</span>
-        <span className="text-white/25">·</span>
-        <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-sand-bright" />
-        <span>{t({ ar: "وجهات حول العالم", en: "Destinations worldwide" })}</span>
+      {/* Interactive caption — swaps to the active region's honest reach line on
+          hover/focus, and falls back to the origin/destination legend at rest.
+          aria-live so screen-reader users hear the active reach narrative. */}
+      <div className="mt-4 min-h-[1.75rem]" aria-live="polite">
+        {active ? (
+          <div className="flex items-start gap-2.5 text-[12.5px]">
+            <span aria-hidden className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
+            <span className="text-white/85">
+              <span className="font-bold text-white">{t(active.region)}</span>
+              <span className="text-white/30"> — </span>
+              <span className="text-white/70">{t(active.reach)}</span>
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2.5 text-[12.5px] text-white/55">
+            <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-primary" />
+            <span className="font-semibold text-white/80">{t({ ar: "نقطة الانطلاق: غزّة", en: "Origin: Gaza" })}</span>
+            <span className="text-white/25">·</span>
+            <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-sand-bright" />
+            <span>{t({ ar: "مرّر أو انتقل بين الوجهات", en: "Hover or tab through the destinations" })}</span>
+          </div>
+        )}
       </div>
     </div>
   );

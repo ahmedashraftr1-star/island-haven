@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { Link } from "wouter";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,6 +24,13 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
  *
  * All data is REAL (/numbers + /works), polled so the section genuinely updates
  * on screen. Reduced motion → the heartbeat holds drawn and the stream is static.
+ *
+ * ── LIVING ENHANCEMENTS (all GPU-only, all reduced-motion gated) ──
+ *  · Scroll-energized sweep — as the section enters view the heartbeat brightens,
+ *    thickens and its glow along the ECG line intensifies (spring-smoothed useScroll).
+ *  · Beat flash — each time a new real work surfaces in the stream, the LIVE dot
+ *    and the line pulse a synchronized ripple, so beat and arrival feel connected.
+ *  · Echo waveform — a fainter, slower second heartbeat behind for depth.
  */
 
 interface Numbers {
@@ -87,6 +102,35 @@ export function LivePulse() {
   const [beats, setBeats] = useState<Beat[]>([]);
   const [idx, setIdx] = useState(0);
 
+  // ── Scroll-energized heartbeat ──
+  // As the section rises into view the pulse gains energy: the sweep brightens,
+  // thickens and the glow along the ECG line intensifies. Spring-smoothed so it
+  // never janks, and fully neutral under reduced motion (every range below
+  // collapses to a constant, so no scroll value ever drives a visual property).
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "center center"],
+  });
+  const energy = useSpring(scrollYProgress, {
+    stiffness: 110,
+    damping: 28,
+    mass: 0.4,
+    restDelta: 0.001,
+  });
+
+  // Glow along the line: soft → bright, driven straight into the drop-shadow.
+  const glowBlur = useTransform(energy, [0, 1], reduce ? [7, 7] : [5, 12]);
+  const glowAlpha = useTransform(energy, [0, 1], reduce ? [0.75, 0.75] : [0.5, 0.95]);
+  const sweepFilter = useMotionTemplate`drop-shadow(0 0 ${glowBlur}px hsl(var(--primary) / ${glowAlpha}))`;
+  // Sweep line weight thickens a touch as it energizes (updates the running loop's
+  // static style without ever restarting the strokeDashoffset keyframes).
+  const sweepWeight = useTransform(energy, [0, 1], reduce ? [3.25, 3.25] : [2.9, 3.6]);
+  // The whole heartbeat gains vitality as it rises into view — faint & resting below
+  // the fold, then bright & alive once centred. GPU-only opacity, no loop restart.
+  const pulseOpacity = useTransform(energy, [0, 1], reduce ? [1, 1] : [0.72, 1]);
+  const echoOpacity = useTransform(energy, [0, 1], reduce ? [0.4, 0.4] : [0.22, 0.5]);
+
   // Poll the real figures so the counts genuinely move on screen.
   useEffect(() => {
     let cancelled = false;
@@ -138,10 +182,14 @@ export function LivePulse() {
   }, [reduce, beats.length]);
 
   const current = beats.length ? beats[idx % beats.length] : null;
+  // A monotonic beat counter keyed off each arrival, so the flash/ripple animations
+  // re-fire even when the surfaced work happens to repeat (single-item streams).
+  const beatKey = current ? `${idx}-${current.id}` : "idle";
 
   return (
     <section
       id="live-pulse"
+      ref={sectionRef}
       data-testid="live-pulse"
       aria-label={t({ ar: "نبض المجتمع الحيّ", en: "The community's live pulse" })}
       className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
@@ -156,7 +204,26 @@ export function LivePulse() {
             {!reduce && (
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70" />
             )}
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.9)]" />
+            {/* Synchronized beat ripple — expands from the LIVE dot each time a new
+                work arrives in the stream, tying the visual beat to the data. */}
+            {!reduce && (
+              <motion.span
+                key={beatKey}
+                aria-hidden
+                className="absolute inline-flex h-full w-full rounded-full bg-primary"
+                initial={{ scale: 1, opacity: 0.55 }}
+                animate={{ scale: 3.4, opacity: 0 }}
+                transition={{ duration: 1.1, ease: EASE_OUT_EXPO }}
+              />
+            )}
+            {/* The dot itself gives a tiny synchronized "kick" on the beat. */}
+            <motion.span
+              key={`dot-${beatKey}`}
+              className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.9)]"
+              initial={reduce ? false : { scale: 1.6 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
+            />
           </span>
           <span className="eyebrow text-white/80">
             {t({ ar: "نبض المجتمع", en: "Community pulse" })} · <span className="text-primary">LIVE</span>
@@ -192,24 +259,65 @@ export function LivePulse() {
                 <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="1" />
               </linearGradient>
             </defs>
+
             {/* faint baseline waveform */}
             <path d={ecg} fill="none" stroke="hsl(var(--primary) / 0.16)" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-            {/* the living sweep — a bright segment riding the heartbeat */}
+
+            {/* echo — a fainter, slower second heartbeat trailing behind the main
+                sweep for depth. Static under reduced motion (drawn, not animated). */}
+            {!reduce && (
+              <motion.path
+                d={ecg}
+                fill="none"
+                stroke="hsl(var(--sand-bright) / 0.5)"
+                strokeWidth={2}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                pathLength={1}
+                style={{ strokeDasharray: "0.07 0.93", opacity: echoOpacity }}
+                animate={{ strokeDashoffset: [1.18, 0.18] }}
+                transition={{ duration: 3.9, repeat: Infinity, ease: "linear" }}
+              />
+            )}
+
+            {/* the living sweep — a bright segment riding the heartbeat. Its glow and
+                weight are driven live by scroll energy (spring-smoothed); the sweep
+                keyframes themselves never restart, so it stays buttery at 60fps. */}
             <motion.path
               d={ecg}
               fill="none"
               stroke="url(#pulseSweep)"
-              strokeWidth={3.25}
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
               pathLength={1}
               style={{
                 strokeDasharray: reduce ? undefined : "0.1 0.9",
-                filter: "drop-shadow(0 0 7px hsl(var(--primary) / 0.75))",
+                strokeWidth: reduce ? 3.25 : sweepWeight,
+                opacity: reduce ? 1 : pulseOpacity,
+                filter: reduce ? "drop-shadow(0 0 7px hsl(var(--primary) / 0.75))" : sweepFilter,
               }}
               animate={reduce ? undefined : { strokeDashoffset: [1, 0] }}
               transition={reduce ? undefined : { duration: 2.6, repeat: Infinity, ease: "linear" }}
             />
+
+            {/* beat flash — a brief full-line bloom fired on each arrival, syncing the
+                data beat to the ECG. Keyed to re-fire per surfaced work; skipped when
+                reduced motion is on. */}
+            {!reduce && (
+              <motion.path
+                key={`flash-${beatKey}`}
+                d={ecg}
+                fill="none"
+                stroke="hsl(var(--sand-bright))"
+                strokeWidth={2.4}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                initial={{ opacity: 0.42 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+                style={{ filter: "drop-shadow(0 0 6px hsl(var(--sand-bright) / 0.7))" }}
+              />
+            )}
           </svg>
 
           {/* the activity that "arrives" on the beat, centred on the line */}
