@@ -22,13 +22,36 @@ const app: Express = express();
 // limiting on the public booking endpoint.
 app.set("trust proxy", 1);
 
-// Baseline security headers. This is a JSON API behind the Replit proxy, which
-// also proxies object/image bytes, so we disable the default CSP (no HTML is
-// served here) and set Cross-Origin-Resource-Policy to "cross-origin" so those
-// images can still be embedded from the front-end origins.
+// Baseline security headers (helmet) + a scoped Content-Security-Policy. The CSP
+// is intentionally tuned to EXACTLY what the built SPA needs, so it protects the
+// HTML this server serves (express.static of ih-haven/dist) without breaking it:
+//  - script-src 'self'  → the app bundle is self-hosted; the only inline <script>
+//    is a non-executable application/ld+json block (CSP doesn't gate that). This
+//    is the XSS-critical directive — foreign/injected scripts are blocked.
+//  - style-src allows 'unsafe-inline' (the app uses inline styles) + Google Fonts
+//    CSS; font-src allows Google Fonts + data:.
+//  - img-src allows data:/blob:/https: (photos, the data-URI grain, remote covers).
+//  - frame-ancestors 'self' (clickjacking) + object-src 'none' + base-uri 'self'.
+// crossOriginResourcePolicy stays cross-origin so image bytes embed from the FE.
+// NOTE: if a reverse proxy serves the HTML instead of this server, mirror this CSP
+// there too (infra decision).
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
+        "img-src": ["'self'", "data:", "blob:", "https:"],
+        "connect-src": ["'self'"],
+        "frame-ancestors": ["'self'"],
+        "object-src": ["'none'"],
+        "base-uri": ["'self'"],
+        "upgrade-insecure-requests": null,
+      },
+    },
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
