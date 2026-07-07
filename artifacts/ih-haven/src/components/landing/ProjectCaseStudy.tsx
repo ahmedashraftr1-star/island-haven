@@ -10,6 +10,7 @@ import {
   ExternalLink,
   ArrowLeft,
   FileText,
+  Quote,
 } from "lucide-react";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
@@ -29,6 +30,7 @@ export interface CaseStudyVenture {
   coverUrl: string | null;
   websiteUrl: string;
   founderName: string;
+  founderQuote?: string;
   sector: string;
   stage: string;
   foundedYear: number;
@@ -340,7 +342,57 @@ function ByTheNumbers({ metrics }: { metrics: CaseStudyMetric[] }) {
   );
 }
 
-/* ── 5 · THE TEAM (real facts only, no invented quote) ── */
+/* ── 5 · FOUNDER'S VOICE (an editorial pull-quote — renders ONLY when a real
+   founderQuote is stored; never invented, never a placeholder) ── */
+function FounderVoice({ v }: { v: CaseStudyVenture }) {
+  const { t } = useLanguage();
+  const quote = v.founderQuote?.trim() ?? "";
+  const initial = v.founderName.trim().charAt(0);
+  return (
+    <Section
+      id="cs-founder-voice"
+      eyebrow={t({ ar: "صوت المؤسّس", en: "Founder's voice" })}
+      heading={t({ ar: "بكلماته", en: "In their words" })}
+    >
+      <Reveal delay={0.06}>
+        <figure className="mt-[clamp(2rem,4vw,3rem)] max-w-3xl rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-[clamp(1.75rem,4vw,3rem)] shadow-[0_40px_120px_-60px_rgba(0,0,0,0.85)]">
+          <Quote
+            aria-hidden
+            className="h-9 w-9 text-primary rtl:-scale-x-100"
+            strokeWidth={1.5}
+          />
+          <blockquote
+            className="mt-4 whitespace-pre-wrap font-display font-medium text-foreground"
+            style={{ fontSize: "clamp(1.4rem,2.8vw,2.15rem)", lineHeight: 1.35, letterSpacing: "-0.01em" }}
+          >
+            {quote}
+          </blockquote>
+          {v.founderName && (
+            <figcaption className="mt-7 flex items-center gap-3.5">
+              <span
+                aria-hidden
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-primary/30 bg-primary/[0.12] font-display font-black text-primary"
+                style={{ fontSize: "1.05rem" }}
+              >
+                {initial}
+              </span>
+              <span className="min-w-0">
+                <span className="block font-display font-bold text-foreground" style={{ fontSize: "clamp(1rem,1.5vw,1.2rem)" }}>
+                  {v.founderName}
+                </span>
+                <span className="block text-[11.5px] uppercase tracking-[0.16em] text-fg-faint rtl:tracking-normal">
+                  {t({ ar: "المؤسِّس", en: "Founder" })}
+                </span>
+              </span>
+            </figcaption>
+          )}
+        </figure>
+      </Reveal>
+    </Section>
+  );
+}
+
+/* ── 6 · THE TEAM (real facts only, no invented quote) ── */
 function Team({ v }: { v: CaseStudyVenture }) {
   const { t, lang } = useLanguage();
   const facts: { label: { ar: string; en: string }; value: string }[] = [];
@@ -389,7 +441,7 @@ function Team({ v }: { v: CaseStudyVenture }) {
   );
 }
 
-/* ── 6 · FROM GAZA TO THE WORLD (closing, always) ── */
+/* ── 7 · FROM GAZA TO THE WORLD (closing, always) ── */
 function GazaToWorld({
   v,
   pitchDeck,
@@ -472,6 +524,7 @@ export function ProjectCaseStudy({
   const hasOverview = venture.description.trim() !== "";
   const hasJourney = milestones.length > 0;
   const hasNumbers = metrics.length > 0;
+  const hasFounderVoice = Boolean(venture.founderQuote?.trim());
   const hasTeam = Boolean(venture.founderName) || venture.teamSize > 1 || venture.foundedYear > 0;
 
   // Build the TOC dynamically — only real sections, in narrative order.
@@ -481,6 +534,7 @@ export function ProjectCaseStudy({
   if (hasOverview) sections.push({ id: "cs-overview", icon: BookOpen, label: { ar: "نبذة", en: "About" } });
   if (hasJourney) sections.push({ id: "cs-journey", icon: RouteIcon, label: { ar: "الرحلة", en: "The journey" } });
   if (hasNumbers) sections.push({ id: "cs-numbers", icon: BarChart3, label: { ar: "الأرقام", en: "By the numbers" } });
+  if (hasFounderVoice) sections.push({ id: "cs-founder-voice", icon: Quote, label: { ar: "صوت المؤسّس", en: "Founder's voice" } });
   if (hasTeam) sections.push({ id: "cs-team", icon: Users, label: { ar: "الفريق", en: "The team" } });
   sections.push({ id: "cs-gaza", icon: Globe2, label: { ar: "من غزّة، إلى العالم", en: "From Gaza to the world" } });
 
@@ -500,6 +554,7 @@ export function ProjectCaseStudy({
         {hasOverview && <Overview v={venture} />}
         {hasJourney && <Journey v={venture} milestones={milestones} />}
         {hasNumbers && <ByTheNumbers metrics={metrics} />}
+        {hasFounderVoice && <FounderVoice v={venture} />}
         {hasTeam && <Team v={venture} />}
         <GazaToWorld v={venture} pitchDeck={pitchDeck} />
       </article>

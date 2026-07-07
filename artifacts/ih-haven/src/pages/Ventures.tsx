@@ -41,6 +41,7 @@ interface Venture {
   coverUrl: string | null;
   websiteUrl: string;
   founderName: string;
+  founderQuote?: string;
   sector: string;
   stage: VentureStage;
   foundedYear: number;

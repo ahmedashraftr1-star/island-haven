@@ -31,6 +31,7 @@ export const venturesTable = pgTable(
     founderName: varchar("founder_name", { length: 200 })
       .default("")
       .notNull(),
+    founderQuote: text("founder_quote").default("").notNull(),
     sector: varchar("sector", { length: 160 }).default("").notNull(),
     stage: varchar("stage", { length: 16 })
       .notNull()
@@ -87,6 +88,7 @@ export const upsertVentureSchema = z.object({
   coverUrl: z.string().trim().max(800).optional().nullable(),
   websiteUrl: httpUrl(400).default(""),
   founderName: safeText(200).default(""),
+  founderQuote: safeText(500).default(""),
   sector: safeText(160).default(""),
   stage: z.enum(VENTURE_STAGES).default("idea"),
   foundedYear: z.number().int().min(0).max(2100).default(0),

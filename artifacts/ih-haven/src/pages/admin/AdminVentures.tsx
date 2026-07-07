@@ -13,6 +13,7 @@ interface Row {
   coverUrl: string | null;
   websiteUrl: string;
   founderName: string;
+  founderQuote: string;
   sector: string;
   stage: VentureStage;
   foundedYear: number;
@@ -33,6 +34,7 @@ const EMPTY: Row = {
   coverUrl: "",
   websiteUrl: "",
   founderName: "",
+  founderQuote: "",
   sector: "",
   stage: "idea",
   foundedYear: 0,
@@ -190,6 +192,9 @@ function VentureEditor({ initial, onClose, onSaved }: { initial: Row; onClose: (
           <Field label="المؤسِّس"><input value={form.founderName} onChange={(e) => setForm((s) => ({ ...s, founderName: e.target.value }))} className="inp" maxLength={200} /></Field>
           <Field label="القطاع"><input value={form.sector} onChange={(e) => setForm((s) => ({ ...s, sector: e.target.value }))} className="inp" maxLength={160} /></Field>
         </div>
+        <Field label="اقتباس المؤسِّس · Founder quote">
+          <textarea rows={2} value={form.founderQuote} onChange={(e) => setForm((s) => ({ ...s, founderQuote: e.target.value }))} className="inp resize-none leading-[1.85]" maxLength={500} />
+        </Field>
         <div className="grid sm:grid-cols-3 gap-4">
           <Field label="المرحلة">
             <select value={form.stage} onChange={(e) => setForm((s) => ({ ...s, stage: e.target.value as VentureStage }))} className="inp">
