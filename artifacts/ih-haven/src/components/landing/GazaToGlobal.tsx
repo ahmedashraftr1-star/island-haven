@@ -14,10 +14,12 @@ import { imageUrl } from "@/hooks/use-content";
  * + glass-ambient) with the animated reach map and copy floating in a single
  * `glass-panel-lg` tile — the site's dark-glass material.
  *
- * The centerpiece is a HAND-BUILT viewBox SVG of REACH — a pulsing terracotta
- * origin (Gaza) from which arcs sweep outward to a constellation of global
- * destination nodes. On scroll-into-view the arcs DRAW (framer-motion
- * pathLength) and nodes pop + ripple in a stagger.
+ * The centerpiece is an ACTUAL WORLD MAP — a recognisable inline-SVG continents
+ * silhouette (equirectangular, 0 0 1000 500) drawn faint on the dark glass — with
+ * a pulsing terracotta origin (Gaza) at its true map coordinate. Great-circle-
+ * style arcs sweep from Gaza to a constellation of real global destinations. On
+ * scroll-into-view the arcs DRAW (framer-motion pathLength) and nodes pop +
+ * ripple in a stagger.
  *
  * INTERACTIVE: every destination node is keyboard-focusable and hoverable. The
  * active node brightens its own arc + node and dims the rest, and its honest
@@ -26,92 +28,143 @@ import { imageUrl } from "@/hooks/use-content";
  * every node; the map has a live-region caption so screen-reader users hear the
  * active reach line.
  *
- * PERF/SECURITY: pure local math for the geometry (no eval / innerHTML / network
- * beyond the honest reach copy). Everything is transform/opacity only (GPU). The
- * infinite ripple loops are GATED on `useInView` so they PAUSE when the section
- * is scrolled offscreen. Under prefers-reduced-motion the arcs render drawn and
- * static, no loops, and hover/focus still switches the caption.
+ * PERF/SECURITY: pure local math + inlined constant path data for the geometry
+ * (no external files/URLs, no eval / innerHTML / network beyond the honest reach
+ * copy). Everything is transform/opacity only (GPU). The infinite ripple loops
+ * are GATED on `useInView` so they PAUSE when the section is scrolled offscreen.
+ * Under prefers-reduced-motion the arcs render drawn and static, no loops, and
+ * hover/focus still switches the caption.
  */
 
-/* ── Geometry — a stylised world frame in a 760×440 viewBox. The origin (Gaza)
-   sits low-left; arcs sweep up and outward to each destination. `cx/cy` is the
-   quadratic-bezier control point that gives each arc its lift. Pure constants —
-   no map data, no runtime math beyond building the path string. ── */
-const ORIGIN = { x: 150, y: 312 };
+/* ── Projection — equirectangular into a 1000×500 viewBox. Pure local math:
+   longitude −180…180 → 0…1000, latitude 90…−90 → 0…500. Used only to place the
+   real-world map coordinates below onto the inline continents silhouette. ── */
+const VB_W = 1000;
+const VB_H = 500;
+const project = (lat: number, lon: number) => ({
+  x: ((lon + 180) / 360) * VB_W,
+  y: ((90 - lat) / 180) * VB_H,
+});
+
+/* Gaza — ~31.5°N, 34.5°E — the terracotta origin. */
+const ORIGIN = project(31.5, 34.5);
 
 type Region = {
   id: string;
-  x: number;
-  y: number;
-  cx: number;
-  cy: number;
+  lat: number;
+  lon: number;
   r: number;
   delay: number;
+  /* Arc lift factor — how far the great-circle-style curve bows off the direct
+     chord (fraction of chord length, perpendicular). Positive bows "north". */
+  lift: number;
   region: { ar: string; en: string };
   reach: { ar: string; en: string };
 };
 
 /* Honest reach narrative per region — a truthful "our members work with clients
-   / partners here" line. NO specific per-region numbers are invented. */
+   / partners here" line. NO specific per-region numbers are invented. The lat/lon
+   are the real approximate map positions the arcs terminate on. */
 const REGIONS: Region[] = [
   {
     id: "eu",
-    x: 360,
-    y: 96,
-    cx: 230,
-    cy: 150,
+    lat: 50,
+    lon: 10,
     r: 5.5,
     delay: 0.05,
+    lift: 0.28,
     region: { ar: "أوروبا", en: "Europe" },
     reach: { ar: "أعضاؤنا يعملون مع عملاء وشركاء هنا.", en: "Our members work with clients & partners here." },
   },
   {
     id: "us",
-    x: 232,
-    y: 150,
-    cx: 168,
-    cy: 232,
+    lat: 40,
+    lon: -90,
     r: 6,
     delay: 0.14,
+    lift: 0.22,
     region: { ar: "أمريكا الشماليّة", en: "North America" },
     reach: { ar: "مشاريع تُسلَّم عبر الأطلسي من قلب غزّة.", en: "Projects delivered across the Atlantic from Gaza." },
   },
   {
     id: "gulf",
-    x: 540,
-    y: 168,
-    cx: 360,
-    cy: 168,
+    lat: 25,
+    lon: 50,
     r: 6,
     delay: 0.23,
+    lift: 0.42,
     region: { ar: "الخليج", en: "The Gulf" },
     reach: { ar: "شراكات ومهمّات مع فرقٍ في المنطقة.", en: "Partnerships & engagements with teams in the region." },
   },
   {
     id: "asia",
-    x: 660,
-    y: 248,
-    cx: 470,
-    cy: 248,
+    lat: 30,
+    lon: 105,
     r: 5,
     delay: 0.32,
+    lift: 0.26,
     region: { ar: "آسيا", en: "Asia" },
     reach: { ar: "عملٌ عن بُعد يصل أسواقًا في القارّة.", en: "Remote work reaching markets across the continent." },
   },
   {
     id: "africa",
-    x: 470,
-    y: 332,
-    cx: 320,
-    cy: 360,
+    lat: 5,
+    lon: 20,
     r: 4.5,
     delay: 0.41,
+    lift: -0.3,
     region: { ar: "إفريقيا", en: "Africa" },
     reach: { ar: "تعاونٌ يمتدّ جنوبًا عبر الحدود.", en: "Collaboration reaching south, across borders." },
   },
 ];
 
-const arcPath = (n: Region) => `M ${ORIGIN.x} ${ORIGIN.y} Q ${n.cx} ${n.cy} ${n.x} ${n.y}`;
+/* Pre-project each region to viewBox px + build a great-circle-style quadratic
+   arc from Gaza. The control point is the chord midpoint pushed perpendicular by
+   `lift`, so arcs bow gracefully instead of running dead-straight. Pure constant
+   math evaluated once at module load. */
+type PlacedRegion = Region & { x: number; y: number; d: string };
+const PLACED: PlacedRegion[] = REGIONS.map((n) => {
+  const { x, y } = project(n.lat, n.lon);
+  const mx = (ORIGIN.x + x) / 2;
+  const my = (ORIGIN.y + y) / 2;
+  const dx = x - ORIGIN.x;
+  const dy = y - ORIGIN.y;
+  // Perpendicular (rotate the chord 90°), normalised, scaled by chord × lift.
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;
+  const ny = dx / len;
+  const cx = mx + nx * len * n.lift;
+  const cy = my + ny * n.lift * len;
+  return { ...n, x, y, d: `M ${ORIGIN.x} ${ORIGIN.y} Q ${cx} ${cy} ${x} ${y}` };
+});
+
+/* ── Inline world map — a simplified, low-detail continents silhouette in the
+   same 1000×500 equirectangular viewBox. Public-domain-style hand-simplified
+   outlines (no external file/URL, no network). It reads as "the world" and sits
+   quietly under the reach arcs. ── */
+const WORLD_PATH = [
+  // North America
+  "M148 96 L206 92 L262 104 L286 128 L268 150 L300 156 L292 182 L256 196 L242 224 L214 236 L200 210 L214 184 L188 176 L170 150 L150 152 L138 128 Z",
+  // Central America
+  "M256 208 L286 232 L300 258 L288 268 L270 246 L258 222 Z",
+  // South America
+  "M300 276 L336 268 L360 288 L356 324 L338 372 L320 404 L306 396 L312 356 L294 320 L288 292 Z",
+  // Greenland
+  "M330 62 L372 58 L392 78 L372 100 L342 96 L326 78 Z",
+  // Africa
+  "M498 214 L552 206 L586 214 L604 244 L596 288 L572 330 L548 356 L528 344 L520 306 L500 274 L488 244 Z",
+  // Europe
+  "M486 128 L536 120 L560 116 L556 140 L520 152 L498 168 L476 158 L472 138 Z",
+  // Middle East / West Asia
+  "M566 158 L604 152 L628 168 L620 196 L592 204 L574 188 Z",
+  // Asia (main mass)
+  "M566 108 L648 100 L732 104 L806 120 L852 140 L862 168 L820 184 L768 176 L716 188 L672 176 L628 164 L596 148 L574 132 Z",
+  // South-East Asia / India peninsula
+  "M636 200 L668 196 L680 224 L664 244 L648 222 Z",
+  "M732 196 L772 200 L788 224 L766 244 L742 226 Z",
+  // Australia
+  "M792 320 L848 312 L884 332 L878 366 L840 380 L800 366 L786 342 Z",
+].join(" ");
 
 export function GazaToGlobal() {
   const { t, lang } = useLanguage();
@@ -244,16 +297,19 @@ export function GazaToGlobal() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   ReachVisual — the interactive SVG centerpiece. A terracotta Gaza origin
-   radiates arcs to a constellation of gold destination nodes. Arcs draw on view
-   (pathLength); nodes pop + ripple in a stagger. Hovering / focusing a node
-   highlights its arc + node and surfaces the region's honest reach line below.
+   ReachVisual — the interactive centerpiece: an ACTUAL WORLD MAP. A faint
+   continents silhouette carries a terracotta Gaza origin at its true coordinate,
+   from which great-circle-style arcs sweep to real global destination nodes.
+   Arcs draw on view (pathLength); nodes pop + ripple in a stagger. Hovering /
+   focusing a node highlights its arc + node and surfaces the region's honest
+   reach line below.
 
    PERF: the infinite ripple loops are GATED on `useInView` — when the section is
    scrolled offscreen the loops pause (nodes render in their static resting
-   state). SECURITY: geometry is pure constant math; the only strings rendered
-   are the honest bilingual reach copy. Under reduced-motion everything renders
-   final + static, but hover/focus still switches the caption.
+   state). SECURITY: geometry + the map are pure inlined constant path data / math;
+   the only dynamic strings rendered are the honest bilingual reach copy. Under
+   reduced-motion everything renders final + static, but hover/focus still
+   switches the caption.
    ───────────────────────────────────────────────────────────────────────── */
 function ReachVisual({
   reduce,
@@ -270,7 +326,7 @@ function ReachVisual({
   const loop = onScreen && !reduce;
 
   const [activeId, setActiveId] = useState<string | null>(null);
-  const active = REGIONS.find((r) => r.id === activeId) ?? null;
+  const active = PLACED.find((r) => r.id === activeId) ?? null;
 
   // Draw config — short-circuited to "already drawn / shown" under reduced-motion.
   const drawArc = reduce
@@ -294,40 +350,50 @@ function ReachVisual({
   return (
     <div ref={wrapRef} className="relative w-full">
       <svg
-        viewBox="0 0 760 440"
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-auto overflow-visible"
         role="img"
         aria-label={t({
-          ar: "خريطة تفاعليّة تُظهر وصول المواهب من غزّة إلى مناطق حول العالم",
-          en: "An interactive map showing talent reaching from Gaza out to regions around the world",
+          ar: "خريطة العالم تُظهر وصول المواهب من غزّة إلى مناطق حول العالم",
+          en: "A world map showing talent reaching from Gaza out to regions around the world",
         })}
       >
-        {/* Faint latitude/meridian field — a "world" frame without real map data. */}
-        <g stroke="hsl(var(--sand-bright))" strokeWidth="0.75" opacity="0.16">
-          <path d="M 40 120 Q 380 96 720 120" />
-          <path d="M 40 220 Q 380 196 720 220" />
-          <path d="M 40 320 Q 380 296 720 320" />
-          <path d="M 200 40 Q 224 220 200 400" />
-          <path d="M 380 40 Q 400 220 380 400" />
-          <path d="M 560 40 Q 584 220 560 400" />
+        {/* Faint graticule — a couple of latitude/meridian guides for depth. */}
+        <g stroke="hsl(var(--sand-bright))" strokeWidth="0.6" opacity="0.08">
+          <line x1="0" y1={VB_H / 2} x2={VB_W} y2={VB_H / 2} />
+          <line x1={VB_W / 2} y1="0" x2={VB_W / 2} y2={VB_H} />
+          <line x1="0" y1={VB_H * 0.28} x2={VB_W} y2={VB_H * 0.28} />
+          <line x1="0" y1={VB_H * 0.72} x2={VB_W} y2={VB_H * 0.72} />
         </g>
+
+        {/* The world — a soft continents silhouette in faint white/gold so it sits
+            quietly beneath the reach arcs. Pure inlined constant path data. */}
+        <path
+          d={WORLD_PATH}
+          fill="hsl(var(--sand-bright))"
+          fillOpacity="0.07"
+          stroke="hsl(var(--sand-bright))"
+          strokeWidth="0.9"
+          strokeOpacity="0.24"
+          strokeLinejoin="round"
+        />
 
         {/* Reach arcs — sweep from Gaza to each node, drawing on view. The active
             arc brightens + thickens; the rest dim when any node is engaged. */}
         <g strokeLinecap="round" fill="none">
-          {REGIONS.map((n) => {
+          {PLACED.map((n) => {
             const isActive = activeId === n.id;
             const dimmed = activeId !== null && !isActive;
             return (
               <motion.path
                 key={n.id}
-                d={arcPath(n)}
+                d={n.d}
                 stroke={isActive ? "hsl(var(--primary))" : "hsl(var(--sand-bright))"}
-                strokeWidth={isActive ? 2.6 : 1.6}
+                strokeWidth={isActive ? 3 : 1.8}
                 style={{ transition: "stroke .3s ease, stroke-width .3s ease, opacity .3s ease" }}
-                animate={{ opacity: dimmed ? 0.18 : isActive ? 0.95 : 0.55 }}
+                animate={{ opacity: dimmed ? 0.16 : isActive ? 0.95 : 0.5 }}
                 {...drawArc}
                 transition={{
                   pathLength: { delay: 0.15 + n.delay, duration: 1.05, ease: "easeOut" },
@@ -341,7 +407,7 @@ function ReachVisual({
         {/* Destination nodes — gold, pop + soft ripple in a stagger. Each is an
             interactive, keyboard-focusable button that highlights its arc and
             surfaces its honest reach line. */}
-        {REGIONS.map((n) => {
+        {PLACED.map((n) => {
           const isActive = activeId === n.id;
           const label = `${t(n.region)} — ${t(n.reach)}`;
           return (
@@ -360,7 +426,7 @@ function ReachVisual({
               style={{ transition: "opacity .3s ease" }}
             >
               {/* Generous invisible hit area for pointer + touch */}
-              <circle r={16} fill="transparent" />
+              <circle r={18} fill="transparent" />
               {/* Focus ring — shown on keyboard focus via the selector above */}
               <circle
                 className="node-ring"
@@ -451,7 +517,7 @@ function ReachVisual({
             x={ar ? -16 : 16}
             y="5"
             textAnchor={ar ? "end" : "start"}
-            fontSize="15"
+            fontSize="17"
             fill="hsl(var(--primary))"
             fontWeight="700"
           >

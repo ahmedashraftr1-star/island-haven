@@ -14,7 +14,7 @@ const named = <K extends string>(p: Promise<Record<K, React.ComponentType>>, k: 
 // Heroes + their supporting movements (the trimmed 3-hero IA).
 const VenturesShowcase = lazy(() => named(import("@/components/landing/VenturesShowcase"), "VenturesShowcase"));
 const WhatYouGet = lazy(() => named(import("@/components/landing/WhatYouGet"), "WhatYouGet"));
-const LivePulse = lazy(() => named(import("@/components/landing/LivePulse"), "LivePulse"));
+const SeatsBoard = lazy(() => named(import("@/components/landing/SeatsBoard"), "SeatsBoard"));
 const FeaturedMembers = lazy(() => named(import("@/components/landing/FeaturedMembers"), "FeaturedMembers"));
 const GazaToGlobal = lazy(() => named(import("@/components/landing/GazaToGlobal"), "GazaToGlobal"));
 const ExpertsBand = lazy(() => named(import("@/components/landing/ExpertsBand"), "ExpertsBand"));
@@ -56,7 +56,7 @@ export default function Home() {
           <Suspense fallback={null}>
             <VenturesShowcase />
             <WhatYouGet />
-            <LivePulse />
+            <SeatsBoard />
             <FeaturedMembers />
             <GazaToGlobal />
             <ExpertsBand />
