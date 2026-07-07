@@ -57,12 +57,11 @@ function CountUp({ value, lang }: { value: number; lang: Lang }) {
 }
 
 /**
- * NumbersBand — the incubator's live proof, now a PREMIUM LIGHT "Proof" section
- * in the Apple/editorial register that matches its light siblings (WhatYouGet /
- * HomeFAQ). Warm paper canvas via `theme-light`, dark ink, AA terracotta accent,
- * warm hairlines. The figures ARE the design: a monumental lead figure over a
- * clean data row of supporting metrics, separated by hairline dividers — data
- * first, calm and roomy. No photo, no scrim, no glass, no gradients. Every figure
+ * NumbersBand — the incubator's live proof, now in the site-wide DARK GLASS
+ * "Vision Pro" register. Deep near-black canvas lit by a soft terracotta/gold
+ * ambient field; the figures float on frosted `glass-panel` tiles with hairline
+ * lit edges. The figures ARE the design: a monumental gold lead over a column of
+ * supporting metrics on glass, refined depth and obsessive spacing. Every figure
  * is live from `/numbers` (with a fallback) and never invented. Tokens only.
  */
 export function NumbersBand() {
@@ -108,18 +107,21 @@ export function NumbersBand() {
   return (
     <section
       id="numbers"
-      className="theme-light relative bg-background text-foreground border-y border-border overflow-hidden section-y"
+      className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
       aria-label={t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
     >
+      {/* Ambient depth — soft terracotta/gold light field behind the glass. */}
+      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+
       <div className="container-ih relative">
-        {/* Header — quiet live signal + one monumental line, roomy sub. */}
+        {/* Header — a quiet LIVE signal + one monumental line, roomy sub. */}
         <Reveal className="max-w-3xl">
           <div className="mb-5 flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 motion-safe:animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-fg-faint rtl:tracking-[0.12em]">
+            <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/45 rtl:tracking-[0.12em]">
               {t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
             </span>
             <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
@@ -127,13 +129,13 @@ export function NumbersBand() {
             </span>
           </div>
           <h2
-            className="font-display text-foreground"
+            className="font-display text-white"
             style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.04em" }}
           >
             {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
             <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
           </h2>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-[1.7] text-fg-secondary">
+          <p className="mt-5 max-w-2xl text-[1.0625rem] leading-[1.7] text-white/70">
             {t({
               ar: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
               en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
@@ -141,70 +143,76 @@ export function NumbersBand() {
           </p>
         </Reveal>
 
-        {/* The figures ARE the design. Monumental lead + a clean data row of the
-            rest, all separated by warm hairlines. Data-first, calm, roomy. */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 gap-x-12 gap-y-[clamp(2.5rem,5vw,3.5rem)] border-t border-border pt-[clamp(2rem,4vw,3.5rem)] lg:grid-cols-12">
-          {/* Lead figure — enrollments, the largest. */}
-          <Reveal className="flex flex-col lg:col-span-5">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-fg-faint">{lead.en}</div>
-            <div
-              data-testid="numbers-lead-enrollments"
-              aria-label={`${fmt(lead.value)} — ${lead.label}`}
-              className="font-display font-black tabular-nums leading-[0.88] text-foreground"
-              style={{ fontSize: "clamp(3rem, 6vw, 5rem)", letterSpacing: "-0.04em" }}
-            >
-              {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
+        {/* The figures float on glass. Monumental gold lead on a feature tile +
+            a column of supporting metrics on a glass panel — Vision Pro depth. */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 gap-[clamp(1.25rem,2.5vw,1.75rem)] lg:grid-cols-12">
+          {/* Lead figure — enrollments, the largest, on a feature tile. */}
+          <Reveal className="lg:col-span-5">
+            <div className="glass-panel-lg flex h-full flex-col p-[clamp(1.75rem,3vw,2.5rem)]">
+              <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">{lead.en}</div>
+              <div
+                data-testid="numbers-lead-enrollments"
+                aria-label={`${fmt(lead.value)} — ${lead.label}`}
+                className="font-display font-black tabular-nums leading-[0.88] text-sand-bright"
+                style={{ fontSize: "clamp(3rem, 6vw, 5rem)", letterSpacing: "-0.04em" }}
+              >
+                {n ? <CountUp value={lead.value} lang={lang} /> : "—"}
+              </div>
+              <div className="mt-5 text-[clamp(1.05rem,1.7vw,1.35rem)] font-bold leading-snug text-white">{lead.label}</div>
+              <p className="mt-2.5 max-w-sm text-[14px] leading-relaxed text-white/70 md:text-[15px]">{lead.meaning}</p>
             </div>
-            <div className="mt-5 text-[clamp(1.05rem,1.7vw,1.35rem)] font-bold leading-snug text-foreground">{lead.label}</div>
-            <p className="mt-2.5 max-w-sm text-[14px] leading-relaxed text-fg-secondary md:text-[15px]">{lead.meaning}</p>
           </Reveal>
 
-          {/* Supporting metrics — a clean data column split by hairline dividers. */}
-          <div className="flex flex-col justify-center lg:col-span-7">
-            {rest.map((s, i) => (
-              <Reveal
-                key={s.key}
-                delay={0.08 + i * 0.06}
-                className="flex items-baseline justify-between gap-6 border-t border-border py-[clamp(1rem,2vw,1.75rem)] first:border-t-0"
-              >
-                <div className="min-w-0">
-                  <div className="text-[15px] font-semibold leading-snug text-foreground">{s.label}</div>
-                  <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-fg-faint">{s.en}</div>
-                  <div className="mt-1.5 text-[12.5px] text-primary">{s.context}</div>
-                </div>
-                <span
-                  data-testid={`numbers-row-${s.key}`}
-                  aria-label={`${fmt(s.value)} — ${s.label}`}
-                  className="shrink-0 font-display font-black tabular-nums leading-[0.95] text-foreground"
-                  style={{ fontSize: "clamp(1.9rem, 3vw, 2.75rem)", letterSpacing: "-0.02em" }}
+          {/* Supporting metrics — a column of tiles on a single glass panel. */}
+          <div className="lg:col-span-7">
+            <div className="glass-panel flex h-full flex-col divide-y divide-white/[0.08] px-[clamp(1.5rem,2.5vw,2rem)]">
+              {rest.map((s, i) => (
+                <Reveal
+                  key={s.key}
+                  delay={0.08 + i * 0.06}
+                  className="flex flex-1 items-center justify-between gap-6 py-[clamp(1rem,2vw,1.75rem)]"
                 >
-                  {n ? <CountUp value={s.value} lang={lang} /> : "—"}
-                </span>
-              </Reveal>
-            ))}
+                  <div className="min-w-0">
+                    <div className="text-[15px] font-semibold leading-snug text-white">{s.label}</div>
+                    <div className="mt-1 text-[10.5px] font-bold uppercase tracking-[0.2em] text-white/45">{s.en}</div>
+                    <div className="mt-1.5 text-[12.5px] text-primary">{s.context}</div>
+                  </div>
+                  <span
+                    data-testid={`numbers-row-${s.key}`}
+                    aria-label={`${fmt(s.value)} — ${s.label}`}
+                    className="shrink-0 font-display font-black tabular-nums leading-[0.95] text-sand-bright"
+                    style={{ fontSize: "clamp(1.9rem, 3vw, 2.75rem)", letterSpacing: "-0.02em" }}
+                  >
+                    {n ? <CountUp value={s.value} lang={lang} /> : "—"}
+                  </span>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Composition line + CTA — a quiet footer over a hairline. */}
-        <Reveal className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-border pt-[clamp(1.5rem,3vw,2.25rem)]">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-fg-secondary">
-            <span className="text-fg-faint">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
-            {composition.map((cmp, i) => (
-              <span key={i} className="inline-flex items-center gap-1.5">
-                {i > 0 && <span className="px-1 text-fg-faint">·</span>}
-                <span className="tnum font-bold text-primary">{n ? fmt(cmp.value) : "—"}</span>
-                <span>{cmp.label}</span>
-              </span>
-            ))}
+        {/* Composition line + CTA — a quiet footer on a slim glass rail. */}
+        <Reveal className="mt-[clamp(1.25rem,2.5vw,1.75rem)]">
+          <div className="glass-panel flex flex-wrap items-center justify-between gap-x-6 gap-y-4 px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.25rem,2.5vw,1.75rem)]">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[14px] text-white/70">
+              <span className="text-white/45">{t({ ar: "مجتمعنا:", en: "Our community:" })}</span>
+              {composition.map((cmp, i) => (
+                <span key={i} className="inline-flex items-center gap-1.5">
+                  {i > 0 && <span className="px-1 text-white/45">·</span>}
+                  <span className="tnum font-bold text-sand-bright">{n ? fmt(cmp.value) : "—"}</span>
+                  <span>{cmp.label}</span>
+                </span>
+              ))}
+            </div>
+            <Link
+              href="/numbers"
+              data-testid="link-numbers-more"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-white/30 hover:gap-3 motion-reduce:transition-none"
+            >
+              {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+            </Link>
           </div>
-          <Link
-            href="/numbers"
-            data-testid="link-numbers-more"
-            className="group inline-flex items-center gap-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 motion-reduce:transition-none"
-          >
-            {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
-            <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-          </Link>
         </Reveal>
       </div>
     </section>

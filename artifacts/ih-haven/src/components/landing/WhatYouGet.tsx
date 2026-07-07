@@ -1,24 +1,22 @@
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { imageUrl } from "@/hooks/use-content";
-import { EASE_OUT_EXPO, DURATION } from "@/lib/motion";
+import { Reveal } from "./Reveal";
 
 /**
- * WhatYouGet — the PREMIUM LIGHT "breather". A bright, crisp EDITORIAL register
- * that breaks the run of dark cinematic sections around it. Warm-paper canvas
- * (theme-light flips the tokens), generous purposeful whitespace, a big calm
- * headline, one cleanly-framed product-shot of the space, and each value of
- * membership (workspace, mentorship, programs, community) set as a hairline-
- * separated editorial ROW — a large display title on the start, a concise
- * description on a readable measure, a small terracotta index. No icon circles,
- * no card grid, no serif, no gradient, no glass. Space + type carry it. All
- * data / i18n / routes / testids kept.
+ * WhatYouGet — the value-of-membership section, in the site-wide DARK GLASS
+ * "Vision Pro" register. A deep near-black canvas lit by a soft ambient field,
+ * a big calm headline, one cleanly-framed glass-treated product-shot of the
+ * space, and each value of membership (workspace, mentorship, programs,
+ * community) set as a hairline-separated editorial ROW floating inside a single
+ * frosted `glass-panel` tile: a large display title on the start, a concise
+ * description on a readable measure, a small terracotta index. No paper, no icon
+ * circles, no card grid, no gradient. Depth + type carry it. Terracotta is the
+ * sole accent. All data / i18n / routes / testids kept.
  */
 export function WhatYouGet() {
   const { t } = useLanguage();
-  const reduce = useReducedMotion();
 
   // A calm, roomy list of what membership gives — set as editorial rows.
   const gives = [
@@ -61,25 +59,21 @@ export function WhatYouGet() {
   return (
     <section
       id="what-you-get"
-      className="theme-light relative bg-background text-foreground border-y border-border overflow-hidden"
-      style={{ paddingBlock: "clamp(4rem, 8vh, 6.5rem)" }}
+      className="section-y relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06]"
     >
+      {/* Ambient depth field — the dark canvas reads as lit space, not flat black. */}
+      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+
       <div className="container-ih relative">
         {/* Header — calm eyebrow, one monumental line, roomy sub. Split so the
             headline never sits beside an empty half on wide screens. */}
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
-          <motion.div
-            className="lg:col-span-7"
-            initial={reduce ? false : { opacity: 0, y: 22 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: DURATION.lg, ease: EASE_OUT_EXPO }}
-          >
+          <Reveal className="lg:col-span-7" distance={22}>
             <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-primary rtl:tracking-[0.12em]">
               {t({ ar: "ما تحصل عليه", en: "What you get" })}
             </p>
             <h2
-              className="font-display text-foreground"
+              className="font-display text-white"
               style={{
                 fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
                 fontWeight: 900,
@@ -90,16 +84,10 @@ export function WhatYouGet() {
               {t({ ar: "حاضنة كاملة. ", en: "A full incubator. " })}
               <span className="text-primary">{t({ ar: "مجّانًا.", en: "Free." })}</span>
             </h2>
-          </motion.div>
+          </Reveal>
 
-          <motion.div
-            className="lg:col-span-5"
-            initial={reduce ? false : { opacity: 0, y: 22 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: DURATION.lg, delay: 0.08, ease: EASE_OUT_EXPO }}
-          >
-            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-fg-secondary">
+          <Reveal className="lg:col-span-5" distance={22} delay={0.08}>
+            <p className="max-w-xl text-[1.0625rem] lg:text-[1.2rem] leading-[1.7] text-white/65">
               {t({
                 ar: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
                 en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
@@ -112,17 +100,15 @@ export function WhatYouGet() {
               {t({ ar: "اعرف أكثر", en: "Learn more" })}
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
-          </motion.div>
+          </Reveal>
         </div>
 
-        {/* One clean, framed product-shot of the place — soft shadow on paper,
-            NOT a full-bleed dark scrim. The single editorial image element. */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 24 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: DURATION.xl, ease: EASE_OUT_EXPO }}
-          className="mt-[clamp(3rem,7vh,5.5rem)] overflow-hidden rounded-[24px] border border-border bg-surface-2 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_24px_56px_-20px_rgba(16,24,40,0.18)]"
+        {/* One clean, framed product-shot of the place — glass-treated: rounded,
+            a hairline white ring, a soft cast shadow so it floats on the field. */}
+        <Reveal
+          distance={24}
+          amount={0.2}
+          className="mt-[clamp(3rem,7vh,5.5rem)] overflow-hidden rounded-[24px] ring-1 ring-white/10 shadow-[0_40px_90px_-40px_rgba(0,0,0,0.75)]"
         >
           <img
             src={imageUrl("/photos/IMG_8347.webp")}
@@ -131,68 +117,64 @@ export function WhatYouGet() {
             decoding="async"
             className="w-full aspect-[16/10] sm:aspect-[21/9] object-cover"
           />
-        </motion.div>
+        </Reveal>
 
-        {/* Editorial value list — each membership value on its own hairline-
-            separated row: terracotta index + large display title on the start,
-            a concise description on a readable measure. Routes + testids kept. */}
-        <div className="mt-[clamp(3rem,7vh,5.5rem)] border-t border-border">
+        {/* Editorial value list — the whole rows list floats inside one frosted
+            glass tile. Each membership value on its own hairline-separated row:
+            terracotta index + large display title on the start, a concise
+            description on a readable measure. Routes + testids kept. */}
+        <Reveal distance={20} amount={0.2} className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3rem)] py-[clamp(0.5rem,2vh,1.5rem)]">
           {gives.map((g, i) => (
-            <motion.div
+            <Link
               key={g.href}
-              initial={reduce ? false : { opacity: 0, y: 18 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: DURATION.lg, delay: i * 0.05, ease: EASE_OUT_EXPO }}
+              href={g.href}
+              data-testid={`pillar-${g.href.slice(1)}`}
+              className={`group grid grid-cols-1 items-baseline gap-x-10 gap-y-4 py-[clamp(1.75rem,4vh,3rem)] transition-[border-color] duration-300 hover:border-primary/40 motion-reduce:transition-none md:grid-cols-12 ${
+                i > 0 ? "border-t border-white/10" : ""
+              }`}
             >
-              <Link
-                href={g.href}
-                data-testid={`pillar-${g.href.slice(1)}`}
-                className="group grid grid-cols-1 items-baseline gap-x-10 gap-y-4 border-b border-border py-[clamp(1.75rem,4vh,3rem)] transition-colors duration-300 hover:border-primary/40 motion-reduce:transition-none md:grid-cols-12"
-              >
-                {/* Index + title */}
-                <div className="flex items-baseline gap-4 md:col-span-6 lg:col-span-5">
-                  <span
-                    className="shrink-0 font-mono text-[13px] font-semibold tabular-nums text-primary"
-                    aria-hidden
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3
-                    className="font-display font-bold text-foreground leading-[1.05] transition-colors duration-300 group-hover:text-primary"
-                    style={{
-                      fontSize: "clamp(1.4rem, 2.4vw, 2rem)",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {g.title}
-                  </h3>
-                </div>
+              {/* Index + title */}
+              <div className="flex items-baseline gap-4 md:col-span-6 lg:col-span-5">
+                <span
+                  className="shrink-0 font-mono text-[13px] font-semibold tabular-nums text-primary"
+                  aria-hidden
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3
+                  className="font-display font-bold text-white leading-[1.05] transition-[color,transform] duration-300 group-hover:text-primary group-hover:translate-x-1 rtl:group-hover:-translate-x-1 motion-reduce:transition-none"
+                  style={{
+                    fontSize: "clamp(1.4rem, 2.4vw, 2rem)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {g.title}
+                </h3>
+              </div>
 
-                {/* Description on a readable measure */}
-                <div className="md:col-span-6 lg:col-span-6 lg:col-start-6">
-                  <p className="max-w-[52ch] text-[15px] leading-relaxed text-fg-secondary lg:text-[1.0625rem]">
-                    {g.body}
-                  </p>
-                  {g.stat && (
-                    <div className="mt-3 inline-flex items-baseline gap-2">
-                      <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
-                      <span className="text-[13px] text-fg-faint">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
-                    </div>
-                  )}
-                </div>
+              {/* Description on a readable measure */}
+              <div className="md:col-span-6 lg:col-span-6 lg:col-start-6">
+                <p className="max-w-[52ch] text-[15px] leading-relaxed text-white/65 lg:text-[1.0625rem]">
+                  {g.body}
+                </p>
+                {g.stat && (
+                  <div className="mt-3 inline-flex items-baseline gap-2">
+                    <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
+                    <span className="text-[13px] text-white/45">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
+                  </div>
+                )}
+              </div>
 
-                {/* Hairline tick — a quiet directional cue, no medallion */}
-                <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
-                  <ArrowLeft
-                    className="h-4 w-4 text-fg-faint transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
-                    aria-hidden
-                  />
-                </div>
-              </Link>
-            </motion.div>
+              {/* Hairline tick — a quiet directional cue, no medallion */}
+              <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
+                <ArrowLeft
+                  className="h-4 w-4 text-white/45 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden
+                />
+              </div>
+            </Link>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

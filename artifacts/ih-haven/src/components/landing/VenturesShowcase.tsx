@@ -102,9 +102,9 @@ function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; 
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group block overflow-hidden rounded-[26px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_40px_80px_-40px_rgba(0,0,0,0.7)]"
+        className="group glass-panel-lg block p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25"
       >
-        <div className="relative aspect-[21/9] overflow-hidden bg-[#070707]">
+        <div className="relative aspect-[21/9] overflow-hidden rounded-[22px] ring-1 ring-white/10 bg-[#070707]">
           <img
             src={cover}
             alt={v.name}
@@ -119,7 +119,7 @@ function FlagshipCard({ v, metrics, lang, t }: { v: Venture; metrics: Metric[]; 
           </span>
         </div>
 
-        <div className="p-[clamp(2.5rem,4vw,4rem)]">
+        <div className="px-[clamp(1.75rem,3.4vw,3.5rem)] pb-[clamp(2rem,3.4vw,3.5rem)] pt-[clamp(2rem,3vw,3rem)]">
           <Meta v={v} lang={lang} t={t} />
           <h3 className="mt-4 font-display font-black text-white" style={{ fontSize: "clamp(2.8rem,6vw,4.5rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}>
             {v.name}
@@ -152,9 +152,9 @@ function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number;
       <Link
         href={`/ventures/${v.id}`}
         data-testid={`showcase-venture-${v.id}`}
-        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] overflow-hidden rounded-[24px] border border-white/12 bg-surface-2 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25 hover:shadow-[0_30px_60px_-36px_rgba(0,0,0,0.7)]"
+        className="group grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[clamp(0.5rem,1vw,0.75rem)] glass-panel p-2.5 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:-translate-y-1.5 hover:border-white/25"
       >
-        <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[300px] overflow-hidden bg-[#070707]">
+        <div className="relative aspect-[16/11] md:aspect-auto md:min-h-[300px] overflow-hidden rounded-[18px] ring-1 ring-white/10 bg-[#070707]">
           <img
             src={cover}
             alt={v.name}
@@ -165,7 +165,7 @@ function VentureRow({ v, index, metrics, lang, t }: { v: Venture; index: number;
           />
           <div aria-hidden className="absolute inset-0 opacity-[0.16] mix-blend-soft-light" style={{ background: vid.gradient }} />
         </div>
-        <div className="p-[clamp(1.5rem,2.6vw,2.5rem)] flex flex-col justify-center">
+        <div className="px-[clamp(1.25rem,2.2vw,2.25rem)] py-[clamp(1.5rem,2.4vw,2.25rem)] flex flex-col justify-center">
           <Meta v={v} lang={lang} t={t} />
           <h3 className="mt-3.5 font-display font-black text-white" style={{ fontSize: "clamp(1.7rem,2.8vw,2.6rem)", lineHeight: 1.0, letterSpacing: "-0.03em" }}>
             {v.name}
@@ -216,6 +216,7 @@ export function VenturesShowcase() {
 
   return (
     <section id="ventures-band" className="relative bg-background section-y overflow-hidden">
+      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
       <div className="container-ih relative">
         <Reveal as="header" className="max-w-3xl">
           <div className="flex items-center gap-3 mb-5">

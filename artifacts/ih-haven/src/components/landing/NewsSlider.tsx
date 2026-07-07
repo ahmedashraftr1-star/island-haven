@@ -39,13 +39,15 @@ function trimExcerpt(s: string, n = 110): string {
 }
 
 /**
- * NewsSlider — the incubator's Journal, rebuilt as a PREMIUM LIGHT newsroom on
- * warm paper (theme-light flips the tokens). NOT a carousel of identical dark
- * cards: one large FEATURE story (a cover framed with soft shadow on paper, its
- * headline set in dark ink, with a terracotta type tag + date), and the rest as
- * a clean editorial LIST — each row a small date, a terracotta type tag
- * (خبر/قصّة/نصيحة), a title, and a thin cover thumb, ruled by hairline dividers.
- * Space + type carry it. All data / fallback / i18n / routes / testids kept.
+ * NewsSlider — the incubator's Journal, rebuilt on the site-wide DARK GLASS
+ * ("Vision Pro") material: frosted translucent panels floating on the deep
+ * canvas, terracotta the sole accent. NOT a carousel of identical cards: one
+ * large FEATURE story inside a `glass-panel-lg` tile (a cover ringed in white/10,
+ * a terracotta type tag + mono date, a white font-display headline), and the
+ * rest as a hairline editorial LIST — each row a mono date, a terracotta type
+ * tag (خبر/قصّة/نصيحة), a title, and a thin ringed cover thumb, ruled by
+ * white/10 dividers. Space + type carry it. All data / fallback / i18n / routes
+ * / testids kept.
  */
 export function NewsSlider() {
   const { lang, t } = useLanguage();
@@ -70,10 +72,12 @@ export function NewsSlider() {
   return (
     <section
       id="events-slider"
-      className="theme-light relative bg-background text-foreground border-y border-border overflow-hidden section-y"
+      className="relative overflow-hidden bg-[#060608] text-white border-t border-white/[0.06] section-y"
     >
+      <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
+
       <div className="container-ih relative">
-        {/* Header — calm eyebrow, one monumental line in dark ink, roomy sub. */}
+        {/* Header — calm eyebrow, one monumental white line, roomy sub. */}
         <div className="mb-[clamp(2.5rem,5vw,4rem)] grid gap-8 lg:grid-cols-12 lg:items-end">
           <Reveal as="div" className="lg:col-span-8">
             <div className="mb-5 flex items-center gap-3">
@@ -83,7 +87,7 @@ export function NewsSlider() {
               </span>
             </div>
             <h2
-              className="font-display text-foreground max-w-2xl"
+              className="font-display text-white max-w-2xl"
               style={{
                 fontSize: "clamp(2.4rem,5vw,4.5rem)",
                 fontWeight: 900,
@@ -97,7 +101,7 @@ export function NewsSlider() {
                 <>ما يحدث في المساحة <span className="text-primary">هذا الأسبوع.</span></>
               )}
             </h2>
-            <p className="mt-6 max-w-xl text-[1.0625rem] leading-[1.7] text-fg-secondary lg:text-lg">
+            <p className="mt-6 max-w-xl text-[1.0625rem] leading-[1.7] text-white/70 lg:text-lg">
               {t({
                 ar: "ورشٌ ولقاءات ونبض الحاضنة اليوميّ — تُسحب مباشرةً من قلب المساحة.",
                 en: "Workshops, talks and the daily life of the incubator — pulled live from the space.",
@@ -108,7 +112,7 @@ export function NewsSlider() {
           <Reveal as="div" delay={0.08} className="hidden lg:col-span-4 lg:flex lg:justify-end">
             <Link
               href="/events"
-              className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-foreground ring-1 ring-inset ring-border-strong transition-all duration-200 hover:bg-surface-2 hover:ring-primary/40 motion-reduce:transition-none"
+              className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 motion-reduce:transition-none"
               data-testid="link-all-events"
             >
               {c.ctaAll}
@@ -120,114 +124,118 @@ export function NewsSlider() {
         {posts === null ? (
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <div className="aspect-[16/10] rounded-[24px] bg-surface-2 border border-border skeleton-shimmer" />
-              <div className="mt-6 h-8 w-3/4 rounded-lg bg-surface-2 skeleton-shimmer" />
+              <div className="aspect-[16/10] rounded-[32px] bg-white/[0.04] border border-white/10 skeleton-shimmer" />
+              <div className="mt-6 h-8 w-3/4 rounded-lg bg-white/[0.04] skeleton-shimmer" />
             </div>
             <div className="lg:col-span-5 space-y-6">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="h-20 rounded-xl bg-surface-2 border border-border skeleton-shimmer" />
+                <div key={i} className="h-20 rounded-xl bg-white/[0.04] border border-white/10 skeleton-shimmer" />
               ))}
             </div>
           </div>
         ) : posts.length === 0 ? (
-          <div className="rounded-[24px] border border-dashed border-border-strong bg-surface-2 p-12 text-center">
-            <Calendar className="mx-auto mb-3 h-7 w-7 text-fg-faint" aria-hidden />
-            <p className="text-[1.0625rem] text-fg-secondary">{c.emptyText}</p>
+          <div className="glass-panel p-12 text-center">
+            <Calendar className="mx-auto mb-3 h-7 w-7 text-white/40" aria-hidden />
+            <p className="text-[1.0625rem] text-white/70">{c.emptyText}</p>
           </div>
         ) : (
           <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
-            {/* FEATURE — the lead story, a cover framed with soft shadow on paper,
-                headline in dark ink + a terracotta type tag and date. */}
+            {/* FEATURE — the lead story inside a glass-panel-lg tile: cover ringed
+                in white/10, a terracotta type tag + date, a white headline. */}
             {feature && (
               <Reveal as="div" className="lg:col-span-7">
                 <Link
                   href={`/events/${feature.id}`}
                   data-testid={`event-card-${feature.id}`}
-                  className="group block rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+                  className="group block rounded-[32px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#060608]"
                 >
-                  <div className="overflow-hidden rounded-[24px] border border-border bg-surface-2 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_24px_56px_-20px_rgba(16,24,40,0.18)]">
-                    {feature.coverUrl ? (
-                      <img
-                        src={feature.coverUrl}
-                        alt={feature.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="aspect-[16/10] w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03] motion-reduce:transition-none"
-                      />
-                    ) : (
-                      <div
-                        aria-hidden
-                        className="flex aspect-[16/10] w-full items-center justify-center bg-primary-soft"
-                      >
-                        <span className="font-display text-[clamp(3rem,8vw,6rem)] font-black leading-none text-primary/35 select-none">
-                          {(feature.title.trim()[0] ?? typeLabels[feature.type][0] ?? "·").toUpperCase()}
+                  <div className="glass-panel-lg overflow-hidden p-3">
+                    <div className="overflow-hidden rounded-[24px] ring-1 ring-white/10">
+                      {feature.coverUrl ? (
+                        <img
+                          src={feature.coverUrl}
+                          alt={feature.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="aspect-[16/10] w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03] motion-reduce:transition-none"
+                        />
+                      ) : (
+                        <div
+                          aria-hidden
+                          className="flex aspect-[16/10] w-full items-center justify-center bg-primary/15"
+                        >
+                          <span className="font-display text-[clamp(3rem,8vw,6rem)] font-black leading-none text-primary/60 select-none">
+                            {(feature.title.trim()[0] ?? typeLabels[feature.type][0] ?? "·").toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-3 pb-3 pt-6">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary rtl:tracking-normal">
+                          {typeLabels[feature.type]}
+                        </span>
+                        <span className="font-mono text-[12px] tabular-nums text-white/45">
+                          {formatDate(feature.publishedAt, lang)}
                         </span>
                       </div>
-                    )}
+
+                      <h3
+                        className="mt-3 font-display font-bold text-white transition-colors duration-300 group-hover:text-primary"
+                        style={{
+                          fontSize: "clamp(1.6rem,3vw,2.4rem)",
+                          lineHeight: 1.12,
+                          letterSpacing: "-0.02em",
+                        }}
+                      >
+                        {feature.title}
+                      </h3>
+
+                      {feature.body && (
+                        <p className="mt-3 max-w-[56ch] text-[15px] leading-relaxed text-white/70 lg:text-[1.0625rem]">
+                          {trimExcerpt(feature.body, 150)}
+                        </p>
+                      )}
+
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary">
+                        {c.ctaCard}
+                        <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                      </span>
+                    </div>
                   </div>
-
-                  <div className="mt-6 flex items-center gap-3">
-                    <span className="inline-flex items-center rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary rtl:tracking-normal">
-                      {typeLabels[feature.type]}
-                    </span>
-                    <span className="font-mono text-[12px] tabular-nums text-fg-faint">
-                      {formatDate(feature.publishedAt, lang)}
-                    </span>
-                  </div>
-
-                  <h3
-                    className="mt-3 font-display font-bold text-foreground transition-colors duration-300 group-hover:text-primary"
-                    style={{
-                      fontSize: "clamp(1.6rem,3vw,2.4rem)",
-                      lineHeight: 1.12,
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {feature.title}
-                  </h3>
-
-                  {feature.body && (
-                    <p className="mt-3 max-w-[56ch] text-[15px] leading-relaxed text-fg-secondary lg:text-[1.0625rem]">
-                      {trimExcerpt(feature.body, 150)}
-                    </p>
-                  )}
-
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary">
-                    {c.ctaCard}
-                    <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-                  </span>
                 </Link>
               </Reveal>
             )}
 
-            {/* LIST — a clean editorial column: date + terracotta type tag + title
-                + a thin cover thumb, ruled by hairline dividers. NOT a card deck. */}
+            {/* LIST — a hairline editorial column: mono date + terracotta type tag
+                + title + a thin ringed cover thumb, ruled by white/10 dividers. */}
             {list.length > 0 && (
               <div className="lg:col-span-5">
-                <div className="border-t border-border">
+                <div className="border-t border-white/10">
                   {list.map((p, i) => (
                     <Reveal key={p.id} as="div" delay={Math.min(i, 4) * 0.06}>
                       <Link
                         href={`/events/${p.id}`}
                         data-testid={`event-card-${p.id}`}
-                        className="group grid grid-cols-[1fr_auto] items-start gap-x-5 gap-y-2 border-b border-border py-[clamp(1.25rem,3vh,1.75rem)] transition-colors duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 motion-reduce:transition-none"
+                        className="group grid grid-cols-[1fr_auto] items-start gap-x-5 gap-y-2 border-b border-white/10 py-[clamp(1.25rem,3vh,1.75rem)] transition-colors duration-300 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 motion-reduce:transition-none"
                       >
                         <div className="min-w-0">
                           <div className="mb-2 flex flex-wrap items-center gap-2.5">
-                            <span className="inline-flex items-center rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-primary rtl:tracking-normal">
+                            <span className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-primary rtl:tracking-normal">
                               {typeLabels[p.type]}
                             </span>
-                            <span className="font-mono text-[11px] tabular-nums text-fg-faint">
+                            <span className="font-mono text-[11px] tabular-nums text-white/45">
                               {formatDate(p.publishedAt, lang)}
                             </span>
                           </div>
-                          <h3 className="font-display text-[1.0625rem] font-bold leading-[1.3] text-foreground line-clamp-2 transition-colors duration-300 group-hover:text-primary">
+                          <h3 className="font-display text-[1.0625rem] font-bold leading-[1.3] text-white line-clamp-2 transition-colors duration-300 group-hover:text-primary">
                             {p.title}
                           </h3>
                         </div>
 
-                        {/* Thin cover thumb — soft-framed on paper, never a void. */}
-                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border bg-surface-2">
+                        {/* Thin cover thumb — ringed in white/10, never a void. */}
+                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10 bg-white/[0.04]">
                           {p.coverUrl ? (
                             <img
                               src={p.coverUrl}
@@ -237,8 +245,8 @@ export function NewsSlider() {
                               className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none"
                             />
                           ) : (
-                            <div aria-hidden className="flex h-full w-full items-center justify-center bg-primary-soft">
-                              <span className="font-display text-lg font-black text-primary/40 select-none">
+                            <div aria-hidden className="flex h-full w-full items-center justify-center bg-primary/15">
+                              <span className="font-display text-lg font-black text-primary/60 select-none">
                                 {(p.title.trim()[0] ?? typeLabels[p.type][0] ?? "·").toUpperCase()}
                               </span>
                             </div>
@@ -257,7 +265,7 @@ export function NewsSlider() {
         <div className="mt-[clamp(2.5rem,5vh,3.5rem)] flex justify-center lg:hidden">
           <Link
             href="/events"
-            className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-foreground ring-1 ring-inset ring-border-strong transition-all duration-200 hover:bg-surface-2 hover:ring-primary/40 motion-reduce:transition-none"
+            className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 motion-reduce:transition-none"
           >
             {c.ctaAll}
             <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />

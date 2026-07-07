@@ -454,6 +454,50 @@
 }
 
 /* ============================================================
+   GLASS SYSTEM — the site-wide "Vision Pro" material. Frosted,
+   translucent panels floating on the deep dark canvas: a soft vertical
+   sheen, a real backdrop blur + saturation, a hairline lit edge, a top
+   inner highlight, and a soft cast shadow for depth. Use `glass-panel`
+   for cards/rows, `glass-panel-lg` for hero/feature tiles, `glass-rail`
+   for slim bands. Terracotta stays the only accent. Reduced-transparency
+   users get a solid fallback (no blur).
+   ============================================================ */
+@utility glass-panel {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.075) 0%, hsl(0 0% 100% / 0.03) 100%);
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  border: 1px solid hsl(0 0% 100% / 0.12);
+  border-radius: 24px;
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.14), inset 0 0 0 1px hsl(0 0% 100% / 0.02), 0 24px 60px -28px hsl(0 0% 0% / 0.7);
+}
+@utility glass-panel-lg {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.09) 0%, hsl(0 0% 100% / 0.035) 100%);
+  backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid hsl(0 0% 100% / 0.14);
+  border-radius: 32px;
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.16), 0 40px 90px -40px hsl(0 0% 0% / 0.75);
+}
+@utility glass-rail {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.05) 0%, hsl(0 0% 100% / 0.02) 100%);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  border-block: 1px solid hsl(0 0% 100% / 0.08);
+}
+/* Ambient depth — a soft, slow-breathing light field behind the panels so
+   the dark canvas reads as lit space, not flat black (the Vision Pro cue). */
+@utility glass-ambient {
+  background:
+    radial-gradient(60% 50% at 78% 8%, hsl(12 70% 52% / 0.10) 0%, transparent 60%),
+    radial-gradient(55% 45% at 12% 96%, hsl(38 48% 60% / 0.06) 0%, transparent 62%);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-panel, .glass-panel-lg, .glass-rail {
+    backdrop-filter: none; -webkit-backdrop-filter: none; background: hsl(26 7% 10%);
+  }
+}
+
+/* ============================================================
    TYPE HELPERS — apply the shared scale by class. Section agents:
    use these instead of hand-rolling clamp(). Headings always wear
    --foreground; body uses --fg-secondary.

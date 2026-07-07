@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
+import { Reveal } from "@/components/landing/Reveal";
 import { imageUrl } from "@/hooks/use-content";
 
 interface FMember {
@@ -17,9 +18,10 @@ interface FMember {
 }
 
 /** Homepage community preview — real members from /api/members, told at hero
- *  power: a member-at-work photograph anchors the section, one oversized featured
- *  member leads, the rest follow as glass cards. Renders nothing on error so the
- *  homepage never shows a broken/empty section. */
+ *  power on the site-wide "Vision Pro" dark canvas: a member-at-work photograph
+ *  anchors the section, one oversized featured member leads, the rest follow as
+ *  unified frosted glass panels. Renders nothing on error so the homepage never
+ *  shows a broken/empty section. */
 export function FeaturedMembers() {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
@@ -43,86 +45,98 @@ export function FeaturedMembers() {
       src={imageUrl("/photos/IMG_8303.webp")}
       scrim="heavy"
       sideScrim={false}
-      className="border-t border-white/[0.06]"
+      className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "مواهب من المجتمع", en: "Talent from the community" })}
     >
-      <div className="container-ih section-y">
-        <div className="mb-[clamp(2rem,4vw,3rem)] flex items-end justify-between gap-4">
-          <Link
-            href="/members"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white/70 hover:text-white transition-colors"
-          >
-            {t({ ar: "عرض الكلّ", en: "View all" })}
-            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
-          </Link>
-          <div className="text-end">
-            <p className="eyebrow eyebrow-sand mb-3">{t({ ar: "المجتمع", en: "Community" })}</p>
-            <h2
-              className="font-display font-extrabold text-white"
-              style={{ fontSize: "clamp(2.4rem,4.8vw,4.5rem)", letterSpacing: "-0.045em", lineHeight: 1.0 }}
-            >
-              {t({ ar: "مواهب تصنع الفارق", en: "Talent that makes a difference" })}
-            </h2>
-          </div>
-        </div>
+      {/* Ambient lit-space field so the dark canvas reads as depth, not flat black */}
+      <div className="glass-ambient pointer-events-none absolute inset-0" aria-hidden />
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="container-ih section-y relative">
+        <Reveal>
+          <div className="mb-[clamp(2.25rem,4vw,3.25rem)] flex items-end justify-between gap-6">
+            <Link
+              href="/members"
+              className="inline-flex items-center gap-1.5 pb-1.5 text-[13px] font-semibold text-white/65 transition-colors hover:text-white"
+            >
+              {t({ ar: "عرض الكلّ", en: "View all" })}
+              <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+            </Link>
+            <div className="text-end">
+              <p className="eyebrow eyebrow-sand mb-3">{t({ ar: "المجتمع", en: "Community" })}</p>
+              <h2
+                className="font-display text-white"
+                style={{ fontSize: "clamp(2.4rem,5vw,4.5rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 0.98 }}
+              >
+                {t({ ar: "مواهب ", en: "Talent that " })}
+                <span className="text-primary">{t({ ar: "تصنع الفارق", en: "makes a difference" })}</span>
+              </h2>
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {members.map((m, i) => {
             const featured = i === 0;
             const initial = m.fullName.trim().charAt(0);
             const tags = splitTags(m.skills);
             return (
-              <motion.div
+              <Reveal
                 key={m.id}
-                whileHover={reduce ? undefined : { y: -4 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                delay={i * 0.05}
                 className={featured ? "col-span-2 lg:row-span-2" : ""}
               >
-                <Link
-                  href={`/u/${m.id}`}
-                  className={`group relative flex h-full flex-col rounded-[20px] border border-white/15 bg-white/[0.07] backdrop-blur-md p-5 ${featured ? "lg:p-8" : ""} transition-colors duration-300 hover:border-primary/50 hover:bg-white/[0.12]`}
+                <motion.div
+                  whileHover={reduce ? undefined : { y: -4 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  className="h-full"
                 >
-                  <div className={`flex items-center gap-4 ${featured ? "lg:flex-col lg:items-start lg:gap-6" : ""}`}>
-                    {m.avatarUrl ? (
-                      <img
-                        src={m.avatarUrl}
-                        alt={m.fullName}
-                        loading="lazy"
-                        className={`rounded-full object-cover ring-1 ring-white/20 ${featured ? "h-16 w-16 lg:h-24 lg:w-24" : "h-12 w-12"}`}
-                      />
-                    ) : (
-                      <span className={`grid place-items-center rounded-full border border-white/20 bg-white/[0.06] font-display font-black text-sand-bright ${featured ? "h-16 w-16 lg:h-24 lg:w-24 text-2xl lg:text-4xl" : "h-12 w-12"}`}>
-                        {initial}
-                      </span>
-                    )}
-                    <div className="min-w-0">
-                      <h3 className={`font-display font-bold text-white leading-tight line-clamp-1 group-hover:text-primary transition-colors ${featured ? "text-[clamp(1.15rem,2vw,1.7rem)]" : "text-[15px]"}`}>
-                        {m.fullName}
-                      </h3>
-                      {m.jobTitle && (
-                        <p className={`text-white/60 line-clamp-1 mt-1 ${featured ? "text-[14px] lg:text-[15px]" : "text-[12.5px]"}`}>
-                          {m.jobTitle}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {tags.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {tags.slice(0, featured ? 4 : 2).map((s) => (
-                        <span key={s} className="rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-0.5 text-[11px] text-white/75">
-                          {s}
+                  <Link
+                    href={`/u/${m.id}`}
+                    style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
+                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)]`}
+                  >
+                    <div className={`flex items-center gap-4 ${featured ? "lg:flex-col lg:items-start lg:gap-6" : ""}`}>
+                      {m.avatarUrl ? (
+                        <img
+                          src={m.avatarUrl}
+                          alt={m.fullName}
+                          loading="lazy"
+                          className={`rounded-full object-cover ring-1 ring-white/20 ${featured ? "h-16 w-16 lg:h-24 lg:w-24" : "h-12 w-12"}`}
+                        />
+                      ) : (
+                        <span className={`grid place-items-center rounded-full border border-white/20 bg-white/[0.06] font-display font-black text-sand-bright ${featured ? "h-16 w-16 text-2xl lg:h-24 lg:w-24 lg:text-4xl" : "h-12 w-12"}`}>
+                          {initial}
                         </span>
-                      ))}
+                      )}
+                      <div className="min-w-0">
+                        <h3 className={`font-display font-bold text-white leading-[1.1] line-clamp-1 transition-colors group-hover:text-primary ${featured ? "text-[clamp(1.15rem,2vw,1.7rem)]" : "text-[15px]"}`}>
+                          {m.fullName}
+                        </h3>
+                        {m.jobTitle && (
+                          <p className={`mt-1 text-white/60 line-clamp-1 ${featured ? "text-[14px] lg:text-[15px]" : "text-[12.5px]"}`}>
+                            {m.jobTitle}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  )}
 
-                  <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary">
-                    {t({ ar: "عرض الملفّ", en: "View profile" })}
-                    <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-                  </span>
-                </Link>
-              </motion.div>
+                    {tags.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {tags.slice(0, featured ? 4 : 2).map((s) => (
+                          <span key={s} className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[11px] text-white/75">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-[13px] font-semibold text-primary">
+                      {t({ ar: "عرض الملفّ", en: "View profile" })}
+                      <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+                    </span>
+                  </Link>
+                </motion.div>
+              </Reveal>
             );
           })}
         </div>
