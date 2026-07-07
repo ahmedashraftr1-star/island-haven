@@ -462,26 +462,30 @@
    for slim bands. Terracotta stays the only accent. Reduced-transparency
    users get a solid fallback (no blur).
    ============================================================ */
+/* DARK frosted material (iOS/Vision-Pro): the panel DARKENS the vivid photo behind
+   it so white text stays razor-legible, while the blurred, saturated image still
+   reads through it + glows around the edges. A bright hairline + top highlight keep
+   the "glass" read. Legibility first, vibrancy kept. */
 @utility glass-panel {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.12) 0%, hsl(0 0% 100% / 0.05) 100%);
-  backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
-  -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
-  border: 1px solid hsl(0 0% 100% / 0.2);
+  background: linear-gradient(180deg, hsl(24 12% 7% / 0.56) 0%, hsl(24 14% 5% / 0.7) 100%);
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
+  border: 1px solid hsl(0 0% 100% / 0.16);
   border-radius: 24px;
-  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.28), inset 0 0 0 1px hsl(0 0% 100% / 0.04), 0 26px 64px -26px hsl(0 0% 0% / 0.66);
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.18), inset 0 0 0 1px hsl(0 0% 0% / 0.25), 0 28px 66px -26px hsl(0 0% 0% / 0.74);
 }
 @utility glass-panel-lg {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.14) 0%, hsl(0 0% 100% / 0.055) 100%);
-  backdrop-filter: blur(30px) saturate(2) brightness(1.1);
-  -webkit-backdrop-filter: blur(30px) saturate(2) brightness(1.1);
-  border: 1px solid hsl(0 0% 100% / 0.22);
+  background: linear-gradient(180deg, hsl(24 12% 8% / 0.5) 0%, hsl(24 14% 5% / 0.66) 100%);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  border: 1px solid hsl(0 0% 100% / 0.18);
   border-radius: 32px;
-  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.3), 0 44px 96px -38px hsl(0 0% 0% / 0.7);
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.2), 0 48px 100px -38px hsl(0 0% 0% / 0.78);
 }
 @utility glass-rail {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.08) 0%, hsl(0 0% 100% / 0.03) 100%);
-  backdrop-filter: blur(18px) saturate(1.6) brightness(1.06);
-  -webkit-backdrop-filter: blur(18px) saturate(1.6) brightness(1.06);
+  background: linear-gradient(180deg, hsl(24 12% 7% / 0.42) 0%, hsl(24 14% 5% / 0.56) 100%);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
   border-block: 1px solid hsl(0 0% 100% / 0.12);
 }
 /* Ambient depth — a VIVID, colourful light field behind the panels so the dark
