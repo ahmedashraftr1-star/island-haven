@@ -12,8 +12,8 @@ export interface TOCSection {
 
 /**
  * ProjectTOC — a sticky editorial index for the case study. It sits on the
- * logical-END side of the page grid, which places it on the RIGHT for Arabic
- * (RTL) and the right for LTR too. A single IntersectionObserver watches every
+ * logical-START side of the page grid, which places it on the RIGHT for Arabic
+ * (RTL) and the LEFT for LTR. A single IntersectionObserver watches every
  * section id and highlights the topmost one currently in view; clicking an item
  * smooth-scrolls to its section (instant under reduced-motion).
  *
@@ -65,7 +65,10 @@ export function ProjectTOC({ sections }: { sections: TOCSection[] }) {
     );
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [sections.length]);
+    // Re-subscribe when the actual section ids change (not just their count), so
+    // navigating between two ventures with the same section count but different
+    // sections rebinds the observer instead of leaving it stuck on stale nodes.
+  }, [sections.map((s) => s.id).join("|")]);
 
   if (sections.length === 0) return null;
 

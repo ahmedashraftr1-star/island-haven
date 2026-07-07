@@ -12,7 +12,7 @@ import {
   FileText,
   Quote,
 } from "lucide-react";
-import { useContentSection } from "@/hooks/use-content";
+import { useContentSection, imageUrl } from "@/hooks/use-content";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { ProjectTOC, type TOCSection } from "@/components/landing/ProjectTOC";
@@ -161,7 +161,7 @@ function Section({
 function Hero({ v }: { v: CaseStudyVenture }) {
   const { t } = useLanguage();
   const vid = ventureIdentity(v.sector, v.id);
-  const cover = v.coverUrl || frameFor(v.id);
+  const cover = imageUrl(v.coverUrl) || frameFor(v.id);
   return (
     <section id="cs-hero" className="scroll-mt-28" style={{ paddingBlock: "clamp(2rem, 5vh, 4rem)" }}>
       <Reveal>
@@ -271,7 +271,7 @@ function Journey({ v, milestones }: { v: CaseStudyVenture; milestones: CaseStudy
                   <span className="rounded-full border border-primary/30 bg-primary/[0.12] px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-primary rtl:tracking-normal">
                     {t(MILESTONE_LABELS[m.type])}
                   </span>
-                  <span className="text-[11.5px] font-medium text-fg-faint tnum">{date}</span>
+                  <span className="text-[11.5px] font-medium text-muted-foreground tnum">{date}</span>
                 </div>
                 <h3 className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.15rem,1.8vw,1.5rem)", lineHeight: 1.25 }}>
                   {m.title}
@@ -380,7 +380,7 @@ function FounderVoice({ v }: { v: CaseStudyVenture }) {
                 <span className="block font-display font-bold text-foreground" style={{ fontSize: "clamp(1rem,1.5vw,1.2rem)" }}>
                   {v.founderName}
                 </span>
-                <span className="block text-[11.5px] uppercase tracking-[0.16em] text-fg-faint rtl:tracking-normal">
+                <span className="block text-[11.5px] uppercase tracking-[0.16em] text-muted-foreground rtl:tracking-normal">
                   {t({ ar: "المؤسِّس", en: "Founder" })}
                 </span>
               </span>
@@ -416,7 +416,7 @@ function Team({ v }: { v: CaseStudyVenture }) {
         <dl className="mt-[clamp(2rem,4vw,3rem)] grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-2">
           {facts.map((f, i) => (
             <div key={i}>
-              <dt className="mb-1.5 text-[10.5px] uppercase tracking-[0.16em] text-fg-faint rtl:tracking-normal">
+              <dt className="mb-1.5 text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground rtl:tracking-normal">
                 {t(f.label)}
               </dt>
               <dd className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.05rem,1.6vw,1.3rem)" }}>
@@ -505,8 +505,9 @@ function GazaToWorld({
  * (no fabricated prose, quotes, or figures). The resolved section list also
  * drives the sticky ProjectTOC, so the index and the page stay in lockstep.
  *
- * Layout: on lg+ a two-column grid places the case-study body first and the
- * TOC on the logical-END side (RIGHT in RTL and LTR). Below lg the TOC hides.
+ * Layout: on lg+ a two-column grid places the TOC first in DOM, landing it on
+ * the logical-START side (RIGHT in RTL, LEFT in LTR), with the case-study body
+ * beside it. Below lg the TOC hides.
  */
 export function ProjectCaseStudy({
   venture,

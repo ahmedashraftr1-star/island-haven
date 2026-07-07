@@ -729,7 +729,7 @@ function StepTwo({
           placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
           maxLength={1000}
           data-testid="textarea-notes"
-          className="w-full px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 text-foreground text-[13.5px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
+          className="w-full px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 text-foreground text-[13.5px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-primary/50 transition resize-none"
         />
       </div>
     </StepShell>
@@ -808,6 +808,7 @@ function ExpertProfileModal({
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="expert-modal-title"
     >
       <motion.div
         key="expert-modal-backdrop"
@@ -849,7 +850,7 @@ function ExpertProfileModal({
               </div>
             )}
             <div className="min-w-0 pt-0.5">
-              <h2 className="text-[16px] font-bold leading-snug text-foreground">
+              <h2 id="expert-modal-title" className="text-[16px] font-bold leading-snug text-foreground">
                 {expert.fullName}
               </h2>
               {expert.headline && (
@@ -1380,12 +1381,14 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "rtl"}
         data-testid={`input-${id}`}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
         className={`w-full h-12 px-4 rounded-2xl bg-white/[0.04] border text-foreground ${
           error ? "border-destructive/60" : "border-white/10"
-        } text-[14px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition`}
+        } text-[14px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-primary/50 transition`}
       />
       {error && (
-        <p className="mt-1.5 text-[11.5px] text-destructive">{error}</p>
+        <p id={`${id}-error`} className="mt-1.5 text-[11.5px] text-destructive">{error}</p>
       )}
     </div>
   );

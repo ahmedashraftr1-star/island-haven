@@ -275,7 +275,7 @@ export function ApplyProcess() {
                         transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
                       />
                     )}
-                    <span className="relative z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary shadow-[0_0_0_5px_hsl(24_14%_5%/0.85),0_0_18px_-2px_hsl(12_88%_56%/0.7)]">
+                    <span className="relative z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary shadow-[0_0_0_5px_hsl(24_14%_5%/0.85)]">
                       <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
                     </span>
                     <span

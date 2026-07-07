@@ -101,7 +101,7 @@ export default function VentureDetail() {
         label={t({ ar: "كلّ المشاريع", en: "All ventures" })}
       />
 
-      <ProjectCaseStudy venture={v} milestones={milestones} pitchDeck={pitchDeck} />
+      <ProjectCaseStudy key={v.id} venture={v} milestones={milestones} pitchDeck={pitchDeck} />
 
       <OtherVentures excludeId={v.id} />
     </PageShell>

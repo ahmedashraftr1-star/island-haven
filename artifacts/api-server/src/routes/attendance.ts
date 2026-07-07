@@ -151,11 +151,18 @@ router.post("/attendance/check-in", requireUser, async (req, res) => {
             ),
           )
           .limit(1);
-        res.json({
-          present: true,
-          since: open ? open.checkInAt.toISOString() : new Date().toISOString(),
-          seat: open?.seatNumber ?? seat,
-        });
+        // Report the member's REAL current state. If the racing session was
+        // already checked out (read-back empty), we are honestly not present —
+        // never fabricate a present-since timestamp.
+        if (open) {
+          res.json({
+            present: true,
+            since: open.checkInAt.toISOString(),
+            seat: open.seatNumber ?? seat,
+          });
+        } else {
+          res.json({ present: false, since: null, seat });
+        }
         return;
       }
       throw err;
@@ -285,10 +292,19 @@ router.get("/attendance/summary", async (_req, res) => {
       .select({ n: sql<number>`count(*)::int` })
       .from(seatAssignmentsTable)
       .where(isNull(seatAssignmentsTable.releasedAt));
+    // Count only open sessions whose member is still active, so the public
+    // "present now" matches the board's live semantics (banned/inactive members
+    // don't inflate the count). Still just a count — no names, PII-free.
     const [present] = await db
       .select({ n: sql<number>`count(*)::int` })
       .from(attendanceSessionsTable)
-      .where(isNull(attendanceSessionsTable.checkOutAt));
+      .innerJoin(usersTable, eq(usersTable.id, attendanceSessionsTable.userId))
+      .where(
+        and(
+          isNull(attendanceSessionsTable.checkOutAt),
+          eq(usersTable.status, "active"),
+        ),
+      );
     res.json({
       totalSeats: TOTAL_SEATS,
       assignedCount: assigned?.n ?? 0,
@@ -348,7 +364,33 @@ router.post("/admin/attendance/assign", requireAdmin, async (req, res) => {
   const { seatNumber, userId } = parsed.data;
   try {
     const result = await db.transaction(async (tx) => {
-      // (1) Release any active assignment on this seat OR held by this user, so
+      // (1) Verify the user exists AND is active. (Done first so a
+      // missing/inactive user still 404s/400s even on the no-op path below.)
+      const [user] = await tx
+        .select({ id: usersTable.id, status: usersTable.status })
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
+        .limit(1);
+      if (!user) return { kind: "notFound" as const };
+      if (user.status !== "active") return { kind: "inactive" as const };
+
+      // (2) No-op short-circuit: if this exact (seat, member) is already the
+      // current active assignment, don't release + re-insert — that would reset
+      // assignedAt and log a spurious released row for an unchanged pairing.
+      const [current] = await tx
+        .select({ id: seatAssignmentsTable.id })
+        .from(seatAssignmentsTable)
+        .where(
+          and(
+            isNull(seatAssignmentsTable.releasedAt),
+            eq(seatAssignmentsTable.seatNumber, seatNumber),
+            eq(seatAssignmentsTable.userId, userId),
+          ),
+        )
+        .limit(1);
+      if (current) return { kind: "ok" as const };
+
+      // (3) Release any active assignment on this seat OR held by this user, so
       // both the seat and the member end up with a single fresh assignment.
       await tx
         .update(seatAssignmentsTable)
@@ -360,16 +402,7 @@ router.post("/admin/attendance/assign", requireAdmin, async (req, res) => {
           ),
         );
 
-      // (2) Verify the user exists AND is active.
-      const [user] = await tx
-        .select({ id: usersTable.id, status: usersTable.status })
-        .from(usersTable)
-        .where(eq(usersTable.id, userId))
-        .limit(1);
-      if (!user) return { kind: "notFound" as const };
-      if (user.status !== "active") return { kind: "inactive" as const };
-
-      // (3) Insert a fresh active assignment.
+      // (4) Insert a fresh active assignment.
       await tx
         .insert(seatAssignmentsTable)
         .values({ seatNumber, userId });

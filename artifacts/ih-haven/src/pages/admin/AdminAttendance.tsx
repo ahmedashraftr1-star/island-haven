@@ -242,7 +242,7 @@ export default function AdminAttendance() {
             >
               {/* seat number + state chip */}
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold tracking-wide text-foreground/50">
+                <span className="text-[11px] font-bold tracking-wide text-foreground/50 rtl:tracking-normal">
                   مقعد {seat.number}
                 </span>
                 {occ ? (

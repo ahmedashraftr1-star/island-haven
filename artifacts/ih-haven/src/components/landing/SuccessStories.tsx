@@ -261,7 +261,7 @@ export function SuccessStories() {
               </blockquote>
 
               {lang === "en" && (
-                <p className="mt-5 text-[11px] uppercase tracking-[0.2em] text-white/45">
+                <p className="mt-5 text-[11px] uppercase tracking-[0.2em] text-white/60">
                   {t({ ar: "", en: "Original · Arabic" })}
                 </p>
               )}

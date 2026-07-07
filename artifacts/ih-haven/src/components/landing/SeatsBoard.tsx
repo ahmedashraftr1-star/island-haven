@@ -111,9 +111,9 @@ function Seat({
     : "bottom-[calc(100%+8px)] group-hover/seat:translate-y-0 group-focus-within/seat:translate-y-0";
   const vRest = flipBelow ? "-translate-y-1" : "translate-y-1";
   const hPos = nearStart
-    ? "left-0"
+    ? "start-0"
     : nearEnd
-      ? "right-0"
+      ? "end-0"
       : "left-1/2 -translate-x-1/2";
 
   return (
@@ -259,7 +259,7 @@ function CheckInCard({
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="min-w-0">
             <div className="flex items-baseline gap-2">
-              <span className="text-[12px] font-medium uppercase tracking-[0.14em] text-white/55">
+              <span className="text-[12px] font-medium uppercase tracking-[0.14em] text-white/55 rtl:tracking-normal">
                 {t({ ar: "مقعدك", en: "Your seat" })}
               </span>
               <span className="font-display font-black tabular-nums text-sand-bright text-[1.35rem] leading-none">
@@ -271,12 +271,12 @@ function CheckInCard({
             <p aria-live="polite" className="mt-1.5 text-[13px] text-white/70">
               {me.present ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <span aria-hidden className="h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.8)]" />
+                  <span aria-hidden className="h-2 w-2 rounded-full bg-primary" />
                   <span className="text-primary font-medium">
                     {t({ ar: "أنت حاضر الآن", en: "You're present now" })}
                   </span>
                   {sinceLabel && (
-                    <span className="text-white/45">
+                    <span className="text-white/60">
                       {t({ ar: " · منذ ", en: " · since " })}
                       <span className="tabular-nums">{sinceLabel}</span>
                     </span>
@@ -447,7 +447,7 @@ export function SeatsBoard() {
             <Reveal as="div" delay={0.14}>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-[13.5px]">
                 <span className="inline-flex items-center gap-2.5">
-                  <span aria-hidden className="h-3 w-3 rounded-[4px] bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.7)]" />
+                  <span aria-hidden className="h-3 w-3 rounded-[4px] bg-primary" />
                   <span className="text-white/85">
                     <span className="font-display font-bold text-white tabular-nums">{fmt(taken)}</span>{" "}
                     {t({ ar: "مشغول", en: "taken" })}
@@ -455,7 +455,7 @@ export function SeatsBoard() {
                 </span>
                 {present != null && (
                   <span className="inline-flex items-center gap-2.5">
-                    <span aria-hidden className="h-3 w-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.7)] ring-1 ring-inset ring-primary/60" />
+                    <span aria-hidden className="h-3 w-3 rounded-full bg-primary ring-1 ring-inset ring-primary/60" />
                     <span className="text-white/85">
                       <span className="font-display font-bold text-primary tabular-nums">{fmt(present)}</span>{" "}
                       {t({ ar: "حاضر الآن", en: "present now" })}

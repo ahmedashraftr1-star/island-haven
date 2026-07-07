@@ -282,7 +282,7 @@ export default function BecomeMentor() {
         <div className="mx-auto max-w-2xl flex items-center justify-between gap-4">
           <Link
             href="/experts"
-            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold"
+            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold rtl:tracking-normal"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
             {t({ ar: "العودة", en: "Back" })}
@@ -481,7 +481,9 @@ export default function BecomeMentor() {
                     onChange={(e) =>
                       set("yearsExperience", Number(e.target.value) || 0)
                     }
-                    className="block w-full bg-transparent text-foreground text-[15.5px] outline-none py-2.5 tabular-nums"
+                    aria-invalid={Boolean(fieldErrors.yearsExperience)}
+                    aria-describedby={fieldErrors.yearsExperience ? "yearsExperience-error" : undefined}
+                    className="block w-full rounded-sm bg-transparent text-foreground text-[15.5px] outline-none py-2.5 tabular-nums focus-visible:ring-2 focus-visible:ring-primary/50"
                     data-testid="input-yearsExperience"
                   />
                 </FieldWrap>
@@ -535,7 +537,9 @@ export default function BecomeMentor() {
                         en: "What do you do? How can you help founders? What makes you an expert in your field?",
                       })}
                       maxLength={4000}
-                      className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
+                      aria-invalid={Boolean(fieldErrors.bio)}
+                      aria-describedby={fieldErrors.bio ? "bio-error" : undefined}
+                      className="block w-full rounded-sm bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5 focus-visible:ring-2 focus-visible:ring-primary/50"
                       data-testid="input-bio"
                       autoFocus
                     />
@@ -557,7 +561,9 @@ export default function BecomeMentor() {
                       onChange={(e) => set("linkedinUrl", e.target.value)}
                       placeholder="https://linkedin.com/in/username"
                       maxLength={400}
-                      className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5"
+                      aria-invalid={Boolean(fieldErrors.linkedinUrl)}
+                      aria-describedby={fieldErrors.linkedinUrl ? "linkedinUrl-error" : undefined}
+                      className="block w-full rounded-sm bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5 focus-visible:ring-2 focus-visible:ring-primary/50"
                       data-testid="input-linkedinUrl"
                     />
                   </FieldWrap>
@@ -665,6 +671,7 @@ function FieldWrap({
       <AnimatePresence>
         {error && (
           <motion.div
+            id={`${id}-error`}
             initial={{ opacity: 0, y: -2, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -720,9 +727,11 @@ function Field({
         dir={ltr ? "ltr" : "auto"}
         maxLength={maxLength}
         autoComplete={autoComplete}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={autoFocus}
-        className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5"
+        className="block w-full rounded-sm bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5 focus-visible:ring-2 focus-visible:ring-primary/50"
         data-testid={`input-${id}`}
       />
     </FieldWrap>
