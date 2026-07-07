@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
@@ -232,8 +233,13 @@ export default function Book() {
   return (
     <div
       dir={lang === "en" ? "ltr" : "rtl"}
-      className="relative min-h-screen bg-surface-1 text-foreground"
+      className="relative min-h-screen bg-background text-foreground"
+      style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
+      {/* Signature dark brand aura — the same lit-canvas atmosphere the homepage
+          and Apply wear, so Book never reads as a flat dark-on-dark form. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] brand-aura opacity-70" />
+
       {/* Top bar */}
       <header className="relative z-20 px-6 lg:px-10 pt-7 lg:pt-9 pb-4 flex items-center justify-between">
         <Link
@@ -316,7 +322,7 @@ export default function Book() {
 
         <Stepper step={step} />
 
-        <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-9 mt-10">
+        <Reveal as="div" delay={0.12} className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-9 mt-10">
           {/* Form panel */}
           <div className="relative">
             <Panel>
@@ -350,7 +356,7 @@ export default function Book() {
               </AnimatePresence>
 
               {error && (
-                <div className="mt-6 px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-[13px]">
+                <div role="alert" aria-live="assertive" className="mt-6 px-4 py-3 rounded-xl bg-destructive/[0.12] border border-destructive/40 text-destructive text-[13px]">
                   {error}
                 </div>
               )}
@@ -404,7 +410,7 @@ export default function Book() {
             expertName={experts?.find((e) => e.id === form.expertId)?.fullName}
             selectedSlot={selectedSlotMeta}
           />
-        </div>
+        </Reveal>
       </div>
     </div>
   );
@@ -412,11 +418,12 @@ export default function Book() {
 
 /* ---------- Sub-components ---------- */
 
-// Calm editorial panel — a clean surface and one hairline. No glass, no aura,
-// no gradient wash; restraint and space carry it.
+// The primary booking surface — a frosted glass panel floating on the dark
+// canvas (the site-wide "Vision Pro" material). Legibility first: the panel
+// darkens the aura behind it so white form text stays razor-sharp.
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative rounded-[24px] p-7 lg:p-11 surface-2 border border-border-strong overflow-hidden">
+    <div className="glass-panel-lg relative p-7 lg:p-11 overflow-hidden">
       {children}
     </div>
   );
@@ -435,12 +442,12 @@ function Stepper({ step }: { step: Step }) {
         return (
           <div key={it.n} className="flex items-center gap-2 lg:gap-4">
             <div
-              className={`flex items-center gap-2.5 px-4 h-10 rounded-full transition ${
+              className={`flex items-center gap-2.5 px-4 h-10 rounded-full border transition ${
                 active
-                  ? "cta-fill"
+                  ? "cta-fill border-transparent"
                   : done
-                    ? "bg-sand-soft text-foreground"
-                    : "bg-surface-3 text-fg-faint"
+                    ? "bg-primary/[0.10] border-primary/40 text-foreground"
+                    : "bg-white/[0.04] border-white/10 text-fg-faint"
               }`}
             >
               <span
@@ -448,8 +455,8 @@ function Stepper({ step }: { step: Step }) {
                   active
                     ? "bg-white/25 text-primary-foreground"
                     : done
-                      ? "bg-sand-soft text-sand"
-                      : "bg-foreground/[0.06]"
+                      ? "bg-primary/20 text-primary"
+                      : "bg-white/[0.06]"
                 }`}
               >
                 {done ? <Check className="w-3 h-3" strokeWidth={3} /> : it.n}
@@ -459,7 +466,7 @@ function Stepper({ step }: { step: Step }) {
               </span>
             </div>
             {i < items.length - 1 && (
-              <div className="w-6 lg:w-10 h-[1px] bg-border-strong" />
+              <div className="w-6 lg:w-10 h-[1px] bg-white/12" />
             )}
           </div>
         );
@@ -542,7 +549,7 @@ function StepOne({
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
-              className="w-9 h-9 rounded-full bg-surface-3 hover:bg-secondary text-foreground flex items-center justify-center transition"
+              className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
               aria-label={lang === "en" ? "Previous month" : "الشهر السابق"}
               data-testid="button-prev-month"
             >
@@ -555,7 +562,7 @@ function StepOne({
             </div>
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
-              className="w-9 h-9 rounded-full bg-surface-3 hover:bg-secondary text-foreground flex items-center justify-center transition"
+              className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
               aria-label={lang === "en" ? "Next month" : "الشهر التالي"}
               data-testid="button-next-month"
             >
@@ -581,10 +588,10 @@ function StepOne({
                   data-testid={`day-${c.iso}`}
                   className={`aspect-square rounded-xl text-[13px] font-medium transition relative ${
                     form.visitDate === c.iso
-                      ? "bg-primary text-primary-foreground shadow-[0_6px_18px_-6px_rgba(220,38,55,0.45)]"
+                      ? "bg-primary text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
                       : c.disabled
                         ? "text-fg-faint/45 cursor-not-allowed"
-                        : "bg-surface-3 text-foreground hover:bg-secondary"
+                        : "bg-white/[0.05] border border-white/[0.08] text-foreground hover:bg-white/[0.1] hover:border-white/20"
                   }`}
                 >
                   {c.label}
@@ -618,8 +625,8 @@ function StepOne({
                   data-testid={`slot-${s.id}`}
                   className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition group ${
                     active
-                      ? "bg-primary-soft border border-primary/40 shadow-[0_10px_28px_-14px_rgba(220,38,55,0.35)]"
-                      : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
+                      ? "bg-primary/[0.10] border border-primary/45 shadow-[0_12px_30px_-14px_hsl(12_70%_52%/0.4)]"
+                      : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-primary/30"
                   }`}
                 >
                   <s.Icon className={`w-[18px] h-[18px] mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={2} />
@@ -666,8 +673,8 @@ function StepTwo({
               data-testid={`purpose-${id}`}
               className={`relative p-4 rounded-2xl ${lang === "en" ? "text-left" : "text-right"} transition ${
                 active
-                  ? "bg-primary-soft border border-primary/40"
-                  : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
+                  ? "bg-primary/[0.10] border border-primary/45"
+                  : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-primary/30"
               }`}
             >
               <Icon
@@ -695,8 +702,8 @@ function StepTwo({
                 data-testid={`att-${n}`}
                 className={`w-11 h-11 rounded-full text-[13.5px] font-semibold transition ${
                   active
-                    ? "bg-primary text-primary-foreground shadow-[0_6px_18px_-6px_rgba(220,38,55,0.45)]"
-                    : "bg-surface-3 text-fg-secondary hover:bg-secondary"
+                    ? "bg-primary text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
+                    : "bg-white/[0.05] border border-white/10 text-fg-secondary hover:bg-white/[0.1] hover:border-white/20"
                 }`}
               >
                 {lang === "en" ? n : n.toLocaleString("ar-EG-u-nu-arab")}
@@ -722,7 +729,7 @@ function StepTwo({
           placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
           maxLength={1000}
           data-testid="textarea-notes"
-          className="w-full px-4 py-3 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[13.5px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-surface-3 transition resize-none"
+          className="w-full px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 text-foreground text-[13.5px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition resize-none"
         />
       </div>
     </StepShell>
@@ -735,7 +742,7 @@ function ExpertSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="p-4 rounded-2xl bg-surface-2 border border-border-strong"
+          className="p-4 rounded-2xl bg-white/[0.04] border border-white/10"
         >
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl skeleton-shimmer shrink-0" />
@@ -808,7 +815,7 @@ function ExpertProfileModal({
         animate={reduce ? undefined : { opacity: 1 }}
         exit={reduce ? undefined : { opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={onClose}
       />
       <motion.div
@@ -817,13 +824,13 @@ function ExpertProfileModal({
         animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
         exit={reduce ? undefined : { opacity: 0, y: 24, scale: 0.97 }}
         transition={{ duration: 0.26, ease: [0.19, 1, 0.22, 1] }}
-        className="relative z-10 w-full sm:max-w-md bg-surface-2 border border-border-strong rounded-t-3xl sm:rounded-3xl shadow-[0_40px_90px_-30px_rgba(15,32,64,0.4)] overflow-hidden"
+        className="glass-panel-lg relative z-10 w-full sm:max-w-md rounded-t-3xl sm:rounded-[32px] overflow-hidden"
         dir={lang === "en" ? "ltr" : "rtl"}
       >
         <button
           onClick={onClose}
           aria-label={lang === "en" ? "Close" : "إغلاق"}
-          className="absolute top-3.5 end-3.5 w-8 h-8 rounded-full bg-surface-3 hover:bg-secondary flex items-center justify-center transition text-muted-foreground hover:text-foreground z-10"
+          className="absolute top-3.5 end-3.5 w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 hover:bg-white/[0.12] flex items-center justify-center transition text-muted-foreground hover:text-foreground z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -834,7 +841,7 @@ function ExpertProfileModal({
               <img
                 src={expert.avatarUrl}
                 alt={expert.fullName}
-                className="w-16 h-16 rounded-2xl object-cover border border-border-strong shrink-0"
+                className="w-16 h-16 rounded-2xl object-cover border border-white/12 shrink-0"
               />
             ) : (
               <div className="w-16 h-16 rounded-2xl bg-primary-soft border border-primary/20 flex items-center justify-center text-2xl font-bold text-primary shrink-0">
@@ -917,7 +924,7 @@ function ExpertProfileModal({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-3 border border-border-strong hover:bg-secondary hover:border-primary/30 text-fg-secondary hover:text-foreground text-[12px] transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-primary/30 text-fg-secondary hover:text-foreground text-[12px] transition"
                 >
                   <Linkedin className="w-3.5 h-3.5" />
                   LinkedIn
@@ -930,7 +937,7 @@ function ExpertProfileModal({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-3 border border-border-strong hover:bg-secondary hover:border-primary/30 text-fg-secondary hover:text-foreground text-[12px] transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-primary/30 text-fg-secondary hover:text-foreground text-[12px] transition"
                 >
                   <Globe className="w-3.5 h-3.5" />
                   {lang === "en" ? "Website" : "الموقع"}
@@ -941,7 +948,7 @@ function ExpertProfileModal({
           )}
         </div>
 
-        <div className="px-5 pb-5 pt-1 border-t border-border">
+        <div className="px-5 pb-5 pt-1 border-t border-white/10">
           {!expert.acceptingSessions ? (
             <p className="text-center text-[12.5px] text-muted-foreground py-2">
               {lang === "en" ? "Not accepting sessions right now" : "لا يستقبل جلسات حاليًا"}
@@ -949,14 +956,14 @@ function ExpertProfileModal({
           ) : isSelected ? (
             <button
               onClick={() => { onPick(); onClose(); }}
-              className="w-full py-2.5 rounded-2xl bg-surface-3 border border-border-strong text-fg-secondary hover:bg-secondary hover:border-primary/30 text-[13.5px] font-medium transition"
+              className="w-full py-2.5 rounded-2xl bg-white/[0.05] border border-white/10 text-fg-secondary hover:bg-white/[0.1] hover:border-primary/30 text-[13.5px] font-medium transition"
             >
               {lang === "en" ? "Deselect expert" : "إلغاء اختيار الخبير"}
             </button>
           ) : (
             <button
               onClick={() => { onPick(); onClose(); }}
-              className="cta-fill w-full py-2.5 rounded-2xl text-[13.5px] font-semibold transition shadow-[0_4px_16px_-6px_rgba(220,38,55,0.4)]"
+              className="cta-fill w-full py-2.5 rounded-2xl text-[13.5px] font-semibold transition shadow-[0_6px_18px_-6px_hsl(12_70%_52%/0.45)]"
             >
               {lang === "en" ? "Pick this expert" : "اختَر هذا الخبير"}
             </button>
@@ -1122,10 +1129,10 @@ function StepExpert({
                     unavailable && !selected ? "opacity-45" : ""
                   } ${
                     selected
-                      ? "bg-primary-soft border border-primary/40 shadow-[0_8px_24px_-12px_rgba(220,38,55,0.35)]"
+                      ? "bg-primary/[0.10] border border-primary/45 shadow-[0_10px_26px_-12px_hsl(12_70%_52%/0.4)]"
                       : hasSlot === true
-                      ? "bg-sand-soft border border-sand-deep/40 hover:bg-sand-soft/80 hover:border-sand-deep/60"
-                      : "bg-surface-2 border border-border-strong hover:bg-surface-3 hover:border-primary/30"
+                      ? "bg-sand-soft border border-sand-deep/50 hover:border-sand-deep/70"
+                      : "bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] hover:border-primary/30"
                   }`}
                 >
                   {selected && (
@@ -1135,13 +1142,13 @@ function StepExpert({
                     <span className="absolute top-2 start-2 h-4 w-10 rounded-full skeleton-shimmer" />
                   )}
                   {!selected && hasSlot === true && slotCount !== null && (
-                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-sand-soft border border-sand-deep/40 text-sand text-[9px] font-semibold leading-4">
+                    <span className="absolute top-2 start-2 h-4 px-1.5 rounded-full bg-sand-soft border border-sand-deep/50 text-sand-bright text-[9px] font-semibold leading-4 tnum">
                       {lang === "en"
                         ? `${slotCount} slot${slotCount === 1 ? "" : "s"}`
                         : `${slotCount.toLocaleString("ar-EG-u-nu-arab")} موعد`}
                     </span>
                   )}
-                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-surface-3 border border-border-strong text-muted-foreground text-[9.5px] font-medium leading-none pointer-events-none">
+                  <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-muted-foreground text-[9.5px] font-medium leading-none pointer-events-none">
                     <Info className="w-2.5 h-2.5 shrink-0" />
                     {lang === "en" ? "profile" : "الملف"}
                   </span>
@@ -1150,7 +1157,7 @@ function StepExpert({
                       <img
                         src={e.avatarUrl}
                         alt={e.fullName}
-                        className="w-12 h-12 rounded-2xl object-cover border border-border-strong shrink-0"
+                        className="w-12 h-12 rounded-2xl object-cover border border-white/12 shrink-0"
                         loading="lazy"
                       />
                     ) : (
@@ -1184,7 +1191,7 @@ function StepExpert({
           </motion.div>
 
           {form.expertId !== null && (
-            <div className="mt-5 pt-5 border-t border-border">
+            <div className="mt-5 pt-5 border-t border-white/10">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="text-[12px] text-fg-secondary font-medium">
@@ -1231,12 +1238,12 @@ function StepExpert({
                         data-testid={`slot-pick-${slot.id}`}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition border ${
                           picked
-                            ? "bg-sand-soft border-sand-deep/60 text-sand"
-                            : "bg-surface-2 border-border-strong text-fg-secondary hover:bg-surface-3 hover:border-primary/30"
+                            ? "bg-primary/[0.10] border-primary/45 text-primary"
+                            : "bg-white/[0.04] border-white/10 text-fg-secondary hover:bg-white/[0.07] hover:border-primary/30"
                         }`}
                       >
-                        {picked && <CheckCircle2 className="w-3 h-3 text-sand shrink-0" />}
-                        <span dir="ltr">{start} – {end}</span>
+                        {picked && <CheckCircle2 className="w-3 h-3 text-primary shrink-0" />}
+                        <span dir="ltr" className="tnum">{start} – {end}</span>
                         <span className="text-[10px] opacity-60">· {modeLabel}</span>
                       </button>
                     );
@@ -1373,9 +1380,9 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "rtl"}
         data-testid={`input-${id}`}
-        className={`w-full h-12 px-4 rounded-2xl bg-surface-2 border text-foreground ${
-          error ? "border-destructive/60" : "border-border-strong"
-        } text-[14px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-surface-3 transition`}
+        className={`w-full h-12 px-4 rounded-2xl bg-white/[0.04] border text-foreground ${
+          error ? "border-destructive/60" : "border-white/10"
+        } text-[14px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] transition`}
       />
       {error && (
         <p className="mt-1.5 text-[11.5px] text-destructive">{error}</p>
@@ -1426,10 +1433,10 @@ function SummaryCard({
 
   return (
     <aside className="lg:sticky lg:top-8 self-start">
-      <div className="relative rounded-[20px] p-6 surface-2 border border-border-strong">
+      <div className="glass-panel relative p-6">
         <div>
-          <div className="pb-4 mb-2 border-b border-border-strong">
-            <div className="eyebrow text-sand mb-2">
+          <div className="pb-4 mb-2 border-b border-white/10">
+            <div className="eyebrow eyebrow-sand mb-2">
               {lang === "en" ? "Summary" : "الملخّص"}
             </div>
             <div className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.1rem, 2vw, 1.3rem)", letterSpacing: "-0.02em" }}>
@@ -1486,7 +1493,7 @@ function SummaryCard({
             placeholder={!form.fullName}
           />
 
-          <div className="mt-6 pt-5 border-t border-border-strong">
+          <div className="mt-6 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2.5 text-[12px] text-fg-secondary leading-[1.7]">
               <Coffee className="w-3.5 h-3.5 shrink-0 text-primary" />
               <span>{lang === "en" ? "Coffee, tea & fast Wi-Fi · always on us." : "قهوة وشاي وإنترنت سريع · على حسابنا دائمًا."}</span>
@@ -1510,7 +1517,7 @@ function SummaryRow({
   placeholder?: boolean;
 }) {
   return (
-    <div className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-3 border-b border-border last:border-0">
+    <div className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-3 border-b border-white/[0.07] last:border-0">
       <Icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" strokeWidth={2} />
       <div className="flex-1 min-w-0">
         <div className="text-[10.5px] text-muted-foreground mb-0.5">{label}</div>
@@ -1548,8 +1555,10 @@ function SuccessScreen({
   return (
     <div
       dir={lang === "en" ? "ltr" : "rtl"}
-      className="relative min-h-screen overflow-hidden bg-surface-1 text-foreground flex items-center justify-center px-6 py-16"
+      className="relative min-h-screen overflow-hidden bg-background text-foreground flex items-center justify-center px-6 py-16"
+      style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}
     >
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[80vh] brand-aura opacity-80" />
       {!reduce && <Confetti />}
       <motion.div
         initial={reduce ? false : { opacity: 0, scale: 0.95, y: 20 }}
@@ -1557,7 +1566,7 @@ function SuccessScreen({
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 max-w-lg w-full"
       >
-        <div className="relative rounded-[24px] p-9 lg:p-11 bg-surface-2 border border-border-strong text-center">
+        <div className="glass-panel-lg relative p-9 lg:p-11 text-center">
           <div className="relative">
             <motion.div
               initial={reduce ? false : { scale: 0 }}
@@ -1604,7 +1613,7 @@ function SuccessScreen({
               )}
             </p>
             {expert && (
-              <div className="mb-6 py-4 px-5 rounded-2xl bg-surface-3 border border-border-strong flex items-center gap-4">
+              <div className="mb-6 py-4 px-5 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center gap-4">
                 <div className="relative shrink-0">
                   {expert.avatarUrl ? (
                     <img
@@ -1617,7 +1626,7 @@ function SuccessScreen({
                       {expert.fullName.trim().charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-sand border-2 border-surface-2" />
+                  <span className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-sand border-2 border-[#0b0a09]" />
                 </div>
                 <div className={`flex-1 min-w-0 ${lang === "en" ? "text-left" : "text-right"}`}>
                   <p className="text-[10.5px] text-muted-foreground mb-0.5">
@@ -1634,9 +1643,9 @@ function SuccessScreen({
                 </div>
               </div>
             )}
-            <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-surface-3 border border-border-strong text-[12px] text-fg-secondary mb-7">
+            <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-white/[0.05] border border-white/10 text-[12px] text-fg-secondary mb-7">
               <span className="text-muted-foreground">{lang === "en" ? "Booking ref." : "رقم الحجز"}</span>
-              <span className="font-mono font-bold text-foreground tracking-wider">
+              <span className="font-mono font-bold text-sand-bright tracking-wider tnum">
                 #{ref}
               </span>
             </div>
@@ -1651,7 +1660,7 @@ function SuccessScreen({
               </Link>
               <Link
                 href="/book"
-                className="h-11 px-6 rounded-full bg-surface-3 border border-border-strong text-foreground text-[13px] font-semibold hover:bg-secondary transition"
+                className="h-11 px-6 rounded-full bg-white/[0.05] border border-white/10 text-foreground text-[13px] font-semibold hover:bg-white/[0.1] hover:border-white/20 transition"
                 data-testid="link-new-booking"
                 onClick={() => window.location.reload()}
               >
