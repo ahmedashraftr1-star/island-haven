@@ -101,9 +101,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Bilingual site name — the brand stays dual-script; the page-specific title and
-// description below are single-language and resolved against the active locale.
-const SITE_NAME = "Island Haven · آيلاند هيفن";
+// Site name — single-language per locale so the <title> never mixes scripts
+// (EN → "Island Haven", AR → "آيلاند هيفن"). Resolved against the active locale
+// wherever it is appended below.
+const SITE_NAME = { ar: "آيلاند هيفن", en: "Island Haven" } as const;
 
 type LocalizedText = { ar: string; en: string };
 interface RouteMeta {
@@ -209,10 +210,10 @@ function RouteEffects() {
     const meta =
       ROUTE_META[loc] ?? ROUTE_META[`/${loc.split("/").filter(Boolean)[0] ?? ""}`];
     if (meta) {
-      document.title = `${meta.title[lang]} — ${SITE_NAME}`;
+      document.title = `${meta.title[lang]} — ${SITE_NAME[lang]}`;
       if (meta.description) setMetaDescription(meta.description[lang]);
     } else {
-      document.title = SITE_NAME;
+      document.title = SITE_NAME[lang];
     }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [loc, lang]);

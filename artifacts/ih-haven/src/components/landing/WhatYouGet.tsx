@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { imageUrl } from "@/hooks/use-content";
+import { useNumbers } from "@/hooks/use-public-data";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
 
@@ -17,12 +18,25 @@ import { Reveal } from "./Reveal";
  * All data / i18n / routes / testids kept.
  */
 export function WhatYouGet() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // The seats figure is REAL (live /numbers · seatsHosted) — never an invented
+  // literal — and rendered through the locale numeral formatter so it reads in
+  // Western digits in EN and Arabic-Indic in AR. Null until it resolves / on
+  // error, in which case the stat is hidden rather than faked.
+  const { data: numbersData } = useNumbers();
+  const seatsHosted = numbersData?.numbers?.seatsHosted ?? null;
+  const fmtNum = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
+  // Two-digit editorial row index — Arabic-Indic in AR (matching ActMarker /
+  // ApplyProcess), Western in EN. No stray Western digit in the Arabic page.
+  const rowIndex = (i: number) => {
+    const two = String(i + 1).padStart(2, "0");
+    return lang === "ar" ? two.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]) : two;
+  };
 
   // A calm, roomy list of what membership gives — set as editorial rows.
   const gives = [
     {
-      stat: "٦",
+      showSeats: true,
       title: t({ ar: "مساحة عمل مجّانيّة", en: "A free workspace" }),
       body: t({
         ar: "مقعد ثابت في مساحة هادئة، بإنترنت موثوق وكهرباء — احجزه متى احتجت.",
@@ -144,7 +158,7 @@ export function WhatYouGet() {
                   className="shrink-0 font-mono text-[13px] font-semibold tabular-nums text-primary transition-opacity duration-300 group-hover:opacity-100 opacity-80 motion-reduce:transition-none"
                   aria-hidden
                 >
-                  {String(i + 1).padStart(2, "0")}
+                  {rowIndex(i)}
                 </span>
                 <h3
                   className="font-display font-bold text-white leading-[1.05] transition-[color,transform] duration-300 group-hover:text-primary group-hover:translate-x-1 rtl:group-hover:-translate-x-1 motion-reduce:transition-none"
@@ -162,9 +176,9 @@ export function WhatYouGet() {
                 <p className="max-w-[52ch] text-[15px] leading-[1.65] text-white/80 transition-colors duration-300 group-hover:text-white/90 lg:text-[1.0625rem] motion-reduce:transition-none">
                   {g.body}
                 </p>
-                {g.stat && (
+                {g.showSeats && seatsHosted != null && (
                   <div className="mt-3.5 inline-flex items-baseline gap-2">
-                    <span className="font-mono text-xl font-bold tabular-nums text-primary">{g.stat}</span>
+                    <span className="font-mono text-xl font-bold tabular-nums text-primary">{fmtNum(seatsHosted)}</span>
                     <span className="text-[13px] text-white/65">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
                   </div>
                 )}

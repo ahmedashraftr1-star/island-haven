@@ -84,7 +84,7 @@ export function ApplyProcess() {
     {
       title: t({ ar: "تقدّم بطلبك", en: "Apply" }),
       body: t({
-        ar: "نموذج واحد، 15–30 دقيقة. أخبرنا مَن أنت وماذا تبني — والصراحة تُقوّي طلبك.",
+        ar: "نموذج واحد، ١٥–٣٠ دقيقة. أخبرنا مَن أنت وماذا تبني — والصراحة تُقوّي طلبك.",
         en: "One form, 15–30 minutes. Tell us who you are and what you're building — candor strengthens your case.",
       }),
     },

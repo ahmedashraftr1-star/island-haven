@@ -341,6 +341,10 @@ export function SeatsBoard() {
   // never exceed the assigned seats. Null when unknown (we never fabricate it).
   const present =
     summary != null ? Math.min(clampCount(summary.presentCount), taken) : null;
+  // Only surface "present now" when someone actually is — a live "0 present now"
+  // reads as "nobody's here" and undersells the space. When zero (or unknown) we
+  // simply omit the segment; taken/free still tell the honest availability story.
+  const showPresent = present != null && present > 0;
   const seats = useMemo(
     () => Array.from({ length: TOTAL_SEATS }, (_, i) => i < taken),
     [taken],
@@ -411,11 +415,11 @@ export function SeatsBoard() {
                     {t({ ar: "مشغول", en: "taken" })}
                   </span>
                 </span>
-                {present != null && (
+                {showPresent && (
                   <span className="inline-flex items-center gap-2.5">
                     <span aria-hidden className="h-3 w-3 rounded-full bg-primary ring-1 ring-inset ring-primary/60" />
                     <span className="text-white/85">
-                      <span className="font-display font-bold text-primary tabular-nums">{fmt(present)}</span>{" "}
+                      <span className="font-display font-bold text-primary tabular-nums">{fmt(present!)}</span>{" "}
                       {t({ ar: "حاضر الآن", en: "present now" })}
                     </span>
                   </span>
@@ -456,10 +460,10 @@ export function SeatsBoard() {
                   {t({ ar: "مقعد", en: "seats" })}
                   <span className="text-white/40"> · </span>
                   <span className="tabular-nums text-white">{fmt(taken)}</span> {t({ ar: "مشغول", en: "taken" })}
-                  {present != null && (
+                  {showPresent && (
                     <>
                       <span className="text-white/40"> · </span>
-                      <span className="tabular-nums text-primary">{fmt(present)}</span>{" "}
+                      <span className="tabular-nums text-primary">{fmt(present!)}</span>{" "}
                       <span className="text-primary/90">{t({ ar: "حاضر الآن", en: "present now" })}</span>
                     </>
                   )}
@@ -475,8 +479,8 @@ export function SeatsBoard() {
               <div
                 role="group"
                 aria-label={t({
-                  ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول${present != null ? ` و${fmt(present)} حاضر الآن` : ""} و${fmt(free)} متاح الآن`,
-                  en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken${present != null ? `, ${fmt(present)} present now` : ""} and ${fmt(free)} available now`,
+                  ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول${showPresent ? ` و${fmt(present!)} حاضر الآن` : ""} و${fmt(free)} متاح الآن`,
+                  en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken${showPresent ? `, ${fmt(present!)} present now` : ""} and ${fmt(free)} available now`,
                 })}
                 className="grid gap-[clamp(0.4rem,1vw,0.65rem)]"
                 style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
