@@ -249,11 +249,8 @@ export function GazaToGlobal() {
                   baseline aligns; English label leads, muted bilingual sub beneath.
                   Hairline separators, even rhythm — reads as one clean data block. */}
               <div className="lg:col-span-5">
-                <p
-                  className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sand-bright/80"
-                  dir="ltr"
-                >
-                  Reach in numbers
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sand-bright/80 ltr:tracking-[0.16em] rtl:tracking-normal">
+                  {t({ ar: "الوصول بالأرقام", en: "Reach in numbers" })}
                 </p>
                 <div className="border-t border-white/10">
                   {stats.map((s, i) => (

@@ -1,8 +1,12 @@
 import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+/** A value that is either a single string or a bilingual `{ ar, en }` pair. */
+export type Localizable = string | { ar: string; en: string };
 
 interface MetaOptions {
-  title?: string;
-  description?: string;
+  title?: Localizable;
+  description?: Localizable;
   image?: string;
   type?: "website" | "article" | "profile";
   url?: string;
@@ -29,17 +33,23 @@ const DEFAULT_IMAGE = `${window.location.origin}/opengraph.jpg`;
 const BASE_URL = window.location.origin;
 
 export function usePageMeta({ title, description, image, type = "website", url }: MetaOptions) {
+  const { lang } = useLanguage();
+  // Resolve bilingual values against the active locale; plain strings pass through.
+  const localizedTitle = title == null ? undefined : typeof title === "string" ? title : title[lang];
+  const localizedDescription =
+    description == null ? undefined : typeof description === "string" ? description : description[lang];
+
   useEffect(() => {
-    const fullTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
+    const fullTitle = localizedTitle ? `${localizedTitle} — ${SITE_NAME}` : SITE_NAME;
     const pageUrl = url ?? window.location.href;
     const ogImage = image ?? DEFAULT_IMAGE;
 
     document.title = fullTitle;
 
-    if (description) {
-      setMeta("description", description);
-      setMeta("og:description", description);
-      setMeta("twitter:description", description);
+    if (localizedDescription) {
+      setMeta("description", localizedDescription);
+      setMeta("og:description", localizedDescription);
+      setMeta("twitter:description", localizedDescription);
     }
 
     setMeta("og:title", fullTitle);
@@ -65,7 +75,7 @@ export function usePageMeta({ title, description, image, type = "website", url }
       // Restore default title on unmount
       document.title = SITE_NAME;
     };
-  }, [title, description, image, type, url]);
+  }, [localizedTitle, localizedDescription, image, type, url]);
 }
 
 // Suppress unused-import warning for BASE_URL

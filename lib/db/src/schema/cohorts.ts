@@ -33,6 +33,7 @@ export const cohortsTable = pgTable(
       .notNull()
       .references(() => programsTable.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 200 }).notNull(),
+    nameEn: varchar("name_en", { length: 200 }).default("").notNull(),
     slug: varchar("slug", { length: 80 }).notNull(),
     summary: varchar("summary", { length: 400 }).default("").notNull(),
     description: text("description").default("").notNull(),

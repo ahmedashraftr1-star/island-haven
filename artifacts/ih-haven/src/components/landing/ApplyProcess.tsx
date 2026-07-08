@@ -28,6 +28,7 @@ import { CinematicMedia } from "./CinematicMedia";
 interface CohortRow {
   id: number;
   name: string;
+  nameEn: string;
   slug: string;
   startsAt: string | null;
   demoDayAt: string | null;
@@ -110,6 +111,12 @@ export function ApplyProcess() {
     },
   ];
 
+  // The cohort's display name in the ACTIVE locale only. Per the i18n golden
+  // rule we never fall back across languages: if the localized name is missing
+  // (e.g. an Arabic-only operational cohort viewed in EN) we simply hide the
+  // name + its separator rather than leak the other language.
+  const cohortName = (lang === "en" ? cohort?.nameEn : cohort?.name)?.trim() || "";
+
   // The "next cohort" line: concrete when we have a cohort, evergreen otherwise.
   const cohortLine = cohort ? (
     <>
@@ -119,8 +126,12 @@ export function ApplyProcess() {
         {cohort.status === "open"
           ? t({ ar: "التقديم مفتوح الآن", en: "Applications open now" })
           : t({ ar: "الدفعة القادمة", en: "Next cohort" })}
-        {" · "}
-        <span className="text-white font-semibold">{cohort.name}</span>
+        {cohortName && (
+          <>
+            {" · "}
+            <span className="text-white font-semibold">{cohortName}</span>
+          </>
+        )}
         {cohort.startsAt && (
           <>
             {" — "}

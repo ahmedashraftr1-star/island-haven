@@ -11,7 +11,7 @@ import {
   Phone,
   MessageCircle,
 } from "lucide-react";
-import { imageUrl, useContent, useContentSection } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { I18N } from "@/lib/i18n";
 import { FOOTER_COLUMNS } from "@/lib/nav";
@@ -46,8 +46,6 @@ export function Footer() {
       ? { ...cms, aboutBody: I18N.footer.aboutBody.en, contactLabel: I18N.footer.contactLabel.en }
       : cms;
   const contact = useContentSection("contact", CONTACT_FALLBACK);
-  const { data } = useContent();
-  const heroEyebrow = data?.content.hero?.eyebrow;
 
   const socials = [
     { label: "Instagram", icon: Instagram, href: contact.instagram },
@@ -180,7 +178,6 @@ export function Footer() {
               </div>
             )}
 
-            {heroEyebrow && <div className="sr-only">{heroEyebrow}</div>}
           </div>
 
           {/* Three shared FOOTER_COLUMNS */}

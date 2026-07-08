@@ -36,7 +36,29 @@ export interface CaseStudyVenture {
   foundedYear: number;
   teamSize: number;
   featured: boolean;
+  // EN overrides — shown ONLY in English; empty → the field/section hides
+  // (never an Arabic fallback, never English inside Arabic).
+  nameEn?: string | null;
+  taglineEn?: string | null;
+  descriptionEn?: string | null;
+  founderNameEn?: string | null;
+  founderQuoteEn?: string | null;
+  sectorEn?: string | null;
   metrics?: CaseStudyMetric[];
+}
+
+/**
+ * loc — resolve a venture text field for the ACTIVE locale under the GOLDEN RULE:
+ * in EN return the stored `_en` value (or "" when empty → the field hides,
+ * never an Arabic fallback); in AR return the Arabic value. Trimmed; never mixes
+ * the two languages.
+ */
+function loc(
+  lang: Lang,
+  ar: string | null | undefined,
+  en: string | null | undefined,
+): string {
+  return (lang === "en" ? en : ar)?.trim() ?? "";
 }
 
 export interface CaseStudyMilestone {
@@ -159,34 +181,42 @@ function Section({
 
 /* ── 1 · HERO ── */
 function Hero({ v }: { v: CaseStudyVenture }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  // Hue keys off the ORIGINAL sector; only the displayed label localizes.
   const vid = ventureIdentity(v.sector, v.id);
   const cover = imageUrl(v.coverUrl) || frameFor(v.id);
+  const name = loc(lang, v.name, v.nameEn);
+  const tagline = loc(lang, v.tagline, v.taglineEn);
+  const sector = loc(lang, v.sector, v.sectorEn);
+  // alt needs a non-empty string without leaking the other language.
+  const altName = name || t({ ar: "مشروع", en: "Venture" });
   return (
     <section id="cs-hero" className="scroll-mt-28" style={{ paddingBlock: "clamp(2rem, 5vh, 4rem)" }}>
       <Reveal>
         <div className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground rtl:tracking-normal">
           {t({ ar: "دراسة حالة", en: "Case study" })}
-          {v.sector && (
+          {sector && (
             <>
               <span aria-hidden className="mx-2 text-white/25">·</span>
-              <span style={{ color: vid.accent }}>{v.sector}</span>
+              <span style={{ color: vid.accent }}>{sector}</span>
             </>
           )}
         </div>
-        <h1
-          data-testid="text-venture-name"
-          className="font-display font-black text-foreground"
-          style={{ fontSize: "clamp(3rem,6vw,6rem)", lineHeight: 1.05, letterSpacing: "-0.04em" }}
-        >
-          {v.name}
-        </h1>
-        {v.tagline && (
+        {name && (
+          <h1
+            data-testid="text-venture-name"
+            className="font-display font-black text-foreground"
+            style={{ fontSize: "clamp(3rem,6vw,6rem)", lineHeight: 1.05, letterSpacing: "-0.04em" }}
+          >
+            {name}
+          </h1>
+        )}
+        {tagline && (
           <p
             className="mt-5 max-w-2xl text-fg-secondary"
             style={{ fontSize: "clamp(1.05rem,1.7vw,1.4rem)", lineHeight: 1.5 }}
           >
-            {v.tagline}
+            {tagline}
           </p>
         )}
       </Reveal>
@@ -203,7 +233,7 @@ function Hero({ v }: { v: CaseStudyVenture }) {
             <div className="relative aspect-[16/9] bg-[#070707]">
               <img
                 src={cover}
-                alt={v.name}
+                alt={altName}
                 loading="eager"
                 decoding="async"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).src = frameFor(v.id); }}
@@ -220,7 +250,8 @@ function Hero({ v }: { v: CaseStudyVenture }) {
 
 /* ── 2 · OVERVIEW ── */
 function Overview({ v }: { v: CaseStudyVenture }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const description = loc(lang, v.description, v.descriptionEn);
   return (
     <Section
       id="cs-overview"
@@ -232,7 +263,7 @@ function Overview({ v }: { v: CaseStudyVenture }) {
           className="mt-6 whitespace-pre-wrap t-body"
           style={{ maxWidth: "65ch", lineHeight: 1.7 }}
         >
-          {v.description}
+          {description}
         </p>
       </Reveal>
     </Section>
@@ -345,9 +376,10 @@ function ByTheNumbers({ metrics }: { metrics: CaseStudyMetric[] }) {
 /* ── 5 · FOUNDER'S VOICE (an editorial pull-quote — renders ONLY when a real
    founderQuote is stored; never invented, never a placeholder) ── */
 function FounderVoice({ v }: { v: CaseStudyVenture }) {
-  const { t } = useLanguage();
-  const quote = v.founderQuote?.trim() ?? "";
-  const initial = v.founderName.trim().charAt(0);
+  const { t, lang } = useLanguage();
+  const quote = loc(lang, v.founderQuote, v.founderQuoteEn);
+  const founderName = loc(lang, v.founderName, v.founderNameEn);
+  const initial = founderName.charAt(0);
   return (
     <Section
       id="cs-founder-voice"
@@ -367,7 +399,7 @@ function FounderVoice({ v }: { v: CaseStudyVenture }) {
           >
             {quote}
           </blockquote>
-          {v.founderName && (
+          {founderName && (
             <figcaption className="mt-7 flex items-center gap-3.5">
               <span
                 aria-hidden
@@ -378,7 +410,7 @@ function FounderVoice({ v }: { v: CaseStudyVenture }) {
               </span>
               <span className="min-w-0">
                 <span className="block font-display font-bold text-foreground" style={{ fontSize: "clamp(1rem,1.5vw,1.2rem)" }}>
-                  {v.founderName}
+                  {founderName}
                 </span>
                 <span className="block text-[11.5px] uppercase tracking-[0.16em] text-muted-foreground rtl:tracking-normal">
                   {t({ ar: "المؤسِّس", en: "Founder" })}
@@ -395,8 +427,10 @@ function FounderVoice({ v }: { v: CaseStudyVenture }) {
 /* ── 6 · THE TEAM (real facts only, no invented quote) ── */
 function Team({ v }: { v: CaseStudyVenture }) {
   const { t, lang } = useLanguage();
+  const founderName = loc(lang, v.founderName, v.founderNameEn);
+  const sector = loc(lang, v.sector, v.sectorEn);
   const facts: { label: { ar: string; en: string }; value: string }[] = [];
-  if (v.founderName) facts.push({ label: { ar: "المؤسِّس", en: "Founder" }, value: v.founderName });
+  if (founderName) facts.push({ label: { ar: "المؤسِّس", en: "Founder" }, value: founderName });
   if (v.teamSize > 1) {
     facts.push({
       label: { ar: "حجم الفريق", en: "Team size" },
@@ -404,7 +438,7 @@ function Team({ v }: { v: CaseStudyVenture }) {
     });
   }
   if (v.foundedYear > 0) facts.push({ label: { ar: "سنة التأسيس", en: "Founded" }, value: num(v.foundedYear, lang) });
-  if (v.sector) facts.push({ label: { ar: "القطاع", en: "Sector" }, value: v.sector });
+  if (sector) facts.push({ label: { ar: "القطاع", en: "Sector" }, value: sector });
 
   return (
     <Section
@@ -552,18 +586,27 @@ export function ProjectCaseStudy({
   milestones: CaseStudyMilestone[];
   pitchDeck: CaseStudyPitchDeck | null;
 }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
   const metrics = resolveMetrics(venture, metricsCms);
 
   // Never ship a duplicated/conflicting timeline (belt-and-suspenders even after
   // the data is cleaned at the source).
   const journeyMilestones = dedupeMilestones(milestones);
-  const hasOverview = venture.description.trim() !== "";
+  // Honesty gates keyed to the ACTIVE locale so EN never shows an Arabic-only
+  // section (and the TOC stays in lockstep). A section shows only when its
+  // active-locale field is non-empty; hidden otherwise — never a cross-language
+  // fallback.
+  const hasOverview = loc(lang, venture.description, venture.descriptionEn) !== "";
   const hasJourney = journeyMilestones.length > 0;
   const hasNumbers = metrics.length > 0;
-  const hasFounderVoice = Boolean(venture.founderQuote?.trim());
-  const hasTeam = Boolean(venture.founderName) || venture.teamSize > 1 || venture.foundedYear > 0;
+  const hasFounderVoice = loc(lang, venture.founderQuote, venture.founderQuoteEn) !== "";
+  // Team shows if any real fact exists in the active locale: a localized founder
+  // name, or the locale-neutral team-size / founded-year figures.
+  const hasTeam =
+    loc(lang, venture.founderName, venture.founderNameEn) !== "" ||
+    venture.teamSize > 1 ||
+    venture.foundedYear > 0;
 
   // Build the TOC dynamically — only real sections, in narrative order.
   const sections: TOCSection[] = [

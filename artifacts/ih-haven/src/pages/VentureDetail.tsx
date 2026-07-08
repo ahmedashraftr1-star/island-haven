@@ -109,7 +109,7 @@ export default function VentureDetail() {
 }
 
 function OtherVentures({ excludeId }: { excludeId: number }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [rows, setRows] = useState<CaseStudyVenture[] | null>(null);
   useEffect(() => {
     api<{ ventures: CaseStudyVenture[] }>("/ventures")
@@ -125,7 +125,10 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
         {t({ ar: "مشاريع أخرى", en: "Other ventures" })}
       </div>
       <div className="grid sm:grid-cols-3 gap-4">
-        {rows.map((o, i) => (
+        {rows.map((o, i) => {
+          // Localized name (GOLDEN RULE): EN → nameEn or "" (never Arabic); AR → name.
+          const oName = (lang === "en" ? o.nameEn : o.name)?.trim() || "";
+          return (
           <motion.div
             key={o.id}
             initial={{ opacity: 0, y: 8 }}
@@ -141,10 +144,10 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
                   <img src={o.logoUrl} alt="" className="w-9 h-9 rounded-xl object-cover" />
                 ) : (
                   <div className="w-9 h-9 rounded-xl bg-surface-2 flex items-center justify-center text-fg-secondary font-bold text-sm">
-                    {o.name.charAt(0)}
+                    {oName.charAt(0)}
                   </div>
                 )}
-                <div className="font-bold text-foreground text-[13.5px] truncate">{o.name}</div>
+                <div className="font-bold text-foreground text-[13.5px] truncate">{oName}</div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-primary/80">
@@ -157,7 +160,8 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
               </div>
             </Link>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

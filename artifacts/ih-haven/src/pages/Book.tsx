@@ -142,9 +142,6 @@ export default function Book() {
     email: "",
   });
 
-  useEffect(() => {
-    document.title = lang === "en" ? "Book a seat — Island Haven" : "احجز مقعدك — آيلاند هيفن";
-  }, [lang]);
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));

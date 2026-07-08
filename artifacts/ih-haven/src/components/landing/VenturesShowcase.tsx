@@ -19,6 +19,10 @@ interface Venture {
   featured: boolean;
   coverUrl: string | null;
   logoUrl: string | null;
+  // EN overrides — passed through to ShowcaseCard, shown ONLY in English.
+  nameEn?: string | null;
+  taglineEn?: string | null;
+  sectorEn?: string | null;
   metrics?: Metric[]; // real, from the API/CMS when present
 }
 

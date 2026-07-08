@@ -62,10 +62,12 @@ router.get("/members", async (req, res) => {
       .select({
         id: usersTable.id,
         fullName: usersTable.fullName,
+        fullNameEn: usersTable.fullNameEn,
         role: usersTable.role,
         avatarUrl: usersTable.avatarUrl,
         bio: usersTable.bio,
         jobTitle: usersTable.jobTitle,
+        jobTitleEn: usersTable.jobTitleEn,
         skills: usersTable.skills,
         portfolioUrl: usersTable.portfolioUrl,
         linkedinUrl: usersTable.linkedinUrl,

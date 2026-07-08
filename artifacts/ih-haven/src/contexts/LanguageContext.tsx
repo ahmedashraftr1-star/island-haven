@@ -32,6 +32,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = dir;
+    // Keep the static (pre-React) skip-link in the active language too, so a
+    // runtime toggle never leaves stray text from the other locale on the page.
+    const skip = document.querySelector<HTMLElement>("[data-i18n-skip]");
+    if (skip) skip.textContent = lang === "ar" ? "تخطّى إلى المحتوى" : "Skip to content";
     try {
       localStorage.setItem(STORAGE_KEY, lang);
     } catch {}

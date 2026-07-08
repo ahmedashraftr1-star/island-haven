@@ -96,11 +96,6 @@ export default function Experts() {
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    document.title =
-      lang === "ar" ? "مرشدو آيلاند — Island Haven" : "Island Haven Mentors";
-  }, [lang]);
-
-  useEffect(() => {
     let cancelled = false;
     Promise.all([
       api<{ experts: ExpertCard[] }>("/experts"),

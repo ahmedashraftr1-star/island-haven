@@ -47,6 +47,10 @@ interface Venture {
   foundedYear: number;
   teamSize: number;
   featured: boolean;
+  // EN overrides — passed through to ShowcaseCard, shown ONLY in English.
+  nameEn?: string | null;
+  taglineEn?: string | null;
+  sectorEn?: string | null;
   metrics?: Metric[]; // real, from the API/CMS when present
 }
 
@@ -81,11 +85,6 @@ export default function Ventures() {
   // Confirmed metrics only — the owner adds real per-venture figures in this CMS
   // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
-
-  useEffect(() => {
-    document.title =
-      lang === "ar" ? "المشاريع الناشئة — Island Haven" : "Ventures — Island Haven";
-  }, [lang]);
 
   useEffect(() => {
     let cancelled = false;

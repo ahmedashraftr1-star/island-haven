@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, lazy, Suspense } from "react";
 import { usePageView } from "@/hooks/use-tracking";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { CustomCursor } from "@/components/landing/CustomCursor";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Toaster } from "@/components/ui/toaster";
@@ -100,69 +101,121 @@ const queryClient = new QueryClient({
   },
 });
 
-const ROUTE_TITLES: Record<string, string> = {
-  "/": "Island Haven · حاضنة أعمال في غزّة",
-  "/apply": "انتسب — Island Haven",
-  "/book": "احجز مقعد — Island Haven",
-  "/login": "تسجيل الدخول — Island Haven",
-  "/register": "حساب جديد — Island Haven",
-  "/profile": "ملفّي — Island Haven",
-  "/members": "منتسبو المساحة — Island Haven",
-  "/experts": "خبراء آيلاند — Island Haven",
-  "/become-mentor": "كُن مرشدًا — Island Haven",
-  "/expert": "لوحة الخبير — Island Haven",
-  "/programs": "برامج الاحتضان — Island Haven",
-  "/ventures": "المشاريع الناشئة — Island Haven",
-  "/opportunities": "الفرص والوظائف — Island Haven",
-  "/learning": "التعلّم — Island Haven",
-  "/certificate": "شهادة الإكمال — Island Haven",
-  "/messages": "الرسائل — Island Haven",
-  "/sessions": "تقييم جلسة — Island Haven",
-  "/leaderboard": "الصدارة — Island Haven",
-  "/perks": "العروض والامتيازات — Island Haven",
-  "/settings": "إعدادات الإشعارات — Island Haven",
-  "/numbers": "مُجتمعنا بالأرقام — Island Haven",
-  "/stories": "قصص النجاح — Island Haven",
-  "/faq": "الأسئلة الشائعة — Island Haven",
-  "/process": "عمليّة القبول — Island Haven",
-  "/alumni": "خرّيجو الحاضنة — Island Haven",
-  "/jobs": "لوحة الوظائف — Island Haven",
-  "/investors": "المستثمرون والداعمون — Island Haven",
-  "/partners": "الشركاء — Island Haven",
-  "/contact": "تواصل معنا — Island Haven",
-  "/media": "الغرفة الإعلاميّة — Island Haven",
-  "/blog": "المدوّنة والرّؤى — Island Haven",
-  "/privacy": "سياسة الخصوصيّة — Island Haven",
-  "/terms": "شروط الاستخدام — Island Haven",
-  "/gallery": "معرض الصّور — Island Haven",
-  "/about": "من نحن — Island Haven",
-  "/team": "فريق آيلاند — Island Haven",
-  "/cohorts": "دفعات الاحتضان — Island Haven",
-  "/press": "المركز الإعلاميّ — Island Haven",
-  "/resources": "دليل الرّائد — Island Haven",
-  "/courses": "البرنامج التَّدريبيّ — Island Haven",
-  "/works": "أعمال المنتسبين — Island Haven",
-  "/saved": "المحفوظات — Island Haven",
-  "/events": "فعاليّات آيلاند — Island Haven",
-  "/admin": "لوحة التّحكم — Island Haven",
+// Bilingual site name — the brand stays dual-script; the page-specific title and
+// description below are single-language and resolved against the active locale.
+const SITE_NAME = "Island Haven · آيلاند هيفن";
+
+type LocalizedText = { ar: string; en: string };
+interface RouteMeta {
+  /** Page-specific title (locale-only, no brand — brand is appended below). */
+  title: LocalizedText;
+  /** Optional meta description (locale-only). */
+  description?: LocalizedText;
+}
+
+// Locale-aware per-route metadata. `RouteEffects` resolves the active language
+// and appends the bilingual brand to the title, so nothing here mixes languages.
+const ROUTE_META: Record<string, RouteMeta> = {
+  "/": {
+    title: { ar: "حاضنة أعمال في غزّة", en: "A startup incubator in Gaza" },
+    description: {
+      ar: "آيلاند هيفن — مساحة ومجتمع وبرنامج احتضان لروّاد الأعمال في غزّة: إرشاد وخبراء وفرص ومشاريع ناشئة.",
+      en: "Island Haven — a space, community, and incubator for founders in Gaza: mentorship, experts, opportunities, and ventures.",
+    },
+  },
+  "/apply": {
+    title: { ar: "انتسب", en: "Apply" },
+    description: {
+      ar: "انضمّ إلى مجتمع آيلاند هيفن — قدّم طلب الانتساب إلى المساحة والبرامج.",
+      en: "Join the Island Haven community — apply for a place in the space and its programs.",
+    },
+  },
+  "/book": {
+    title: { ar: "احجز مقعدك", en: "Book a seat" },
+    description: {
+      ar: "احجز مقعدك في مساحة آيلاند هيفن — اختر التاريخ والوقت الذي يناسبك.",
+      en: "Book your seat at the Island Haven space — pick the date and time that works for you.",
+    },
+  },
+  "/login": { title: { ar: "تسجيل الدخول", en: "Sign in" } },
+  "/register": { title: { ar: "حساب جديد", en: "Create account" } },
+  "/profile": { title: { ar: "ملفّي", en: "My profile" } },
+  "/members": { title: { ar: "منتسبو المساحة", en: "Members" } },
+  "/experts": {
+    title: { ar: "مرشدو آيلاند", en: "Mentors" },
+    description: {
+      ar: "خبراء ومرشدون من غزّة والعالم يقدّمون الإرشاد والجلسات لروّاد آيلاند هيفن.",
+      en: "Experts and mentors from Gaza and beyond offering guidance and sessions to Island Haven founders.",
+    },
+  },
+  "/become-mentor": { title: { ar: "كُن مرشدًا", en: "Become a mentor" } },
+  "/expert": { title: { ar: "لوحة الخبير", en: "Mentor dashboard" } },
+  "/programs": { title: { ar: "برامج الاحتضان", en: "Programs" } },
+  "/ventures": {
+    title: { ar: "المشاريع الناشئة", en: "Ventures" },
+    description: {
+      ar: "المشاريع الناشئة التي احتضنها آيلاند هيفن — قصص ومقاييس ومسارات نموّ من غزّة.",
+      en: "The startups incubated by Island Haven — stories, metrics, and growth journeys from Gaza.",
+    },
+  },
+  "/opportunities": { title: { ar: "الفرص والوظائف", en: "Opportunities" } },
+  "/learning": { title: { ar: "التعلّم", en: "Learning" } },
+  "/certificate": { title: { ar: "شهادة الإكمال", en: "Certificate" } },
+  "/messages": { title: { ar: "الرسائل", en: "Messages" } },
+  "/sessions": { title: { ar: "تقييم جلسة", en: "Rate a session" } },
+  "/leaderboard": { title: { ar: "الصدارة", en: "Leaderboard" } },
+  "/perks": { title: { ar: "العروض والامتيازات", en: "Perks" } },
+  "/settings": { title: { ar: "إعدادات الإشعارات", en: "Notification settings" } },
+  "/numbers": { title: { ar: "مُجتمعنا بالأرقام", en: "Our community in numbers" } },
+  "/stories": { title: { ar: "قصص النجاح", en: "Success stories" } },
+  "/faq": { title: { ar: "الأسئلة الشائعة", en: "FAQ" } },
+  "/process": { title: { ar: "عمليّة القبول", en: "Admissions process" } },
+  "/alumni": { title: { ar: "خرّيجو الحاضنة", en: "Alumni" } },
+  "/jobs": { title: { ar: "لوحة الوظائف", en: "Job board" } },
+  "/investors": { title: { ar: "المستثمرون والداعمون", en: "Investors & supporters" } },
+  "/partners": { title: { ar: "الشركاء", en: "Partners" } },
+  "/contact": { title: { ar: "تواصل معنا", en: "Contact us" } },
+  "/media": { title: { ar: "الغرفة الإعلاميّة", en: "Media room" } },
+  "/blog": { title: { ar: "المدوّنة والرّؤى", en: "Blog & insights" } },
+  "/privacy": { title: { ar: "سياسة الخصوصيّة", en: "Privacy policy" } },
+  "/terms": { title: { ar: "شروط الاستخدام", en: "Terms of use" } },
+  "/gallery": { title: { ar: "معرض الصّور", en: "Gallery" } },
+  "/about": { title: { ar: "من نحن", en: "About us" } },
+  "/team": { title: { ar: "فريق آيلاند", en: "Our team" } },
+  "/cohorts": { title: { ar: "دفعات الاحتضان", en: "Cohorts" } },
+  "/press": { title: { ar: "المركز الإعلاميّ", en: "Press & media center" } },
+  "/resources": { title: { ar: "دليل الرّائد", en: "Founder resources" } },
+  "/courses": { title: { ar: "البرنامج التَّدريبيّ", en: "Courses" } },
+  "/works": { title: { ar: "أعمال المنتسبين", en: "Member works" } },
+  "/saved": { title: { ar: "المحفوظات", en: "Saved" } },
+  "/events": { title: { ar: "فعاليّات آيلاند", en: "Events" } },
+  "/admin": { title: { ar: "لوحة التّحكم", en: "Admin dashboard" } },
 };
+
+function setMetaDescription(content: string | undefined) {
+  const el = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+  // Only touch a static <meta name="description"> that already exists; detail
+  // pages that render usePageMeta manage their own og/twitter description.
+  if (el && content) el.setAttribute("content", content);
+}
 
 function RouteEffects() {
   const [loc] = useLocation();
+  const { lang } = useLanguage();
   // Global page-view tracking — covers every route (incl. the new pillars)
   // from one place instead of a per-page usePageView call.
   usePageView(loc);
   useEffect(() => {
-    const exact = ROUTE_TITLES[loc];
-    if (exact) {
-      document.title = exact;
+    const meta =
+      ROUTE_META[loc] ?? ROUTE_META[`/${loc.split("/").filter(Boolean)[0] ?? ""}`];
+    if (meta) {
+      document.title = `${meta.title[lang]} — ${SITE_NAME}`;
+      if (meta.description) setMetaDescription(meta.description[lang]);
     } else {
-      const seg = loc.split("/").filter(Boolean)[0] ?? "";
-      const base = ROUTE_TITLES[`/${seg}`];
-      document.title = base ?? "Island Haven · آيلاند هيفن";
+      document.title = SITE_NAME;
     }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [loc]);
+  }, [loc, lang]);
   return null;
 }
 

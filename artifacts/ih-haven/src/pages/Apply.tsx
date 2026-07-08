@@ -276,10 +276,6 @@ export default function Apply() {
     { id: "other", label: c.cat4Label, sub: c.cat4Sub, Icon: Sparkle },
   ];
 
-  useEffect(() => {
-    document.title = c.docTitle;
-  }, [c.docTitle]);
-
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
 

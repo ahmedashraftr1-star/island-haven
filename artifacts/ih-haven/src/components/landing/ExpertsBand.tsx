@@ -10,9 +10,12 @@ import { imageUrl } from "@/hooks/use-content";
 interface ExpertCard {
   id: number;
   fullName: string;
+  fullNameEn: string;
   avatarUrl: string | null;
   headline: string;
+  headlineEn: string;
   expertise: string;
+  expertiseEn: string;
   yearsExperience: number;
   acceptingSessions: boolean;
 }
@@ -43,16 +46,43 @@ function initials(name: string): string {
  * evergreen empty state (roster gathering + Be-a-mentor CTA) rides the same
  * register. All data fetch / i18n / routes / testids preserved.
  */
+/** Locale-resolved expert card — in EN only the stored English fields are
+ *  shown; experts without an English name are dropped upstream (hide rather
+ *  than mix languages). */
+interface ExpertView {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string;
+  expertise: string;
+  yearsExperience: number;
+  acceptingSessions: boolean;
+}
+
 export function ExpertsBand() {
   const { t, lang } = useLanguage();
   const { data, isLoading, isError } = useExperts<ExpertCard>();
+  const en = lang === "en";
   // Loading → null (skeleton grid). Error → [] so the evergreen empty state
-  // (roster gathering + become-a-mentor CTA) stands quietly. Resolved → top-6.
-  const rows: ExpertCard[] | null = isLoading
+  // (roster gathering + become-a-mentor CTA) stands quietly. Resolved → in EN
+  // drop experts with no English name, then resolve each field to English;
+  // top-6.
+  const rows: ExpertView[] | null = isLoading
     ? null
     : isError || !data
       ? []
-      : data.experts.slice(0, 6);
+      : data.experts
+          .filter((e) => (en ? e.fullNameEn.trim() !== "" : true))
+          .slice(0, 6)
+          .map((e) => ({
+            id: e.id,
+            fullName: en ? e.fullNameEn : e.fullName,
+            avatarUrl: e.avatarUrl,
+            headline: en ? e.headlineEn : e.headline,
+            expertise: en ? e.expertiseEn : e.expertise,
+            yearsExperience: e.yearsExperience,
+            acceptingSessions: e.acceptingSessions,
+          }));
 
   const isEmpty = rows !== null && rows.length === 0;
   const experts = rows ?? Array.from({ length: 6 }).map(() => null);

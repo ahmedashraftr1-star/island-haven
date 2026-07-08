@@ -27,8 +27,13 @@ export const expertProfilesTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
     headline: varchar("headline", { length: 160 }).default("").notNull(),
+    headlineEn: varchar("headline_en", { length: 160 }).default("").notNull(),
     expertise: varchar("expertise", { length: 400 }).default("").notNull(), // comma-separated areas
+    expertiseEn: varchar("expertise_en", { length: 400 })
+      .default("")
+      .notNull(),
     bio: text("bio").default("").notNull(),
+    bioEn: text("bio_en").default("").notNull(),
     yearsExperience: integer("years_experience").default(0).notNull(),
     languages: varchar("languages", { length: 160 }).default("").notNull(), // comma-separated
     sessionMinutes: integer("session_minutes").default(45).notNull(),

@@ -23,16 +23,24 @@ export const venturesTable = pgTable(
   {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 200 }).notNull(),
+    nameEn: varchar("name_en", { length: 200 }).default("").notNull(),
     tagline: varchar("tagline", { length: 300 }).default("").notNull(),
+    taglineEn: varchar("tagline_en", { length: 300 }).default("").notNull(),
     description: text("description").default("").notNull(),
+    descriptionEn: text("description_en").default("").notNull(),
     logoUrl: text("logo_url"),
     coverUrl: text("cover_url"),
     websiteUrl: text("website_url").default("").notNull(),
     founderName: varchar("founder_name", { length: 200 })
       .default("")
       .notNull(),
+    founderNameEn: varchar("founder_name_en", { length: 200 })
+      .default("")
+      .notNull(),
     founderQuote: text("founder_quote").default("").notNull(),
+    founderQuoteEn: text("founder_quote_en").default("").notNull(),
     sector: varchar("sector", { length: 160 }).default("").notNull(),
+    sectorEn: varchar("sector_en", { length: 160 }).default("").notNull(),
     stage: varchar("stage", { length: 16 })
       .notNull()
       .$type<VentureStage>()
@@ -82,14 +90,20 @@ const httpUrl = (max: number) =>
 
 export const upsertVentureSchema = z.object({
   name: safeText(200).min(2, "الاسم قصير جدًّا"),
+  nameEn: safeText(200).default(""),
   tagline: safeText(300).default(""),
+  taglineEn: safeText(300).default(""),
   description: safeText(6000).default(""),
+  descriptionEn: safeText(6000).default(""),
   logoUrl: z.string().trim().max(800).optional().nullable(),
   coverUrl: z.string().trim().max(800).optional().nullable(),
   websiteUrl: httpUrl(400).default(""),
   founderName: safeText(200).default(""),
+  founderNameEn: safeText(200).default(""),
   founderQuote: safeText(500).default(""),
+  founderQuoteEn: safeText(500).default(""),
   sector: safeText(160).default(""),
+  sectorEn: safeText(160).default(""),
   stage: z.enum(VENTURE_STAGES).default("idea"),
   foundedYear: z.number().int().min(0).max(2100).default(0),
   teamSize: z.number().int().min(0).max(100000).default(1),

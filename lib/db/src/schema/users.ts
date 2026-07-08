@@ -25,10 +25,12 @@ export const usersTable = pgTable(
     email: varchar("email", { length: 160 }).notNull().unique(),
     passwordHash: text("password_hash").notNull(),
     fullName: varchar("full_name", { length: 120 }).notNull(),
+    fullNameEn: varchar("full_name_en", { length: 120 }).default("").notNull(),
     role: varchar("role", { length: 16 }).notNull().$type<UserRole>(),
     avatarUrl: text("avatar_url"),
     bio: text("bio").default("").notNull(),
     jobTitle: varchar("job_title", { length: 120 }).default("").notNull(),
+    jobTitleEn: varchar("job_title_en", { length: 120 }).default("").notNull(),
     phone: varchar("phone", { length: 40 }).default("").notNull(),
     skills: text("skills").default("").notNull(), // comma-separated
     portfolioUrl: text("portfolio_url").default("").notNull(),

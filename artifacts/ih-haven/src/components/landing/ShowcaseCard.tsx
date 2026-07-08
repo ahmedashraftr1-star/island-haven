@@ -48,6 +48,10 @@ export interface ShowcaseVenture {
   /** Raw stage key from the API (idea | mvp | launched | scaling | growth …). */
   stage?: string | null;
   coverUrl?: string | null;
+  /** EN overrides — shown ONLY in English; empty → the field hides (never Arabic fallback). */
+  nameEn?: string | null;
+  taglineEn?: string | null;
+  sectorEn?: string | null;
 }
 
 export interface ShowcaseCardProps {
@@ -88,15 +92,27 @@ function stageLabel(stage: string | null | undefined, lang: Lang): string | null
 
 export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover }: ShowcaseCardProps) {
   const v = venture;
+  // GOLDEN RULE: in EN show ONLY the stored _en value; if it's empty, hide the
+  // field — never fall back to Arabic (and never show English in AR).
+  const L = (ar: string | null | undefined, en: string | null | undefined) =>
+    (lang === "en" ? en : ar)?.trim() || "";
+  // The visual identity (hue) MUST key off the ORIGINAL sector — only the
+  // DISPLAYED label switches to sectorEn in English.
   const vid = ventureIdentity(v.sector, v.id);
   const cover = v.coverUrl ? imageUrl(v.coverUrl) : fallbackCover;
   const status = stageLabel(v.stage, lang);
+  const name = L(v.name, v.nameEn);
+  const tagline = L(v.tagline, v.taglineEn);
+  const sector = L(v.sector, v.sectorEn);
+  // aria-label / img alt need a non-empty string; fall to the neutral brand word
+  // when the active-locale name is empty (avoids leaking the other language).
+  const label = name || t({ ar: "مشروع", en: "Venture" });
 
   return (
     <Link
       href={`/ventures/${v.id}`}
       data-testid={testId}
-      aria-label={v.name}
+      aria-label={label}
       className="group relative block overflow-hidden glass-panel-lg -translate-y-0 transition-[transform,border-color,box-shadow] duration-[240ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/22 hover:shadow-[0_60px_120px_-40px_hsl(0_0%_0%/0.85)] motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
     >
       {/* DEEP sector tint — a subtle color wash behind the dark glass. Because the
@@ -118,12 +134,12 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
           {/* EYEBROW: sector name + a hairline in the sector accent, then the real
               status badge (only if a stage is present). */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
-            {v.sector && (
+            {sector && (
               <span
                 className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.16em] rtl:tracking-normal text-white/80"
               >
                 <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
-                {v.sector}
+                {sector}
               </span>
             )}
             {status && (
@@ -143,21 +159,23 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
             style={{ background: `linear-gradient(90deg, ${vid.accent}, transparent)` }}
           />
 
-          {/* TITLE — heavy display. */}
-          <h3
-            className="mt-5 font-display font-black text-white"
-            style={{ fontSize: "clamp(1.9rem,3.4vw,3rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}
-          >
-            {v.name}
-          </h3>
+          {/* TITLE — heavy display. Hidden in EN if there's no English name. */}
+          {name && (
+            <h3
+              className="mt-5 font-display font-black text-white"
+              style={{ fontSize: "clamp(1.9rem,3.4vw,3rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}
+            >
+              {name}
+            </h3>
+          )}
 
           {/* Tagline. */}
-          {v.tagline && (
+          {tagline && (
             <p
               className="mt-4 max-w-2xl font-display text-white/80"
               style={{ fontSize: "clamp(1.05rem,1.6vw,1.35rem)", lineHeight: 1.38, letterSpacing: "-0.012em" }}
             >
-              {v.tagline}
+              {tagline}
             </p>
           )}
 
@@ -192,7 +210,7 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
         <div className="relative mt-2 aspect-[16/9] overflow-hidden">
           <img
             src={cover}
-            alt={v.name}
+            alt={label}
             loading="lazy"
             decoding="async"
             onError={(e) => {

@@ -11,7 +11,7 @@ import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 const FALLBACK = {
-  eyebrow: "دفتر آيلاند · Journal",
+  eyebrow: "دفتر آيلاند",
   title: "ما يحدث في المساحة هذا الأسبوع.",
   ctaAll: "كلّ الفعاليّات",
   ctaCard: "اقرأ المزيد",
@@ -19,7 +19,7 @@ const FALLBACK = {
 };
 
 const FALLBACK_EN = {
-  eyebrow: "Island Journal · دفتر",
+  eyebrow: "Island Journal",
   title: "What's happening at the space this week.",
   ctaAll: "All events",
   ctaCard: "Read more",
@@ -27,6 +27,20 @@ const FALLBACK_EN = {
 };
 
 interface Post {
+  id: number;
+  type: DailyType;
+  title: string;
+  titleEn: string;
+  body: string;
+  bodyEn: string;
+  coverUrl: string | null;
+  publishedAt: string;
+}
+
+/** Locale-resolved post — in EN only stored English fields are rendered;
+ *  posts without an English title are dropped upstream (hide untranslated
+ *  events rather than mix languages). */
+interface PostView {
   id: number;
   type: DailyType;
   title: string;
@@ -68,17 +82,30 @@ export function NewsSlider() {
   const typeLabels = lang === "en" ? DAILY_TYPE_LABELS_EN : DAILY_TYPE_LABELS;
 
   // Loading → null (skeleton branch). Error → [] so the honest empty state
-  // (calendar + "no upcoming events") stands quietly. Resolved → first 7.
-  const posts = useMemo<Post[] | null>(() => {
+  // (calendar + "no upcoming events") stands quietly. Resolved → in EN drop
+  // posts with no English title (hide untranslated events rather than mix),
+  // resolve title + body to English, first 7.
+  const en = lang === "en";
+  const posts = useMemo<PostView[] | null>(() => {
     if (isLoading) return null;
     if (isError || !data) return [];
-    return data.posts.slice(0, 7);
-  }, [data, isLoading, isError]);
+    return data.posts
+      .filter((p) => (en ? p.titleEn.trim() !== "" : true))
+      .slice(0, 7)
+      .map((p) => ({
+        id: p.id,
+        type: p.type,
+        title: en ? p.titleEn : p.title,
+        body: en ? p.bodyEn : p.body,
+        coverUrl: p.coverUrl,
+        publishedAt: p.publishedAt,
+      }));
+  }, [data, isLoading, isError, en]);
 
   // The selected post drives the feature; the user's selection wins, else the
   // default selection is the first item. Also falls back to the first item so
   // the feature is never blank if the selection ever drifts out of the list.
-  const selected = useMemo<Post | null>(() => {
+  const selected = useMemo<PostView | null>(() => {
     if (!posts || posts.length === 0) return null;
     return posts.find((p) => p.id === selectedId) ?? posts[0];
   }, [posts, selectedId]);

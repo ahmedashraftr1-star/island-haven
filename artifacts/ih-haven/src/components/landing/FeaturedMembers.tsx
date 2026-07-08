@@ -11,7 +11,9 @@ import { imageUrl } from "@/hooks/use-content";
 interface FMember {
   id: number;
   fullName: string;
+  fullNameEn: string;
   jobTitle: string;
+  jobTitleEn: string;
   avatarUrl: string | null;
   skills: string;
 }
@@ -22,12 +24,25 @@ interface FMember {
  *  unified frosted glass panels. Renders nothing on error so the homepage never
  *  shows a broken/empty section. */
 export function FeaturedMembers() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   useReducedMotion();
   const { data } = useMembers<FMember>();
+  const en = lang === "en";
   // Top-5 slice; undefined until resolved. On loading / error / empty the
   // section renders nothing (below) so the homepage never shows a broken block.
-  const members = (data?.members ?? []).slice(0, 5);
+  // In EN drop members with no English name (hide rather than mix languages),
+  // then resolve name + job title to their English values. Skills tags are
+  // Latin/tech terms and stay as-is.
+  const members = (data?.members ?? [])
+    .filter((m) => (en ? m.fullNameEn.trim() !== "" : true))
+    .slice(0, 5)
+    .map((m) => ({
+      id: m.id,
+      fullName: en ? m.fullNameEn : m.fullName,
+      jobTitle: en ? m.jobTitleEn : m.jobTitle,
+      avatarUrl: m.avatarUrl,
+      skills: m.skills,
+    }));
 
   if (members.length === 0) return null;
 

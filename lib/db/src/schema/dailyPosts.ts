@@ -17,7 +17,9 @@ export const dailyPostsTable = pgTable(
     id: serial("id").primaryKey(),
     type: varchar("type", { length: 16 }).notNull().$type<DailyType>(),
     title: varchar("title", { length: 200 }).notNull(),
+    titleEn: varchar("title_en", { length: 200 }).default("").notNull(),
     body: text("body").default("").notNull(),
+    bodyEn: text("body_en").default("").notNull(),
     coverUrl: text("cover_url"),
     publishedAt: timestamp("published_at", { withTimezone: true })
       .defaultNow()

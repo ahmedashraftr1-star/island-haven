@@ -20,12 +20,21 @@ export const successStoriesTable = pgTable(
   {
     id: serial("id").primaryKey(),
     personName: varchar("person_name", { length: 200 }).notNull(),
+    personNameEn: varchar("person_name_en", { length: 200 })
+      .default("")
+      .notNull(),
     role: varchar("role", { length: 200 }).default("").notNull(),
+    roleEn: varchar("role_en", { length: 200 }).default("").notNull(),
     quote: varchar("quote", { length: 600 }).default("").notNull(),
+    quoteEn: varchar("quote_en", { length: 600 }).default("").notNull(),
     story: text("story").default("").notNull(),
+    storyEn: text("story_en").default("").notNull(),
     avatarUrl: text("avatar_url"),
     coverUrl: text("cover_url"),
     ventureName: varchar("venture_name", { length: 200 })
+      .default("")
+      .notNull(),
+    ventureNameEn: varchar("venture_name_en", { length: 200 })
       .default("")
       .notNull(),
     projectUrl: text("project_url"),

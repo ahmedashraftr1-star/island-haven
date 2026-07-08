@@ -9,10 +9,14 @@ import { imageUrl } from "@/hooks/use-content";
 interface Story {
   id: number;
   personName: string;
+  personNameEn: string;
   role: string;
+  roleEn: string;
   quote: string;
+  quoteEn: string;
   avatarUrl: string | null;
   ventureName: string;
+  ventureNameEn: string;
 }
 
 /**
@@ -66,16 +70,41 @@ function Avatar({
   );
 }
 
+/** Locale-resolved view of a story. In EN we render ONLY the stored English
+ *  fields; stories without an English quote are dropped upstream so EN never
+ *  shows an Arabic quote (honest, never mixed). */
+interface StoryView {
+  id: number;
+  personName: string;
+  role: string;
+  quote: string;
+  avatarUrl: string | null;
+  ventureName: string;
+}
+
 export function SuccessStories() {
   const { lang, t } = useLanguage();
   const { data, isLoading, isError } = useStories<Story>();
+  const en = lang === "en";
   // Loading → null (skeleton branch). Error → [] so the evergreen fallback
-  // stands quietly instead of a broken blank. Resolved → top-6 slice.
-  const rows: Story[] | null = isLoading
+  // stands quietly instead of a broken blank. Resolved → locale-resolved,
+  // top-6. In EN we drop any story whose English quote is empty (hide rather
+  // than fall back to Arabic), then resolve each field to its English value.
+  const rows: StoryView[] | null = isLoading
     ? null
     : isError || !data
       ? []
-      : data.stories.slice(0, 6);
+      : data.stories
+          .filter((s) => (en ? s.quoteEn.trim() !== "" : true))
+          .slice(0, 6)
+          .map((s) => ({
+            id: s.id,
+            quote: en ? s.quoteEn : s.quote,
+            personName: en ? s.personNameEn : s.personName,
+            role: en ? s.roleEn : s.role,
+            ventureName: en ? s.ventureNameEn : s.ventureName,
+            avatarUrl: s.avatarUrl,
+          }));
 
   const eyebrow = (
     <div className="mb-6 flex items-center gap-3">
