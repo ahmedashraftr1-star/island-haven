@@ -509,6 +509,40 @@ function GazaToWorld({
  * the logical-START side (RIGHT in RTL, LEFT in LTR), with the case-study body
  * beside it. Below lg the TOC hides.
  */
+/* ── Timeline integrity guard (§ data-honesty): a venture's journey must NEVER
+   render a duplicated or conflicting milestone (two "idea born" dates, the same
+   award told twice, etc.). Sort ascending, then keep the FIRST (earliest)
+   occurrence and drop any later row that repeats an earlier one by normalized
+   TITLE or by (type on the same calendar day). Distinct same-type events on
+   different days are preserved. In dev, dropped conflicts are surfaced via
+   console.warn rather than silently shipped. ── */
+function dedupeMilestones(list: CaseStudyMilestone[]): CaseStudyMilestone[] {
+  const sorted = [...list].sort(
+    (a, b) => new Date(a.achievedAt).getTime() - new Date(b.achievedAt).getTime(),
+  );
+  const seen = new Set<string>();
+  const out: CaseStudyMilestone[] = [];
+  const dropped: CaseStudyMilestone[] = [];
+  for (const m of sorted) {
+    const titleKey = "t:" + (m.title ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+    const typeDayKey = "d:" + m.type + "|" + (m.achievedAt ?? "").slice(0, 10);
+    if ((titleKey !== "t:" && seen.has(titleKey)) || seen.has(typeDayKey)) {
+      dropped.push(m);
+      continue;
+    }
+    seen.add(titleKey);
+    seen.add(typeDayKey);
+    out.push(m);
+  }
+  if (dropped.length && import.meta.env?.DEV) {
+    console.warn(
+      `[ProjectCaseStudy] dropped ${dropped.length} duplicate/conflicting milestone(s) from the timeline:`,
+      dropped.map((d) => `${d.type} · ${(d.achievedAt ?? "").slice(0, 10)} · ${d.title}`),
+    );
+  }
+  return out;
+}
+
 export function ProjectCaseStudy({
   venture,
   milestones,
@@ -522,8 +556,11 @@ export function ProjectCaseStudy({
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
   const metrics = resolveMetrics(venture, metricsCms);
 
+  // Never ship a duplicated/conflicting timeline (belt-and-suspenders even after
+  // the data is cleaned at the source).
+  const journeyMilestones = dedupeMilestones(milestones);
   const hasOverview = venture.description.trim() !== "";
-  const hasJourney = milestones.length > 0;
+  const hasJourney = journeyMilestones.length > 0;
   const hasNumbers = metrics.length > 0;
   const hasFounderVoice = Boolean(venture.founderQuote?.trim());
   const hasTeam = Boolean(venture.founderName) || venture.teamSize > 1 || venture.foundedYear > 0;
@@ -553,7 +590,7 @@ export function ProjectCaseStudy({
       <article className="min-w-0">
         <Hero v={venture} />
         {hasOverview && <Overview v={venture} />}
-        {hasJourney && <Journey v={venture} milestones={milestones} />}
+        {hasJourney && <Journey v={venture} milestones={journeyMilestones} />}
         {hasNumbers && <ByTheNumbers metrics={metrics} />}
         {hasFounderVoice && <FounderVoice v={venture} />}
         {hasTeam && <Team v={venture} />}

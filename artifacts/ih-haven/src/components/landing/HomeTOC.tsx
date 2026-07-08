@@ -41,11 +41,33 @@ const ACTS: Act[] = [
  * FloatingContact pill, which lives in the opposite corner and never overlaps.
  */
 export function HomeTOC() {
-  const { t, lang } = useLanguage();
+  const { t, lang, dir } = useLanguage();
   const reduce = useReducedMotion();
   const [active, setActive] = useState<string>(ACTS[0].id);
+  // Deliberate Apple-style reveal: the rail stays hidden while the busy hero
+  // photo fills the viewport (where it was illegible), then fades + slides in
+  // once the user scrolls past the hero into the first dark content section.
+  const [revealed, setRevealed] = useState(false);
   // Guard against the observer stomping the active item right after a click.
   const lockRef = useRef<number>(0);
+
+  // Reveal gate — watch the full-height hero section. While any part of it is on
+  // screen the rail is hidden; once it fully leaves the viewport we reveal, and
+  // scrolling back up to the hero hides it again.
+  useEffect(() => {
+    const hero = document.getElementById("hero");
+    if (!hero) {
+      // No hero on the page (e.g. an inner route) — default to shown.
+      setRevealed(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setRevealed(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const els = ACTS.map((a) => document.getElementById(a.id)).filter(
@@ -91,11 +113,26 @@ export function HomeTOC() {
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
 
+  // Hidden resting transform: slide slightly IN from the logical-start edge.
+  // Start edge is RIGHT in RTL (translate +X) / LEFT in LTR (translate -X).
+  // Reduced-motion drops the slide entirely — it just appears in place.
+  const hiddenShift = reduce ? "0px" : dir === "rtl" ? "12px" : "-12px";
+
   return (
     <nav
       data-testid="home-toc"
       aria-label={t({ ar: "فهرس الصفحة", en: "Page index" })}
-      className="hidden lg:flex fixed top-1/2 -translate-y-1/2 start-4 xl:start-6 z-30 flex-col gap-0.5"
+      aria-hidden={revealed ? undefined : true}
+      style={{
+        transform: `translateY(-50%) translateX(${revealed ? "0px" : hiddenShift})`,
+        opacity: revealed ? 1 : 0,
+        transition: reduce
+          ? "opacity 0.2s linear"
+          : "opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)",
+      }}
+      className={`hidden lg:flex fixed top-1/2 start-4 xl:start-6 z-30 flex-col gap-0.5 rounded-2xl border border-white/[0.06] bg-[#060608]/40 p-1.5 backdrop-blur-sm ${
+        revealed ? "pointer-events-auto" : "pointer-events-none"
+      }`}
     >
       {ACTS.map((a) => {
         const Icon = a.icon;
