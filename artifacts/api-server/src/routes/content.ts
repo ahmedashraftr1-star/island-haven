@@ -499,7 +499,7 @@ export const CONTENT_SCHEMA: SectionDef[] = [
       url("linktree", "Linktree", "https://linktr.ee/ih_haven"),
       url("nastonas", "موقع من الناس إلى الناس", "https://nastonas.org"),
       url("nas2nas", "رابط التبرّع", "https://nas2nas.org"),
-      txt("email", "البريد الإلكتروني", "hello@islandhaven.ps"),
+      txt("email", "البريد الإلكتروني", "island-haven@nastonas.org"),
       txt("phone", "الهاتف", "+972 56-753-6815"),
       url("whatsapp", "واتساب", "https://wa.me/972567536815"),
     ],

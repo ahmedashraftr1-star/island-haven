@@ -745,7 +745,7 @@ function ProfileData({ member }: { member: MemberPrivate }) {
               </li>
             </ul>
             <p className="t-caption text-fg-faint mt-5 pt-4 border-t border-white/[0.06]">
-              لتعديل بياناتك تواصل مع الإدارة عبر hello@islandhaven.ps
+              لتعديل بياناتك تواصل مع الإدارة عبر island-haven@nastonas.org
             </p>
           </Card>
         </div>

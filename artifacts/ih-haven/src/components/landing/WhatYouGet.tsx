@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { imageUrl } from "@/hooks/use-content";
-import { useNumbers } from "@/hooks/use-public-data";
+import { useAttendanceSummary } from "@/hooks/use-public-data";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
 
@@ -19,12 +19,13 @@ import { Reveal } from "./Reveal";
  */
 export function WhatYouGet() {
   const { t, lang } = useLanguage();
-  // The seats figure is REAL (live /numbers · seatsHosted) — never an invented
-  // literal — and rendered through the locale numeral formatter so it reads in
-  // Western digits in EN and Arabic-Indic in AR. Null until it resolves / on
-  // error, in which case the stat is hidden rather than faked.
-  const { data: numbersData } = useNumbers();
-  const seatsHosted = numbersData?.numbers?.seatsHosted ?? null;
+  // Seats figure = the space's fixed real CAPACITY (the same 50 the SeatsBoard
+  // shows), sourced from the live attendance summary when available and falling
+  // back to the known constant. Deliberately CAPACITY, not live availability, so
+  // it can never contradict the SeatsBoard's "N free" on the same page. Rendered
+  // through the locale numeral formatter (Western in EN, Arabic-Indic in AR).
+  const { data: summaryData } = useAttendanceSummary();
+  const totalSeats = summaryData?.totalSeats ?? 50;
   const fmtNum = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   // Two-digit editorial row index — Arabic-Indic in AR (matching ActMarker /
   // ApplyProcess), Western in EN. No stray Western digit in the Arabic page.
@@ -176,10 +177,10 @@ export function WhatYouGet() {
                 <p className="max-w-[52ch] text-[15px] leading-[1.65] text-white/80 transition-colors duration-300 group-hover:text-white/90 lg:text-[1.0625rem] motion-reduce:transition-none">
                   {g.body}
                 </p>
-                {g.showSeats && seatsHosted != null && (
+                {g.showSeats && (
                   <div className="mt-3.5 inline-flex items-baseline gap-2">
-                    <span className="font-mono text-xl font-bold tabular-nums text-primary">{fmtNum(seatsHosted)}</span>
-                    <span className="text-[13px] text-white/65">{t({ ar: "مقاعد متاحة", en: "seats available" })}</span>
+                    <span className="font-mono text-xl font-bold tabular-nums text-primary">{fmtNum(totalSeats)}</span>
+                    <span className="text-[13px] text-white/65">{t({ ar: "مقعدًا في المساحة", en: "seats in the space" })}</span>
                   </div>
                 )}
               </div>

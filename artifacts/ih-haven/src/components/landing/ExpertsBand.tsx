@@ -86,7 +86,10 @@ export function ExpertsBand() {
 
   const isEmpty = rows !== null && rows.length === 0;
   const experts = rows ?? Array.from({ length: 6 }).map(() => null);
-  const available = rows?.filter((e) => e.acceptingSessions).length ?? 0;
+  // Count "available to book" over the FULL roster (same source + filter as the
+  // /experts page: `experts.filter(acceptingSessions).length`), NOT the top-6
+  // display slice above — so the figure is identical wherever it appears.
+  const available = data?.experts.filter((e) => e.acceptingSessions).length ?? 0;
   const availableLabel = lang === "en" ? available.toString() : available.toLocaleString("ar-EG");
 
   const intro = isEmpty
