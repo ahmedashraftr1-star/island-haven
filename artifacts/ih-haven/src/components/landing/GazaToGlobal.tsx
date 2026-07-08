@@ -178,22 +178,23 @@ export function GazaToGlobal() {
   const stats = [
     {
       value: "190+",
-      label: "countries reached",
+      label: t({ ar: "دولة حول العالم", en: "countries reached" }),
       sub: t({ ar: "سوق عمل عالميّ عبر الحدود", en: "Global work marketplace" }),
     },
     {
       value: "100%",
-      label: "Payoneer payouts to Gaza",
-      sub: t({ ar: "مدفوعات دوليّة تصل غزّة", en: "International payments in" }),
+      // "Payoneer" is a brand name — it stays Latin in both locales.
+      label: t({ ar: "مدفوعات Payoneer إلى غزّة", en: "Payoneer payouts to Gaza" }),
+      sub: t({ ar: "تحويلات دوليّة تصل غزّة", en: "International payments in" }),
     },
     {
       value: "$25K",
-      label: "cloud credits",
+      label: t({ ar: "رصيد خدمات سحابيّة", en: "cloud credits" }),
       sub: t({ ar: "أدوات وبنية جاهزة", en: "Tooling & infrastructure" }),
     },
     {
       value: "40+",
-      label: "mentors & partners",
+      label: t({ ar: "مُرشدون وشركاء", en: "mentors & partners" }),
       sub: t({ ar: "شبكة عالميّة", en: "Global network" }),
     },
   ];
@@ -270,8 +271,8 @@ export function GazaToGlobal() {
                         {s.value}
                       </span>
                       <div className="min-w-0">
-                        {/* English label — primary line, LTR regardless of site language */}
-                        <div className="text-[14.5px] font-semibold text-white leading-snug" dir="ltr">
+                        {/* Primary label — follows the site language (RTL in AR). */}
+                        <div className="text-[14.5px] font-semibold text-white leading-snug" dir={ar ? "rtl" : "ltr"}>
                           {s.label}
                         </div>
                         {/* Bilingual context — muted, follows the site language */}
