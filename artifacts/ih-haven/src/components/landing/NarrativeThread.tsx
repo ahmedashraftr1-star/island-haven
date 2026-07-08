@@ -46,15 +46,16 @@ export function NarrativeThread() {
     restDelta: 0.001,
   });
 
-  // The head travels down the full height as progress goes 0→1. A percentage
-  // translate keeps it GPU-only (transform) and undistorted.
-  const headY = useTransform(drawn, [0, 1], ["0%", "100%"]);
+  // The head rides the current draw point: `top` as a percentage of the
+  // thread's FULL height (0%→100%), so it actually travels the whole column
+  // (the previous `y`-percentage sat on a zero-height wrapper → never moved).
+  const headTop = useTransform(drawn, [0, 1], ["0%", "100%"]);
 
   return (
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-0 hidden lg:block"
+      className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
     >
       {/* The thread lives centered on the column, behind the centered
           ActMarkers. Constrained to a 1px width and centered so it can never
@@ -92,23 +93,18 @@ export function NarrativeThread() {
                   "linear-gradient(to bottom, hsl(var(--gold) / 0.30), hsl(var(--sand-bright) / 0.38))",
               }}
             />
-            {/* The travelling "head" — a slightly brighter gold glow that rides
-                the current draw point. Driven by a `top` percentage translate
-                (GPU-only `y`), with the -50% centering folded into a wrapper so
-                it never fights the animated transform; the dot stays perfectly
-                round at every progress value. */}
-            <motion.div
-              className="absolute left-1/2 top-0 w-0"
-              style={{ y: headY }}
-            >
-              <span
-                className="absolute block h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                style={{
-                  backgroundColor: "hsl(var(--sand-bright) / 0.9)",
-                  boxShadow: "0 0 10px 1px hsl(var(--gold) / 0.5)",
-                }}
-              />
-            </motion.div>
+            {/* The travelling "head" — a slightly brighter gold glow riding the
+                current draw point. `top` is a % of the full thread height so it
+                travels the whole column; the -50/-50 translate keeps the dot
+                perfectly round + centred on the point. */}
+            <motion.span
+              className="absolute left-1/2 block h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                top: headTop,
+                backgroundColor: "hsl(var(--sand-bright) / 0.9)",
+                boxShadow: "0 0 10px 1px hsl(var(--gold) / 0.5)",
+              }}
+            />
           </>
         )}
       </div>
