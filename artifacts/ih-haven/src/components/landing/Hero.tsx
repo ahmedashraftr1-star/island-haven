@@ -5,7 +5,7 @@ import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
-import { useNumbers } from "@/hooks/use-public-data";
+import { useNumbers, useAttendanceSummary } from "@/hooks/use-public-data";
 import { ParticleField } from "./ParticleField";
 
 const FALLBACK = {
@@ -176,6 +176,13 @@ export function Hero() {
   const live = numbersData?.numbers
     ? { members: numbersData.numbers.members, seatsHosted: numbersData.numbers.seatsHosted }
     : null;
+  // Seat figure = the space's fixed CAPACITY (same live-summary `totalSeats` the
+  // SeatsBoard leads with: "50 seats"), NOT the taken count — so the hero can
+  // never be read as "6 total seats" and never contradicts the board two
+  // sections down. Falls back to the known real capacity when the summary is
+  // still loading. This is the single source both the hero and board share.
+  const { data: summaryData } = useAttendanceSummary();
+  const totalSeats = summaryData?.totalSeats ?? 50;
 
   const stills = useMemo(
     () =>
@@ -215,7 +222,7 @@ export function Hero() {
   // verbatim — so the pre-fetch fallbacks and the non-numeric "100% free" never
   // animate toward an invented figure.
   const stats: { n: number | null; v: string; l: string }[] = [
-    { n: live ? live.seatsHosted : null, v: live ? fmt(live.seatsHosted) : c.stat1Value, l: c.stat1Label },
+    { n: totalSeats, v: fmt(totalSeats), l: c.stat1Label },
     { n: live ? live.members : null, v: live ? fmt(live.members) : c.stat2Value, l: c.stat2Label },
     { n: null, v: c.stat3Value, l: c.stat3Label },
   ].filter((s) => s.v || s.l);

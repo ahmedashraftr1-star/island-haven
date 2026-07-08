@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Mail } from "lucide-react";
+import { ArrowLeft, ExternalLink, Mail, FileText, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
@@ -53,10 +54,32 @@ const TYPE_DOT: Record<string, string> = {
   individual: "hsl(30 6% 60%)",
 };
 
+// Investor materials (pitch deck / data room). HONEST GATE: the download module
+// renders ONLY when this is a real URL — leave it "" and the page shows the
+// contact CTAs alone (never a dead/fake download). Fill with the real link
+// (e.g. a hosted PDF or a DocSend/Notion data-room URL).
+const INVESTOR_DECK_URL: string = "";
+const INVESTOR_DECK_IS_DATAROOM: boolean = false; // true → label as "data room" instead of "pitch deck"
+
 export default function Investors() {
   const { lang, t } = useLanguage();
   const reduce = useReducedMotion();
   const p = I18N.pages.investors;
+  // Opt-in "investor view" — flips ONLY this page to the existing AA-tuned
+  // `.theme-light` corporate palette (dark stays the global default everywhere
+  // else). Persisted so it survives navigation.
+  const [investorView, setInvestorView] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("ih-investor-view") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("ih-investor-view", investorView ? "1" : "0");
+    } catch {}
+  }, [investorView]);
   const { data, isLoading } = useQuery({
     queryKey: ["investors"],
     queryFn: () => api<{ investors: Investor[] }>("/investors"),
@@ -71,6 +94,7 @@ export default function Investors() {
     .filter((typeKey) => TYPE_DOT[typeKey]);
 
   return (
+    <div className={investorView ? "theme-light" : undefined}>
     <PageShell
       eyebrow={t(p.eyebrow)}
       title={t(p.title)}
@@ -104,7 +128,7 @@ export default function Investors() {
           </div>
           <div aria-hidden className="my-6 h-px w-full bg-border-strong" />
           <div className="flex items-center gap-2.5">
-            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-primary" />
             <span className="text-[14px] font-semibold text-foreground">
               {t({ ar: "مفتوحون لشراكات جديدة", en: "Open to new partnerships" })}
             </span>
@@ -119,6 +143,35 @@ export default function Investors() {
         </div>
       }
     >
+      {/* Opt-in view toggle — Dark (default) ↔ a lighter, corporate "investor
+          view". Uses the existing AA-tuned .theme-light tokens; scoped to this
+          page only. Both states use the same brand accent. */}
+      <div className="mb-8 flex justify-end">
+        <div
+          role="group"
+          aria-label={t({ ar: "طريقة العرض", en: "View mode" })}
+          className="inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface-2 p-1 text-[12.5px] font-semibold"
+        >
+          <button
+            type="button"
+            onClick={() => setInvestorView(false)}
+            aria-pressed={!investorView ? "true" : "false"}
+            data-testid="investor-view-dark"
+            className={`rounded-full px-3.5 py-1.5 transition-colors ${!investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
+          >
+            {t({ ar: "داكن", en: "Dark" })}
+          </button>
+          <button
+            type="button"
+            onClick={() => setInvestorView(true)}
+            aria-pressed={investorView ? "true" : "false"}
+            data-testid="investor-view-light"
+            className={`rounded-full px-3.5 py-1.5 transition-colors ${investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
+          >
+            {t({ ar: "عرض المستثمر", en: "Investor view" })}
+          </button>
+        </div>
+      </div>
       <div className="space-y-[clamp(5rem,11vw,9rem)]">
         {/* ── Why Invest — a monumental statement over a numbered hairline ledger ── */}
         <section>
@@ -377,6 +430,42 @@ export default function Investors() {
                 <p className="t-body text-[15px] md:text-[17px] mt-5 max-w-xl">
                   {t(p.investBody)}
                 </p>
+
+                {/* Investor materials module — pitch deck / data room. Rendered
+                    ONLY when a real URL is configured (honest: no dead download);
+                    otherwise the contact CTAs below stand on their own. */}
+                {INVESTOR_DECK_URL && (
+                  <div className="mt-[clamp(2rem,4vw,2.75rem)] flex flex-col gap-3 rounded-2xl border border-primary/25 bg-primary/[0.06] p-4 sm:flex-row sm:items-center sm:p-5">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+                        <FileText className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[14.5px] font-semibold text-foreground">
+                          {t({ ar: "ملفّ المستثمر", en: "Investor materials" })}
+                        </p>
+                        <p className="t-caption text-fg-secondary line-clamp-1">
+                          {INVESTOR_DECK_IS_DATAROOM
+                            ? t({ ar: "غرفة البيانات — أرقام ووثائق", en: "Data room — metrics & documents" })
+                            : t({ ar: "العرض التقديمي للمستثمرين", en: "Pitch deck" })}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={INVESTOR_DECK_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid="investor-deck"
+                      className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-6 cta-fill text-[14px] font-bold"
+                    >
+                      {INVESTOR_DECK_IS_DATAROOM ? <ExternalLink className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+                      {INVESTOR_DECK_IS_DATAROOM
+                        ? t({ ar: "افتح غرفة البيانات", en: "Open data room" })
+                        : t({ ar: "حمّل العرض التقديمي", en: "Download pitch deck" })}
+                    </a>
+                  </div>
+                )}
+
                 <div className="mt-[clamp(2rem,4vw,2.75rem)] flex items-center gap-3 flex-wrap">
                   <a
                     href="mailto:island-haven@nastonas.org"
@@ -401,5 +490,6 @@ export default function Investors() {
         </section>
       </div>
     </PageShell>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
+import { ExpertAvatar } from "@/components/ui/ExpertAvatar";
 
 interface ExpertCard {
   id: number;
@@ -18,20 +19,6 @@ interface ExpertCard {
   expertiseEn: string;
   yearsExperience: number;
   acceptingSessions: boolean;
-}
-
-/**
- * Initials for the avatar fallback — first letters of the first two meaningful
- * name words, skipping single-letter honorifics ("م.", "أ.", "د."). Derived, not
- * hardcoded, so it holds for any mentor the API returns.
- */
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  const words = parts.filter((w) => w.replace(/\./g, "").length > 1);
-  return (words.length ? words : parts)
-    .slice(0, 2)
-    .map((w) => w.charAt(0))
-    .join("");
 }
 
 /**
@@ -225,7 +212,6 @@ export function ExpertsBand() {
                 }
                 const tags = splitTags(e.expertise).slice(0, 2);
                 const role = e.headline || tags.join(lang === "en" ? " · " : " • ");
-                const photo = e.avatarUrl ? imageUrl(e.avatarUrl) : "";
                 return (
                   <Reveal key={e.id} as="div" delay={i * 0.06} duration={0.6}>
                     <Link
@@ -240,34 +226,21 @@ export function ExpertsBand() {
                         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(38_80%_60%/0.35)] to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100"
                       />
 
-                      {/* Mentor PHOTO — the focal element. A generous circular
-                          portrait with a hairline gold ring; a soft terracotta
-                          halo blooms on hover. Terracotta initials only when no
-                          photo, so every mentor still carries a face. */}
+                      {/* Mentor PHOTO — the focal element, via the ONE shared
+                          ExpertAvatar (photo in a gold-ringed glass circle, else
+                          the same gold-on-glass initials used on /experts). A soft
+                          terracotta halo blooms on hover. */}
                       <div className="relative shrink-0">
                         <span
                           aria-hidden
                           className="pointer-events-none absolute -inset-2 rounded-full bg-primary/20 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100"
                         />
-                        {photo ? (
-                          <div className="relative h-24 w-24 overflow-hidden rounded-full ring-1 ring-[hsl(38_80%_60%/0.4)] shadow-[0_12px_30px_-12px_hsl(0_0%_0%/0.7)] transition-transform duration-500 group-hover:scale-[1.04]">
-                            <img
-                              src={photo}
-                              alt={e.fullName}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-cover"
-                            />
-                            <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10" />
-                          </div>
-                        ) : (
-                          <span
-                            aria-hidden
-                            className="relative inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/30 font-display text-[1.6rem] font-black leading-none text-primary shadow-[0_12px_30px_-12px_hsl(0_0%_0%/0.7)] transition-transform duration-500 group-hover:scale-[1.04]"
-                          >
-                            {initials(e.fullName)}
-                          </span>
-                        )}
+                        <ExpertAvatar
+                          name={e.fullName}
+                          avatarUrl={e.avatarUrl}
+                          size="lg"
+                          className="relative transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none"
+                        />
                       </div>
 
                       {/* Name → role hierarchy, optically centred. */}

@@ -32,6 +32,33 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
+// Warm up the DB pool BEFORE we start accepting traffic, so the very first
+// request never races an unconnected pool. That race surfaced as a cold-start
+// 5xx on the first /api/jobs (and any other DB route) on slower hosts / behind a
+// readiness-gated proxy. Bounded retries; if the DB is genuinely unreachable we
+// still boot (liveness stays up and /readyz correctly reports degraded) rather
+// than crash-loop.
+async function warmUpDb(retries = 12, delayMs = 300): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await pool.query("SELECT 1");
+      logger.info({ attempt }, "DB pool warmed up — ready to serve");
+      return;
+    } catch (err) {
+      if (attempt === retries) {
+        logger.warn(
+          { err },
+          "DB warm-up did not complete before listen — serving anyway (readiness will gate until the DB recovers)",
+        );
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
+await warmUpDb();
+
 const server = app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");

@@ -43,8 +43,8 @@ export const I18N = {
     estLabel:     { ar: "تأسّس ٢٠٢٤",               en: "Est. 2024" },
     placeLabel:   { ar: "غزّة · فلسطين",             en: "Gaza · Palestine" },
     aboutBody:    {
-      ar: "حاضنة تقنيّة من غزّة تطمح لأن تكون الأقوى في العالم العربيّ. نَحضن الموهبة الغزيّة ونُطلقها نحو الأسواق العالميّة — بإرشاد متخصّص، برامج احتضان مُصمَّمة بعناية، وشبكة شركاء عبر القارّات.",
-      en: "A tech incubator from Gaza built to be the strongest in the Arab world. We develop Gazan talent and launch it toward global markets — through expert mentorship, purpose-built incubation programs, and a partner network across continents.",
+      ar: "حاضنة تقنيّة من غزّة تطمح لأن تكون الأقوى في العالم. نَحضن الموهبة الغزيّة ونُطلقها نحو الأسواق العالميّة — بإرشاد متخصّص، برامج احتضان مُصمَّمة بعناية، وشبكة شركاء عبر القارّات.",
+      en: "A tech incubator from Gaza built to be the strongest in the world. We develop Gazan talent and launch it toward global markets — through expert mentorship, purpose-built incubation programs, and a partner network across continents.",
     },
     indexLabel:       { ar: "فهرس",                       en: "Index" },
     contactLabel:     { ar: "تواصل مع الفريق",            en: "Contact the Team" },

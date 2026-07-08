@@ -17,7 +17,7 @@ export function LangToggle({ tone = "onDark" }: LangToggleProps) {
       onClick={toggleLang}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className={`relative inline-flex items-center justify-center w-9 h-9 rounded-full text-[12px] font-bold tracking-wide transition-all duration-200 shrink-0 ${
+      className={`relative inline-flex items-center justify-center w-11 h-11 rounded-full text-[12px] font-bold tracking-wide transition-all duration-200 shrink-0 ${
         onLight
           ? "border border-border bg-white text-foreground hover:border-primary/40 hover:text-primary"
           : "border border-white/20 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 hover:border-white/35"

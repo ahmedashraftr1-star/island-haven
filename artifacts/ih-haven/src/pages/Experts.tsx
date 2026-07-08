@@ -7,6 +7,7 @@ import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { splitTags } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { ExpertAvatar, initials } from "@/components/ui/ExpertAvatar";
 
 export interface ExpertCard {
   id: number;
@@ -209,7 +210,7 @@ export default function Experts() {
           </div>
           <div aria-hidden className="my-4 h-px w-full bg-border-strong" />
           <p className="flex items-center gap-2 t-caption text-fg-secondary">
-            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+            <span aria-hidden className="inline-flex h-2 w-2 shrink-0 rounded-full bg-primary" />
             {t({ ar: "الجلسة الأولى مجّانيّة دائمًا", en: "First session always free" })}
           </p>
           <div className="mt-5 border-t border-border-strong pt-4">
@@ -257,25 +258,13 @@ export default function Experts() {
           {rows && rows.length > 0 && (
             <div className="-mx-4 px-4 mb-[clamp(1.75rem,4vw,2.75rem)] flex gap-2.5 overflow-x-auto sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {rows.slice(0, 8).map((e) => {
-                const initial = e.fullName.trim().charAt(0);
                 return (
                   <Link
                     key={e.id}
                     href={`/experts/${e.id}`}
                     className="group flex shrink-0 items-center gap-3 rounded-full border border-border-strong bg-surface-1 py-2 ps-2 pe-4 transition-colors hover:border-primary/40"
                   >
-                    {e.avatarUrl ? (
-                      <img
-                        src={e.avatarUrl}
-                        alt={e.fullName}
-                        loading="lazy"
-                        className="h-10 w-10 rounded-full object-cover ring-1 ring-white/10"
-                      />
-                    ) : (
-                      <span className="grid h-10 w-10 place-items-center rounded-full border border-border-strong bg-white/[0.03] font-display font-black text-sand-bright">
-                        {initial}
-                      </span>
-                    )}
+                    <ExpertAvatar name={e.fullName} avatarUrl={e.avatarUrl} size="sm" />
                     <span className="min-w-0">
                       <span className="block text-[13.5px] font-semibold text-foreground leading-tight line-clamp-1 transition-colors group-hover:text-primary">
                         {e.fullName}
@@ -553,7 +542,6 @@ function TeamSection({
 function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolean }) {
   const { lang, t } = useLanguage();
   const areas = splitTags(e.expertise).slice(0, 3);
-  const initial = e.fullName.trim().charAt(0);
 
   return (
     <li className="h-full">
@@ -569,7 +557,8 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
           data-testid={`expert-card-${e.id}`}
           className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
         >
-          {/* Avatar panel — real face, else a neutral panel with a single gold initial */}
+          {/* Avatar panel — real face, else a neutral panel with the same
+              gold two-letter initials used everywhere else (shared initials()). */}
           <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-white/[0.03]">
             {e.avatarUrl ? (
               <img
@@ -585,13 +574,13 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
                   className="font-display font-black text-sand-bright"
                   style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", letterSpacing: "0.02em" }}
                 >
-                  {initial}
+                  {initials(e.fullName)}
                 </span>
               </div>
             )}
             <span className="absolute top-3 end-3 inline-flex items-center gap-1.5 rounded-full bg-[#0a0a0a]/70 backdrop-blur-md px-2.5 h-6 text-[10.5px] font-semibold">
-              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${e.acceptingSessions ? "bg-emerald-400" : "bg-fg-faint"}`} />
-              <span className={e.acceptingSessions ? "text-emerald-300" : "text-fg-secondary"}>
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${e.acceptingSessions ? "bg-primary" : "bg-fg-faint"}`} />
+              <span className={e.acceptingSessions ? "text-primary" : "text-fg-secondary"}>
                 {e.acceptingSessions ? t({ ar: "متاح", en: "Open" }) : t({ ar: "مشغول", en: "Busy" })}
               </span>
             </span>

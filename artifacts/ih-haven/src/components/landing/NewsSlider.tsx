@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Lightbulb, Newspaper, Quote, BookOpen, type LucideIcon } from "lucide-react";
 import { useDaily } from "@/hooks/use-public-data";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection, imageUrl } from "@/hooks/use-content";
@@ -9,6 +9,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+
+// A calm, on-brand icon per post type — used for the cover placeholder when an
+// item has no image, so a cover-less row reads as an INTENTIONAL type tile
+// rather than an orphaned single-letter avatar. Uniform across the big cover and
+// the list thumbs.
+const TYPE_ICON: Record<DailyType, LucideIcon> = {
+  tip: Lightbulb,
+  news: Newspaper,
+  quote: Quote,
+  story: BookOpen,
+};
 
 const FALLBACK = {
   eyebrow: "دفتر آيلاند",
@@ -226,14 +237,20 @@ export function NewsSlider() {
                             className="aspect-[16/10] w-full object-cover"
                           />
                         ) : (
-                          <div
-                            aria-hidden
-                            className="flex aspect-[16/10] w-full items-center justify-center bg-primary/15"
-                          >
-                            <span className="font-display text-[clamp(3rem,8vw,6rem)] font-black leading-none text-primary/60 select-none">
-                              {(selected.title.trim()[0] ?? typeLabels[selected.type][0] ?? "·").toUpperCase()}
-                            </span>
-                          </div>
+                          (() => {
+                            const Icon = TYPE_ICON[selected.type] ?? Calendar;
+                            return (
+                              <div
+                                aria-hidden
+                                className="flex aspect-[16/10] w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-white/[0.05] to-white/[0.01]"
+                              >
+                                <Icon className="h-12 w-12 text-sand-bright/40" strokeWidth={1.5} />
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 rtl:tracking-normal">
+                                  {typeLabels[selected.type]}
+                                </span>
+                              </div>
+                            );
+                          })()
                         )}
                       </div>
 
@@ -356,11 +373,14 @@ export function NewsSlider() {
                               }`}
                             />
                           ) : (
-                            <div aria-hidden className="flex h-full w-full items-center justify-center bg-primary/15">
-                              <span className="font-display text-lg font-black text-primary/60 select-none">
-                                {(p.title.trim()[0] ?? typeLabels[p.type][0] ?? "·").toUpperCase()}
-                              </span>
-                            </div>
+                            (() => {
+                              const Icon = TYPE_ICON[p.type] ?? Calendar;
+                              return (
+                                <div aria-hidden className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/[0.05] to-white/[0.01]">
+                                  <Icon className="h-5 w-5 text-sand-bright/40" strokeWidth={1.5} />
+                                </div>
+                              );
+                            })()
                           )}
                         </div>
 

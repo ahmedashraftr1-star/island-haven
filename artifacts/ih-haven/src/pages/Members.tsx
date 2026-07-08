@@ -192,9 +192,14 @@ export default function Members() {
         </div>
       }
     >
-      <div className="sticky top-[68px] z-30 -mx-4 px-4 py-3 mb-6 bg-[#0a0a0a]/85 backdrop-blur-xl border-b border-white/10 grid lg:grid-cols-[1fr_auto] gap-4 items-center">
-        <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
+      {/* Toolbar — THREE distinct zones: search · filter controls · primary
+          action. The "Join as freelancer" CTA lives in its own zone (split off by
+          a hairline on desktop, its own full-width line on mobile) so it never
+          reads as just another filter chip. */}
+      <div className="sticky top-[68px] z-30 -mx-4 px-4 py-3 mb-6 bg-[#0a0a0a]/85 backdrop-blur-xl border-b border-white/10 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+        {/* Zone 1 — search */}
+        <div className="relative lg:flex-1">
+          <Search className="absolute end-4 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint pointer-events-none" aria-hidden="true" />
           <input
             type="search"
             value={q}
@@ -205,7 +210,13 @@ export default function Members() {
             data-testid="input-search-members"
           />
         </div>
-        <div className="flex items-center gap-1.5 flex-wrap">
+
+        {/* Zone 2 — filter controls (change what you see) */}
+        <div
+          role="group"
+          aria-label={t({ ar: "تصفية المنتسبين", en: "Filter members" })}
+          className="flex items-center gap-1.5 flex-wrap"
+        >
           {ROLE_FILTERS.map((f) => {
             const active = role === f.key;
             return (
@@ -230,9 +241,14 @@ export default function Members() {
               </button>
             );
           })}
+        </div>
+
+        {/* Zone 3 — primary action, its own zone (hairline-split on lg) */}
+        <div className="lg:border-s lg:border-white/10 lg:ps-4">
           <Link
             href="/apply?type=freelancer"
-            className="ms-1 inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary/10"
+            data-testid="members-join-freelancer"
+            className="inline-flex w-full lg:w-auto items-center justify-center gap-1.5 rounded-full border border-primary/40 px-4 py-2 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary/10"
           >
             {t({ ar: "انضمّ كفريلانسر", en: "Join as freelancer" })}
             <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />

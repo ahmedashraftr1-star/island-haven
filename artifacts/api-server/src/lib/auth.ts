@@ -93,11 +93,23 @@ export function verifySessionToken(token: string | undefined): boolean {
   return timingSafeEqualStr(sig, sign(`${role}.${expiresAtStr}`));
 }
 
+// Cookie `Secure` flag. Defaults ON in production (real deploys serve over
+// HTTPS). Set COOKIE_SECURE=0 to test a production build over plain
+// http://localhost — browsers (Safari especially) DROP Secure cookies on http,
+// which silently blocks login. COOKIE_SECURE=1 forces it on. Leave UNSET in
+// real production so it stays tied to NODE_ENV=production.
+function cookieSecure(): boolean {
+  const v = process.env.COOKIE_SECURE;
+  if (v === "0") return false;
+  if (v === "1") return true;
+  return process.env.NODE_ENV === "production";
+}
+
 export function setSessionCookie(res: Response, token: string): void {
   res.cookie(ADMIN_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieSecure(),
     maxAge: SESSION_TTL_MS,
     path: "/",
   });
@@ -150,7 +162,7 @@ export function setUserSessionCookie(res: Response, token: string): void {
   res.cookie(USER_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieSecure(),
     maxAge: SESSION_TTL_MS,
     path: "/",
   });
