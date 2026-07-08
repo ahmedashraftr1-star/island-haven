@@ -73,24 +73,26 @@ export function NarrativeThread() {
         {/* Faint gold rail — the un-drawn track (barely there). */}
         <div
           className="absolute inset-0 w-px"
-          style={{ backgroundColor: "hsl(var(--gold) / 0.10)" }}
+          style={{ backgroundColor: "hsl(var(--gold) / 0.14)" }}
         />
 
         {reduce ? (
           // Reduced-motion: a single faint static hairline, no animation.
           <div
             className="absolute inset-0 w-px"
-            style={{ backgroundColor: "hsl(var(--gold) / 0.22)" }}
+            style={{ backgroundColor: "hsl(var(--gold) / 0.30)" }}
           />
         ) : (
           <>
-            {/* The drawn thread — fills top→bottom with scroll. GPU scaleY. */}
+            {/* The drawn thread — fills top→bottom with scroll. GPU scaleY.
+                A touch more presence than a pure whisper so it genuinely reads
+                as the spine, still calm gold. */}
             <motion.div
               className="absolute inset-0 w-px origin-top"
               style={{
                 scaleY: drawn,
                 backgroundImage:
-                  "linear-gradient(to bottom, hsl(var(--gold) / 0.30), hsl(var(--sand-bright) / 0.38))",
+                  "linear-gradient(to bottom, hsl(var(--gold) / 0.48), hsl(var(--sand-bright) / 0.62))",
               }}
             />
             {/* The travelling "head" — a slightly brighter gold glow riding the

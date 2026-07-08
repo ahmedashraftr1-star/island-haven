@@ -130,7 +130,7 @@ export function HomeTOC() {
           ? "opacity 0.2s linear"
           : "opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)",
       }}
-      className={`hidden lg:flex fixed top-1/2 start-4 xl:start-6 z-30 flex-col gap-0.5 rounded-2xl border border-white/[0.06] bg-[#060608]/40 p-1.5 backdrop-blur-sm ${
+      className={`hidden lg:flex fixed top-1/2 start-4 xl:start-6 z-30 flex-col gap-0.5 rounded-2xl border border-[hsl(var(--gold)/0.16)] bg-[#0a0a0c]/[0.78] p-1.5 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.78)] backdrop-blur-md ${
         revealed ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
@@ -145,36 +145,32 @@ export function HomeTOC() {
             onClick={() => go(a.id)}
             aria-current={isActive ? "true" : undefined}
             title={t(a.label)}
-            className={`group flex items-center gap-2.5 rounded-full py-1.5 pe-2.5 ps-2 text-start transition-[color,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-              isActive
-                ? "opacity-100"
-                : "opacity-45 hover:opacity-90"
-            }`}
+            className="group flex items-center gap-2.5 rounded-full py-1.5 pe-2.5 ps-2 text-start opacity-100 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0c]"
           >
-            {/* Marker dot — terracotta when active, faint when at rest. */}
+            {/* Marker dot — terracotta when active, readable-muted at rest. */}
             <span
               aria-hidden
               className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-300 ${
                 isActive
                   ? "bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.6)]"
-                  : "bg-fg-faint/60 group-hover:bg-primary/70"
+                  : "bg-white/40 group-hover:bg-primary/70"
               }`}
             />
             <Icon
               className={`h-3.5 w-3.5 shrink-0 transition-colors duration-300 ${
-                isActive ? "text-primary" : "text-fg-faint group-hover:text-primary/70"
+                isActive ? "text-primary" : "text-white/55 group-hover:text-primary/80"
               }`}
             />
             <span
               className={`font-mono text-[10px] tabular-nums leading-none transition-colors duration-300 ${
-                isActive ? "text-[hsl(var(--gold))]" : "text-fg-faint/80 group-hover:text-[hsl(var(--sand-bright))]"
+                isActive ? "text-[hsl(var(--gold))]" : "text-white/55 group-hover:text-[hsl(var(--sand-bright))]"
               }`}
             >
               {num}
             </span>
             <span
               className={`whitespace-nowrap text-[11px] font-semibold leading-none transition-colors duration-300 ${
-                isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground/90"
+                isActive ? "text-white" : "text-white/75 group-hover:text-white"
               }`}
             >
               {t(a.label)}
