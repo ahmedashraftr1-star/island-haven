@@ -264,17 +264,73 @@ router.patch("/admin/works/:id", requireAdmin, async (req, res) => {
 });
 
 // Paginated audit trail (newest first) — see lib/audit.ts + the audit_log table.
+// Distinct actions + actors, for the audit viewer's filter dropdowns.
+router.get("/admin/audit/facets", requireAdmin, async (_req, res) => {
+  try {
+    const [actions, actors] = await Promise.all([
+      db
+        .selectDistinct({ action: auditLogTable.action })
+        .from(auditLogTable)
+        .orderBy(auditLogTable.action)
+        .limit(200),
+      db
+        .selectDistinct({ actor: auditLogTable.actor })
+        .from(auditLogTable)
+        .orderBy(auditLogTable.actor)
+        .limit(200),
+    ]);
+    res.json({
+      actions: actions.map((a) => a.action),
+      actors: actors.map((a) => a.actor),
+    });
+  } catch (err) {
+    logger.error({ err }, "GET /admin/audit/facets failed");
+    res.status(500).json({ error: "تعذّر التحميل" });
+  }
+});
+
 router.get("/admin/audit", requireAdmin, async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
     const offset = Math.max(0, Number(req.query.offset) || 0);
-    const rows = await db
-      .select()
-      .from(auditLogTable)
-      .orderBy(desc(auditLogTable.createdAt))
-      .limit(limit)
-      .offset(offset);
-    res.json({ audit: rows, limit, offset });
+    const actor = String(req.query.actor ?? "").trim();
+    const action = String(req.query.action ?? "").trim();
+    const targetType = String(req.query.targetType ?? "").trim();
+    const q = String(req.query.q ?? "").trim().slice(0, 80);
+
+    const conds = [];
+    if (actor) conds.push(eq(auditLogTable.actor, actor));
+    if (action) conds.push(eq(auditLogTable.action, action));
+    if (targetType) conds.push(eq(auditLogTable.targetType, targetType));
+    if (q) {
+      const like = `%${q}%`;
+      conds.push(
+        or(
+          ilike(auditLogTable.actor, like),
+          ilike(auditLogTable.action, like),
+          ilike(auditLogTable.targetType, like),
+          ilike(auditLogTable.targetId, like),
+          ilike(auditLogTable.oldValue, like),
+          ilike(auditLogTable.newValue, like),
+        ),
+      );
+    }
+    const where = conds.length ? and(...conds) : undefined;
+
+    const [rows, [countRow]] = await Promise.all([
+      db
+        .select()
+        .from(auditLogTable)
+        .where(where)
+        .orderBy(desc(auditLogTable.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(auditLogTable)
+        .where(where),
+    ]);
+    res.json({ audit: rows, total: countRow?.total ?? 0, limit, offset });
   } catch (err) {
     logger.error({ err }, "GET /admin/audit failed");
     res.status(500).json({ error: "تعذّر التحميل" });

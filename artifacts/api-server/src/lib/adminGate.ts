@@ -50,6 +50,7 @@ const SEGMENT_SECTION: Record<string, string> = {
   content: "content",
   newsletter: "content",
   upload: "content",
+  contact: "contact",
   push: "broadcast",
   notifications: "broadcast",
   broadcast: "broadcast",

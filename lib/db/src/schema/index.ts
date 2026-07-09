@@ -44,3 +44,4 @@ export * from "./tasks";
 export * from "./auditLog";
 export * from "./attendance";
 export * from "./adminMessaging";
+export * from "./contactMessages";

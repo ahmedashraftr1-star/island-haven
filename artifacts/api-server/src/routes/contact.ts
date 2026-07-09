@@ -5,7 +5,7 @@ import {
   type Response,
   type NextFunction,
 } from "express";
-import { insertContactSchema } from "@workspace/db";
+import { db, insertContactSchema, contactMessagesTable } from "@workspace/db";
 import { queueEmail } from "../queues/enqueue";
 import { logger } from "../lib/logger";
 
@@ -73,6 +73,18 @@ router.post("/contact", rateLimit, async (req, res) => {
     return;
   }
   const d = parsed.data;
+  // Persist first so the enquiry is never lost, even if email is unconfigured.
+  try {
+    await db.insert(contactMessagesTable).values({
+      name: d.name,
+      email: d.email,
+      subject: d.subject || "",
+      enquiry: d.enquiry || "",
+      message: d.message,
+    });
+  } catch (err) {
+    logger.error({ err }, "contact persist failed");
+  }
   const to = process.env.CONTACT_TO || process.env.EMAIL_FROM || "";
   if (to) {
     void queueEmail({

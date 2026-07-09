@@ -45,6 +45,7 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { key: "courses", labelAr: "الدورات", labelEn: "Courses", actions: ["view", "manage"] },
   { key: "daily", labelAr: "اليوميّات", labelEn: "Daily", actions: ["view", "manage"] },
   { key: "content", labelAr: "المحتوى", labelEn: "Content", actions: ["view", "manage"] },
+  { key: "contact", labelAr: "رسائل التواصل", labelEn: "Contact messages", actions: ["view", "manage"] },
   { key: "broadcast", labelAr: "بثّ الإشعارات", labelEn: "Broadcast", actions: ["send"] },
   { key: "messages", labelAr: "المراسلة الداخليّة", labelEn: "Internal messages", actions: ["send"] },
   { key: "audit", labelAr: "سجلّ التدقيق", labelEn: "Audit log", actions: ["view"] },
@@ -98,7 +99,7 @@ export const ROLE_PRESETS: Record<Exclude<AdminRole, "custom">, string[]> = {
   analyst: perms("overview:view", "analytics:view", "audit:view"),
   support: [
     "overview:view",
-    ...vm("bookings", "attendance", "applications"),
+    ...vm("bookings", "attendance", "applications", "contact"),
     ...perms("users:view", "messages:send"),
   ],
 };
