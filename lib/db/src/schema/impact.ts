@@ -2,6 +2,7 @@ import {
   pgTable,
   serial,
   integer,
+  bigint,
   varchar,
   text,
   timestamp,
@@ -34,10 +35,11 @@ export const ventureOutcomesTable = pgTable(
     status: varchar("status", { length: 16 }).notNull().$type<OutcomeStatus>().default("active"),
     // Current headcount employed by the venture at this snapshot.
     jobs: integer("jobs").default(0).notNull(),
-    // Cumulative external funding raised to date (whole USD).
-    fundingUsd: integer("funding_usd").default(0).notNull(),
+    // Cumulative external funding raised to date (whole USD). bigint: a
+    // successful portfolio's cumulative funding can exceed the int4 max (~2.1B).
+    fundingUsd: bigint("funding_usd", { mode: "number" }).default(0).notNull(),
     // Revenue in the period (whole USD).
-    revenueUsd: integer("revenue_usd").default(0).notNull(),
+    revenueUsd: bigint("revenue_usd", { mode: "number" }).default(0).notNull(),
     note: text("note").default("").notNull(),
     recordedBy: varchar("recorded_by", { length: 120 }).default("").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

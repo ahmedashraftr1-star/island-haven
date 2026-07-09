@@ -37,23 +37,29 @@ function hotp(secret: Buffer, counter: number): string {
   return (code % 1_000_000).toString().padStart(6, "0");
 }
 
-/** Verify a 6-digit token against the secret, allowing ±`window` 30s steps for clock skew. */
-export function verifyTotp(secretB32: string, token: string, window = 1): boolean {
-  if (!/^\d{6}$/.test(token)) return false;
+/**
+ * Verify a 6-digit token against the secret, allowing ±`window` 30s steps for
+ * clock skew. Returns the MATCHED time-step counter (so the caller can enforce
+ * one-time use / replay protection), or -1 if the token is invalid.
+ */
+export function verifyTotp(secretB32: string, token: string, window = 1): number {
+  if (!/^\d{6}$/.test(token)) return -1;
   let secret: Buffer;
   try {
     secret = base32Decode(secretB32);
   } catch {
-    return false;
+    return -1;
   }
-  if (secret.length === 0) return false;
+  if (secret.length === 0) return -1;
   const counter = Math.floor(Date.now() / 1000 / 30);
   const provided = Buffer.from(token);
   for (let i = -window; i <= window; i++) {
     const expected = Buffer.from(hotp(secret, counter + i));
-    if (expected.length === provided.length && crypto.timingSafeEqual(expected, provided)) return true;
+    if (expected.length === provided.length && crypto.timingSafeEqual(expected, provided)) {
+      return counter + i;
+    }
   }
-  return false;
+  return -1;
 }
 
 /** otpauth:// URI for authenticator apps (manual key entry or QR). */

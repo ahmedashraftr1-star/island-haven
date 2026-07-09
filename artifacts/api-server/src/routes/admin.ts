@@ -65,10 +65,14 @@ router.post("/admin/login", async (req, res) => {
         row.status === "active" &&
         (await bcrypt.compare(password, row.passwordHash))
       ) {
-        // Second factor: if enabled, a valid TOTP code is required to proceed.
+        // Second factor: if enabled, a valid, NOT-YET-USED TOTP code is required.
+        const loginPatch: { lastLoginAt: Date; totpLastCounter?: number } = { lastLoginAt: new Date() };
         if (row.totpEnabled) {
           const code = String(req.body?.code ?? "").trim();
-          if (!code || !row.totpSecret || !verifyTotp(row.totpSecret, code)) {
+          const matched = code && row.totpSecret ? verifyTotp(row.totpSecret, code) : -1;
+          // Reject invalid codes AND any code at/below the last accepted step
+          // (replay of a captured-but-still-valid code).
+          if (matched < 0 || matched <= row.totpLastCounter) {
             res.status(401).json({
               ok: false,
               error: code ? "رمز التحقّق غير صحيح" : "يتطلّب رمز التحقّق الثنائيّ",
@@ -76,10 +80,11 @@ router.post("/admin/login", async (req, res) => {
             });
             return;
           }
+          loginPatch.totpLastCounter = matched;
         }
         await db
           .update(adminUsersTable)
-          .set({ lastLoginAt: new Date() })
+          .set(loginPatch)
           .where(eq(adminUsersTable.id, row.id));
         const token = makeAdminToken(row.id, row.sessionEpoch);
         setSessionCookie(res, token);
@@ -184,11 +189,13 @@ router.post("/admin/me/2fa/enable", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "ابدأ الإعداد أوّلًا" });
     return;
   }
-  if (!verifyTotp(row.secret, code)) {
+  const matched = verifyTotp(row.secret, code);
+  if (matched < 0) {
     res.status(400).json({ error: "رمز التحقّق غير صحيح" });
     return;
   }
-  await db.update(adminUsersTable).set({ totpEnabled: true }).where(eq(adminUsersTable.id, me.id));
+  // Consume this code so it can't be replayed to log in.
+  await db.update(adminUsersTable).set({ totpEnabled: true, totpLastCounter: matched }).where(eq(adminUsersTable.id, me.id));
   res.json({ ok: true, enabled: true });
 });
 
@@ -206,13 +213,13 @@ router.post("/admin/me/2fa/disable", requireAdmin, async (req, res) => {
     .limit(1);
   // Require a valid current code to turn 2FA off (can't disable someone's 2FA
   // just from a hijacked session without their device).
-  if (row?.enabled && (!row.secret || !verifyTotp(row.secret, code))) {
+  if (row?.enabled && (!row.secret || verifyTotp(row.secret, code) < 0)) {
     res.status(400).json({ error: "رمز التحقّق غير صحيح" });
     return;
   }
   await db
     .update(adminUsersTable)
-    .set({ totpEnabled: false, totpSecret: null })
+    .set({ totpEnabled: false, totpSecret: null, totpLastCounter: 0 })
     .where(eq(adminUsersTable.id, me.id));
   res.json({ ok: true, enabled: false });
 });

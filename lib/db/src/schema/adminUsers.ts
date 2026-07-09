@@ -48,6 +48,9 @@ export const adminUsersTable = pgTable(
     // been confirmed/enabled. Login requires a valid code only when enabled.
     totpSecret: text("totp_secret"),
     totpEnabled: boolean("totp_enabled").default(false).notNull(),
+    // Highest TOTP time-step already accepted — codes at or below it are
+    // rejected (RFC 6238 one-time-use → blocks replay of a captured code).
+    totpLastCounter: integer("totp_last_counter").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
