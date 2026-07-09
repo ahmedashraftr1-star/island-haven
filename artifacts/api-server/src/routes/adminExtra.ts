@@ -22,7 +22,7 @@ import {
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
-import { writeAudit } from "../lib/audit";
+import { writeAudit, auditActor } from "../lib/audit";
 import { invalidateNumbersCache } from "./numbers";
 
 const router: IRouter = Router();
@@ -125,7 +125,7 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
     }
     // Audit privileged transitions (role, status). Fire-and-forget.
     if (before && (before.role !== row.role || before.status !== row.status)) {
-      const actor = (await getAdminEmail()) ?? "admin";
+      const actor = auditActor(req);
       if (before.role !== row.role)
         void writeAudit({
           actor,
@@ -245,7 +245,7 @@ router.patch("/admin/works/:id", requireAdmin, async (req, res) => {
       return;
     }
     if (before && before.status !== row.status) {
-      const actor = (await getAdminEmail()) ?? "admin";
+      const actor = auditActor(req);
       void writeAudit({
         actor,
         action: "work_status_changed",

@@ -1,6 +1,8 @@
 import { Router, type IRouter } from "express";
+import { adminGate } from "../lib/adminGate";
 import healthRouter from "./health";
 import adminRouter from "./admin";
+import adminTeamRouter from "./adminTeam";
 import adminExtraRouter from "./adminExtra";
 import applicationsRouter from "./applications";
 import contactRouter from "./contact";
@@ -46,8 +48,15 @@ import attendanceRouter from "./attendance";
 
 const router: IRouter = Router();
 
+// Centralized RBAC gate — enforces per-permission access on EVERY /admin/* route
+// (fail-closed on unmapped segments). Runs before the routers; non-admin paths
+// pass straight through. Per-route requireAdmin/requirePermission still apply as
+// defense-in-depth and reuse the admin this gate already resolved.
+router.use(adminGate);
+
 router.use(healthRouter);
 router.use(adminRouter);
+router.use(adminTeamRouter);
 router.use(adminExtraRouter);
 router.use(applicationsRouter);
   router.use(contactRouter);

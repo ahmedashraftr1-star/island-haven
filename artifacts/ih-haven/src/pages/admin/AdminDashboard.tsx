@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import {
   LayoutDashboard,
@@ -32,6 +32,7 @@ import {
   Award,
   Gift,
   Armchair,
+  ShieldCheck,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -62,6 +63,7 @@ import AdminResources from "./AdminResources";
 import AdminSlots from "./AdminSlots";
 import AdminMilestones from "./AdminMilestones";
 import AdminCohortJourney from "./AdminCohortJourney";
+import AdminTeamAccounts from "./AdminTeamAccounts";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -92,7 +94,43 @@ type Tab =
   | "content"
   | "analytics"
   | "push"
-  | "settings";
+  | "settings"
+  | "staff";
+
+// Each tab → the permission that grants VIEW access. Sub-tabs fold into their
+// parent section (journey→cohorts, milestones→ventures, push→broadcast). A
+// super-admin (or the ENV admin) sees everything.
+const TAB_PERMISSION: Record<Tab, string> = {
+  overview: "overview:view",
+  tasks: "tasks:view",
+  bookings: "bookings:view",
+  attendance: "attendance:view",
+  applications: "applications:view",
+  users: "users:view",
+  experts: "experts:view",
+  sessions: "sessions:view",
+  programs: "programs:view",
+  cohorts: "cohorts:view",
+  journey: "cohorts:view",
+  ventures: "ventures:view",
+  opportunities: "opportunities:view",
+  perks: "perks:view",
+  badges: "badges:view",
+  milestones: "ventures:view",
+  slots: "slots:view",
+  resources: "resources:view",
+  stories: "stories:view",
+  partners: "partners:view",
+  team: "team:view",
+  works: "works:view",
+  courses: "courses:view",
+  daily: "daily:view",
+  content: "content:view",
+  analytics: "analytics:view",
+  push: "broadcast:send",
+  settings: "settings:view",
+  staff: "staff:manage",
+};
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
@@ -122,6 +160,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
   { id: "push", label: "الإشعارات", Icon: Bell },
+  { id: "staff", label: "الفريق والصلاحيّات", Icon: ShieldCheck },
   { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
 
@@ -138,9 +177,33 @@ export default function AdminDashboard() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-me"],
-    queryFn: () => api<{ authenticated: boolean }>("/admin/me"),
+    queryFn: () =>
+      api<{
+        authenticated: boolean;
+        admin?: {
+          id: number;
+          email: string;
+          fullName: string;
+          role: string;
+          isSuper: boolean;
+          permissions: string[];
+        };
+      }>("/admin/me"),
     staleTime: 5_000,
   });
+
+  // Resolved permission set for the signed-in admin. The ENV bootstrap and any
+  // super_admin bypass every check; everyone else is scoped to their grants.
+  const isSuper = !!data?.admin?.isSuper;
+  const permsSet = useMemo(
+    () => new Set(data?.admin?.permissions ?? []),
+    [data?.admin?.permissions],
+  );
+  const can = (perm: string) => isSuper || permsSet.has(perm);
+  const visibleTabs = useMemo(
+    () => TABS.filter((t) => isSuper || permsSet.has(TAB_PERMISSION[t.id])),
+    [isSuper, permsSet],
+  );
 
   const { data: pendingData } = useQuery({
     queryKey: ["admin-pending"],
@@ -170,6 +233,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     document.title = "لوحة الإدارة — آيلاند هيفن";
   }, []);
+
+  // If the signed-in admin can't see the active tab (scoped staff account, or a
+  // tab their role doesn't grant), fall back to their first permitted tab.
+  useEffect(() => {
+    if (
+      data?.authenticated &&
+      visibleTabs.length > 0 &&
+      !visibleTabs.some((t) => t.id === tab)
+    ) {
+      setTab(visibleTabs[0].id);
+    }
+  }, [data?.authenticated, visibleTabs, tab]);
 
   if (isLoading) {
     return (
@@ -205,7 +280,7 @@ export default function AdminDashboard() {
         </div>
 
         <nav className="flex-1 px-3 py-5 space-y-1">
-          {TABS.map(({ id, label, Icon }) => {
+          {visibleTabs.map(({ id, label, Icon }) => {
             const active = tab === id;
             return (
               <button
@@ -273,7 +348,7 @@ export default function AdminDashboard() {
           </button>
         </div>
         <div className="overflow-x-auto px-3 pb-2 flex gap-1">
-          {TABS.map(({ id, label, Icon }) => {
+          {visibleTabs.map(({ id, label, Icon }) => {
             const active = tab === id;
             return (
               <button
@@ -318,6 +393,12 @@ export default function AdminDashboard() {
         </header>
 
         <div className="p-5 lg:p-8 max-w-[1400px] mx-auto">
+          {!can(TAB_PERMISSION[tab]) ? (
+            <div className="text-center py-24 text-foreground/60 text-sm">
+              لا تملك صلاحية الوصول إلى هذا القسم.
+            </div>
+          ) : (
+          <>
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
           {tab === "tasks" && <AdminTasks />}
           {tab === "bookings" && <AdminBookings />}
@@ -345,7 +426,10 @@ export default function AdminDashboard() {
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
+          {tab === "staff" && <AdminTeamAccounts />}
           {tab === "settings" && <AdminSettings onDirtyChange={setSettingsDirty} />}
+          </>
+          )}
         </div>
       </div>
     </div>

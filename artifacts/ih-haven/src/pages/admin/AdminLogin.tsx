@@ -179,7 +179,7 @@ export default function AdminLogin() {
                 htmlFor="username"
                 className="text-[11px] tracking-[0.2em] uppercase text-white/55 font-semibold"
               >
-                اسم المستخدم · Username
+                البريد أو اسم المستخدم · Email / username
               </label>
               <User className="w-3.5 h-3.5 text-white/35" />
             </div>
@@ -195,7 +195,7 @@ export default function AdminLogin() {
                 dir="ltr"
                 autoComplete="username"
                 data-testid="input-username"
-                placeholder="ahmedashraf"
+                placeholder="you@islandhaven.org"
                 className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/40 outline-none transition-all"
                 style={{
                   background: "rgba(0,0,0,0.32)",

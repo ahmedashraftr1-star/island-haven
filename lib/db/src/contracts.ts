@@ -4,3 +4,4 @@
 // any server runtime into its bundle.
 export * from "./schema/user-roles";
 export * from "./schema/contact";
+export * from "./schema/admin-permissions";

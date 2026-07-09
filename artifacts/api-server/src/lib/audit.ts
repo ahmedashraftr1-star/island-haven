@@ -1,5 +1,13 @@
+import type { Request } from "express";
 import { db, auditLogTable } from "@workspace/db";
 import { logger } from "./logger";
+import { getAdmin } from "./auth";
+
+/** The real actor for an audit row: the resolved admin's email (set by the
+ *  RBAC gate / requireAdmin), falling back to "admin" for the ENV bootstrap. */
+export function auditActor(req: Request): string {
+  return getAdmin(req)?.email ?? "admin";
+}
 
 // Append-only audit trail for sensitive admin/staff mutations (OWASP A09 —
 // security logging). Fire-and-forget + self-catching, like notify(): recording

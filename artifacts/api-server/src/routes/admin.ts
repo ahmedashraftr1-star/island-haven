@@ -1,11 +1,15 @@
 import { Router, type IRouter, type Request } from "express";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { db, adminUsersTable } from "@workspace/db";
 import {
   checkAdminCredentials,
   clearSessionCookie,
   makeSessionToken,
+  makeAdminToken,
   requireAdmin,
+  resolveAdmin,
   setSessionCookie,
-  verifySessionToken,
 } from "../lib/auth";
 
 const router: IRouter = Router();
@@ -38,20 +42,50 @@ function adminRateLimited(req: Request): boolean {
   return arr.length > ADMIN_MAX_ATTEMPTS;
 }
 
-router.post("/admin/login", (req, res) => {
-  if (adminRateLimited(req)) {
-    res.status(429).json({ ok: false, error: "محاولات كثيرة، حاول لاحقًا" });
-    return;
-  }
-  const username = String(req.body?.username ?? "");
-  const password = String(req.body?.password ?? "");
-  if (!checkAdminCredentials(username, password)) {
+router.post("/admin/login", async (req, res) => {
+  try {
+    if (adminRateLimited(req)) {
+      res.status(429).json({ ok: false, error: "محاولات كثيرة، حاول لاحقًا" });
+      return;
+    }
+    const identifier = String(req.body?.email ?? req.body?.username ?? "").trim();
+    const password = String(req.body?.password ?? "");
+
+    // 1) DB-backed team/staff account (identified by email + bcrypt).
+    if (identifier.includes("@")) {
+      const [row] = await db
+        .select()
+        .from(adminUsersTable)
+        .where(eq(adminUsersTable.email, identifier.toLowerCase()))
+        .limit(1);
+      if (
+        row &&
+        row.status === "active" &&
+        (await bcrypt.compare(password, row.passwordHash))
+      ) {
+        await db
+          .update(adminUsersTable)
+          .set({ lastLoginAt: new Date() })
+          .where(eq(adminUsersTable.id, row.id));
+        const token = makeAdminToken(row.id, row.sessionEpoch);
+        setSessionCookie(res, token);
+        res.json({ ok: true, token });
+        return;
+      }
+    }
+
+    // 2) Bootstrap ENV super-admin (ADMIN_USERNAME/ADMIN_PASSWORD).
+    if (checkAdminCredentials(identifier, password)) {
+      const token = makeSessionToken();
+      setSessionCookie(res, token);
+      res.json({ ok: true, token });
+      return;
+    }
+
     res.status(401).json({ ok: false, error: "بيانات الدخول غير صحيحة" });
-    return;
+  } catch {
+    res.status(500).json({ ok: false, error: "خطأ في الخادم" });
   }
-  const token = makeSessionToken();
-  setSessionCookie(res, token);
-  res.json({ ok: true, token });
 });
 
 router.post("/admin/logout", (_req, res) => {
@@ -59,9 +93,23 @@ router.post("/admin/logout", (_req, res) => {
   res.json({ ok: true });
 });
 
-router.get("/admin/me", (req, res) => {
-  const token = req.cookies?.["ih_admin"];
-  res.json({ authenticated: verifySessionToken(token) });
+router.get("/admin/me", async (req, res) => {
+  const admin = await resolveAdmin(req);
+  if (!admin) {
+    res.json({ authenticated: false });
+    return;
+  }
+  res.json({
+    authenticated: true,
+    admin: {
+      id: admin.id,
+      email: admin.email,
+      fullName: admin.fullName,
+      role: admin.role,
+      isSuper: admin.isSuper,
+      permissions: [...admin.permissions],
+    },
+  });
 });
 
 router.get("/admin/ping", requireAdmin, (_req, res) => {

@@ -1,7 +1,13 @@
 import crypto from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import {
+  db,
+  usersTable,
+  adminUsersTable,
+  ALL_ADMIN_PERMISSIONS,
+  type AdminRole,
+} from "@workspace/db";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sessions: HMAC-signed cookies, two flavours
@@ -91,6 +97,50 @@ export function verifySessionToken(token: string | undefined): boolean {
   const expiresAt = Number(expiresAtStr);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return false;
   return timingSafeEqualStr(sig, sign(`${role}.${expiresAtStr}`));
+}
+
+// ─── Identity-bearing admin tokens (RBAC) ────────────────────────────────────
+// DB-backed admin accounts get a token that embeds who they are + their session
+// epoch: "admin.<adminId>.<epoch>.<exp>.<sig>". The bootstrap ENV super-admin
+// keeps the legacy 3-part "admin.<exp>.<sig>" token (parsed as adminId 0). Both
+// verify HMAC + expiry the same way.
+
+export interface ParsedAdmin {
+  adminId: number;
+  epoch: number;
+}
+
+export function makeAdminToken(adminId: number, epoch: number): string {
+  const expiresAt = Date.now() + SESSION_TTL_MS;
+  const payload = `admin.${adminId}.${epoch}.${expiresAt}`;
+  return `${payload}.${sign(payload)}`;
+}
+
+/** Verify signature + expiry only (no DB). Returns identity or null. */
+function parseAdminToken(token: string | undefined): ParsedAdmin | null {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts[0] !== "admin") return null;
+  const now = Date.now();
+  if (parts.length === 3) {
+    // Legacy ENV super-admin token: admin.<exp>.<sig>
+    const [, expStr, sig] = parts;
+    const exp = Number(expStr);
+    if (!Number.isFinite(exp) || exp < now) return null;
+    if (!timingSafeEqualStr(sig, sign(`admin.${expStr}`))) return null;
+    return { adminId: 0, epoch: 0 };
+  }
+  if (parts.length === 5) {
+    const [, idStr, epochStr, expStr, sig] = parts;
+    const exp = Number(expStr);
+    if (!Number.isFinite(exp) || exp < now) return null;
+    if (!timingSafeEqualStr(sig, sign(`admin.${idStr}.${epochStr}.${expStr}`))) return null;
+    const adminId = Number(idStr);
+    const epoch = Number(epochStr);
+    if (!Number.isInteger(adminId) || !Number.isInteger(epoch)) return null;
+    return { adminId, epoch };
+  }
+  return null;
 }
 
 // Cookie `Secure` flag. Defaults ON in production (real deploys serve over
@@ -299,20 +349,98 @@ export function ensureAuthConfigured(): void {
   getSecret();
 }
 
-export function requireAdmin(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  const cookieToken = req.cookies?.[ADMIN_COOKIE];
-  if (verifySessionToken(cookieToken)) {
+export interface ResolvedAdmin {
+  id: number;
+  email: string;
+  fullName: string;
+  role: AdminRole;
+  permissions: Set<string>;
+  isSuper: boolean;
+}
+
+/**
+ * Resolve the admin from the request (cookie or Bearer). For DB accounts this
+ * checks the row still exists, is active, and the token's epoch matches (so
+ * disabling/rotating revokes all prior tokens). The bootstrap ENV super-admin
+ * (id 0) is virtual and always full-access. Returns null when not a valid admin.
+ */
+export async function resolveAdmin(req: Request): Promise<ResolvedAdmin | null> {
+  const token = (req.cookies?.[ADMIN_COOKIE] as string | undefined) ?? readBearer(req);
+  const parsed = parseAdminToken(token);
+  if (!parsed) return null;
+  if (parsed.adminId === 0) {
+    return {
+      id: 0,
+      email: process.env.ADMIN_USERNAME || "super-admin",
+      fullName: "Super Admin",
+      role: "super_admin",
+      permissions: new Set(ALL_ADMIN_PERMISSIONS),
+      isSuper: true,
+    };
+  }
+  const [row] = await db
+    .select()
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.id, parsed.adminId))
+    .limit(1);
+  if (!row || row.status !== "active" || row.sessionEpoch !== parsed.epoch) return null;
+  const isSuper = row.role === "super_admin";
+  return {
+    id: row.id,
+    email: row.email,
+    fullName: row.fullName,
+    role: row.role,
+    permissions: new Set(isSuper ? ALL_ADMIN_PERMISSIONS : row.permissions),
+    isSuper,
+  };
+}
+
+/** The resolved admin attached by requireAdmin/requirePermission (for audit actor etc.). */
+export function getAdmin(req: Request): ResolvedAdmin | undefined {
+  return (req as Request & { admin?: ResolvedAdmin }).admin;
+}
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  // Reuse the admin already resolved by the global adminGate (no second lookup).
+  const existing = getAdmin(req);
+  if (existing) {
     next();
     return;
   }
-  const bearer = readBearer(req);
-  if (verifySessionToken(bearer)) {
-    next();
-    return;
-  }
-  res.status(401).json({ error: "غير مصرّح" });
+  resolveAdmin(req)
+    .then((admin) => {
+      if (!admin) {
+        res.status(401).json({ error: "غير مصرّح" });
+        return;
+      }
+      (req as Request & { admin?: ResolvedAdmin }).admin = admin;
+      next();
+    })
+    .catch(() => res.status(401).json({ error: "غير مصرّح" }));
+}
+
+/** Gate a route on a specific permission string. Super-admins bypass all checks. */
+export function requirePermission(permission: string) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const decide = (admin: ResolvedAdmin | null | undefined): void => {
+      if (!admin) {
+        res.status(401).json({ error: "غير مصرّح" });
+        return;
+      }
+      (req as Request & { admin?: ResolvedAdmin }).admin = admin;
+      if (admin.isSuper || admin.permissions.has(permission)) {
+        next();
+        return;
+      }
+      res.status(403).json({ error: "ليس لديك صلاحيّة لهذا الإجراء" });
+    };
+    const existing = getAdmin(req);
+    if (existing) {
+      decide(existing);
+      return;
+    }
+    resolveAdmin(req)
+      .then(decide)
+      .catch(() => res.status(401).json({ error: "غير مصرّح" }));
+  };
 }

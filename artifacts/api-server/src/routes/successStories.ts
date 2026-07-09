@@ -11,7 +11,7 @@ import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { adminNewStoryEmail, storyPublishedEmail, storyRejectedEmail, storyDeletedEmail } from "../lib/email";
 import { queueEmail } from "../queues/enqueue";
-import { writeAudit } from "../lib/audit";
+import { writeAudit, auditActor } from "../lib/audit";
 import { getAdminEmail } from "./adminExtra";
 import type { Request } from "express";
 
@@ -389,7 +389,7 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
 
     // Audit any moderation status transition (approve / reject / …).
     if (existing && existing.status !== row.status) {
-      const actor = (await getAdminEmail()) ?? "admin";
+      const actor = auditActor(req);
       void writeAudit({
         actor,
         action: "story_status_changed",
