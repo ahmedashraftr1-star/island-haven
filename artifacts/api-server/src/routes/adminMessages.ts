@@ -17,6 +17,7 @@ import {
   type UserSession,
 } from "../lib/auth";
 import { notify } from "./notifications";
+import { notifyAdmin, notifyAdmins, resolveMentionedAdminIds } from "../lib/adminNotify";
 import { makeUserRateLimit } from "../lib/rateLimit";
 import { logger } from "../lib/logger";
 
@@ -280,14 +281,24 @@ router.post("/admin/messages/team", requirePermission(PERM), async (req, res) =>
       return;
     }
     const meId = getAdmin(req)?.id ?? 0;
+    const name = adminName(req);
     const [row] = await db
       .insert(teamMessagesTable)
-      .values({ senderAdminId: meId, senderName: adminName(req), body: parsed.data.body })
+      .values({ senderAdminId: meId, senderName: name, body: parsed.data.body })
       .returning();
     await db
       .insert(teamChannelReadsTable)
       .values({ adminUserId: meId, lastReadAt: new Date() })
       .onConflictDoUpdate({ target: teamChannelReadsTable.adminUserId, set: { lastReadAt: new Date() } });
+    // @mentions in the team channel → notify the mentioned staff.
+    const mentioned = await resolveMentionedAdminIds(parsed.data.body, meId);
+    void notifyAdmins(mentioned, {
+      type: "channel_mention",
+      title: `ذكرك ${name} في قناة الفريق`,
+      body: parsed.data.body.slice(0, 120),
+      link: "channel",
+      actor: name,
+    });
     res.status(201).json({ message: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/messages/team failed");
@@ -383,17 +394,33 @@ router.post("/me/team-thread", requireUser, memberSendLimit, async (req, res) =>
       .where(eq(usersTable.id, userId))
       .limit(1);
     const threadId = await ensureThread(userId);
+    const memberName = member?.fullName ?? "عضو";
     await db.insert(adminMessagesTable).values({
       threadId,
       senderKind: "member",
       senderId: userId,
-      senderName: member?.fullName ?? "عضو",
+      senderName: memberName,
       body: parsed.data.body,
     });
     await db
       .update(adminThreadsTable)
       .set({ lastMessageAt: new Date(), lastMemberReadAt: new Date() })
       .where(eq(adminThreadsTable.id, threadId));
+    // Notify the staff who've replied into this thread that the member wrote back.
+    const participants = await db
+      .selectDistinct({ id: adminMessagesTable.senderId })
+      .from(adminMessagesTable)
+      .where(and(eq(adminMessagesTable.threadId, threadId), eq(adminMessagesTable.senderKind, "admin")));
+    void notifyAdmins(
+      participants.map((p) => p.id),
+      {
+        type: "member_reply",
+        title: `ردّ من ${memberName}`,
+        body: parsed.data.body.slice(0, 120),
+        link: "inbox",
+        actor: memberName,
+      },
+    );
     res.status(201).json({ ok: true });
   } catch (err) {
     logger.error({ err }, "POST /me/team-thread failed");

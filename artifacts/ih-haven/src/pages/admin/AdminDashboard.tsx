@@ -71,6 +71,7 @@ import AdminInbox from "./AdminInbox";
 import AdminTeamChannel from "./AdminTeamChannel";
 import AdminAudit from "./AdminAudit";
 import AdminContact from "./AdminContact";
+import AdminBell from "./AdminBell";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -186,6 +187,18 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
   const [settingsDirty, setSettingsDirty] = useState(false);
+  const [openTaskId, setOpenTaskId] = useState<number | null>(null);
+
+  // A staff notification deep-links to a section (and sometimes a specific task).
+  function handleNotifNavigate(link: string) {
+    if (link.startsWith("tasks:")) {
+      const id = Number(link.slice("tasks:".length));
+      setTab("tasks");
+      if (Number.isFinite(id)) setOpenTaskId(id);
+    } else if (link === "channel" || link === "inbox") {
+      setTab(link);
+    }
+  }
 
   function navigateTo(id: Tab) {
     if (tab === "settings" && settingsDirty && id !== "settings") {
@@ -405,9 +418,12 @@ export default function AdminDashboard() {
               {TABS.find((t) => t.id === tab)?.label}
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-foreground/65">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            متّصل بالخادم
+          <div className="flex items-center gap-4">
+            <AdminBell onNavigate={handleNotifNavigate} />
+            <div className="flex items-center gap-2 text-[12px] text-foreground/65">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              متّصل بالخادم
+            </div>
           </div>
         </header>
 
@@ -419,7 +435,7 @@ export default function AdminDashboard() {
           ) : (
           <>
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
-          {tab === "tasks" && <AdminTasks />}
+          {tab === "tasks" && <AdminTasks openTaskId={openTaskId} onOpenConsumed={() => setOpenTaskId(null)} />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "attendance" && <AdminAttendance />}
           {tab === "applications" && <AdminApplications />}

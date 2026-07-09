@@ -45,3 +45,4 @@ export * from "./auditLog";
 export * from "./attendance";
 export * from "./adminMessaging";
 export * from "./contactMessages";
+export * from "./adminNotifications";

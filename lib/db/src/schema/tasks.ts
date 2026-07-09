@@ -4,6 +4,7 @@ import {
   text,
   varchar,
   integer,
+  boolean,
   date,
   timestamp,
 } from "drizzle-orm/pg-core";
@@ -26,6 +27,9 @@ export const ihTasksTable = pgTable("ih_tasks", {
   status: varchar("status", { length: 16 }).notNull().default("todo"),
   priority: varchar("priority", { length: 12 }).notNull().default("medium"),
   category: varchar("category", { length: 80 }).notNull().default("general"),
+  // assigneeId links to a real admin_users account (null = unassigned); the
+  // `assignee` string is the denormalised display name kept in sync server-side.
+  assigneeId: integer("assignee_id"),
   assignee: varchar("assignee", { length: 120 }).notNull().default(""),
   createdBy: varchar("created_by", { length: 120 }).notNull().default("admin"),
   dueDate: date("due_date"),
@@ -64,3 +68,20 @@ export const ihTaskActivityTable = pgTable("ih_task_activity", {
     .defaultNow()
     .notNull(),
 });
+
+// Checklist items under a task (Notion-tier subtasks). Cascade-deleted with the
+// parent task. `done` toggles; orderIndex keeps them ordered.
+export const ihTaskSubtasksTable = pgTable("ih_task_subtasks", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id")
+    .notNull()
+    .references(() => ihTasksTable.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 300 }).notNull(),
+  done: boolean("done").notNull().default(false),
+  orderIndex: integer("order_index").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type IhTaskSubtask = typeof ihTaskSubtasksTable.$inferSelect;

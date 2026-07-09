@@ -48,6 +48,7 @@ import attendanceRouter from "./attendance";
 import broadcastRouter from "./broadcast";
 import adminMessagesRouter from "./adminMessages";
 import adminContactRouter from "./adminContact";
+import adminNotificationsRouter from "./adminNotifications";
 
 const router: IRouter = Router();
 
@@ -105,5 +106,6 @@ router.use(attendanceRouter);
 router.use(broadcastRouter);
 router.use(adminMessagesRouter);
 router.use(adminContactRouter);
+router.use(adminNotificationsRouter);
 
 export default router;
