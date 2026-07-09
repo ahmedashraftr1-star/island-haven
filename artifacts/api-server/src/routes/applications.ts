@@ -5,13 +5,15 @@ import {
   type Response,
   type NextFunction,
 } from "express";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import {
   applicationsTable,
+  applicationReviewsTable,
+  upsertApplicationReviewSchema,
   db,
   insertApplicationSchema,
 } from "@workspace/db";
-import { requireAdmin } from "../lib/auth";
+import { requireAdmin, getAdmin } from "../lib/auth";
 import { z } from "zod";
 import { invalidateNumbersCache } from "./numbers";
 
@@ -112,12 +114,35 @@ router.get("/admin/applications", requireAdmin, async (_req, res) => {
     .select()
     .from(applicationsTable)
     .orderBy(desc(applicationsTable.createdAt));
-  res.json({ applications: rows });
+  // Attach the review aggregate (avg score, count, #advance) to each applicant so
+  // the list can be sorted/scanned by evidence, not gut feel.
+  const ids = rows.map((r) => r.id);
+  const aggs = ids.length
+    ? await db
+        .select({
+          applicationId: applicationReviewsTable.applicationId,
+          avg: sql<number>`round(avg(${applicationReviewsTable.score})::numeric, 1)`,
+          count: sql<number>`count(*)::int`,
+          advance: sql<number>`count(*) filter (where ${applicationReviewsTable.recommendation} = 'advance')::int`,
+        })
+        .from(applicationReviewsTable)
+        .where(inArray(applicationReviewsTable.applicationId, ids))
+        .groupBy(applicationReviewsTable.applicationId)
+    : [];
+  const map = new Map(aggs.map((a) => [a.applicationId, a]));
+  res.json({
+    applications: rows.map((r) => {
+      const a = map.get(r.id);
+      return { ...r, review: { avg: a ? Number(a.avg) : null, count: a ? a.count : 0, advance: a ? a.advance : 0 } };
+    }),
+  });
 });
 
+const STAGES = ["new", "reviewing", "screening", "interview", "offer", "waitlist", "accepted", "rejected"] as const;
 const updateSchema = z.object({
-  status: z.enum(["new", "reviewing", "accepted", "rejected"]).optional(),
+  status: z.enum(STAGES).optional(),
   notes: z.string().max(4000).optional(),
+  interviewAt: z.string().datetime().nullable().optional(),
 });
 
 router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
@@ -131,9 +156,12 @@ router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "بيانات غير صحيحة" });
     return;
   }
+  const { interviewAt, ...rest } = parsed.data;
+  const patch: Record<string, unknown> = { ...rest };
+  if (interviewAt !== undefined) patch.interviewAt = interviewAt ? new Date(interviewAt) : null;
   const [row] = await db
     .update(applicationsTable)
-    .set(parsed.data)
+    .set(patch)
     .where(eq(applicationsTable.id, id))
     .returning();
   if (!row) {
@@ -143,12 +171,66 @@ router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
   res.json({ application: row });
 });
 
+// ─── Applicant reviews (scoring) ─────────────────────────────────────────────
+router.get("/admin/applications/:id/reviews", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: "معرّف غير صحيح" });
+    return;
+  }
+  const reviews = await db
+    .select()
+    .from(applicationReviewsTable)
+    .where(eq(applicationReviewsTable.applicationId, id))
+    .orderBy(desc(applicationReviewsTable.updatedAt));
+  const meId = getAdmin(req)?.id ?? 0;
+  const mine = reviews.find((r) => r.reviewerId === meId) ?? null;
+  const avg = reviews.length ? Math.round((reviews.reduce((s, r) => s + r.score, 0) / reviews.length) * 10) / 10 : null;
+  res.json({ reviews, mine, avg, count: reviews.length });
+});
+
+router.post("/admin/applications/:id/reviews", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: "معرّف غير صحيح" });
+    return;
+  }
+  const [app] = await db.select({ id: applicationsTable.id }).from(applicationsTable).where(eq(applicationsTable.id, id)).limit(1);
+  if (!app) {
+    res.status(404).json({ error: "الطلب غير موجود" });
+    return;
+  }
+  const parsed = upsertApplicationReviewSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "بيانات غير صحيحة" });
+    return;
+  }
+  const me = getAdmin(req);
+  await db
+    .insert(applicationReviewsTable)
+    .values({
+      applicationId: id,
+      reviewerId: me?.id ?? 0,
+      reviewerName: me?.fullName || me?.email || "admin",
+      score: parsed.data.score,
+      recommendation: parsed.data.recommendation,
+      notes: parsed.data.notes ?? "",
+    })
+    .onConflictDoUpdate({
+      target: [applicationReviewsTable.applicationId, applicationReviewsTable.reviewerId],
+      set: { score: parsed.data.score, recommendation: parsed.data.recommendation, notes: parsed.data.notes ?? "", updatedAt: new Date() },
+    });
+  res.status(201).json({ ok: true });
+});
+
 router.delete("/admin/applications/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isFinite(id)) {
     res.status(400).json({ error: "معرّف غير صحيح" });
     return;
   }
+  // No hard FK (acyclic schema convention) → remove the reviews explicitly.
+  await db.delete(applicationReviewsTable).where(eq(applicationReviewsTable.applicationId, id));
   await db.delete(applicationsTable).where(eq(applicationsTable.id, id));
   invalidateNumbersCache();
   res.json({ ok: true });

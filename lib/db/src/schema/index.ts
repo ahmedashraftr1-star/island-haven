@@ -47,3 +47,4 @@ export * from "./adminMessaging";
 export * from "./contactMessages";
 export * from "./adminNotifications";
 export * from "./impact";
+export * from "./applicationReviews";

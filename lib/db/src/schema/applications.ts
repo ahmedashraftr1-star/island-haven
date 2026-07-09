@@ -33,6 +33,8 @@ export const applicationsTable = pgTable("applications", {
   // ─── Admin ───────────────────────────────────────────────────────────────
   status: varchar("status", { length: 16 }).notNull().default("new"),
   notes: text("notes").default(""),
+  // Scheduled interview slot (set from the review pipeline; null = none).
+  interviewAt: timestamp("interview_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

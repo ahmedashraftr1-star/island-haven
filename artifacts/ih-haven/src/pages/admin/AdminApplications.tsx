@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Trash2, Mail, Phone, Calendar, Search } from "lucide-react";
+import { ChevronDown, Trash2, Mail, Phone, Calendar, Search, Star, CalendarClock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+type ReviewAgg = { avg: number | null; count: number; advance: number };
 type Application = {
   id: number;
   fullName: string;
@@ -23,28 +24,27 @@ type Application = {
   bio: string;
   status: string;
   notes: string | null;
+  interviewAt: string | null;
+  review: ReviewAgg;
   createdAt: string;
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  new: "جديد",
-  reviewing: "قيد المراجعة",
-  accepted: "مقبول",
-  rejected: "مرفوض",
+  new: "جديد", reviewing: "قيد المراجعة", screening: "فرز", interview: "مقابلة",
+  offer: "عرض", waitlist: "قائمة انتظار", accepted: "مقبول", rejected: "مرفوض",
 };
+const STAGE_OPTIONS = ["new", "reviewing", "screening", "interview", "offer", "waitlist", "accepted", "rejected"];
 
 const STATUS_DOTS: Record<string, string> = {
-  new: "bg-primary",
-  reviewing: "bg-amber-500",
-  accepted: "bg-emerald-500",
-  rejected: "bg-rose-500",
+  new: "bg-primary", reviewing: "bg-amber-500", screening: "bg-sky-500", interview: "bg-violet-500",
+  offer: "bg-teal-500", waitlist: "bg-foreground/40", accepted: "bg-emerald-500", rejected: "bg-rose-500",
 };
 
 const STATUS_PILL: Record<string, string> = {
-  new: "bg-primary-soft text-primary",
-  reviewing: "bg-amber-500/15 text-amber-300",
-  accepted: "bg-emerald-500/15 text-emerald-300",
-  rejected: "bg-rose-500/15 text-rose-300",
+  new: "bg-primary-soft text-primary", reviewing: "bg-amber-500/15 text-amber-300",
+  screening: "bg-sky-500/15 text-sky-300", interview: "bg-violet-500/15 text-violet-300",
+  offer: "bg-teal-500/15 text-teal-300", waitlist: "bg-foreground/10 text-foreground/60",
+  accepted: "bg-emerald-500/15 text-emerald-300", rejected: "bg-rose-500/15 text-rose-300",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -66,10 +66,10 @@ export default function AdminApplications() {
   });
 
   const updateMut = useMutation({
-    mutationFn: (vars: { id: number; status?: string; notes?: string }) =>
+    mutationFn: (vars: { id: number; status?: string; notes?: string; interviewAt?: string | null }) =>
       api(`/admin/applications/${vars.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ status: vars.status, notes: vars.notes }),
+        body: JSON.stringify({ status: vars.status, notes: vars.notes, interviewAt: vars.interviewAt }),
       }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-applications"] }),
   });
@@ -169,6 +169,19 @@ export default function AdminApplications() {
                     <span className="inline-flex items-center px-2.5 h-6 rounded-full text-[11px] font-medium bg-muted text-foreground/70">
                       {CATEGORY_LABELS[app.category] || app.category}
                     </span>
+                    {app.review.count > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2.5 h-6 rounded-full text-[11px] font-bold bg-amber-500/12 text-amber-300" title={`${app.review.count} تقييم`}>
+                        <Star className="w-3 h-3 fill-current" />
+                        {app.review.avg?.toFixed(1)}
+                        <span className="text-amber-300/60 font-medium">· {app.review.count}</span>
+                      </span>
+                    )}
+                    {app.interviewAt && (
+                      <span className="inline-flex items-center gap-1 px-2.5 h-6 rounded-full text-[11px] font-medium bg-violet-500/12 text-violet-300">
+                        <CalendarClock className="w-3 h-3" />
+                        {new Date(app.interviewAt).toLocaleDateString("ar-EG", { day: "numeric", month: "short" })}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-x-5 gap-y-1.5 flex-wrap text-[12.5px] text-foreground/60">
                     <span className="inline-flex items-center gap-1.5" dir="ltr">
@@ -199,10 +212,9 @@ export default function AdminApplications() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">جديد</SelectItem>
-                      <SelectItem value="reviewing">قيد المراجعة</SelectItem>
-                      <SelectItem value="accepted">مقبول</SelectItem>
-                      <SelectItem value="rejected">مرفوض</SelectItem>
+                      {STAGE_OPTIONS.map((s) => (
+                        <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <Button
@@ -255,6 +267,29 @@ export default function AdminApplications() {
                           }}
                         />
                       </div>
+
+                      {/* Interview scheduling */}
+                      <div>
+                        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">
+                          موعد المقابلة
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="datetime-local"
+                            defaultValue={app.interviewAt ? new Date(app.interviewAt).toISOString().slice(0, 16) : ""}
+                            data-testid={`interview-${app.id}`}
+                            className="h-9 px-3 rounded-lg bg-muted/40 border border-border text-[13px] text-foreground outline-none focus:border-primary/50"
+                            onChange={(e) => updateMut.mutate({ id: app.id, interviewAt: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                          />
+                          {app.interviewAt && (
+                            <Button type="button" variant="ghost" size="sm" className="text-foreground/60 h-9" onClick={() => updateMut.mutate({ id: app.id, interviewAt: null })}>إلغاء الموعد</Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Review & scoring */}
+                      <ReviewPanel appId={app.id} />
+
                       <div className="flex justify-end">
                         <Button
                           type="button"
@@ -274,6 +309,101 @@ export default function AdminApplications() {
                 )}
               </AnimatePresence>
             </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Review & scoring panel (evidence-based selection) ─────────────────────────
+interface Review { id: number; reviewerId: number; reviewerName: string; score: number; recommendation: string; notes: string; updatedAt: string }
+const REC_LABEL: Record<string, string> = { advance: "تقديم", hold: "تعليق", reject: "رفض" };
+const REC_TONE: Record<string, string> = { advance: "text-emerald-400", hold: "text-amber-400", reject: "text-rose-400" };
+
+function ReviewPanel({ appId }: { appId: number }) {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["app-reviews", appId],
+    queryFn: () => api<{ reviews: Review[]; mine: Review | null; avg: number | null; count: number }>(`/admin/applications/${appId}/reviews`),
+  });
+  const mine = data?.mine;
+  const [score, setScore] = useState<number>(0);
+  const [rec, setRec] = useState<string>("advance");
+  const [notes, setNotes] = useState<string>("");
+  const [dirty, setDirty] = useState(false);
+
+  // Seed the form from my existing review once it loads (unless I'm mid-edit).
+  useEffect(() => {
+    if (mine && !dirty) {
+      setScore(mine.score);
+      setRec(mine.recommendation);
+      setNotes(mine.notes);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mine?.id]);
+
+  const saveMut = useMutation({
+    mutationFn: () => api(`/admin/applications/${appId}/reviews`, { method: "POST", body: JSON.stringify({ score, recommendation: rec, notes: notes.trim() || undefined }) }),
+    onSuccess: () => {
+      setDirty(false);
+      qc.invalidateQueries({ queryKey: ["app-reviews", appId] });
+      qc.invalidateQueries({ queryKey: ["admin-applications"] });
+    },
+  });
+
+  const others = (data?.reviews ?? []).filter((r) => r.id !== mine?.id);
+
+  return (
+    <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold">تقييم المتقدّم</div>
+        {data && data.count > 0 && (
+          <span className="text-[12px] text-foreground/70">المعدّل <strong className="text-amber-300">{data.avg?.toFixed(1)}</strong> · {data.count} تقييم</span>
+        )}
+      </div>
+
+      {/* My score */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button key={n} type="button" onClick={() => { setScore(n); setDirty(true); }} aria-label={`${n} نجوم`} data-testid={`score-${appId}-${n}`} className="p-0.5">
+              <Star className={`w-5 h-5 transition-colors ${n <= score ? "text-amber-400 fill-current" : "text-foreground/25"}`} />
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1 bg-card rounded-lg p-1 border border-border">
+          {["advance", "hold", "reject"].map((r) => (
+            <button key={r} type="button" onClick={() => { setRec(r); setDirty(true); }} className={`px-2.5 h-7 rounded-md text-[12px] font-semibold transition-colors ${rec === r ? `bg-muted ${REC_TONE[r]}` : "text-foreground/50 hover:text-foreground/80"}`}>
+              {REC_LABEL[r]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <Textarea
+        value={notes}
+        onChange={(e) => { setNotes(e.target.value); setDirty(true); }}
+        rows={2}
+        placeholder="سبب تقييمك (يراه فريق التقييم فقط)…"
+        className="rounded-xl border-border bg-card focus-visible:ring-primary/30 text-[13px]"
+      />
+      <div className="flex justify-end">
+        <Button type="button" size="sm" disabled={score === 0 || saveMut.isPending} onClick={() => saveMut.mutate()} data-testid={`save-review-${appId}`} className="bg-[hsl(var(--primary-cta))] text-white hover:opacity-90 h-8">
+          {mine ? "تحديث تقييمي" : "حفظ التقييم"}
+        </Button>
+      </div>
+
+      {/* Team's reviews */}
+      {others.length > 0 && (
+        <div className="pt-3 border-t border-border space-y-2">
+          <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/45 font-semibold">تقييمات الفريق</div>
+          {others.map((r) => (
+            <div key={r.id} className="flex items-start gap-2 text-[12.5px]">
+              <span className="font-semibold text-foreground/80 shrink-0">{r.reviewerName}</span>
+              <span className="inline-flex items-center gap-0.5 text-amber-300 shrink-0"><Star className="w-3 h-3 fill-current" />{r.score}</span>
+              <span className={`shrink-0 font-semibold ${REC_TONE[r.recommendation]}`}>{REC_LABEL[r.recommendation]}</span>
+              {r.notes && <span className="text-foreground/55 break-words">— {r.notes}</span>}
+            </div>
           ))}
         </div>
       )}
