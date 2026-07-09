@@ -416,6 +416,43 @@ export function storyDeletedEmail(
   return { subject: `بخصوص قصّة نجاحك على ${BRAND}`, html, text };
 }
 
+/** A site-wide announcement the team broadcasts to members. Plain, honest — the
+ *  title/body are authored by an admin; an optional CTA links deeper into the app. */
+export function broadcastEmail(
+  fullName: string | null,
+  title: string,
+  body: string,
+  url?: string,
+): { subject: string; html: string; text: string } {
+  const greeting = fullName ? `مرحبًا ${fullName}،` : "مرحبًا،";
+  // Escape the admin-authored strings — they are rendered as HTML.
+  const esc = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const bodyHtml = esc(body).replace(/\n/g, "<br>");
+  const cta =
+    url && /^https?:\/\//i.test(url)
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 24px;">
+           <tr><td style="border-radius:10px;background:${PRIMARY};">
+             <a href="${esc(url)}" style="display:inline-block;padding:13px 28px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">عرض التفاصيل</a>
+           </td></tr>
+         </table>`
+      : "";
+  const html = shell(
+    esc(title),
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#c7ccdc;">${greeting}</p>
+     <p style="margin:0 0 20px;font-size:15px;line-height:1.8;color:#c7ccdc;">${bodyHtml}</p>
+     ${cta}
+     <p style="margin:8px 0 0;font-size:12px;line-height:1.7;color:#7c849c;">
+       تصلك هذه الرسالة لأنّك عضو في ${BRAND}. يمكنك إيقاف رسائل الإعلانات من إعدادات الإشعارات في حسابك.
+     </p>`,
+  );
+  const text = `${greeting}\n\n${title}\n\n${body}${url ? `\n\n${url}` : ""}\n\nتصلك هذه الرسالة لأنّك عضو في ${BRAND}. يمكنك إيقاف رسائل الإعلانات من إعدادات الإشعارات.`;
+  return { subject: `${title} — ${BRAND}`, html, text };
+}
+
 const SLOT_LABELS_AR: Record<string, string> = {
   morning: "الصباح",
   midday: "منتصف النهار",

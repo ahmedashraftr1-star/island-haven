@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Bell, UserCheck } from "lucide-react";
+import { Bell, UserCheck, Megaphone } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
@@ -19,6 +19,7 @@ const TYPE_LABELS: Record<string, string> = {
   mentor_application: "طلبات مرشد",
   session_requested: "جلسات",
   booking_confirmed: "حجوزات",
+  admin_broadcast: "إعلانات",
   generic: "عام",
 };
 
@@ -198,6 +199,10 @@ export function NotificationBell() {
                   {n.type === "mentor_application" ? (
                     <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
                       <UserCheck className="w-3 h-3 text-emerald-400" />
+                    </span>
+                  ) : n.type === "admin_broadcast" ? (
+                    <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Megaphone className="w-3 h-3 text-primary" />
                     </span>
                   ) : !n.readAt ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />

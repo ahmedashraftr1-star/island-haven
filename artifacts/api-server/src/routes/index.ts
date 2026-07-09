@@ -45,6 +45,7 @@ import newsletterRouter from "./newsletter";
 import investorsRouter from "./investors";
 import tasksRouter from "./tasks";
 import attendanceRouter from "./attendance";
+import broadcastRouter from "./broadcast";
 
 const router: IRouter = Router();
 
@@ -99,5 +100,6 @@ router.use(newsletterRouter);
 router.use(investorsRouter);
 router.use(tasksRouter);
 router.use(attendanceRouter);
+router.use(broadcastRouter);
 
 export default router;

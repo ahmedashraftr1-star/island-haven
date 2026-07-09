@@ -20,6 +20,7 @@ export const NOTIFICATION_TYPES = [
   "work_comment",
   "new_follower",
   "new_work",
+  "admin_broadcast",
   "generic",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

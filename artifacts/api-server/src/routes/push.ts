@@ -180,7 +180,7 @@ const broadcastSchema = z.object({
   url: z.string().trim().max(400).optional(),
 });
 
-interface ExpoPushMessage {
+export interface ExpoPushMessage {
   to: string;
   sound: "default";
   title: string;
@@ -188,7 +188,7 @@ interface ExpoPushMessage {
   data?: Record<string, unknown>;
 }
 
-async function sendExpoBatch(messages: ExpoPushMessage[]): Promise<{ ok: number; fail: number }> {
+export async function sendExpoBatch(messages: ExpoPushMessage[]): Promise<{ ok: number; fail: number }> {
   if (messages.length === 0) return { ok: 0, fail: 0 };
   let ok = 0;
   let fail = 0;

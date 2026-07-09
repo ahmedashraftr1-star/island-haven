@@ -35,6 +35,7 @@ const VALID_TYPES = new Set<string>([
   "mentor_application",
   "session_requested",
   "booking_confirmed",
+  "admin_broadcast",
   "generic",
 ]);
 

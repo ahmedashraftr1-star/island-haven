@@ -11,6 +11,9 @@ export const notificationPrefsTable = pgTable("notification_prefs", {
   emailSessions: boolean("email_sessions").default(true).notNull(),
   emailPrograms: boolean("email_programs").default(true).notNull(),
   emailDaily: boolean("email_daily").default(false).notNull(),
+  // Announcements the team broadcasts to everyone. Default-on: these are rare,
+  // high-signal messages from the incubator (deadlines, events, closures).
+  emailBroadcast: boolean("email_broadcast").default(true).notNull(),
   pushEnabled: boolean("push_enabled").default(true).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
@@ -22,6 +25,7 @@ export const updateNotificationPrefsSchema = z
     emailSessions: z.boolean(),
     emailPrograms: z.boolean(),
     emailDaily: z.boolean(),
+    emailBroadcast: z.boolean(),
     pushEnabled: z.boolean(),
   })
   .partial();

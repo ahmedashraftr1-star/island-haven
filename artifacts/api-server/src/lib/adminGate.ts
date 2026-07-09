@@ -52,6 +52,7 @@ const SEGMENT_SECTION: Record<string, string> = {
   upload: "content",
   push: "broadcast",
   notifications: "broadcast",
+  broadcast: "broadcast",
   settings: "settings",
   staff: "staff",
 };
