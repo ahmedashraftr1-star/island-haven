@@ -5,6 +5,7 @@ import {
   timestamp,
   varchar,
   integer,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
@@ -43,6 +44,10 @@ export const adminUsersTable = pgTable(
       .$type<AdminStatus>(),
     // Bumped on password change / disable → revokes all previously-issued tokens.
     sessionEpoch: integer("session_epoch").default(0).notNull(),
+    // TOTP two-factor: the base32 secret (present once set up) + whether it's
+    // been confirmed/enabled. Login requires a valid code only when enabled.
+    totpSecret: text("totp_secret"),
+    totpEnabled: boolean("totp_enabled").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),

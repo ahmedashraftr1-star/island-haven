@@ -9,8 +9,10 @@ import {
   makeAdminToken,
   requireAdmin,
   resolveAdmin,
+  getAdmin,
   setSessionCookie,
 } from "../lib/auth";
+import { randomBase32Secret, verifyTotp, otpauthUri } from "../lib/totp";
 
 const router: IRouter = Router();
 
@@ -63,6 +65,18 @@ router.post("/admin/login", async (req, res) => {
         row.status === "active" &&
         (await bcrypt.compare(password, row.passwordHash))
       ) {
+        // Second factor: if enabled, a valid TOTP code is required to proceed.
+        if (row.totpEnabled) {
+          const code = String(req.body?.code ?? "").trim();
+          if (!code || !row.totpSecret || !verifyTotp(row.totpSecret, code)) {
+            res.status(401).json({
+              ok: false,
+              error: code ? "رمز التحقّق غير صحيح" : "يتطلّب رمز التحقّق الثنائيّ",
+              twoFactorRequired: true,
+            });
+            return;
+          }
+        }
         await db
           .update(adminUsersTable)
           .set({ lastLoginAt: new Date() })
@@ -114,6 +128,93 @@ router.get("/admin/me", async (req, res) => {
 
 router.get("/admin/ping", requireAdmin, (_req, res) => {
   res.json({ ok: true });
+});
+
+// ─── Two-factor (TOTP) — a staff member manages their OWN account ─────────────
+// Under /admin/me/* so the RBAC gate treats it as authn-only (any admin).
+// The ENV super-admin (id 0) has no DB row and cannot enrol.
+
+router.get("/admin/me/2fa/status", requireAdmin, async (req, res) => {
+  const me = getAdmin(req);
+  if (!me || me.id <= 0) {
+    res.json({ enabled: false, pending: false, available: false });
+    return;
+  }
+  const [row] = await db
+    .select({ enabled: adminUsersTable.totpEnabled, secret: adminUsersTable.totpSecret })
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.id, me.id))
+    .limit(1);
+  res.json({ enabled: !!row?.enabled, pending: !!row?.secret && !row?.enabled, available: true });
+});
+
+router.post("/admin/me/2fa/setup", requireAdmin, async (req, res) => {
+  const me = getAdmin(req);
+  if (!me || me.id <= 0) {
+    res.status(400).json({ error: "التحقّق الثنائيّ غير متاح لحساب النظام" });
+    return;
+  }
+  const [row] = await db
+    .select({ enabled: adminUsersTable.totpEnabled })
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.id, me.id))
+    .limit(1);
+  if (row?.enabled) {
+    res.status(409).json({ error: "التحقّق الثنائيّ مُفعّل بالفعل" });
+    return;
+  }
+  const secret = randomBase32Secret();
+  await db.update(adminUsersTable).set({ totpSecret: secret }).where(eq(adminUsersTable.id, me.id));
+  res.json({ secret, otpauthUri: otpauthUri(secret, me.email) });
+});
+
+router.post("/admin/me/2fa/enable", requireAdmin, async (req, res) => {
+  const me = getAdmin(req);
+  if (!me || me.id <= 0) {
+    res.status(400).json({ error: "غير متاح" });
+    return;
+  }
+  const code = String(req.body?.code ?? "").trim();
+  const [row] = await db
+    .select({ secret: adminUsersTable.totpSecret, enabled: adminUsersTable.totpEnabled })
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.id, me.id))
+    .limit(1);
+  if (!row?.secret) {
+    res.status(400).json({ error: "ابدأ الإعداد أوّلًا" });
+    return;
+  }
+  if (!verifyTotp(row.secret, code)) {
+    res.status(400).json({ error: "رمز التحقّق غير صحيح" });
+    return;
+  }
+  await db.update(adminUsersTable).set({ totpEnabled: true }).where(eq(adminUsersTable.id, me.id));
+  res.json({ ok: true, enabled: true });
+});
+
+router.post("/admin/me/2fa/disable", requireAdmin, async (req, res) => {
+  const me = getAdmin(req);
+  if (!me || me.id <= 0) {
+    res.status(400).json({ error: "غير متاح" });
+    return;
+  }
+  const code = String(req.body?.code ?? "").trim();
+  const [row] = await db
+    .select({ secret: adminUsersTable.totpSecret, enabled: adminUsersTable.totpEnabled })
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.id, me.id))
+    .limit(1);
+  // Require a valid current code to turn 2FA off (can't disable someone's 2FA
+  // just from a hijacked session without their device).
+  if (row?.enabled && (!row.secret || !verifyTotp(row.secret, code))) {
+    res.status(400).json({ error: "رمز التحقّق غير صحيح" });
+    return;
+  }
+  await db
+    .update(adminUsersTable)
+    .set({ totpEnabled: false, totpSecret: null })
+    .where(eq(adminUsersTable.id, me.id));
+  res.json({ ok: true, enabled: false });
 });
 
 export default router;

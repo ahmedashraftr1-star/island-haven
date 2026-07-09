@@ -75,6 +75,7 @@ import AdminAudit from "./AdminAudit";
 import AdminContact from "./AdminContact";
 import AdminBell from "./AdminBell";
 import AdminImpact from "./AdminImpact";
+import AdminSecurity from "./AdminSecurity";
 import CommandPalette, { type PaletteItem } from "./CommandPalette";
 import { HavenMark } from "@/components/landing/HavenMark";
 
@@ -208,6 +209,7 @@ export default function AdminDashboard() {
   const [settingsDirty, setSettingsDirty] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<number | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [securityOpen, setSecurityOpen] = useState(false);
 
   // ⌘K / Ctrl+K opens the command palette from anywhere in the dashboard.
   useEffect(() => {
@@ -420,6 +422,15 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="px-3 pb-5 space-y-1 border-t border-border pt-4">
+          <button
+            type="button"
+            onClick={() => setSecurityOpen(true)}
+            data-testid="open-security"
+            className="w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
+            <ShieldCheck className="w-4 h-4" strokeWidth={2.2} />
+            الأمان (2FA)
+          </button>
           <a
             href={import.meta.env.BASE_URL}
             className="flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground transition-all"
@@ -558,6 +569,7 @@ export default function AdminDashboard() {
         )}
         onSelect={(id) => navigateTo(id as Tab)}
       />
+      {securityOpen && <AdminSecurity onClose={() => setSecurityOpen(false)} />}
     </div>
   );
 }

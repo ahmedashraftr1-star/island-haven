@@ -8,6 +8,8 @@ export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [twoFactor, setTwoFactor] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [now, setNow] = useState("");
@@ -35,13 +37,21 @@ export default function AdminLogin() {
     try {
       await api("/admin/login", {
         method: "POST",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, code: twoFactor ? code.trim() : undefined }),
       });
       setLocation("/admin");
       window.location.reload();
     } catch (e) {
-      if (e instanceof ApiError) setError(e.message || "كلمة السرّ غير صحيحة");
-      else setError("تعذّر الاتّصال بالخادم");
+      if (e instanceof ApiError) {
+        const needs2fa = !!(e.data && typeof e.data === "object" && "twoFactorRequired" in e.data && (e.data as { twoFactorRequired?: boolean }).twoFactorRequired);
+        if (needs2fa) {
+          setTwoFactor(true);
+          // Only surface an error message once the user has actually tried a code.
+          setError(code.trim() ? e.message || "رمز التحقّق غير صحيح" : null);
+        } else {
+          setError(e.message || "كلمة السرّ غير صحيحة");
+        }
+      } else setError("تعذّر الاتّصال بالخادم");
     } finally {
       setLoading(false);
     }
@@ -261,6 +271,37 @@ export default function AdminLogin() {
               <Lock className="absolute top-1/2 -translate-y-1/2 left-3.5 w-3.5 h-3.5 text-white/35" />
             </div>
           </div>
+
+          {/* Two-factor code (shown when the account has 2FA enabled) */}
+          {twoFactor && (
+            <div className="mt-5">
+              <div className="flex items-center justify-between mb-2.5">
+                <label htmlFor="totp" className="text-[11px] tracking-[0.2em] uppercase text-white/55 font-semibold">
+                  رمز التحقّق · 2FA code
+                </label>
+                <KeyRound className="w-3.5 h-3.5 text-white/35" />
+              </div>
+              <input
+                id="totp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                required
+                dir="ltr"
+                autoFocus
+                placeholder="123456"
+                data-testid="input-totp"
+                className="w-full h-12 rounded-xl px-4 text-[18px] font-mono tracking-[0.4em] text-center text-white placeholder-white/30 outline-none"
+                style={{
+                  background: "rgba(0,0,0,0.32)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                }}
+              />
+              <p className="mt-2 text-[11.5px] text-white/45">أدخل الرمز من تطبيق المصادقة (Google Authenticator، Authy…).</p>
+            </div>
+          )}
 
           {error && (
             <motion.div
