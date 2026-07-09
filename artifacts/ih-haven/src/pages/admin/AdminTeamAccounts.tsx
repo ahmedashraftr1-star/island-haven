@@ -183,7 +183,7 @@ export default function AdminTeamAccounts() {
           type="button"
           onClick={openCreate}
           data-testid="staff-add"
-          className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 h-11 text-[13.5px] font-bold hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary-cta))] text-white px-5 h-11 text-[13.5px] font-bold hover:opacity-90 transition-opacity"
         >
           <UserPlus className="w-4 h-4" /> إضافة عضو
         </button>
@@ -276,7 +276,7 @@ export default function AdminTeamAccounts() {
             <div className="flex items-center justify-end gap-2 pt-2">
               <button type="button" onClick={() => setEditor(null)} className="rounded-full px-5 h-11 text-[13.5px] font-semibold text-foreground/70 hover:bg-foreground/[0.06]">إلغاء</button>
               <button type="button" disabled={!canSave || saveMut.isPending} onClick={() => saveMut.mutate(editor)} data-testid="staff-save"
-                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 h-11 text-[13.5px] font-bold hover:opacity-90 disabled:opacity-50 transition-opacity">
+                className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary-cta))] text-white px-6 h-11 text-[13.5px] font-bold hover:opacity-90 disabled:opacity-50 transition-opacity">
                 {editor.id !== null && editor.password ? <KeyRound className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                 {saveMut.isPending ? "جارِ الحفظ..." : "حفظ"}
               </button>

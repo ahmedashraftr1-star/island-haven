@@ -193,7 +193,7 @@ export default function AdminCohortJourney() {
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold"
+              className="inline-flex items-center justify-center gap-2 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold"
             >
               <Plus className="w-4 h-4" /> إضافة أسبوع
             </button>
@@ -264,7 +264,7 @@ export default function AdminCohortJourney() {
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold"
+              className="inline-flex items-center justify-center gap-2 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold"
             >
               <Plus className="w-4 h-4" /> إضافة تحديث
             </button>

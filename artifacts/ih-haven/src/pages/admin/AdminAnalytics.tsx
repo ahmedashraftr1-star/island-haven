@@ -199,7 +199,7 @@ function Stat({
     <div
       className={`rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${
         highlight
-          ? "bg-primary text-primary-foreground border-primary shadow-soft-hover"
+          ? "bg-[hsl(var(--primary-cta))] text-white border-primary shadow-soft-hover"
           : "bg-card border-border shadow-soft hover:shadow-soft-hover"
       }`}
     >

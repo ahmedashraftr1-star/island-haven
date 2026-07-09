@@ -118,7 +118,7 @@ export default function AdminWorks() {
         <button
           type="button"
           onClick={() => reload()}
-          className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+          className="h-10 px-4 rounded-xl bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
           بحث
         </button>

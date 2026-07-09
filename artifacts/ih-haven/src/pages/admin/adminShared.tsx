@@ -64,7 +64,7 @@ export function SaveBar({
       <button
         type="submit"
         disabled={submitting}
-        className="flex-1 h-11 rounded-full bg-primary text-primary-foreground font-semibold text-[13.5px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
+        className="flex-1 h-11 rounded-full bg-[hsl(var(--primary-cta))] text-white font-semibold text-[13.5px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
       >
         {submitting ? "جارِ الحفظ…" : isNew ? "إنشاء" : "حفظ التعديلات"}
       </button>

@@ -98,7 +98,7 @@ export default function AdminPrograms() {
         <button
           type="button"
           onClick={() => setEditing("new")}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           data-testid="button-new-program"
         >
           <Plus className="w-4 h-4" /> برنامج جديد

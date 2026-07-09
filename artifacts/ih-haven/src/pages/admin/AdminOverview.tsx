@@ -124,7 +124,7 @@ export default function AdminOverview({
               transition={{ delay: i * 0.05, duration: 0.4 }}
               className={`relative rounded-2xl p-5 lg:p-6 border transition-all duration-300 hover:-translate-y-0.5 ${
                 primary
-                  ? "bg-primary text-primary-foreground border-primary shadow-soft-hover"
+                  ? "bg-[hsl(var(--primary-cta))] text-white border-primary shadow-soft-hover"
                   : "bg-card border-border shadow-soft hover:shadow-soft-hover"
               }`}
             >
@@ -193,32 +193,37 @@ export default function AdminOverview({
                 <AreaChart data={analytics.byDay} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                   <defs>
                     <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(354 70% 52%)" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="hsl(354 70% 52%)" stopOpacity={0} />
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="day"
-                    tick={{ fontSize: 10, fill: "hsl(354 8% 50%)" }}
+                    tick={{ fontSize: 10, fill: "hsl(var(--fg-faint))" }}
                     tickLine={false}
-                    axisLine={{ stroke: "hsl(354 12% 90%)" }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: "hsl(354 8% 50%)" }}
+                    tick={{ fontSize: 10, fill: "hsl(var(--fg-faint))" }}
                     tickLine={false}
                     axisLine={false}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 12,
-                      border: "1px solid hsl(354 12% 90%)",
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border-strong))",
+                      color: "hsl(var(--foreground))",
                       fontSize: 12,
                     }}
+                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                    itemStyle={{ color: "hsl(var(--foreground))" }}
+                    cursor={{ stroke: "hsl(var(--border-strong))" }}
                   />
                   <Area
                     type="monotone"
                     dataKey="count"
-                    stroke="hsl(354 70% 52%)"
+                    stroke="hsl(var(--primary))"
                     strokeWidth={2.5}
                     fill="url(#g)"
                   />

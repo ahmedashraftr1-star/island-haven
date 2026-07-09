@@ -110,7 +110,7 @@ export default function AdminContact() {
                 }}
                 data-testid={`contact-tab-${s.key || "all"}`}
                 className={`rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold border transition-colors ${
-                  on ? "bg-primary text-primary-foreground border-primary" : "bg-foreground/[0.04] text-foreground/70 border-border hover:text-foreground"
+                  on ? "bg-[hsl(var(--primary-cta))] text-white border-primary" : "bg-foreground/[0.04] text-foreground/70 border-border hover:text-foreground"
                 }`}
               >
                 {s.label}

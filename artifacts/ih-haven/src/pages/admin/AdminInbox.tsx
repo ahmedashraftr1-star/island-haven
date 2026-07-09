@@ -103,7 +103,7 @@ export default function AdminInbox() {
           type="button"
           onClick={() => setComposeOpen(true)}
           data-testid="inbox-new"
-          className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 h-11 text-[13.5px] font-bold hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 rounded-full bg-[hsl(var(--primary-cta))] text-white px-5 h-11 text-[13.5px] font-bold hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" /> رسالة جديدة
         </button>
@@ -134,7 +134,7 @@ export default function AdminInbox() {
                   <div className="flex items-center justify-between gap-2 mt-0.5">
                     <span className="text-[12px] text-foreground/55 truncate">{t.preview ?? "—"}</span>
                     {t.unread > 0 && (
-                      <span className="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10.5px] font-bold grid place-items-center">
+                      <span className="shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[10.5px] font-bold grid place-items-center">
                         {t.unread}
                       </span>
                     )}
@@ -161,7 +161,7 @@ export default function AdminInbox() {
                   const mine = m.senderKind === "admin";
                   return (
                     <div key={m.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
-                      <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 ${mine ? "bg-primary text-primary-foreground" : "bg-foreground/[0.06] text-foreground"}`}>
+                      <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 ${mine ? "bg-[hsl(var(--primary-cta))] text-white" : "bg-foreground/[0.06] text-foreground"}`}>
                         {!mine && <div className="text-[10.5px] font-semibold opacity-70 mb-0.5">{m.senderName}</div>}
                         <div className="text-[13.5px] leading-relaxed whitespace-pre-wrap break-words">{m.body}</div>
                         <div className={`text-[10px] mt-1 ${mine ? "text-white/60" : "text-foreground/45"}`}>{timeAgo(m.createdAt)}</div>
@@ -188,7 +188,7 @@ export default function AdminInbox() {
                 <button
                   type="submit"
                   disabled={!draft.trim() || replyMut.isPending}
-                  className="grid place-items-center w-11 h-11 rounded-xl bg-primary text-primary-foreground disabled:opacity-50 transition-opacity"
+                  className="grid place-items-center w-11 h-11 rounded-xl bg-[hsl(var(--primary-cta))] text-white disabled:opacity-50 transition-opacity"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -307,7 +307,7 @@ function ComposeModal({ onClose, onSent }: { onClose: () => void; onSent: (threa
               disabled={!body.trim() || startMut.isPending}
               onClick={() => startMut.mutate()}
               data-testid="compose-send"
-              className="mt-3 w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[13.5px] flex items-center justify-center gap-2 disabled:opacity-50"
+              className="mt-3 w-full h-11 rounded-xl bg-[hsl(var(--primary-cta))] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4 h-4" /> إرسال
             </button>

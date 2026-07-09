@@ -75,7 +75,7 @@ export default function AdminTeamChannel() {
                       {initials(m.senderName)}
                     </div>
                   )}
-                  <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${mine ? "bg-primary text-primary-foreground" : "bg-foreground/[0.06] text-foreground"}`}>
+                  <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${mine ? "bg-[hsl(var(--primary-cta))] text-white" : "bg-foreground/[0.06] text-foreground"}`}>
                     {!mine && <div className="text-[10.5px] font-semibold opacity-70 mb-0.5">{m.senderName}</div>}
                     <div className="text-[13.5px] leading-relaxed whitespace-pre-wrap break-words">{m.body}</div>
                     <div className={`text-[10px] mt-1 ${mine ? "text-white/60" : "text-foreground/45"}`}>{clock(m.createdAt)}</div>
@@ -104,7 +104,7 @@ export default function AdminTeamChannel() {
             type="submit"
             disabled={!draft.trim() || postMut.isPending}
             data-testid="team-channel-send"
-            className="grid place-items-center w-11 h-11 rounded-xl bg-primary text-primary-foreground disabled:opacity-50 transition-opacity"
+            className="grid place-items-center w-11 h-11 rounded-xl bg-[hsl(var(--primary-cta))] text-white disabled:opacity-50 transition-opacity"
           >
             <Send className="w-4 h-4" />
           </button>

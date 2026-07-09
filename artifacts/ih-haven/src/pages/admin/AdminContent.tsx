@@ -326,7 +326,7 @@ function SectionCard({
             )}
             <Button
               size="sm"
-              className="h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 px-5 font-semibold gap-1.5"
+              className="h-9 rounded-lg bg-[hsl(var(--primary-cta))] text-white hover:bg-primary/90 px-5 font-semibold gap-1.5"
               onClick={onSave}
               disabled={saving || dirtyCount === 0}
               data-testid={`save-${section.key}`}

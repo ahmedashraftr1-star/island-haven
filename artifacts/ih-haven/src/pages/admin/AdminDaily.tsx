@@ -80,7 +80,7 @@ export default function AdminDaily() {
         <button
           type="button"
           onClick={() => setEditing("new")}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           data-testid="button-new-daily"
         >
           <Plus className="w-4 h-4" />
@@ -327,7 +327,7 @@ function DailyEditor({
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 h-11 rounded-full bg-primary text-primary-foreground font-semibold text-[13.5px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
+              className="flex-1 h-11 rounded-full bg-[hsl(var(--primary-cta))] text-white font-semibold text-[13.5px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
               data-testid="button-save-daily"
             >
               {submitting ? "جارِ الحفظ…" : initial ? "حفظ التعديلات" : "نشر"}

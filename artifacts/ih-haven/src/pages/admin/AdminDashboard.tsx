@@ -262,6 +262,26 @@ export default function AdminDashboard() {
     return 0;
   };
 
+  // Live unread signals on the comms tabs (team channel + member inbox).
+  const canMessages = isSuper || permsSet.has("messages:send");
+  const teamUnreadQ = useQuery({
+    queryKey: ["admin-team-unread"],
+    queryFn: () => api<{ count: number }>("/admin/messages/team/unread"),
+    enabled: !!data?.authenticated && canMessages,
+    refetchInterval: 30_000,
+  });
+  const inboxUnreadQ = useQuery({
+    queryKey: ["admin-inbox-unread"],
+    queryFn: () => api<{ threads: number; messages: number }>("/admin/messages/unread"),
+    enabled: !!data?.authenticated && canMessages,
+    refetchInterval: 30_000,
+  });
+  const badgeFor = (id: Tab): number => {
+    if (id === "channel") return teamUnreadQ.data?.count ?? 0;
+    if (id === "inbox") return inboxUnreadQ.data?.threads ?? 0;
+    return pendingFor(id);
+  };
+
   useEffect(() => {
     document.title = "لوحة الإدارة — آيلاند هيفن";
   }, []);
@@ -322,19 +342,19 @@ export default function AdminDashboard() {
                 data-testid={`tab-${id}`}
                 className={`w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13.5px] font-medium transition-all ${
                   active
-                    ? "bg-primary text-primary-foreground shadow-soft"
+                    ? "bg-[hsl(var(--primary-cta))] text-white shadow-soft"
                     : "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground"
                 }`}
               >
                 <Icon className="w-4 h-4" strokeWidth={2.2} />
                 {label}
-                {pendingFor(id) > 0 && (
+                {badgeFor(id) > 0 && (
                   <span
                     className={`ms-auto min-w-[18px] h-[18px] px-1 rounded-full text-[10.5px] font-bold flex items-center justify-center ${
-                      active ? "bg-white/25 text-white" : "bg-primary text-primary-foreground"
+                      active ? "bg-white/25 text-white" : "bg-[hsl(var(--primary-cta))] text-white"
                     }`}
                   >
-                    {pendingFor(id)}
+                    {badgeFor(id)}
                   </span>
                 )}
               </button>
@@ -389,19 +409,19 @@ export default function AdminDashboard() {
                 onClick={() => navigateTo(id)}
                 className={`shrink-0 flex items-center gap-2 px-3.5 h-9 rounded-full text-[12.5px] font-medium transition-all ${
                   active
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-[hsl(var(--primary-cta))] text-white"
                     : "bg-muted text-foreground/70"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" strokeWidth={2.2} />
                 {label}
-                {pendingFor(id) > 0 && (
+                {badgeFor(id) > 0 && (
                   <span
                     className={`min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${
-                      active ? "bg-white/25 text-white" : "bg-primary text-primary-foreground"
+                      active ? "bg-white/25 text-white" : "bg-[hsl(var(--primary-cta))] text-white"
                     }`}
                   >
-                    {pendingFor(id)}
+                    {badgeFor(id)}
                   </span>
                 )}
               </button>

@@ -165,7 +165,7 @@ export default function AdminPush() {
                   data-testid={`audience-${a}`}
                   className={`rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors border ${
                     on
-                      ? "bg-primary text-primary-foreground border-primary"
+                      ? "bg-[hsl(var(--primary-cta))] text-white border-primary"
                       : "bg-foreground/[0.04] text-foreground/70 border-border hover:text-foreground"
                   }`}
                 >
@@ -256,7 +256,7 @@ export default function AdminPush() {
           type="submit"
           disabled={sending || !form.title.trim() || !form.body.trim() || !anyChannel}
           data-testid="button-send-push"
-          className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[14px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          className="w-full h-11 rounded-xl bg-[hsl(var(--primary-cta))] text-white font-bold text-[14px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           {sending ? (
             <span className="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />

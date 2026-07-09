@@ -130,7 +130,7 @@ export default function AdminUsers() {
         <button
           type="button"
           onClick={() => reload()}
-          className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+          className="h-10 px-4 rounded-xl bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
           بحث
         </button>
@@ -393,7 +393,7 @@ function UserEditor({
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 h-11 rounded-full bg-primary text-primary-foreground font-semibold text-[13.5px] disabled:opacity-50"
+              className="flex-1 h-11 rounded-full bg-[hsl(var(--primary-cta))] text-white font-semibold text-[13.5px] disabled:opacity-50"
               data-testid="button-save-user"
             >
               {submitting ? "جارِ الحفظ…" : "حفظ التعديلات"}

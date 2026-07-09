@@ -131,7 +131,7 @@ export default function AdminStories() {
           </h2>
           <p className="text-[13px] text-foreground/65 mt-1">شهادات وقصص ملهمة من مجتمع آيلاند.</p>
         </div>
-        <button type="button" onClick={() => setEditing("new")} className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow">
+        <button type="button" onClick={() => setEditing("new")} className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow">
           <Plus className="w-4 h-4" /> قصّة جديدة
         </button>
       </div>

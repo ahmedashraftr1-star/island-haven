@@ -86,7 +86,7 @@ export default function AdminSessions() {
             onClick={() => setFilter(f.key)}
             className={`px-3.5 h-9 rounded-full text-[12.5px] font-semibold border transition-colors ${
               filter === f.key
-                ? "bg-primary text-primary-foreground border-primary"
+                ? "bg-[hsl(var(--primary-cta))] text-white border-primary"
                 : "bg-card text-foreground/65 border-border hover:bg-muted/50"
             }`}
           >

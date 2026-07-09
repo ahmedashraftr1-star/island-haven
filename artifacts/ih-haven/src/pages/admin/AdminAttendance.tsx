@@ -181,7 +181,7 @@ export default function AdminAttendance() {
         <button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="inline-flex items-center h-9 px-4 rounded-lg bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           إعادة المحاولة
         </button>
@@ -319,7 +319,7 @@ export default function AdminAttendance() {
                       setQuery("");
                       setPicker(seat.number);
                     }}
-                    className="w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-lg text-[12px] font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    className="w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-lg text-[12px] font-semibold bg-[hsl(var(--primary-cta))] text-white hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     aria-label={`أسنِد عضوًا إلى المقعد ${seat.number}`}
                   >
                     <UserPlus className="w-3.5 h-3.5" />

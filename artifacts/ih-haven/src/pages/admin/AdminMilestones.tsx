@@ -81,7 +81,7 @@ export default function AdminMilestones() {
           type="button"
           onClick={() => setEditing("new")}
           disabled={ventures.length === 0}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow disabled:opacity-50"
         >
           <Plus className="w-4 h-4" /> محطّة جديدة
         </button>

@@ -76,7 +76,7 @@ export default function AdminBadges() {
           <button
             type="button"
             onClick={() => setEditing("new")}
-            className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+            className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
           >
             <Plus className="w-4 h-4" /> شارة جديدة
           </button>
@@ -298,7 +298,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
                   aria-pressed={active ? "true" : "false"}
                   className={`inline-flex items-center gap-2 px-3 h-9 rounded-full text-[12.5px] font-semibold border transition-colors ${
                     active
-                      ? "bg-primary text-primary-foreground border-primary"
+                      ? "bg-[hsl(var(--primary-cta))] text-white border-primary"
                       : "bg-muted/40 text-foreground/70 border-border hover:border-foreground/25"
                   }`}
                 >
@@ -346,7 +346,7 @@ function AwardSection({ badges }: { badges: Badge[] }) {
           type="button"
           onClick={() => void award()}
           disabled={!canAward}
-          className="h-11 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-[13px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
+          className="h-11 px-5 rounded-full bg-[hsl(var(--primary-cta))] text-white font-semibold text-[13px] enabled:hover:shadow-soft-hover transition-shadow disabled:opacity-50"
         >
           منح
         </button>

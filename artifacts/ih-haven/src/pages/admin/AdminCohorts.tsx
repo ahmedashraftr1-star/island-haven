@@ -97,7 +97,7 @@ export default function AdminCohorts() {
         <button
           type="button"
           onClick={() => setEditing("new")}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold hover:shadow-soft-hover transition-shadow"
         >
           <Plus className="w-4 h-4" /> دفعة جديدة
         </button>
@@ -515,7 +515,7 @@ function CohortVenturesManager({
               type="button"
               onClick={onAdd}
               disabled={!picked}
-              className="px-4 h-10 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold disabled:opacity-50"
+              className="px-4 h-10 rounded-full bg-[hsl(var(--primary-cta))] text-white text-[13px] font-semibold disabled:opacity-50"
             >
               إضافة
             </button>
