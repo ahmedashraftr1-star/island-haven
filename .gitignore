@@ -48,9 +48,14 @@ Thumbs.db
 .cache/
 .local/
 
-# Local env secrets
+# Local env secrets — never commit real env files (templates like
+# *.env.template / env.*.template are fine and NOT matched here).
 .env
+.env.*
+!*.env.template
+!env.*.template
 artifacts/**/.env
+artifacts/**/.env.*
 
 # Merge noise / replit-agent artifacts
 .agents/
