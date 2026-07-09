@@ -425,12 +425,16 @@ export function broadcastEmail(
   url?: string,
 ): { subject: string; html: string; text: string } {
   const greeting = fullName ? `مرحبًا ${fullName}،` : "مرحبًا،";
-  // Escape the admin-authored strings — they are rendered as HTML.
+  // Escape the admin-authored strings — they are rendered as HTML, including
+  // inside a quoted href attribute, so quotes MUST be escaped too or an admin
+  // could inject extra attributes onto the <a> (attribute injection).
   const esc = (s: string) =>
     s
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   const bodyHtml = esc(body).replace(/\n/g, "<br>");
   const cta =
     url && /^https?:\/\//i.test(url)
