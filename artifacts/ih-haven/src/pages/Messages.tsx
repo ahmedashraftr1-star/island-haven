@@ -9,6 +9,7 @@ import {
   ArrowRight,
   X,
   UserCircle2,
+  ShieldCheck,
 } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -157,6 +158,25 @@ export default function Messages() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-2">
+            {/* Pinned: the direct line to the Island Haven team. */}
+            <button
+              type="button"
+              onClick={() => navigate("/messages/team")}
+              data-testid="pinned-team-thread"
+              className="w-full text-start flex items-center gap-3 p-3 mb-1 rounded-2xl bg-primary/[0.08] border border-primary/25 hover:bg-primary/[0.14] transition-colors"
+            >
+              <span className="w-10 h-10 rounded-full bg-primary/20 text-primary grid place-items-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <div className="text-[13.5px] font-bold text-foreground truncate">
+                  {t({ ar: "من الإدارة", en: "From the team" })}
+                </div>
+                <div className="text-[11.5px] text-fg-faint truncate">
+                  {t({ ar: "قناتك المباشرة مع فريق آيلاند هيفن", en: "Your direct line to the team" })}
+                </div>
+              </div>
+            </button>
             {conversations === null ? (
               <div className="space-y-2 p-1">
                 {[0, 1, 2].map((i) => (

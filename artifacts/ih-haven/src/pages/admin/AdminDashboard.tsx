@@ -33,6 +33,7 @@ import {
   Gift,
   Armchair,
   ShieldCheck,
+  Hash,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -64,6 +65,8 @@ import AdminSlots from "./AdminSlots";
 import AdminMilestones from "./AdminMilestones";
 import AdminCohortJourney from "./AdminCohortJourney";
 import AdminTeamAccounts from "./AdminTeamAccounts";
+import AdminInbox from "./AdminInbox";
+import AdminTeamChannel from "./AdminTeamChannel";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -94,6 +97,8 @@ type Tab =
   | "content"
   | "analytics"
   | "push"
+  | "inbox"
+  | "channel"
   | "settings"
   | "staff";
 
@@ -128,6 +133,8 @@ const TAB_PERMISSION: Record<Tab, string> = {
   content: "content:view",
   analytics: "analytics:view",
   push: "broadcast:send",
+  inbox: "messages:send",
+  channel: "messages:send",
   settings: "settings:view",
   staff: "staff:manage",
 };
@@ -160,6 +167,8 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
   { id: "content", label: "تحرير المحتوى", Icon: FileText },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
   { id: "push", label: "الإشعارات", Icon: Bell },
+  { id: "inbox", label: "صندوق الرسائل", Icon: MessageSquare },
+  { id: "channel", label: "قناة الفريق", Icon: Hash },
   { id: "staff", label: "الفريق والصلاحيّات", Icon: ShieldCheck },
   { id: "settings", label: "الإعدادات", Icon: Settings },
 ];
@@ -426,6 +435,8 @@ export default function AdminDashboard() {
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
+          {tab === "inbox" && <AdminInbox />}
+          {tab === "channel" && <AdminTeamChannel />}
           {tab === "staff" && <AdminTeamAccounts />}
           {tab === "settings" && <AdminSettings onDirtyChange={setSettingsDirty} />}
           </>

@@ -46,6 +46,7 @@ import investorsRouter from "./investors";
 import tasksRouter from "./tasks";
 import attendanceRouter from "./attendance";
 import broadcastRouter from "./broadcast";
+import adminMessagesRouter from "./adminMessages";
 
 const router: IRouter = Router();
 
@@ -101,5 +102,6 @@ router.use(investorsRouter);
 router.use(tasksRouter);
 router.use(attendanceRouter);
 router.use(broadcastRouter);
+router.use(adminMessagesRouter);
 
 export default router;

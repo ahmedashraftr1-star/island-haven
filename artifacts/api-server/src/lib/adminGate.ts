@@ -53,13 +53,14 @@ const SEGMENT_SECTION: Record<string, string> = {
   push: "broadcast",
   notifications: "broadcast",
   broadcast: "broadcast",
+  messages: "messages",
   settings: "settings",
   staff: "staff",
 };
 
 const VIEW_ONLY = new Set(["overview", "audit"]);
 const MANAGE_ONLY = new Set(["staff"]);
-const SEND_ONLY = new Set(["broadcast"]);
+const SEND_ONLY = new Set(["broadcast", "messages"]);
 /** Admin endpoints that need only authentication (any admin), no permission. */
 const AUTHN_ONLY = new Set(["me", "ping"]);
 /** Admin endpoints with NO auth at all. */

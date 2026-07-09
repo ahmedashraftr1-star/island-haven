@@ -51,6 +51,7 @@ const OpportunityDetail = lazy(() => import("@/pages/OpportunityDetail"));
 const Learning = lazy(() => import("@/pages/Learning"));
 const Certificate = lazy(() => import("@/pages/Certificate"));
 const Messages = lazy(() => import("@/pages/Messages"));
+const TeamInbox = lazy(() => import("@/pages/TeamInbox"));
 const RateSession = lazy(() => import("@/pages/RateSession"));
 const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
 const Perks = lazy(() => import("@/pages/Perks"));
@@ -163,6 +164,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/learning": { title: { ar: "التعلّم", en: "Learning" } },
   "/certificate": { title: { ar: "شهادة الإكمال", en: "Certificate" } },
   "/messages": { title: { ar: "الرسائل", en: "Messages" } },
+  "/messages/team": { title: { ar: "من الإدارة", en: "From the team" } },
   "/sessions": { title: { ar: "تقييم جلسة", en: "Rate a session" } },
   "/leaderboard": { title: { ar: "الصدارة", en: "Leaderboard" } },
   "/perks": { title: { ar: "العروض والامتيازات", en: "Perks" } },
@@ -257,6 +259,7 @@ function Router() {
       <Route path="/opportunities/:id" component={OpportunityDetail} />
       <Route path="/learning" component={Learning} />
       <Route path="/certificate/:courseId" component={Certificate} />
+      <Route path="/messages/team" component={TeamInbox} />
       <Route path="/messages" component={Messages} />
       <Route path="/sessions/:id/rate" component={RateSession} />
       <Route path="/leaderboard" component={Leaderboard} />

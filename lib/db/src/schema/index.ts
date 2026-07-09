@@ -43,3 +43,4 @@ export * from "./passwordResetTokens";
 export * from "./tasks";
 export * from "./auditLog";
 export * from "./attendance";
+export * from "./adminMessaging";
