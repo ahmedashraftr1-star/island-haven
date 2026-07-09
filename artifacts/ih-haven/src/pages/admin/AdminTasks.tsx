@@ -14,6 +14,7 @@ import {
   LayoutGrid, List, Activity, Filter, Calendar, Tag, AtSign, ListChecks, User,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { RichText } from "./richText";
 
 type TaskStatus = "backlog" | "todo" | "in_progress" | "review" | "done" | "cancelled";
 type TaskPriority = "urgent" | "high" | "medium" | "low";
@@ -120,15 +121,22 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 // ── Task card ─────────────────────────────────────────────────────────────────
-function TaskCard({ task, teamIndex, onOpen, onAdvance, onDelete }: {
-  task: Task; teamIndex: number; onOpen: () => void; onAdvance: () => void; onDelete: () => void;
+function TaskCard({ task, teamIndex, dragging, onDragStart, onDragEnd, onOpen, onAdvance, onDelete }: {
+  task: Task; teamIndex: number; dragging?: boolean;
+  onDragStart?: () => void; onDragEnd?: () => void;
+  onOpen: () => void; onAdvance: () => void; onDelete: () => void;
 }) {
   const pc = PRIORITY_CONFIG[task.priority];
   const PIcon = pc.icon;
   const canAdvance = task.status !== nextStatus(task.status);
   const overdue = isOverdue(task);
   return (
-    <div className="group rounded-xl bg-card border border-border p-3 hover:border-primary/40 transition-colors">
+    <div
+      draggable
+      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart?.(); }}
+      onDragEnd={onDragEnd}
+      className={`group rounded-xl bg-card border border-border p-3 hover:border-primary/40 transition-all cursor-grab active:cursor-grabbing ${dragging ? "opacity-40 ring-2 ring-primary/50" : ""}`}
+    >
       <button type="button" onClick={onOpen} className="block w-full text-right">
         <div className="flex items-start justify-between gap-2">
           <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${pc.color}`}>
@@ -384,7 +392,7 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
         </div>
 
         <div className="p-5 space-y-4 border-b border-border">
-          {task.description && <p className="text-[13px] text-foreground/70 leading-relaxed whitespace-pre-wrap">{task.description}</p>}
+          {task.description && <p className="text-[13px] text-foreground/70 leading-relaxed break-words"><RichText text={task.description} /></p>}
           <div className="grid grid-cols-2 gap-3">
             <Field label="الحالة">
               <select value={task.status} onChange={(e) => patch({ status: e.target.value })} aria-label="الحالة" className={inputCls}>
@@ -433,7 +441,7 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
                       <span className="text-[12.5px] font-semibold text-foreground">{c.author}</span>
                       <span className="text-[10.5px] text-foreground/40">{relativeTime(c.createdAt)}</span>
                     </div>
-                    <p className="text-[13px] text-foreground/80 mt-0.5 whitespace-pre-wrap leading-relaxed">{c.body}</p>
+                    <p className="text-[13px] text-foreground/80 mt-0.5 leading-relaxed break-words"><RichText text={c.body} /></p>
                   </div>
                 </div>
               ))}
@@ -498,6 +506,8 @@ export default function AdminTasks({ openTaskId, onOpenConsumed }: { openTaskId?
   const [overdueOnly, setOverdueOnly] = useState(false);
   const [creating, setCreating] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState<TaskStatus | null>(null);
 
   async function load() {
     try {
@@ -531,6 +541,14 @@ export default function AdminTasks({ openTaskId, onOpenConsumed }: { openTaskId?
     setTasks((prev) => prev.filter((t) => t.id !== id));
     if (selectedId === id) setSelectedId(null);
     try { await api(`/admin/tasks/${id}`, { method: "DELETE" }); } catch { void load(); }
+  }
+  // Drag a card into another column → change its status (optimistic + persist).
+  async function moveTo(id: number, status: TaskStatus) {
+    const t = tasks.find((x) => x.id === id);
+    if (!t || t.status === status) return;
+    setTasks((prev) => prev.map((x) => (x.id === id ? { ...x, status } : x)));
+    try { await api(`/admin/tasks/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }); void loadFeed(); }
+    catch { void load(); }
   }
 
   const filtered = tasks.filter((t) =>
@@ -599,18 +617,35 @@ export default function AdminTasks({ openTaskId, onOpenConsumed }: { openTaskId?
             const cfg = STATUS_CONFIG[status];
             const Icon = cfg.icon;
             const col = filtered.filter((t) => t.status === status);
+            const isTarget = dragOver === status;
             return (
-              <div key={status} className="space-y-2">
+              <div
+                key={status}
+                className="space-y-2"
+                onDragOver={(e) => { if (dragId != null) { e.preventDefault(); setDragOver(status); } }}
+                onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver((s) => (s === status ? null : s)); }}
+                onDrop={(e) => { e.preventDefault(); if (dragId != null) { moveTo(dragId, status); } setDragId(null); setDragOver(null); }}
+              >
                 <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${cfg.bg}`}>
                   <Icon className={`w-3.5 h-3.5 ${cfg.color} ${status === "in_progress" ? "animate-spin" : ""}`} />
                   <span className={`text-[12.5px] font-bold ${cfg.color}`}>{cfg.label}</span>
                   <span className="ms-auto text-[11px] text-foreground/45 font-mono">{col.length}</span>
                 </div>
-                <div className="space-y-2 min-h-[56px]">
+                <div className={`space-y-2 min-h-[56px] rounded-xl transition-colors ${isTarget ? "ring-2 ring-primary/50 ring-inset bg-primary/[0.04]" : ""}`}>
                   {col.map((task) => (
-                    <TaskCard key={task.id} task={task} teamIndex={teamIndex(task.assigneeId)} onOpen={() => setSelectedId(task.id)} onAdvance={() => advance(task)} onDelete={() => remove(task.id)} />
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      teamIndex={teamIndex(task.assigneeId)}
+                      dragging={dragId === task.id}
+                      onDragStart={() => setDragId(task.id)}
+                      onDragEnd={() => { setDragId(null); setDragOver(null); }}
+                      onOpen={() => setSelectedId(task.id)}
+                      onAdvance={() => advance(task)}
+                      onDelete={() => remove(task.id)}
+                    />
                   ))}
-                  {col.length === 0 && <div className="rounded-xl border border-dashed border-border h-14 grid place-items-center text-[11px] text-foreground/30">لا مهام</div>}
+                  {col.length === 0 && <div className="rounded-xl border border-dashed border-border h-14 grid place-items-center text-[11px] text-foreground/30">{isTarget ? "أفلت هنا" : "لا مهام"}</div>}
                 </div>
               </div>
             );

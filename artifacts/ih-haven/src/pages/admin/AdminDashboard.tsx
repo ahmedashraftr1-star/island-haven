@@ -36,6 +36,7 @@ import {
   Hash,
   ScrollText,
   Mail,
+  Search,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -72,6 +73,7 @@ import AdminTeamChannel from "./AdminTeamChannel";
 import AdminAudit from "./AdminAudit";
 import AdminContact from "./AdminContact";
 import AdminBell from "./AdminBell";
+import CommandPalette, { type PaletteItem } from "./CommandPalette";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
@@ -148,46 +150,71 @@ const TAB_PERMISSION: Record<Tab, string> = {
   staff: "staff:manage",
 };
 
-const TABS: { id: Tab; label: string; Icon: typeof Inbox }[] = [
-  { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard },
-  { id: "tasks", label: "المهام والتواصل", Icon: ListChecks },
-  { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck },
-  { id: "attendance", label: "الحضور والانصراف", Icon: Armchair },
-  { id: "applications", label: "الطلبات", Icon: Inbox },
-  { id: "users", label: "المستخدمون", Icon: Users },
-  { id: "experts", label: "الخبراء", Icon: Sparkles },
-  { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare },
-  { id: "programs", label: "برامج الاحتضان", Icon: Rocket },
-  { id: "cohorts", label: "الدّفعات", Icon: Layers },
-  { id: "journey", label: "رحلة الدفعة", Icon: Map },
-  { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb },
-  { id: "opportunities", label: "الفرص والوظائف", Icon: Target },
-  { id: "perks", label: "العروض والامتيازات", Icon: Gift },
-  { id: "badges", label: "الشّارات", Icon: Award },
-  { id: "milestones", label: "محطّات المشاريع", Icon: Flag },
-  { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange },
-  { id: "resources", label: "دليل الرّائد", Icon: BookOpen },
-  { id: "stories", label: "قصص النجاح", Icon: Quote },
-  { id: "partners", label: "الشركاء", Icon: Handshake },
-  { id: "team", label: "فريق آيلاند", Icon: UserSquare2 },
-  { id: "works", label: "الأعمال", Icon: Briefcase },
-  { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap },
-  { id: "daily", label: "اليوميّات", Icon: Newspaper },
-  { id: "content", label: "تحرير المحتوى", Icon: FileText },
-  { id: "analytics", label: "الإحصائيات", Icon: BarChart3 },
-  { id: "push", label: "الإشعارات", Icon: Bell },
-  { id: "contact", label: "رسائل التواصل", Icon: Mail },
-  { id: "inbox", label: "صندوق الرسائل", Icon: MessageSquare },
-  { id: "channel", label: "قناة الفريق", Icon: Hash },
-  { id: "audit", label: "سجلّ التدقيق", Icon: ScrollText },
-  { id: "staff", label: "الفريق والصلاحيّات", Icon: ShieldCheck },
-  { id: "settings", label: "الإعدادات", Icon: Settings },
+type Group = "main" | "people" | "incubation" | "content" | "comms" | "system";
+
+const GROUP_ORDER: Group[] = ["main", "people", "incubation", "content", "comms", "system"];
+const GROUP_LABELS: Record<Group, string> = {
+  main: "الرئيسيّة",
+  people: "الأعضاء والطلبات",
+  incubation: "الاحتضان والإرشاد",
+  content: "المحتوى والمجتمع",
+  comms: "التواصل",
+  system: "النظام",
+};
+
+const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
+  { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard, group: "main" },
+  { id: "tasks", label: "المهام والتواصل", Icon: ListChecks, group: "main" },
+  { id: "applications", label: "الطلبات", Icon: Inbox, group: "people" },
+  { id: "users", label: "المستخدمون", Icon: Users, group: "people" },
+  { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck, group: "people" },
+  { id: "attendance", label: "الحضور والانصراف", Icon: Armchair, group: "people" },
+  { id: "experts", label: "الخبراء", Icon: Sparkles, group: "incubation" },
+  { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare, group: "incubation" },
+  { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange, group: "incubation" },
+  { id: "programs", label: "برامج الاحتضان", Icon: Rocket, group: "incubation" },
+  { id: "cohorts", label: "الدّفعات", Icon: Layers, group: "incubation" },
+  { id: "journey", label: "رحلة الدفعة", Icon: Map, group: "incubation" },
+  { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb, group: "incubation" },
+  { id: "milestones", label: "محطّات المشاريع", Icon: Flag, group: "incubation" },
+  { id: "opportunities", label: "الفرص والوظائف", Icon: Target, group: "incubation" },
+  { id: "perks", label: "العروض والامتيازات", Icon: Gift, group: "incubation" },
+  { id: "badges", label: "الشّارات", Icon: Award, group: "incubation" },
+  { id: "content", label: "تحرير المحتوى", Icon: FileText, group: "content" },
+  { id: "stories", label: "قصص النجاح", Icon: Quote, group: "content" },
+  { id: "works", label: "الأعمال", Icon: Briefcase, group: "content" },
+  { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap, group: "content" },
+  { id: "daily", label: "اليوميّات", Icon: Newspaper, group: "content" },
+  { id: "resources", label: "دليل الرّائد", Icon: BookOpen, group: "content" },
+  { id: "partners", label: "الشركاء", Icon: Handshake, group: "content" },
+  { id: "team", label: "فريق آيلاند", Icon: UserSquare2, group: "content" },
+  { id: "push", label: "الإشعارات", Icon: Bell, group: "comms" },
+  { id: "contact", label: "رسائل التواصل", Icon: Mail, group: "comms" },
+  { id: "inbox", label: "صندوق الرسائل", Icon: MessageSquare, group: "comms" },
+  { id: "channel", label: "قناة الفريق", Icon: Hash, group: "comms" },
+  { id: "analytics", label: "الإحصائيات", Icon: BarChart3, group: "system" },
+  { id: "audit", label: "سجلّ التدقيق", Icon: ScrollText, group: "system" },
+  { id: "staff", label: "الفريق والصلاحيّات", Icon: ShieldCheck, group: "system" },
+  { id: "settings", label: "الإعدادات", Icon: Settings, group: "system" },
 ];
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
   const [settingsDirty, setSettingsDirty] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<number | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // ⌘K / Ctrl+K opens the command palette from anywhere in the dashboard.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   // A staff notification deep-links to a section (and sometimes a specific task).
   function handleNotifNavigate(link: string) {
@@ -331,33 +358,57 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-5 space-y-1">
-          {visibleTabs.map(({ id, label, Icon }) => {
-            const active = tab === id;
+        <div className="px-3 pt-4">
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            data-testid="palette-trigger"
+            className="w-full flex items-center gap-2.5 px-3 h-9 rounded-xl bg-foreground/[0.04] hover:bg-foreground/[0.07] text-foreground/55 hover:text-foreground/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="text-[12.5px]">بحث سريع…</span>
+            <kbd className="ms-auto text-[10px] font-mono border border-border rounded px-1.5 py-0.5 text-foreground/45">⌘K</kbd>
+          </button>
+        </div>
+
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+          {GROUP_ORDER.map((group) => {
+            const groupTabs = visibleTabs.filter((t) => t.group === group);
+            if (groupTabs.length === 0) return null;
             return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => navigateTo(id)}
-                data-testid={`tab-${id}`}
-                className={`w-full flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13.5px] font-medium transition-all ${
-                  active
-                    ? "bg-[hsl(var(--primary-cta))] text-white shadow-soft"
-                    : "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground"
-                }`}
-              >
-                <Icon className="w-4 h-4" strokeWidth={2.2} />
-                {label}
-                {badgeFor(id) > 0 && (
-                  <span
-                    className={`ms-auto min-w-[18px] h-[18px] px-1 rounded-full text-[10.5px] font-bold flex items-center justify-center ${
-                      active ? "bg-white/25 text-white" : "bg-[hsl(var(--primary-cta))] text-white"
-                    }`}
-                  >
-                    {badgeFor(id)}
-                  </span>
-                )}
-              </button>
+              <div key={group} className="space-y-1">
+                <div className="px-3.5 pb-1 text-[10px] font-bold tracking-wide uppercase text-foreground/35">
+                  {GROUP_LABELS[group]}
+                </div>
+                {groupTabs.map(({ id, label, Icon }) => {
+                  const active = tab === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => navigateTo(id)}
+                      data-testid={`tab-${id}`}
+                      className={`w-full flex items-center gap-3 px-3.5 h-9 rounded-xl text-[13px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                        active
+                          ? "bg-[hsl(var(--primary-cta))] text-white shadow-soft"
+                          : "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" strokeWidth={2.2} />
+                      {label}
+                      {badgeFor(id) > 0 && (
+                        <span
+                          className={`ms-auto min-w-[18px] h-[18px] px-1 rounded-full text-[10.5px] font-bold flex items-center justify-center ${
+                            active ? "bg-white/25 text-white" : "bg-[hsl(var(--primary-cta))] text-white"
+                          }`}
+                        >
+                          {badgeFor(id)}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
@@ -491,6 +542,15 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        items={visibleTabs.map(
+          (t): PaletteItem => ({ id: t.id, label: t.label, group: GROUP_LABELS[t.group], Icon: t.Icon }),
+        )}
+        onSelect={(id) => navigateTo(id as Tab)}
+      />
     </div>
   );
 }

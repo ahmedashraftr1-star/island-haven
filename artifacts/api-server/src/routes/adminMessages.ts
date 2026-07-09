@@ -1,10 +1,11 @@
 import { Router, type IRouter, type Request } from "express";
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import {
   db,
   adminThreadsTable,
   adminMessagesTable,
   teamMessagesTable,
+  teamMessageReactionsTable,
   teamChannelReadsTable,
   usersTable,
   adminMessageBodySchema,
@@ -262,11 +263,32 @@ router.get("/admin/messages/team", requirePermission(PERM), async (req, res) => 
       .orderBy(desc(teamMessagesTable.createdAt))
       .limit(100);
     const meId = getAdmin(req)?.id ?? 0;
+    // Reactions for the visible messages, grouped by emoji (with "did I react").
+    const ids = rows.map((r) => r.id);
+    const reactions = ids.length
+      ? await db
+          .select()
+          .from(teamMessageReactionsTable)
+          .where(inArray(teamMessageReactionsTable.messageId, ids))
+      : [];
+    const byMsg = new Map<number, Map<string, { count: number; mine: boolean }>>();
+    for (const rc of reactions) {
+      if (!byMsg.has(rc.messageId)) byMsg.set(rc.messageId, new Map());
+      const m = byMsg.get(rc.messageId)!;
+      const cur = m.get(rc.emoji) ?? { count: 0, mine: false };
+      cur.count++;
+      if (rc.adminUserId === meId) cur.mine = true;
+      m.set(rc.emoji, cur);
+    }
+    const withReactions = rows.map((r) => ({
+      ...r,
+      reactions: [...(byMsg.get(r.id)?.entries() ?? [])].map(([emoji, v]) => ({ emoji, ...v })),
+    }));
     await db
       .insert(teamChannelReadsTable)
       .values({ adminUserId: meId, lastReadAt: new Date() })
       .onConflictDoUpdate({ target: teamChannelReadsTable.adminUserId, set: { lastReadAt: new Date() } });
-    res.json({ messages: rows.reverse(), meId });
+    res.json({ messages: withReactions.reverse(), meId });
   } catch (err) {
     logger.error({ err }, "GET /admin/messages/team failed");
     res.status(500).json({ error: "خطأ في الخادم" });
@@ -302,6 +324,116 @@ router.post("/admin/messages/team", requirePermission(PERM), async (req, res) =>
     res.status(201).json({ message: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/messages/team failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+const ALLOWED_EMOJI = ["👍", "❤️", "🎉", "✅", "🙏", "🔥", "👀", "😄"];
+
+// Toggle an emoji reaction on a team message.
+router.post("/admin/messages/team/:id/react", requirePermission(PERM), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const emoji = String(req.body?.emoji ?? "");
+    if (!Number.isInteger(id) || id <= 0 || !ALLOWED_EMOJI.includes(emoji)) {
+      res.status(400).json({ error: "بيانات غير صحيحة" });
+      return;
+    }
+    const meId = getAdmin(req)?.id ?? 0;
+    const [existing] = await db
+      .select({ id: teamMessageReactionsTable.id })
+      .from(teamMessageReactionsTable)
+      .where(
+        and(
+          eq(teamMessageReactionsTable.messageId, id),
+          eq(teamMessageReactionsTable.adminUserId, meId),
+          eq(teamMessageReactionsTable.emoji, emoji),
+        ),
+      )
+      .limit(1);
+    if (existing) {
+      await db.delete(teamMessageReactionsTable).where(eq(teamMessageReactionsTable.id, existing.id));
+      res.json({ ok: true, reacted: false });
+    } else {
+      await db
+        .insert(teamMessageReactionsTable)
+        .values({ messageId: id, adminUserId: meId, emoji })
+        .onConflictDoNothing();
+      res.json({ ok: true, reacted: true });
+    }
+  } catch (err) {
+    logger.error({ err }, "POST team react failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Edit your OWN team message.
+router.patch("/admin/messages/team/:id", requirePermission(PERM), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "معرّف غير صالح" });
+      return;
+    }
+    const parsed = adminMessageBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? "بيانات غير صحيحة" });
+      return;
+    }
+    const meId = getAdmin(req)?.id ?? 0;
+    const [existing] = await db
+      .select({ senderAdminId: teamMessagesTable.senderAdminId })
+      .from(teamMessagesTable)
+      .where(eq(teamMessagesTable.id, id))
+      .limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    if (existing.senderAdminId !== meId) {
+      res.status(403).json({ error: "يمكنك تعديل رسائلك فقط" });
+      return;
+    }
+    const [row] = await db
+      .update(teamMessagesTable)
+      .set({ body: parsed.data.body, editedAt: new Date() })
+      .where(eq(teamMessagesTable.id, id))
+      .returning();
+    res.json({ message: row });
+  } catch (err) {
+    logger.error({ err }, "PATCH team message failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Delete your OWN team message.
+router.delete("/admin/messages/team/:id", requirePermission(PERM), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "معرّف غير صالح" });
+      return;
+    }
+    const meId = getAdmin(req)?.id ?? 0;
+    const admin = getAdmin(req);
+    const [existing] = await db
+      .select({ senderAdminId: teamMessagesTable.senderAdminId })
+      .from(teamMessagesTable)
+      .where(eq(teamMessagesTable.id, id))
+      .limit(1);
+    if (!existing) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    // Own message, or a super-admin (moderation).
+    if (existing.senderAdminId !== meId && !admin?.isSuper) {
+      res.status(403).json({ error: "يمكنك حذف رسائلك فقط" });
+      return;
+    }
+    await db.delete(teamMessagesTable).where(eq(teamMessagesTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE team message failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

@@ -6,6 +6,7 @@ import {
   timestamp,
   integer,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -80,12 +81,33 @@ export const teamMessagesTable = pgTable(
     senderAdminId: integer("sender_admin_id").notNull(),
     senderName: varchar("sender_name", { length: 120 }).default("").notNull(),
     body: text("body").notNull(),
+    editedAt: timestamp("edited_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
   (t) => ({
     createdIdx: index("team_messages_created_idx").on(t.createdAt),
+  }),
+);
+
+// Emoji reactions on team-channel messages. One row per (message, admin, emoji).
+export const teamMessageReactionsTable = pgTable(
+  "team_message_reactions",
+  {
+    id: serial("id").primaryKey(),
+    messageId: integer("message_id")
+      .notNull()
+      .references(() => teamMessagesTable.id, { onDelete: "cascade" }),
+    adminUserId: integer("admin_user_id").notNull(),
+    emoji: varchar("emoji", { length: 16 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    msgIdx: index("team_message_reactions_msg_idx").on(t.messageId),
+    uniq: uniqueIndex("team_message_reactions_uniq").on(t.messageId, t.adminUserId, t.emoji),
   }),
 );
 
