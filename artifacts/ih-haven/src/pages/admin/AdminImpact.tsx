@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
-import { TrendingUp, Briefcase, Banknote, HeartPulse, Users2, Plus, X } from "lucide-react";
+import { TrendingUp, Briefcase, Banknote, HeartPulse, Users2, Plus, X, Download } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { AdminButton, StatusBadge, EmptyState } from "./ui";
+import { downloadCsv } from "./csvDownload";
 
 // Monitoring & Evaluation (Impact) — the outcome layer. Executive KPIs + funnel +
 // trend, and a per-venture table to record longitudinal outcome snapshots.
@@ -65,11 +66,21 @@ export default function AdminImpact() {
 
   return (
     <div dir="rtl" className="space-y-6">
-      <div>
-        <h2 className="text-[20px] font-bold text-foreground flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" /> الأثر والنتائج
-        </h2>
-        <p className="text-[13px] text-foreground/60 mt-1">قياس أثر الحاضنة عبر الزمن — الوظائف، التمويل، ومعدّل بقاء المشاريع.</p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-[20px] font-bold text-foreground flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" /> الأثر والنتائج
+          </h2>
+          <p className="text-[13px] text-foreground/60 mt-1">قياس أثر الحاضنة عبر الزمن — الوظائف، التمويل، ومعدّل بقاء المشاريع.</p>
+        </div>
+        <AdminButton
+          variant="secondary"
+          icon={<Download className="w-4 h-4" />}
+          onClick={() => downloadCsv("/admin/impact/export", "impact-outcomes.csv")}
+          data-testid="impact-export"
+        >
+          تصدير CSV
+        </AdminButton>
       </div>
 
       {/* KPI cards */}

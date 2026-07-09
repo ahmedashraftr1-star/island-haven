@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { requirePermission, getAdmin } from "../lib/auth";
 import { writeAudit, auditActor } from "../lib/audit";
+import { toCsv, sendCsv } from "../lib/csv";
 import { logger } from "../lib/logger";
 
 // Monitoring & Evaluation (impact) API. Reads require impact:view, writes
@@ -126,6 +127,37 @@ router.get("/admin/impact/ventures", requirePermission("impact:view"), async (_r
     });
   } catch (err) {
     logger.error({ err }, "GET /admin/impact/ventures failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// CSV export: every venture with its latest outcome snapshot.
+router.get("/admin/impact/export", requirePermission("impact:view"), async (_req, res) => {
+  try {
+    const rows = await db.execute(sql`
+      SELECT v.name, v.sector, v.stage,
+        l.status AS outcome_status, l.jobs, l.funding_usd, l.revenue_usd, l.period, l.created_at AS recorded_at
+      FROM ventures v
+      LEFT JOIN LATERAL (
+        SELECT status, jobs, funding_usd, revenue_usd, period, created_at
+        FROM venture_outcomes vo WHERE vo.venture_id = v.id
+        ORDER BY vo.created_at DESC LIMIT 1
+      ) l ON true
+      ORDER BY v.sort_order ASC, v.id ASC
+    `);
+    const list = (Array.isArray(rows) ? rows : (rows as { rows: unknown[] }).rows) as Array<Record<string, unknown>>;
+    const csv = toCsv(
+      ["المشروع", "القطاع", "المرحلة", "حالة النتيجة", "وظائف", "تمويل ($)", "إيراد ($)", "الفترة", "تاريخ التسجيل"],
+      list.map((v) => [
+        v.name, v.sector, v.stage, v.outcome_status ?? "",
+        v.jobs != null ? Number(v.jobs) : "", v.funding_usd != null ? Number(v.funding_usd) : "",
+        v.revenue_usd != null ? Number(v.revenue_usd) : "", v.period ?? "",
+        v.recorded_at ? new Date(v.recorded_at as string).toISOString() : "",
+      ]),
+    );
+    sendCsv(res, "impact-outcomes.csv", csv);
+  } catch (err) {
+    logger.error({ err }, "GET /admin/impact/export failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

@@ -14,6 +14,7 @@ import {
   insertApplicationSchema,
 } from "@workspace/db";
 import { requireAdmin, getAdmin } from "../lib/auth";
+import { toCsv, sendCsv } from "../lib/csv";
 import { z } from "zod";
 import { invalidateNumbersCache } from "./numbers";
 
@@ -136,6 +137,37 @@ router.get("/admin/applications", requireAdmin, async (_req, res) => {
       return { ...r, review: { avg: a ? Number(a.avg) : null, count: a ? a.count : 0, advance: a ? a.advance : 0 } };
     }),
   });
+});
+
+// CSV export of the applicant pipeline (identity + stage + review evidence).
+router.get("/admin/applications/export", requireAdmin, async (_req, res) => {
+  const rows = await db.select().from(applicationsTable).orderBy(desc(applicationsTable.createdAt));
+  const ids = rows.map((r) => r.id);
+  const aggs = ids.length
+    ? await db
+        .select({
+          applicationId: applicationReviewsTable.applicationId,
+          avg: sql<number>`round(avg(${applicationReviewsTable.score})::numeric, 1)`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(applicationReviewsTable)
+        .where(inArray(applicationReviewsTable.applicationId, ids))
+        .groupBy(applicationReviewsTable.applicationId)
+    : [];
+  const map = new Map(aggs.map((a) => [a.applicationId, a]));
+  const csv = toCsv(
+    ["الاسم", "البريد", "الهاتف", "الفئة", "المرحلة", "متوسط التقييم", "عدد التقييمات", "موعد المقابلة", "تاريخ التقديم"],
+    rows.map((r) => {
+      const a = map.get(r.id);
+      return [
+        r.fullName, r.email, r.phone, r.category, r.status,
+        a ? Number(a.avg) : "", a ? a.count : 0,
+        r.interviewAt ? new Date(r.interviewAt).toISOString() : "",
+        new Date(r.createdAt).toISOString(),
+      ];
+    }),
+  );
+  sendCsv(res, "applications.csv", csv);
 });
 
 const STAGES = ["new", "reviewing", "screening", "interview", "offer", "waitlist", "accepted", "rejected"] as const;

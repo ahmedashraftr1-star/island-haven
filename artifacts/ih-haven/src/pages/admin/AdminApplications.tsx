@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Trash2, Mail, Phone, Calendar, Search, Star, CalendarClock } from "lucide-react";
+import { ChevronDown, Trash2, Mail, Phone, Calendar, Search, Star, CalendarClock, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { downloadCsv } from "./csvDownload";
 
 type ReviewAgg = { avg: number | null; count: number; advance: number };
 type Application = {
@@ -133,6 +134,16 @@ export default function AdminApplications() {
         <div className="text-[12px] text-foreground/65 font-medium">
           {filtered.length} نتيجة
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => downloadCsv("/admin/applications/export", "applications.csv")}
+          data-testid="applications-export"
+          className="h-10 rounded-xl gap-1.5 text-foreground/70"
+        >
+          <Download className="w-4 h-4" /> تصدير CSV
+        </Button>
       </div>
 
       {filtered.length === 0 ? (
@@ -276,6 +287,7 @@ export default function AdminApplications() {
                         <div className="flex items-center gap-2">
                           <input
                             type="datetime-local"
+                            aria-label="موعد المقابلة"
                             defaultValue={app.interviewAt ? new Date(app.interviewAt).toISOString().slice(0, 16) : ""}
                             data-testid={`interview-${app.id}`}
                             className="h-9 px-3 rounded-lg bg-muted/40 border border-border text-[13px] text-foreground outline-none focus:border-primary/50"
