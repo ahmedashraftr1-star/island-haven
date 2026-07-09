@@ -37,6 +37,7 @@ import {
   ScrollText,
   Mail,
   Search,
+  TrendingUp,
 } from "lucide-react";
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
@@ -73,12 +74,14 @@ import AdminTeamChannel from "./AdminTeamChannel";
 import AdminAudit from "./AdminAudit";
 import AdminContact from "./AdminContact";
 import AdminBell from "./AdminBell";
+import AdminImpact from "./AdminImpact";
 import CommandPalette, { type PaletteItem } from "./CommandPalette";
 import { HavenMark } from "@/components/landing/HavenMark";
 
 type Tab =
   | "overview"
   | "tasks"
+  | "impact"
   | "bookings"
   | "attendance"
   | "applications"
@@ -117,6 +120,7 @@ type Tab =
 const TAB_PERMISSION: Record<Tab, string> = {
   overview: "overview:view",
   tasks: "tasks:view",
+  impact: "impact:view",
   bookings: "bookings:view",
   attendance: "attendance:view",
   applications: "applications:view",
@@ -164,6 +168,7 @@ const GROUP_LABELS: Record<Group, string> = {
 
 const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "overview", label: "نظرة عامّة", Icon: LayoutDashboard, group: "main" },
+  { id: "impact", label: "الأثر والنتائج", Icon: TrendingUp, group: "main" },
   { id: "tasks", label: "المهام والتواصل", Icon: ListChecks, group: "main" },
   { id: "applications", label: "الطلبات", Icon: Inbox, group: "people" },
   { id: "users", label: "المستخدمون", Icon: Users, group: "people" },
@@ -507,6 +512,7 @@ export default function AdminDashboard() {
           ) : (
           <>
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
+          {tab === "impact" && <AdminImpact />}
           {tab === "tasks" && <AdminTasks openTaskId={openTaskId} onOpenConsumed={() => setOpenTaskId(null)} />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "attendance" && <AdminAttendance />}

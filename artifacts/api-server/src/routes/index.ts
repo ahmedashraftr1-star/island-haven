@@ -49,6 +49,7 @@ import broadcastRouter from "./broadcast";
 import adminMessagesRouter from "./adminMessages";
 import adminContactRouter from "./adminContact";
 import adminNotificationsRouter from "./adminNotifications";
+import impactRouter from "./impact";
 
 const router: IRouter = Router();
 
@@ -107,5 +108,6 @@ router.use(broadcastRouter);
 router.use(adminMessagesRouter);
 router.use(adminContactRouter);
 router.use(adminNotificationsRouter);
+router.use(impactRouter);
 
 export default router;

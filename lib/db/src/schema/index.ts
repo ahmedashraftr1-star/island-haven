@@ -46,3 +46,4 @@ export * from "./attendance";
 export * from "./adminMessaging";
 export * from "./contactMessages";
 export * from "./adminNotifications";
+export * from "./impact";

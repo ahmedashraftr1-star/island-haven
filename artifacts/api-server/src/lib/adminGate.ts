@@ -17,6 +17,7 @@ const SEGMENT_SECTION: Record<string, string> = {
   totals: "overview",
   "pending-counts": "overview",
   analytics: "analytics",
+  impact: "impact",
   audit: "audit",
   // feature sections
   tasks: "tasks",

@@ -23,6 +23,7 @@ export interface AdminSection {
 export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { key: "overview", labelAr: "النظرة العامّة", labelEn: "Overview", actions: ["view"] },
   { key: "analytics", labelAr: "التحليلات", labelEn: "Analytics", actions: ["view", "manage"] },
+  { key: "impact", labelAr: "الأثر والنتائج", labelEn: "Impact & outcomes", actions: ["view", "manage"] },
   { key: "tasks", labelAr: "المهامّ", labelEn: "Tasks", actions: ["view", "manage"] },
   { key: "bookings", labelAr: "الحجوزات", labelEn: "Bookings", actions: ["view", "manage"] },
   { key: "attendance", labelAr: "الحضور", labelEn: "Attendance", actions: ["view", "manage"] },
@@ -96,7 +97,7 @@ export const ROLE_PRESETS: Record<Exclude<AdminRole, "custom">, string[]> = {
     ...vm("experts", "sessions", "slots", "applications", "programs", "cohorts", "badges"),
     ...perms("messages:send"),
   ],
-  analyst: perms("overview:view", "analytics:view", "audit:view"),
+  analyst: perms("overview:view", "analytics:view", "audit:view", "impact:view"),
   support: [
     "overview:view",
     ...vm("bookings", "attendance", "applications", "contact"),
