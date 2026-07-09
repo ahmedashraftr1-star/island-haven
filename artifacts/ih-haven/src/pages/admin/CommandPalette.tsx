@@ -29,7 +29,9 @@ export default function CommandPalette({
   open: boolean;
   onClose: () => void;
   items: PaletteItem[];
-  onSelect: (id: string) => void;
+  // Returns false if navigation was cancelled (e.g. unsaved-changes guard) — the
+  // palette then stays open instead of silently closing on a no-op.
+  onSelect: (id: string) => boolean | void;
 }) {
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
@@ -58,7 +60,7 @@ export default function CommandPalette({
       else if (e.key === "Enter") {
         e.preventDefault();
         const item = filtered[active];
-        if (item) { onSelect(item.id); onClose(); }
+        if (item && onSelect(item.id) !== false) onClose();
       }
     };
     document.addEventListener("keydown", onKey);
@@ -111,7 +113,7 @@ export default function CommandPalette({
                   data-idx={idx}
                   data-testid={`palette-item-${it.id}`}
                   onMouseEnter={() => setActive(idx)}
-                  onClick={() => { onSelect(it.id); onClose(); }}
+                  onClick={() => { if (onSelect(it.id) !== false) onClose(); }}
                   className={`w-full text-right flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                     on ? "bg-primary/[0.12] text-foreground" : "text-foreground/75 hover:bg-foreground/[0.04]"
                   }`}

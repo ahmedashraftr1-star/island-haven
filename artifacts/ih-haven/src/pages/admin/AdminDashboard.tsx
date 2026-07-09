@@ -227,11 +227,12 @@ export default function AdminDashboard() {
     }
   }
 
-  function navigateTo(id: Tab) {
+  function navigateTo(id: Tab): boolean {
     if (tab === "settings" && settingsDirty && id !== "settings") {
-      if (!window.confirm("لديك تغييرات غير محفوظة في الإعدادات. هل تريد المغادرة؟")) return;
+      if (!window.confirm("لديك تغييرات غير محفوظة في الإعدادات. هل تريد المغادرة؟")) return false;
     }
     setTab(id);
+    return true;
   }
 
   const { data, isLoading } = useQuery({

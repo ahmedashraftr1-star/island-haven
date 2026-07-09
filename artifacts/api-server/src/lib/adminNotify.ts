@@ -62,13 +62,33 @@ export async function resolveMentionedAdminIds(
       .select({ id: adminUsersTable.id, fullName: adminUsersTable.fullName })
       .from(adminUsersTable)
       .where(eq(adminUsersTable.status, "active"));
-    const hits: number[] = [];
-    for (const s of staff) {
-      if (s.fullName && s.id !== exceptId && text.includes("@" + s.fullName)) {
-        hits.push(s.id);
+    // Match "@FullName" as a whole token: longest name first (so "Ali Hassan"
+    // wins over "Ali"), each match "claims" its span (blanked out) so a shorter
+    // prefix name can't re-match the same text, and the char after the name must
+    // be a boundary (end / whitespace / punctuation) — not another name char.
+    const BOUNDARY = /[\s.,!?،؛:)\]}"'«»]/u;
+    let remaining = text;
+    const hits = new Set<number>();
+    const sorted = staff
+      .filter((s) => s.fullName)
+      .sort((a, b) => b.fullName.length - a.fullName.length);
+    for (const s of sorted) {
+      const needle = "@" + s.fullName;
+      let idx = remaining.indexOf(needle);
+      while (idx !== -1) {
+        const after = remaining[idx + needle.length];
+        if (after === undefined || BOUNDARY.test(after)) {
+          if (s.id !== exceptId) hits.add(s.id);
+          // Blank the claimed span so a prefix name won't also match here.
+          remaining =
+            remaining.slice(0, idx) + " ".repeat(needle.length) + remaining.slice(idx + needle.length);
+          idx = remaining.indexOf(needle);
+        } else {
+          idx = remaining.indexOf(needle, idx + 1);
+        }
       }
     }
-    return hits;
+    return [...hits];
   } catch (err) {
     logger.error({ err }, "resolveMentionedAdminIds failed");
     return [];

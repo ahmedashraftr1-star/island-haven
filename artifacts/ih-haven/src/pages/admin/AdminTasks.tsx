@@ -287,7 +287,7 @@ function Checklist({ taskId, subtasks, setSubtasks }: {
     try {
       const { subtask } = await api<{ subtask: Subtask }>(`/admin/tasks/${taskId}/subtasks`, { method: "POST", body: JSON.stringify({ title }) });
       setSubtasks((prev) => [...prev, subtask]);
-    } catch { /* ignore */ }
+    } catch { setDraft(title); /* restore so the text isn't lost */ }
   }
   async function toggle(s: Subtask) {
     setSubtasks((prev) => prev.map((x) => (x.id === s.id ? { ...x, done: !x.done } : x)));
@@ -295,8 +295,11 @@ function Checklist({ taskId, subtasks, setSubtasks }: {
     catch { setSubtasks((prev) => prev.map((x) => (x.id === s.id ? { ...x, done: s.done } : x))); }
   }
   async function del(id: number) {
+    const at = subtasks.findIndex((x) => x.id === id);
+    const removed = subtasks[at];
     setSubtasks((prev) => prev.filter((x) => x.id !== id));
-    try { await api(`/admin/tasks/${taskId}/subtasks/${id}`, { method: "DELETE" }); } catch { /* ignore */ }
+    try { await api(`/admin/tasks/${taskId}/subtasks/${id}`, { method: "DELETE" }); }
+    catch { if (removed) setSubtasks((prev) => { const n = [...prev]; n.splice(Math.max(0, at), 0, removed); return n; }); }
   }
 
   return (
