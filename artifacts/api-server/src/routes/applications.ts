@@ -159,6 +159,11 @@ router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
   const { interviewAt, ...rest } = parsed.data;
   const patch: Record<string, unknown> = { ...rest };
   if (interviewAt !== undefined) patch.interviewAt = interviewAt ? new Date(interviewAt) : null;
+  if (Object.keys(patch).length === 0) {
+    // Nothing to update — drizzle .set({}) would emit an empty SET and error.
+    res.status(400).json({ error: "لا تغييرات" });
+    return;
+  }
   const [row] = await db
     .update(applicationsTable)
     .set(patch)

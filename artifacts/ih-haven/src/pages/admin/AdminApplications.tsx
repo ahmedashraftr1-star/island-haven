@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -343,14 +343,18 @@ function ReviewPanel({ appId }: { appId: number }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mine?.id]);
 
+  const [saveError, setSaveError] = useState<string | null>(null);
   const saveMut = useMutation({
     mutationFn: () => api(`/admin/applications/${appId}/reviews`, { method: "POST", body: JSON.stringify({ score, recommendation: rec, notes: notes.trim() || undefined }) }),
     onSuccess: () => {
       setDirty(false);
+      setSaveError(null);
       qc.invalidateQueries({ queryKey: ["app-reviews", appId] });
       qc.invalidateQueries({ queryKey: ["admin-applications"] });
     },
+    onError: (e) => setSaveError(e instanceof ApiError ? e.message : "تعذّر حفظ التقييم"),
   });
+  const busy = saveMut.isPending;
 
   const others = (data?.reviews ?? []).filter((r) => r.id !== mine?.id);
 
@@ -367,14 +371,14 @@ function ReviewPanel({ appId }: { appId: number }) {
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} type="button" onClick={() => { setScore(n); setDirty(true); }} aria-label={`${n} نجوم`} data-testid={`score-${appId}-${n}`} className="p-0.5">
+            <button key={n} type="button" disabled={busy} onClick={() => { setScore(n); setDirty(true); }} aria-label={`${n} نجوم`} data-testid={`score-${appId}-${n}`} className="p-0.5 disabled:opacity-60">
               <Star className={`w-5 h-5 transition-colors ${n <= score ? "text-amber-400 fill-current" : "text-foreground/25"}`} />
             </button>
           ))}
         </div>
         <div className="flex items-center gap-1 bg-card rounded-lg p-1 border border-border">
           {["advance", "hold", "reject"].map((r) => (
-            <button key={r} type="button" onClick={() => { setRec(r); setDirty(true); }} className={`px-2.5 h-7 rounded-md text-[12px] font-semibold transition-colors ${rec === r ? `bg-muted ${REC_TONE[r]}` : "text-foreground/50 hover:text-foreground/80"}`}>
+            <button key={r} type="button" disabled={busy} onClick={() => { setRec(r); setDirty(true); }} className={`px-2.5 h-7 rounded-md text-[12px] font-semibold transition-colors disabled:opacity-60 ${rec === r ? `bg-muted ${REC_TONE[r]}` : "text-foreground/50 hover:text-foreground/80"}`}>
               {REC_LABEL[r]}
             </button>
           ))}
@@ -382,14 +386,16 @@ function ReviewPanel({ appId }: { appId: number }) {
       </div>
       <Textarea
         value={notes}
+        disabled={busy}
         onChange={(e) => { setNotes(e.target.value); setDirty(true); }}
         rows={2}
-        placeholder="سبب تقييمك (يراه فريق التقييم فقط)…"
+        placeholder="سبب تقييمك (يراه فريق التقييم فقط)… بدون رمزَي < و >"
         className="rounded-xl border-border bg-card focus-visible:ring-primary/30 text-[13px]"
       />
+      {saveError && <div className="text-[12px] text-rose-400">{saveError}</div>}
       <div className="flex justify-end">
-        <Button type="button" size="sm" disabled={score === 0 || saveMut.isPending} onClick={() => saveMut.mutate()} data-testid={`save-review-${appId}`} className="bg-[hsl(var(--primary-cta))] text-white hover:opacity-90 h-8">
-          {mine ? "تحديث تقييمي" : "حفظ التقييم"}
+        <Button type="button" size="sm" disabled={score === 0 || busy} onClick={() => saveMut.mutate()} data-testid={`save-review-${appId}`} className="bg-[hsl(var(--primary-cta))] text-white hover:opacity-90 h-8">
+          {busy ? "جارِ الحفظ…" : mine ? "تحديث تقييمي" : "حفظ التقييم"}
         </Button>
       </div>
 
