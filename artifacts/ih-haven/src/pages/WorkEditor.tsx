@@ -237,7 +237,7 @@ export default function WorkEditor() {
           >
             {form.coverUrl ? (
               <div className="relative rounded-2xl overflow-hidden border border-border-strong">
-                <img
+                <img loading="lazy" decoding="async"
                   src={form.coverUrl}
                   alt=""
                   className="w-full max-h-72 object-cover"
@@ -311,7 +311,7 @@ export default function WorkEditor() {
                   key={`${url}-${i}`}
                   className="relative aspect-square rounded-xl overflow-hidden border border-border-strong group"
                 >
-                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={url} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeGalleryAt(i)}

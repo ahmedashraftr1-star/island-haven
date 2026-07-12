@@ -103,7 +103,7 @@ export default function AdminTeam() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {r.avatarUrl ? (
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={r.avatarUrl}
                           alt=""
                           className="h-9 w-9 rounded-full object-cover border border-border"

@@ -65,6 +65,15 @@ export function useExperts<T = unknown>() {
   });
 }
 
+/** The public team roster — Experts joins it by name to group each mentor. */
+export function useTeam<T = unknown>() {
+  return useQuery({
+    queryKey: ["team"],
+    queryFn: () => api<{ team: T[] }>("/team"),
+    ...PUBLIC,
+  });
+}
+
 /** FeaturedMembers reads the first page; keyed distinctly from other paged reads. */
 export function useMembers<T = unknown>() {
   return useQuery({

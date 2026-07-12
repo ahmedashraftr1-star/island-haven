@@ -106,7 +106,7 @@ function ImageField({
       <div className="flex items-center gap-3">
         <div className="w-20 h-20 rounded-xl bg-muted/40 border border-border overflow-hidden flex items-center justify-center shrink-0">
           {url ? (
-            <img src={url} alt="" className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={url} alt="" className="w-full h-full object-cover" />
           ) : (
             <ImageIcon className="w-6 h-6 text-foreground/30" />
           )}

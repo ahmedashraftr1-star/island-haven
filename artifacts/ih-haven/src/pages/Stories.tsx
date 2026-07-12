@@ -55,7 +55,7 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
         >
           {story.coverUrl ? (
             <div className="relative h-40 overflow-hidden rounded-t-3xl">
-              <img src={story.coverUrl} alt="" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={story.coverUrl} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0f1424]" />
             </div>
           ) : (
@@ -74,7 +74,7 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
           <div className="px-7 pb-8 -mt-8 relative">
             <div className="flex items-end gap-4 mb-5">
               {story.avatarUrl ? (
-                <img
+                <img loading="lazy" decoding="async"
                   src={story.avatarUrl}
                   alt={story.personName}
                   className="w-16 h-16 rounded-2xl object-cover border-2 border-border-strong shadow-lg flex-shrink-0"
@@ -142,7 +142,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
         >
           {story.coverUrl && (
             <div className="relative h-44 overflow-hidden">
-              <img src={story.coverUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img loading="lazy" decoding="async" src={story.coverUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#15171F]" />
               {story.featured && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur text-[11px] font-bold text-foreground">
@@ -155,7 +155,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
           <div className="p-5 flex-1 flex flex-col gap-3">
             <div className="flex items-start gap-3">
               {story.avatarUrl ? (
-                <img src={story.avatarUrl} alt={story.personName} className="w-11 h-11 rounded-xl object-cover border border-border-strong flex-shrink-0" />
+                <img loading="lazy" decoding="async" src={story.avatarUrl} alt={story.personName} className="w-11 h-11 rounded-xl object-cover border border-border-strong flex-shrink-0" />
               ) : (
                 <div className="w-11 h-11 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-lg font-bold text-primary">{story.personName[0]}</span>

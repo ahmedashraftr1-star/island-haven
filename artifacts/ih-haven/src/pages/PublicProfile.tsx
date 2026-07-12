@@ -193,7 +193,7 @@ export default function PublicProfile() {
         <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right">
           <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 flex items-center justify-center text-[28px] font-bold text-foreground shadow-[0_10px_40px_-12px_rgba(220,38,55,0.55)] shrink-0">
             {u.avatarUrl ? (
-              <img src={u.avatarUrl} alt={u.fullName} className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={u.avatarUrl} alt={u.fullName} className="w-full h-full object-cover" />
             ) : (
               initials || "·"
             )}

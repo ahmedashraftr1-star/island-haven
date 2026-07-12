@@ -380,7 +380,7 @@ function ProfileInner({
                   disabled={avatarUploading}
                 >
                   {user.avatarUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={user.avatarUrl}
                       alt={user.fullName}
                       className="w-full h-full object-cover"
@@ -1734,7 +1734,7 @@ function MyVentures() {
             className="group flex items-center gap-3 rounded-2xl px-4 py-3 bg-white/[0.03] border border-white/[0.06] hover:border-primary/40 transition-colors"
           >
             {v.logoUrl ? (
-              <img src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover" />
+              <img loading="lazy" decoding="async" src={v.logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover" />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center text-white/70 font-bold">
                 {v.name.charAt(0)}

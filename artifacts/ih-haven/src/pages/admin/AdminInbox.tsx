@@ -40,7 +40,7 @@ function timeAgo(iso: string): string {
 }
 
 function Avatar({ name, url }: { name: string; url?: string | null }) {
-  if (url) return <img src={url} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />;
+  if (url) return <img loading="lazy" decoding="async" src={url} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />;
   return (
     <div className="w-9 h-9 rounded-full bg-primary/15 text-primary grid place-items-center text-[13px] font-bold shrink-0">
       {name?.trim()?.[0] ?? "؟"}

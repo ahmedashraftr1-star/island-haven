@@ -222,7 +222,7 @@ export default function CourseDetail() {
         <GlassCard>
           {c.coverUrl ? (
             <div className="aspect-[16/9] overflow-hidden bg-black/30">
-              <img
+              <img loading="lazy" decoding="async"
                 src={c.coverUrl}
                 alt={c.title}
                 className="w-full h-full object-cover"

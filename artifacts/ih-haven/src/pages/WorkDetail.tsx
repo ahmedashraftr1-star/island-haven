@@ -450,7 +450,7 @@ export default function WorkDetail() {
               onClick={() => setLightbox(0)}
               className="block w-full aspect-[16/10] overflow-hidden bg-black/30 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={data.work.coverUrl}
                 alt={data.work.title}
                 className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
@@ -689,7 +689,7 @@ export default function WorkDetail() {
                         <Link href={`/u/${c.author.id}`} className="shrink-0">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[13px] font-bold text-foreground">
                             {c.author.avatarUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={c.author.avatarUrl}
                                 alt={c.author.fullName}
                                 className="w-full h-full object-cover"
@@ -785,7 +785,7 @@ export default function WorkDetail() {
                               <Link href={`/u/${rep.author.id}`} className="shrink-0">
                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/30 overflow-hidden flex items-center justify-center text-[11px] font-bold text-foreground">
                                   {rep.author.avatarUrl ? (
-                                    <img
+                                    <img loading="lazy" decoding="async"
                                       src={rep.author.avatarUrl}
                                       alt={rep.author.fullName}
                                       className="w-full h-full object-cover"
@@ -934,7 +934,7 @@ export default function WorkDetail() {
             >
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[15px] font-bold text-foreground shrink-0">
                 {data.author.avatarUrl ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={data.author.avatarUrl}
                     alt={data.author.fullName}
                     className="w-full h-full object-cover"
@@ -1022,7 +1022,7 @@ export default function WorkDetail() {
           role="dialog"
           aria-modal="true"
         >
-          <img
+          <img loading="lazy" decoding="async"
             src={allImages[lightbox]}
             alt=""
             className="max-w-[92vw] max-h-[88vh] object-contain rounded-2xl shadow-[0_40px_120px_-30px_rgba(0,0,0,0.7)]"

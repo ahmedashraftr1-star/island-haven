@@ -1,5 +1,6 @@
 import { useRef, type ReactNode, type ElementType } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { photoSrcSet } from "@/hooks/use-content";
 
 /**
  * CinematicMedia — the homepage's shared "hero-power" backdrop, factored out of
@@ -86,6 +87,13 @@ export function CinematicMedia({
       <motion.div style={{ y: photoY, scale: photoScale }} aria-hidden className="absolute inset-0 will-change-transform">
         <img
           src={src}
+          // Every consumer of this component paints the photo full-bleed, so the
+          // browser can pick the 640/960/1350 variant by viewport × DPR instead of
+          // always pulling the 1350×1800 original (a phone was fetching a 149KB
+          // still to paint it 390px wide). Non-bundled images (CMS uploads, remote
+          // URLs) get no srcSet and fall back to plain `src`.
+          srcSet={photoSrcSet(src)}
+          sizes="100vw"
           alt={alt}
           loading={eager ? "eager" : "lazy"}
           decoding="async"

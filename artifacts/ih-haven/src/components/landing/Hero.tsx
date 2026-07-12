@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTra
 import { ArrowLeft, ArrowDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
-import { imageUrl, useContentSection } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
 import { useNumbers, useAttendanceSummary } from "@/hooks/use-public-data";
@@ -192,11 +192,40 @@ export function Hero() {
     [c.image1, c.image2, c.image3, c.image5, c.image6],
   );
 
+  // Every still is `absolute inset-0` — i.e. INSIDE the viewport, merely
+  // transparent — so `loading="lazy"` does not hold the non-visible ones back:
+  // the browser eagerly pulled all five (~800KB of webp) during first paint,
+  // starving the LCP still. None of them is shown before the first cross-fade at
+  // 5.5s, so mount only the LCP still up front and add the rest once the browser
+  // is idle. Reduced-motion never cross-fades, so it never pays for them at all.
+  const [showRestStills, setShowRestStills] = useState(false);
   useEffect(() => {
     if (reduce || stills.length < 2) return;
-    const id = setInterval(() => setStillIdx((i) => (i + 1) % stills.length), 5500);
-    return () => clearInterval(id);
+    type IdleWin = Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (h: number) => void;
+    };
+    const w = window as IdleWin;
+    const id = w.requestIdleCallback
+      ? w.requestIdleCallback(() => setShowRestStills(true), { timeout: 2500 })
+      : window.setTimeout(() => setShowRestStills(true), 1200);
+    return () => {
+      if (w.cancelIdleCallback) w.cancelIdleCallback(id);
+      else window.clearTimeout(id);
+    };
   }, [reduce, stills.length]);
+
+  // Only cycle across the stills that are actually mounted.
+  const mountedStills = showRestStills ? stills : stills.slice(0, 1);
+
+  useEffect(() => {
+    if (reduce || mountedStills.length < 2) return;
+    const id = setInterval(
+      () => setStillIdx((i) => (i + 1) % mountedStills.length),
+      5500,
+    );
+    return () => clearInterval(id);
+  }, [reduce, mountedStills.length]);
 
   // Kick the count-up shortly after the headline lines have risen, so the
   // figures are the last thing to settle (Apple cadence). One-shot.
@@ -249,10 +278,14 @@ export function Hero() {
         style={{ y: photoY, scale: photoScale }}
         className="absolute inset-0 will-change-transform"
       >
-        {stills.map((src, i) => (
+        {mountedStills.map((src, i) => (
           <motion.img
             key={`${src}-${i}`}
             src={src}
+            // Full-bleed: the browser picks the 640/960/1350 variant by viewport
+            // × DPR instead of always pulling the 1350w original.
+            srcSet={photoSrcSet(src)}
+            sizes="100vw"
             alt=""
             initial={false}
             animate={{

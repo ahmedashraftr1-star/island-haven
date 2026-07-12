@@ -186,7 +186,7 @@ export default function Perks() {
                     )}
                   </div>
                   {p.logoUrl && (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={p.logoUrl}
                       alt={p.partnerName}
                       className="w-11 h-11 rounded-xl object-contain bg-surface-2 border border-border-strong p-1 shrink-0"

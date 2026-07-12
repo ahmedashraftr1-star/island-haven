@@ -77,22 +77,38 @@ export default function Home() {
           <CredibilityBar />
           <NumbersBand />
         </div>
+        {/* One boundary PER ACT, not one for all four: each act reveals as its own
+            chunks arrive, so act 1 is interactive without waiting on act 4's JS,
+            and a slow/failed chunk is isolated to its own act instead of blanking
+            every section below the fold. */}
+        {/* ── Act 1 · The Work — the projects, then a founder's voice ── */}
         <SectionErrorBoundary>
           <Suspense fallback={null}>
-            {/* ── Act 1 · The Work — the projects, then a founder's voice ── */}
             <ActMarker idx={1} id="act-1" ar="العمل" en="The Work" />
             <VenturesShowcase />
             <SuccessStories />
-            {/* ── Act 2 · What You Get — the offer, then the mentors who deliver it ── */}
+          </Suspense>
+        </SectionErrorBoundary>
+        {/* ── Act 2 · What You Get — the offer, then the mentors who deliver it ── */}
+        <SectionErrorBoundary>
+          <Suspense fallback={null}>
             <ActMarker idx={2} id="act-2" ar="ما تحصل عليه" en="What you get" />
             <WhatYouGet />
             <ExpertsBand />
-            {/* ── Act 3 · The Place & The People — the room, the faces, the reach ── */}
+          </Suspense>
+        </SectionErrorBoundary>
+        {/* ── Act 3 · The Place & The People — the room, the faces, the reach ── */}
+        <SectionErrorBoundary>
+          <Suspense fallback={null}>
             <ActMarker idx={3} id="act-3" ar="المكان والناس" en="The place & the people" />
             <SeatsBoard />
             <FeaturedMembers />
             <GazaToGlobal />
-            {/* ── Act 4 · Join — the living pulse, the path, the door ── */}
+          </Suspense>
+        </SectionErrorBoundary>
+        {/* ── Act 4 · Join — the living pulse, the path, the door ── */}
+        <SectionErrorBoundary>
+          <Suspense fallback={null}>
             <ActMarker idx={4} id="act-4" ar="انضمّ إلينا" en="Join us" />
             <NewsSlider />
             <ApplyProcess />

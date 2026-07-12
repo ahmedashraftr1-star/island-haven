@@ -166,6 +166,27 @@ sudo certbot --nginx -d islandhavengsza.com -d www.islandhavengsza.com
 sudo certbot certificates            # confirm a NEW cert; NasToNas's cert unchanged
 sudo systemctl reload nginx
 ```
+
+### 7b — Enable HTTP/2 (certbot does NOT enable it)
+Certbot writes the `:443` block but leaves it on HTTP/1.1, so the multi-chunk
+first paint opens several connections instead of multiplexing over one — costly
+on high-latency mobile links. Edit **only Island Haven's** `server { … listen 443
+ssl; }` block in `/etc/nginx/sites-available/islandhavengsza.com` (NasToNas's
+block is untouched, so its isolation holds):
+
+```nginx
+# nginx >= 1.25.1 (check: nginx -v) — add a standalone directive in that block:
+http2 on;
+
+# older nginx — instead append http2 to the listen lines certbot wrote:
+# listen 443 ssl http2;
+# listen [::]:443 ssl http2;
+```
+```bash
+sudo nginx -t && sudo systemctl reload nginx          # reload, never restart
+curl -sI --http2 https://islandhavengsza.com | head -1   # expect: HTTP/2 200
+```
+
 Auto-renew is installed by certbot (systemd timer). Then apply the HSTS/CSP
 headers from `deploy/TLS-CSP.md` inside this block only.
 

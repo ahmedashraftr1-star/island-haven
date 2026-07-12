@@ -339,7 +339,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
           <div className="relative shrink-0">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[20px] font-bold text-foreground shadow-[0_8px_30px_-12px_rgba(220,38,55,0.55)]">
               {m.avatarUrl ? (
-                <img src={m.avatarUrl} alt={m.fullName} className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={m.avatarUrl} alt={m.fullName} className="w-full h-full object-cover" />
               ) : (
                 initials || "·"
               )}

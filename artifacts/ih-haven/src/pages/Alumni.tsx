@@ -184,7 +184,7 @@ export default function Alumni() {
                 >
                   <GlassCard className="p-5 flex items-start gap-4 hover:border-primary/20 transition-all">
                     {v.logoUrl ? (
-                      <img src={v.logoUrl} alt={v.name} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
+                      <img loading="lazy" decoding="async" src={v.logoUrl} alt={v.name} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-11 h-11 rounded-xl bg-surface-2 flex items-center justify-center flex-shrink-0">
                         <span className="text-lg font-bold text-muted-foreground">{v.name[0]}</span>
@@ -237,7 +237,7 @@ export default function Alumni() {
                     <p className="text-[14px] text-fg-secondary italic leading-relaxed mb-4">"{s.quote}"</p>
                     <div className="flex items-center gap-3">
                       {s.avatarUrl ? (
-                        <img src={s.avatarUrl} alt={s.personName} className="w-9 h-9 rounded-xl object-cover" />
+                        <img loading="lazy" decoding="async" src={s.avatarUrl} alt={s.personName} className="w-9 h-9 rounded-xl object-cover" />
                       ) : (
                         <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center">
                           <span className="text-base font-bold text-primary">{s.personName[0]}</span>

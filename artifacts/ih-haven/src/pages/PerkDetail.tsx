@@ -127,7 +127,7 @@ export default function PerkDetail() {
             )}
           </div>
           {p.logoUrl && (
-            <img
+            <img loading="lazy" decoding="async"
               src={p.logoUrl}
               alt={p.partnerName}
               className="w-16 h-16 rounded-2xl object-contain bg-surface-2 border border-border-strong p-1.5 shrink-0"

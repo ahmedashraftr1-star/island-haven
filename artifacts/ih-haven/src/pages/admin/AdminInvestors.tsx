@@ -130,7 +130,7 @@ export default function AdminInvestors() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {row.logoUrl ? (
-                        <img src={row.logoUrl} alt={row.name} className="w-9 h-9 rounded-lg object-cover border border-border flex-shrink-0" />
+                        <img loading="lazy" decoding="async" src={row.logoUrl} alt={row.name} className="w-9 h-9 rounded-lg object-cover border border-border flex-shrink-0" />
                       ) : (
                         <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                           <span className="text-base font-bold text-foreground/30">{row.name[0]}</span>

@@ -96,9 +96,13 @@ export default defineConfig({
             if (id.includes("lucide-react")) return "icons";
             return undefined;
           }
-          // Group all admin pages into one lazily-loaded chunk that is fully
-          // separate from the public app's `index` chunk.
-          if (id.includes("/src/pages/admin/")) return "admin";
+          // Admin pages are left to their natural React.lazy(AdminDashboard)
+          // boundary. A manual `admin` group here became a shared-module sink:
+          // modules imported by BOTH the eager public tree and admin got pulled
+          // into it, forcing the public entry to static-import admin (and its
+          // transitive charts dep) and modulepreload ~390KB of admin-only JS on
+          // every public page. Dropping the group cuts eager critical-path JS
+          // ~49% (measured) with admin/charts now loading only under /admin.
           return undefined;
         },
       },

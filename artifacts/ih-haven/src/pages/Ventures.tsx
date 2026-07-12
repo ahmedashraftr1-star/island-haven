@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { useVentures } from "@/hooks/use-public-data";
 import { type VentureStage } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { Ticker } from "@/components/landing/Ticker";
@@ -79,32 +79,16 @@ function frameFor(id: number): string {
 
 export default function Ventures() {
   const { lang, t } = useLanguage();
-  const [rows, setRows] = useState<Venture[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Shared cached hook: the homepage already warms the `ventures` key, so landing
+  // here paints from cache instead of a spinner. It also drops the old effect's
+  // `lang` dependency, which refetched the whole list on every AR↔EN toggle —
+  // the error copy is now resolved at render time instead.
+  const { data, isLoading, isError } = useVentures<Venture>();
+  const rows = data?.ventures ?? [];
   const reduce = useReducedMotion();
   // Confirmed metrics only — the owner adds real per-venture figures in this CMS
   // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
-
-  useEffect(() => {
-    let cancelled = false;
-    api<{ ventures: Venture[] }>("/ventures")
-      .then((r) => !cancelled && setRows(r.ventures))
-      .catch(
-        (e) =>
-          !cancelled &&
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر التحميل"
-                : "Couldn't load ventures",
-          ),
-      );
-    return () => {
-      cancelled = true;
-    };
-  }, [lang]);
 
   const featured = (rows ?? []).filter((v) => v.featured);
   const rest = (rows ?? []).filter((v) => !v.featured);
@@ -133,13 +117,13 @@ export default function Ventures() {
       })}
       heroAside={<SectorTickerAside />}
     >
-      {error && (
-        <GlassCard className="p-5 text-primary text-center font-medium">{error}</GlassCard>
-      )}
-
-      {rows === null && !error ? (
+      {isLoading ? (
         <SkeletonVentures />
-      ) : rows && rows.length === 0 ? (
+      ) : isError ? (
+        <GlassCard className="p-5 text-primary text-center font-medium">
+          {t({ ar: "تعذّر التحميل", en: "Couldn't load ventures" })}
+        </GlassCard>
+      ) : rows.length === 0 ? (
         <EmptyPortfolio />
       ) : (
         <>

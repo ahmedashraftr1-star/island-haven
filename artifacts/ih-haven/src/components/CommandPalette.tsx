@@ -502,7 +502,7 @@ export function CommandPalette() {
                           }`}
                         >
                           {row.avatarUrl ? (
-                            <img
+                            <img loading="lazy" decoding="async"
                               src={row.avatarUrl}
                               alt=""
                               className="w-10 h-10 rounded-lg object-cover border border-border-strong shrink-0"

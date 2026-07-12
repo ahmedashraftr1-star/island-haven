@@ -272,7 +272,7 @@ export default function DemoDay() {
                   >
                     <div className="flex items-center gap-3 mb-2">
                       {v.logoUrl ? (
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={v.logoUrl}
                           alt=""
                           className="w-11 h-11 rounded-xl object-cover border border-border-strong"

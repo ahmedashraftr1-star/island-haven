@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Search, X } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { useExperts, useTeam } from "@/hooks/use-public-data";
 import { splitTags } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ExpertAvatar, initials } from "@/components/ui/ExpertAvatar";
@@ -89,40 +89,23 @@ function num(n: number, lang: Lang): string {
 
 export default function Experts() {
   const { lang, dir, t } = useLanguage();
-  const [rows, setRows] = useState<ExpertCard[] | null>(null);
-  const [groups, setGroups] = useState<Map<string, string>>(new Map());
-  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const reduce = useReducedMotion();
 
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([
-      api<{ experts: ExpertCard[] }>("/experts"),
-      api<{ team: TeamMember[] }>("/team").catch(() => ({ team: [] as TeamMember[] })),
-    ])
-      .then(([ex, tm]) => {
-        if (cancelled) return;
-        const g = new Map<string, string>();
-        for (const m of tm.team) g.set(m.fullName.trim(), m.group);
-        setGroups(g);
-        setRows(ex.experts);
-      })
-      .catch((e) => {
-        if (!cancelled)
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر تحميل الخبراء"
-                : "Couldn't load experts",
-          );
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [lang]);
+  // Shared cached hooks: the homepage warms `experts`, so arriving here paints
+  // from cache. Both keys are language-independent, so an AR↔EN toggle no longer
+  // refetches (the old effect keyed on `lang` purely to localize the error copy —
+  // that copy is now resolved at render time). /team stays best-effort: if it
+  // fails, `groups` is simply empty, exactly as the old `.catch(() => ({team:[]}))`.
+  const { data: expertsData, isLoading, isError } = useExperts<ExpertCard>();
+  const rows = expertsData?.experts ?? [];
+  const { data: teamData } = useTeam<TeamMember>();
+  const groups = useMemo(() => {
+    const g = new Map<string, string>();
+    for (const m of teamData?.team ?? []) g.set(m.fullName.trim(), m.group);
+    return g;
+  }, [teamData]);
 
   // Top expertise tags by frequency (across all experts, unfiltered).
   const allTags = useMemo(() => {
@@ -242,13 +225,13 @@ export default function Experts() {
         </div>
       }
     >
-      {error && (
-        <GlassCard className="p-5 text-primary text-center">{error}</GlassCard>
-      )}
-
-      {rows === null && !error ? (
+      {isLoading ? (
         <SkeletonExperts />
-      ) : rows && rows.length === 0 ? (
+      ) : isError ? (
+        <GlassCard className="p-5 text-primary text-center">
+          {t({ ar: "تعذّر تحميل الخبراء", en: "Couldn't load experts" })}
+        </GlassCard>
+      ) : rows.length === 0 ? (
         <MentorsEmptyState reduce={!!reduce} />
       ) : (
         <>

@@ -5,7 +5,7 @@ import { X, ArrowLeft } from "lucide-react";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
-import { useContentSection, imageUrl } from "@/hooks/use-content";
+import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 const FALLBACK = {
@@ -76,7 +76,7 @@ const localSrc = (i: number) =>
 
 /**
  * Resolve any stored image string to a safe, loadable URL.
- * Remote/cross-origin sources are kept (the <img onError> below catches the few
+ * Remote/cross-origin sources are kept (the <img loading="lazy" decoding="async" onError> below catches the few
  * that get blocked or 404 and swaps in a local archive photo), while
  * `/...` and `/api/...` paths resolve through imageUrl() under BASE_URL.
  */
@@ -264,6 +264,10 @@ export default function Gallery() {
             >
               <img
                 src={resolveSrc(it.url)}
+                // Grid tiles are ~1/3 of the viewport, never 1350px wide — let the
+                // browser pick the 640/960 variant for our bundled photos.
+                srcSet={photoSrcSet(resolveSrc(it.url))}
+                sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                 alt={it.title}
                 loading={i < 4 ? "eager" : "lazy"}
                 decoding="async"
@@ -273,6 +277,8 @@ export default function Gallery() {
                   // once, the very first time a source fails (ORB / 404 / CORS).
                   if (img.dataset.fb) return;
                   img.dataset.fb = "1";
+                  // Drop the srcset too, or it would keep overriding the fallback src.
+                  img.removeAttribute("srcset");
                   img.src = localSrc(i);
                 }}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transform-none"
@@ -317,7 +323,7 @@ export default function Gallery() {
               className="relative max-w-5xl max-h-[90vh] w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={resolveSrc(active.url)}
                 alt={active.title}
                 onError={(e) => {

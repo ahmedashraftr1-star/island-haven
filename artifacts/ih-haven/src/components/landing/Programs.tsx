@@ -74,7 +74,7 @@ export function Programs() {
         >
           <div className="grid grid-cols-12 gap-0 items-stretch">
             <div className="col-span-12 lg:col-span-5 relative">
-              <img
+              <img loading="lazy" decoding="async"
                 src={imageUrl(c.featureImage)}
                 alt={c.featureTitle}
                 className="w-full h-full min-h-[320px] lg:min-h-[480px] object-cover"

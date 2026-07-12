@@ -184,7 +184,7 @@ export function Showcase() {
                 </div>
 
                 <div className="relative aspect-[4/3] overflow-hidden bg-foreground/5">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={p.photo}
                     alt={p.title}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 hover:scale-105"

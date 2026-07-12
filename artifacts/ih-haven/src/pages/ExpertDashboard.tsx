@@ -269,7 +269,7 @@ function SessionsPanel({
               <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
                   {row.menteeAvatar ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={row.menteeAvatar}
                       alt={row.menteeName}
                       className="w-10 h-10 rounded-xl object-cover border border-border-strong"

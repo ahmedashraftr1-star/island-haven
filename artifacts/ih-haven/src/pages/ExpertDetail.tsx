@@ -250,7 +250,7 @@ export default function ExpertDetail() {
                     style={{ background: "hsl(354 80% 55% / 0.25)" }}
                   />
                   {expert.avatarUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={expert.avatarUrl}
                       alt={expert.fullName}
                       className="relative w-28 h-28 rounded-3xl object-cover border border-border-strong"

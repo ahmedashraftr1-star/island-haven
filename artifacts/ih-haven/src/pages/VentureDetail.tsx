@@ -141,7 +141,7 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
             >
               <div className="flex items-center gap-3 mb-1">
                 {o.logoUrl ? (
-                  <img src={o.logoUrl} alt="" className="w-9 h-9 rounded-xl object-cover" />
+                  <img loading="lazy" decoding="async" src={o.logoUrl} alt="" className="w-9 h-9 rounded-xl object-cover" />
                 ) : (
                   <div className="w-9 h-9 rounded-xl bg-surface-2 flex items-center justify-center text-fg-secondary font-bold text-sm">
                     {oName.charAt(0)}

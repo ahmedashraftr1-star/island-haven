@@ -232,7 +232,7 @@ export function DailyDetail() {
       <GlassCard>
         {post.coverUrl && (
           <div className="aspect-[16/9] overflow-hidden bg-black/30">
-            <img
+            <img loading="lazy" decoding="async"
               src={post.coverUrl}
               alt={post.title}
               className="w-full h-full object-cover"

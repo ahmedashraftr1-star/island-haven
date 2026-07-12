@@ -842,7 +842,7 @@ function ExpertProfileModal({
         <div className="p-5 pb-2">
           <div className="flex items-start gap-4">
             {expert.avatarUrl ? (
-              <img
+              <img loading="lazy" decoding="async"
                 src={expert.avatarUrl}
                 alt={expert.fullName}
                 className="w-16 h-16 rounded-2xl object-cover border border-white/12 shrink-0"
@@ -1622,7 +1622,7 @@ function SuccessScreen({
               <div className="mb-6 py-4 px-5 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center gap-4">
                 <div className="relative shrink-0">
                   {expert.avatarUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={expert.avatarUrl}
                       alt={expert.fullName}
                       className="w-12 h-12 rounded-full object-cover border-2 border-primary/40"

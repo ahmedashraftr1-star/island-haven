@@ -75,7 +75,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
       <GlassCard className="p-5 hover:border-primary/30 transition-all duration-300 group">
         <div className="flex items-start gap-4">
           {job.companyLogoUrl ? (
-            <img
+            <img loading="lazy" decoding="async"
               src={job.companyLogoUrl}
               alt={job.companyName}
               className="w-12 h-12 rounded-xl object-cover border border-border-strong flex-shrink-0"

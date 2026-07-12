@@ -698,7 +698,7 @@ function ProfileData({ member }: { member: MemberPrivate }) {
         <Card className="p-6">
           <div className="flex items-center gap-4">
             {member.avatarUrl ? (
-              <img src={member.avatarUrl} alt={member.fullName} className="h-16 w-16 rounded-full object-cover ring-1 ring-sand/30" />
+              <img loading="lazy" decoding="async" src={member.avatarUrl} alt={member.fullName} className="h-16 w-16 rounded-full object-cover ring-1 ring-sand/30" />
             ) : (
               <span className="grid h-16 w-16 place-items-center rounded-full border border-white/[0.08] bg-white/[0.03] font-display font-black text-sand-bright text-2xl">{initial}</span>
             )}

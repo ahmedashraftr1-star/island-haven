@@ -863,7 +863,7 @@ function AvatarUploader({
     <div className="flex items-center gap-3">
       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden text-[18px] font-bold text-primary shrink-0">
         {value ? (
-          <img src={value} alt={name} className="w-full h-full object-cover" />
+          <img loading="lazy" decoding="async" src={value} alt={name} className="w-full h-full object-cover" />
         ) : (
           initials
         )}

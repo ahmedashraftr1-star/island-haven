@@ -7,6 +7,7 @@ import pinoHttp from "pino-http";
 import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { compressJson, indexTwin, precompressedStatic } from "./lib/precompressed";
 import { rateLimitStore } from "./lib/rateLimitStore";
 import {
   metricsMiddleware,
@@ -42,8 +43,11 @@ app.use(
       directives: {
         "default-src": ["'self'"],
         "script-src": ["'self'"],
-        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
+        // Webfonts are self-hosted now, so Google's origins are no longer allowed
+        // to serve us stylesheets or fonts — a smaller attack surface, not just a
+        // faster one.
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "font-src": ["'self'", "data:"],
         "img-src": ["'self'", "data:", "blob:", "https:"],
         "connect-src": ["'self'"],
         "frame-ancestors": ["'self'"],
@@ -249,6 +253,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Compress JSON payloads over 1KB (a cold homepage pulled ~91KB of raw JSON).
+// Must sit directly in front of the router so it wraps res.json for every route.
+app.use("/api", compressJson());
 app.use("/api", router);
 
 // ─── Production: serve the built SPA from the same origin ─────────────────────
@@ -262,20 +269,40 @@ if (
   const clientDir =
     process.env.CLIENT_DIR ??
     path.resolve(process.cwd(), "../ih-haven/dist/public");
+  // Serve the build-time `.br`/`.gz` twins when the client accepts them. Must
+  // come BEFORE express.static (it rewrites req.url to the compressed twin).
+  app.use(precompressedStatic(clientDir));
   app.use(
     express.static(clientDir, {
       index: false,
       setHeaders: (res, filePath) => {
         // Content-hashed assets can be cached hard; index.html must not be.
-        if (/[.-][A-Za-z0-9_]{8,}\.(js|css|woff2?|png|jpe?g|svg|webp|avif)$/.test(filePath))
+        // The optional (\.br|\.gz) tail keeps the header on the precompressed
+        // twins, whose path is e.g. `index-B4rXk9Qz.js.br`.
+        if (
+          /[.-][A-Za-z0-9_]{8,}\.(js|css|woff2?|png|jpe?g|svg|webp|avif)(\.br|\.gz)?$/.test(
+            filePath,
+          )
+        )
           res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
       },
     }),
   );
   // SPA fallback: any non-API GET returns index.html so the client router runs.
+  // The route has no file extension, so precompressedStatic can't see it — serve
+  // the `.br`/`.gz` twin here instead of shipping the shell raw on every load.
   app.use((req, res, next) => {
     if (req.method !== "GET" || req.path.startsWith("/api") || req.path === "/metrics")
       return next();
+    const twin = indexTwin(clientDir, String(req.headers["accept-encoding"] ?? ""));
+    if (twin) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Content-Encoding", twin.enc);
+      res.setHeader("Vary", "Accept-Encoding");
+      // The shell must never be cached hard — it points at the hashed assets.
+      res.setHeader("Cache-Control", "no-cache");
+      return void res.sendFile(twin.file, (err) => (err ? next() : undefined));
+    }
     res.sendFile(path.join(clientDir, "index.html"), (err) =>
       err ? next() : undefined,
     );

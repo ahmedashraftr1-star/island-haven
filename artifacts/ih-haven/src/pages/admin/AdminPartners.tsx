@@ -81,7 +81,7 @@ export default function AdminPartners() {
                 <tr key={r.id} className="border-t border-border hover:bg-muted/20">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {r.logoUrl && <img src={r.logoUrl} alt="" className="h-7 w-auto object-contain" />}
+                      {r.logoUrl && <img loading="lazy" decoding="async" src={r.logoUrl} alt="" className="h-7 w-auto object-contain" />}
                       <span className="font-semibold text-foreground">{r.name}</span>
                     </div>
                   </td>

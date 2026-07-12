@@ -1,7 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..600&display=swap');
+/* Webfonts are SELF-HOSTED (see fonts.css). Bundling the @font-face rules into
+   this stylesheet means zero extra requests and — crucially — zero third-party
+   origins on the critical path: no fonts.googleapis.com round-trip, no
+   fonts.gstatic.com handshake. @tailwindcss/typography dropped — .prose was
+   never used (~12.6KB of dead CSS). */
+@import "./fonts.css";
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -208,7 +208,7 @@ export default function Search() {
                         data-testid={`search-hit-${c.key}-${h.id}`}
                       >
                         {h.avatarUrl ? (
-                          <img src={h.avatarUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-border-strong shrink-0" />
+                          <img loading="lazy" decoding="async" src={h.avatarUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-border-strong shrink-0" />
                         ) : (
                           <div className="w-12 h-12 rounded-xl bg-primary-soft border border-border-strong flex items-center justify-center shrink-0">
                             <Icon className="w-5 h-5 text-primary" aria-hidden />

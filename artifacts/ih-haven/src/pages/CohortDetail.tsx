@@ -171,7 +171,7 @@ export default function CohortDetail() {
       <GlassCard className="overflow-hidden">
         <div className="relative h-48 sm:h-64">
           {c.coverUrl ? (
-            <img
+            <img loading="lazy" decoding="async"
               src={c.coverUrl}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
@@ -456,7 +456,7 @@ function VentureMini({ row }: { row: VentureRow }) {
       <GlassCard className="h-full flex flex-col p-5 hover:border-primary/40 transition-colors">
         <div className="flex items-center gap-3 mb-3">
           {v.logoUrl ? (
-            <img src={v.logoUrl} alt="" className="w-11 h-11 rounded-xl object-cover" />
+            <img loading="lazy" decoding="async" src={v.logoUrl} alt="" className="w-11 h-11 rounded-xl object-cover" />
           ) : (
             <div className="w-11 h-11 rounded-xl bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary font-bold">
               {v.name.charAt(0)}

@@ -84,7 +84,7 @@ function Avatar({
   const dim = { width: size, height: size };
   if (src) {
     return (
-      <img
+      <img loading="lazy" decoding="async"
         src={src}
         alt=""
         style={dim}
