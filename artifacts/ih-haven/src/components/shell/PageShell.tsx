@@ -59,7 +59,18 @@ export function PageShell({
             >
               {/* Focal brand aura behind the page title — atmosphere, not flat */}
               <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-40" />
-              <div className={heroAside ? "grid lg:grid-cols-[1.15fr_0.85fr] gap-x-10 gap-y-9 lg:items-center" : ""}>
+              {/* `minmax(0, …)` on BOTH tracks, and `items-start` on the row.
+                  A bare `fr` track carries an automatic min-width of min-content:
+                  on /ventures the aside is a marquee whose min-content width is the
+                  whole tag list, so it blew its track open — the sector strip ran
+                  clean off the left edge (tags hard-clipped mid-word) and the title
+                  was squeezed to «مشاريع / وُلدت / في / آيلاند.», one word per line.
+                  `items-center` was the second half of the same bug: it ranked each
+                  page's entry line against the height of its aside, so the eyebrow
+                  opened at y≈136 on /ventures and y≈327 on /experts. Every page now
+                  starts on one baseline; the aside keeps its optical centring via
+                  `lg:self-center` below. */}
+              <div className={heroAside ? "grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-x-10 gap-y-9 lg:items-start" : ""}>
                 <div>
                   {eyebrow && (
                     <div className="flex items-center gap-3 mb-5">
@@ -92,7 +103,11 @@ export function PageShell({
                     </p>
                   )}
                 </div>
-                {heroAside && <div className="w-full lg:justify-self-end">{heroAside}</div>}
+                {heroAside && (
+                  <div className="w-full min-w-0 overflow-hidden lg:self-center lg:justify-self-end">
+                    {heroAside}
+                  </div>
+                )}
               </div>
               <div aria-hidden className="mt-9 sm:mt-11 h-px w-full bg-gradient-to-r from-border-strong via-border-strong/40 to-transparent rtl:bg-gradient-to-l" />
             </motion.div>

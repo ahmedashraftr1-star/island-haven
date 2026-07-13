@@ -403,8 +403,12 @@ export function Header() {
           })}
         </nav>
 
-        {/* ── Desktop actions ── */}
-        <div className="hidden lg:flex items-center gap-2 shrink-0">
+        {/* ── Desktop actions ──
+            Gated on `xl`, NOT `lg`. The mobile cluster below is `xl:hidden`, so a
+            `lg:flex` here made 1024–1279 render BOTH bars at once: two language
+            toggles, two search buttons, a burger AND both CTA pills. One switch
+            point means the bar is either full-desktop or burger — never both. */}
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={openSearch}
@@ -421,20 +425,23 @@ export function Header() {
           <LangToggle tone="onDark" />
           <Link
             href="/login"
-            className="hidden xl:inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-[12.5px] font-medium text-white/70 transition-colors duration-200 hover:text-white hover:bg-white/[0.06]"
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-[12.5px] font-medium text-white/70 transition-colors duration-200 hover:text-white hover:bg-white/[0.06]"
           >
             <LogIn className="w-3.5 h-3.5 rtl:-scale-x-100" aria-hidden />
             {t({ ar: "دخول الأعضاء", en: "Member Login" })}
           </Link>
-          <Link
-            href="/book"
-            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] bg-white/10 backdrop-blur-md border border-white/15 text-white hover:bg-white/15"
-          >
-            {c.bookCtaLabel}
-          </Link>
+          {/* The /book pill is gone from the bar: it duplicated the hero's own
+              «احجز مقعدك», and with «انتسب الآن» duplicated too the first screen
+              carried the SAME two actions twice, on a diagonal, so the eye
+              ping-ponged. /book stays reachable in the mega menu, the footer, the
+              mobile overlay and the hero itself — nothing is lost but the echo. */}
           <Link
             href={c.ctaHref || "/apply"}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] cta-fill"
+            className={`inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] ${
+              scrolled
+                ? "shadow-soft cta-fill"
+                : "bg-white/15 backdrop-blur-md border border-white/25 text-white hover:bg-white/20"
+            }`}
           >
             <span>{c.ctaLabel}</span>
             <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -451,9 +458,10 @@ export function Header() {
           >
             <Search className="w-4 h-4" aria-hidden />
           </button>
-          <span className="lg:hidden">
-            <LiveNewsDot />
-          </span>
+          {/* No `lg:hidden` wrapper: the desktop cluster is now xl-gated, so at
+              1024–1279 THIS is the only bar — hiding the dot here would delete it
+              from that whole band. */}
+          <LiveNewsDot />
           <LangToggle tone="onDark" />
           <button
             onClick={() => setOpen((v) => !v)}

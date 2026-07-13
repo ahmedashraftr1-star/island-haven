@@ -275,14 +275,17 @@ function AnimatedNum({
   return <>{num(count, lang)}</>;
 }
 
-// A single stat box — a monumental font-mono numeral, a calm mono label, and a
-// faint supporting line. tnum keeps numerals aligned.
+// A single stat box — a monumental DISPLAY numeral, a calm mono label, and a
+// faint supporting line. On the page whose entire thesis is a number, the number
+// was the faintest mark on it: font-mono at weight 500 gave the figure less
+// presence than the label beneath it. tnum stays — it holds the width during the
+// count-up and is the hook index.css uses to zero tracking in RTL.
 function StatBox({ value, label, hint }: { value: ReactNode; label: string; hint: string }) {
   return (
     <div className="p-[clamp(1.25rem,2.6vw,2rem)]">
       <div
-        className="font-mono font-medium tnum text-foreground leading-none"
-        style={{ fontSize: "clamp(2.5rem,6vw,3.5rem)", letterSpacing: "-0.02em" }}
+        className="font-display font-black tnum text-foreground leading-none"
+        style={{ fontSize: "clamp(2.8rem,6vw,4rem)", letterSpacing: "-0.04em" }}
       >
         {value}
       </div>
