@@ -119,7 +119,7 @@ export function CinematicBand() {
                 className="cta-fill group inline-flex items-center gap-3 h-[52px] px-8 rounded-full font-bold text-[15px] shadow-[0_24px_64px_-16px_hsl(354_82%_40%/0.6)] hover:scale-[1.02] active:scale-[0.99] transition-transform duration-200"
               >
                 {t({ ar: "ابدأ رحلتك", en: "Start your journey" })}
-                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
             </motion.div>
           </div>

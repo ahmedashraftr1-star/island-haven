@@ -302,7 +302,7 @@ export default function DemoDay() {
                     )}
                     <div className="mt-3 inline-flex items-center gap-1 text-muted-foreground group-hover:text-primary transition-colors text-[12px] font-semibold">
                       {t({ ar: "التفاصيل", en: "Details" })}
-                      <ArrowLeft className="w-3.5 h-3.5 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-transform ltr:rotate-180" />
+                      <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                     </div>
                   </Link>
                 </motion.div>

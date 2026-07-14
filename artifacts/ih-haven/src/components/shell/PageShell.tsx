@@ -15,11 +15,7 @@ export function PageShell({
   titleClassName,
   highlightClassName,
   children,
-  // `container-ih` above already binds the rail to 1280px. A second max-w here
-  // would re-crop it — so the default must NOT bind. The nine pages that pass an
-  // explicit maxWidth (Gallery, Search, Events, …) are unaffected: their column is
-  // narrower than the rail and stays mx-auto-centred inside it.
-  maxWidth = "max-w-none",
+  maxWidth = "max-w-6xl",
 }: {
   eyebrow?: string;
   title?: string;
@@ -52,13 +48,7 @@ export function PageShell({
       {/* Unified site header — the same mega-menu + ⌘K nav used everywhere. */}
       <Header />
 
-      {/* ONE rail. The homepage rides `container-ih` (1280px, gutter
-          clamp(1.5rem,5vw,3rem)); every inner page used to ride a hand-rolled
-          px-5/sm:px-8/lg:px-14 + max-w-6xl (1152px) instead — so the content
-          column literally changed width when you clicked from Home into a page,
-          and the two would silently desync the day --container-max was retuned.
-          The utility IS the source of truth now. */}
-      <div className="relative z-10 flex-1 container-ih pt-28 sm:pt-32 pb-16">
+      <div className="relative z-10 flex-1 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
           {(eyebrow || title || subtitle || heroAside) && (
             <motion.div
@@ -69,18 +59,7 @@ export function PageShell({
             >
               {/* Focal brand aura behind the page title — atmosphere, not flat */}
               <div aria-hidden className="pointer-events-none absolute -z-10 -top-16 inset-x-0 h-[150%] brand-aura opacity-40" />
-              {/* `minmax(0, …)` on BOTH tracks, and `items-start` on the row.
-                  A bare `fr` track carries an automatic min-width of min-content:
-                  on /ventures the aside is a marquee whose min-content width is the
-                  whole tag list, so it blew its track open — the sector strip ran
-                  clean off the left edge (tags hard-clipped mid-word) and the title
-                  was squeezed to «مشاريع / وُلدت / في / آيلاند.», one word per line.
-                  `items-center` was the second half of the same bug: it ranked each
-                  page's entry line against the height of its aside, so the eyebrow
-                  opened at y≈136 on /ventures and y≈327 on /experts. Every page now
-                  starts on one baseline; the aside keeps its optical centring via
-                  `lg:self-center` below. */}
-              <div className={heroAside ? "grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-x-10 gap-y-9 lg:items-start" : ""}>
+              <div className={heroAside ? "grid lg:grid-cols-[1.15fr_0.85fr] gap-x-10 gap-y-9 lg:items-center" : ""}>
                 <div>
                   {eyebrow && (
                     <div className="flex items-center gap-3 mb-5">
@@ -94,7 +73,7 @@ export function PageShell({
                     <h1
                       className="font-display font-extrabold text-foreground leading-[1.0]"
                       style={{
-                        fontSize: "var(--t-display-hero)",
+                        fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
                         letterSpacing: "-0.04em",
                       }}
                     >
@@ -113,11 +92,7 @@ export function PageShell({
                     </p>
                   )}
                 </div>
-                {heroAside && (
-                  <div className="w-full min-w-0 overflow-hidden lg:self-center lg:justify-self-end">
-                    {heroAside}
-                  </div>
-                )}
+                {heroAside && <div className="w-full lg:justify-self-end">{heroAside}</div>}
               </div>
               <div aria-hidden className="mt-9 sm:mt-11 h-px w-full bg-gradient-to-r from-border-strong via-border-strong/40 to-transparent rtl:bg-gradient-to-l" />
             </motion.div>
@@ -139,11 +114,7 @@ export function BackLink({ href, label }: { href: string; label: string }) {
       href={href}
       className="group inline-flex items-center gap-2 text-[12px] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold mb-6"
     >
-      {/* A BACK arrow, so it points the opposite way to every "next" arrow on the
-          site: toward the START of the reading direction. Left in LTR, right in
-          RTL — hence `rtl:rotate-180` here, where a forward arrow carries
-          `ltr:rotate-180`. The hover slide follows it. */}
-      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform ltr:group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+      <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
       {label}
     </Link>
   );

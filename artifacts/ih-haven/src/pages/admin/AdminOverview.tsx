@@ -293,7 +293,7 @@ export default function AdminOverview({
             className="text-[12.5px] text-primary font-semibold hover:gap-2 inline-flex items-center gap-1 transition-all"
           >
             كلّ الطلبات
-            <ArrowLeft className="w-3 h-3 ltr:rotate-180" />
+            <ArrowLeft className="w-3 h-3 rtl:rotate-180" />
           </button>
         </div>
         {recent.length === 0 ? (

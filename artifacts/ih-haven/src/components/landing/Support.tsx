@@ -72,13 +72,13 @@ export function Support() {
   ];
 
   return (
-    <section id="support" className="section-y relative bg-background overflow-hidden border-t border-border-strong/60">
+    <section id="support" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
       <div className="container-ih relative">
         {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
         <header className="max-w-4xl">
           <motion.h2
             className="font-display text-foreground"
-            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
           >
             {[
               t({ ar: "استمرار هذا المكان", en: "This place stays" }),
@@ -137,7 +137,7 @@ export function Support() {
                 className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[14px] shadow-soft transition-transform duration-200 hover:-translate-y-0.5"
               >
                 {lang === "en" ? "Donate now" : c.donateCta}
-                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </a>
               {c.donateNote && (
                 <span className="tnum t-caption text-fg-secondary">{c.donateNote}</span>
@@ -172,7 +172,7 @@ export function Support() {
                       {external ? (
                         <ExternalLink className="w-3.5 h-3.5 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
                       ) : (
-                        <ArrowLeft className="w-3.5 h-3.5 text-fg-faint ltr:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                        <ArrowLeft className="w-3.5 h-3.5 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                       )}
                     </span>
                   </a>

@@ -479,7 +479,7 @@ function VentureMini({ row }: { row: VentureRow }) {
         )}
         <div className="flex items-center justify-between pt-3 border-t border-border-strong text-[11.5px] text-fg-faint">
           {v.sector && <span>{v.sector}</span>}
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-all ltr:rotate-180" />
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:text-primary group-hover:-translate-x-1 transition-all rtl:rotate-180" />
         </div>
       </GlassCard>
     </Link>

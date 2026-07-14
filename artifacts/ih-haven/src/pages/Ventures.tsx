@@ -275,17 +275,14 @@ function AnimatedNum({
   return <>{num(count, lang)}</>;
 }
 
-// A single stat box — a monumental DISPLAY numeral, a calm mono label, and a
-// faint supporting line. On the page whose entire thesis is a number, the number
-// was the faintest mark on it: font-mono at weight 500 gave the figure less
-// presence than the label beneath it. tnum stays — it holds the width during the
-// count-up and is the hook index.css uses to zero tracking in RTL.
+// A single stat box — a monumental font-mono numeral, a calm mono label, and a
+// faint supporting line. tnum keeps numerals aligned.
 function StatBox({ value, label, hint }: { value: ReactNode; label: string; hint: string }) {
   return (
     <div className="p-[clamp(1.25rem,2.6vw,2rem)]">
       <div
-        className="font-display font-black tnum text-foreground leading-none"
-        style={{ fontSize: "clamp(2.8rem,6vw,4rem)", letterSpacing: "-0.04em" }}
+        className="font-mono font-medium tnum text-foreground leading-none"
+        style={{ fontSize: "clamp(2.5rem,6vw,3.5rem)", letterSpacing: "-0.02em" }}
       >
         {value}
       </div>
@@ -369,7 +366,7 @@ function EmptyPortfolio() {
     <div className="relative">
       <motion.h2
         className="font-display text-foreground max-w-[16ch]"
-        style={{ fontSize: "var(--t-display-hero)", lineHeight: "var(--lh-display)", letterSpacing: "-0.045em", fontWeight: 700 }}
+        style={{ fontSize: "clamp(2.4rem, 7vw, 5rem)", lineHeight: 1.0, letterSpacing: "-0.045em", fontWeight: 700 }}
       >
         {[
           t({ ar: "أوّل دفعةٍ", en: "The first cohort" }),
@@ -415,7 +412,7 @@ function EmptyPortfolio() {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
         <Link
           href="/programs"
@@ -423,7 +420,7 @@ function EmptyPortfolio() {
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
         >
           {t({ ar: "كيف يعمل الاحتضان", en: "How incubation works" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
       </motion.div>
 
@@ -476,7 +473,7 @@ function ClosingCTA() {
     <section className="mt-[clamp(5rem,11vw,9rem)] border-t border-border-strong/60 pt-[clamp(3rem,6vw,5rem)]">
       <motion.h2
         className="font-display text-foreground max-w-[18ch]"
-        style={{ fontSize: "clamp(2.2rem, 6vw, 4.25rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
+        style={{ fontSize: "clamp(2.2rem, 6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
       >
         {[
           t({ ar: "مشروعك القادم", en: "Your venture is the" }),
@@ -522,7 +519,7 @@ function ClosingCTA() {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "ابدأ مشروعك", en: "Start your venture" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
         <Link
           href="/programs"
@@ -530,7 +527,7 @@ function ClosingCTA() {
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
         >
           {t({ ar: "البرامج والدفعات", en: "Programs & cohorts" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
       </motion.div>
     </section>

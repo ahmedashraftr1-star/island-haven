@@ -172,7 +172,7 @@ export default function Gallery() {
           className="font-display text-foreground"
           style={{
             fontSize: "clamp(2.6rem, 7.4vw, 5.5rem)",
-            lineHeight: "var(--lh-display)",
+            lineHeight: 1.0,
             letterSpacing: "-0.04em",
             fontWeight: 700,
           }}
@@ -352,7 +352,7 @@ export default function Gallery() {
                       className="cta-fill inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-semibold"
                     >
                       {c.openWork}
-                      <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                     </Link>
                   )}
                   <button

@@ -77,9 +77,7 @@ export function WhatYouGet() {
       as="section"
       id="what-you-get"
       src={imageUrl("/photos/IMG_8314.webp")}
-      // This frame is the brightest on the page — a lit laptop screen and a pale
-      // curtain sit directly behind the header. `medium` was not enough.
-      scrim="heavy"
+      scrim="medium"
       sideScrim={false}
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "ما تحصل عليه", en: "What you get" })}
@@ -88,25 +86,6 @@ export function WhatYouGet() {
       <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
       <div className="container-ih section-y relative">
-        {/* Type-protection field — the same cure the Hero and NumbersBand got, for
-            the same reason. The accent is terracotta (luminance ≈0.21); on this
-            frame it lands on a lit laptop screen and a pale curtain. No scrim that
-            leaves the photograph alive can carry it: the ground must fall below
-            ≈0.037 to clear AA-large, and darkening the WHOLE frame that far kills
-            the picture. Measured mean contrast is deceptive here — it averages a
-            dark half with a blown-out half, so the word "passes" on paper while
-            dissolving exactly where it crosses the screen. The field is bound to
-            the header BLOCK, and spans it full-width because the lede and the link
-            sit in the other column and are equally exposed. */}
-        <div className="relative">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -z-10 -inset-x-[10%] -top-[40%] -bottom-[34%]"
-            style={{
-              background:
-                "radial-gradient(70% 78% at 50% 46%, rgba(6,6,10,0.92) 0%, rgba(6,6,10,0.82) 38%, rgba(6,6,10,0.48) 66%, rgba(6,6,10,0.16) 85%, transparent 100%)",
-            }}
-          />
         {/* Header — calm eyebrow, one monumental line, roomy sub. Split so the
             headline never sits beside an empty half on wide screens. */}
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
@@ -122,7 +101,7 @@ export function WhatYouGet() {
               style={{
                 fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
                 fontWeight: 900,
-                lineHeight: "var(--lh-display)",
+                lineHeight: 0.98,
                 letterSpacing: "-0.04em",
               }}
             >
@@ -143,10 +122,9 @@ export function WhatYouGet() {
               className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "اعرف أكثر", en: "Learn more" })}
-              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
           </Reveal>
-        </div>
         </div>
 
         {/* Editorial value list — the whole rows list FLOATS inside one frosted
@@ -210,7 +188,7 @@ export function WhatYouGet() {
               {/* Hairline tick — a quiet directional cue, no medallion */}
               <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
                 <ArrowLeft
-                  className="h-4 w-4 text-white/45 transition-all duration-300 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 group-hover:text-primary motion-reduce:transition-none"
+                  className="h-4 w-4 text-white/45 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
                 />
               </div>

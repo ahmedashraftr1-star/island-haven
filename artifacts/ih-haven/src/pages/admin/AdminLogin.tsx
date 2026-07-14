@@ -120,7 +120,7 @@ export default function AdminLogin() {
         href={import.meta.env.BASE_URL}
         className="absolute top-6 left-6 lg:top-8 lg:left-10 flex items-center gap-2 text-[12px] font-semibold text-white/65 hover:text-white transition-colors"
       >
-        <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
+        <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
         العودة إلى الموقع
       </a>
 

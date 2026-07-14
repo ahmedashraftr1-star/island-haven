@@ -255,7 +255,7 @@ function EventCard({
             )}
             <div className="mt-3 flex items-center gap-2 text-[12.5px] text-muted-foreground group-hover:text-primary font-semibold transition-colors">
               <span>{detailsLabel}</span>
-              <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </div>

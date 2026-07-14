@@ -89,7 +89,7 @@ export function FreelancerCard({ f, i }: { f: Freelancer; i: number }) {
           </div>
           <span className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-primary">
             {t({ ar: "وظِّف", en: "Hire" })}
-            <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
           </span>
         </div>
       </Link>

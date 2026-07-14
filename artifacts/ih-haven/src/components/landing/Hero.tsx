@@ -305,19 +305,15 @@ export function Hero() {
       </motion.div>
       </motion.div>
 
-      {/* ── Cinematic wash — dark at the top (behind the nav) and the bottom
-          (behind the CTAs/figures), open through the middle so the photograph
-          still breathes. It deliberately does NOT try to carry the type: a
-          page-wide veil strong enough for a terracotta headline would have to
-          crush the picture to near-black. The type is protected by a field
-          anchored to the TEXT COLUMN instead (see below), which is strictly more
-          cover where the glyphs are and strictly less everywhere else. ── */}
+      {/* ── Cinematic scrim — sharp in the middle (image breathes), dark only at
+          the top (behind the nav) and bottom (behind stats/CTAs). Much lighter
+          than before so the photograph reads crisp, not muddy. ── */}
       <div aria-hidden className="absolute inset-0 z-[1]">
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.12) 46%, rgba(6,6,10,0.50) 74%, rgba(6,6,10,0.82) 88%, rgba(6,6,10,0.97) 100%)",
+              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.06) 46%, rgba(6,6,10,0.50) 74%, rgba(6,6,10,0.82) 88%, rgba(6,6,10,0.97) 100%)",
           }}
         />
         {/* Extra deep, tight scrim hugging the very bottom edge so the live
@@ -328,6 +324,15 @@ export function Hero() {
           style={{
             background:
               "linear-gradient(180deg, transparent 0%, rgba(6,6,10,0.34) 42%, rgba(6,6,10,0.78) 100%)",
+          }}
+        />
+        {/* Focused directional scrim behind the headline (right side in RTL) so
+            the type stays razor-crisp while the rest of the frame stays open. */}
+        <div
+          className="absolute inset-y-0 right-0 w-full lg:w-[62%]"
+          style={{
+            background:
+              "linear-gradient(270deg, rgba(6,6,10,0.72) 0%, rgba(6,6,10,0.38) 46%, transparent 82%)",
           }}
         />
       </div>
@@ -357,43 +362,15 @@ export function Hero() {
           support, one decisive action. Nothing else competes. ── */}
       <motion.div
         style={{ y: textY }}
-        className="relative z-10 h-full flex flex-col justify-center pt-24 lg:pt-28 pb-10 lg:pb-14 will-change-transform"
+        className="relative z-10 h-full flex items-center will-change-transform"
       >
         <div className="container-ih w-full">
-        <div className="relative">
-          {/* ── Type-protection field ──────────────────────────────────────────
-              Anchored to the TEXT COLUMN, not the page. This is the whole fix for
-              the first screen: the accent word is terracotta (relative luminance
-              ≈0.21), so to clear AA-large against it the ground underneath must
-              fall below ≈0.02 — i.e. near-black. A page-wide scrim strong enough
-              for that would flatten the photograph, which IS the brand. A field
-              bound to the column gives the glyphs a ~0.90 core (ground → ≈0.01,
-              terracotta clears ~4.3:1) while leaving the rest of the frame — the
-              people at the desks, the poster — MORE alive than before, because
-              the old directional wedge that dimmed a whole 62% of the frame is
-              gone. It is also direction-agnostic by construction: the radial is
-              centred on the column, so it mirrors itself in EN with no rtl:
-              branch (the old wedge was pinned to physical `right-0` and darkened
-              the wrong side entirely in English). ─────────────────────────────*/}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -z-10 -inset-x-[14%] -top-[16%] -bottom-[18%]"
-            style={{
-              // Core sits at 36% — on the ACCENT LINE, which is the only run that
-              // actually needs ~0.93 (terracotta, Y≈0.21, needs ground ≤0.037 to
-              // clear AA-large). The tall 88% extent then carries the lede, the
-              // CTAs and the live figures at 0.5–0.86, which is ample for white
-              // and sand. Measured, not guessed.
-              background:
-                "radial-gradient(76% 88% at 50% 36%, rgba(6,6,10,0.93) 0%, rgba(6,6,10,0.88) 34%, rgba(6,6,10,0.66) 62%, rgba(6,6,10,0.30) 82%, transparent 100%)",
-            }}
-          />
           <div className="relative max-w-4xl">
             <motion.div
               initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: DURATION.lg, ease: EASE_OUT_EXPO }}
-              className="mb-5 lg:mb-7 flex items-center gap-3"
+              className="mb-6 lg:mb-8 flex items-center gap-3"
             >
               <span className="h-[2px] w-12 bg-primary" />
               <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold ltr:tracking-[0.2em] rtl:tracking-normal">
@@ -403,23 +380,7 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{
-                // Trimmed from 7.75rem: the live figures now sit in this same
-                // stack, so the column is ~110px taller and the old cap pushed the
-                // eyebrow up into the nav at 1440×900.
-                fontSize: "clamp(2.9rem, 6.8vw, 6.6rem)",
-                fontWeight: 900,
-                // Arabic carries marks above AND below the baseline (the shadda of
-                // «غزّة», the fatha of «نَحضن»). At 0.94 they collide with the line
-                // above and get sheared by RotatingWord's overflow mask. Latin keeps
-                // the monumental 0.94 / -0.05em.
-                lineHeight: lang === "en" ? 0.94 : 1.14,
-                letterSpacing: lang === "en" ? "-0.05em" : "0",
-                // A halo, not a shadow: lifts a glyph off any specular highlight the
-                // field can't fully swallow (a lamp, the white poster) without
-                // reading as an effect.
-                textShadow: "0 2px 30px rgba(6,6,10,0.55), 0 1px 4px rgba(6,6,10,0.40)",
-              }}
+              style={{ fontSize: "clamp(3rem, 7.6vw, 7.75rem)", fontWeight: 900, lineHeight: 0.94, letterSpacing: "-0.05em" }}
             >
               <KineticLine text={headline.prefix} delay={0.4} reduce={!!reduce} />
               <RotatingWord words={headline.words} delay={0.6} reduce={!!reduce} />
@@ -427,14 +388,11 @@ export function Hero() {
             </h1>
           </div>
 
-          {/* Rhythm ladder — the gap GROWS as importance falls: eyebrow→h1 (20/28),
-              h1→lede (24/32), lede→CTAs (32/40). The lede also gets a real measure
-              so it stops out-running the headline and staying outside the field. */}
           <motion.p
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-6 lg:mt-8 max-w-2xl md:max-w-[34rem] lg:max-w-[38rem] text-[1.0625rem] lg:text-xl text-white/85 font-normal leading-[1.7] whitespace-pre-line"
+            className="mt-7 lg:mt-9 max-w-2xl text-[1.0625rem] lg:text-xl text-white/85 font-normal leading-[1.7] whitespace-pre-line"
           >
             {c.subtitle}
           </motion.p>
@@ -444,7 +402,7 @@ export function Hero() {
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.82, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-8 lg:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+            className="mt-9 lg:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
             <a
               href={c.ctaPrimaryHref || "/apply"}
@@ -452,7 +410,7 @@ export function Hero() {
               className="cta-fill group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
-              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
             <a
               href={`${import.meta.env.BASE_URL}book`}
@@ -460,66 +418,59 @@ export function Hero() {
               className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
             >
               <span className="relative z-10">{c.bookCtaLabel}</span>
-              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
           </motion.div>
-
-          {/* ── Proof, in the same stack ────────────────────────────────────────
-              These three live figures used to be an `absolute bottom-0` bar while
-              the message above was `h-full flex items-center`. Two independent
-              vertical systems means the distance between them is whatever the
-              viewport happens to leave over — never designed. At 820×1180 that
-              was ~290px of dead photograph between the CTAs and the figures,
-              which clung to the very bottom edge. Now the hero is ONE stack: the
-              air is distributed once, so the composition holds at every height,
-              and the figures sit inside the protection field with the type they
-              belong to. ─────────────────────────────────────────────────────── */}
-          <motion.div
-            className="mt-9 lg:mt-12 flex items-stretch gap-0"
-            initial={reduce ? false : "hidden"}
-            animate="visible"
-            variants={{
-              hidden: {},
-              visible: { transition: { delayChildren: 1.0, staggerChildren: 0.08 } },
-            }}
-          >
-            {stats.map((s, i) => (
-              <motion.div
-                key={`${s.l}-${i}`}
-                variants={{
-                  hidden: { opacity: 0, y: 16 },
-                  visible: { opacity: 1, y: 0, transition: { duration: DURATION.lg, ease: EASE_OUT_EXPO } },
-                }}
-                className={`flex flex-col justify-end px-5 lg:px-7 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
-              >
-                <div className="t-h2 !text-sand-bright tnum leading-none">
-                  <StatFigure target={s.n} display={s.v} active={entered} fmt={fmt} />
-                </div>
-                <div className="text-[11px] text-white/65 mt-2 font-medium tracking-wide">
-                  {s.l}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
         </div>
       </motion.div>
 
-      {/* Quiet scroll cue — on the AXIS of the frame, so it is right in Arabic and
-          English alike. It used to be a Latin "SCROLL" pinned to the bottom-LEFT of
-          an RTL page: the far side from every other element, in the wrong script.
-          The arrow says it without a word; the label returns only in EN. */}
-      <motion.div
-        aria-hidden
-        animate={reduce ? undefined : { y: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-        className="hidden md:flex absolute bottom-7 lg:bottom-9 inset-x-0 z-10 flex-col items-center gap-2 text-white/60 will-change-transform pointer-events-none"
-      >
-        {lang === "en" && (
-          <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
-        )}
-        <ArrowDown className="w-4 h-4" />
-      </motion.div>
+      {/* ── Slim proof bar: three real figures + a quiet scroll cue. Enters
+          AFTER the headline, each figure on a gentle ~80ms stagger, the numeric
+          values counting up once from 0 to the live /numbers value. ── */}
+      <div className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9">
+        <div className="container-ih">
+          <div className="flex items-end justify-between gap-6">
+            <motion.div
+              className="flex items-stretch gap-0"
+              initial={reduce ? false : "hidden"}
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { delayChildren: 1.0, staggerChildren: 0.08 } },
+              }}
+            >
+              {stats.map((s, i) => (
+                <motion.div
+                  key={`${s.l}-${i}`}
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    visible: { opacity: 1, y: 0, transition: { duration: DURATION.lg, ease: EASE_OUT_EXPO } },
+                  }}
+                  className={`flex flex-col justify-end px-5 lg:px-7 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
+                >
+                  <div className="t-h2 !text-sand-bright tnum leading-none">
+                    <StatFigure target={s.n} display={s.v} active={entered} fmt={fmt} />
+                  </div>
+                  <div className="text-[11px] text-white/65 mt-2 font-medium tracking-wide">
+                    {s.l}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Quiet scroll cue — a gentle synchronized bob + opacity breathe
+                (motion-safe). Reduced-motion holds it still and fully visible. */}
+            <motion.div
+              animate={reduce ? undefined : { y: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              className="hidden md:flex flex-col items-center gap-2 text-white/60 will-change-transform"
+            >
+              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
+              <ArrowDown className="w-4 h-4" />
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

@@ -148,7 +148,7 @@ export function NewsSlider() {
               style={{
                 fontSize: "clamp(2.4rem,5vw,4.5rem)",
                 fontWeight: 900,
-                lineHeight: "var(--lh-display)",
+                lineHeight: 0.98,
                 letterSpacing: "-0.04em",
               }}
             >
@@ -173,7 +173,7 @@ export function NewsSlider() {
               data-testid="link-all-events"
             >
               {c.ctaAll}
-              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
           </Reveal>
         </div>
@@ -289,7 +289,7 @@ export function NewsSlider() {
                           className="group mt-5 inline-flex items-center gap-1.5 rounded-full text-[14px] font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
                         >
                           {c.ctaCard}
-                          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
+                          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
                         </Link>
                       </div>
                     </motion.div>
@@ -386,7 +386,7 @@ export function NewsSlider() {
 
                         {/* Trailing arrow — slides on hover / when active. */}
                         <ArrowLeft
-                          className={`hidden h-4 w-4 shrink-0 transition-[transform,color] duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] ltr:rotate-180 motion-reduce:transition-none sm:block ${
+                          className={`hidden h-4 w-4 shrink-0 transition-[transform,color] duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] rtl:rotate-180 motion-reduce:transition-none sm:block ${
                             active
                               ? "text-primary -translate-x-1 rtl:translate-x-1"
                               : "text-white/35 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1"
@@ -409,7 +409,7 @@ export function NewsSlider() {
             className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 motion-reduce:transition-none"
           >
             {c.ctaAll}
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
           </Link>
         </div>
       </div>

@@ -384,7 +384,7 @@ export function SeatsBoard() {
                 style={{
                   fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
                   fontWeight: 900,
-                  lineHeight: "var(--lh-display)",
+                  lineHeight: 0.98,
                   letterSpacing: "-0.05em",
                 }}
               >
@@ -442,7 +442,7 @@ export function SeatsBoard() {
                   className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]"
                 >
                   {t({ ar: "احجز مقعدك", en: "Book your seat" })}
-                  <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 </Link>
               </div>
             </Reveal>

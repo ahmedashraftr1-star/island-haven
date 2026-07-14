@@ -133,7 +133,7 @@ export function Partners() {
             className="font-display text-foreground"
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              lineHeight: "var(--lh-display)",
+              lineHeight: 1.0,
               letterSpacing: "-0.04em",
               fontWeight: 700,
             }}

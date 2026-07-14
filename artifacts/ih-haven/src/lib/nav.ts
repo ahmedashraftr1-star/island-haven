@@ -41,9 +41,6 @@ export const NAV_STRUCTURE: NavEntry[] = [
           { icon: "CalendarDays", title: { ar: "الفعاليّات", en: "Events" }, desc: { ar: "ورش عمل وجلسات وأيّام عرض", en: "Workshops, talks & demo days" }, href: "/events" },
           { icon: "FileText", title: { ar: "المدوّنة والرّؤى", en: "Blog & Insights" }, desc: { ar: "تقارير واستراتيجيّات من الخبراء", en: "Reports & strategy from experts" }, href: "/blog", badge: "new" },
           { icon: "Briefcase", title: { ar: "لوحة الفرص", en: "Job Board" }, desc: { ar: "وظائف من شركاء محلّيّين ودوليّين", en: "Roles from local & global partners" }, href: "/jobs" },
-          // Moved here from the header bar, where its pill duplicated the hero's own
-          // «احجز مقعدك» — the desktop bar had the SAME two CTAs as the first screen.
-          { icon: "CalendarDays", title: { ar: "احجز مقعدًا", en: "Book a Seat" }, desc: { ar: "مساحة عمل مجهّزة في قلب غزّة", en: "An equipped desk in the heart of Gaza" }, href: "/book" },
         ],
       },
       {

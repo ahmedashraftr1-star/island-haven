@@ -156,7 +156,7 @@ function OtherVentures({ excludeId }: { excludeId: number }) {
                     en: VENTURE_STAGE_LABELS_EN[o.stage as VentureStage] ?? o.stage,
                   })}
                 </span>
-                <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-all ltr:rotate-180" />
+                <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all" />
               </div>
             </Link>
           </motion.div>

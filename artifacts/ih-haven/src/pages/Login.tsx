@@ -153,7 +153,7 @@ export default function Login() {
             ) : (
               <>
                 {lang === "en" ? "Sign in to my account" : "دخول إلى حسابي"}
-                <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               </>
             )}
           </span>

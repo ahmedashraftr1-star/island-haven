@@ -38,7 +38,7 @@ export function EditorialHeader({ label, title, sub, align = "start" }: Props) {
         className="font-bold text-foreground"
         style={{
           fontSize: "clamp(2.25rem, 5.8vw, 5rem)",
-          lineHeight: "var(--lh-display)",
+          lineHeight: 1.0,
           letterSpacing: "-0.03em",
         }}
       >

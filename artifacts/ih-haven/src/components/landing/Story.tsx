@@ -70,13 +70,13 @@ export function Story() {
   ].filter((a) => a.title || a.body);
 
   return (
-    <section id="story" className="section-y relative bg-surface-1 overflow-hidden">
+    <section id="story" className="relative bg-surface-1 overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
       <div className="container-ih relative">
         {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
         <header className="max-w-4xl">
           <motion.h2
             className="font-display text-foreground"
-            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
           >
             {[
               c.titleA,

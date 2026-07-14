@@ -25,16 +25,10 @@ export function CredibilityBar() {
       <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(70% 140% at 50% -30%, rgba(233,74,51,0.07) 0%, transparent 62%)" }} />
 
       <div className="container-ih relative">
-        {/* Two rows, not one crowded line. The credibility sentence and the tool
-            roster together never fit the 1280 rail even at 1440 — the roster wrapped
-            and stranded "Freelancer" alone on a second line, dragging its `|`
-            divider to the head of that line where it read as a stray mark. Giving
-            each its own row is the honest fix: both then sit on one line of their
-            own, and the orphan (and its divider) simply cannot occur. */}
         <Reveal
           as="div"
           distance={16}
-          className="flex flex-col gap-y-5"
+          className="flex flex-col gap-x-[clamp(1.5rem,4vw,3.5rem)] gap-y-5 lg:flex-row lg:items-center lg:justify-between"
         >
           {/* The credibility line — REAL backers only, confident on dark. */}
           <p

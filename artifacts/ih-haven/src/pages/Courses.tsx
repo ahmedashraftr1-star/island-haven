@@ -327,7 +327,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
           <div className="relative px-5 pb-5">
             <div className="flex items-center justify-between text-[12.5px] text-fg-secondary group-hover:text-primary transition-colors font-semibold">
               <span>{isOpen ? t({ ar: "سجّل الآن", en: "Register now" }) : t({ ar: "عرض التفاصيل", en: "View details" })}</span>
-              <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
             </div>
           </div>
         </GlassCard>

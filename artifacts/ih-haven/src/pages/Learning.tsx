@@ -365,7 +365,7 @@ function ProgressCard({
             data-testid={`learn-certificate-${item.courseId}`}
           >
             <Award className="w-4 h-4" /> {t({ ar: "شهادة الإكمال", en: "Completion certificate" })}
-            <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
+            <ArrowLeft className="w-3.5 h-3.5" />
           </Link>
         )}
       </div>

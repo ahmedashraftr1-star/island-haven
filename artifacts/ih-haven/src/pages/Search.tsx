@@ -222,7 +222,7 @@ export default function Search() {
                             <div className="text-muted-foreground text-[12.5px] truncate mt-0.5">{h.subtitle}</div>
                           ) : null}
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-fg-faint group-hover:text-primary transition-all shrink-0 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+                        <ArrowLeft className="w-4 h-4 text-fg-faint group-hover:text-primary transition-all shrink-0 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                       </Link>
                     </motion.div>
                   ))}

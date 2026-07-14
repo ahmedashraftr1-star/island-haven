@@ -147,7 +147,7 @@ export default function DashboardPage() {
         </Link>
         <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] text-fg-secondary hover:text-foreground transition-colors">
           العودة للموقع
-          <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
         </Link>
       </header>
 
@@ -202,7 +202,7 @@ export default function DashboardPage() {
             href="/"
             className="mt-2 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] px-3 py-2.5 text-[13px] text-fg-secondary hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             العودة للموقع
           </Link>
         </aside>
@@ -459,7 +459,7 @@ function QuickLink({ label, href, soon }: { label: string; href?: string; soon?:
       {soon ? (
         <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10.5px] text-fg-faint">قريبًا</span>
       ) : (
-        <ArrowLeft className="h-4 w-4 text-fg-faint ltr:rotate-180" />
+        <ArrowLeft className="h-4 w-4 text-fg-faint rtl:rotate-180" />
       )}
     </span>
   );
@@ -818,7 +818,7 @@ function MemberPicker() {
         </form>
         <Link href="/" className="inline-flex items-center gap-1.5 mt-6 text-[13px] text-fg-secondary hover:text-foreground transition-colors">
           العودة للموقع
-          <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
+          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
         </Link>
       </div>
     </div>

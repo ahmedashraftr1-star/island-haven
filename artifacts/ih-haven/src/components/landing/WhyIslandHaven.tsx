@@ -70,7 +70,7 @@ export function WhyIslandHaven() {
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
               fontWeight: 900,
-              lineHeight: "var(--lh-display)",
+              lineHeight: 0.98,
               letterSpacing: "-0.05em",
             }}
             initial={reduce ? false : { opacity: 0, y: 30 }}
@@ -112,7 +112,7 @@ export function WhyIslandHaven() {
               className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t({ ar: "ابدأ من هنا", en: "Start here" })}
-              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
             <Link
               href="/book"
@@ -120,7 +120,7 @@ export function WhyIslandHaven() {
               className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/85 hover:text-white transition-colors"
             >
               {t({ ar: "احجز جولة في المساحة", en: "Book a visit to the space" })}
-              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
           </motion.div>
         </div>

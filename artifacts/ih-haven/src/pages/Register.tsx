@@ -237,7 +237,7 @@ export default function Register() {
             ) : (
               <>
                 {lang === "en" ? "Create my account" : "أنشئ حسابي"}
-                <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               </>
             )}
           </span>

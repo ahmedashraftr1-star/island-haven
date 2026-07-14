@@ -98,23 +98,6 @@ export function NumbersBand() {
       <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
       <div className="container-ih section-y relative">
-        {/* Type-protection field — the same cure the hero got, for the same reason.
-            The accent «أرقامٌ حقيقيّة» is terracotta (luminance ≈0.21), and it was
-            landing on this frame's brightest region: the yellow blinds. No scrim
-            strength can save a terracotta glyph on a mid-tone photograph — the
-            ground has to fall below ≈0.037 (near-black) to clear AA-large, and
-            darkening the WHOLE frame that far would just kill the picture. So the
-            veil is bound to the header block instead: near-black under the words,
-            the photograph untouched everywhere else. */}
-        <div className="relative">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -z-10 -inset-x-[10%] -top-[40%] -bottom-[34%]"
-            style={{
-              background:
-                "radial-gradient(70% 78% at 50% 46%, rgba(6,6,10,0.92) 0%, rgba(6,6,10,0.82) 38%, rgba(6,6,10,0.48) 66%, rgba(6,6,10,0.16) 85%, transparent 100%)",
-            }}
-          />
         {/* Header — a quiet LIVE signal + one monumental line, roomy sub. */}
         <Reveal className="max-w-3xl">
           <div className="mb-5 flex items-center gap-2.5">
@@ -131,7 +114,7 @@ export function NumbersBand() {
           </div>
           <h2
             className="font-display text-white"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: "var(--lh-display)", letterSpacing: "-0.04em" }}
+            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.04em" }}
           >
             {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
             <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
@@ -143,7 +126,6 @@ export function NumbersBand() {
             })}
           </p>
         </Reveal>
-        </div>
 
         {/* The figures float on glass. Monumental gold lead on a feature tile +
             a column of supporting metrics on a glass panel — Vision Pro depth. */}
@@ -225,7 +207,7 @@ export function NumbersBand() {
               className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
-              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
           </div>
         </Reveal>
