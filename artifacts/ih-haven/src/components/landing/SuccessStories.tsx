@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useStories } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { credit } from "@/lib/credit";
 
 interface Story {
@@ -66,8 +66,15 @@ function Avatar({
     return (
       <img
         src={src}
+        // This circle is 40–60px across, and it was being filled with the 1350×1800
+        // original — 2.4 megapixels to paint 1,600, decoded ON the main thread. It
+        // was the single most expensive image on the homepage. Ask for the size we
+        // actually paint, and decode it off-thread.
+        srcSet={photoSrcSet(src)}
+        sizes={`${size}px`}
         alt={name}
         loading="lazy"
+        decoding="async"
         className="shrink-0 rounded-full object-cover ring-1 ring-white/25"
         style={dim}
       />

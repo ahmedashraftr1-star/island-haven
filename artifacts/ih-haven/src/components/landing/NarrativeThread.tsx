@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   useReducedMotion,
@@ -46,23 +46,45 @@ export function NarrativeThread() {
     restDelta: 0.001,
   });
 
-  // The head rides the current draw point: `top` as a percentage of the
-  // thread's FULL height (0%→100%), so it actually travels the whole column
-  // (the previous `y`-percentage sat on a zero-height wrapper → never moved).
-  const headTop = useTransform(drawn, [0, 1], ["0%", "100%"]);
+  // The head rides the current draw point. This USED to animate `top` from 0% to
+  // 100% — and `top` is a layout property, so every scroll frame relaid out and
+  // repainted a wrapper spanning the entire 15,000px narrative column. The file's
+  // own comment above promised "no layout, no paint churn"; the head was quietly
+  // breaking that promise, and it was the single biggest cost of scrolling the
+  // homepage (Commit dominated the trace; /ventures, which has no thread, scrolls
+  // for free).
+  //
+  // Same motion, on the compositor instead: measure the column once and translate
+  // the head in PIXELS via `y`, which is a transform and never touches layout.
+  // (A percentage `y` would resolve against the head's own 8px height, not the
+  // column — which is why the original reached for `top` in the first place.)
+  const [columnH, setColumnH] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setColumnH(e.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const headY = useTransform(drawn, [0, 1], [0, columnH]);
 
   return (
+    // This wrapper used to be `inset-0` — the full 1440px width of the column —
+    // even though everything inside it is a 1px hairline. Because its children
+    // animate, the compositor promoted it, and it handed Chrome a 1440 × 15,017px
+    // layer (86MB) to commit on every scroll frame. That one wrapper was ~60% of
+    // the homepage's entire scroll cost. It only ever needed to be as wide as the
+    // thread it holds: 1px, centred. Same pixels on screen, 1440× less layer.
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+      className="pointer-events-none absolute inset-y-0 left-1/2 w-px -translate-x-1/2 z-20 hidden lg:block"
     >
       {/* The thread lives centered on the column, behind the centered
-          ActMarkers. Constrained to a 1px width and centered so it can never
-          cause horizontal overflow. A gentle top/bottom mask lets the ends
-          dissolve into the canvas rather than reading as hard stubs. */}
+          ActMarkers. A gentle top/bottom mask lets the ends dissolve into the
+          canvas rather than reading as hard stubs. */}
       <div
-        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2"
+        className="absolute inset-0"
         style={{
           WebkitMaskImage:
             "linear-gradient(to bottom, transparent 0, #000 4%, #000 96%, transparent 100%)",
@@ -96,13 +118,19 @@ export function NarrativeThread() {
               }}
             />
             {/* The travelling "head" — a slightly brighter gold glow riding the
-                current draw point. `top` is a % of the full thread height so it
-                travels the whole column; the -50/-50 translate keeps the dot
-                perfectly round + centred on the point. */}
+                current draw point, moved by a GPU transform (`y`, in px) rather
+                than `top`. It is pinned at the column's origin and translated
+                down; the centering offsets are folded into the same transform so
+                Tailwind's `-translate-*` utilities can't overwrite `y`. */}
             <motion.span
-              className="absolute left-1/2 block h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              className="absolute left-1/2 top-0 block h-2 w-2 rounded-full"
               style={{
-                top: headTop,
+                // `y` is the ONLY transform here — the dot is centred on its point
+                // with negative margins instead of translate offsets, so nothing
+                // competes with the animated value.
+                y: headY,
+                marginLeft: -4,
+                marginTop: -4,
                 backgroundColor: "hsl(var(--sand-bright) / 0.9)",
                 boxShadow: "0 0 10px 1px hsl(var(--gold) / 0.5)",
               }}

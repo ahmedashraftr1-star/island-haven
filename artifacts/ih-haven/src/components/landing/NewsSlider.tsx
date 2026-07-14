@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Calendar, Lightbulb, Newspaper, Quote, BookOpen, type LucideIcon } from "lucide-react";
 import { useDaily } from "@/hooks/use-public-data";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
-import { useContentSection, imageUrl } from "@/hooks/use-content";
+import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
@@ -231,6 +231,8 @@ export function NewsSlider() {
                         {selected.coverUrl ? (
                           <img
                             src={selected.coverUrl}
+                            srcSet={photoSrcSet(selected.coverUrl)}
+                            sizes="(max-width: 768px) 100vw, 720px"
                             alt={selected.title}
                             loading="lazy"
                             decoding="async"
@@ -365,6 +367,8 @@ export function NewsSlider() {
                           {p.coverUrl ? (
                             <img
                               src={p.coverUrl}
+                              srcSet={photoSrcSet(p.coverUrl)}
+                              sizes="(max-width: 768px) 100vw, 570px"
                               alt={p.title}
                               loading="lazy"
                               decoding="async"

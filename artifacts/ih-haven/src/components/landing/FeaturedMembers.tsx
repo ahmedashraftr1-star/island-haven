@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet } from "@/hooks/use-content";
 
 interface FMember {
   id: number;
@@ -109,8 +109,14 @@ export function FeaturedMembers() {
                       {m.avatarUrl ? (
                         <img
                           src={m.avatarUrl}
+                          // A 48–96px portrait circle has no business decoding the
+                          // 1350×1800 original. `sizes` is what makes the browser
+                          // pick the 160px variant instead of the biggest file.
+                          srcSet={photoSrcSet(m.avatarUrl)}
+                          sizes={featured ? "96px" : "48px"}
                           alt={m.fullName}
                           loading="lazy"
+                          decoding="async"
                           className={`rounded-full object-cover ring-1 ring-white/20 ${featured ? "h-16 w-16 lg:h-24 lg:w-24" : "h-12 w-12"}`}
                         />
                       ) : (

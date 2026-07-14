@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "wouter";
 import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useContentSection } from "@/hooks/use-content";
+import { useContentSection, photoSrcSet } from "@/hooks/use-content";
 import { useVentures } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
@@ -102,7 +102,15 @@ export function VenturesShowcase() {
         {rows.length === 0 ? (
           <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
             <div className="relative overflow-hidden rounded-[24px] ring-1 ring-white/10 h-[clamp(420px,58vh,640px)]">
-              <img src={frameFor(1)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+              <img
+                src={frameFor(1)}
+                srcSet={photoSrcSet(frameFor(1))}
+                sizes="100vw"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/55 to-[#070707]/15" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-9 lg:p-12 max-w-3xl">
                 <div className="text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal text-primary mb-4">
