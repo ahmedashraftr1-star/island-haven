@@ -199,7 +199,7 @@ function FoundingNarrative({ total, teams }: { total: number; teams: number }) {
       <header className="max-w-4xl">
         <h2
           className="font-display text-foreground"
-          style={{ fontSize: "clamp(2.4rem, 6.4vw, 5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+          style={{ fontSize: "clamp(2.4rem, 6.4vw, 5rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
         >
           {[
             t({ ar: "فريقٌ صغير،", en: "A small team," }),
@@ -471,7 +471,7 @@ function TeamEmpty() {
             className="cta-fill group inline-flex items-center gap-2.5 h-11 px-6 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
           >
             {t({ ar: "كُن مرشدًا", en: "Become a mentor" })}
-            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           </Link>
           <Link
             href="/about"
@@ -543,7 +543,7 @@ function JoinBand({ show }: { show: boolean }) {
             className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
           >
             {t({ ar: "كُن مرشدًا", en: "Become a mentor" })}
-            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           </Link>
           <a
             href="mailto:island-haven@nastonas.org?subject=الانضمام%20لفريق%20آيلاند"

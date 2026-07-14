@@ -100,7 +100,7 @@ export function HomeFAQ() {
             className="font-display text-foreground"
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              lineHeight: 0.98,
+              lineHeight: "var(--lh-display)",
               letterSpacing: "-0.04em",
               fontWeight: 900,
             }}
@@ -252,7 +252,7 @@ export function HomeFAQ() {
               className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t({ ar: "قدّم الآن", en: "Apply now" })}
-              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
             </Link>
             <a
               href="https://wa.me/972567536815"
@@ -262,7 +262,7 @@ export function HomeFAQ() {
               className="group inline-flex items-center gap-2 text-[14px] font-semibold text-fg-secondary hover:text-foreground transition-colors"
             >
               {t({ ar: "تواصل عبر واتساب", en: "Talk to us on WhatsApp" })}
-              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
             </a>
           </div>
         </motion.div>

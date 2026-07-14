@@ -201,7 +201,7 @@ export default function Careers() {
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-primary">
             {t({ ar: "لوحة الفرص", en: "Job board" })}
-            <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           </span>
         </Link>
 

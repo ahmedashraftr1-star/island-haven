@@ -308,7 +308,7 @@ export default function Resources() {
                 style={{ fontSize: "clamp(0.95rem,1.5vw,1.1rem)", fontWeight: 600 }}
               >
                 {t({ ar: "تسجيل الدخول", en: "Log in" })}
-                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/apply"
@@ -619,7 +619,7 @@ function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) 
     <section data-testid="resources-empty">
       <motion.h2
         className="font-display text-foreground max-w-[15ch]"
-        style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.25rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
       >
         {[
           t({ ar: "مكتبةٌ", en: "A library" }),
@@ -671,7 +671,7 @@ function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) 
             className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
           >
             {t({ ar: "تسجيل الدخول", en: "Log in" })}
-            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           </Link>
         ) : (
           <Link
@@ -680,7 +680,7 @@ function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) 
             className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
           >
             {t({ ar: "قدّم على الانتساب", en: "Apply to join" })}
-            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           </Link>
         )}
         <Link
@@ -689,7 +689,7 @@ function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) 
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
         >
           {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </Link>
       </motion.div>
 

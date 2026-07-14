@@ -348,7 +348,7 @@ export default function Experts() {
                   className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
                 >
                   {t({ ar: "كن مرشدًا", en: "Become a mentor" })}
-                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -412,7 +412,7 @@ function StatementLead({ reduce }: { reduce: boolean }) {
     <section className="max-w-4xl">
       <h2
         className="font-display text-foreground"
-        style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        style={{ fontSize: "var(--t-display-hero)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
       >
         {[
           t({ ar: "خبرةٌ بلا", en: "Expertise that" }),
@@ -603,7 +603,7 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
               )}
               <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary">
                 {t({ ar: "احجز جلسة", en: "Book a session" })}
-                <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </span>
             </div>
           </div>
@@ -626,7 +626,7 @@ function MentorsEmptyState({ reduce }: { reduce: boolean }) {
     <section className="-mt-2">
       <h2
         className="font-display text-foreground max-w-[15ch]"
-        style={{ fontSize: "clamp(2.4rem, 7vw, 5rem)", lineHeight: 1.0, letterSpacing: "-0.045em", fontWeight: 700 }}
+        style={{ fontSize: "clamp(2.4rem, 7vw, 5rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.045em", fontWeight: 700 }}
       >
         {[
           t({ ar: "المرشدون", en: "The mentors" }),
@@ -673,7 +673,7 @@ function MentorsEmptyState({ reduce }: { reduce: boolean }) {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </Link>
         <Link
           href="/book"
@@ -681,7 +681,7 @@ function MentorsEmptyState({ reduce }: { reduce: boolean }) {
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
         >
           {t({ ar: "احجز جلسة إرشاد", en: "Book a session" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </Link>
       </motion.div>
 
@@ -699,7 +699,7 @@ function BecomeMentorBand({ reduce }: { reduce: boolean }) {
     <section className="mt-[clamp(5rem,11vw,9rem)]">
       <h2
         className="font-display text-foreground max-w-[16ch]"
-        style={{ fontSize: "clamp(2.2rem, 6vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        style={{ fontSize: "clamp(2.2rem, 6vw, 4.5rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
       >
         {[
           t({ ar: "شارك خبرتك.", en: "Share your expertise." }),
@@ -745,7 +745,7 @@ function BecomeMentorBand({ reduce }: { reduce: boolean }) {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "كن مرشدًا", en: "Become a Mentor" })}
-          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </Link>
       </motion.div>
 

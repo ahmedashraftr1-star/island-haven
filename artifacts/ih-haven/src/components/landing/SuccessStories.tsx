@@ -221,7 +221,7 @@ export function SuccessStories() {
                   className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
                 >
                   {t({ ar: "اكتب أوّل قصّة", en: "Write the first story" })}
-                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
                 </Link>
               </Reveal>
             </div>
@@ -247,22 +247,37 @@ export function SuccessStories() {
     >
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
       <div className="container-ih section-y relative">
-        {/* Header — calm eyebrow + one monumental line. */}
-        <Reveal as="div" className="max-w-4xl">
-          {eyebrow}
-          <h2
-            className="font-display text-white"
+        {/* Type-protection field — same cure, same reason as the Hero, NumbersBand
+            and WhatYouGet: the terracotta accent «الميدان.» lands on a pale wall in
+            this frame, and terracotta (L≈0.21) cannot clear AA-large on a mid-tone
+            photograph at any scrim strength that leaves the picture alive. Bound to
+            the header block; the photo is untouched everywhere else. */}
+        <div className="relative">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -z-10 -inset-x-[10%] -top-[44%] -bottom-[38%]"
             style={{
-              fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
-              fontWeight: 900,
-              lineHeight: 0.98,
-              letterSpacing: "-0.04em",
+              background:
+                "radial-gradient(70% 78% at 50% 46%, rgba(6,6,10,0.92) 0%, rgba(6,6,10,0.82) 38%, rgba(6,6,10,0.48) 66%, rgba(6,6,10,0.16) 85%, transparent 100%)",
             }}
-          >
-            {t({ ar: "أصواتٌ من ", en: "Voices from " })}
-            <span className="text-primary">{t({ ar: "الميدان.", en: "the ground." })}</span>
-          </h2>
-        </Reveal>
+          />
+          {/* Header — calm eyebrow + one monumental line. */}
+          <Reveal as="div" className="max-w-4xl">
+            {eyebrow}
+            <h2
+              className="font-display text-white"
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
+                fontWeight: 900,
+                lineHeight: "var(--lh-display)",
+                letterSpacing: "-0.04em",
+              }}
+            >
+              {t({ ar: "أصواتٌ من ", en: "Voices from " })}
+              <span className="text-primary">{t({ ar: "الميدان.", en: "the ground." })}</span>
+            </h2>
+          </Reveal>
+        </div>
 
         {/* FEATURED — the lead testimonial set LARGE in white inside a feature
             glass tile floating on the vivid photo, with a terracotta quote mark

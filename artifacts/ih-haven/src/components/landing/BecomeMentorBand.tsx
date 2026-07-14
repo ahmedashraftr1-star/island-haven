@@ -41,7 +41,7 @@ export function BecomeMentorBand() {
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
               fontWeight: 900,
-              lineHeight: 0.98,
+              lineHeight: "var(--lh-display)",
               letterSpacing: "-0.05em",
             }}
           >
@@ -100,7 +100,7 @@ export function BecomeMentorBand() {
               data-testid="cta-become-mentor"
             >
               {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-              <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
             </Link>
 
             <Link

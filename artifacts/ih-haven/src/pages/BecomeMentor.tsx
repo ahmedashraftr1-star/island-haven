@@ -259,7 +259,7 @@ export default function BecomeMentor() {
               className="cta-fill group inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t({ ar: "تصفّح الخبراء", en: "Browse experts" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
             </Link>
           </div>
         </motion.div>
@@ -284,7 +284,7 @@ export default function BecomeMentor() {
             href="/experts"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold rtl:tracking-normal"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
             {t({ ar: "العودة", en: "Back" })}
           </Link>
           <div className="flex items-center gap-2.5">
@@ -429,7 +429,7 @@ export default function BecomeMentor() {
                   >
                     <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
                       {t({ ar: "التالي", en: "Next" })}
-                      <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                      <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                     </span>
                   </button>
                 </div>
@@ -503,7 +503,7 @@ export default function BecomeMentor() {
                   >
                     <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
                       {t({ ar: "التالي", en: "Next" })}
-                      <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                      <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                     </span>
                   </button>
                 </div>
@@ -606,7 +606,7 @@ export default function BecomeMentor() {
                         ) : (
                           <>
                             {t({ ar: "أرسل الطلب", en: "Submit application" })}
-                            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                           </>
                         )}
                       </span>

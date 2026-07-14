@@ -31,7 +31,11 @@ export function ActMarker({
       <Reveal
         as="div"
         distance={12}
-        className="container-ih flex items-center justify-center gap-4 py-[clamp(2.75rem,6.5vh,5rem)]"
+        // `act-y`, not a vh clamp: the chapter break must stay proportional to the
+        // section seam (both on vw), or it drifts with window HEIGHT — at 390 the
+        // old 6.5vh made an act break the same size as a plain seam, and on a tall
+        // tablet it made it bigger than one. The break has to read as a break.
+        className="container-ih act-y flex items-center justify-center gap-4"
       >
         <span aria-hidden className="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent to-primary/50" />
         <span className="inline-flex items-center gap-2.5 whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.22em] rtl:tracking-normal">

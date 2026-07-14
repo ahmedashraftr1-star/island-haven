@@ -87,7 +87,7 @@ export function VenturesShowcase() {
               {t({ ar: "معرض المشاريع", en: "The portfolio" })}
             </span>
           </div>
-          <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.98, letterSpacing: "-0.045em" }}>
+          <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.045em" }}>
             {t({ ar: "مشاريع وُلدت في ", en: "Ventures built at " })}
             <span className="text-primary">{t({ ar: "آيلاند.", en: "Island Haven." })}</span>
           </h2>
@@ -108,7 +108,7 @@ export function VenturesShowcase() {
                 <div className="text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal text-primary mb-4">
                   {t({ ar: "الدفعة الأولى", en: "Cohort 01" })}
                 </div>
-                <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2rem, 4.6vw, 4rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}>
+                <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2rem, 4.6vw, 4rem)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em" }}>
                   {t({ ar: "أوّل دفعة تَبني الآن.", en: "The first cohort is building now." })}
                 </h3>
                 <p className="mt-4 max-w-xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}>
@@ -119,7 +119,7 @@ export function VenturesShowcase() {
                 </p>
                 <Link href="/apply" data-testid="showcase-apply" className="cta-fill group mt-7 inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                   {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
-                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                  <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -150,7 +150,7 @@ export function VenturesShowcase() {
                 className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 {t({ ar: "كلّ المشاريع", en: "All ventures" })}
-                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </Link>
             </Reveal>
           </>

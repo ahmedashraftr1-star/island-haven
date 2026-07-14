@@ -265,7 +265,7 @@ export default function Contact() {
                       </span>
 
                       {/* Affordance arrow */}
-                      <ArrowLeft className="w-5 h-5 text-fg-faint ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1 shrink-0" />
+                      <ArrowLeft className="w-5 h-5 text-fg-faint ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 shrink-0" />
                     </a>
                   </Reveal>
                 </li>

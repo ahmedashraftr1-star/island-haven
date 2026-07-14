@@ -123,7 +123,7 @@ export function ExpertsBand() {
               style={{
                 fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
                 fontWeight: 900,
-                lineHeight: 0.98,
+                lineHeight: "var(--lh-display)",
                 letterSpacing: "-0.04em",
               }}
             >
@@ -179,14 +179,14 @@ export function ExpertsBand() {
                   className="cta-fill group inline-flex h-12 items-center gap-2.5 rounded-full px-7 text-[14px] font-bold transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-                  <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
                 </Link>
                 <Link
                   href="/experts#how-it-works"
                   className="group inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
                 >
                   {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
-                  <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
                 </Link>
               </div>
             </div>
@@ -296,7 +296,7 @@ export function ExpertsBand() {
                 style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}
               >
                 {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
-                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" aria-hidden />
               </Link>
             </Reveal>
           </>

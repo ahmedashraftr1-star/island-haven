@@ -154,7 +154,14 @@
 
   /* ── FOREGROUND STAIRCASE — warm grays, confident/legible on near-black. ── */
   --fg-secondary: 30 8% 65%;         /* BODY copy — warm gray (≈#a9a39b) */
-  --fg-faint: 30 6% 42%;             /* disabled */
+  /* NOT "disabled" — it is used as LIVE caption text in 118 places (sector labels,
+     stat hints, meta lines). At 42% it measured 3.41–3.77:1 against our surfaces
+     and failed AA (4.5 for small text) on every one of them. 50% clears the worst
+     case (surface-2, the card) at 4.59 while staying a clear rung below
+     --muted-foreground (57%), so the tier ladder is intact — it is now the faintest
+     LEGIBLE step rather than an illegible one. Genuinely disabled controls are
+     WCAG-exempt, so nothing is lost at the other end. */
+  --fg-faint: 30 6% 50%;
 
   /* Soft dark surface + readable muted text. */
   --muted: 26 7% 12%;
@@ -225,6 +232,9 @@
      resizes — the hierarchy was a function of the viewport, not of meaning.
      Every page title now reads from this one rung. */
   --t-display-hero: clamp(2.6rem, 6.6vw, 5.5rem);    /* 42 → 88px */
+  /* Monumental-heading leading. Latin default; RTL raises it (see the unlayered
+     [dir="rtl"] override below the :root blocks) so Arabic marks stop colliding. */
+  --lh-display: 0.98;
 
   --t-h1-size: clamp(1.85rem, 3.4vw, 2.9rem);        /* was up to 67px → ~46px */
   --t-h1-lh: 1.1;
@@ -265,6 +275,12 @@
      confident (Linear/Stripe), not padded-out. */
   --section-py: clamp(3.5rem, 5.5vw, 6.5rem);  /* Apple-calm rhythm — generous, consistent breathing between chapters (~56→104px) */
   --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
+  /* The chapter break — the ONE sanctioned exception to the section scale. It has
+     to sit on the SAME axis (vw) as --section-py, or the ratio between "a seam"
+     and "a chapter break" drifts with the window's HEIGHT: the old 6.5vh made the
+     act break equal to a plain seam on a 390 phone, and larger than one on a tall
+     tablet. 4vw/5.5vw ≈ 0.73 holds the proportion at every viewport. */
+  --act-py: clamp(2.5rem, 4vw, 4.75rem);
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
   --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
@@ -328,6 +344,21 @@
 }
 /* On light, the cerulean/crimson aura should be a faint tint, not a dark glow. */
 .theme-light .brand-aura { opacity: 0.4; }
+
+/* ── Display leading, by script ──────────────────────────────────────────────
+   Arabic carries marks ABOVE and BELOW the baseline — the shadda of «غزّة», the
+   madda of «آيلاند», the fatha of «نَحضن». At Latin monumental leading (0.98) they
+   physically collide with the line above. The `[dir="rtl"] h1,h2,h3` rule further
+   down CANNOT reach them: 40 headings set `lineHeight` as an INLINE style, and an
+   inline style beats every stylesheet rule. So the value has to travel as a custom
+   property the inline style reads.
+
+   PLACEMENT IS LOAD-BEARING: this override must stay UNLAYERED, like the :root it
+   overrides. Put it inside `@layer base` and the unlayered :root would win the
+   cascade and the whole thing would be a silent no-op. */
+[dir="rtl"] {
+  --lh-display: 1.14;
+}
 
 @layer base {
   * { @apply border-border; }
@@ -690,6 +721,7 @@
 
 /* ── LAYOUT helpers — drive section rhythm from one place. ── */
 @utility section-y { padding-block: var(--section-py); }
+@utility act-y { padding-block: var(--act-py); }
 @utility section-y-compact { padding-block: var(--section-py-compact); }
 @utility container-ih {
   max-width: var(--container-max);

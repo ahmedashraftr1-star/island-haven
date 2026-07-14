@@ -556,7 +556,7 @@ function ProgramHero({
               className="font-display text-white max-w-[18ch]"
               style={{
                 fontSize: "clamp(2.1rem, 5.6vw, 4.4rem)",
-                lineHeight: 1.0,
+                lineHeight: "var(--lh-display)",
                 letterSpacing: "-0.038em",
                 fontWeight: 700,
               }}

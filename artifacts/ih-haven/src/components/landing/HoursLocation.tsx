@@ -66,7 +66,7 @@ export function HoursLocation() {
             style={{
               fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
               fontWeight: 900,
-              lineHeight: 0.98,
+              lineHeight: "var(--lh-display)",
               letterSpacing: "-0.04em",
             }}
           >
@@ -179,7 +179,7 @@ export function HoursLocation() {
                 className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
               >
                 {t({ ar: "انتسب لتعرف العنوان", en: "Join to get the address" })}
-                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/contact"

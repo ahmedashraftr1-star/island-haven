@@ -109,7 +109,7 @@ export function FinalCTA() {
                 className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]"
               >
                 {t({ ar: "قدّم على الحاضنة", en: "Apply to the incubator" })}
-                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </Link>
 
               <Link
@@ -118,7 +118,7 @@ export function FinalCTA() {
                 className="group inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full text-white/90 font-semibold text-[14px] tracking-[-0.005em] bg-white/[0.04] border border-white/20 backdrop-blur-sm transition-[transform,color,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:text-white hover:bg-white/[0.08] hover:border-white/35 active:translate-y-0"
               >
                 {t({ ar: "احجز مقعدك", en: "Book a seat" })}
-                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
               </Link>
 
               <a

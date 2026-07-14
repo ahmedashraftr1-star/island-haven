@@ -481,7 +481,7 @@ export default function Investors() {
                     className="group inline-flex items-center gap-2 h-12 px-7 rounded-full border border-border-strong text-fg-secondary font-medium text-[14px] hover:border-foreground/30 hover:text-foreground transition-colors"
                   >
                     WhatsApp
-                    <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+                    <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </a>
                 </div>
               </div>

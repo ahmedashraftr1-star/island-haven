@@ -37,7 +37,7 @@ function MonumentalHeading({
   return (
     <motion.h2
       className={`font-display text-foreground ${className}`}
-      style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+      style={{ fontSize: "var(--t-display-hero)", lineHeight: "var(--lh-display)", letterSpacing: "-0.04em", fontWeight: 700 }}
     >
       {lines.map((ln, i) => (
         <motion.span
@@ -235,7 +235,7 @@ function VisionMission() {
   ];
 
   return (
-    <section id="vision-mission" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="vision-mission" className="section-y relative bg-background overflow-hidden">
       <div className="container-ih relative">
         <MonumentalHeading
           className="max-w-4xl"
@@ -319,7 +319,7 @@ function Values() {
   ];
 
   return (
-    <section id="values" className="relative bg-surface-1 overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="values" className="section-y relative bg-surface-1 overflow-hidden border-t border-border-strong/60">
       <div className="container-ih relative">
         <header className="max-w-4xl">
           <MonumentalHeading
@@ -413,7 +413,7 @@ function Timeline() {
   ];
 
   return (
-    <section id="timeline" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="timeline" className="section-y relative bg-background overflow-hidden">
       {/* Asymmetric two-column: the heading rests sticky to one side while the
           milestones flow as a quiet vertical sequence — a deliberate break from
           the page's full-width hairline-list rhythm. */}
@@ -495,7 +495,7 @@ function Backers() {
   ];
 
   return (
-    <section id="backers" className="relative bg-surface-1 overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="backers" className="section-y relative bg-surface-1 overflow-hidden">
       <div className="container-ih relative">
         <header className="max-w-4xl">
           <MonumentalHeading
@@ -566,7 +566,7 @@ function TeamTeaser() {
   const photoY = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-7%", "7%"]);
 
   return (
-    <section id="team-teaser" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="team-teaser" className="section-y relative bg-background overflow-hidden">
       <div className="container-ih relative">
         <header className="max-w-4xl">
           <MonumentalHeading
@@ -598,7 +598,7 @@ function TeamTeaser() {
               className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t({ ar: "تعرّف على الفريق", en: "Meet the team" })}
-              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
             </Link>
           </Reveal>
         </header>

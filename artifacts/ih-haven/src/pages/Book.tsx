@@ -280,7 +280,7 @@ export default function Book() {
             className="font-display text-foreground"
             style={{
               fontSize: "clamp(2.6rem, 7.2vw, 5.5rem)",
-              lineHeight: 1.0,
+              lineHeight: "var(--lh-display)",
               letterSpacing: "-0.04em",
               fontWeight: 700,
             }}
