@@ -305,34 +305,22 @@ export function Hero() {
       </motion.div>
       </motion.div>
 
-      {/* ── Cinematic scrim — sharp in the middle (image breathes), dark only at
-          the top (behind the nav) and bottom (behind stats/CTAs). Much lighter
-          than before so the photograph reads crisp, not muddy. ── */}
+      {/* ── THE MONUMENT · scrim ──
+          There used to be three scrims here, and together they were the problem:
+          a directional wash behind the headline plus a full-frame darkener plus a
+          floor. They bought contrast by DIMMING the photograph — and the vivid Gaza
+          photograph is the brand. Every WCAG number went green while the thing the
+          site is built on turned to mud.
+          The type no longer needs the photo dimmed, because it now stands on ground
+          of its own (the column below). So all that is left is a whisper: enough at
+          the very top for the nav to sit on, enough at the floor for the edge, and
+          NOTHING across the middle. The photograph is untouched. ── */}
       <div aria-hidden className="absolute inset-0 z-[1]">
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(6,6,10,0.64) 0%, rgba(6,6,10,0.30) 18%, rgba(6,6,10,0.06) 46%, rgba(6,6,10,0.50) 74%, rgba(6,6,10,0.82) 88%, rgba(6,6,10,0.97) 100%)",
-          }}
-        />
-        {/* Extra deep, tight scrim hugging the very bottom edge so the live
-            stats bar keeps razor WCAG-AA contrast even over the brightest photo
-            regions — kept below the top/side scrims so the image still breathes. */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-[34%]"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, rgba(6,6,10,0.34) 42%, rgba(6,6,10,0.78) 100%)",
-          }}
-        />
-        {/* Focused directional scrim behind the headline (right side in RTL) so
-            the type stays razor-crisp while the rest of the frame stays open. */}
-        <div
-          className="absolute inset-y-0 right-0 w-full lg:w-[62%]"
-          style={{
-            background:
-              "linear-gradient(270deg, rgba(6,6,10,0.72) 0%, rgba(6,6,10,0.38) 46%, transparent 82%)",
+              "linear-gradient(180deg, rgba(6,6,10,0.55) 0%, rgba(6,6,10,0.10) 22%, rgba(6,6,10,0) 45%, rgba(6,6,10,0.30) 85%, rgba(6,6,10,0.70) 100%)",
           }}
         />
       </div>
@@ -358,14 +346,26 @@ export function Hero() {
         <ParticleField />
       </div>
 
-      {/* ── The message. One eyebrow, one monumental headline, one line of
-          support, one decisive action. Nothing else competes. ── */}
-      <motion.div
-        style={{ y: textY }}
-        className="relative z-10 h-full flex items-center will-change-transform"
-      >
-        <div className="container-ih w-full">
-          <div className="relative max-w-4xl">
+      {/* ── THE MONUMENT · the column ──
+          The type used to float directly on the photograph, and it lost every fight
+          it picked: terracotta on a lit wall is unreadable at any scrim strength
+          (its luminance is ~0.21 — it needs a ground below 0.037 to clear AA, and no
+          veil that leaves a photograph alive can get there).
+          So the type stops fighting and takes ground of its own: a solid column of
+          the brand's own canvas ink, hard-edged, closed by a single terracotta rule.
+          Contrast is now solved by COMPOSITION, not by dimming — the panel is opaque
+          so the type reads at ~19:1, and the photograph beside it keeps 100% of its
+          life. It reads like an inscription cut into stone next to a window.
+          Below `lg` the column becomes the full width (a phone has no room for a
+          seam) and the photograph shows through as a dark ambient ground. ── */}
+      <div className="absolute inset-y-0 start-0 z-10 flex w-full flex-col justify-center border-e border-primary/70 bg-[#060608]/[0.94] px-6 backdrop-blur-[2px] sm:px-10 lg:w-[54%] lg:px-[clamp(2.5rem,4.5vw,5rem)] xl:w-[50%]">
+        {/* The parallax rides the CONTENT, never the column: an architectural edge
+            that drifts is no longer architecture. */}
+        {/* `pb-*` keeps the vertically-centred message clear of the proof bar, which
+            is pinned to the column's floor — without it they collide on a short
+            laptop screen. */}
+        <motion.div style={{ y: textY }} className="mx-auto w-full max-w-[34rem] pt-24 pb-36 lg:pt-0 lg:pb-40">
+          <div className="relative">
             <motion.div
               initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -380,7 +380,13 @@ export function Hero() {
 
             <h1
               className="t-display text-white"
-              style={{ fontSize: "clamp(3rem, 7.6vw, 7.75rem)", fontWeight: 900, lineHeight: 0.94, letterSpacing: "-0.05em" }}
+              // Sized for the COLUMN, not the viewport. 7.75rem was set when the
+              // headline had the whole 1440px to run across; inside a 50% column it
+              // would break every line to pieces. Against its own narrower measure
+              // this reads BIGGER, not smaller — which is the whole trick of a
+              // monument: it is scaled to its plinth, not to the field around it.
+              // Leading stays tight (1.02) so the three lines still stack as one mass.
+              style={{ fontSize: "clamp(3rem, 5.6vw, 5.6rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.045em" }}
             >
               <KineticLine text={headline.prefix} delay={0.4} reduce={!!reduce} />
               <RotatingWord words={headline.words} delay={0.6} reduce={!!reduce} />
@@ -392,7 +398,7 @@ export function Hero() {
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 max-w-2xl text-[1.0625rem] lg:text-xl text-white/85 font-normal leading-[1.7] whitespace-pre-line"
+            className="mt-7 max-w-[30rem] text-[1.0625rem] lg:text-[1.125rem] text-white/75 font-normal leading-[1.75] whitespace-pre-line"
           >
             {c.subtitle}
           </motion.p>
@@ -421,15 +427,19 @@ export function Hero() {
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
           </motion.div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* ── Slim proof bar: three real figures + a quiet scroll cue. Enters
           AFTER the headline, each figure on a gentle ~80ms stagger, the numeric
           values counting up once from 0 to the live /numbers value. ── */}
-      <div className="absolute bottom-0 inset-x-0 z-10 pb-7 lg:pb-9">
-        <div className="container-ih">
-          <div className="flex items-end justify-between gap-6">
+      {/* Held inside the COLUMN, not across the frame. Spanning the full width put
+          half the figures on the photograph, where terracotta and white both die.
+          Same padding and same measure as the headline above, so the numbers sit on
+          its baseline grid rather than near it. */}
+      <div className="absolute bottom-0 start-0 z-10 w-full pb-7 lg:w-[54%] lg:pb-9 xl:w-[50%]">
+        <div className="px-6 sm:px-10 lg:px-[clamp(2.5rem,4.5vw,5rem)]">
+          <div className="mx-auto flex w-full max-w-[34rem] items-end justify-between gap-6 border-t border-white/[0.12] pt-6">
             <motion.div
               className="flex items-stretch gap-0"
               initial={reduce ? false : "hidden"}
