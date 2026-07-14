@@ -219,6 +219,13 @@
   --t-display-ls: -0.04em;
   --t-display-weight: 900;
 
+  /* THE page-title size. One role had five sizes: PageShell rode 7vw→84px, both
+     About headings 7.4vw→92px, Ventures 7vw→80px, Experts 6.4vw→76px. Five vw
+     slopes means the ranking between pages actually INVERTS as the window
+     resizes — the hierarchy was a function of the viewport, not of meaning.
+     Every page title now reads from this one rung. */
+  --t-display-hero: clamp(2.6rem, 6.6vw, 5.5rem);    /* 42 → 88px */
+
   --t-h1-size: clamp(1.85rem, 3.4vw, 2.9rem);        /* was up to 67px → ~46px */
   --t-h1-lh: 1.1;
   --t-h1-ls: -0.028em;

@@ -37,7 +37,7 @@ function MonumentalHeading({
   return (
     <motion.h2
       className={`font-display text-foreground ${className}`}
-      style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+      style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
     >
       {lines.map((ln, i) => (
         <motion.span

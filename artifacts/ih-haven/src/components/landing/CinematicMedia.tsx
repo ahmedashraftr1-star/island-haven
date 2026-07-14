@@ -1,6 +1,7 @@
 import { useRef, type ReactNode, type ElementType } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { photoSrcSet } from "@/hooks/use-content";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * CinematicMedia — the homepage's shared "hero-power" backdrop, factored out of
@@ -28,10 +29,21 @@ const VERTICAL: Record<Scrim, string> = {
     "linear-gradient(180deg, rgba(6,6,10,0.66) 0%, rgba(6,6,10,0.28) 32%, rgba(6,6,10,0.52) 68%, rgba(6,6,10,0.92) 100%)",
 };
 
-// Directional scrim toward the logical-start edge (right in RTL) where headlines
-// sit, so text stays crisp while the far side of the frame stays open.
-const SIDE =
-  "linear-gradient(270deg, rgba(6,6,10,0.58) 0%, rgba(6,6,10,0.22) 50%, transparent 84%)";
+// Directional scrim hugging the TEXT edge — the logical start, i.e. right in RTL
+// and left in LTR — fading toward the open side of the frame.
+//
+// It used to be anchored to `end-0` with a hardcoded 270deg angle. In RTL `end`
+// resolves to the LEFT, so it darkened the half of the picture with NO text on it
+// while every start-aligned headline sat unprotected on the right (and in English
+// it was wrong the other way). That is why eleven sections had simply switched it
+// off: it was doing nothing for them but dimming the photograph.
+//
+// `start-0` + a direction-matched angle means the veil now follows the type in
+// both directions.
+const SIDE_RTL =
+  "linear-gradient(270deg, rgba(6,6,10,0.66) 0%, rgba(6,6,10,0.30) 50%, transparent 84%)";
+const SIDE_LTR =
+  "linear-gradient(90deg, rgba(6,6,10,0.66) 0%, rgba(6,6,10,0.30) 50%, transparent 84%)";
 
 type CinematicMediaProps = {
   /** already-resolved image url (pass through imageUrl() for stored paths) */
@@ -75,6 +87,7 @@ export function CinematicMedia({
   const Tag = (as ?? "section") as ElementType;
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
+  const { dir } = useLanguage();
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const smooth = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.4, restDelta: 0.001 });
@@ -102,7 +115,13 @@ export function CinematicMedia({
       </motion.div>
 
       <div aria-hidden className="absolute inset-0" style={{ background: VERTICAL[scrim] }} />
-      {sideScrim && <div aria-hidden className="absolute inset-y-0 end-0 w-full lg:w-[68%]" style={{ background: SIDE }} />}
+      {sideScrim && (
+        <div
+          aria-hidden
+          className="absolute inset-y-0 start-0 w-full lg:w-[68%]"
+          style={{ background: dir === "rtl" ? SIDE_RTL : SIDE_LTR }}
+        />
+      )}
       {overlay}
 
       <motion.div

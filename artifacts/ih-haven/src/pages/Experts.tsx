@@ -412,7 +412,7 @@ function StatementLead({ reduce }: { reduce: boolean }) {
     <section className="max-w-4xl">
       <h2
         className="font-display text-foreground"
-        style={{ fontSize: "clamp(2.4rem, 6.4vw, 4.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+        style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
       >
         {[
           t({ ar: "خبرةٌ بلا", en: "Expertise that" }),

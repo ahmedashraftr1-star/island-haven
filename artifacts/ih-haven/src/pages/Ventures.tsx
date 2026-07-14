@@ -369,7 +369,7 @@ function EmptyPortfolio() {
     <div className="relative">
       <motion.h2
         className="font-display text-foreground max-w-[16ch]"
-        style={{ fontSize: "clamp(2.4rem, 7vw, 5rem)", lineHeight: 1.0, letterSpacing: "-0.045em", fontWeight: 700 }}
+        style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.045em", fontWeight: 700 }}
       >
         {[
           t({ ar: "أوّل دفعةٍ", en: "The first cohort" }),

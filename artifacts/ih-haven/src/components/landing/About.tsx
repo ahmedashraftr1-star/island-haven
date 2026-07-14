@@ -62,7 +62,7 @@ export function About() {
             </div>
             <motion.h2
               className="font-display text-foreground"
-              style={{ fontSize: "clamp(2.6rem, 7.4vw, 5.75rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+              style={{ fontSize: "var(--t-display-hero)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
             >
               {[
                 t({ ar: "وُلدنا في", en: "Born in the" }),

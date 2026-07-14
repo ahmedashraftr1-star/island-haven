@@ -15,7 +15,11 @@ export function PageShell({
   titleClassName,
   highlightClassName,
   children,
-  maxWidth = "max-w-6xl",
+  // `container-ih` above already binds the rail to 1280px. A second max-w here
+  // would re-crop it — so the default must NOT bind. The nine pages that pass an
+  // explicit maxWidth (Gallery, Search, Events, …) are unaffected: their column is
+  // narrower than the rail and stays mx-auto-centred inside it.
+  maxWidth = "max-w-none",
 }: {
   eyebrow?: string;
   title?: string;
@@ -48,7 +52,13 @@ export function PageShell({
       {/* Unified site header — the same mega-menu + ⌘K nav used everywhere. */}
       <Header />
 
-      <div className="relative z-10 flex-1 px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-16">
+      {/* ONE rail. The homepage rides `container-ih` (1280px, gutter
+          clamp(1.5rem,5vw,3rem)); every inner page used to ride a hand-rolled
+          px-5/sm:px-8/lg:px-14 + max-w-6xl (1152px) instead — so the content
+          column literally changed width when you clicked from Home into a page,
+          and the two would silently desync the day --container-max was retuned.
+          The utility IS the source of truth now. */}
+      <div className="relative z-10 flex-1 container-ih pt-28 sm:pt-32 pb-16">
         <div className={`mx-auto ${maxWidth}`}>
           {(eyebrow || title || subtitle || heroAside) && (
             <motion.div
@@ -84,7 +94,7 @@ export function PageShell({
                     <h1
                       className="font-display font-extrabold text-foreground leading-[1.0]"
                       style={{
-                        fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
+                        fontSize: "var(--t-display-hero)",
                         letterSpacing: "-0.04em",
                       }}
                     >
