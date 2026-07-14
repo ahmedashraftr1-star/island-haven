@@ -5,6 +5,7 @@ import { useStories } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
+import { credit } from "@/lib/credit";
 
 interface Story {
   id: number;
@@ -49,16 +50,6 @@ function quoteSize(text: string): { fontSize: string; lineHeight: number } {
   return { fontSize: "clamp(1.2rem, 1.75vw, 1.6rem)", lineHeight: 1.62 };
 }
 
-function meta(role: string, venture: string) {
-  const r = (role ?? "").trim();
-  const v = (venture ?? "").trim();
-  // The stored role often already NAMES the venture ("مؤسِّسة ومديرة تنفيذيّة —
-  // مستشارك"), and we were appending it a second time, so the line read
-  // "… — مستشارك · مستشارك". Only add the venture when the role doesn't already
-  // carry it.
-  if (!v || r.includes(v)) return r;
-  return [r, v].filter(Boolean).join(" · ");
-}
 
 /** Avatar or a display initial in a ring, at a given size. */
 function Avatar({
@@ -321,7 +312,7 @@ export function SuccessStories() {
                     {lead.personName}
                   </div>
                   <div className="mt-1.5 text-[13px] uppercase tracking-[0.14em] text-white/65 rtl:tracking-normal">
-                    {meta(lead.role, lead.ventureName)}
+                    {credit(lead.personName, lead.role, lead.ventureName)}
                   </div>
                 </div>
               </figcaption>
@@ -381,7 +372,7 @@ export function SuccessStories() {
                       {s.personName}
                     </div>
                     <div className="mt-1 text-[12px] leading-snug text-white/60">
-                      {meta(s.role, s.ventureName)}
+                      {credit(s.personName, s.role, s.ventureName)}
                     </div>
                     {lang === "en" && (
                       <div className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/35">

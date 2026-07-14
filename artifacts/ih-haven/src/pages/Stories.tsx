@@ -4,6 +4,7 @@ import { Quote, X, ExternalLink, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
+import { credit } from "@/lib/credit";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { I18N } from "@/lib/i18n";
@@ -86,7 +87,9 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
               )}
               <div>
                 <div className="text-[18px] font-bold text-foreground leading-tight">{story.personName}</div>
-                <div className="text-[13px] text-muted-foreground mt-0.5">{story.role} · {story.ventureName}</div>
+                <div className="text-[13px] text-muted-foreground mt-0.5">
+                  {credit(story.personName, story.role, story.ventureName)}
+                </div>
               </div>
             </div>
 
@@ -163,7 +166,9 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               )}
               <div className="min-w-0">
                 <div className="text-[15px] font-bold text-foreground leading-tight">{story.personName}</div>
-                <div className="text-[12px] text-muted-foreground mt-0.5 truncate">{story.role} · {story.ventureName}</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5 truncate">
+                  {credit(story.personName, story.role, story.ventureName)}
+                </div>
               </div>
             </div>
 
@@ -227,11 +232,24 @@ export default function Stories() {
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
                   <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {stories.filter(s => s.featured).map((s, i) => (
-                    <StoryCard key={s.id} story={s} featured={i === 0} index={i} />
-                  ))}
-                </div>
+                {/* The lead card is double-width — but only when that still TILES.
+                    It occupies 2 of the 3 columns, so the block fills exactly
+                    (n - 1) + 2 = n + 1 cells; unless that is a multiple of 3 the
+                    second row starts under a half-empty first one and the whole
+                    block reads as crooked. With today's 4 featured stories it did
+                    exactly that. When the set doesn't tile, every card is equal
+                    width and the grid is square again. */}
+                {(() => {
+                  const feat = stories.filter((s) => s.featured);
+                  const leadFitsGrid = (feat.length + 1) % 3 === 0;
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      {feat.map((s, i) => (
+                        <StoryCard key={s.id} story={s} featured={i === 0 && leadFitsGrid} index={i} />
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 

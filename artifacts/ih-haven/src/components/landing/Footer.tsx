@@ -81,7 +81,18 @@ export function Footer() {
             </motion.div>
             <motion.h2
               className="font-display font-extrabold text-foreground max-w-3xl"
-              style={{ fontSize: "clamp(1.9rem, 5vw, 3.8rem)", lineHeight: 1.05, letterSpacing: "-0.035em" }}
+              style={{
+                fontSize: "clamp(1.9rem, 5vw, 3.8rem)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.035em",
+                // Arabic display type carrying tashkeel ("رغم كلّ شيء." — shadda,
+                // hamza) inks taller than a 1.05 line box: the h2 measured 128px of
+                // box against 132px of ink, and the overflow landed on the hairline
+                // rule below, so the last word read as sliced. The leading is what
+                // makes the line monumental and is NOT negotiable — so grow the BOX,
+                // not the line. Inter-line spacing is untouched.
+                paddingBottom: "0.12em",
+              }}
               initial={reduce ? false : { opacity: 0, y: 20 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
