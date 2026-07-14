@@ -33,8 +33,31 @@ interface Story {
 const PHOTO = imageUrl("/photos/IMG_8307.webp");
 
 /** Attribution meta — role · venture — as one calm caption line. */
+/**
+ * A pull-quote's size must follow its LENGTH, or the section stops being a system.
+ * These quotes are real and they vary wildly — one is a single confident line, the
+ * next is a full paragraph. At the old fixed `clamp(1.9rem, 3.6vw, 3.4rem)` (up to
+ * 54px) a short quote read as a monument and a long one became a wall of type that
+ * ran off the top of the frame. Scaling by length keeps every card at the SAME
+ * optical weight, which is what makes a set of them look composed rather than
+ * ragged. Same idea as an editor sizing a pull-quote to its column.
+ */
+function quoteSize(text: string): { fontSize: string; lineHeight: number } {
+  const n = (text ?? "").trim().length;
+  if (n <= 90) return { fontSize: "clamp(1.8rem, 3.1vw, 2.9rem)", lineHeight: 1.2 };
+  if (n <= 170) return { fontSize: "clamp(1.45rem, 2.3vw, 2.1rem)", lineHeight: 1.42 };
+  return { fontSize: "clamp(1.2rem, 1.75vw, 1.6rem)", lineHeight: 1.62 };
+}
+
 function meta(role: string, venture: string) {
-  return [role, venture].filter(Boolean).join(" · ");
+  const r = (role ?? "").trim();
+  const v = (venture ?? "").trim();
+  // The stored role often already NAMES the venture ("مؤسِّسة ومديرة تنفيذيّة —
+  // مستشارك"), and we were appending it a second time, so the line read
+  // "… — مستشارك · مستشارك". Only add the venture when the role doesn't already
+  // carry it.
+  if (!v || r.includes(v)) return r;
+  return [r, v].filter(Boolean).join(" · ");
 }
 
 /** Avatar or a display initial in a ring, at a given size. */
@@ -275,11 +298,11 @@ export function SuccessStories() {
               <blockquote
                 className="font-display text-white"
                 style={{
-                  fontSize: "clamp(1.9rem, 3.6vw, 3.4rem)",
-                  lineHeight: 1.16,
-                  letterSpacing: "-0.028em",
+                  ...quoteSize(lead.quote),
+                  letterSpacing: "-0.02em",
                   fontWeight: 800,
-                  textWrap: "balance",
+                  textWrap: "pretty",
+                  maxWidth: "44ch",
                 }}
               >
                 {lead.quote}
@@ -317,21 +340,32 @@ export function SuccessStories() {
             distance={20}
             className="mt-[clamp(2rem,5vh,3.25rem)] max-w-5xl glass-panel px-[clamp(1.25rem,3.5vw,2.75rem)] py-[clamp(0.5rem,1.5vh,1rem)]"
           >
+            {/* `items-center`, not `items-start`: a quote and its attribution are one
+                utterance, so they sit on one optical line. With items-start the credit
+                floated at the top of a three-line quote and the column read as ragged.
+                The attribution also gets a wider track (4/12, not 3/12) so a real role
+                — «مؤسِّسة ومديرة تنفيذيّة — مستشارك» — stops wrapping onto three lines
+                and dragging its row's height with it. */}
             {rest.map((s, i) => (
               <figure
                 key={s.id}
-                className={`group grid items-start gap-x-8 gap-y-4 py-[clamp(1.5rem,3.5vh,2.5rem)] md:grid-cols-12 ${
+                className={`group grid items-center gap-x-8 gap-y-4 py-[clamp(1.5rem,3.5vh,2.5rem)] md:grid-cols-12 ${
                   i > 0 ? "border-t border-white/10" : ""
                 }`}
               >
                 <blockquote
-                  className="font-display text-white/90 transition-colors duration-300 group-hover:text-white md:col-span-8 lg:col-span-9 motion-reduce:transition-none"
+                  className="font-display text-white/90 transition-colors duration-300 group-hover:text-white md:col-span-8 motion-reduce:transition-none"
                   style={{
-                    fontSize: "clamp(1.15rem, 1.9vw, 1.5rem)",
-                    lineHeight: 1.32,
-                    letterSpacing: "-0.018em",
+                    // A fixed measure, so every quote breaks at a similar line length
+                    // and the set reads as a system instead of a pile. `pretty` (not
+                    // `balance`) is right for multi-line prose — balance only helps a
+                    // heading of two or three lines.
+                    fontSize: "clamp(1.05rem, 1.55vw, 1.3rem)",
+                    lineHeight: 1.55,
+                    letterSpacing: "-0.012em",
                     fontWeight: 600,
-                    textWrap: "balance",
+                    textWrap: "pretty",
+                    maxWidth: "56ch",
                   }}
                 >
                   <span aria-hidden className="font-display text-primary/80 pe-1">
@@ -340,13 +374,13 @@ export function SuccessStories() {
                   {s.quote}
                 </blockquote>
 
-                <figcaption className="flex items-center gap-3 md:col-span-4 md:justify-end lg:col-span-3">
+                <figcaption className="flex items-center gap-3 md:col-span-4 md:justify-end">
                   <Avatar name={s.personName} src={s.avatarUrl} size={40} />
                   <div className="min-w-0">
                     <div className="font-bold text-white text-[14px] leading-tight">
                       {s.personName}
                     </div>
-                    <div className="mt-1 text-[12px] uppercase tracking-[0.12em] text-white/60 rtl:tracking-normal">
+                    <div className="mt-1 text-[12px] leading-snug text-white/60">
                       {meta(s.role, s.ventureName)}
                     </div>
                     {lang === "en" && (
