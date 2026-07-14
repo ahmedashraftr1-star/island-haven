@@ -598,7 +598,7 @@ function TeamTeaser() {
               className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
             >
               {t({ ar: "تعرّف على الفريق", en: "Meet the team" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
           </Reveal>
         </header>

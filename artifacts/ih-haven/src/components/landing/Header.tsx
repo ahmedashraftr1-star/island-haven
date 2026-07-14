@@ -203,7 +203,7 @@ function MegaPanel({
               </div>
               <span className="relative z-[1] inline-flex items-center gap-2 mt-6 t-caption font-semibold text-primary">
                 {t({ ar: "استكشف المشاريع", en: "Explore ventures" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-200 group-hover/feat:-translate-x-0.5 rtl:group-hover/feat:translate-x-0.5" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform duration-200 group-hover/feat:-translate-x-0.5 rtl:group-hover/feat:translate-x-0.5" />
               </span>
             </Link>
           </div>
@@ -444,7 +444,7 @@ export function Header() {
             }`}
           >
             <span>{c.ctaLabel}</span>
-            <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+            <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
           </Link>
         </div>
 
@@ -588,7 +588,7 @@ export function Header() {
                   className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] rounded-full cta-fill text-[14px] font-semibold"
                 >
                   <span>{c.ctaLabel}</span>
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                  <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
                 </Link>
               </div>
             </motion.div>

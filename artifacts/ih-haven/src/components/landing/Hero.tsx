@@ -452,7 +452,7 @@ export function Hero() {
               className="cta-fill group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
             >
               <span className="relative z-10">{c.ctaPrimary}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 relative z-10" />
             </a>
             <a
               href={`${import.meta.env.BASE_URL}book`}
@@ -460,7 +460,7 @@ export function Hero() {
               className="group relative inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
             >
               <span className="relative z-10">{c.bookCtaLabel}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 relative z-10" />
             </a>
           </motion.div>
 

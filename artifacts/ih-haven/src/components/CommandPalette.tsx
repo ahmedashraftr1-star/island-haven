@@ -537,7 +537,7 @@ export function CommandPalette() {
                           {isActive ? (
                             <CornerDownLeft className="w-4 h-4 text-primary shrink-0 rtl:-scale-x-100" aria-hidden />
                           ) : (
-                            <ArrowLeft className="w-4 h-4 text-fg-faint shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rtl:rotate-180" aria-hidden />
+                            <ArrowLeft className="w-4 h-4 text-fg-faint shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ltr:rotate-180" aria-hidden />
                           )}
                         </button>
                       );

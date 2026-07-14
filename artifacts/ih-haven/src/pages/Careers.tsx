@@ -201,7 +201,7 @@ export default function Careers() {
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-primary">
             {t({ ar: "لوحة الفرص", en: "Job board" })}
-            <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
           </span>
         </Link>
 
@@ -258,7 +258,7 @@ export default function Careers() {
                     className="cta-fill inline-flex shrink-0 items-center gap-2 self-start rounded-full px-5 py-2.5 text-[14px] font-semibold md:self-center"
                   >
                     {t({ ar: "تقدّم الآن", en: "Apply now" })}
-                    <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+                    <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
                   </Link>
                 </div>
               </motion.li>
@@ -288,7 +288,7 @@ export default function Careers() {
               className="cta-fill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold"
             >
               {t({ ar: "راسلنا مباشرةً", en: "Email us directly" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
             </a>
             <Link
               href="/book"

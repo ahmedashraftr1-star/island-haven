@@ -190,7 +190,7 @@ export function Campaign() {
                 className="cta-fill group inline-flex items-center gap-2.5 h-14 px-9 rounded-full font-bold text-[14px] transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]"
               >
                 {t({ ar: "تبرّع للفرع الجديد", en: "Donate to the new branch" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
               </a>
               <a
                 href="https://nastonas.org"
@@ -200,7 +200,7 @@ export function Campaign() {
                 className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/80 hover:text-white transition-colors"
               >
                 {t({ ar: "التفاصيل على nastonas.org", en: "Details on nastonas.org" })}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
               </a>
             </motion.div>
           </div>

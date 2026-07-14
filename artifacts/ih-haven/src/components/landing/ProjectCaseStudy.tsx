@@ -332,7 +332,7 @@ function Journey({ v, milestones }: { v: CaseStudyVenture; milestones: CaseStudy
                         className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline"
                       >
                         {t({ ar: "رابط", en: "Link" })}
-                        <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+                        <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
                       </a>
                     )}
                   </div>
@@ -525,7 +525,7 @@ function GazaToWorld({
             className="group inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface-2 px-6 py-3 text-[14px] font-bold text-foreground transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
             {t({ ar: "قدّم مشروعك", en: "Apply" })}
-            <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
           </Link>
         </div>
       </Reveal>

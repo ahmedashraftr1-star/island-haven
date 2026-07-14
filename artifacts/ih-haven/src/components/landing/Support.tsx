@@ -137,7 +137,7 @@ export function Support() {
                 className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[14px] shadow-soft transition-transform duration-200 hover:-translate-y-0.5"
               >
                 {lang === "en" ? "Donate now" : c.donateCta}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
               </a>
               {c.donateNote && (
                 <span className="tnum t-caption text-fg-secondary">{c.donateNote}</span>
@@ -172,7 +172,7 @@ export function Support() {
                       {external ? (
                         <ExternalLink className="w-3.5 h-3.5 text-fg-faint group-hover:text-primary transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
                       ) : (
-                        <ArrowLeft className="w-3.5 h-3.5 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                        <ArrowLeft className="w-3.5 h-3.5 text-fg-faint ltr:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
                       )}
                     </span>
                   </a>

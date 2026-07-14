@@ -69,7 +69,7 @@ export function SectionHeader({
               aria-label={cta.label}
             >
               {cta.label}
-              <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden />
+              <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" aria-hidden />
             </Link>
           )}
         </div>

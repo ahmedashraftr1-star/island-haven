@@ -66,7 +66,7 @@ export function FeaturedMembers() {
               className="group inline-flex items-center gap-1.5 rounded-md pb-1.5 text-[13px] font-semibold text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
             >
               {t({ ar: "عرض الكلّ", en: "View all" })}
-              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
             <div className="text-end">
               <span className="mb-6 flex items-center justify-end gap-3">
@@ -142,7 +142,7 @@ export function FeaturedMembers() {
 
                     <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-[13px] font-semibold text-primary">
                       {t({ ar: "عرض الملفّ", en: "View profile" })}
-                      <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+                      <ArrowLeft className="h-3.5 w-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180 rtl:group-hover:translate-x-1" />
                     </span>
                   </Link>
                 </div>

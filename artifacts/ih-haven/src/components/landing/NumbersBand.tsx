@@ -225,7 +225,7 @@ export function NumbersBand() {
               className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
           </div>
         </Reveal>

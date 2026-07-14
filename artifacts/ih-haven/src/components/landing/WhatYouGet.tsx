@@ -122,7 +122,7 @@ export function WhatYouGet() {
               className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
             >
               {t({ ar: "اعرف أكثر", en: "Learn more" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
             </Link>
           </Reveal>
         </div>
@@ -188,7 +188,7 @@ export function WhatYouGet() {
               {/* Hairline tick — a quiet directional cue, no medallion */}
               <div className="hidden items-center justify-end lg:col-span-1 lg:flex">
                 <ArrowLeft
-                  className="h-4 w-4 text-white/45 transition-all duration-300 rtl:rotate-180 group-hover:-translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
+                  className="h-4 w-4 text-white/45 transition-all duration-300 ltr:rotate-180 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 group-hover:text-primary rtl:group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
                 />
               </div>

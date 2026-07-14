@@ -139,7 +139,11 @@ export function BackLink({ href, label }: { href: string; label: string }) {
       href={href}
       className="group inline-flex items-center gap-2 text-[12px] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold mb-6"
     >
-      <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+      {/* A BACK arrow, so it points the opposite way to every "next" arrow on the
+          site: toward the START of the reading direction. Left in LTR, right in
+          RTL — hence `rtl:rotate-180` here, where a forward arrow carries
+          `ltr:rotate-180`. The hover slide follows it. */}
+      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform ltr:group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
       {label}
     </Link>
   );

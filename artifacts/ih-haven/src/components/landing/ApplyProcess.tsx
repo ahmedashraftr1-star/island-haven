@@ -327,7 +327,7 @@ export function ApplyProcess() {
               className="group inline-flex items-center justify-center gap-2.5 h-14 px-9 rounded-full cta-fill font-bold text-[14.5px] tracking-wide transition-[transform,box-shadow] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
             >
               {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
             <Link
               href="/process"

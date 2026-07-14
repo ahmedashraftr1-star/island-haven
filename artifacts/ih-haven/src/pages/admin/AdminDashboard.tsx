@@ -435,7 +435,7 @@ export default function AdminDashboard() {
             href={import.meta.env.BASE_URL}
             className="flex items-center gap-3 px-3.5 h-10 rounded-xl text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground transition-all"
           >
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180" strokeWidth={2.2} />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180" strokeWidth={2.2} />
             العودة إلى الموقع
           </a>
           <button

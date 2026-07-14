@@ -170,7 +170,7 @@ export function NewsletterBand() {
                   ) : (
                     <>
                       {t({ ar: "اشترك الآن", en: "Subscribe" })}
-                      <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                      <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
                     </>
                   )}
                 </button>

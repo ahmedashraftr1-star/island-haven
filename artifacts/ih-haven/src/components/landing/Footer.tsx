@@ -99,7 +99,7 @@ export function Footer() {
               className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_24px_64px_-16px_hsl(7_84%_40%/0.5)]"
             >
               {t({ ar: "سجّل طلبك", en: "Apply now" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="h-4 w-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
           </div>
         </section>
@@ -207,7 +207,7 @@ export function Footer() {
                       }
                     >
                       {t(link.label)}
-                      {link.accent && <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />}
+                      {link.accent && <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />}
                     </Link>
                   </li>
                 ))}
@@ -230,7 +230,7 @@ export function Footer() {
                 className="inline-flex items-center gap-2 text-[14px] text-fg-secondary hover:text-primary transition-colors w-fit"
               >
                 <span dir="ltr">{contact.nastonas.replace(/^https?:\/\//, "")}</span>
-                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               </a>
             )}
             {contact.nas2nas && (
@@ -241,7 +241,7 @@ export function Footer() {
                 className="inline-flex items-center gap-2 text-[14px] text-primary font-semibold hover:text-primary-bright transition-colors w-fit"
               >
                 {t(I18N.footer.donate)}
-                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               </a>
             )}
           </div>

@@ -248,7 +248,7 @@ export default function Perks() {
                     className="group inline-flex items-center gap-1 text-[12px] text-fg-secondary hover:text-primary transition-colors font-semibold shrink-0"
                   >
                     {t({ ar: "التفاصيل", en: "Details" })}
-                    <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                    <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
                   </Link>
                 </div>
               </GlassCard>

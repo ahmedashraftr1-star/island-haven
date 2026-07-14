@@ -124,7 +124,7 @@ export function Programs() {
                   className="cta-fill mt-8 inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full font-semibold text-[14px] transition-all duration-300 shadow-soft hover:shadow-soft-hover hover:scale-[1.02]"
                 >
                   {c.featureCta}
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                  <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
                 </a>
               )}
             </div>

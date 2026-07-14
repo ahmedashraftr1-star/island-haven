@@ -483,7 +483,7 @@ function CohortRoster({
 
                 <div className="flex items-center gap-x-[clamp(1.25rem,2.5vw,2rem)] whitespace-nowrap justify-self-start md:justify-self-end">
                   <StatusLine status={c.status} lang={lang} t={t} />
-                  <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                  <ArrowLeft className="w-4 h-4 text-fg-faint ltr:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
                 </div>
               </Link>
             </motion.div>
@@ -533,7 +533,7 @@ function ApplyRail({ liveCount }: { liveCount: number }) {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "قدّم لدفعة", en: "Apply to a cohort" })}
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
         <Link
           href="/book?ref=cohorts"
@@ -607,7 +607,7 @@ function EmptyCohorts() {
             className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
           >
             {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
           </Link>
           <Link
             href="/programs"

@@ -352,7 +352,7 @@ export default function Apply() {
             href="/"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors font-semibold"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180 rtl:group-hover:translate-x-1" />
             {c.backLabel}
           </Link>
           <div className="flex items-center gap-2.5">
@@ -858,7 +858,7 @@ export default function Apply() {
                       ) : (
                         <>
                           {c.submitLabel}
-                          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
                         </>
                       )}
                     </span>
@@ -1281,7 +1281,7 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
                 href="/"
                 className="cta-fill group inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[13.5px] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
                 {c.successCta}
               </Link>
             </div>

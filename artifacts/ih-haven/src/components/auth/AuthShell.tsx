@@ -56,7 +56,7 @@ export function AuthShell({
             href="/"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180 rtl:group-hover:translate-x-1" />
             العودة
           </Link>
           <div className="flex items-center gap-2.5">

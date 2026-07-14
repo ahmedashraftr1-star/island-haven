@@ -336,7 +336,7 @@ function ProfileInner({
             href="/"
             className="group inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition-colors font-semibold"
           >
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 ltr:rotate-180" />
             {t({ ar: "الرئيسيّة", en: "Home" })}
           </Link>
           <div className="flex items-center gap-2.5">
@@ -1461,7 +1461,7 @@ function CoursesList({ rows }: { rows: MyEnrollment[] | null }) {
                   : COURSE_STATUS_LABELS_EN[r.course.status]}
               </div>
             </div>
-            <ArrowLeft className="w-4 h-4 text-white/45 group-hover:text-primary group-hover:-translate-x-1 transition-all shrink-0 ltr:rotate-180" />
+            <ArrowLeft className="w-4 h-4 text-white/45 group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-all shrink-0 ltr:rotate-180" />
           </div>
         </Link>
       ))}

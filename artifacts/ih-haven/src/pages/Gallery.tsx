@@ -352,7 +352,7 @@ export default function Gallery() {
                       className="cta-fill inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-semibold"
                     >
                       {c.openWork}
-                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                      <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
                     </Link>
                   )}
                   <button

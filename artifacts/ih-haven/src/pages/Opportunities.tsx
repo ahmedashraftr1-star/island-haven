@@ -386,7 +386,7 @@ function OpportunityRow({ o, i, reduce }: { o: Opportunity; i: number; reduce: b
             )}
             <span className="inline-flex items-center gap-1.5 t-caption font-semibold text-fg-secondary group-hover:text-primary transition-colors">
               <span className="hidden sm:inline">{t({ ar: "قدّم", en: "Apply" })}</span>
-              <ArrowLeft className="w-4 h-4 text-fg-faint rtl:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              <ArrowLeft className="w-4 h-4 text-fg-faint ltr:rotate-180 transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
             </span>
           </span>
         </Link>
@@ -589,7 +589,7 @@ function OpportunitiesEmpty({ narrowed }: { narrowed: boolean }) {
           className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
         >
           {t({ ar: "انتسب وكن أوّل من يُطابَق", en: "Join & get matched first" })}
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
         <Link
           href="/become-mentor?ref=opportunities-empty"

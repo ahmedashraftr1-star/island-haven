@@ -91,7 +91,7 @@ export default function NotFound() {
               href="/"
               className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-white font-bold text-[13.5px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform ltr:group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               {t({ ar: "العودة للرئيسيّة", en: "Back to home" })}
             </Link>
             <Link

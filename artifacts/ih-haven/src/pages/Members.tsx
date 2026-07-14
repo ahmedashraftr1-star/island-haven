@@ -251,7 +251,7 @@ export default function Members() {
             className="inline-flex w-full lg:w-auto items-center justify-center gap-1.5 rounded-full border border-primary/40 px-4 py-2 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary/10"
           >
             {t({ ar: "انضمّ كفريلانسر", en: "Join as freelancer" })}
-            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
+            <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
           </Link>
         </div>
       </div>
@@ -412,7 +412,7 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
                 <Globe className="w-3 h-3" />
               </span>
             )}
-            <ArrowLeft className="w-3.5 h-3.5 text-primary group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-3.5 h-3.5 text-primary rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-transform ltr:rotate-180" />
           </div>
         </div>
       </GlassCard>

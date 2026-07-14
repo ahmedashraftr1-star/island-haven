@@ -91,7 +91,7 @@ export default function ForgotPassword() {
               href="/login"
               className="inline-flex items-center gap-2 text-[13px] text-primary hover:underline font-semibold"
             >
-              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               {t({ ar: "العودة لتسجيل الدخول", en: "Back to login" })}
             </Link>
           </motion.div>

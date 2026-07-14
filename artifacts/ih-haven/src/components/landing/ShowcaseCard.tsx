@@ -199,7 +199,7 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
             <span className="tracking-[0.02em] underline-offset-[6px] group-hover:underline decoration-primary/60 decoration-1">
               {t({ ar: "دراسة الحالة", en: "Case study" })}
             </span>
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180 transition-transform duration-300 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" />
           </span>
         </div>
 

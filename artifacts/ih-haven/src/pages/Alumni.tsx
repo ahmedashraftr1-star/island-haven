@@ -126,7 +126,7 @@ export default function Alumni() {
                 </h2>
               </div>
               <Link href="/cohorts" className="text-[13px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                {t({ ar: "كل الدُّفعات", en: "All cohorts" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                {t({ ar: "كل الدُّفعات", en: "All cohorts" })} <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -150,7 +150,7 @@ export default function Alumni() {
                       <h3 className="text-[15px] font-bold text-foreground mt-3 mb-1">{cohort.name}</h3>
                       <p className="text-[12px] text-muted-foreground line-clamp-2">{cohort.description}</p>
                       <div className="mt-3 flex items-center gap-1.5 text-primary text-[12px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        {t({ ar: "عرض الدُّفعة", en: "View cohort" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                        {t({ ar: "عرض الدُّفعة", en: "View cohort" })} <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
                       </div>
                     </GlassCard>
                   </Link>
@@ -171,7 +171,7 @@ export default function Alumni() {
                 </h2>
               </div>
               <Link href="/ventures" className="text-[13px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                {t({ ar: "كل المشاريع", en: "All ventures" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                {t({ ar: "كل المشاريع", en: "All ventures" })} <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -222,7 +222,7 @@ export default function Alumni() {
                 </h2>
               </div>
               <Link href="/stories" className="text-[13px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                {t({ ar: "كل القصص", en: "All stories" })} <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                {t({ ar: "كل القصص", en: "All stories" })} <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -271,7 +271,7 @@ export default function Alumni() {
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
             {t({ ar: "قدّم الآن", en: "Apply now" })}
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
           </Link>
         </div>
       </div>

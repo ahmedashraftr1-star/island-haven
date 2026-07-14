@@ -124,7 +124,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
-                  قدّم الآن <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+                  قدّم الآن <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
                 </a>
               ) : (
                 <span className="text-[12px] text-muted-foreground">تواصل مع الشركة</span>
