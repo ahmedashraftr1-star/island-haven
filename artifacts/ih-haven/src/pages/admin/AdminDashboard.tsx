@@ -45,6 +45,10 @@ import AdminApplications from "./AdminApplications";
 import AdminBookings from "./AdminBookings";
 import AdminAttendance from "./AdminAttendance";
 import AdminAttendanceHr from "./AdminAttendanceHr";
+// Previously-orphaned: fully built + backend-wired, but never reachable in the nav.
+import AdminJobs from "./AdminJobs";
+import AdminInvestors from "./AdminInvestors";
+import AdminNewsletter from "./AdminNewsletter";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
@@ -95,6 +99,9 @@ type Tab =
   | "programs"
   | "ventures"
   | "opportunities"
+  | "jobs"
+  | "investors"
+  | "newsletter"
   | "badges"
   | "perks"
   | "milestones"
@@ -137,6 +144,9 @@ const TAB_PERMISSION: Record<Tab, string> = {
   journey: "cohorts:view",
   ventures: "ventures:view",
   opportunities: "opportunities:view",
+  jobs: "opportunities:view",
+  investors: "partners:view",
+  newsletter: "content:view",
   perks: "perks:view",
   badges: "badges:view",
   milestones: "ventures:view",
@@ -189,6 +199,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "ventures", label: "المشاريع الناشئة", Icon: Lightbulb, group: "incubation" },
   { id: "milestones", label: "محطّات المشاريع", Icon: Flag, group: "incubation" },
   { id: "opportunities", label: "الفرص والوظائف", Icon: Target, group: "incubation" },
+  { id: "jobs", label: "لوحة الوظائف", Icon: Briefcase, group: "incubation" },
   { id: "perks", label: "العروض والامتيازات", Icon: Gift, group: "incubation" },
   { id: "badges", label: "الشّارات", Icon: Award, group: "incubation" },
   { id: "content", label: "تحرير المحتوى", Icon: FileText, group: "content" },
@@ -198,8 +209,10 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "daily", label: "اليوميّات", Icon: Newspaper, group: "content" },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen, group: "content" },
   { id: "partners", label: "الشركاء", Icon: Handshake, group: "content" },
+  { id: "investors", label: "المستثمرون", Icon: TrendingUp, group: "content" },
   { id: "team", label: "فريق آيلاند", Icon: UserSquare2, group: "content" },
   { id: "push", label: "الإشعارات", Icon: Bell, group: "comms" },
+  { id: "newsletter", label: "النشرة البريديّة", Icon: Newspaper, group: "comms" },
   { id: "contact", label: "رسائل التواصل", Icon: Mail, group: "comms" },
   { id: "inbox", label: "صندوق الرسائل", Icon: MessageSquare, group: "comms" },
   { id: "channel", label: "قناة الفريق", Icon: Hash, group: "comms" },
@@ -533,6 +546,9 @@ export default function AdminDashboard() {
           {tab === "bookings" && <AdminBookings />}
           {tab === "attendance" && <AdminAttendance />}
           {tab === "attendance-hr" && <AdminAttendanceHr />}
+          {tab === "jobs" && <AdminJobs />}
+          {tab === "investors" && <AdminInvestors />}
+          {tab === "newsletter" && <AdminNewsletter />}
           {tab === "applications" && <AdminApplications />}
           {tab === "users" && <AdminUsers />}
           {tab === "experts" && <AdminExperts />}
