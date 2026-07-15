@@ -17,7 +17,7 @@ import {
 import { api } from "@/lib/api";
 import { useAuth, ROLE_LABELS } from "@/lib/auth";
 import type { UserRole } from "@workspace/db/contracts";
-import { ANNOUNCEMENTS, portalFieldsFor } from "@/data/memberPortal";
+import { portalFieldsFor } from "@/data/memberPortal";
 import type { Announcement, MemberPrivate, ScheduleDay, WeeklySchedule, Work } from "@/types/member";
 
 /* Eastern-Arabic numerals everywhere in the portal. */
@@ -42,6 +42,15 @@ interface ApiUser {
   createdAt: string;
 }
 
+interface DailyPost {
+  id: number;
+  type: "tip" | "news" | "quote" | "story";
+  title: string;
+  body: string;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
 const NAV: { tab: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { tab: "overview", label: "لوحة التحكّم", icon: LayoutDashboard },
   { tab: "portfolio", label: "معرض أعمالي", icon: Briefcase },
@@ -57,12 +66,38 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [member, setMember] = useState<MemberPrivate | null>(null);
   const [works, setWorks] = useState<Work[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [tab, setTab] = useState<Tab>("overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "بوابتي — آيلاند هيفن";
+  }, []);
+
+  // Real platform announcements from /daily (news/tips the admins actually publish),
+  // replacing the old hardcoded ANNOUNCEMENTS mock. Public endpoint; empty is honest.
+  useEffect(() => {
+    let alive = true;
+    api<{ posts: DailyPost[] }>("/daily?limit=20")
+      .then((d) => {
+        if (!alive) return;
+        setAnnouncements(
+          (d.posts ?? []).map((p) => ({
+            id: p.id,
+            title: p.title,
+            body: p.body,
+            type: p.type === "news" ? "urgent" : p.type === "story" ? "event" : "info",
+            date: (p.publishedAt || p.createdAt || "").slice(0, 10),
+            author: "إدارة آيلاند هيفن",
+            pinned: false,
+          })),
+        );
+      })
+      .catch(() => alive && setAnnouncements([]));
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -142,7 +177,7 @@ export default function DashboardPage() {
       </DashShell>
     );
 
-  const announceCount = ANNOUNCEMENTS.length;
+  const announceCount = announcements.length;
 
   return (
     <div dir="rtl" className="flex min-h-screen flex-col bg-[#080808] text-[#F2EDE6]" style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}>
@@ -193,7 +228,7 @@ export default function DashboardPage() {
                 >
                   <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
                   <span className="flex-1 text-start">{item.label}</span>
-                  {item.tab === "announcements" && (
+                  {item.tab === "announcements" && announceCount > 0 && (
                     <span className="rounded-full bg-primary/15 px-1.5 text-[11px] font-bold text-primary tnum">{ar(announceCount)}</span>
                   )}
                 </button>
@@ -218,9 +253,9 @@ export default function DashboardPage() {
 
         {/* Main */}
         <main className="min-w-0 flex-1 p-4 pb-24 sm:p-6 md:pb-6">
-          {tab === "overview" && <Overview member={member} works={works} />}
+          {tab === "overview" && <Overview member={member} works={works} announcements={announcements} />}
           {tab === "portfolio" && <Portfolio works={works} />}
-          {tab === "announcements" && <Announcements />}
+          {tab === "announcements" && <Announcements announcements={announcements} />}
           {tab === "schedule" && <Schedule />}
           {tab === "profile" && <ProfileData member={member} />}
         </main>
@@ -277,7 +312,7 @@ function SectionTitle({ children, count }: { children: ReactNode; count?: number
 
 /* ─────────── B-1 Overview ─────────── */
 
-function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
+function Overview({ member, works, announcements }: { member: MemberPrivate; works: Work[]; announcements: Announcement[] }) {
   return (
     <div>
       <h1 className="font-display font-bold text-[clamp(1.6rem,3.6vw,2.4rem)] leading-tight" style={{ letterSpacing: "-0.02em" }}>
@@ -304,15 +339,19 @@ function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
         <Card className="p-5">
           <h3 className="font-display font-bold text-[16px] mb-4">آخر التعميمات</h3>
           <div className="space-y-3">
-            {[...ANNOUNCEMENTS].sort(sortAnnouncements).slice(0, 3).map((a) => (
-              <div key={a.id} className="flex items-start gap-3 border-b border-white/[0.06] pb-3 last:border-0 last:pb-0">
-                <TypeBadge type={a.type} />
-                <div className="min-w-0">
-                  <p className="font-medium text-[14px] line-clamp-1">{a.title}</p>
-                  <p className="t-caption text-fg-secondary line-clamp-1 mt-0.5">{a.body}</p>
+            {announcements.length === 0 ? (
+              <p className="t-caption text-fg-secondary">لا توجد تعميمات بعد.</p>
+            ) : (
+              [...announcements].sort(sortAnnouncements).slice(0, 3).map((a) => (
+                <div key={a.id} className="flex items-start gap-3 border-b border-white/[0.06] pb-3 last:border-0 last:pb-0">
+                  <TypeBadge type={a.type} />
+                  <div className="min-w-0">
+                    <p className="font-medium text-[14px] line-clamp-1">{a.title}</p>
+                    <p className="t-caption text-fg-secondary line-clamp-1 mt-0.5">{a.body}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
 
@@ -558,11 +597,14 @@ function TypeBadge({ type }: { type: Announcement["type"] }) {
   return <span className={`shrink-0 rounded-full px-2.5 h-6 inline-flex items-center text-[10.5px] font-semibold ${m.cls}`}>{m.label}</span>;
 }
 
-function Announcements() {
-  const list = [...ANNOUNCEMENTS].sort(sortAnnouncements);
+function Announcements({ announcements }: { announcements: Announcement[] }) {
+  const list = [...announcements].sort(sortAnnouncements);
   return (
     <div>
       <SectionTitle count={list.length}>التعميمات</SectionTitle>
+      {list.length === 0 && (
+        <p className="t-caption text-fg-secondary">لا توجد تعميمات من الإدارة بعد.</p>
+      )}
       <div className="space-y-3">
         {list.map((a) => (
           <div
