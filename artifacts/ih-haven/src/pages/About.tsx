@@ -658,6 +658,14 @@ export default function About() {
       <ScrollProgress />
       <Header />
       <div className="relative z-10 pt-20">
+        {/* Every other page names itself with one h1 (via PageShell); this bespoke,
+            quote-led page had none, so its heading order jumped straight to h2 — a
+            broken outline for screen readers and search engines, and the only page on
+            the site without a top-level title. The hero opens on a war-born quote by
+            design, not a title, so the page name lives here as an sr-only h1: the
+            outline is repaired (h1 → the sections' h2 → their h3) and the crafted
+            visual is untouched. */}
+        <h1 className="sr-only">{t({ ar: "من نحن — آيلاند هيفن", en: "About Island Haven" })}</h1>
         {/* 1 · Hero — the war-born narrative + the 3-year goal */}
         <AboutHero />
         {/* 2 · Vision & Mission — bold statements */}
