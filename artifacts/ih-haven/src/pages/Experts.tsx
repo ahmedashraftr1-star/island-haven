@@ -385,17 +385,24 @@ function FilterTag({
     <button
       type="button"
       onClick={onClick}
-      className={`relative pb-1 text-[14px] font-semibold transition-colors ${
+      // The visible tab is a 14px underline label (~28px tall) — fine to read, fiddly
+      // to hit with a thumb. `py-2.5` grows the TAP TARGET to ~44px without moving the
+      // text; the underline is glued to the label via the inner relative span, so it
+      // stays under the words instead of dropping to the padded button's floor. Same
+      // look, comfortably tappable on a phone.
+      className={`relative inline-flex py-2.5 text-[14px] font-semibold transition-colors ${
         active ? "text-foreground" : "text-fg-secondary hover:text-foreground"
       }`}
     >
-      {label}
-      <span
-        aria-hidden
-        className={`absolute inset-x-0 -bottom-px h-0.5 origin-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
-          active ? "scale-x-100 bg-primary" : "scale-x-0 bg-foreground/40"
-        }`}
-      />
+      <span className="relative pb-1">
+        {label}
+        <span
+          aria-hidden
+          className={`absolute inset-x-0 -bottom-px h-0.5 origin-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+            active ? "scale-x-100 bg-primary" : "scale-x-0 bg-foreground/40"
+          }`}
+        />
+      </span>
     </button>
   );
 }
