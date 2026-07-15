@@ -724,10 +724,10 @@ function ApplyBand() {
           className="absolute inset-0"
           style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.15) 0%, hsl(0 0% 4% / 0.10) 45%, hsl(0 0% 4% / 0.55) 100%)" }}
         />
-        <div className="plinth relative w-full max-w-3xl p-[clamp(1.75rem,6vw,4rem)]">
+        <div className="plinth relative w-fit max-w-[32rem] rounded-2xl p-[clamp(1.5rem,4vw,2.75rem)]">
           <h2
             className="font-display text-white"
-            style={{ fontSize: "clamp(2.2rem, 6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
+            style={{ fontSize: "clamp(1.9rem, 4vw, 3.2rem)", lineHeight: 1.05, letterSpacing: "-0.035em", fontWeight: 700 }}
           >
             {[
               t({ ar: "ألف موهبة. ثلاث سنوات.", en: "1,000 talents. Three years." }),
