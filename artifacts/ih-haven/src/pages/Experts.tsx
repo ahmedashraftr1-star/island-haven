@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft, Search, X } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { expertiseLabel } from "@/lib/expertiseTags";
 import { useExperts, useTeam } from "@/hooks/use-public-data";
 import { splitTags } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -306,7 +307,7 @@ export default function Experts() {
                     key={tag}
                     active={activeTag === tag}
                     onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                    label={tag}
+                    label={expertiseLabel(tag, lang)}
                   />
                 ))}
               </div>
