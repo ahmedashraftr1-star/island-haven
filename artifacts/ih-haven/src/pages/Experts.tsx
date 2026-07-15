@@ -804,24 +804,25 @@ function FullBleedPhoto({ reduce, className = "" }: { reduce: boolean; className
           className="absolute inset-0"
           style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.28) 0%, hsl(0 0% 4% / 0.08) 40%, hsl(0 0% 4% / 0.5) 100%)" }}
         />
-        {/* The plinth is GROUND — a slab beneath the type that BLEEDS off the start edge —
-            not a box hugging the words. Sized to the words it made a cramped four-line
-            column jammed in the corner (a patch, not architecture); a slab that runs off
-            the frame reads as a wall, like the hero column. It is a wrapper, never the
-            <p> itself: put it on the text and the ground vanishes with the text, so
-            nothing beneath the type could ever be verified. */}
-        <div className="plinth absolute inset-y-0 start-0 flex w-full items-end pb-[clamp(2.5rem,6vh,4.5rem)] lg:w-[62%] xl:w-[54%]">
-          <motion.p
-            className="container-ih max-w-[24ch] text-white"
-            style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
-            initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-          >
-            {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
-          </motion.p>
-        </div>
+        {/* The line takes a CONTAINED plinth panel in the corner — a wrapper (never the
+            <p> itself, so its ground survives when the text is inspected). The earlier
+            full-height 54% slab gave the type a ground but read as a black box hiding
+            half the room; a small panel keeps the caption legible while the vivid
+            photograph fills the whole band. */}
+        <div className="absolute inset-x-0 bottom-0 px-[clamp(1.25rem,5vw,4rem)] pb-[clamp(2rem,5vh,3.5rem)]">
+          <div className="plinth w-fit max-w-[20rem] rounded-2xl p-[clamp(1.25rem,2.4vw,2rem)]">
+              <motion.p
+                className="text-white text-balance"
+                style={{ fontSize: "clamp(1.4rem, 2.6vw, 2rem)", lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 600 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+              >
+                {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
+              </motion.p>
+            </div>
+          </div>
       </div>
     </motion.div>
   );
