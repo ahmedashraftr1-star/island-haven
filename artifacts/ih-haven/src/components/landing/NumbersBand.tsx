@@ -97,29 +97,15 @@ export function NumbersBand() {
       {/* Ambient glow — lifts the glass off the photo, terracotta/gold light field. */}
       <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
-      {/* This section says "not slogans — REAL numbers", and it was the least legible
-          block on the site: the photograph behind it is a brightly-lit room, so the
-          terracotta eyebrow measured 1.36:1 and the sentence promising the figures come
-          straight from the database measured 1.61:1. The most honest section on the site
-          was the one you couldn't read.
-          A stronger veil was never the answer — terracotta needs a near-black ground, and
-          no veil that leaves a photograph alive reaches it. So the header takes a plinth.
-          It BLEEDS off the start edge rather than floating inside the container: a slab
-          that stops short on both sides reads as a black box pasted onto a picture, while
-          one that runs off the frame reads as architecture — which is the whole reason
-          the hero's column works. The lit room stays lit. */}
+      {/* The terracotta header needs a dark ground to read on this brightly-lit room
+          (the eyebrow measured 1.36:1 on the bare photo). The first fix over-corrected:
+          a full-bleed slab across ~76% of the section turned into a black box that
+          covered the room. So the ground is now a CONTAINED panel sized to the text —
+          the type is legible, and the vivid photograph fills the rest of the section
+          instead of being hidden behind black. */}
       <div className="relative">
-        {/* The slab is a BACKGROUND that bleeds off the start edge; the type stays on the
-            site's own grid. Doing it the other way — padding the slab until its text
-            happens to line up — makes the geometry a hostage of the container's gutters. */}
-        {/* Wide enough to actually CARRY the header. At 64% the slab ran 600→1429 while
-            the headline started at 378 — 222px of "ليست شعارات —" hung off the edge, in
-            the air, over the photograph. A plinth the type overhangs is not a plinth. */}
-        <div
-          aria-hidden
-          className="plinth absolute inset-y-0 start-0 w-full lg:w-[80%] xl:w-[76%]"
-        />
-        <Reveal className="container-ih relative max-w-3xl py-[clamp(2.5rem,6vh,4.5rem)]">
+        <Reveal className="container-ih relative py-[clamp(2.5rem,6vh,4.5rem)]">
+          <div className="plinth inline-block max-w-[40rem] rounded-2xl p-[clamp(1.5rem,3.2vw,2.5rem)]">
           <div className="mb-5 flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 motion-safe:animate-ping" />
@@ -134,7 +120,7 @@ export function NumbersBand() {
           </div>
           <h2
             className="font-display text-white"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.04em" }}
+            style={{ fontSize: "clamp(1.9rem, 3.4vw, 3rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.03em" }}
           >
             {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
             <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
@@ -145,6 +131,7 @@ export function NumbersBand() {
               en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
             })}
           </p>
+          </div>
         </Reveal>
       </div>
 
