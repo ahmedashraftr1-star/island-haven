@@ -18,6 +18,7 @@ import {
   Mail,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { ANNOUNCEMENTS, portalFieldsFor } from "@/data/memberPortal";
 import type { Announcement, MemberPrivate, ScheduleDay, WeeklySchedule, Work } from "@/types/member";
 
@@ -43,12 +44,6 @@ interface ApiUser {
   createdAt: string;
 }
 
-function parseMemberId(): number | null {
-  const raw = new URLSearchParams(window.location.search).get("member");
-  const n = raw ? Number(raw) : NaN;
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
 const NAV: { tab: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { tab: "overview", label: "لوحة التحكّم", icon: LayoutDashboard },
   { tab: "portfolio", label: "معرض أعمالي", icon: Briefcase },
@@ -58,7 +53,10 @@ const NAV: { tab: Tab; label: string; icon: typeof LayoutDashboard }[] = [
 ];
 
 export default function DashboardPage() {
-  const [memberId] = useState<number | null>(parseMemberId());
+  // Identity is the LOGGED-IN member's own session (ih_user cookie via useAuth), not
+  // a ?member=<id> URL param. The old dev entry let anyone open any member's private
+  // portal by typing an id; the portal now only ever shows YOUR own account.
+  const { user, loading: authLoading } = useAuth();
   const [member, setMember] = useState<MemberPrivate | null>(null);
   const [works, setWorks] = useState<Work[]>([]);
   const [tab, setTab] = useState<Tab>("overview");
@@ -70,21 +68,23 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!memberId) {
+    if (authLoading) return;
+    if (!user) {
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
     setError(null);
-    // X-Member-Auth is a DEV-ONLY signal; real production auth is required before
-    // any sensitive field is served from a real api-server route.
-    api<{ user: ApiUser; works: Work[] }>(`/users/${memberId}`, {
-      headers: { "X-Member-Auth": String(memberId) },
-    })
+    // The public profile of the logged-in member — for their own works list/count.
+    // No forged header: the sensitive identity fields (email, phone) come from the
+    // authenticated session (useAuth), not from an unauthenticated lookup.
+    api<{ user: ApiUser; works: Work[] }>(`/users/${user.id}`)
       .then((r) => {
         if (cancelled) return;
         const u = r.user;
+        // Demo-only portal fields (membership/desk/wifi/hours) remain static
+        // placeholders; the real, per-member sensitive fields override them.
         const portal = portalFieldsFor(u.id, u.fullName);
         setMember({
           id: u.id,
@@ -103,6 +103,8 @@ export default function DashboardPage() {
           followingCount: 0,
           createdAt: u.createdAt,
           ...portal,
+          email: user.email,
+          phone: user.phone || portal.phone,
         });
         setWorks(r.works ?? []);
       })
@@ -111,10 +113,10 @@ export default function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [memberId]);
+  }, [user, authLoading]);
 
-  if (!memberId) return <MemberPicker />;
-  if (loading) return <DashShell><DashboardSkeleton /></DashShell>;
+  if (authLoading || (user && loading)) return <DashShell><DashboardSkeleton /></DashShell>;
+  if (!user) return <LoginPrompt />;
   if (error || !member)
     return (
       <DashShell>
@@ -950,8 +952,9 @@ function DashboardSkeleton() {
   );
 }
 
-function MemberPicker() {
-  const [val, setVal] = useState("88");
+/** Shown when there is no member session. The portal is private, so the only way
+ *  in is a real login — no more ?member=<id> dev backdoor. */
+function LoginPrompt() {
   return (
     <div dir="rtl" className="grid min-h-screen place-items-center bg-[#080808] text-[#F2EDE6] p-6" style={{ fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif' }}>
       <div className="w-full max-w-sm text-center">
@@ -959,25 +962,11 @@ function MemberPicker() {
           <span className="font-display font-black text-primary text-xl">آ</span>
         </span>
         <h1 className="font-display font-bold text-2xl mt-5">بوابة المنتسبين</h1>
-        <p className="t-caption text-fg-secondary mt-2">أدخل رقم المنتسب للدخول (وضع التطوير).</p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const id = Number(val);
-            if (Number.isFinite(id) && id > 0) window.location.search = `?member=${id}`;
-          }}
-          className="mt-6 flex gap-2"
-        >
-          <input
-            value={val}
-            onChange={(e) => setVal(e.target.value)}
-            inputMode="numeric"
-            aria-label="رقم المنتسب"
-            placeholder="٨٨"
-            className="flex-1 rounded-lg border border-white/[0.12] bg-white/[0.03] px-4 py-3 text-center text-foreground tnum focus:border-primary focus:outline-none"
-          />
-          <button type="submit" className="cta-fill rounded-lg px-5 py-3 text-[14px] font-semibold">دخول</button>
-        </form>
+        <p className="t-caption text-fg-secondary mt-2">سجّل الدخول بحسابك لعرض بوابتك الخاصّة.</p>
+        <div className="mt-6 flex flex-col gap-2">
+          <Link href="/login" className="cta-fill rounded-lg px-5 py-3 text-[14px] font-semibold">تسجيل الدخول</Link>
+          <Link href="/register" className="rounded-lg border border-white/[0.12] px-5 py-3 text-[14px] font-semibold text-foreground hover:border-primary transition-colors">إنشاء حساب</Link>
+        </div>
         <Link href="/" className="inline-flex items-center gap-1.5 mt-6 text-[13px] text-fg-secondary hover:text-foreground transition-colors">
           العودة للموقع
           <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />
