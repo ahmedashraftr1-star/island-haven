@@ -363,13 +363,16 @@ export function Hero() {
           life. It reads like an inscription cut into stone next to a window.
           Below `lg` the column becomes the full width (a phone has no room for a
           seam) and the photograph shows through as a dark ambient ground. ── */}
-      <div className="absolute inset-y-0 start-0 z-10 flex w-full flex-col justify-center border-e border-primary/70 bg-[#060608]/[0.94] px-6 backdrop-blur-[2px] sm:px-10 lg:w-[54%] lg:px-[clamp(2.5rem,4.5vw,5rem)] xl:w-[50%]">
+      <div className="absolute inset-y-0 start-0 z-10 flex w-full flex-col justify-center border-e border-primary/70 bg-[#060608]/[0.94] px-6 backdrop-blur-[2px] sm:px-10 lg:w-[54%] lg:px-[clamp(2.5rem,4.5vw,5rem)] lg:pt-24 lg:pb-32 xl:w-[50%]">
         {/* The parallax rides the CONTENT, never the column: an architectural edge
             that drifts is no longer architecture. */}
-        {/* `pb-*` keeps the vertically-centred message clear of the proof bar, which
-            is pinned to the column's floor — without it they collide on a short
-            laptop screen. */}
-        <motion.div style={{ y: textY }} className="mx-auto w-full max-w-[34rem] pt-24 pb-36 lg:pt-0 lg:pb-40">
+        {/* Header/stats clearance lives on the COLUMN (lg:pt-24 / lg:pb-32) so the
+            centred message is centred in the space BETWEEN the fixed nav and the proof
+            bar — never behind either. On mobile the column is full-bleed, so the
+            clearance stays here instead. Putting a tall bottom padding on THIS div was
+            the bug: it inflated the content to ~viewport height, so centring pushed the
+            eyebrow up into the header. */}
+        <motion.div style={{ y: textY }} className="mx-auto w-full max-w-[34rem] pt-24 pb-36 lg:pt-0 lg:pb-0">
           <div className="relative">
             <motion.div
               initial={{ y: 8 }}
@@ -391,7 +394,11 @@ export function Hero() {
               // this reads BIGGER, not smaller — which is the whole trick of a
               // monument: it is scaled to its plinth, not to the field around it.
               // Leading stays tight (1.02) so the three lines still stack as one mass.
-              style={{ fontSize: "clamp(3rem, 5.6vw, 5.6rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.045em" }}
+              // Height-aware: on a SHORT desktop viewport the `9vh` term shrinks the
+              // headline so the whole monument (eyebrow → headline → sub → CTAs) still
+              // fits between the fixed nav and the proof bar, instead of the centred
+              // block overflowing upward into the header. Stays full-size on tall screens.
+              style={{ fontSize: "clamp(3rem, min(5.4vw, 8vh), 5.4rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.045em" }}
             >
               <KineticLine text={headline.prefix} delay={0.4} reduce={!!reduce} />
               <RotatingWord words={headline.words} delay={0.6} reduce={!!reduce} />
@@ -403,7 +410,7 @@ export function Hero() {
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-7 max-w-[30rem] text-[1.0625rem] lg:text-[1.125rem] text-white/75 font-normal leading-[1.75] whitespace-pre-line"
+            className="mt-5 lg:mt-7 max-w-[30rem] text-[1.0625rem] lg:text-[1.125rem] text-white/75 font-normal leading-[1.75] whitespace-pre-line"
           >
             {c.subtitle}
           </motion.p>
@@ -413,7 +420,7 @@ export function Hero() {
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.82, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-9 lg:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
             <a
               href={c.ctaPrimaryHref || "/apply"}
