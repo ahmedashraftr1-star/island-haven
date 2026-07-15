@@ -97,9 +97,29 @@ export function NumbersBand() {
       {/* Ambient glow — lifts the glass off the photo, terracotta/gold light field. */}
       <div aria-hidden className="glass-ambient pointer-events-none absolute inset-0" />
 
-      <div className="container-ih section-y relative">
-        {/* Header — a quiet LIVE signal + one monumental line, roomy sub. */}
-        <Reveal className="max-w-3xl">
+      {/* This section says "not slogans — REAL numbers", and it was the least legible
+          block on the site: the photograph behind it is a brightly-lit room, so the
+          terracotta eyebrow measured 1.36:1 and the sentence promising the figures come
+          straight from the database measured 1.61:1. The most honest section on the site
+          was the one you couldn't read.
+          A stronger veil was never the answer — terracotta needs a near-black ground, and
+          no veil that leaves a photograph alive reaches it. So the header takes a plinth.
+          It BLEEDS off the start edge rather than floating inside the container: a slab
+          that stops short on both sides reads as a black box pasted onto a picture, while
+          one that runs off the frame reads as architecture — which is the whole reason
+          the hero's column works. The lit room stays lit. */}
+      <div className="relative">
+        {/* The slab is a BACKGROUND that bleeds off the start edge; the type stays on the
+            site's own grid. Doing it the other way — padding the slab until its text
+            happens to line up — makes the geometry a hostage of the container's gutters. */}
+        {/* Wide enough to actually CARRY the header. At 64% the slab ran 600→1429 while
+            the headline started at 378 — 222px of "ليست شعارات —" hung off the edge, in
+            the air, over the photograph. A plinth the type overhangs is not a plinth. */}
+        <div
+          aria-hidden
+          className="plinth absolute inset-y-0 start-0 w-full lg:w-[80%] xl:w-[76%]"
+        />
+        <Reveal className="container-ih relative max-w-3xl py-[clamp(2.5rem,6vh,4.5rem)]">
           <div className="mb-5 flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 motion-safe:animate-ping" />
@@ -126,10 +146,15 @@ export function NumbersBand() {
             })}
           </p>
         </Reveal>
+      </div>
 
-        {/* The figures float on glass. Monumental gold lead on a feature tile +
-            a column of supporting metrics on a glass panel — Vision Pro depth. */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-1 gap-[clamp(1.25rem,2.5vw,1.75rem)] lg:grid-cols-12">
+      {/* The figures float on glass — they carry their own ground already, so they stay
+          off the plinth and let the photograph run behind them. The plinth is scoped to
+          the HEADER zone only; stretched over the whole section it would have buried the
+          picture under a black field, which is the exact mistake this whole pass exists
+          to undo. */}
+      <div className="container-ih relative pb-[clamp(3rem,7vh,5.5rem)] pt-[clamp(2.5rem,5vw,4rem)]">
+        <div className="grid grid-cols-1 gap-[clamp(1.25rem,2.5vw,1.75rem)] lg:grid-cols-12">
           {/* Lead figure — enrollments, the largest, on a feature tile. */}
           <Reveal className="lg:col-span-5">
             <div

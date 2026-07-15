@@ -784,24 +784,35 @@ function FullBleedPhoto({ reduce, className = "" }: { reduce: boolean; className
           style={{ y }}
           className="absolute inset-0 h-[116%] w-full -top-[8%] object-cover object-center saturate-[1.04] will-change-transform"
         />
+        {/* This was a 90deg wash darkening the LEFT of the frame to 0.92 — but the line
+            it was meant to protect is start-aligned, which in Arabic is the RIGHT. So it
+            drowned half the photograph and left the type standing on bare picture: the
+            headline measured 1.34:1 against the worst pixel beneath it. A scrim that
+            assumes English on an Arabic page.
+            The line takes a plinth instead — direction-agnostic, like the hero — and the
+            veil relaxes into a floor for the bottom edge. */}
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(90deg, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.5) 45%, transparent 80%)" }}
+          style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.28) 0%, hsl(0 0% 4% / 0.08) 40%, hsl(0 0% 4% / 0.5) 100%)" }}
         />
-        <div className="absolute inset-0 flex items-end">
-          <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">
-            <motion.p
-              className="max-w-[20ch] text-white"
-              style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
-              initial={reduce ? false : { opacity: 0, y: 20 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
-            >
-              {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
-            </motion.p>
-          </div>
+        {/* The plinth is GROUND — a slab beneath the type that BLEEDS off the start edge —
+            not a box hugging the words. Sized to the words it made a cramped four-line
+            column jammed in the corner (a patch, not architecture); a slab that runs off
+            the frame reads as a wall, like the hero column. It is a wrapper, never the
+            <p> itself: put it on the text and the ground vanishes with the text, so
+            nothing beneath the type could ever be verified. */}
+        <div className="plinth absolute inset-y-0 start-0 flex w-full items-end pb-[clamp(2.5rem,6vh,4.5rem)] lg:w-[62%] xl:w-[54%]">
+          <motion.p
+            className="container-ih max-w-[24ch] text-white"
+            style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
+          >
+            {t({ ar: "موهبةٌ تنتظر من يأخذ بيدها.", en: "Talent waiting for a hand to guide it." })}
+          </motion.p>
         </div>
       </div>
     </motion.div>

@@ -712,12 +712,19 @@ function ApplyBand() {
           loading="lazy"
           className="absolute inset-0 h-[116%] -top-[8%] w-full object-cover object-center saturate-[1.04] will-change-transform"
         />
+        {/* The scrim used to ramp to 0.94 — it drowned the whole photograph in order to
+            rescue the headline, and it still failed: measured against the WORST pixel
+            under it, "ألف موهبة. ثلاث سنوات." scored 1:1 (the white type was landing on
+            a lit wall in the picture) and the terracotta "للخروج." scored 1.71:1. Both
+            were, in plain terms, invisible.
+            The headline now stands on a plinth of its own, so the veil can let go: a
+            whisper at the floor for the edge, and the photograph keeps its life. */}
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.4) 0%, hsl(0 0% 4% / 0.6) 40%, hsl(0 0% 4% / 0.94) 100%)" }}
+          style={{ background: "linear-gradient(180deg, hsl(0 0% 4% / 0.15) 0%, hsl(0 0% 4% / 0.10) 45%, hsl(0 0% 4% / 0.55) 100%)" }}
         />
-        <div className="relative w-full p-[clamp(1.75rem,6vw,4rem)] max-w-3xl">
+        <div className="plinth relative w-full max-w-3xl p-[clamp(1.75rem,6vw,4rem)]">
           <h2
             className="font-display text-white"
             style={{ fontSize: "clamp(2.2rem, 6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}

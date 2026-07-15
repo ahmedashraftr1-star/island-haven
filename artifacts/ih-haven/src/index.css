@@ -470,6 +470,30 @@
    it so white text stays razor-legible, while the blurred, saturated image still
    reads through it + glows around the edges. A bright hairline + top highlight keep
    the "glass" read. Legibility first, vibrancy kept. */
+/*
+ * PLINTH — the hero's law, made reusable.
+ *
+ * Terracotta's relative luminance is ~0.21. To clear WCAG AA it needs a ground below
+ * 0.037 — near-black. No scrim that leaves a photograph ALIVE can get there, which is
+ * why every attempt to fix this by darkening the image ended up killing the image (and
+ * the brand with it) while the contrast numbers went green.
+ *
+ * So type over a photograph does not get a stronger veil. It gets GROUND: an opaque
+ * slab of the canvas's own ink, closed on the reading edge by a single terracotta
+ * rule — the same architecture as the hero column, at section scale. The photograph
+ * beside and around it keeps 100% of its life. Nothing is dimmed; the type simply
+ * stops standing where it cannot be read.
+ *
+ * Use it on any block of type that sits over an image. Never use a scrim for that job.
+ */
+@utility plinth {
+  background-color: hsl(240 14% 3% / 0.94);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  border-inline-end: 2px solid hsl(var(--primary) / 0.7);
+  border-radius: 2px;
+}
+
 @utility glass-panel {
   background: linear-gradient(180deg, hsl(24 12% 7% / 0.56) 0%, hsl(24 14% 5% / 0.7) 100%);
   backdrop-filter: blur(24px) saturate(1.7);
