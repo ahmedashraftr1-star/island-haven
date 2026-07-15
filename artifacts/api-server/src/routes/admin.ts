@@ -21,7 +21,10 @@ const router: IRouter = Router();
 // Admin login guards a single high-privilege shared password, so even a brief
 // burst of guesses should be throttled immediately.
 const ADMIN_WINDOW_MS = 15 * 60 * 1000;
-const ADMIN_MAX_ATTEMPTS = 5;
+// Default 5 attempts / 15 min — the secure production value. Overridable via env so a
+// test run (which logs the admin in across several suites) or a trusted internal tool
+// can raise it; matches how RATE_LIMIT_AUTH_MAX / RATE_LIMIT_GENERAL_MAX already work.
+const ADMIN_MAX_ATTEMPTS = Number(process.env.ADMIN_LOGIN_MAX_ATTEMPTS ?? 5);
 const adminAttempts = new Map<string, number[]>();
 let adminLastSweep = 0;
 
