@@ -63,8 +63,12 @@ const SEGMENT_SECTION: Record<string, string> = {
 const VIEW_ONLY = new Set(["overview", "audit"]);
 const MANAGE_ONLY = new Set(["staff"]);
 const SEND_ONLY = new Set(["broadcast", "messages"]);
-/** Admin endpoints that need only authentication (any admin), no permission. */
-const AUTHN_ONLY = new Set(["me", "ping"]);
+/** Admin endpoints that need only authentication (any admin), no permission.
+ *  `my-attendance` is self-service: any staff member checks THEMSELVES in/out and
+ *  files their OWN leave — that must not require the `attendance:manage` permission
+ *  (which governs managing OTHER people's attendance). The routes derive the actor
+ *  from the session, never from the body, so a staffer can only ever act on self. */
+const AUTHN_ONLY = new Set(["me", "ping", "my-attendance"]);
 /** Admin endpoints with NO auth at all. */
 const OPEN = new Set(["login", "logout"]);
 

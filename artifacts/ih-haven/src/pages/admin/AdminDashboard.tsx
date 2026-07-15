@@ -32,6 +32,7 @@ import {
   Award,
   Gift,
   Armchair,
+  ClipboardCheck,
   ShieldCheck,
   Hash,
   ScrollText,
@@ -43,6 +44,7 @@ import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
 import AdminBookings from "./AdminBookings";
 import AdminAttendance from "./AdminAttendance";
+import AdminAttendanceHr from "./AdminAttendanceHr";
 import AdminContent from "./AdminContent";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
@@ -85,6 +87,7 @@ type Tab =
   | "impact"
   | "bookings"
   | "attendance"
+  | "attendance-hr"
   | "applications"
   | "users"
   | "experts"
@@ -124,6 +127,7 @@ const TAB_PERMISSION: Record<Tab, string> = {
   impact: "impact:view",
   bookings: "bookings:view",
   attendance: "attendance:view",
+  "attendance-hr": "attendance:view",
   applications: "applications:view",
   users: "users:view",
   experts: "experts:view",
@@ -175,6 +179,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "users", label: "المستخدمون", Icon: Users, group: "people" },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck, group: "people" },
   { id: "attendance", label: "الحضور والانصراف", Icon: Armchair, group: "people" },
+  { id: "attendance-hr", label: "الحضور والإجازات", Icon: ClipboardCheck, group: "people" },
   { id: "experts", label: "الخبراء", Icon: Sparkles, group: "incubation" },
   { id: "sessions", label: "جلسات الإرشاد", Icon: MessageSquare, group: "incubation" },
   { id: "slots", label: "مواعيد الخبراء", Icon: CalendarRange, group: "incubation" },
@@ -527,6 +532,7 @@ export default function AdminDashboard() {
           {tab === "tasks" && <AdminTasks openTaskId={openTaskId} onOpenConsumed={() => setOpenTaskId(null)} />}
           {tab === "bookings" && <AdminBookings />}
           {tab === "attendance" && <AdminAttendance />}
+          {tab === "attendance-hr" && <AdminAttendanceHr />}
           {tab === "applications" && <AdminApplications />}
           {tab === "users" && <AdminUsers />}
           {tab === "experts" && <AdminExperts />}

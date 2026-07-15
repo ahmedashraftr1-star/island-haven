@@ -18,8 +18,8 @@ import {
   Mail,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { ANNOUNCEMENTS, WEEKLY_SCHEDULE, portalFieldsFor } from "@/data/memberPortal";
-import type { Announcement, MemberPrivate, ScheduleDay, Work } from "@/types/member";
+import { ANNOUNCEMENTS, portalFieldsFor } from "@/data/memberPortal";
+import type { Announcement, MemberPrivate, ScheduleDay, WeeklySchedule, Work } from "@/types/member";
 
 /* Eastern-Arabic numerals everywhere in the portal. */
 const ar = (n: number) => n.toLocaleString("ar-EG");
@@ -611,7 +611,39 @@ const STATUS_STYLE: Record<ScheduleDay["status"], string> = {
 };
 
 function Schedule() {
-  const s = WEEKLY_SCHEDULE;
+  // Real attendance for the LOGGED-IN member (the session's ih_user cookie), not the
+  // old WEEKLY_SCHEDULE mock. The endpoint returns exactly the WeeklySchedule shape.
+  // If the viewer has no member session (e.g. the dev ?member preview without a
+  // login) the call 401s and we say so honestly rather than showing invented data.
+  const [s, setS] = useState<WeeklySchedule | null>(null);
+  const [state, setState] = useState<"loading" | "ok" | "unauth">("loading");
+  useEffect(() => {
+    let alive = true;
+    api<WeeklySchedule>("/attendance/history")
+      .then((d) => alive && (setS(d), setState("ok")))
+      .catch(() => alive && setState("unauth"));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (state === "unauth")
+    return (
+      <div>
+        <SectionTitle>جدول الدوام</SectionTitle>
+        <Card className="p-6 text-[13.5px] text-fg-secondary">
+          سجّل الدخول بحسابك لعرض سجلّ حضورك الفعليّ.
+        </Card>
+        <LeaveSection />
+      </div>
+    );
+  if (!s)
+    return (
+      <div>
+        <SectionTitle>جدول الدوام</SectionTitle>
+        <div className="rounded-2xl border border-white/[0.08] h-40 animate-pulse bg-white/[0.03]" />
+      </div>
+    );
   return (
     <div>
       <SectionTitle>جدول الدوام</SectionTitle>
@@ -657,6 +689,136 @@ function Schedule() {
         <Chip label="إجازة" value={`${ar(s.monthlySummary.holiday)} أيّام`} />
         <Chip label="الإجماليّ" value={`${ar(s.monthlySummary.totalHours)} ساعة`} />
       </div>
+
+      <LeaveSection />
+    </div>
+  );
+}
+
+interface MemberLeave {
+  id: number;
+  kind: string;
+  kindLabel: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: string;
+  decisionNote: string;
+}
+const LEAVE_KINDS: { value: string; label: string }[] = [
+  { value: "leave", label: "إجازة" },
+  { value: "sick", label: "إجازة مرضيّة" },
+  { value: "personal", label: "ظرفٌ خاصّ" },
+];
+const LEAVE_STATUS: Record<string, { label: string; cls: string }> = {
+  pending: { label: "قيد المراجعة", cls: "text-amber-400" },
+  approved: { label: "معتمدة", cls: "text-emerald-400" },
+  rejected: { label: "مرفوضة", cls: "text-primary" },
+  cancelled: { label: "ملغاة", cls: "text-fg-faint" },
+};
+
+/** The member's own leave — a request form + the history of their requests. */
+function LeaveSection() {
+  const [rows, setRows] = useState<MemberLeave[] | null>(null);
+  const [open, setOpen] = useState(false);
+  const [kind, setKind] = useState("leave");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const load = () =>
+    api<{ requests: MemberLeave[] }>("/leave/mine")
+      .then((d) => setRows(d.requests))
+      .catch(() => setRows([]));
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function submit() {
+    setErr("");
+    if (!start || !end) return setErr("حدّد تاريخي البداية والنهاية");
+    setBusy(true);
+    try {
+      await api("/leave", { method: "POST", body: JSON.stringify({ kind, startDate: start, endDate: end, reason }) });
+      setOpen(false);
+      setStart(""); setEnd(""); setReason(""); setKind("leave");
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "تعذّر إرسال الطلب");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function cancel(id: number) {
+    await api(`/leave/${id}/cancel`, { method: "POST" }).catch(() => {});
+    await load();
+  }
+
+  return (
+    <div className="mt-9">
+      <div className="mb-4 flex items-center justify-between">
+        <SectionTitle>طلبات الإجازة</SectionTitle>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="cta-fill inline-flex items-center gap-2 h-10 px-5 rounded-full text-[13px] font-bold -mt-3"
+        >
+          {open ? "إغلاق" : "طلب إجازة"}
+        </button>
+      </div>
+
+      {open && (
+        <Card className="mb-4 p-5 space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="block">
+              <span className="t-caption text-fg-secondary">النوع</span>
+              <select value={kind} onChange={(e) => setKind(e.target.value)} className="mt-1 w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-[13.5px] text-foreground">
+                {LEAVE_KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
+              </select>
+            </label>
+            <label className="block">
+              <span className="t-caption text-fg-secondary">من</span>
+              <input type="date" value={start} onChange={(e) => setStart(e.target.value)} className="mt-1 w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-[13.5px] text-foreground" />
+            </label>
+            <label className="block">
+              <span className="t-caption text-fg-secondary">إلى</span>
+              <input type="date" value={end} onChange={(e) => setEnd(e.target.value)} className="mt-1 w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-[13.5px] text-foreground" />
+            </label>
+          </div>
+          <input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={600} placeholder="السبب (اختياريّ)" className="w-full rounded-lg border border-white/10 bg-background px-3 py-2 text-[13.5px] text-foreground" />
+          {err && <p className="text-[12.5px] text-primary">{err}</p>}
+          <button onClick={submit} disabled={busy} className="cta-fill inline-flex items-center gap-2 h-10 px-6 rounded-full text-[13px] font-bold disabled:opacity-50">
+            {busy ? "جارٍ الإرسال…" : "إرسال الطلب"}
+          </button>
+        </Card>
+      )}
+
+      {rows === null ? (
+        <div className="rounded-2xl border border-white/[0.08] h-24 animate-pulse bg-white/[0.03]" />
+      ) : rows.length === 0 ? (
+        <p className="t-caption text-fg-secondary">لا توجد طلبات إجازة بعد.</p>
+      ) : (
+        <div className="space-y-2">
+          {rows.map((r) => {
+            const st = LEAVE_STATUS[r.status] ?? { label: r.status, cls: "text-fg-secondary" };
+            return (
+              <Card key={r.id} className="flex flex-wrap items-center gap-3 p-4">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13.5px] font-semibold text-foreground">{r.kindLabel}</div>
+                  <div className="t-caption text-fg-secondary tnum" dir="ltr">{r.startDate} → {r.endDate}</div>
+                  {r.reason && <div className="t-caption text-fg-faint mt-0.5">{r.reason}</div>}
+                </div>
+                <span className={`text-[12.5px] font-bold ${st.cls}`}>{st.label}</span>
+                {r.status === "pending" && (
+                  <button onClick={() => cancel(r.id)} className="text-[12px] text-fg-secondary hover:text-primary underline underline-offset-2">إلغاء</button>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
