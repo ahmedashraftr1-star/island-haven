@@ -10,15 +10,13 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Eye,
-  EyeOff,
-  Wifi,
   Clock,
   MapPin,
   Mail,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, ROLE_LABELS } from "@/lib/auth";
+import type { UserRole } from "@workspace/db/contracts";
 import { ANNOUNCEMENTS, portalFieldsFor } from "@/data/memberPortal";
 import type { Announcement, MemberPrivate, ScheduleDay, WeeklySchedule, Work } from "@/types/member";
 
@@ -76,15 +74,20 @@ export default function DashboardPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    // The public profile of the logged-in member — for their own works list/count.
-    // No forged header: the sensitive identity fields (email, phone) come from the
-    // authenticated session (useAuth), not from an unauthenticated lookup.
-    api<{ user: ApiUser; works: Work[] }>(`/users/${user.id}`)
-      .then((r) => {
+    // Fetch, in parallel: the member's own public profile (works/count), their real
+    // seat, and their real attendance summary. No forged header — sensitive fields
+    // come from the authenticated session and real endpoints, never from invented data.
+    Promise.all([
+      api<{ user: ApiUser; works: Work[] }>(`/users/${user.id}`),
+      api<{ seat: number | null }>(`/attendance/me`).catch(() => ({ seat: null })),
+      api<WeeklySchedule>(`/attendance/history`).catch(() => null),
+    ])
+      .then(([r, att, hist]) => {
         if (cancelled) return;
         const u = r.user;
-        // Demo-only portal fields (membership/desk/wifi/hours) remain static
-        // placeholders; the real, per-member sensitive fields override them.
+        // portalFieldsFor still supplies the honest org-wide fact (accessHours) and
+        // the type's remaining slots; everything a member could mistake for their own
+        // private data is overridden below with REAL values (or dropped from the UI).
         const portal = portalFieldsFor(u.id, u.fullName);
         setMember({
           id: u.id,
@@ -105,6 +108,10 @@ export default function DashboardPage() {
           ...portal,
           email: user.email,
           phone: user.phone || portal.phone,
+          membershipType: ROLE_LABELS[u.role as UserRole] ?? portal.membershipType,
+          deskNumber: att.seat ? `مقعد ${att.seat}` : "غير مخصّص",
+          attendanceThisMonth: hist?.monthlySummary.present ?? 0,
+          totalHoursThisMonth: hist?.monthlySummary.totalHours ?? 0,
         });
         setWorks(r.works ?? []);
       })
@@ -282,7 +289,7 @@ function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
 
       {/* Row 1 — 4 stat cards */}
       <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard value={ar(member.remainingDays)} label="أيّام متبقّية" hint="في عضويّتك الحاليّة" gold />
+        <StatCard value={new Date(member.createdAt).toLocaleDateString("ar-EG", { month: "long", year: "numeric" })} label="عضو منذ" gold />
         <StatCard
           value={ar(member.totalHoursThisMonth)}
           label="ساعات هذا الشهر"
@@ -313,8 +320,7 @@ function Overview({ member, works }: { member: MemberPrivate; works: Work[] }) {
           <h3 className="font-display font-bold text-[16px] mb-4">معلومات الوصول</h3>
           <ul className="space-y-3.5 text-[13.5px]">
             <InfoRow icon={Clock} label="ساعات الوصول" value={member.accessHours} />
-            <WifiRow password={member.wifiPassword} />
-            <InfoRow icon={MapPin} label="رقم المكتب" value={member.deskNumber} />
+            <InfoRow icon={MapPin} label="مقعدك" value={member.deskNumber} />
             <CopyRow icon={Mail} label="البريد" value={member.email} />
           </ul>
         </Card>
@@ -427,29 +433,6 @@ function CopyRow({ icon: Icon, label, value }: { icon: typeof Mail; label: strin
         <span dir="ltr" className="truncate max-w-[140px]">{value}</span>
         {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-fg-faint" />}
       </button>
-    </li>
-  );
-}
-
-function WifiRow({ password }: { password: string }) {
-  const [show, setShow] = useState(false);
-  return (
-    <li className="flex items-center justify-between gap-3">
-      <span className="inline-flex items-center gap-2 text-fg-secondary">
-        <Wifi className="h-4 w-4 text-fg-faint" /> شبكة Wi-Fi
-      </span>
-      <span className="inline-flex items-center gap-2">
-        <span className="font-medium" dir="ltr">IH-Members</span>
-        <button
-          type="button"
-          onClick={() => setShow((v) => !v)}
-          aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-          className="inline-flex items-center gap-1 font-mono text-[12px] text-fg-faint hover:text-foreground transition-colors"
-        >
-          <span dir="ltr">{show ? password : "••••••••"}</span>
-          {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-        </button>
-      </span>
     </li>
   );
 }
@@ -903,10 +886,6 @@ function ProfileData({ member }: { member: MemberPrivate }) {
                   <span className="font-medium tnum" dir="ltr">{l.value}</span>
                 </li>
               ))}
-              <li className="flex items-center justify-between gap-3">
-                <span className="text-fg-secondary">كلمة مرور Wi-Fi</span>
-                <WifiInline password={member.wifiPassword} />
-              </li>
             </ul>
             <p className="t-caption text-fg-faint mt-5 pt-4 border-t border-white/[0.06]">
               لتعديل بياناتك تواصل مع الإدارة عبر island-haven@nastonas.org
@@ -915,21 +894,6 @@ function ProfileData({ member }: { member: MemberPrivate }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function WifiInline({ password }: { password: string }) {
-  const [show, setShow] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={() => setShow((v) => !v)}
-      aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-      className="inline-flex items-center gap-1.5 font-mono text-[12px] font-medium hover:text-primary transition-colors"
-    >
-      <span dir="ltr">{show ? password : "••••••••"}</span>
-      {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-    </button>
   );
 }
 
