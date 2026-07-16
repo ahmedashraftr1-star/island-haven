@@ -6,6 +6,8 @@ import { usePageView } from "@/hooks/use-tracking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CustomCursor } from "@/components/landing/CustomCursor";
 import { CommandPalette } from "@/components/CommandPalette";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
+import { RootErrorFallback } from "@/components/RootErrorFallback";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
@@ -340,7 +342,11 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <RouteEffects />
             <main id="main-content" tabIndex={-1}>
-              <AnimatedRoutes />
+              {/* App-level safety net: a crash in any route shows a graceful page
+                  (reload + home) instead of a white screen. */}
+              <SectionErrorBoundary fallback={<RootErrorFallback />}>
+                <AnimatedRoutes />
+              </SectionErrorBoundary>
             </main>
             <CustomCursor />
             <CommandPalette />
