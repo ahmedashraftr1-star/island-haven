@@ -5,6 +5,7 @@ import { imageUrl } from "@/hooks/use-content";
 import { useAttendanceSummary } from "@/hooks/use-public-data";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
 /**
  * WhatYouGet — the value-of-membership section, told at hero power: glass tiles
@@ -135,8 +136,11 @@ export function WhatYouGet() {
         <Reveal
           distance={20}
           amount={0.2}
-          className="mt-[clamp(3rem,7vh,5.5rem)] glass-panel px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(0.5rem,2vh,1.25rem)] shadow-[0_44px_100px_-40px_hsl(0_0%_0%/0.8)]"
+          className="mt-[clamp(3rem,7vh,5.5rem)] group relative glass-panel px-[clamp(1.25rem,4vw,3.5rem)] py-[clamp(0.5rem,2vh,1.25rem)] shadow-[0_44px_100px_-40px_hsl(0_0%_0%/0.8)]"
         >
+          {/* Enhance the EXISTING glass (no new SVG layer): a terracotta glow warms the
+              tile toward the cursor, complementing each row's own hover rule. */}
+          <SpotlightOverlay radius={340} />
           {gives.map((g, i) => (
             <Link
               key={g.href}
