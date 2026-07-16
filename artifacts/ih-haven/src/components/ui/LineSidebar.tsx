@@ -42,6 +42,8 @@ export interface LineSidebarProps {
   /** Controlled active index — when provided, overrides the internal click state. */
   activeIndex?: number | null;
   onItemClick?: (index: number, label: string) => void;
+  /** Accessible name for the <nav> landmark (the rail is real in-page navigation). */
+  ariaLabel?: string;
   className?: string;
 }
 
@@ -65,6 +67,7 @@ const LineSidebar = ({
   defaultActive = null,
   activeIndex: controlledActive,
   onItemClick,
+  ariaLabel,
   className = "",
 }: LineSidebarProps) => {
   const listRef = useRef<HTMLUListElement>(null);
@@ -75,6 +78,7 @@ const LineSidebar = ({
   const lastRef = useRef(0);
   const activeRef = useRef<number | null>(defaultActive);
   const smoothingRef = useRef(smoothing);
+  const reduceRef = useRef(false);
   const [internalActive, setInternalActive] = useState<number | null>(defaultActive);
 
   const activeIndex = controlledActive !== undefined ? controlledActive : internalActive;
@@ -85,7 +89,8 @@ const LineSidebar = ({
     const dt = Math.min((now - lastRef.current) / 1000, 0.05);
     lastRef.current = now;
     const tau = Math.max(smoothingRef.current, 1) / 1000;
-    const k = 1 - Math.exp(-dt / tau);
+    // Reduced motion: snap straight to each target (no proximity easing).
+    const k = reduceRef.current ? 1 : 1 - Math.exp(-dt / tau);
 
     let moving = false;
     const els = itemRefs.current;
@@ -144,6 +149,30 @@ const LineSidebar = ({
     [onItemClick, controlledActive],
   );
 
+  // Each chapter is a real in-page jump, so it must be keyboard-operable (the items
+  // carry role="button" + tabIndex): activate on Enter/Space like a native control.
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLLIElement>, index: number, label: string) => {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        handleClick(index, label);
+      }
+    },
+    [handleClick],
+  );
+
+  // Honour prefers-reduced-motion — the rAF lerp above then snaps instead of easing.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reduceRef.current = mq.matches;
+    const onChange = () => {
+      reduceRef.current = mq.matches;
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   useEffect(() => {
     startLoop();
   }, [activeIndex, startLoop]);
@@ -157,6 +186,7 @@ const LineSidebar = ({
 
   return (
     <nav
+      aria-label={ariaLabel}
       className={`line-sidebar${showMarker ? " line-sidebar--markers" : ""}${
         scaleTick ? " line-sidebar--scale-tick" : ""
       }${className ? ` ${className}` : ""}`}
@@ -188,8 +218,11 @@ const LineSidebar = ({
               itemRefs.current[index] = el;
             }}
             className="line-sidebar__item"
+            role="button"
+            tabIndex={0}
             aria-current={activeIndex === index ? "true" : undefined}
             onClick={() => handleClick(index, label)}
+            onKeyDown={(e) => handleKeyDown(e, index, label)}
           >
             {showMarker && <span className="line-sidebar__marker" aria-hidden="true" />}
             <span className="line-sidebar__label">

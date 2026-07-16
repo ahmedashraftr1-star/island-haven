@@ -218,6 +218,9 @@ export default function Apply() {
   // Arabic content (CMS-overridable); English UI chrome from FALLBACK_EN.
   const arContent = useContentSection("applyForm", FALLBACK);
   const c: ApplyContent = lang === "en" ? FALLBACK_EN : arContent;
+  useEffect(() => {
+    document.title = c.docTitle;
+  }, [c.docTitle]);
   const [form, setForm] = useState({
     fullName: "",
     email: "",

@@ -101,7 +101,6 @@ export default function BecomeMentor() {
     const ref = new URLSearchParams(window.location.search).get("ref");
     if (ref) {
       setReferral(ref);
-      console.log("[analytics] become-mentor page visit", { ref });
     }
   }, []);
 

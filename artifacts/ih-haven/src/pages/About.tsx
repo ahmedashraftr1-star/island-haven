@@ -729,10 +729,10 @@ export default function About() {
           showRail ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         style={{ insetInlineStart: "clamp(0.75rem, 2.5vw, 2.25rem)" }}
-        aria-label={t({ ar: "فهرس الصفحة", en: "Page sections" })}
         aria-hidden={showRail ? undefined : true}
       >
         <LineSidebar
+          ariaLabel={t({ ar: "فهرس الصفحة", en: "Page sections" })}
           items={ABOUT_SECTIONS.map((s) => t(s.label))}
           accentColor="hsl(var(--primary))"
           textColor="#8f8a86"

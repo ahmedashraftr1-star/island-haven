@@ -76,16 +76,28 @@ function animateValue({
   ease?: (x: number) => number;
   onUpdate: (v: number) => void;
   onEnd?: () => void;
-}): void {
+}): () => void {
   const t0 = performance.now() + delay;
+  let rafId = 0;
+  let cancelled = false;
   function tick() {
+    if (cancelled) return;
     const elapsed = performance.now() - t0;
     const t = Math.min(elapsed / duration, 1);
     onUpdate(start + (end - start) * ease(t));
-    if (t < 1) requestAnimationFrame(tick);
+    if (t < 1) rafId = requestAnimationFrame(tick);
     else if (onEnd) onEnd();
   }
-  setTimeout(() => requestAnimationFrame(tick), delay);
+  const timeoutId = setTimeout(() => {
+    if (!cancelled) rafId = requestAnimationFrame(tick);
+  }, delay);
+  // Cancel token — the mount sweep runs ~4s of chained timers/rAF, so the effect
+  // must be able to tear them down if the component unmounts mid-sweep.
+  return () => {
+    cancelled = true;
+    clearTimeout(timeoutId);
+    if (rafId) cancelAnimationFrame(rafId);
+  };
 }
 
 const BorderGlow = ({
@@ -163,30 +175,36 @@ const BorderGlow = ({
     card.classList.add("sweep-active");
     card.style.setProperty("--cursor-angle", `${angleStart}deg`);
 
-    animateValue({ duration: 500, onUpdate: (v) => card.style.setProperty("--edge-proximity", `${v}`) });
-    animateValue({
-      ease: easeInCubic,
-      duration: 1500,
-      end: 50,
-      onUpdate: (v) => card.style.setProperty("--cursor-angle", `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`),
-    });
-    animateValue({
-      ease: easeOutCubic,
-      delay: 1500,
-      duration: 2250,
-      start: 50,
-      end: 100,
-      onUpdate: (v) => card.style.setProperty("--cursor-angle", `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`),
-    });
-    animateValue({
-      ease: easeInCubic,
-      delay: 2500,
-      duration: 1500,
-      start: 100,
-      end: 0,
-      onUpdate: (v) => card.style.setProperty("--edge-proximity", `${v}`),
-      onEnd: () => card.classList.remove("sweep-active"),
-    });
+    const cancels = [
+      animateValue({ duration: 500, onUpdate: (v) => card.style.setProperty("--edge-proximity", `${v}`) }),
+      animateValue({
+        ease: easeInCubic,
+        duration: 1500,
+        end: 50,
+        onUpdate: (v) => card.style.setProperty("--cursor-angle", `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`),
+      }),
+      animateValue({
+        ease: easeOutCubic,
+        delay: 1500,
+        duration: 2250,
+        start: 50,
+        end: 100,
+        onUpdate: (v) => card.style.setProperty("--cursor-angle", `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`),
+      }),
+      animateValue({
+        ease: easeInCubic,
+        delay: 2500,
+        duration: 1500,
+        start: 100,
+        end: 0,
+        onUpdate: (v) => card.style.setProperty("--edge-proximity", `${v}`),
+        onEnd: () => card.classList.remove("sweep-active"),
+      }),
+    ];
+    return () => {
+      cancels.forEach((cancel) => cancel());
+      card.classList.remove("sweep-active");
+    };
   }, [animated]);
 
   const glowVars = buildGlowVars(glowColor, glowIntensity);

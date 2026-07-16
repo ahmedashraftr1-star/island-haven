@@ -36,6 +36,17 @@
   cursor: pointer;
 }
 
+/* Keyboard focus — the items are role="button" in-page jumps, so make focus visible. */
+.line-sidebar__item:focus-visible {
+  outline: none;
+}
+.line-sidebar__item:focus-visible .line-sidebar__label {
+  color: var(--accent-color);
+  outline: 2px solid var(--accent-color);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
 /* Widen the pointer target so items react a touch before the cursor arrives */
 .line-sidebar__item::before {
   content: '';
