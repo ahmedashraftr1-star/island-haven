@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import LineSidebar from "@/components/ui/LineSidebar";
+import GlassSurface from "@/components/ui/GlassSurface";
 import { motion, useReducedMotion, useScroll, useTransform, useInView } from "framer-motion";
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
@@ -626,18 +628,36 @@ function TeamTeaser() {
             className="absolute inset-0"
             style={{ background: "linear-gradient(to top, hsl(0 0% 4% / 0.92) 0%, hsl(0 0% 4% / 0.5) 45%, transparent 80%)" }}
           />
+          {/* The caption rides a React Bits GlassSurface — a real refractive glass
+              panel — floating over the vivid Gaza photograph: the brand's "dark glass
+              over living photo" identity, literally. The scrim keeps the lower band
+              dark so the white line stays legible on the glass; the panel adds the
+              premium edge-shine + blur. */}
           <div className="absolute inset-0 flex items-end">
             <div className="container-ih w-full pb-[clamp(2.5rem,6vh,4.5rem)]">
-              <motion.p
-                className="max-w-[22ch] text-white"
-                style={{ fontSize: "clamp(1.5rem, 3.4vw, 2.6rem)", lineHeight: 1.18, letterSpacing: "-0.02em", fontWeight: 600 }}
+              <motion.div
+                className="inline-block"
                 initial={reduce ? false : { opacity: 0, y: 20 }}
                 whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.85, ease: EASE_OUT_EXPO }}
               >
-                {t({ ar: "اليد التي تأخذ بيد الموهبة.", en: "The hands that guide the talent." })}
-              </motion.p>
+                <GlassSurface
+                  width="min(30rem, 82vw)"
+                  height={168}
+                  borderRadius={22}
+                  backgroundOpacity={0.22}
+                  blur={13}
+                  saturation={1.4}
+                >
+                  <p
+                    className="max-w-[20ch] px-[clamp(1.25rem,3vw,2.25rem)] text-white"
+                    style={{ fontSize: "clamp(1.35rem, 2.8vw, 2.15rem)", lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 600 }}
+                  >
+                    {t({ ar: "اليد التي تأخذ بيد الموهبة.", en: "The hands that guide the talent." })}
+                  </p>
+                </GlassSurface>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -646,17 +666,91 @@ function TeamTeaser() {
   );
 }
 
+/** The long /about narrative's own chapters — anchored to the section ids already
+ *  on the page. Drives the LineSidebar section index (xl+ only). */
+const ABOUT_SECTIONS: { id: string; label: { ar: string; en: string } }[] = [
+  { id: "vision-mission", label: { ar: "ما نسعى إليه", en: "What we stand for" } },
+  { id: "values", label: { ar: "قيمنا", en: "Our values" } },
+  { id: "timeline", label: { ar: "المسيرة", en: "The journey" } },
+  { id: "backers", label: { ar: "الدّاعمون", en: "Backers" } },
+  { id: "team-teaser", label: { ar: "الفريق", en: "The team" } },
+];
+
 export default function About() {
   const { lang, t } = useLanguage();
+  const [activeSection, setActiveSection] = useState(0);
+  // The index reveals only once the reader is past the hero, so it never competes
+  // with the monumental "وُلدنا في قلب غزّة" headline.
+  const [showRail, setShowRail] = useState(false);
 
   useEffect(() => {
     document.title = t({ ar: "من نحن — آيلاند هيفن", en: "About Us — Island Haven" });
   }, [lang, t]);
 
+  useEffect(() => {
+    const onScroll = () => setShowRail(window.scrollY > window.innerHeight * 0.7);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Scroll-spy for the section index: highlight the chapter nearest the top of the
+  // viewport (a band in the upper-middle), so the LineSidebar active item tracks
+  // the reader's position rather than only the last click.
+  useEffect(() => {
+    const els = ABOUT_SECTIONS.map((s) => document.getElementById(s.id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (!visible.length) return;
+        const top = visible.reduce((a, b) =>
+          a.boundingClientRect.top < b.boundingClientRect.top ? a : b,
+        );
+        const idx = ABOUT_SECTIONS.findIndex((s) => s.id === top.target.id);
+        if (idx >= 0) setActiveSection(idx);
+      },
+      { rootMargin: "-38% 0px -55% 0px", threshold: 0 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
       <ScrollProgress />
       <Header />
+      {/* A whisper-quiet section index for this long narrative page — the React Bits
+          LineSidebar, themed terracotta. Fixed on the reading edge, xl+ only (needs
+          gutter room); pointer-proximity animates each chapter, click smooth-scrolls,
+          and the active chapter tracks scroll. Purely a wayfinding aid. */}
+      <div
+        className={`hidden xl:block fixed top-1/2 z-30 -translate-y-1/2 transition-opacity duration-500 ${
+          showRail ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        style={{ insetInlineStart: "clamp(0.75rem, 2.5vw, 2.25rem)" }}
+        aria-label={t({ ar: "فهرس الصفحة", en: "Page sections" })}
+        aria-hidden={showRail ? undefined : true}
+      >
+        <LineSidebar
+          items={ABOUT_SECTIONS.map((s) => t(s.label))}
+          accentColor="hsl(var(--primary))"
+          textColor="#8f8a86"
+          markerColor="#514c48"
+          activeIndex={activeSection}
+          onItemClick={(i) =>
+            document.getElementById(ABOUT_SECTIONS[i].id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+          fontSize={0.82}
+          markerLength={34}
+          itemGap={15}
+          proximityRadius={88}
+          maxShift={12}
+          smoothing={140}
+        />
+      </div>
       <div className="relative z-10 pt-20">
         {/* Every other page names itself with one h1 (via PageShell); this bespoke,
             quote-led page had none, so its heading order jumped straight to h2 — a
