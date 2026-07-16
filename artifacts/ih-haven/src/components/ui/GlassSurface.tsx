@@ -3,8 +3,10 @@ import {
   useState,
   useRef,
   useId,
+  useCallback,
   type ReactNode,
   type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import "./GlassSurface.css";
 
@@ -34,6 +36,8 @@ export interface GlassSurfaceProps {
   xChannel?: Channel;
   yChannel?: Channel;
   mixBlendMode?: CSSProperties["mixBlendMode"];
+  /** Pointer-tracked specular highlight (Vision Pro "light follows you"). Default on. */
+  specular?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -57,6 +61,7 @@ const GlassSurface = ({
   xChannel = "R",
   yChannel = "G",
   mixBlendMode = "difference",
+  specular = true,
   className = "",
   style = {},
 }: GlassSurfaceProps) => {
@@ -172,6 +177,24 @@ const GlassSurface = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Glide the specular highlight toward the cursor — the way a real glass surface
+  // catches ambient light as you move past it. Writes CSS vars only (no re-render).
+  const handlePointerMove = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      const el = containerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      el.style.setProperty("--glass-mx", `${((e.clientX - rect.left) / rect.width) * 100}%`);
+      el.style.setProperty("--glass-my", `${((e.clientY - rect.top) / rect.height) * 100}%`);
+      el.style.setProperty("--glass-spec", "1");
+    },
+    [],
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    containerRef.current?.style.setProperty("--glass-spec", "0");
+  }, []);
+
   const containerStyle: CSSProperties = {
     ...style,
     width: typeof width === "number" ? `${width}px` : width,
@@ -187,6 +210,8 @@ const GlassSurface = ({
       ref={containerRef}
       className={`glass-surface ${svgSupported ? "glass-surface--svg" : "glass-surface--fallback"} ${className}`}
       style={containerStyle}
+      onPointerMove={specular ? handlePointerMove : undefined}
+      onPointerLeave={specular ? handlePointerLeave : undefined}
     >
       <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg">
         <defs>

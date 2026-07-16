@@ -644,15 +644,30 @@ function TeamTeaser() {
               >
                 <GlassSurface
                   width="min(30rem, 82vw)"
-                  height={168}
-                  borderRadius={22}
-                  backgroundOpacity={0.22}
-                  blur={13}
-                  saturation={1.4}
+                  height={172}
+                  borderRadius={26}
+                  borderWidth={0.12}
+                  backgroundOpacity={0.26}
+                  blur={15}
+                  displace={1}
+                  distortionScale={-175}
+                  redOffset={0}
+                  greenOffset={6}
+                  blueOffset={12}
+                  saturation={1.45}
+                  brightness={52}
                 >
                   <p
                     className="max-w-[20ch] px-[clamp(1.25rem,3vw,2.25rem)] text-white"
-                    style={{ fontSize: "clamp(1.35rem, 2.8vw, 2.15rem)", lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 600 }}
+                    style={{
+                      fontSize: "clamp(1.35rem, 2.8vw, 2.15rem)",
+                      lineHeight: 1.2,
+                      letterSpacing: "-0.02em",
+                      fontWeight: 600,
+                      // Each glyph carries its own dark halo, so the caption stays crisp
+                      // even where the moving specular light brightens the glass behind it.
+                      textShadow: "0 1px 2px hsl(0 0% 0% / 0.62), 0 2px 16px hsl(0 0% 0% / 0.5)",
+                    }}
                   >
                     {t({ ar: "اليد التي تأخذ بيد الموهبة.", en: "The hands that guide the talent." })}
                   </p>
