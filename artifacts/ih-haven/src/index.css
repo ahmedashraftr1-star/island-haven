@@ -542,6 +542,64 @@
     radial-gradient(48% 40% at 8% 100%, hsl(38 80% 60% / 0.18) 0%, transparent 58%),
     radial-gradient(70% 60% at 50% 46%, hsl(222 70% 46% / 0.09) 0%, transparent 72%);
 }
+/* ── Liquid-glass spectral edge ────────────────────────────────────────────────
+   A CSS-only refractive rim that mimics the prismatic edge of React Bits' GlassSurface
+   WITHOUT its SVG displacement filter — a conic spectral gradient masked to a hairline
+   ring. Cost is ~zero at rest (a STATIC faint rim, no animation); it brightens and
+   spins slowly only WHILE hovered/focused (at most one element at a time), and the spin
+   is gated behind prefers-reduced-motion. Enhances an existing glass edge, not a new
+   glass layer. Apply `spectral-edge` to a rounded, positioned element. */
+@property --spectral-angle {
+  syntax: "<angle>";
+  initial-value: 130deg;
+  inherits: false;
+}
+@utility spectral-edge {
+  position: relative;
+}
+.spectral-edge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.25px;
+  background: conic-gradient(
+    from var(--spectral-angle, 130deg),
+    hsl(12 88% 58% / 0.55),
+    hsl(36 90% 62% / 0.4),
+    hsl(190 80% 62% / 0.32),
+    hsl(275 60% 62% / 0.28),
+    hsl(12 88% 58% / 0.55)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.42;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.spectral-edge:hover::after,
+.spectral-edge:focus-within::after {
+  opacity: 0.9;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spectral-edge:hover::after,
+  .spectral-edge:focus-within::after {
+    animation: spectral-spin 7s linear infinite;
+  }
+}
+@keyframes spectral-spin {
+  to {
+    --spectral-angle: 490deg;
+  }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .glass-panel, .glass-panel-lg, .glass-rail, .glass-surface--svg {
     backdrop-filter: none; -webkit-backdrop-filter: none; background: hsl(26 7% 10%);

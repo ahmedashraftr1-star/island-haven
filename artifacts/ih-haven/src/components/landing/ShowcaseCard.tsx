@@ -114,7 +114,7 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
       href={`/ventures/${v.id}`}
       data-testid={testId}
       aria-label={label}
-      className="group relative block overflow-hidden glass-panel-lg -translate-y-0 transition-[transform,border-color,box-shadow] duration-[240ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/22 hover:shadow-[0_60px_120px_-40px_hsl(0_0%_0%/0.85)] motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
+      className="group relative block overflow-hidden glass-panel-lg spectral-edge -translate-y-0 transition-[transform,border-color,box-shadow] duration-[240ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/22 hover:shadow-[0_60px_120px_-40px_hsl(0_0%_0%/0.85)] motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
     >
       {/* Terracotta spotlight follows the cursor — a light layer on the existing glass. */}
       <SpotlightOverlay />
