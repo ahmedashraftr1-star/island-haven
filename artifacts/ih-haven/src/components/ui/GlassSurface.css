@@ -36,60 +36,17 @@
   background: hsl(0 0% 0% / var(--glass-frost, 0));
   -webkit-backdrop-filter: var(--filter-id, url(#glass-filter)) saturate(var(--glass-saturation, 1));
   backdrop-filter: var(--filter-id, url(#glass-filter)) saturate(var(--glass-saturation, 1));
-  /* Apple Vision Pro glass: a crisp hairline rim, a bright specular catch along the
-     top edge, an inner darkening at the floor for depth, and a soft float shadow. */
+  /* React Bits' original box-shadow, resolved to its dark-theme branch (the app is
+     always-dark), verbatim — the soft white inner rim + whisper-light ambient stack. */
   box-shadow:
-    inset 0 0 0 1px hsl(0 0% 100% / 0.14),
-    inset 0 1.5px 1.5px hsl(0 0% 100% / 0.42),
-    inset 0 -20px 34px -22px hsl(0 0% 0% / 0.55),
-    0 18px 52px -10px hsl(0 0% 0% / 0.5),
-    0 3px 10px hsl(0 0% 0% / 0.35);
-}
-
-/* Static diagonal sheen — the fixed glint of light along the top-leading edge. */
-.glass-surface--svg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    133deg,
-    hsl(0 0% 100% / 0.18) 0%,
-    hsl(0 0% 100% / 0.04) 20%,
-    transparent 44%
-  );
-  mix-blend-mode: screen;
-  z-index: 0;
-}
-
-/* Pointer-tracked specular — a soft light that glides across the glass toward the
-   cursor, the way a real Vision Pro surface catches ambient light as you move. Fades
-   out on leave; static (fully off) when it isn't being pointed at. */
-.glass-surface--svg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: var(--glass-spec, 0);
-  /* A broad panel-scaled wash (not a tight radius) so it reads as a sheet of light
-     gliding across the glass toward the cursor, never a hard point. */
-  background: radial-gradient(
-    62% 74% at var(--glass-mx, 50%) var(--glass-my, 0%),
-    hsl(0 0% 100% / 0.13),
-    hsl(0 0% 100% / 0.035) 40%,
-    transparent 74%
-  );
-  mix-blend-mode: screen;
-  transition: opacity 0.4s ease;
-  z-index: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glass-surface--svg::before {
-    transition: none;
-  }
+    0 0 2px 1px color-mix(in oklch, white, transparent 65%) inset,
+    0 0 10px 4px color-mix(in oklch, white, transparent 85%) inset,
+    0px 4px 16px rgba(17, 17, 26, 0.05),
+    0px 8px 24px rgba(17, 17, 26, 0.05),
+    0px 16px 56px rgba(17, 17, 26, 0.05),
+    0px 4px 16px rgba(17, 17, 26, 0.05) inset,
+    0px 8px 24px rgba(17, 17, 26, 0.05) inset,
+    0px 16px 56px rgba(17, 17, 26, 0.05) inset;
 }
 
 .glass-surface--fallback {
