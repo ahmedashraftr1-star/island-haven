@@ -10,7 +10,7 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "worker": "node --enable-source-maps ./dist/worker.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
     "seed:experts": "export NODE_ENV=development && node ./build.mjs && node --enable-source-maps ./dist/seed/experts.mjs"
   },
   "dependencies": {
