@@ -5,6 +5,7 @@ import { imageUrl } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
 import { TrustStrip } from "./TrustStrip";
+import { SpecularSheen } from "@/components/ui/SpecularButton";
 
 const WHATSAPP = "https://wa.me/972567536815";
 
@@ -106,8 +107,9 @@ export function FinalCTA() {
               <Link
                 href="/apply"
                 data-testid="final-cta-apply"
-                className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]"
+                className="cta-fill group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]"
               >
+                <SpecularSheen intensity={0.72} />
                 {t({ ar: "قدّم على الحاضنة", en: "Apply to the incubator" })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
@@ -115,8 +117,9 @@ export function FinalCTA() {
               <Link
                 href="/book"
                 data-testid="final-cta-book"
-                className="group inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full text-white/90 font-semibold text-[14px] tracking-[-0.005em] bg-white/[0.04] border border-white/20 backdrop-blur-sm transition-[transform,color,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:text-white hover:bg-white/[0.08] hover:border-white/35 active:translate-y-0"
+                className="group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full text-white/90 font-semibold text-[14px] tracking-[-0.005em] bg-white/[0.04] border border-white/20 backdrop-blur-sm transition-[transform,color,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:text-white hover:bg-white/[0.08] hover:border-white/35 active:translate-y-0"
               >
+                <SpecularSheen intensity={0.5} />
                 {t({ ar: "احجز مقعدك", en: "Book a seat" })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
