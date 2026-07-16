@@ -435,9 +435,10 @@ export function Hero() {
             <a
               href={`${import.meta.env.BASE_URL}book`}
               data-testid="cta-book"
-              className="group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
+              className="group relative overflow-hidden spectral-edge inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
             >
-              <SpecularSheen intensity={0.5} />
+              {/* The glass Book capsule carries the liquid-glass spectral rim (edge-only —
+                  no sheen here, so the two CTAs stay distinct and neither crowds). */}
               <span className="relative z-10">{c.bookCtaLabel}</span>
               <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
             </a>
