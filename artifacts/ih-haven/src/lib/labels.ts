@@ -28,6 +28,25 @@ export const DAILY_TYPE_LABELS_EN: Record<DailyType, string> = {
   story: "Story",
 };
 
+export type BlogCategory = "startup" | "funding" | "tech" | "community";
+export type BlogStatus = "draft" | "published";
+
+export const BLOG_CATEGORIES: BlogCategory[] = ["startup", "funding", "tech", "community"];
+
+export const BLOG_CATEGORY_LABELS: Record<BlogCategory, string> = {
+  startup: "ريادة الأعمال",
+  funding: "التمويل والاستثمار",
+  tech: "التقنية",
+  community: "المجتمع",
+};
+
+export const BLOG_CATEGORY_LABELS_EN: Record<BlogCategory, string> = {
+  startup: "Startups",
+  funding: "Funding",
+  tech: "Tech",
+  community: "Community",
+};
+
 export type SessionStatus =
   | "requested"
   | "confirmed"

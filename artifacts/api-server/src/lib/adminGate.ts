@@ -48,6 +48,7 @@ const SEGMENT_SECTION: Record<string, string> = {
   courses: "courses",
   enrollments: "courses",
   daily: "daily",
+  blog: "blog",
   content: "content",
   newsletter: "content",
   upload: "content",

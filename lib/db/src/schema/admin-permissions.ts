@@ -45,6 +45,7 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { key: "works", labelAr: "الأعمال", labelEn: "Works", actions: ["view", "manage"] },
   { key: "courses", labelAr: "الدورات", labelEn: "Courses", actions: ["view", "manage"] },
   { key: "daily", labelAr: "اليوميّات", labelEn: "Daily", actions: ["view", "manage"] },
+  { key: "blog", labelAr: "المدوّنة", labelEn: "Blog", actions: ["view", "manage"] },
   { key: "content", labelAr: "المحتوى", labelEn: "Content", actions: ["view", "manage"] },
   { key: "contact", labelAr: "رسائل التواصل", labelEn: "Contact messages", actions: ["view", "manage"] },
   { key: "broadcast", labelAr: "بثّ الإشعارات", labelEn: "Broadcast", actions: ["send"] },
@@ -90,7 +91,7 @@ export const ROLE_PRESETS: Record<Exclude<AdminRole, "custom">, string[]> = {
   ],
   content_editor: [
     "overview:view",
-    ...vm("content", "daily", "stories", "ventures", "resources", "partners", "team", "works", "perks", "opportunities"),
+    ...vm("content", "daily", "blog", "stories", "ventures", "resources", "partners", "team", "works", "perks", "opportunities"),
   ],
   mentor_coordinator: [
     "overview:view",

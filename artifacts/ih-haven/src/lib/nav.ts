@@ -39,7 +39,7 @@ export const NAV_STRUCTURE: NavEntry[] = [
           { icon: "Layers", title: { ar: "مسارات الاحتضان", en: "Programs" }, desc: { ar: "برامج متخصّصة من ٣ إلى ٦ أشهر", en: "Specialised 3–6 month programs" }, href: "/programs" },
           { icon: "Rocket", title: { ar: "مشاريعنا", en: "Ventures" }, desc: { ar: "محفظة المشاريع المحتضَنة", en: "Our incubated portfolio" }, href: "/ventures" },
           { icon: "CalendarDays", title: { ar: "الفعاليّات", en: "Events" }, desc: { ar: "ورش عمل وجلسات وأيّام عرض", en: "Workshops, talks & demo days" }, href: "/events" },
-          { icon: "FileText", title: { ar: "المدوّنة والرّؤى", en: "Blog & Insights" }, desc: { ar: "تقارير واستراتيجيّات من الخبراء", en: "Reports & strategy from experts" }, href: "/blog", badge: "new" },
+          { icon: "FileText", title: { ar: "المدوّنة والرّؤى", en: "Blog & Insights" }, desc: { ar: "تقارير واستراتيجيّات من الخبراء", en: "Reports & strategy from experts" }, href: "/blog" },
           { icon: "Briefcase", title: { ar: "لوحة الفرص", en: "Job Board" }, desc: { ar: "وظائف من شركاء محلّيّين ودوليّين", en: "Roles from local & global partners" }, href: "/jobs" },
         ],
       },

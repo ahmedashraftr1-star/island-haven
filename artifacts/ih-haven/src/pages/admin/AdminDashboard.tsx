@@ -55,6 +55,7 @@ import AdminOverview from "./AdminOverview";
 import AdminTasks from "./AdminTasks";
 import AdminCourses from "./AdminCourses";
 import AdminDaily from "./AdminDaily";
+import AdminBlog from "./AdminBlog";
 import AdminUsers from "./AdminUsers";
 import AdminWorks from "./AdminWorks";
 import AdminSettings from "./AdminSettings";
@@ -115,6 +116,7 @@ type Tab =
   | "works"
   | "courses"
   | "daily"
+  | "blog"
   | "content"
   | "analytics"
   | "push"
@@ -158,6 +160,7 @@ const TAB_PERMISSION: Record<Tab, string> = {
   works: "works:view",
   courses: "courses:view",
   daily: "daily:view",
+  blog: "blog:view",
   content: "content:view",
   analytics: "analytics:view",
   push: "broadcast:send",
@@ -207,6 +210,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "works", label: "الأعمال", Icon: Briefcase, group: "content" },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap, group: "content" },
   { id: "daily", label: "اليوميّات", Icon: Newspaper, group: "content" },
+  { id: "blog", label: "المدوّنة", Icon: BookOpen, group: "content" },
   { id: "resources", label: "دليل الرّائد", Icon: BookOpen, group: "content" },
   { id: "partners", label: "الشركاء", Icon: Handshake, group: "content" },
   { id: "investors", label: "المستثمرون", Icon: TrendingUp, group: "content" },
@@ -569,6 +573,7 @@ export default function AdminDashboard() {
           {tab === "works" && <AdminWorks />}
           {tab === "courses" && <AdminCourses />}
           {tab === "daily" && <AdminDaily />}
+          {tab === "blog" && <AdminBlog />}
           {tab === "content" && <AdminContent />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}

@@ -80,6 +80,9 @@ const Contact = lazy(() => import("@/pages/Contact"));
 const Media = lazy(() => import("@/pages/Media"));
 const PartnersPage = lazy(() => import("@/pages/PartnersPage"));
 const Blog = lazy(() => import("@/pages/Blog"));
+const BlogDetail = lazy(() =>
+  import("@/pages/Blog").then((m) => ({ default: m.BlogDetail })),
+);
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));
 const Visit = lazy(() => import("@/pages/Visit"));
@@ -299,6 +302,7 @@ function Router() {
       <Route path="/visit" component={Visit} />
       <Route path="/support" component={Support} />
       <Route path="/blog" component={Blog} />
+      <Route path="/blog/:slug" component={BlogDetail} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/notifications" component={NotificationSettings} />

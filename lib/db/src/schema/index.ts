@@ -8,6 +8,7 @@ export * from "./courses";
 export * from "./enrollments";
 export * from "./works";
 export * from "./dailyPosts";
+export * from "./blogPosts";
 export * from "./pushTokens";
 export * from "./worksLikes";
 export * from "./experts";
