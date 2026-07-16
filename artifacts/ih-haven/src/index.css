@@ -487,11 +487,28 @@
  * Use it on any block of type that sits over an image. Never use a scrim for that job.
  */
 @utility plinth {
-  background-color: hsl(240 14% 3% / 0.94);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  border-inline-end: 2px solid hsl(var(--primary) / 0.7);
-  border-radius: 2px;
+  /* Was an opaque near-black slab — terracotta (luminance ~0.21) needs a near-black
+     ground to clear AA, and no translucent scrim over a lit photo can reach it. The
+     slab kept type legible but read as a black box splitting the picture.
+
+     Now it is genuine translucent dark GLASS (Apple Vision Pro): the photo blurs
+     through it and light bleeds around the edges, a bright hairline + top specular
+     sell the glass, and an INHERITED text-shadow gives every glyph its own near-black
+     halo — so terracotta/white stay legible on the lit Gaza photos without an opaque
+     veil. Legibility kept; the black box becomes light-bearing glass. */
+  background: linear-gradient(180deg, hsl(24 12% 6% / 0.64) 0%, hsl(24 14% 4% / 0.78) 100%);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  backdrop-filter: blur(30px) saturate(1.8);
+  border: 1px solid hsl(0 0% 100% / 0.16);
+  border-inline-end: 2px solid hsl(var(--primary) / 0.85);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.2),
+    inset 0 0 0 1px hsl(0 0% 0% / 0.22),
+    0 44px 96px -36px hsl(0 0% 0% / 0.78);
+  /* Tight near-black halo hugging every glyph (terracotta over the lit photo needs
+     it) + a soft spread for depth. */
+  text-shadow: 0 1px 2px hsl(0 0% 0% / 0.82), 0 0 4px hsl(0 0% 0% / 0.72), 0 2px 16px hsl(0 0% 0% / 0.5);
 }
 
 @utility glass-panel {
@@ -528,6 +545,12 @@
 @media (prefers-reduced-transparency: reduce) {
   .glass-panel, .glass-panel-lg, .glass-rail {
     backdrop-filter: none; -webkit-backdrop-filter: none; background: hsl(26 7% 10%);
+  }
+  /* Plinths carry terracotta over lit photos — fall back to the opaque near-black
+     ground (the maximally-legible original) when transparency is reduced. */
+  .plinth {
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    background: hsl(240 14% 4% / 0.97); text-shadow: none;
   }
 }
 
