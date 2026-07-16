@@ -231,8 +231,25 @@ export function Header() {
   const [open, setOpen] = useState(false); // mobile overlay
   const [megaOpen, setMegaOpen] = useState(false); // desktop mega
   const [loc] = useLocation();
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null); // pill target
   const closeTimer = useRef<number | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
+
+  // The sliding pill (PillNav): it rests on the current-page tab and glides to
+  // whichever tab the pointer/focus is on. A shared layoutId lets framer-motion
+  // animate the move; reduced-motion collapses it to an instant swap.
+  const navKey = (entry: (typeof NAV_STRUCTURE)[number]) =>
+    entry.mega ? `mega:${entry.label.en}` : entry.href!;
+  const activeNavKey =
+    NAV_STRUCTURE.find((e) => !e.mega && isActive(loc, e.href))?.href ?? null;
+  const pillKey = hoveredNav ?? activeNavKey;
+  const navPill = (
+    <motion.span
+      layoutId="nav-pill"
+      className="absolute inset-0 rounded-full bg-white/10"
+      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 36 }}
+    />
+  );
 
   // On routes other than the dark hero home, always render the blurred style so
   // the nav stays readable over content sections.
@@ -352,36 +369,45 @@ export function Header() {
           ref={navRef}
           aria-label={t({ ar: "التنقّل الرئيسيّ", en: "Main navigation" })}
           className="hidden xl:flex flex-1 items-center justify-center gap-1 mx-2 min-w-0"
+          onMouseLeave={() => setHoveredNav(null)}
         >
           {NAV_STRUCTURE.map((entry) => {
+            const key = navKey(entry);
+            const highlighted = pillKey === key;
             if (entry.mega) {
-              const active = megaOpen;
               return (
                 <div
                   key={entry.label.en}
                   className="relative"
-                  onMouseEnter={openMega}
+                  onMouseEnter={() => {
+                    openMega();
+                    setHoveredNav(key);
+                  }}
                   onMouseLeave={scheduleClose}
                 >
                   <button
                     type="button"
                     onClick={() => setMegaOpen((v) => !v)}
-                    onFocus={openMega}
+                    onFocus={() => {
+                      openMega();
+                      setHoveredNav(key);
+                    }}
                     aria-expanded={megaOpen}
                     aria-haspopup="true"
-                    className={`inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors duration-200 ${
-                      active
-                        ? "text-white bg-white/10"
-                        : "text-white/85 hover:text-white hover:bg-white/[0.06]"
+                    className={`relative inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors duration-200 ${
+                      highlighted || megaOpen ? "text-white" : "text-white/85 hover:text-white"
                     }`}
                   >
-                    {t(entry.label)}
-                    <ChevronDown
-                      aria-hidden
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                        megaOpen ? "rotate-180" : ""
-                      }`}
-                    />
+                    {highlighted && navPill}
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                      {t(entry.label)}
+                      <ChevronDown
+                        aria-hidden
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          megaOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </span>
                   </button>
                 </div>
               );
@@ -391,13 +417,15 @@ export function Header() {
               <Link
                 key={entry.href}
                 href={entry.href!}
-                className={`inline-flex items-center h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors duration-200 ${
-                  active
-                    ? "text-white bg-white/10"
-                    : "text-white/85 hover:text-white hover:bg-white/[0.06]"
+                onMouseEnter={() => setHoveredNav(key)}
+                onFocus={() => setHoveredNav(key)}
+                aria-current={active ? "page" : undefined}
+                className={`relative inline-flex items-center h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors duration-200 ${
+                  highlighted || active ? "text-white" : "text-white/85 hover:text-white"
                 }`}
               >
-                {t(entry.label)}
+                {highlighted && navPill}
+                <span className="relative z-10">{t(entry.label)}</span>
               </Link>
             );
           })}
