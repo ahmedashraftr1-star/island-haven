@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import BorderGlow from "@/components/ui/BorderGlow";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -1224,8 +1225,16 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 max-w-lg w-full"
       >
-        <div className="relative rounded-[28px] p-9 bg-card border border-border-strong shadow-[0_30px_80px_-40px_rgba(0,0,0,0.7)] text-center">
-          <div className="relative">
+        {/* The confirmation rides a React Bits BorderGlow — an opaque card whose
+            terracotta edge-glow sweeps once on mount (a quiet "you did it" flourish,
+            gated off under reduced motion) and re-lights as the pointer nears an edge. */}
+        <BorderGlow
+          animated={!reduce}
+          borderRadius={28}
+          glowRadius={44}
+          backgroundColor="hsl(var(--card))"
+        >
+          <div className="relative p-9 text-center">
             <motion.div
               initial={reduce ? false : { opacity: 0 }}
               animate={reduce ? undefined : { opacity: 1 }}
@@ -1286,7 +1295,7 @@ function SuccessScreen({ id, firstName, c }: { id: number; firstName: string; c:
               </Link>
             </div>
           </div>
-        </div>
+        </BorderGlow>
       </motion.div>
     </div>
   );
