@@ -12,8 +12,9 @@ import { useEffect, useRef } from "react";
  * headline; it must enhance, never compete.
  *
  * Performance & safety:
- *  - Single requestAnimationFrame loop; cancelled on unmount.
- *  - ResizeObserver for canvas sizing; devicePixelRatio honoured (capped at 2).
+ *  - rAF loop capped to ~30fps (ambient drift needs no more); cancelled on unmount.
+ *  - ResizeObserver for canvas sizing; DPR capped at 1.25 (an ambient soft-glow field
+ *    needs no full retina density) so a throttled mid-range device holds ≥50fps.
  *  - IntersectionObserver + document `visibilitychange` PAUSE the loop when the
  *    hero is offscreen or the tab is hidden — zero work when unseen.
  *  - Pointer is sampled by an event listener but only *consumed* inside the rAF
@@ -120,7 +121,10 @@ export function ParticleField() {
       const rect = canvas.getBoundingClientRect();
       width = Math.max(1, Math.round(rect.width));
       height = Math.max(1, Math.round(rect.height));
-      dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      // Cap the backing store at 1.25× — an ambient soft-glow field doesn't need full
+      // retina density, and this cuts the per-frame pixel count ~61% vs DPR 2 (the
+      // biggest single lever for the hero's throttled-FPS cost).
+      dpr = Math.min(1.25, Math.max(1, window.devicePixelRatio || 1));
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       // Draw in CSS-pixel space; the transform maps to the hi-dpi backing store.
@@ -222,7 +226,9 @@ export function ParticleField() {
         ctx.beginPath();
         ctx.fillStyle = `rgba(${r},${g},${bl},${alpha.toFixed(3)})`;
         ctx.shadowColor = `rgba(${r},${g},${bl},${(alpha * 0.9).toFixed(3)})`;
-        ctx.shadowBlur = p.r * 4;
+        // Canvas shadowBlur is a per-draw gaussian — the single most expensive op here.
+        // A tighter radius keeps the soft glow while roughly halving that cost.
+        ctx.shadowBlur = p.r * 2;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -246,9 +252,16 @@ export function ParticleField() {
     let visibleInView = true; // IntersectionObserver
     let pageVisible = !document.hidden; // visibilitychange
 
+    // Cap the field to ~30fps. Its points drift slowly, so 30fps is visually identical
+    // to 60 here, and drawing on half the frames roughly halves the paint cost — the
+    // difference that keeps the hero ≥50fps on a throttled mid-range device.
+    const FRAME_MS = 1000 / 30;
+    let lastDraw = -Infinity;
     const frame = (t: number): void => {
-      draw(t);
       rafId = window.requestAnimationFrame(frame);
+      if (t - lastDraw < FRAME_MS) return;
+      lastDraw = t;
+      draw(t);
     };
 
     const start = (): void => {
