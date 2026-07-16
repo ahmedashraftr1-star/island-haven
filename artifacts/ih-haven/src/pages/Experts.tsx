@@ -9,6 +9,7 @@ import { useExperts, useTeam } from "@/hooks/use-public-data";
 import { splitTags } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { ExpertAvatar, initials } from "@/components/ui/ExpertAvatar";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
 export interface ExpertCard {
   id: number;
@@ -546,8 +547,9 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
         <Link
           href={`/experts/${e.id}`}
           data-testid={`expert-card-${e.id}`}
-          className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
+          className="group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40"
         >
+          <SpotlightOverlay />
           {/* Avatar panel — real face, else a neutral panel with the same
               gold two-letter initials used everywhere else (shared initials()). */}
           <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-white/[0.03]">

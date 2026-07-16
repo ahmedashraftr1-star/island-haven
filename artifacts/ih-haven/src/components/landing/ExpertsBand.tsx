@@ -7,6 +7,7 @@ import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
 import { ExpertAvatar } from "@/components/ui/ExpertAvatar";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
 interface ExpertCard {
   id: number;
@@ -219,6 +220,8 @@ export function ExpertsBand() {
                       data-testid={`home-expert-${e.id}`}
                       className="group relative glass-panel flex h-full flex-col items-center gap-5 overflow-hidden p-7 text-center sm:p-8 transition-[transform,border-color,box-shadow] duration-500 [transition-timing-function:cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1.5 hover:!border-white/25 hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.2),0_44px_96px_-32px_hsl(0_0%_0%/0.88)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
+                      {/* Terracotta spotlight follows the cursor on the existing glass. */}
+                      <SpotlightOverlay />
                       {/* Hairline gold detail — a quiet luxe seam at the card head,
                           lit fully on hover. */}
                       <span

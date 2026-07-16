@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { imageUrl } from "@/hooks/use-content";
 import type { Lang } from "@/contexts/LanguageContext";
 import { ventureIdentity } from "@/lib/ventureIdentity";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
 /**
  * ShowcaseCard — ONE venture rendered as a colored POSTER, shared by the homepage
@@ -115,6 +116,8 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
       aria-label={label}
       className="group relative block overflow-hidden glass-panel-lg -translate-y-0 transition-[transform,border-color,box-shadow] duration-[240ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/22 hover:shadow-[0_60px_120px_-40px_hsl(0_0%_0%/0.85)] motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
     >
+      {/* Terracotta spotlight follows the cursor — a light layer on the existing glass. */}
+      <SpotlightOverlay />
       {/* DEEP sector tint — a subtle color wash behind the dark glass. Because the
           gradient stops are ~7–12% lightness the whole grid stays harmoniously
           dark; only the hue changes card-to-card. Sits under everything, above

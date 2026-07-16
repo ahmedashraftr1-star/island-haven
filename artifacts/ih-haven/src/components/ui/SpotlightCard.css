@@ -1,0 +1,30 @@
+/* Pointer-tracked spotlight — a light layer over an existing card. `screen` blend
+   makes it purely additive (brightens the dark glass toward the cursor, leaves white
+   text and bright pixels essentially unchanged, so contrast is preserved). */
+.ih-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle var(--spot-radius, 260px) at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--spot-color, rgba(230, 90, 50, 0.18)),
+    transparent 70%
+  );
+}
+
+.group:hover > .ih-spotlight,
+.group:focus-visible > .ih-spotlight,
+.group:focus-within > .ih-spotlight {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ih-spotlight {
+    transition: none;
+  }
+}
