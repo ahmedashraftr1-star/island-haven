@@ -280,6 +280,7 @@ export default function Experts() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t({ ar: "ابحث عن مرشد…", en: "Search mentors…" })}
+                aria-label={t({ ar: "ابحث عن مرشد", en: "Search mentors" })}
                 className="w-full bg-transparent border-0 border-b border-border-strong/70 ps-7 pe-8 py-3 text-[15px] text-foreground placeholder:text-fg-faint focus:outline-none focus:border-primary transition-colors"
                 dir={dir}
                 data-testid="expert-search"
@@ -458,20 +459,6 @@ function StatementLead({ reduce }: { reduce: boolean }) {
       </motion.p>
 
     </section>
-  );
-}
-
-function Figure({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="inline-flex items-baseline gap-2.5">
-      <span
-        className="font-display font-black text-sand-bright tnum leading-none"
-        style={{ fontSize: "clamp(1.6rem, 3vw, 2.1rem)", letterSpacing: "-0.04em" }}
-      >
-        {value}
-      </span>
-      <span className="t-caption text-fg-secondary">{label}</span>
-    </div>
   );
 }
 

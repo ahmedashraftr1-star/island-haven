@@ -333,8 +333,12 @@ function VentureGallery({
 }) {
   const { t } = useLanguage();
   return (
-    <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
-      {ventures.map((v, i) => (
+    <>
+      {/* Named section so the venture cards' h3 titles don't skip a level after the
+          page h1 (WCAG 1.3.1). Visually redundant with the page title, so sr-only. */}
+      <h2 className="sr-only">{t({ ar: "محفظة المشاريع", en: "Ventures portfolio" })}</h2>
+      <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
+        {ventures.map((v, i) => (
         <Reveal as="div" key={v.id} delay={reduce ? 0 : 0.05 * Math.min(i, 8)}>
           <ShowcaseCard
             venture={v}
@@ -345,8 +349,9 @@ function VentureGallery({
             fallbackCover={frameFor(v.id)}
           />
         </Reveal>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 }
 

@@ -278,6 +278,9 @@ export default function Jobs() {
         {/* Jobs */}
         {!isLoading && ordered.length > 0 && (
           <div className="space-y-3">
+            {/* Named section so each JobCard's h3 title doesn't skip a level after the
+                page h1 (WCAG 1.3.1). Redundant with the page title, so sr-only. */}
+            <h2 className="sr-only">{t({ ar: "الفرص المتاحة", en: "Open opportunities" })}</h2>
             {ordered.map((job, i) => (
               <JobCard key={job.id} job={job} index={i} />
             ))}
