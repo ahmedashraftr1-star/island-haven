@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,18 +15,56 @@ export function FloatingContact() {
   const { t } = useLanguage();
   const { scrollY } = useScroll();
   const [visible, setVisible] = useState(false);
+  const overProjectsRef = useRef(false);
+  const maxRef = useRef(Number.POSITIVE_INFINITY);
+
+  // Perf (the low-end-device audience): the visibility test used to read scrollHeight,
+  // query #ventures-band, and call getBoundingClientRect on EVERY scroll tick — a forced
+  // synchronous reflow each time. Now the near-footer threshold is cached via a
+  // ResizeObserver and the "over the projects band" test is an IntersectionObserver, so
+  // the scroll handler below only reads two refs — no per-scroll layout thrash.
+  useEffect(() => {
+    const computeMax = () => {
+      maxRef.current = document.documentElement.scrollHeight - window.innerHeight - 520;
+    };
+    computeMax();
+    const ro = new ResizeObserver(computeMax);
+    ro.observe(document.documentElement);
+    window.addEventListener("resize", computeMax, { passive: true });
+
+    // #ventures-band is lazy-loaded on the home page — poll briefly until it exists,
+    // then observe it. Its per-card CTAs share the pill's bottom-start corner, so the
+    // pill hides while the band is in view.
+    let io: IntersectionObserver | null = null;
+    let poll: number | undefined;
+    const attach = () => {
+      const el = document.getElementById("ventures-band");
+      if (!el) return false;
+      io = new IntersectionObserver(
+        (entries) => {
+          overProjectsRef.current = entries[0]?.isIntersecting ?? false;
+        },
+        { rootMargin: "-12% 0px -22% 0px", threshold: 0 },
+      );
+      io.observe(el);
+      return true;
+    };
+    if (!attach()) {
+      poll = window.setInterval(() => {
+        if (attach() && poll) window.clearInterval(poll);
+      }, 500);
+      window.setTimeout(() => poll && window.clearInterval(poll), 8000);
+    }
+    return () => {
+      ro.disconnect();
+      io?.disconnect();
+      if (poll) window.clearInterval(poll);
+      window.removeEventListener("resize", computeMax);
+    };
+  }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const max = document.documentElement.scrollHeight - window.innerHeight - 520;
-    // Hide while the projects section is in view — its per-card "Case study" CTAs
-    // sit in the same bottom-start corner and the pill must never overlap them.
-    let overProjects = false;
-    const el = document.getElementById("ventures-band");
-    if (el) {
-      const r = el.getBoundingClientRect();
-      overProjects = r.top < window.innerHeight * 0.9 && r.bottom > window.innerHeight * 0.25;
-    }
-    setVisible(latest > 700 && latest < max && !overProjects);
+    setVisible(latest > 700 && latest < maxRef.current && !overProjectsRef.current);
   });
 
   return (

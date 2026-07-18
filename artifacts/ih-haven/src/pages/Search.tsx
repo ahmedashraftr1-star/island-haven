@@ -114,6 +114,7 @@ export default function Search() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t({ ar: "اكتب اسمًا، مهارة، أو موضوعًا…", en: "Type a name, skill, or topic…" })}
+          aria-label={t({ ar: "بحث في الموقع", en: "Search the site" })}
           className="peer w-full h-16 ps-12 pe-12 rounded-2xl bg-surface-2 border border-border-strong text-foreground text-[16px] tracking-tight placeholder-fg-faint shadow-soft outline-none transition-colors focus:border-primary/50"
           data-testid="input-global-search"
         />

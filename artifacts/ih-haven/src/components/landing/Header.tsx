@@ -348,7 +348,7 @@ export function Header() {
             <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-soft flex items-center justify-center p-1.5 group-hover:shadow-soft-hover transition-all duration-300">
               <img
                 src={imageUrl(c.logo)}
-                alt={c.brand}
+                alt=""
                 decoding="async"
                 className="w-full h-full object-contain"
               />

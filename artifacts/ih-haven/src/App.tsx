@@ -1,6 +1,6 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, MotionConfig } from "framer-motion";
 import { useEffect, lazy, Suspense } from "react";
 import { usePageView } from "@/hooks/use-tracking";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -336,6 +336,10 @@ function AnimatedRoutes() {
 
 function App() {
   return (
+    // App-wide reduced-motion: the CSS killswitch only neutralizes CSS animations, so
+    // this makes framer-motion's JS/WAAPI animations (transform/layout) honour the OS
+    // "reduce motion" preference too — keeping opacity fades but dropping movement.
+    <MotionConfig reducedMotion="user">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
@@ -355,6 +359,7 @@ function App() {
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
+    </MotionConfig>
   );
 }
 

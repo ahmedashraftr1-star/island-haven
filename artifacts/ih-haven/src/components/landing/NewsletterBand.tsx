@@ -119,6 +119,7 @@ export function NewsletterBand() {
               <div
                 className="flex items-baseline gap-3 py-2"
                 data-testid="newsletter-success"
+                role="status"
               >
                 <Check className="w-6 h-6 shrink-0 text-primary translate-y-1" strokeWidth={2.5} />
                 <div className="text-start">
@@ -175,7 +176,7 @@ export function NewsletterBand() {
                   )}
                 </button>
                 {status === "error" && (
-                  <p className="text-[14px] font-medium text-primary text-start" data-testid="newsletter-error">
+                  <p className="text-[14px] font-medium text-primary text-start" data-testid="newsletter-error" role="alert">
                     {errorMsg}
                   </p>
                 )}

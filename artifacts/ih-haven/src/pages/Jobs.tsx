@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { I18N } from "@/lib/i18n";
@@ -151,26 +151,33 @@ export default function Jobs() {
 
   // The /jobs board is API-driven; we widen it "to the whole world" by merging in a
   // curated set of international/remote roles (frontend-only — server is off-limits).
-  const jobs: Job[] = [...(data?.jobs ?? []), ...GLOBAL_JOBS];
-  const remoteCount = jobs.filter((j) => j.type === "remote").length;
+  const jobs: Job[] = useMemo(() => [...(data?.jobs ?? []), ...GLOBAL_JOBS], [data]);
+  const remoteCount = useMemo(() => jobs.filter((j) => j.type === "remote").length, [jobs]);
   const localCount = jobs.length - remoteCount;
   const nf = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
-  const filtered = jobs.filter((j) => {
-    const matchCat = activeCategory === "all" || j.category === activeCategory;
+  // Featured roles surface first, preserving original order within each group. Memoised so
+  // a keystroke in the search box doesn't re-filter and re-sort the whole list every render.
+  const ordered = useMemo(() => {
     const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      j.title.toLowerCase().includes(q) ||
-      j.companyName.toLowerCase().includes(q) ||
-      j.description.toLowerCase().includes(q);
-    return matchCat && matchSearch;
-  });
-  // Featured roles surface first, preserving original order within each group.
-  const ordered = [...filtered].sort(
-    (a, b) => Number(b.featured) - Number(a.featured),
-  );
+    const filtered = jobs.filter((j) => {
+      const matchCat = activeCategory === "all" || j.category === activeCategory;
+      const matchSearch =
+        !q ||
+        j.title.toLowerCase().includes(q) ||
+        j.companyName.toLowerCase().includes(q) ||
+        j.description.toLowerCase().includes(q);
+      return matchCat && matchSearch;
+    });
+    return [...filtered].sort((a, b) => Number(b.featured) - Number(a.featured));
+  }, [jobs, activeCategory, search]);
 
-  const categories = ["all", ...Array.from(new Set(jobs.map((j) => j.category)))];
+  // One pass for the category list + per-category counts — was an O(categories × jobs)
+  // filter re-run inside the button map on every render/keystroke.
+  const { categories, catCounts } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const j of jobs) counts[j.category] = (counts[j.category] ?? 0) + 1;
+    return { categories: ["all", ...Object.keys(counts)], catCounts: counts };
+  }, [jobs]);
 
   return (
     <PageShell
@@ -242,7 +249,7 @@ export default function Jobs() {
                 {CAT_LABELS[cat] ?? cat}
                 {cat !== "all" && (
                   <span className="mr-1.5 opacity-60">
-                    ({jobs.filter((j) => j.category === cat).length})
+                    ({catCounts[cat] ?? 0})
                   </span>
                 )}
               </button>
@@ -253,7 +260,7 @@ export default function Jobs() {
         {/* Count */}
         {!isLoading && (
           <div className="text-[13px] text-muted-foreground">
-            {filtered.length} {lang === "en" ? "jobs available" : "وظيفة متاحة"}
+            {ordered.length} {lang === "en" ? "jobs available" : "وظيفة متاحة"}
           </div>
         )}
 
@@ -267,7 +274,7 @@ export default function Jobs() {
         )}
 
         {/* Empty */}
-        {!isLoading && filtered.length === 0 && (
+        {!isLoading && ordered.length === 0 && (
           <div className="text-center py-20">
             <Briefcase className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
             <p className="text-foreground text-[15px] font-semibold mb-2">{t(jp.empty)}</p>
