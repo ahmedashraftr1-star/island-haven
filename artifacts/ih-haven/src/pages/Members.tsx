@@ -16,6 +16,7 @@ import {
   EmptyState,
 } from "@/components/shell/PageShell";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
+import { useNumbers } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
@@ -82,6 +83,10 @@ const ROLE_BADGE: Partial<Record<UserRole, string>> = {
 
 export default function Members() {
   const { lang, t } = useLanguage();
+  // Live community figures (same source as the homepage) — the hero total + breakdown
+  // must reflect the WHOLE community, never the current role-filtered slice.
+  const { data: numbersData } = useNumbers();
+  const nums = numbersData?.numbers ?? null;
   const [role, setRole] = useState<"" | UserRole>("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
@@ -155,7 +160,7 @@ export default function Members() {
               className="font-mono font-black text-sand-bright tnum leading-none"
               style={{ fontSize: "clamp(2.8rem,6vw,4rem)" }}
             >
-              {total != null ? total.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
+              {nums?.members != null ? nums.members.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
             </span>
             <span className="t-caption text-fg-secondary">
               {t({ ar: "منتسبًا في المجتمع", en: "members & alumni" })}
@@ -171,15 +176,14 @@ export default function Members() {
           <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
           <div className="space-y-2">
             {[
-              { label: t({ ar: "مستقلّون", en: "Freelancers" }), n: 21 },
-              { label: t({ ar: "خرّيجون", en: "Graduates" }), n: 15 },
-              { label: t({ ar: "طلّاب", en: "Students" }), n: 9 },
-              { label: t({ ar: "أعضاء", en: "Members" }), n: 1 },
+              { label: t({ ar: "مستقلّون", en: "Freelancers" }), n: nums?.freelancers },
+              { label: t({ ar: "خرّيجون", en: "Graduates" }), n: nums?.graduates },
+              { label: t({ ar: "طلّاب", en: "Students" }), n: nums?.students },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between text-[13.5px]">
                 <span className="text-fg-secondary">{row.label}</span>
                 <span className="font-mono font-medium text-foreground tnum">
-                  {row.n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US")}
+                  {row.n != null ? row.n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
                 </span>
               </div>
             ))}
