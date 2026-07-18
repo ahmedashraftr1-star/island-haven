@@ -7,6 +7,7 @@ import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { imageUrl, photoSrcSet } from "@/hooks/use-content";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
 interface FMember {
   id: number;
@@ -103,8 +104,9 @@ export function FeaturedMembers() {
                   <Link
                     href={`/u/${m.id}`}
                     style={{ transition: "transform .5s cubic-bezier(.2,.7,.2,1), border-color .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s cubic-bezier(.2,.7,.2,1)" }}
-                    className={`group relative flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 motion-safe:hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]`}
+                    className={`group relative spectral-edge flex h-full flex-col ${featured ? "glass-panel-lg p-6 lg:p-8" : "glass-panel p-5"} -translate-y-0 motion-safe:hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_44px_100px_-36px_hsl(0_0%_0%/0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]`}
                   >
+                    <SpotlightOverlay />
                     <div className={`flex items-center gap-4 ${featured ? "lg:flex-col lg:items-start lg:gap-6" : ""}`}>
                       {m.avatarUrl ? (
                         <img

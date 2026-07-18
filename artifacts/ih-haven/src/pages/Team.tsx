@@ -4,6 +4,7 @@ import { ArrowLeft, Globe, Linkedin, Mail } from "lucide-react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -370,8 +371,9 @@ function TeamCard({ m, i }: { m: TeamMember; i: number }) {
         whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.6, delay: Math.min(i, 6) * 0.05, ease: EASE_OUT_EXPO }}
-        className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40 will-change-transform"
+        className="group relative spectral-edge flex h-full flex-col overflow-hidden rounded-[18px] border border-border-strong bg-surface-2/50 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/40 will-change-transform"
       >
+        <SpotlightOverlay />
         {/* Avatar panel — a real face where one exists, else a neutral panel with
             a single gold initial (not a circular medallion, not a brown wash). */}
         <div className="relative h-[clamp(8.5rem,18vw,10.5rem)] w-full overflow-hidden bg-white/[0.03]">

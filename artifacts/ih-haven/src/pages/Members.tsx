@@ -15,6 +15,7 @@ import {
   GlassCard,
   EmptyState,
 } from "@/components/shell/PageShell";
+import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
@@ -334,7 +335,8 @@ function MemberCard({ m, worksLabel }: { m: Member; worksLabel: string }) {
       className="group block h-full"
       data-testid={`member-card-${m.id}`}
     >
-      <GlassCard className="h-full p-6 hover:border-primary/45 transition-colors flex flex-col">
+      <GlassCard className="group spectral-edge h-full p-6 hover:border-primary/45 transition-colors flex flex-col">
+        <SpotlightOverlay />
         <div className="flex items-start gap-4 mb-4">
           <div className="relative shrink-0">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/40 overflow-hidden flex items-center justify-center text-[20px] font-bold text-foreground shadow-[0_8px_30px_-12px_rgba(220,38,55,0.55)]">
