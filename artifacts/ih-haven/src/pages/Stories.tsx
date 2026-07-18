@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useRef, useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, X, ExternalLink, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { api } from "@/lib/api";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { credit } from "@/lib/credit";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,14 +26,14 @@ interface Story {
 
 function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
   const { t } = useLanguage();
-  // Esc closes the modal (parity with the gallery lightbox).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  // Keep the close handler stable so the dialog hook's effect (focus-trap /
+  // scroll-lock) doesn't tear down and rebuild on every parent re-render, even
+  // though the caller passes an inline onClose.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const stableClose = useCallback(() => onCloseRef.current(), []);
+  // Esc + focus-trap + scroll-lock + focus-restore (parity with the lightbox).
+  const panelRef = useDialogA11y(stableClose);
 
   return (
     <AnimatePresence>
@@ -42,17 +43,19 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
-        role="dialog"
-        aria-modal="true"
-        aria-label={story.personName}
       >
         <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
         <motion.div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={story.personName}
+          tabIndex={-1}
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative z-10 w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-3xl bg-[#0f1424] border border-border-strong shadow-2xl"
+          className="relative z-10 w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-3xl bg-[#0f1424] border border-border-strong shadow-2xl outline-none"
         >
           {story.coverUrl ? (
             <div className="relative h-40 overflow-hidden rounded-t-3xl">

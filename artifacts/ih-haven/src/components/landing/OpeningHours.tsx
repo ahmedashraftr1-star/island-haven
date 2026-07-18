@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -45,6 +45,9 @@ export function OpeningHours() {
   const { lang, t } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15%" });
+  // SMIL <animate> below is invisible to both the CSS reduced-motion killswitch and
+  // framer's MotionConfig, so gate the infinite "live" ping on this hook by hand.
+  const reduce = useReducedMotion();
 
   // Always show Gaza local time (Asia/Gaza), regardless of viewer location.
   const getGazaParts = () => {
@@ -424,22 +427,26 @@ export function OpeningHours() {
                   <circle
                     cx={liveDot.x}
                     cy={liveDot.y}
-                    r="14"
+                    r={reduce ? 12 : 14}
                     fill={OPEN_GREEN}
                     fillOpacity="0.18"
                   >
-                    <animate
-                      attributeName="r"
-                      values="6;18;6"
-                      dur="2.5s"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="fill-opacity"
-                      values="0.35;0;0.35"
-                      dur="2.5s"
-                      repeatCount="indefinite"
-                    />
+                    {!reduce && (
+                      <>
+                        <animate
+                          attributeName="r"
+                          values="6;18;6"
+                          dur="2.5s"
+                          repeatCount="indefinite"
+                        />
+                        <animate
+                          attributeName="fill-opacity"
+                          values="0.35;0;0.35"
+                          dur="2.5s"
+                          repeatCount="indefinite"
+                        />
+                      </>
+                    )}
                   </circle>
                 )}
               </motion.g>

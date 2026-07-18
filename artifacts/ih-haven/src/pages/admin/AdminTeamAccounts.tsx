@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId, useCallback } from "react";
+import { useDialogA11y } from "./adminShared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserPlus, Shield, Trash2, KeyRound, Power, X, Check } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
@@ -113,6 +114,12 @@ export default function AdminTeamAccounts() {
   const qc = useQueryClient();
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Editor is inline in this parent, so call the dialog hook unconditionally
+  // (Rules of Hooks) with a stable close + an open flag — the trap/scroll-lock
+  // only engage while `editor` is set.
+  const closeEditor = useCallback(() => setEditor(null), []);
+  const editorRef = useDialogA11y(closeEditor, !!editor);
+  const editorTitleId = useId();
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-staff"],
@@ -233,11 +240,11 @@ export default function AdminTeamAccounts() {
 
       {/* Editor modal */}
       {editor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setEditor(null)}>
-          <div dir="rtl" className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={closeEditor}>
+          <div ref={editorRef} role="dialog" aria-modal="true" aria-labelledby={editorTitleId} tabIndex={-1} dir="rtl" className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl border border-border bg-card p-6 outline-none" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[17px] font-bold text-foreground">{editor.id === null ? "إضافة عضو فريق" : "تعديل الحساب"}</h3>
-              <button type="button" onClick={() => setEditor(null)} className="grid place-items-center w-9 h-9 rounded-lg hover:bg-foreground/10 text-foreground/60"><X className="w-4.5 h-4.5" /></button>
+              <h3 id={editorTitleId} className="text-[17px] font-bold text-foreground">{editor.id === null ? "إضافة عضو فريق" : "تعديل الحساب"}</h3>
+              <button type="button" onClick={closeEditor} aria-label="إغلاق" className="grid place-items-center w-9 h-9 rounded-lg hover:bg-foreground/10 text-foreground/60"><X className="w-4.5 h-4.5" aria-hidden /></button>
             </div>
             <div className="grid sm:grid-cols-2 gap-3 mb-4">
               <label className="block">

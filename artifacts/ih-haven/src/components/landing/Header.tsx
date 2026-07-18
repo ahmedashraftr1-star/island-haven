@@ -234,6 +234,8 @@ export function Header() {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null); // pill target
   const closeTimer = useRef<number | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
+  const menuToggleRef = useRef<HTMLButtonElement | null>(null);
+  const mobilePanelRef = useRef<HTMLDivElement | null>(null);
 
   // The sliding pill (PillNav): it rests on the current-page tab and glides to
   // whichever tab the pointer/focus is on. A shared layoutId lets framer-motion
@@ -281,6 +283,23 @@ export function Header() {
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // Focus handoff for the mobile menu. It's a disclosure (the z-40 bar with the
+  // search/close/lang controls stays interactive above the z-30 overlay), not a
+  // modal — so instead of trapping focus we move it into the first menu link on
+  // open and return it to the toggle on close. Escape already closes both menus.
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => {
+      mobilePanelRef.current
+        ?.querySelector<HTMLElement>('a[href],button:not([disabled])')
+        ?.focus();
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      menuToggleRef.current?.focus();
     };
   }, [open]);
 
@@ -484,6 +503,7 @@ export function Header() {
           </span>
           <LangToggle tone="onDark" />
           <button
+            ref={menuToggleRef}
             onClick={() => setOpen((v) => !v)}
             className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 border border-white/20 bg-white/10 backdrop-blur-md text-white"
             aria-label={c.menuLabel}
@@ -518,6 +538,7 @@ export function Header() {
         {open && (
           <motion.div
             id="mobile-nav-panel"
+            ref={mobilePanelRef}
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
             animate={reduce ? { opacity: 1 } : { y: 0 }}
             exit={reduce ? { opacity: 0 } : { y: "100%" }}

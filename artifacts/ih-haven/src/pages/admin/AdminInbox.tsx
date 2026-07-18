@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useId } from "react";
+import { useDialogA11y } from "./adminShared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send, Plus, Search, X, MessageSquare, ArrowRight } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
@@ -215,6 +216,8 @@ export default function AdminInbox() {
 }
 
 function ComposeModal({ onClose, onSent }: { onClose: () => void; onSent: (threadId: number) => void }) {
+  const panelRef = useDialogA11y(onClose);
+  const titleId = useId();
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<MemberHit | null>(null);
   const [body, setBody] = useState("");
@@ -238,11 +241,11 @@ function ComposeModal({ onClose, onSent }: { onClose: () => void; onSent: (threa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div dir="rtl" className="w-full max-w-md rounded-2xl border border-border bg-card p-5" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} dir="rtl" className="w-full max-w-md rounded-2xl border border-border bg-card p-5 outline-none" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[16px] font-bold text-foreground">رسالة جديدة</h3>
-          <button type="button" onClick={onClose} className="grid place-items-center w-8 h-8 rounded-lg hover:bg-foreground/10 text-foreground/60">
-            <X className="w-4 h-4" />
+          <h3 id={titleId} className="text-[16px] font-bold text-foreground">رسالة جديدة</h3>
+          <button type="button" onClick={onClose} aria-label="إغلاق" className="grid place-items-center w-8 h-8 rounded-lg hover:bg-foreground/10 text-foreground/60">
+            <X className="w-4 h-4" aria-hidden />
           </button>
         </div>
 

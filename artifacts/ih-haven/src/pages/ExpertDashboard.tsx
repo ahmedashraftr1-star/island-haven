@@ -100,6 +100,10 @@ export default function ExpertDashboard() {
   const [profile, setProfile] = useState<ExpertProfile | null>(null);
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
   const [notExpert, setNotExpert] = useState(false);
+  // A 404 means "not an expert account" (a real state). Any OTHER failure
+  // (500, network, expired session) must surface an error + retry — never get
+  // swallowed into a perpetual loading skeleton.
+  const [loadError, setLoadError] = useState(false);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -107,6 +111,7 @@ export default function ExpertDashboard() {
       setProfile(r.profile);
     } catch (e) {
       if (e instanceof ApiError && e.status === 404) setNotExpert(true);
+      else setLoadError(true);
     }
   }, []);
 
@@ -116,8 +121,15 @@ export default function ExpertDashboard() {
       setSessions(r.sessions);
     } catch (e) {
       if (e instanceof ApiError && e.status === 404) setNotExpert(true);
+      else setLoadError(true);
     }
   }, []);
+
+  const reload = useCallback(() => {
+    setLoadError(false);
+    void loadProfile();
+    void loadSessions();
+  }, [loadProfile, loadSessions]);
 
   useEffect(() => {
     if (loading) return;
@@ -150,6 +162,34 @@ export default function ExpertDashboard() {
             >
               {t({ ar: "تصفّح الخبراء", en: "Browse experts" })}
             </Link>
+          }
+        />
+      </PageShell>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <PageShell
+        active="experts"
+        eyebrow={t({ ar: "لوحة الخبير", en: "Expert Dashboard" })}
+        title={t({ ar: "تعذّر تحميل", en: "Couldn't load your" })}
+        highlight={t({ ar: "اللوحة", en: "dashboard" })}
+      >
+        <EmptyState
+          title={t({ ar: "حدث خطأ أثناء التحميل", en: "Something went wrong while loading" })}
+          hint={t({
+            ar: "تعذّر جلب بيانات لوحتك. تحقّق من اتصالك وحاول مرّة أخرى.",
+            en: "We couldn't fetch your dashboard data. Check your connection and try again.",
+          })}
+          action={
+            <button
+              type="button"
+              onClick={reload}
+              className="inline-block px-5 py-2.5 rounded-full bg-primary text-white text-[13px] font-semibold"
+            >
+              {t({ ar: "إعادة المحاولة", en: "Try again" })}
+            </button>
           }
         />
       </PageShell>

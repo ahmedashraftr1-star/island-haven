@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useId } from "react";
+import { useDialogA11y } from "./adminShared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, X, Copy, Check, ShieldAlert } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
@@ -15,6 +16,8 @@ function groupSecret(s: string): string {
 }
 
 export default function AdminSecurity({ onClose }: { onClose: () => void }) {
+  const panelRef = useDialogA11y(onClose);
+  const titleId = useId();
   const qc = useQueryClient();
   const [setup, setSetup] = useState<{ secret: string; otpauthUri: string } | null>(null);
   const [code, setCode] = useState("");
@@ -49,9 +52,9 @@ export default function AdminSecurity({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div dir="rtl" className="w-full max-w-md rounded-2xl border border-border bg-card p-5" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} dir="rtl" className="w-full max-w-md rounded-2xl border border-border bg-card p-5 outline-none" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2"><ShieldCheck className="w-4.5 h-4.5 text-primary" /> الأمان — التحقّق الثنائيّ</h3>
+          <h3 id={titleId} className="text-[15px] font-bold text-foreground flex items-center gap-2"><ShieldCheck className="w-4.5 h-4.5 text-primary" /> الأمان — التحقّق الثنائيّ</h3>
           <button type="button" onClick={onClose} aria-label="إغلاق" className="grid place-items-center w-8 h-8 rounded-lg hover:bg-foreground/10 text-foreground/60"><X className="w-4 h-4" /></button>
         </div>
 

@@ -1,9 +1,17 @@
+import { useId } from "react";
 import { X } from "lucide-react";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 // Small shared building blocks for the incubator admin editors (programs,
 // ventures, stories, partners). The `.inp` marker class on inputs picks up
 // full-width/transparent styling from the Field wrapper.
 
+// Re-exported so admin editors can keep importing it from here.
+export { useDialogA11y };
+
+// One accessible modal shell for every admin editor. No backdrop-click-to-close
+// on purpose — these hold unsaved edits, so closing is only ever the deliberate
+// Escape / X / Cancel.
 export function Modal({
   title,
   onClose,
@@ -13,16 +21,28 @@ export function Modal({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const panelRef = useDialogA11y(onClose);
+  const titleId = useId();
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 sm:p-6">
-      <div className="bg-card rounded-3xl border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="bg-card rounded-3xl border border-border w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl outline-none"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-card z-10">
-          <h3 className="text-[16px] font-bold text-foreground">{title}</h3>
+          <h3 id={titleId} className="text-[16px] font-bold text-foreground">{title}</h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="إغلاق"
             className="p-2 rounded-lg hover:bg-foreground/[0.04] text-foreground/65 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden />
           </button>
         </div>
         {children}

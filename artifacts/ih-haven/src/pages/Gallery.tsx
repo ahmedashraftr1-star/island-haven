@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ArrowLeft } from "lucide-react";
@@ -6,6 +6,7 @@ import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 const FALLBACK = {
@@ -107,6 +108,9 @@ export default function Gallery() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<Item | null>(null);
+  // Lightbox a11y: Escape/focus-trap/scroll-lock/restore in one place.
+  const closeLightbox = useCallback(() => setActive(null), []);
+  const lightboxRef = useDialogA11y(closeLightbox, !!active);
   // CMS overrides are authored in Arabic; in English we fall back to the
   // English defaults rather than showing the raw Arabic copy.
   const c = useContentSection(
@@ -130,16 +134,6 @@ export default function Gallery() {
         ),
       );
   }, [lang]);
-
-  // Esc closes lightbox
-  useEffect(() => {
-    if (!active) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActive(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [active]);
 
   // Curated, same-origin archive — used verbatim when the platform has no
   // public images yet, so the page is always a full editorial spread.
@@ -309,18 +303,20 @@ export default function Gallery() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
-            onClick={() => setActive(null)}
-            role="dialog"
-            aria-modal="true"
-            aria-label={active.title}
+            onClick={closeLightbox}
             dir={dir}
           >
             <motion.div
+              ref={lightboxRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={active.title}
+              tabIndex={-1}
               initial={reduce ? false : { scale: 0.96, y: 8 }}
               animate={{ scale: 1, y: 0 }}
               exit={reduce ? { opacity: 0 } : { scale: 0.96, y: 8 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-w-5xl max-h-[90vh] w-full"
+              className="relative max-w-5xl max-h-[90vh] w-full outline-none"
               onClick={(e) => e.stopPropagation()}
             >
               <img loading="lazy" decoding="async"
@@ -357,7 +353,7 @@ export default function Gallery() {
                   )}
                   <button
                     type="button"
-                    onClick={() => setActive(null)}
+                    onClick={closeLightbox}
                     className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
                     aria-label={t({ ar: "إغلاق", en: "Close" })}
                   >

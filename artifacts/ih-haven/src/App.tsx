@@ -316,6 +316,18 @@ function Router() {
   );
 }
 
+// The app-level crash boundary, made route-aware: keying its reset on the
+// location means a crash on one page clears itself the moment the user
+// navigates elsewhere, rather than pinning the fallback until a hard reload.
+function RoutedErrorBoundary({ children }: { children: React.ReactNode }) {
+  const [loc] = useLocation();
+  return (
+    <SectionErrorBoundary fallback={<RootErrorFallback />} resetKey={loc}>
+      {children}
+    </SectionErrorBoundary>
+  );
+}
+
 // Per-navigation enter transition — a quiet fade + rise keyed on the location,
 // so each route arrives with intent (spec's page transition). Enter-only (no
 // exit choreography) keeps it robust with lazy/Suspense; reduced-motion → instant.
@@ -347,10 +359,11 @@ function App() {
             <RouteEffects />
             <main id="main-content" tabIndex={-1}>
               {/* App-level safety net: a crash in any route shows a graceful page
-                  (reload + home) instead of a white screen. */}
-              <SectionErrorBoundary fallback={<RootErrorFallback />}>
+                  (reload + home) instead of a white screen — and navigating away
+                  recovers, because the boundary resets on route change. */}
+              <RoutedErrorBoundary>
                 <AnimatedRoutes />
-              </SectionErrorBoundary>
+              </RoutedErrorBoundary>
             </main>
             <CustomCursor />
             <CommandPalette />

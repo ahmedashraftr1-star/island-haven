@@ -7,7 +7,8 @@
  * (the acting admin is the logged-in account — no "acting as" spoofing).
  * Subtasks (checklist), My-Tasks + overdue filters, @mention chips. RTL, dark.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
+import { useDialogA11y } from "./adminShared";
 import {
   Plus, X, Send, AlertCircle, ArrowUp, Minus, ArrowDown, Flame,
   Loader2, CheckCircle2, Circle, RotateCcw, Trash2, MessageSquare,
@@ -186,6 +187,8 @@ function TaskCard({ task, teamIndex, dragging, onDragStart, onDragEnd, onOpen, o
 function CreateTaskModal({ teamMembers, onClose, onCreated }: {
   teamMembers: TeamMember[]; onClose: () => void; onCreated: (t: Task) => void;
 }) {
+  const panelRef = useDialogA11y(onClose);
+  const titleId = useId();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
@@ -219,9 +222,9 @@ function CreateTaskModal({ teamMembers, onClose, onCreated }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-card border border-border shadow-soft-hover max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="w-full max-w-lg rounded-2xl bg-card border border-border shadow-soft-hover max-h-[90vh] overflow-y-auto outline-none" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-border sticky top-0 bg-card">
-          <h3 className="text-[15px] font-bold text-foreground">مهمة جديدة</h3>
+          <h3 id={titleId} className="text-[15px] font-bold text-foreground">مهمة جديدة</h3>
           <button type="button" onClick={onClose} aria-label="إغلاق" className="p-1.5 rounded-lg text-foreground/50 hover:text-foreground hover:bg-muted"><X className="w-4 h-4" /></button>
         </div>
         <div className="p-5 space-y-4">
@@ -338,6 +341,8 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
   task: Task; teamMembers: TeamMember[];
   onClose: () => void; onUpdated: (t: Task) => void; onDeleted: (id: number) => void;
 }) {
+  const panelRef = useDialogA11y(onClose);
+  const titleId = useId();
   const [comments, setComments] = useState<Comment[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
@@ -379,14 +384,14 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-start bg-black/60" onClick={onClose}>
-      <div className="w-full max-w-xl h-full bg-card border-e border-border shadow-soft-hover overflow-y-auto flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="w-full max-w-xl h-full bg-card border-e border-border shadow-soft-hover overflow-y-auto flex flex-col outline-none" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-border sticky top-0 bg-card z-10">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${sc.bg} ${sc.color}`}>{sc.label}</span>
               <span className="text-[11px] text-foreground/40 font-mono">#{task.id}</span>
             </div>
-            <h3 className="text-[16px] font-bold text-foreground leading-snug">{task.title}</h3>
+            <h3 id={titleId} className="text-[16px] font-bold text-foreground leading-snug">{task.title}</h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button type="button" onClick={() => { if (window.confirm("حذف هذه المهمة نهائيًا؟")) onDeleted(task.id); }} aria-label="حذف" className="p-2 rounded-lg text-foreground/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
