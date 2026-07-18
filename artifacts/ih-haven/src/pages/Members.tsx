@@ -274,6 +274,9 @@ export default function Members() {
         <EmptyState title={c.emptyTitle} hint={c.emptyHint} />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Named section so the member cards' h3 names don't skip a level after the
+              page h1 (WCAG 1.3.1). Redundant with the page title, so sr-only. */}
+          <h2 className="sr-only">{t({ ar: "المنتسبون", en: "Community members" })}</h2>
           {rows?.map((m, i) => (
             <motion.div
               key={m.id}
