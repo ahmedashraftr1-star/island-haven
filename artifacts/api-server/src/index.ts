@@ -59,6 +59,23 @@ async function warmUpDb(retries = 12, delayMs = 300): Promise<void> {
 
 await warmUpDb();
 
+// Last-resort process guards. Installed only AFTER startup validation (auth,
+// port, DB warm-up) so a genuine misconfiguration still fails loudly at boot —
+// but once we're actually serving, a stray promise rejection or a throw that
+// escaped every handler's try/catch AND the central error middleware must NOT
+// take the whole server down (the reported "one bad request 500s every route"
+// failure mode). We log with full context and keep serving.
+// NOTE: continuing after an uncaughtException is normally discouraged (the
+// process may be in an undefined state); it's a deliberate trade-off here to
+// keep a single-instance server alive, since the realistic error paths (handler
+// throws, idle-pool 'error', awaited rejections) are already contained upstream.
+process.on("unhandledRejection", (reason) => {
+  logger.error({ err: reason }, "unhandledRejection — process kept alive");
+});
+process.on("uncaughtException", (err) => {
+  logger.error({ err }, "uncaughtException — process kept alive");
+});
+
 const server = app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");

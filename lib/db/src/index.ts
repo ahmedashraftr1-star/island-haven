@@ -19,6 +19,15 @@ export const pool = new Pool({
   idleTimeoutMillis: Number(process.env.DB_POOL_IDLE_MS ?? 30_000),
   connectionTimeoutMillis: Number(process.env.DB_POOL_CONN_TIMEOUT_MS ?? 10_000),
 });
+
+// A pg Pool emits 'error' on an IDLE client when Postgres or the network drops
+// that connection. With no listener, Node treats it as an unhandled 'error'
+// event and CRASHES the whole process — taking every route down at once. Log
+// and swallow: the pool discards the broken client and the next query
+// transparently acquires a healthy one. (Shared lib — console, not the api logger.)
+pool.on("error", (err) => {
+  console.error("[db] idle pool client error (recovered):", err);
+});
 export const db = drizzle(pool, {
   schema,
   logger: process.env.DRIZZLE_LOG === "1",

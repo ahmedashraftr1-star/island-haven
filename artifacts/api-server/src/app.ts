@@ -7,6 +7,7 @@ import pinoHttp from "pino-http";
 import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { codeFor } from "./lib/apiError";
 import { compressJson, indexTwin, precompressedStatic } from "./lib/precompressed";
 import { rateLimitStore } from "./lib/rateLimitStore";
 import {
@@ -256,7 +257,53 @@ app.use((req, res, next) => {
 // Compress JSON payloads over 1KB (a cold homepage pulled ~91KB of raw JSON).
 // Must sit directly in front of the router so it wraps res.json for every route.
 app.use("/api", compressJson());
+
+// Normalize the API's error shape in ONE place: rewrite every legacy error body
+// `{ error: "<string>", ... }` into the unified `{ error: { code, message }, ... }`
+// — so all ~655 existing `res.json({ error: "…" })` sites are standardized without
+// touching them. Only fires on error responses (statusCode ≥ 400) with a string
+// `error`, so a 200 that happens to carry an `error` field is never mangled.
+// Sibling fields (validation `details` / `issues`) stay top-level so their
+// existing clients keep working. Wrapped AFTER compressJson so the transform runs
+// before compression.
+app.use("/api", (_req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (body: unknown) => {
+    if (
+      res.statusCode >= 400 &&
+      body &&
+      typeof body === "object" &&
+      typeof (body as { error?: unknown }).error === "string"
+    ) {
+      const b = body as Record<string, unknown>;
+      body = { ...b, error: { code: codeFor(res.statusCode), message: b.error } };
+    }
+    return originalJson(body as never);
+  };
+  next();
+});
+
 app.use("/api", router);
+
+// Central API error handler — LAST in the chain. Catches anything a route
+// forwards via next(err) or throws synchronously, so an unhandled route error
+// returns a clean JSON error (never Express's default HTML page, never a leaked
+// stack) and never escalates to a process-level crash. Async handlers already
+// try/catch, but this is the belt-and-suspenders backstop the app was missing.
+app.use("/api", (err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (res.headersSent) return next(err);
+  const status =
+    typeof (err as { status?: unknown })?.status === "number"
+      ? (err as { status: number }).status
+      : 500;
+  logger.error({ err, path: req.path, method: req.method }, "unhandled route error");
+  res.status(status).json({
+    error: {
+      code: codeFor(status),
+      message: status >= 500 ? "خطأ في الخادم" : ((err as { message?: string })?.message ?? "خطأ"),
+    },
+  });
+});
 
 // ─── Production: serve the built SPA from the same origin ─────────────────────
 // The frontend fetches same-origin "/api", so serving it here lets ONE process
