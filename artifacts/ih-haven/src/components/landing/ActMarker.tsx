@@ -27,7 +27,7 @@ export function ActMarker({
   const two = String(idx).padStart(2, "0");
   const num = lang === "ar" ? toAr(two) : two;
   return (
-    <div id={id} className="relative bg-[#060608] text-white">
+    <div id={id} className="relative text-white">
       <Reveal
         as="div"
         distance={12}

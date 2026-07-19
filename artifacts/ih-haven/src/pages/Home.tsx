@@ -45,6 +45,21 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
       <ScrollProgress />
+      {/* Ambient depth — a soft, FIXED light-field so the dark canvas reads as a lit,
+          living space (the Vision-Pro cue) instead of dead flat black in the gaps,
+          act-markers and section paddings between the glass/photo islands. The
+          photo/glass sections are opaque and sit at z-10 above this, so they're
+          untouched — only the black "sea" is lifted. Static, GPU-cheap, aria-hidden. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(60% 48% at 10% -4%, hsl(12 84% 52% / 0.17) 0%, transparent 60%)," +
+            "radial-gradient(56% 46% at 90% 104%, hsl(38 80% 56% / 0.12) 0%, transparent 62%)," +
+            "radial-gradient(100% 85% at 50% 46%, hsl(24 46% 16% / 0.24) 0%, transparent 82%)",
+        }}
+      />
       {/* Barely-perceptible material grain — a static fractal-noise veil over the
           dark canvas for a premium "material" depth. aria-hidden, never clickable,
           static (reduced-motion safe), and z-0 so it sits above the background yet

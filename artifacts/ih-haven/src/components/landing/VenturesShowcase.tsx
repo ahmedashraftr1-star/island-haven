@@ -77,7 +77,7 @@ export function VenturesShowcase() {
   if (!rows) return null;
 
   return (
-    <section id="ventures-band" className="relative bg-background section-y overflow-hidden">
+    <section id="ventures-band" className="relative section-y overflow-hidden">
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
       <div className="container-ih relative">
         <Reveal as="header" className="max-w-3xl">
