@@ -131,14 +131,9 @@ function LearningInner() {
       setItems(
         [...byId.values()].sort((a, b) => b.percent - a.percent),
       );
-    } catch (e) {
-      setError(
-        e instanceof ApiError
-          ? e.message
-          : lang === "ar"
-            ? "تعذّر التحميل"
-            : "Couldn't load your progress",
-      );
+    } catch {
+      // Never surface the raw server message ("HTTP 500") on load.
+      setError(lang === "ar" ? "تعذّر التحميل" : "Couldn't load your progress");
     }
   }
 

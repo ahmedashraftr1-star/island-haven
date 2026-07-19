@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useContentSection } from "@/hooks/use-content";
 
 const FALLBACK = {
@@ -107,9 +107,7 @@ export default function Numbers() {
       .then((r) => setN(r.numbers))
       .catch((e) =>
         setError(
-          e instanceof ApiError
-            ? e.message
-            : lang === "ar"
+          lang === "ar"
               ? "تعذّر التحميل"
               : "Couldn't load the numbers",
         ),

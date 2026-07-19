@@ -4,7 +4,7 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Calendar, MapPin, Users, ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import {
   COURSE_TYPE_LABELS,
   COURSE_STATUS_LABELS,
@@ -113,9 +113,7 @@ export default function Courses() {
       .catch((e) => {
         if (cancelled) return;
         setError(
-          e instanceof ApiError
-            ? e.message
-            : lang === "ar"
+          lang === "ar"
               ? "تعذّر تحميل القائمة"
               : "Couldn't load the list",
         );

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Gift, Star, Tag, ExternalLink, Copy, Check } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import {
   PERK_CATEGORY_LABELS,
   type PerkCategory,
@@ -67,9 +67,7 @@ export default function Perks() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : t({ ar: "تعذّر التحميل", en: "Couldn't load perks" }),
+            t({ ar: "تعذّر التحميل", en: "Couldn't load perks" }),
           ),
       );
     return () => {

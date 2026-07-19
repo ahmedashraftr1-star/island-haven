@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Trophy, Award, Briefcase, Medal, Crown } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 
 interface LeaderRow {
   userId: number;
@@ -75,9 +75,7 @@ export default function Leaderboard() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
+            lang === "ar"
                 ? "تعذّر التحميل"
                 : "Couldn't load the leaderboard",
           ),

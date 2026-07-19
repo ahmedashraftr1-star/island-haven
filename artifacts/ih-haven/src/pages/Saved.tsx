@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Heart, MessageCircle, Bookmark } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useAuth, type UserRole } from "@/lib/auth";
 
 interface SavedRow {
@@ -56,9 +56,7 @@ export default function Saved() {
       .catch((e) => {
         if (cancelled) return;
         setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+          t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
         );
       });
     return () => { cancelled = true; };

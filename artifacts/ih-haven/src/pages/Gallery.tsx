@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ArrowLeft } from "lucide-react";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -128,9 +128,7 @@ export default function Gallery() {
       .then((r) => setItems(r.items))
       .catch((e) =>
         setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+          t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
         ),
       );
   }, [lang]);

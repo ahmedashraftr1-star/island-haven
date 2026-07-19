@@ -5,7 +5,7 @@ import { ArrowLeft, Download, ExternalLink, Lock } from "lucide-react";
 import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   RESOURCE_CATEGORY_LABELS,
@@ -161,9 +161,7 @@ export default function Resources() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
+            lang === "ar"
                 ? "تعذّر التحميل"
                 : "Couldn't load resources",
           ),

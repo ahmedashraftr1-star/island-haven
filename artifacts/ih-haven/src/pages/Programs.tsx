@@ -4,7 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   formatDate,
@@ -115,9 +115,7 @@ export default function Programs() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
+            lang === "ar"
                 ? "تعذّر التحميل"
                 : "Couldn't load programs",
           ),

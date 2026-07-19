@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, Plus, Heart, MessageCircle, Search } from "lucide-react";
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useAuth, ROLE_LABELS, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
 
@@ -84,9 +84,7 @@ export default function Works() {
       .catch((e) => {
         if (cancelled) return;
         setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load works" }),
+          t({ ar: "تعذّر التحميل", en: "Couldn't load works" }),
         );
       });
     return () => { cancelled = true; };

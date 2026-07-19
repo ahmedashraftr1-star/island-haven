@@ -9,7 +9,7 @@ import {
 import { ArrowLeft, Globe2, CalendarClock } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   OPPORTUNITY_TYPE_LABELS,
@@ -105,9 +105,7 @@ export default function Opportunities() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : t({ ar: "تعذّر التحميل", en: "Couldn't load opportunities" }),
+            t({ ar: "تعذّر التحميل", en: "Couldn't load opportunities" }),
           ),
       );
     return () => {

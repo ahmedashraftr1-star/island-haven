@@ -6,7 +6,7 @@ import { PageShell, EmptyState } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type RoleGroup = "leadership" | "mentors" | "advisors" | "support";
@@ -101,9 +101,7 @@ export default function Team() {
         (e) =>
           !cancelled &&
           setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
+            lang === "ar"
                 ? "تعذّر تحميل الفريق"
                 : "Couldn't load the team",
           ),

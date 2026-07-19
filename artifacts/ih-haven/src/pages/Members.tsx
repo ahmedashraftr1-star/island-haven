@@ -17,7 +17,7 @@ import {
 } from "@/components/shell/PageShell";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
 import { splitTags } from "@/lib/labels";
 import { useContentSection } from "@/hooks/use-content";
@@ -148,9 +148,7 @@ export default function Members() {
       .catch((e) => {
         if (cancelled) return;
         setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
+          t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
         );
       });
     return () => { cancelled = true; };
