@@ -1080,3 +1080,13 @@ body::after {
   opacity: 0.028;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
 }
+
+/* Homepage chapter rail (LineSidebar) — the full-bleed layout centres content in
+   `container-ih`, so there's only room for the text labels in the outer margin on
+   very wide screens. Below 2xl (1536px) collapse to numerals + markers only (still
+   the Line-Sidebar aesthetic + proximity), so the rail never overlaps content;
+   from 2xl the labels show in full. The `.home-rail` scope keeps LineSidebar generic. */
+@media (max-width: 1535.98px) {
+  .home-rail .line-sidebar__text { display: none; }
+  .home-rail .line-sidebar__index { margin-inline: 0; }
+}

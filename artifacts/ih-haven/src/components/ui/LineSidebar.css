@@ -82,6 +82,17 @@
   transform: translateY(-50%) scaleX(calc(0.7 + var(--effect, 0) * 0.5));
 }
 
+/* Active chapter — a subtle accent glow so the current section reads at a glance,
+   and the lit hairline marker feels like a branch of the page's narrative thread
+   (same gold, same whisper-thin glow). --effect is already pinned to 1 for the
+   active item by the rAF loop, so its colour is full accent; this only adds bloom. */
+.line-sidebar__item[aria-current="true"] .line-sidebar__marker {
+  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--accent-color) 55%, transparent);
+}
+.line-sidebar__item[aria-current="true"] .line-sidebar__label {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent-color) 42%, transparent);
+}
+
 /* Short static tick centered in the gap between two menu items */
 .line-sidebar--markers .line-sidebar__item:not(:last-child)::after {
   content: '';

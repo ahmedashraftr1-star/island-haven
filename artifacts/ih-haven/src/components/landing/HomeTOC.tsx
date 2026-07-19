@@ -1,76 +1,55 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
-import { Sparkles, Hammer, Gift, MapPin, DoorOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LineSidebar from "@/components/ui/LineSidebar";
 
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 const toAr = (s: string) => s.replace(/\d/g, (d) => AR_DIGITS[Number(d)]);
 
 /** The five narrative acts, in page order. Each `id` is an anchor rendered in
- *  Home.tsx that the observer watches; `num` is the two-digit act numeral (gold). */
-interface Act {
-  id: string;
-  num: string;
-  icon: LucideIcon;
-  label: { ar: string; en: string };
-}
-
-const ACTS: Act[] = [
-  { id: "act-0", num: "0", icon: Sparkles, label: { ar: "الافتتاح", en: "Opening" } },
-  { id: "act-1", num: "1", icon: Hammer, label: { ar: "العمل", en: "The Work" } },
-  { id: "act-2", num: "2", icon: Gift, label: { ar: "ما تحصل عليه", en: "What you get" } },
-  { id: "act-3", num: "3", icon: MapPin, label: { ar: "المكان والناس", en: "Place & People" } },
-  { id: "act-4", num: "4", icon: DoorOpen, label: { ar: "انضمّ", en: "Join" } },
+ *  Home.tsx that the scroll-spy observes; labels are bilingual (from spec). */
+const ACTS: { id: string; label: { ar: string; en: string } }[] = [
+  { id: "act-0", label: { ar: "الافتتاح", en: "Intro" } },
+  { id: "act-1", label: { ar: "العمل", en: "Work" } },
+  { id: "act-2", label: { ar: "ما تحصل عليه", en: "What You Get" } },
+  { id: "act-3", label: { ar: "المكان والناس", en: "Place & People" } },
+  { id: "act-4", label: { ar: "انضمّ", en: "Join" } },
 ];
 
 /**
- * HomeTOC — a whisper-quiet, sticky chapter index for the 5-act homepage,
- * shaped as a COMPACT EDGE RAIL that lives entirely inside the outer page
- * margin so it can NEVER overlap the centered container content at any width.
+ * HomeTOC — the homepage's chapter rail, rendered in the "Line Sidebar" style
+ * (React Bits): each act shows a zero-padded numeral + a lit hairline marker,
+ * and as the cursor nears an item its label slides in and colours toward gold
+ * (a single rAF proximity lerp inside LineSidebar). The accent is the same gold
+ * as the NarrativeThread (#DDBD7E) with a soft glow on the active act, so the
+ * rail reads as a branch of that thread — one coherent gold system.
  *
- * The homepage is full-bleed: section backgrounds run edge-to-edge but their
- * content is boxed in a centered `container-ih` (max-width 1280, padding-inline
- * up to 3rem). The rail is flush to the logical-START edge (`start-2` → RIGHT in
- * RTL) and, AT REST, shows only a tiny marker dot + the gold two-digit numeral —
- * so its resting footprint is ~2.25rem, small enough to sit inside even the
- * container's own inline padding. Nothing is required to overlap content.
+ * It doubles as a scroll-spy + jump nav: a single IntersectionObserver watches
+ * the five act anchors and drives the CONTROLLED activeIndex (topmost in view);
+ * clicking an item smooth-scrolls to its section (instant under reduced-motion).
  *
- * On HOVER or keyboard FOCUS of an act, its icon + label bloom out as an
- * absolutely-positioned popout that expands toward the logical-END (leftward in
- * RTL) into the open canvas — opacity/transform only, on the same solid
- * dark-glass panel so it reads. The popout is purely additive: it reserves no
- * layout space at rest and is never needed for basic use, because the ACTIVE
- * act stays highlighted at rest (terracotta dot + gold numeral) so the reader
- * always sees where they are without hovering.
- *
- * A single IntersectionObserver watches every act anchor and highlights the
- * topmost one currently in view. Clicking smooth-scrolls (instant under
- * reduced-motion). Desktop (lg+) only; smaller screens render nothing (per
- * spec: no fragile mobile bar). Every act is a real <button> carrying its name
- * in `aria-label`/`title` (so the collapsed label stays accessible), with a
- * focus-visible ring and `aria-current` on the active act. z-30 — above the
- * z-10 content, below the fixed Header (z-40) and the FloatingContact pill,
- * which lives in the opposite corner and never overlaps.
+ * Reveal: hidden while the busy hero fills the viewport (where a rail would be
+ * illegible), then fades + slides in once the reader scrolls into the dark
+ * content. Bilingual + fully RTL-mirrored (LineSidebar.css handles the mirror;
+ * numerals switch to Arabic-Indic in AR). Shown on wide screens only — full
+ * labels from 2xl (there's outer-margin room), numerals+markers on xl, hidden
+ * below xl (no fragile mobile bar). a11y: LineSidebar items are role="button"
+ * with aria-current + keyboard (Enter/Space); the whole rail respects
+ * prefers-reduced-motion (proximity easing collapses to an instant snap).
  */
 export function HomeTOC() {
   const { t, lang, dir } = useLanguage();
   const reduce = useReducedMotion();
-  const [active, setActive] = useState<string>(ACTS[0].id);
-  // Deliberate Apple-style reveal: the rail stays hidden while the busy hero
-  // photo fills the viewport (where it was illegible), then fades + slides in
-  // once the user scrolls past the hero into the first dark content section.
+  const [activeIdx, setActiveIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  // Guard against the observer stomping the active item right after a click.
-  const lockRef = useRef<number>(0);
+  // Guard against the scroll-spy stomping the active item right after a click.
+  const lockRef = useRef(0);
 
-  // Reveal gate — watch the full-height hero section. While any part of it is on
-  // screen the rail is hidden; once it fully leaves the viewport we reveal, and
-  // scrolling back up to the hero hides it again.
+  // Reveal gate — while any part of the full-height hero is on screen the rail
+  // stays hidden; once it leaves we reveal, and scrolling back up hides it again.
   useEffect(() => {
     const hero = document.getElementById("hero");
     if (!hero) {
-      // No hero on the page (e.g. an inner route) — default to shown.
       setRevealed(true);
       return;
     }
@@ -82,23 +61,21 @@ export function HomeTOC() {
     return () => observer.disconnect();
   }, []);
 
+  // Scroll-spy — the active act is the topmost anchor currently in view.
   useEffect(() => {
+    const idToIndex = new Map(ACTS.map((a, i) => [a.id, i]));
     const els = ACTS.map((a) => document.getElementById(a.id)).filter(
       (el): el is HTMLElement => el !== null,
     );
     if (els.length === 0) return;
 
-    // Track intersecting anchors; the active act is the topmost among them.
     const visible = new Map<string, number>();
     const observer = new IntersectionObserver(
       (entries) => {
         if (Date.now() < lockRef.current) return;
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            visible.set(entry.target.id, entry.boundingClientRect.top);
-          } else {
-            visible.delete(entry.target.id);
-          }
+          if (entry.isIntersecting) visible.set(entry.target.id, entry.boundingClientRect.top);
+          else visible.delete(entry.target.id);
         }
         if (visible.size === 0) return;
         let topId = "";
@@ -109,7 +86,8 @@ export function HomeTOC() {
             topId = id;
           }
         }
-        if (topId) setActive(topId);
+        const idx = idToIndex.get(topId);
+        if (idx != null) setActiveIdx(idx);
       },
       { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
     );
@@ -117,31 +95,28 @@ export function HomeTOC() {
     return () => observer.disconnect();
   }, []);
 
-  const go = (id: string) => {
-    const el = document.getElementById(id);
+  const go = (index: number) => {
+    const el = document.getElementById(ACTS[index].id);
     if (!el) return;
-    setActive(id);
+    setActiveIdx(index);
     // Brief lock so the scroll-spy doesn't fight the smooth-scroll mid-flight.
     lockRef.current = Date.now() + (reduce ? 0 : 700);
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
 
-  // Hidden resting transform: slide slightly IN from the logical-start edge.
-  // Start edge is RIGHT in RTL (translate +X) / LEFT in LTR (translate -X).
-  // Reduced-motion drops the slide entirely — it just appears in place.
-  const hiddenShift = reduce ? "0px" : dir === "rtl" ? "12px" : "-12px";
+  const items = ACTS.map((a) => t(a.label));
+  const formatIndex = (i: number) => {
+    const two = String(i + 1).padStart(2, "0");
+    return lang === "ar" ? toAr(two) : two;
+  };
 
-  // Resting X-offset of the hover/focus popout. It nudges toward the rail (the
-  // logical-START edge) so, on reveal, the panel appears to bloom OUT into the
-  // content-side canvas: +X in RTL (start = right), −X in LTR (start = left).
-  // group-hover/focus zero it via `translate-x-0`. Reduced-motion drops the
-  // slide (translate-x-0 at rest) — the popout just fades in.
-  const popRestX = reduce ? "translate-x-0" : dir === "rtl" ? "translate-x-1.5" : "-translate-x-1.5";
+  // Hidden resting slide: nudge IN from the logical-start edge (RIGHT in RTL →
+  // +X, LEFT in LTR → −X). Reduced-motion drops the slide — it just appears.
+  const hiddenShift = reduce ? "0px" : dir === "rtl" ? "14px" : "-14px";
 
   return (
-    <nav
+    <div
       data-testid="home-toc"
-      aria-label={t({ ar: "فهرس الصفحة", en: "Page index" })}
       aria-hidden={revealed ? undefined : true}
       style={{
         transform: `translateY(-50%) translateX(${revealed ? "0px" : hiddenShift})`,
@@ -150,67 +125,30 @@ export function HomeTOC() {
           ? "opacity 0.2s linear"
           : "opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)",
       }}
-      className={`hidden lg:flex fixed top-1/2 start-2 z-30 flex-col gap-0.5 rounded-2xl border border-[hsl(var(--gold)/0.16)] bg-[#0a0a0c]/[0.78] p-1 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.78)] backdrop-blur-md ${
+      className={`home-rail hidden xl:block fixed top-1/2 start-3 2xl:start-7 z-30 ${
         revealed ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
-      {ACTS.map((a) => {
-        const Icon = a.icon;
-        const isActive = a.id === active;
-        const num = lang === "ar" ? toAr(a.num) : a.num;
-        const name = t(a.label);
-        return (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => go(a.id)}
-            aria-current={isActive ? "true" : undefined}
-            aria-label={name}
-            title={name}
-            className="group relative flex items-center gap-1.5 rounded-full py-1.5 pe-1.5 ps-2 text-start transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0c]"
-          >
-            {/* ── Resting rail: dot + gold numeral ONLY (tiny footprint, lives in
-                the page margin). Active act stays lit so location is legible
-                without hovering. ── */}
-            {/* Marker dot — terracotta when active, readable-muted at rest. */}
-            <span
-              aria-hidden
-              className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-300 ${
-                isActive
-                  ? "bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.6)]"
-                  : "bg-white/40 group-hover:bg-primary/70"
-              }`}
-            />
-            <span
-              className={`font-mono text-[10px] tabular-nums leading-none transition-colors duration-300 ${
-                isActive
-                  ? "text-[hsl(var(--gold))]"
-                  : "text-white/55 group-hover:text-[hsl(var(--sand-bright))]"
-              }`}
-            >
-              {num}
-            </span>
-            {/* ── Hover/focus popout: icon + label, on the SAME dark-glass panel,
-                growing toward the logical-END (leftward in RTL) into open
-                canvas. Reserves NO resting space (absolute) and never overlaps
-                content at rest. Opacity/transform only; reduced-motion drops the
-                slide. aria-hidden — the accessible name lives on the button. ── */}
-            <span
-              aria-hidden
-              className={`pointer-events-none absolute end-full top-1/2 z-10 me-1 flex -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-[hsl(var(--gold)/0.16)] bg-[#0a0a0c]/[0.9] py-1.5 pe-3 ps-2.5 opacity-0 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.85)] backdrop-blur-md transition-[opacity,transform] duration-300 ease-out group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 ${popRestX}`}
-            >
-              <Icon
-                className={`h-3.5 w-3.5 shrink-0 ${
-                  isActive ? "text-primary" : "text-primary/80"
-                }`}
-              />
-              <span className="text-[11px] font-semibold leading-none text-white">
-                {name}
-              </span>
-            </span>
-          </button>
-        );
-      })}
-    </nav>
+      <LineSidebar
+        items={items}
+        activeIndex={activeIdx}
+        defaultActive={0}
+        onItemClick={go}
+        formatIndex={formatIndex}
+        ariaLabel={t({ ar: "فهرس الصفحة", en: "Page index" })}
+        accentColor="#DDBD7E"
+        textColor="rgba(240,234,225,0.42)"
+        markerColor="rgba(255,255,255,0.20)"
+        proximityRadius={100}
+        maxShift={26}
+        falloff="smooth"
+        markerLength={48}
+        tickScale={0.5}
+        scaleTick
+        itemGap={22}
+        fontSize={0.9}
+        smoothing={100}
+      />
+    </div>
   );
 }

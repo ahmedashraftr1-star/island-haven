@@ -41,6 +41,9 @@ export interface LineSidebarProps {
   defaultActive?: number | null;
   /** Controlled active index — when provided, overrides the internal click state. */
   activeIndex?: number | null;
+  /** Formats the leading numeral. Default = 1-based, zero-padded, Latin ("01").
+   *  Pass a locale-aware formatter (e.g. Arabic-Indic "٠١") for bilingual rails. */
+  formatIndex?: (index: number) => string;
   onItemClick?: (index: number, label: string) => void;
   /** Accessible name for the <nav> landmark (the rail is real in-page navigation). */
   ariaLabel?: string;
@@ -66,6 +69,7 @@ const LineSidebar = ({
   smoothing = 100,
   defaultActive = null,
   activeIndex: controlledActive,
+  formatIndex = (i) => String(i + 1).padStart(2, "0"),
   onItemClick,
   ariaLabel,
   className = "",
@@ -227,7 +231,7 @@ const LineSidebar = ({
             {showMarker && <span className="line-sidebar__marker" aria-hidden="true" />}
             <span className="line-sidebar__label">
               {showIndex && (
-                <span className="line-sidebar__index">{String(index + 1).padStart(2, "0")}</span>
+                <span className="line-sidebar__index">{formatIndex(index)}</span>
               )}
               <span className="line-sidebar__text">{label}</span>
             </span>
