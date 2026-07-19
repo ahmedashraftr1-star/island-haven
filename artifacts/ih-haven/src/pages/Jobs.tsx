@@ -32,29 +32,29 @@ interface Job {
   createdAt: string;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  "full-time": "دوام كامل",
-  "part-time": "دوام جزئي",
-  remote: "عن بُعد",
-  contract: "عقد مؤقت",
-  internship: "تدريب",
+const TYPE_LABELS: Record<string, { ar: string; en: string }> = {
+  "full-time": { ar: "دوام كامل", en: "Full-time" },
+  "part-time": { ar: "دوام جزئي", en: "Part-time" },
+  remote: { ar: "عن بُعد", en: "Remote" },
+  contract: { ar: "عقد مؤقت", en: "Contract" },
+  internship: { ar: "تدريب", en: "Internship" },
 };
 
-const CAT_LABELS: Record<string, string> = {
-  all: "الكل",
-  tech: "تقنية",
-  design: "تصميم",
-  marketing: "تسويق",
-  data: "بيانات",
-  sales: "مبيعات",
-  operations: "عمليات",
-  finance: "مالية",
-  security: "أمن",
-  translation: "ترجمة",
-  admin: "إدارة",
-  management: "إدارة برامج",
-  training: "تدريب",
-  other: "أخرى",
+const CAT_LABELS: Record<string, { ar: string; en: string }> = {
+  all: { ar: "الكل", en: "All" },
+  tech: { ar: "تقنية", en: "Tech" },
+  design: { ar: "تصميم", en: "Design" },
+  marketing: { ar: "تسويق", en: "Marketing" },
+  data: { ar: "بيانات", en: "Data" },
+  sales: { ar: "مبيعات", en: "Sales" },
+  operations: { ar: "عمليات", en: "Operations" },
+  finance: { ar: "مالية", en: "Finance" },
+  security: { ar: "أمن", en: "Security" },
+  translation: { ar: "ترجمة", en: "Translation" },
+  admin: { ar: "إدارة", en: "Admin" },
+  management: { ar: "إدارة برامج", en: "Program management" },
+  training: { ar: "تدريب", en: "Training" },
+  other: { ar: "أخرى", en: "Other" },
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -66,6 +66,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 function JobCard({ job, index }: { job: Job; index: number }) {
+  const { t } = useLanguage();
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -93,7 +94,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
                 {job.featured && <Star className="w-3.5 h-3.5 text-amber-400 fill-current inline-block mr-1.5" />}
               </h3>
               <span className={`shrink-0 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${TYPE_COLORS[job.type] ?? "bg-surface-2 text-muted-foreground border-border-strong"}`}>
-                {TYPE_LABELS[job.type] ?? job.type}
+                {TYPE_LABELS[job.type] ? t(TYPE_LABELS[job.type]) : job.type}
               </span>
             </div>
 
@@ -246,7 +247,7 @@ export default function Jobs() {
                     : "bg-surface-2 text-muted-foreground hover:text-fg-secondary border border-border-strong"
                 }`}
               >
-                {CAT_LABELS[cat] ?? cat}
+                {CAT_LABELS[cat] ? t(CAT_LABELS[cat]) : cat}
                 {cat !== "all" && (
                   <span className="mr-1.5 opacity-60">
                     ({catCounts[cat] ?? 0})
