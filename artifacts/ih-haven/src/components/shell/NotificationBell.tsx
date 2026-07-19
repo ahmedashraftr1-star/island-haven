@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { Bell, UserCheck, Megaphone } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 
 interface Notif {
   id: number;
@@ -15,27 +16,29 @@ interface Notif {
   createdAt: string;
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  mentor_application: "طلبات مرشد",
-  session_requested: "جلسات",
-  booking_confirmed: "حجوزات",
-  admin_broadcast: "إعلانات",
-  generic: "عام",
+const TYPE_LABELS: Record<string, { ar: string; en: string }> = {
+  mentor_application: { ar: "طلبات مرشد", en: "Mentoring" },
+  session_requested: { ar: "جلسات", en: "Sessions" },
+  booking_confirmed: { ar: "حجوزات", en: "Bookings" },
+  admin_broadcast: { ar: "إعلانات", en: "Announcements" },
+  generic: { ar: "عام", en: "General" },
 };
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, lang: Lang): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return "الآن";
-  if (m < 60) return `قبل ${m} د`;
+  const en = lang === "en";
+  if (m < 1) return en ? "now" : "الآن";
+  if (m < 60) return en ? `${m}m ago` : `قبل ${m} د`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `قبل ${h} س`;
+  if (h < 24) return en ? `${h}h ago` : `قبل ${h} س`;
   const d = Math.floor(h / 24);
-  return `قبل ${d} ي`;
+  return en ? `${d}d ago` : `قبل ${d} ي`;
 }
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const { t, lang } = useLanguage();
   const [open, setOpen] = useState(false);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [, navigate] = useLocation();
@@ -83,7 +86,7 @@ export function NotificationBell() {
   const allItems = allQ.data?.notifications ?? [];
 
   const availableTypes = Array.from(new Set(allItems.map((n) => n.type))).filter(
-    (t) => TYPE_LABELS[t],
+    (ty) => TYPE_LABELS[ty],
   );
 
   const items =
@@ -118,7 +121,10 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label={`الإشعارات${count ? ` (${count} غير مقروءة)` : ""}`}
+        aria-label={
+          t({ ar: "الإشعارات", en: "Notifications" }) +
+          (count ? ` (${count} ${t({ ar: "غير مقروءة", en: "unread" })})` : "")
+        }
         aria-haspopup="menu"
         aria-expanded={open}
         className="relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] transition-colors"
@@ -134,14 +140,14 @@ export function NotificationBell() {
       {open && (
         <div className="absolute left-0 mt-2 w-[310px] max-h-[460px] overflow-y-auto rounded-2xl bg-[#11162a] border border-white/12 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] z-50 p-2">
           <div className="flex items-center justify-between px-2 py-1.5 sticky top-0 bg-[#11162a]">
-            <span className="text-white font-bold text-[13px]">الإشعارات</span>
+            <span className="text-white font-bold text-[13px]">{t({ ar: "الإشعارات", en: "Notifications" })}</span>
             {count > 0 && (
               <button
                 type="button"
                 onClick={markAll}
                 className="text-primary text-[11px] font-semibold hover:underline"
               >
-                تعليم الكلّ كمقروء
+                {t({ ar: "تعليم الكلّ كمقروء", en: "Mark all read" })}
               </button>
             )}
           </div>
@@ -157,22 +163,22 @@ export function NotificationBell() {
                     : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
                 }`}
               >
-                الكلّ
+                {t({ ar: "الكلّ", en: "All" })}
               </button>
-              {availableTypes.map((t) => {
-                const isActive = filterType === t;
+              {availableTypes.map((ty) => {
+                const isActive = filterType === ty;
                 return (
                   <button
-                    key={t}
+                    key={ty}
                     type="button"
-                    onClick={() => setFilterType(isActive ? null : t)}
+                    onClick={() => setFilterType(isActive ? null : ty)}
                     className={`h-6 px-2.5 rounded-full text-[10.5px] font-semibold transition-colors ${
                       isActive
                         ? "bg-primary/20 text-primary border border-primary/30"
                         : "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] border border-transparent"
                     }`}
                   >
-                    {TYPE_LABELS[t] ?? t}
+                    {TYPE_LABELS[ty] ? t(TYPE_LABELS[ty]) : ty}
                   </button>
                 );
               })}
@@ -180,10 +186,10 @@ export function NotificationBell() {
           )}
 
           {isLoading ? (
-            <div className="text-white/60 text-[12px] text-center py-10">جارٍ التحميل…</div>
+            <div className="text-white/60 text-[12px] text-center py-10">{t({ ar: "جارٍ التحميل…", en: "Loading…" })}</div>
           ) : items.length === 0 ? (
             <div className="text-white/60 text-[12.5px] text-center py-10">
-              لا إشعارات بعد
+              {t({ ar: "لا إشعارات بعد", en: "No notifications yet" })}
             </div>
           ) : (
             items.map((n) => (
@@ -191,7 +197,7 @@ export function NotificationBell() {
                 key={n.id}
                 type="button"
                 onClick={() => openItem(n)}
-                className={`w-full text-right rounded-xl px-3 py-2.5 mb-1 transition-colors ${
+                className={`w-full text-start rounded-xl px-3 py-2.5 mb-1 transition-colors ${
                   n.readAt ? "hover:bg-white/[0.04]" : "bg-primary/10 hover:bg-primary/[0.16]"
                 }`}
               >
@@ -210,7 +216,7 @@ export function NotificationBell() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-white text-[12.5px] font-semibold">{n.title}</span>
-                      <span className="text-white/55 text-[10px] shrink-0">{timeAgo(n.createdAt)}</span>
+                      <span className="text-white/55 text-[10px] shrink-0">{timeAgo(n.createdAt, lang)}</span>
                     </div>
                     {n.body && (
                       <div className="text-white/55 text-[11.5px] mt-0.5 leading-relaxed">

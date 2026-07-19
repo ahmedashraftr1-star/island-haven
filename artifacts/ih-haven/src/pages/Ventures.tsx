@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, useMemo, type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
@@ -90,19 +90,24 @@ export default function Ventures() {
   // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
 
-  const featured = (rows ?? []).filter((v) => v.featured);
-  const rest = (rows ?? []).filter((v) => !v.featured);
-  // Featured ventures lead the gallery; then the rest, in order.
-  const all = [...featured, ...rest];
-  const total = rows?.length ?? 0;
-  const launched = (rows ?? []).filter(
-    (v) => v.stage === "launched" || v.stage === "scaling",
-  ).length;
-  // Real, defensible third figure — the count of distinct sectors the live
-  // portfolio actually spans (derived from the /ventures data, no invention).
-  const sectorCount = new Set(
-    (rows ?? []).map((v) => v.sector?.trim().toLowerCase()).filter(Boolean),
-  ).size;
+  // Derive the gallery ordering + the three real headline figures in one pass,
+  // memoised on the data so a re-render (motion, hover state) doesn't re-scan the
+  // list four times. Featured ventures lead the gallery; then the rest, in order.
+  // sectorCount is a defensible third figure — distinct sectors the live
+  // portfolio actually spans (derived from /ventures, no invention).
+  const { all, total, launched, sectorCount } = useMemo(() => {
+    const list = rows ?? [];
+    const featured = list.filter((v) => v.featured);
+    const rest = list.filter((v) => !v.featured);
+    return {
+      all: [...featured, ...rest],
+      total: list.length,
+      launched: list.filter((v) => v.stage === "launched" || v.stage === "scaling").length,
+      sectorCount: new Set(
+        list.map((v) => v.sector?.trim().toLowerCase()).filter(Boolean),
+      ).size,
+    };
+  }, [rows]);
 
   return (
     <PageShell

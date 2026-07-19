@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 /**
@@ -12,6 +12,10 @@ export function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
   const [active, setActive] = useState(false); // over an interactive element
   const [hidden, setHidden] = useState(true); // pointer outside the window
+  // Track hidden in a ref too, so the mousemove handler can gate its setState
+  // without `hidden` being an effect dependency (which re-subscribed the global
+  // listeners on every window enter/leave).
+  const hiddenRef = useRef(true);
 
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
@@ -27,11 +31,17 @@ export function CustomCursor() {
     const move = (e: MouseEvent) => {
       x.set(e.clientX);
       y.set(e.clientY);
-      if (hidden) setHidden(false);
+      if (hiddenRef.current) {
+        hiddenRef.current = false;
+        setHidden(false);
+      }
       const t = e.target as Element | null;
       setActive(!!(t && t.closest && t.closest(INTERACTIVE)));
     };
-    const leave = () => setHidden(true);
+    const leave = () => {
+      hiddenRef.current = true;
+      setHidden(true);
+    };
 
     window.addEventListener("mousemove", move, { passive: true });
     document.addEventListener("mouseleave", leave);
@@ -39,7 +49,7 @@ export function CustomCursor() {
       window.removeEventListener("mousemove", move);
       document.removeEventListener("mouseleave", leave);
     };
-  }, [reduce, x, y, hidden]);
+  }, [reduce, x, y]);
 
   if (!enabled) return null;
 
