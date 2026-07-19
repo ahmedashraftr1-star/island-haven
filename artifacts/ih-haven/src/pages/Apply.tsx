@@ -22,7 +22,7 @@ import {
   FolderOpen,
   BriefcaseBusiness,
 } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, errorText } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import BorderGlow from "@/components/ui/BorderGlow";
 import { useContentSection } from "@/hooks/use-content";
@@ -258,7 +258,7 @@ export default function Apply() {
       fd.append("file", file);
       const resp = await fetch("/api/uploads/cv", { method: "POST", body: fd });
       const json = await resp.json();
-      if (!resp.ok) throw new Error(json.error || t({ ar: "فشل رفع الملف", en: "File upload failed" }));
+      if (!resp.ok) throw new Error(errorText(json) || t({ ar: "فشل رفع الملف", en: "File upload failed" }));
       setCvUrl(json.url);
       setCvFileName(file.name);
     } catch (e) {
@@ -319,7 +319,7 @@ export default function Apply() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || c.errFallback);
+        setError(e.message || c.errFallback);
         if (Array.isArray(d.issues)) {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;

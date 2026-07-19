@@ -13,6 +13,26 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Extract a human-readable message from an API error body, accepting BOTH the
+ * unified `{ error: { code, message } }` shape and the legacy `{ error: "str" }`.
+ * Returns null if none is present. Use this wherever a RAW `fetch` reads the
+ * response body directly (upload handlers etc. that bypass `api()`/`ApiError`).
+ */
+export function errorText(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null;
+  const e = (body as { error?: unknown }).error;
+  if (typeof e === "string") return e;
+  if (
+    e &&
+    typeof e === "object" &&
+    typeof (e as { message?: unknown }).message === "string"
+  ) {
+    return (e as { message: string }).message;
+  }
+  return null;
+}
+
 export async function api<T = unknown>(
   path: string,
   init: RequestInit = {},
@@ -38,19 +58,14 @@ export async function api<T = unknown>(
     // Accept BOTH the unified `{ error: { code, message } }` shape and the legacy
     // `{ error: "<string>" }`, plus a non-JSON/empty body — so an error never
     // renders as "[object Object]" or a bare "HTTP 500".
-    let msg: string | null = null;
     let code: string | undefined;
-    if (data && typeof data === "object" && "error" in data) {
-      const e = (data as { error: unknown }).error;
-      if (typeof e === "string") {
-        msg = e;
-      } else if (e && typeof e === "object") {
-        const eo = e as { code?: unknown; message?: unknown };
-        if (typeof eo.message === "string") msg = eo.message;
-        if (typeof eo.code === "string") code = eo.code;
+    if (data && typeof data === "object") {
+      const e = (data as { error?: unknown }).error;
+      if (e && typeof e === "object" && typeof (e as { code?: unknown }).code === "string") {
+        code = (e as { code: string }).code;
       }
     }
-    throw new ApiError(res.status, msg || `HTTP ${res.status}`, data, code);
+    throw new ApiError(res.status, errorText(data) || `HTTP ${res.status}`, data, code);
   }
   return data as T;
 }

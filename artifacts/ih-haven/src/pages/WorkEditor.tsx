@@ -3,7 +3,7 @@ import { useLocation, useRoute } from "wouter";
 import { Image as ImageIcon, Loader2, X, Plus, Youtube } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, errorText } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
 interface FormState {
@@ -101,9 +101,9 @@ export default function WorkEditor() {
       credentials: "include",
       body: fd,
     });
-    const data = (await res.json()) as { url?: string; error?: string };
+    const data = (await res.json()) as { url?: string };
     if (!res.ok || !data.url)
-      throw new Error(data.error || t({ ar: "فشل الرفع", en: "Upload failed" }));
+      throw new Error(errorText(data) || t({ ar: "فشل الرفع", en: "Upload failed" }));
     return data.url;
   }
 
@@ -177,7 +177,7 @@ export default function WorkEditor() {
           error?: string;
           details?: Array<{ field: string; message: string }>;
         };
-        setError(d.error || t({ ar: "تعذّر الحفظ", en: "Couldn't save" }));
+        setError(e.message || t({ ar: "تعذّر الحفظ", en: "Couldn't save" }));
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};
           for (const i of d.details) m[i.field] = i.message;

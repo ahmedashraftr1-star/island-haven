@@ -33,7 +33,7 @@ import { AuthBackgroundAura } from "@/components/auth/AuthShell";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth, ROLE_LABELS } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, errorText } from "@/lib/api";
 import type { AuthUser } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import {
@@ -184,7 +184,7 @@ function ProfileInner({
       if (!uploadRes.ok) {
         const d = await uploadRes.json().catch(() => ({}));
         throw new Error(
-          (d as { error?: string }).error ||
+          errorText(d) ||
             t({ ar: "تعذّر رفع الصورة", en: "Couldn't upload the image" }),
         );
       }
@@ -295,7 +295,7 @@ function ProfileInner({
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || t({ ar: "تعذّر الحفظ", en: "Couldn't save" }));
+        setError(e.message || t({ ar: "تعذّر الحفظ", en: "Couldn't save" }));
         if (Array.isArray(d.issues)) {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;

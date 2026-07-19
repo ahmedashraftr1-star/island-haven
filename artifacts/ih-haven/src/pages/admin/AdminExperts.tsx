@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, errorText } from "@/lib/api";
 
 interface Row {
   id: number;
@@ -520,7 +520,7 @@ function ExpertEditor({
           error?: string;
           details?: Array<{ field: string; message: string }>;
         };
-        setError(d.error || "تعذّر الحفظ");
+        setError(e.message || "تعذّر الحفظ");
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};
           for (const i of d.details) m[i.field] = i.message;
@@ -846,8 +846,8 @@ function AvatarUploader({
         credentials: "include",
       });
       if (!res.ok) {
-        const j = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(j.error || "فشل الرفع");
+        const j = await res.json().catch(() => ({}));
+        throw new Error(errorText(j) || "فشل الرفع");
       }
       const j = await res.json() as { url: string };
       onChange(j.url);

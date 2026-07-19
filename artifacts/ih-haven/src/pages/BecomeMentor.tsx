@@ -190,7 +190,7 @@ export default function BecomeMentor() {
           details?: Array<{ field: string; message: string }>;
         };
         setError(
-          d.error || t({ ar: "تعذّر إرسال الطلب", en: "Couldn't send your request" }),
+          e.message || t({ ar: "تعذّر إرسال الطلب", en: "Couldn't send your request" }),
         );
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};

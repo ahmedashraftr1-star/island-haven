@@ -226,7 +226,7 @@ function DailyEditor({
           error?: string;
           details?: Array<{ field: string; message: string }>;
         };
-        setError(d.error || "تعذّر الحفظ");
+        setError(e.message || "تعذّر الحفظ");
         if (Array.isArray(d.details)) {
           const m: Record<string, string> = {};
           for (const i of d.details) m[i.field] = i.message;

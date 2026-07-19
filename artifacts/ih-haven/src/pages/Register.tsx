@@ -68,7 +68,7 @@ export default function Register() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || (lang === "en" ? "Could not create account" : "تعذّر إنشاء الحساب"));
+        setError(e.message || (lang === "en" ? "Could not create account" : "تعذّر إنشاء الحساب"));
         if (Array.isArray(d.issues)) {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;

@@ -207,7 +207,7 @@ export default function Book() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(d.error || t({ ar: "فشل الإرسال", en: "Submission failed" }));
+        setError(e.message || t({ ar: "فشل الإرسال", en: "Submission failed" }));
         const m: Record<string, string> = {};
         for (const i of d.issues || []) m[i.path] = i.message;
         setIssues(m);
