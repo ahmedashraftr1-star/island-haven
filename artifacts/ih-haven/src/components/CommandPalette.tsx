@@ -29,7 +29,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { NAV_STRUCTURE, MOBILE_LINKS, type Bi } from "@/lib/nav";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
@@ -254,9 +254,12 @@ export function CommandPalette() {
           });
           setError(null);
         })
-        .catch((e) => {
-          if (cancelled) return;
-          setError(e instanceof ApiError ? e.message : t({ ar: "تعذّر البحث", en: "Search failed" }));
+        .catch(() => {
+          // Never surface the raw server message ("HTTP 500") — a calm, localized
+          // line, and the static quick-links stay visible below it (see render).
+          if (!cancelled) {
+            setError(t({ ar: "تعذّر البحث، حاول لاحقًا", en: "Search failed. Please try again later." }));
+          }
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -273,7 +276,9 @@ export function CommandPalette() {
   const quickLinks = useMemo(() => buildQuickLinks(t), [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groups: PaletteGroup[] = useMemo(() => {
-    if (term.length < 2) return quickLinks;
+    // Empty query OR a search failure → the static quick-links, so navigation
+    // always works even when /search is down (the error note renders above them).
+    if (term.length < 2 || error) return quickLinks;
     const r = results ?? EMPTY_RESULTS;
     return RESULT_GROUPS.map((g) => {
       const items = r[g.key] ?? [];
@@ -290,7 +295,7 @@ export function CommandPalette() {
         })),
       };
     }).filter((g) => g.rows.length > 0);
-  }, [term, results, quickLinks]);
+  }, [term, results, quickLinks, error]);
 
   // Flat ordered list — the single source of truth for keyboard navigation.
   const flatRows = useMemo(() => groups.flatMap((g) => g.rows), [groups]);
@@ -436,9 +441,12 @@ export function CommandPalette() {
             id="ih-cmdk-list"
             className="flex-1 overflow-y-auto overscroll-contain p-2"
           >
-            {error ? (
-              <div className="px-3 py-6 text-center text-destructive text-[13.5px]">{error}</div>
-            ) : loading && !results ? (
+            {error && (
+              <div className="px-3 py-2.5 mb-1 text-center text-destructive text-[13px] border-b border-border-strong/40">
+                {error}
+              </div>
+            )}
+            {loading && !results && !error ? (
               <div className="space-y-2 p-1.5" aria-hidden>
                 {[0, 1, 2, 3].map((i) => (
                   <div

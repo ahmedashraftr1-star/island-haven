@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { PageShell, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -28,11 +29,16 @@ export default function VentureDetail() {
   const [v, setV] = useState<CaseStudyVenture | null>(null);
   const [pitchDeck, setPitchDeck] = useState<CaseStudyPitchDeck | null>(null);
   const [milestones, setMilestones] = useState<CaseStudyMilestone[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error). A
+  // bumped reloadKey re-runs the fetch (the DetailError retry button).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    setErrStatus(null);
     api<{ venture: CaseStudyVenture; pitchDeck: CaseStudyPitchDeck | null }>(
       `/ventures/${id}`,
     )
@@ -42,20 +48,12 @@ export default function VentureDetail() {
         setPitchDeck(r.pitchDeck);
       })
       .catch(
-        (e) =>
-          !cancelled &&
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر التحميل"
-                : "Couldn't load",
-          ),
+        (e) => !cancelled && setErrStatus(e instanceof ApiError ? e.status : 0),
       );
     return () => {
       cancelled = true;
     };
-  }, [id, lang]);
+  }, [id, reloadKey]);
 
   useEffect(() => {
     if (!id) return;
@@ -75,14 +73,15 @@ export default function VentureDetail() {
     type: "article",
   });
 
-  if (error && !v) {
+  if (errStatus !== null && !v) {
     return (
       <PageShell active="ventures">
-        <BackLink
-          href="/ventures"
-          label={t({ ar: "كلّ المشاريع", en: "All ventures" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/ventures"
+          backLabel={t({ ar: "كلّ المشاريع", en: "All ventures" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

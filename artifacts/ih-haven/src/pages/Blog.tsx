@@ -3,6 +3,7 @@ import { Link, useRoute } from "wouter";
 import { ArrowLeft, Clock } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { PageShell } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
@@ -355,22 +356,28 @@ export function BlogDetail() {
   const [, params] = useRoute("/blog/:slug");
   const slug = params?.slug ?? "";
   const [post, setPost] = useState<ApiPost | null>(null);
-  const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
+  // null = no error; 404 = genuinely missing; anything else = a real failure.
+  // (Previously every error collapsed to "missing", hiding real 5xx behind a
+  // misleading "article not found".)
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     let alive = true;
-    setState("loading");
+    setErrStatus(null);
+    setPost(null);
     api<{ post: ApiPost }>(`/blog/${encodeURIComponent(slug)}`)
       .then((r) => {
-        if (!alive) return;
-        setPost(r.post);
-        setState("ok");
+        if (alive) setPost(r.post);
       })
-      .catch(() => alive && setState("missing"));
+      .catch((e) => {
+        if (alive) setErrStatus(e instanceof ApiError ? e.status : 0);
+      });
     return () => {
       alive = false;
     };
-  }, [slug]);
+  }, [slug, reloadKey]);
 
   useEffect(() => {
     if (post) document.title = `${resolve(post.title, post.titleEn)} — آيلاند هيفن`;
@@ -386,15 +393,20 @@ export function BlogDetail() {
     </Link>
   );
 
-  if (state === "missing") {
+  if (errStatus !== null && !post) {
     return (
-      <PageShell title={t({ ar: "المقال غير موجود", en: "Article not found" })}>
-        <div className="py-10">{backLink}</div>
+      <PageShell title={t({ ar: "المدوّنة", en: "Blog" })}>
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/blog"
+          backLabel={t({ ar: "كل المقالات", en: "All articles" })}
+        />
       </PageShell>
     );
   }
 
-  if (state === "loading" || !post) {
+  if (!post) {
     return (
       <PageShell title={t({ ar: "المدوّنة", en: "Blog" })}>
         <div className="animate-pulse space-y-6">

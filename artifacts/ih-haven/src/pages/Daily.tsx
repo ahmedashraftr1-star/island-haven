@@ -3,6 +3,7 @@ import { Link, useRoute } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Quote } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
@@ -188,20 +189,18 @@ export function DailyDetail() {
   const [, params] = useRoute("/daily/:id");
   const id = params?.id;
   const [post, setPost] = useState<Post | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     if (!id) return;
+    setErrStatus(null);
     api<{ post: Post }>(`/daily/${id}`)
       .then((r) => setPost(r.post))
-      .catch((e) =>
-        setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-        ),
-      );
-  }, [id, lang]);
+      .catch((e) => setErrStatus(e instanceof ApiError ? e.status : 0));
+  }, [id, lang, reloadKey]);
 
   useEffect(() => {
     if (post?.title)
@@ -210,11 +209,15 @@ export function DailyDetail() {
       }`;
   }, [post?.title, lang]);
 
-  if (error && !post) {
+  if (errStatus !== null && !post) {
     return (
       <PageShell active="daily">
-        <BackLink href="/daily" label={t({ ar: "عودة", en: "Back" })} />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/daily"
+          backLabel={t({ ar: "عودة", en: "Back" })}
+        />
       </PageShell>
     );
   }

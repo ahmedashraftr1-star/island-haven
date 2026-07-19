@@ -14,6 +14,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -55,7 +56,10 @@ export default function ExpertDetail() {
   const [expert, setExpert] = useState<ExpertCard | null>(null);
   const [teamGroup, setTeamGroup] = useState<string | null>(null);
   const [rating, setRating] = useState<{ average: number | null; count: number } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   // session-request form
   const [topic, setTopic] = useState("");
@@ -69,17 +73,13 @@ export default function ExpertDetail() {
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    setErrStatus(null);
     api<{ expert: ExpertCard }>(`/experts/${id}`)
       .then((r) => {
         if (!cancelled) setExpert(r.expert);
       })
       .catch((e) => {
-        if (cancelled) return;
-        setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-        );
+        if (!cancelled) setErrStatus(e instanceof ApiError ? e.status : 0);
       });
     api<{ average: number | null; count: number }>(`/experts/${id}/rating`)
       .then((r) => {
@@ -91,7 +91,7 @@ export default function ExpertDetail() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reloadKey]);
 
   // Derive which team this expert belongs to (by name) for a contextual chip.
   useEffect(() => {
@@ -163,14 +163,15 @@ export default function ExpertDetail() {
     }
   }
 
-  if (error && !expert) {
+  if (errStatus !== null && !expert) {
     return (
       <PageShell active="experts">
-        <BackLink
-          href="/experts"
-          label={t({ ar: "عودة للخبراء", en: "Back to experts" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/experts"
+          backLabel={t({ ar: "عودة للخبراء", en: "Back to experts" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

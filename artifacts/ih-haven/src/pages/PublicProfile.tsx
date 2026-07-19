@@ -13,6 +13,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink, EmptyState } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
@@ -82,27 +83,25 @@ export default function PublicProfile() {
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [data, setData] = useState<Resp | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
   const [following, setFollowing] = useState(false);
   const [followers, setFollowers] = useState(0);
   const [followBusy, setFollowBusy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    setErrStatus(null);
     api<Resp>(`/users/${id}`)
       .then((d) => {
         setData(d);
         setFollowing(Boolean(d.followedByMe));
         setFollowers(d.followersCount ?? 0);
       })
-      .catch((e) =>
-        setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-        ),
-      );
-  }, [id, lang]);
+      .catch((e) => setErrStatus(e instanceof ApiError ? e.status : 0));
+  }, [id, lang, reloadKey]);
 
   async function toggleFollow() {
     if (!id || followBusy) return;
@@ -139,14 +138,15 @@ export default function PublicProfile() {
     type: "profile",
   });
 
-  if (error && !data) {
+  if (errStatus !== null && !data) {
     return (
       <PageShell active="members">
-        <BackLink
-          href="/members"
-          label={t({ ar: "عودة للمنتسبين", en: "Back to members" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/members"
+          backLabel={t({ ar: "عودة للمنتسبين", en: "Back to members" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
