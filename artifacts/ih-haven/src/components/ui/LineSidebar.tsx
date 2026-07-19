@@ -181,6 +181,14 @@ const LineSidebar = ({
     startLoop();
   }, [activeIndex, startLoop]);
 
+  useEffect(() => {
+    // Nudge the active item's stored value to 1 up front so it never flashes
+    // to 0 on the frame the new labels commit, then let the loop settle the rest.
+    if (activeRef.current != null) currentRef.current[activeRef.current] = 1;
+    startLoop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(
     () => () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
@@ -217,7 +225,13 @@ const LineSidebar = ({
       >
         {items.map((label, index) => (
           <li
-            key={`${label}-${index}`}
+            // Key by POSITION, not label — the acts are a fixed, ordered set and
+            // only their text changes (e.g. a live language switch). Keying by
+            // label would remount every <li> on a switch, dropping the inline
+            // --effect (active item loses its accent, proximity stalls until a
+            // pointer move / reload). Keying by index reuses the same elements,
+            // so --effect and itemRefs survive the re-render.
+            key={index}
             ref={(el) => {
               itemRefs.current[index] = el;
             }}

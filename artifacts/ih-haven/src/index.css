@@ -1086,6 +1086,24 @@ body::after {
    very wide screens. Below 2xl (1536px) collapse to numerals + markers only (still
    the Line-Sidebar aesthetic + proximity), so the rail never overlaps content;
    from 2xl the labels show in full. The `.home-rail` scope keeps LineSidebar generic. */
+
+/* Legibility over the light-photo sections the rail floats above: a subtle dark
+   shadow on the numerals/labels + a dark drop on the hairline markers/ticks. It's
+   invisible on the dark canvas and only bites over bright imagery, so the look on
+   dark backgrounds is unchanged. The active item keeps its gold glow (both stack). */
+.home-rail .line-sidebar__label {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.4);
+}
+.home-rail .line-sidebar__item[aria-current="true"] .line-sidebar__label {
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.5),
+    0 0 14px color-mix(in srgb, var(--accent-color) 42%, transparent);
+}
+.home-rail .line-sidebar__marker,
+.home-rail .line-sidebar__item::after {
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.6));
+}
+
 @media (max-width: 1535.98px) {
   .home-rail .line-sidebar__text { display: none; }
   .home-rail .line-sidebar__index { margin-inline: 0; }

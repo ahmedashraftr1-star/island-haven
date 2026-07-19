@@ -24,8 +24,8 @@ const ACTS: { id: string; label: { ar: string; en: string } }[] = [
  * as the NarrativeThread (#DDBD7E) with a soft glow on the active act, so the
  * rail reads as a branch of that thread — one coherent gold system.
  *
- * It doubles as a scroll-spy + jump nav: a single IntersectionObserver watches
- * the five act anchors and drives the CONTROLLED activeIndex (topmost in view);
+ * It doubles as a scroll-spy + jump nav: a rAF-throttled scroll spy drives
+ * the CONTROLLED activeIndex to the act you've scrolled into;
  * clicking an item smooth-scrolls to its section (instant under reduced-motion).
  *
  * Reveal: hidden while the busy hero fills the viewport (where a rail would be
@@ -61,38 +61,37 @@ export function HomeTOC() {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-spy — the active act is the topmost anchor currently in view.
+  // Scroll-spy — highlight the act the reader has scrolled into.
   useEffect(() => {
-    const idToIndex = new Map(ACTS.map((a, i) => [a.id, i]));
-    const els = ACTS.map((a) => document.getElementById(a.id)).filter(
-      (el): el is HTMLElement => el !== null,
-    );
-    if (els.length === 0) return;
-
-    const visible = new Map<string, number>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (Date.now() < lockRef.current) return;
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.set(entry.target.id, entry.boundingClientRect.top);
-          else visible.delete(entry.target.id);
-        }
-        if (visible.size === 0) return;
-        let topId = "";
-        let topOffset = Infinity;
-        for (const [id, top] of visible) {
-          if (top < topOffset) {
-            topOffset = top;
-            topId = id;
-          }
-        }
-        const idx = idToIndex.get(topId);
-        if (idx != null) setActiveIdx(idx);
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // The active act is the LAST one whose anchor has crossed the viewport
+    // middle. Reading positions live on scroll (rAF-throttled) is robust to two
+    // things an IntersectionObserver on these anchors was NOT: the later acts
+    // load lazily (Suspense), so they aren't in the DOM at mount and were never
+    // observed (active stuck on act-0); and their anchors sit on the THIN
+    // act-markers, which a quick scroll can jump clean over.
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      if (Date.now() < lockRef.current) return;
+      const mid = window.innerHeight * 0.5;
+      let current = 0;
+      for (let i = 0; i < ACTS.length; i++) {
+        const el = document.getElementById(ACTS[i].id);
+        if (el && el.getBoundingClientRect().top <= mid) current = i;
+      }
+      setActiveIdx((prev) => (prev === current ? prev : current));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   const go = (index: number) => {
@@ -130,6 +129,11 @@ export function HomeTOC() {
       }`}
     >
       <LineSidebar
+        // Remount on language change: a live AR⇄EN switch flips dir + relabels
+        // every item, and the rAF proximity loop / element refs must reinitialise
+        // cleanly (the component-scoped equivalent of the reload that "fixes" it).
+        // The seed inside LineSidebar keeps the active item gold instantly on remount.
+        key={lang}
         items={items}
         activeIndex={activeIdx}
         defaultActive={0}
