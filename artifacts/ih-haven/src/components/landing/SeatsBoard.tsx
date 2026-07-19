@@ -326,6 +326,13 @@ export function SeatsBoard() {
   const { data: summaryData, refetch: refetchSummary } = useAttendanceSummary();
   const summary = summaryData ?? null;
 
+  // When BOTH public sources are unavailable (a total API failure, not just an
+  // empty DB), the occupancy shown is the graceful fallback constant — NOT a
+  // real figure. In that state the board stays visible, but we must NOT assert
+  // it's live/database-sourced, or the "no fake number" promise itself becomes
+  // the fake number. These flags drop those claims exactly when we can't back them.
+  const hasRealData = summary != null || nums != null;
+
   // A member's own check-in refetches the shared summary on demand so "present
   // now" stays honest and immediate.
   const refreshSummary = useCallback(() => {
@@ -398,10 +405,15 @@ export function SeatsBoard() {
 
             <Reveal as="div" delay={0.1}>
               <p className="mt-6 max-w-md text-white/75 text-[1.0625rem] leading-[1.7]">
-                {t({
-                  ar: "حاضنة كاملة، خمسون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
-                  en: "A full incubator — fifty real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
-                })}
+                {hasRealData
+                  ? t({
+                      ar: "حاضنة كاملة، خمسون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
+                      en: "A full incubator — fifty real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
+                    })
+                  : t({
+                      ar: "حاضنة كاملة، خمسون مقعدًا حقيقيًّا في قلب غزّة. احجز مكانك وابدأ رحلتك معنا.",
+                      en: "A full incubator — fifty real seats in the heart of Gaza. Reserve your place and start your journey with us.",
+                    })}
               </p>
             </Reveal>
 
@@ -469,8 +481,12 @@ export function SeatsBoard() {
                   )}
                   <span className="text-white/40"> · </span>
                   <span className="tabular-nums text-white">{fmt(free)}</span> {t({ ar: "متاح", en: "free" })}
-                  <span className="text-white/40"> · </span>
-                  <span className="text-white/55">{t({ ar: "لا رقم مُختلَق", en: "no fake number" })}</span>
+                  {hasRealData && (
+                    <>
+                      <span className="text-white/40"> · </span>
+                      <span className="text-white/55">{t({ ar: "لا رقم مُختلَق", en: "no fake number" })}</span>
+                    </>
+                  )}
                 </span>
               </div>
 

@@ -89,9 +89,13 @@ before(async () => {
 });
 
 after(async () => {
-  // Best-effort cleanup: check the staff out and delete the throwaway account.
+  // Best-effort cleanup: check the staff out, then delete BOTH throwaway
+  // accounts. The member registers as a public `active` user, so leaving it
+  // behind pollutes /members + the homepage — and with a Date.now()-stamped
+  // email these would otherwise pile up one-per-run in the shared dev DB.
   await req("/admin/my-attendance/check-out", { method: "POST", token: staffToken }).catch(() => {});
   if (staffId) await req(`/admin/staff/${staffId}`, { method: "DELETE", token: adminToken }).catch(() => {});
+  if (memberId) await req(`/admin/users/${memberId}`, { method: "DELETE", token: adminToken }).catch(() => {});
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -53,6 +53,31 @@ router.get("/members", async (req, res) => {
       .from(usersTable)
       .where(and(...where));
 
+    // Stable community breakdown over the WHOLE active non-expert population —
+    // independent of the current role/q filter. The directory page drives both
+    // its hero total and its role breakdown from this, so the two always
+    // reconcile with each other (roleCounts sum to communityTotal) and with the
+    // unfiltered list. (The filtered `total` above stays the per-chip count.)
+    const communityWhere = and(
+      eq(usersTable.status, "active"),
+      sql`${usersTable.role} <> 'expert'`,
+    );
+    const roleRows = await db
+      .select({ role: usersTable.role, c: count() })
+      .from(usersTable)
+      .where(communityWhere)
+      .groupBy(usersTable.role);
+    const roleCounts = { freelancer: 0, graduate: 0, student: 0, other: 0 };
+    let communityTotal = 0;
+    for (const r of roleRows) {
+      communityTotal += r.c;
+      if (r.role === "freelancer" || r.role === "graduate" || r.role === "student") {
+        roleCounts[r.role] += r.c;
+      } else {
+        roleCounts.other += r.c;
+      }
+    }
+
     // Clamp page to the valid range so a huge ?page never produces an
     // out-of-range deep offset.
     const totalPages = Math.max(1, Math.ceil(total / MEMBERS_PAGE_SIZE));
@@ -87,7 +112,7 @@ router.get("/members", async (req, res) => {
       .limit(MEMBERS_PAGE_SIZE)
       .offset((page - 1) * MEMBERS_PAGE_SIZE);
 
-    res.json({ members: rows, total, page, totalPages });
+    res.json({ members: rows, total, page, totalPages, communityTotal, roleCounts });
   } catch (err) {
     logger.error({ err }, "GET /members failed");
     res.status(500).json({ error: "تعذّر تحميل المنتسبين" });

@@ -16,7 +16,6 @@ import {
   EmptyState,
 } from "@/components/shell/PageShell";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
-import { useNumbers } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, type UserRole } from "@/lib/auth";
@@ -83,16 +82,22 @@ const ROLE_BADGE: Partial<Record<UserRole, string>> = {
 
 export default function Members() {
   const { lang, t } = useLanguage();
-  // Live community figures (same source as the homepage) — the hero total + breakdown
-  // must reflect the WHOLE community, never the current role-filtered slice.
-  const { data: numbersData } = useNumbers();
-  const nums = numbersData?.numbers ?? null;
   const [role, setRole] = useState<"" | UserRole>("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Member[] | null>(null);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState<number | null>(null);
+  // Directory figures from the SAME /members query that feeds the list, so the
+  // hero total, the role breakdown, and the list can never disagree. Both reflect
+  // the whole community (active non-experts), independent of the current filter.
+  const [communityTotal, setCommunityTotal] = useState<number | null>(null);
+  const [roleCounts, setRoleCounts] = useState<{
+    freelancer: number;
+    graduate: number;
+    student: number;
+    other: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Arabic chrome comes from CMS (with FALLBACK); English from the static EN map.
   const ar = useContentSection("pageMembers", FALLBACK);
@@ -124,12 +129,20 @@ export default function Members() {
     if (role) params.set("role", role);
     if (q.trim()) params.set("q", q.trim());
     params.set("page", String(page));
-    api<{ members: Member[]; totalPages: number; total: number }>(`/members?${params}`)
+    api<{
+      members: Member[];
+      totalPages: number;
+      total: number;
+      communityTotal: number;
+      roleCounts: { freelancer: number; graduate: number; student: number; other: number };
+    }>(`/members?${params}`)
       .then((r) => {
         if (!cancelled) {
           setRows(r.members);
           setTotalPages(r.totalPages ?? 1);
           setTotal(r.total ?? null);
+          setCommunityTotal(r.communityTotal ?? null);
+          setRoleCounts(r.roleCounts ?? null);
         }
       })
       .catch((e) => {
@@ -160,7 +173,7 @@ export default function Members() {
               className="font-mono font-black text-sand-bright tnum leading-none"
               style={{ fontSize: "clamp(2.8rem,6vw,4rem)" }}
             >
-              {nums?.members != null ? nums.members.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
+              {communityTotal != null ? communityTotal.toLocaleString(lang === "ar" ? "ar-EG" : "en-US") : "—"}
             </span>
             <span className="t-caption text-fg-secondary">
               {t({ ar: "منتسبًا في المجتمع", en: "members & alumni" })}
@@ -176,9 +189,14 @@ export default function Members() {
           <div aria-hidden className="my-5 h-px w-full bg-border-strong" />
           <div className="space-y-2">
             {[
-              { label: t({ ar: "مستقلّون", en: "Freelancers" }), n: nums?.freelancers },
-              { label: t({ ar: "خرّيجون", en: "Graduates" }), n: nums?.graduates },
-              { label: t({ ar: "طلّاب", en: "Students" }), n: nums?.students },
+              { label: t({ ar: "مستقلّون", en: "Freelancers" }), n: roleCounts?.freelancer },
+              { label: t({ ar: "خرّيجون", en: "Graduates" }), n: roleCounts?.graduate },
+              { label: t({ ar: "طلّاب", en: "Students" }), n: roleCounts?.student },
+              // Show the remainder only when it exists, so the rows always sum to
+              // the hero total above — the breakdown is never a partial figure.
+              ...(roleCounts && roleCounts.other > 0
+                ? [{ label: t({ ar: "أخرى", en: "Other" }), n: roleCounts.other }]
+                : []),
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between text-[13.5px]">
                 <span className="text-fg-secondary">{row.label}</span>
