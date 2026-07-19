@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -70,28 +71,22 @@ export default function OpportunityDetail() {
   const [, params] = useRoute("/opportunities/:id");
   const id = params?.id;
   const [o, setO] = useState<Opportunity | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    setErrStatus(null);
     api<{ opportunity: Opportunity }>(`/opportunities/${id}`)
       .then((r) => !cancelled && setO(r.opportunity))
-      .catch(
-        (e) =>
-          !cancelled &&
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر التحميل"
-                : "Couldn't load",
-          ),
-      );
+      .catch((e) => !cancelled && setErrStatus(e instanceof ApiError ? e.status : 0));
     return () => {
       cancelled = true;
     };
-  }, [id, lang]);
+  }, [id, lang, reloadKey]);
 
   usePageMeta({
     title: o?.title,
@@ -99,14 +94,15 @@ export default function OpportunityDetail() {
     type: "article",
   });
 
-  if (error && !o) {
+  if (errStatus !== null && !o) {
     return (
       <PageShell active="opportunities">
-        <BackLink
-          href="/opportunities"
-          label={t({ ar: "عودة للفرص", en: "Back to opportunities" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/opportunities"
+          backLabel={t({ ar: "عودة للفرص", en: "Back to opportunities" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

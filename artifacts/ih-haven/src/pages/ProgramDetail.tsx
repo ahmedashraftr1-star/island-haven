@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -103,7 +104,8 @@ export default function ProgramDetail() {
   const id = params?.id;
   const { user } = useAuth();
   const [data, setData] = useState<Resp | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
 
   const [ventureName, setVentureName] = useState("");
   const [idea, setIdea] = useState("");
@@ -113,14 +115,11 @@ export default function ProgramDetail() {
 
   async function refresh() {
     if (!id) return;
+    setErrStatus(null);
     try {
       setData(await api<Resp>(`/programs/${id}`));
     } catch (e) {
-      setError(
-        e instanceof ApiError
-          ? e.message
-          : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-      );
+      setErrStatus(e instanceof ApiError ? e.status : 0);
     }
   }
 
@@ -183,14 +182,15 @@ export default function ProgramDetail() {
     }
   }
 
-  if (error && !data) {
+  if (errStatus !== null && !data) {
     return (
       <PageShell active="programs">
-        <BackLink
-          href="/programs"
-          label={t({ ar: "عودة للبرامج", en: "Back to programs" })}
+        <DetailError
+          status={errStatus}
+          onRetry={refresh}
+          backHref="/programs"
+          backLabel={t({ ar: "عودة للبرامج", en: "Back to programs" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

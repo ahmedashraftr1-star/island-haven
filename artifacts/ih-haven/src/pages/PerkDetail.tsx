@@ -11,6 +11,7 @@ import {
   Ticket,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -45,29 +46,23 @@ export default function PerkDetail() {
   const [, params] = useRoute("/perks/:id");
   const id = params?.id;
   const [p, setP] = useState<Perk | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    setErrStatus(null);
     api<{ perk: Perk }>(`/perks/${id}`)
       .then((r) => !cancelled && setP(r.perk))
-      .catch(
-        (e) =>
-          !cancelled &&
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر التحميل"
-                : "Couldn't load",
-          ),
-      );
+      .catch((e) => !cancelled && setErrStatus(e instanceof ApiError ? e.status : 0));
     return () => {
       cancelled = true;
     };
-  }, [id, lang]);
+  }, [id, lang, reloadKey]);
 
   usePageMeta({
     title: p?.title,
@@ -75,14 +70,15 @@ export default function PerkDetail() {
     type: "article",
   });
 
-  if (error && !p) {
+  if (errStatus !== null && !p) {
     return (
       <PageShell active="perks">
-        <BackLink
-          href="/perks"
-          label={t({ ar: "عودة للعروض", en: "Back to perks" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/perks"
+          backLabel={t({ ar: "عودة للعروض", en: "Back to perks" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

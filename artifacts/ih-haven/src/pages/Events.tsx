@@ -14,6 +14,7 @@ import {
   BackLink,
   EmptyState,
 } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import {
@@ -111,13 +112,10 @@ export default function Events() {
           setTotalPages(r.total ? Math.ceil(r.total / 12) : 1);
         }
       })
-      .catch((e) => {
+      .catch(() => {
         if (cancelled) return;
-        setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-        );
+        // Localized — never surface the raw server message ("HTTP 500").
+        setError(t({ ar: "تعذّر تحميل الفعاليّات", en: "Couldn't load events" }));
       });
     return () => { cancelled = true; };
   }, [filter, page, lang]);
@@ -269,20 +267,18 @@ export function EventDetail() {
   const [, params] = useRoute("/events/:id");
   const id = params?.id;
   const [post, setPost] = useState<Post | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     if (!id) return;
+    setErrStatus(null);
     api<{ post: Post }>(`/daily/${id}`)
       .then((r) => setPost(r.post))
-      .catch((e) =>
-        setError(
-          e instanceof ApiError
-            ? e.message
-            : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-        ),
-      );
-  }, [id, lang]);
+      .catch((e) => setErrStatus(e instanceof ApiError ? e.status : 0));
+  }, [id, lang, reloadKey]);
 
   usePageMeta({
     title: post?.title,
@@ -291,11 +287,15 @@ export function EventDetail() {
     type: "article",
   });
 
-  if (error && !post) {
+  if (errStatus !== null && !post) {
     return (
       <PageShell active="events">
-        <BackLink href="/events" label={t({ ar: "الفعاليّات", en: "Events" })} />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/events"
+          backLabel={t({ ar: "الفعاليّات", en: "Events" })}
+        />
       </PageShell>
     );
   }

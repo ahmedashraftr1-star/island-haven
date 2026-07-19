@@ -14,6 +14,7 @@ import {
   GlassCard,
   BackLink,
 } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -87,21 +88,21 @@ export default function CourseDetail() {
   const id = params?.id;
   const { user } = useAuth();
   const [data, setData] = useState<DetailResp | null>(null);
+  // `error` stays the inline enroll/cancel action message; `errStatus` is the
+  // page-level load failure (null = none, 0 = network) → drives DetailError.
   const [error, setError] = useState<string | null>(null);
+  const [errStatus, setErrStatus] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
 
   async function refresh() {
     if (!id) return;
+    setErrStatus(null);
     try {
       const r = await api<DetailResp>(`/courses/${id}`);
       setData(r);
     } catch (e) {
-      setError(
-        e instanceof ApiError
-          ? e.message
-          : t({ ar: "تعذّر التحميل", en: "Couldn't load" }),
-      );
+      setErrStatus(e instanceof ApiError ? e.status : 0);
     }
   }
 
@@ -175,14 +176,15 @@ export default function CourseDetail() {
     }
   }
 
-  if (error && !data) {
+  if (errStatus !== null && !data) {
     return (
       <PageShell active="courses">
-        <BackLink
-          href="/courses"
-          label={t({ ar: "عودة للقائمة", en: "Back to list" })}
+        <DetailError
+          status={errStatus}
+          onRetry={refresh}
+          backHref="/courses"
+          backLabel={t({ ar: "عودة للقائمة", en: "Back to list" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

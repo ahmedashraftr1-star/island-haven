@@ -22,6 +22,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
@@ -111,7 +112,12 @@ export default function WorkDetail() {
   const { t } = useLanguage();
   const id = params?.id;
   const [data, setData] = useState<DetailResp | null>(null);
+  // `error` stays the inline action message (e.g. delete); `errStatus` is the
+  // page-level load failure (null = none, 0 = network) → drives DetailError.
   const [error, setError] = useState<string | null>(null);
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reloadWork = () => setReloadKey((k) => k + 1);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   // Likes
@@ -145,6 +151,7 @@ export default function WorkDetail() {
     let cancelled = false;
     setData(null);
     setError(null);
+    setErrStatus(null);
     setComments([]);
     api<DetailResp>(`/works/${id}`)
       .then((d) => {
@@ -156,12 +163,7 @@ export default function WorkDetail() {
         setSaved(d.savedByMe);
       })
       .catch((e) => {
-        if (!cancelled)
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : t({ ar: "تعذّر التحميل", en: "Couldn't load this work" }),
-          );
+        if (!cancelled) setErrStatus(e instanceof ApiError ? e.status : 0);
       });
     api<{ comments: WorkComment[] }>(`/works/${id}/comments`)
       .then((r) => {
@@ -173,7 +175,7 @@ export default function WorkDetail() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reloadKey]);
 
   async function toggleLike() {
     if (!id || liking) return;
@@ -403,14 +405,15 @@ export default function WorkDetail() {
     }
   }
 
-  if (error && !data) {
+  if (errStatus !== null && !data) {
     return (
       <PageShell active="works">
-        <BackLink
-          href="/works"
-          label={t({ ar: "عودة للمعرض", en: "Back to gallery" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reloadWork}
+          backHref="/works"
+          backLabel={t({ ar: "عودة للمعرض", en: "Back to gallery" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }

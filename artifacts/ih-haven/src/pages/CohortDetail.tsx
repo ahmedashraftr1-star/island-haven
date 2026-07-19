@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
+import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-meta";
@@ -107,30 +108,24 @@ export default function CohortDetail() {
     program: Program;
     ventures: VentureRow[];
   } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // null = no error; otherwise the ApiError.status (0 for a network error).
+  const [errStatus, setErrStatus] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
+    setErrStatus(null);
     api<{ cohort: Cohort; program: Program; ventures: VentureRow[] }>(
       `/cohorts/${slug}`,
     )
       .then((r) => !cancelled && setData(r))
-      .catch(
-        (e) =>
-          !cancelled &&
-          setError(
-            e instanceof ApiError
-              ? e.message
-              : lang === "ar"
-                ? "تعذّر التحميل"
-                : "Couldn't load",
-          ),
-      );
+      .catch((e) => !cancelled && setErrStatus(e instanceof ApiError ? e.status : 0));
     return () => {
       cancelled = true;
     };
-  }, [slug, lang]);
+  }, [slug, lang, reloadKey]);
 
   usePageMeta({
     title: data?.cohort?.name,
@@ -139,14 +134,15 @@ export default function CohortDetail() {
     type: "article",
   });
 
-  if (error && !data) {
+  if (errStatus !== null && !data) {
     return (
       <PageShell>
-        <BackLink
-          href="/cohorts"
-          label={t({ ar: "عودة للدّفعات", en: "Back to cohorts" })}
+        <DetailError
+          status={errStatus}
+          onRetry={reload}
+          backHref="/cohorts"
+          backLabel={t({ ar: "عودة للدّفعات", en: "Back to cohorts" })}
         />
-        <GlassCard className="p-8 text-center text-destructive">{error}</GlassCard>
       </PageShell>
     );
   }
