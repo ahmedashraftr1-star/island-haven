@@ -26,7 +26,8 @@ export function WhatYouGet() {
   // it can never contradict the SeatsBoard's "N free" on the same page. Rendered
   // through the locale numeral formatter (Western in EN, Arabic-Indic in AR).
   const { data: summaryData } = useAttendanceSummary();
-  const totalSeats = summaryData?.totalSeats ?? 50;
+  // `|| 50` (not `??`) so a degraded `{ totalSeats: 0 }` never renders "٠".
+  const totalSeats = summaryData?.totalSeats || 50;
   const fmtNum = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   // Two-digit editorial row index — Arabic-Indic in AR (matching ActMarker /
   // ApplyProcess), Western in EN. No stray Western digit in the Arabic page.

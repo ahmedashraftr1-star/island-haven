@@ -286,17 +286,42 @@ export default function Apply() {
   // Locale-aware numerals — Arabic-Indic in AR, Western in EN (matches NumbersBand).
   const fmtNum = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
 
-  const canSubmit =
-    form.fullName.trim().length >= 2 &&
-    form.email.trim().length > 3 &&
-    form.phone.trim().length >= 6 &&
-    form.bio.trim().length >= 10 &&
-    form.motivation.trim().length >= 10 &&
-    !submitting;
+  // Client-side required-field checks (same thresholds the submit button used to
+  // gate on). Runs on submit ATTEMPT so an empty form surfaces per-field guidance
+  // instead of a silently-disabled button. `id` matches each input's DOM id so the
+  // message renders under the right field and we can focus it.
+  const REQUIRED_FIELDS: Array<{ id: string; valid: boolean; msg: { ar: string; en: string } }> = [
+    { id: "fullName", valid: form.fullName.trim().length >= 2, msg: { ar: "الاسم الكامل مطلوب (حرفان على الأقلّ).", en: "Full name is required (at least 2 characters)." } },
+    { id: "email", valid: form.email.trim().length > 3, msg: { ar: "أدخل بريدًا إلكترونيًّا صالحًا.", en: "Enter a valid email address." } },
+    { id: "phone", valid: form.phone.trim().length >= 6, msg: { ar: "رقم واتساب مطلوب.", en: "A WhatsApp number is required." } },
+    { id: "bio", valid: form.bio.trim().length >= 10, msg: { ar: "أخبرنا عنك (10 أحرف على الأقلّ).", en: "Tell us about yourself (at least 10 characters)." } },
+    { id: "motivation", valid: form.motivation.trim().length >= 10, msg: { ar: "أخبرنا لماذا آيلاند هيفن (10 أحرف على الأقلّ).", en: "Tell us why Island Haven (at least 10 characters)." } },
+  ];
+
+  function focusFirstInvalid(m: Record<string, string>) {
+    // Prefer the required-field order; fall back to any field the server flagged.
+    const id = REQUIRED_FIELDS.find((f) => m[f.id])?.id ?? Object.keys(m)[0];
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    // preventScroll so the smooth scrollIntoView above isn't overridden by focus.
+    (el as HTMLElement).focus({ preventScroll: true });
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
+    if (submitting) return;
+    // Validate on the client first so an empty/invalid form shows inline errors
+    // + jumps to the first offending field, rather than doing nothing.
+    const clientIssues: Record<string, string> = {};
+    for (const f of REQUIRED_FIELDS) if (!f.valid) clientIssues[f.id] = t(f.msg);
+    if (Object.keys(clientIssues).length > 0) {
+      setIssues(clientIssues);
+      setError(null);
+      focusFirstInvalid(clientIssues);
+      return;
+    }
     setSubmitting(true);
     setError(null);
     setIssues({});
@@ -324,12 +349,7 @@ export default function Apply() {
           const m: Record<string, string> = {};
           for (const i of d.issues) m[i.path] = i.message;
           setIssues(m);
-          // Focus first invalid field for accessibility
-          const first = d.issues[0]?.path;
-          if (first) {
-            const el = document.getElementById(first);
-            if (el) (el as HTMLElement).focus();
-          }
+          focusFirstInvalid(m);
         }
       } else {
         setError(c.errNetwork);
@@ -849,7 +869,7 @@ export default function Apply() {
                 <div className="pt-1">
                   <button
                     type="submit"
-                    disabled={!canSubmit}
+                    disabled={submitting}
                     className="cta-fill group relative w-full overflow-hidden rounded-2xl h-14 font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
                     data-testid="button-submit"
                   >

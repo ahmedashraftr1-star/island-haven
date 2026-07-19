@@ -335,6 +335,10 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     background: hsl(var(--background));
+    /* The scroll container for every `useScroll({ target })` defaults to
+       document.scrollingElement (<html>); framer-motion warns if it's static.
+       Harmless on the root element, silences the warning app-wide. */
+    position: relative;
   }
   body {
     @apply font-sans antialiased;

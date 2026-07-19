@@ -183,7 +183,9 @@ export function Hero() {
   // sections down. Falls back to the known real capacity when the summary is
   // still loading. This is the single source both the hero and board share.
   const { data: summaryData } = useAttendanceSummary();
-  const totalSeats = summaryData?.totalSeats ?? 50;
+  // `|| 50` (not `??`) so a degraded `{ totalSeats: 0 }` response never renders a
+  // misleading "٠ مقعد" — the space has 50 real seats; 0 only means "unknown".
+  const totalSeats = summaryData?.totalSeats || 50;
 
   const stills = useMemo(
     () =>
@@ -253,7 +255,7 @@ export function Hero() {
   // animate toward an invented figure.
   const stats: { n: number | null; v: string; l: string }[] = [
     { n: totalSeats, v: fmt(totalSeats), l: c.stat1Label },
-    { n: live ? live.members : null, v: live ? fmt(live.members) : c.stat2Value, l: c.stat2Label },
+    { n: live ? live.members : null, v: live ? fmt(live.members) : (c.stat2Value || "—"), l: c.stat2Label },
     { n: null, v: c.stat3Value, l: c.stat3Label },
   ].filter((s) => s.v || s.l);
 
