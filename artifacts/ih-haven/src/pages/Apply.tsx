@@ -484,6 +484,7 @@ export default function Apply() {
                   error={issues.fullName}
                   placeholder={c.fullNamePlaceholder}
                   autoComplete="name"
+                  required
                 />
 
                 <div className="grid sm:grid-cols-2 gap-5">
@@ -499,6 +500,7 @@ export default function Apply() {
                     type="email"
                     ltr
                     autoComplete="email"
+                    required
                   />
                   <Field
                     id="phone"
@@ -512,6 +514,7 @@ export default function Apply() {
                     type="tel"
                     ltr
                     autoComplete="tel"
+                    required
                   />
                 </div>
 
@@ -575,6 +578,7 @@ export default function Apply() {
                       hint={c.bioHint}
                       icon={PenLine}
                       error={issues.bio}
+                      required
                     >
                       <textarea
                         id="bio"
@@ -583,6 +587,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.bioPlaceholder}
+                        required
+                        aria-required={true}
+                        aria-invalid={issues.bio ? true : undefined}
+                        aria-describedby={issues.bio ? "bio-error" : undefined}
                         className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
                         data-testid="input-bio"
                       />
@@ -594,6 +602,7 @@ export default function Apply() {
                       hint={c.motivationHint}
                       icon={Heart}
                       error={issues.motivation}
+                      required
                     >
                       <textarea
                         id="motivation"
@@ -602,6 +611,10 @@ export default function Apply() {
                         rows={4}
                         maxLength={2000}
                         placeholder={c.motivationPlaceholder}
+                        required
+                        aria-required={true}
+                        aria-invalid={issues.motivation ? true : undefined}
+                        aria-describedby={issues.motivation ? "motivation-error" : undefined}
                         className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15px] leading-[1.85] outline-none resize-none py-2.5"
                         data-testid="input-motivation"
                       />
@@ -651,7 +664,7 @@ export default function Apply() {
                               key={yr}
                               type="button"
                               onClick={() => setYearsExperience(active ? null : yr)}
-                              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
+                              className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
                                 active
                                   ? "bg-primary/[0.08] border-primary/50 text-primary"
                                   : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
@@ -744,7 +757,7 @@ export default function Apply() {
                               key={h}
                               type="button"
                               onClick={() => setWeeklyHours(active ? null : h)}
-                              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
+                              className={`inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all ${
                                 active
                                   ? "bg-primary/[0.08] border-primary/50 text-primary"
                                   : "bg-surface-2 border-border-strong text-fg-secondary hover:border-primary/35 hover:text-foreground"
@@ -1120,6 +1133,7 @@ function FieldWrap({
   hint,
   icon: Icon,
   error,
+  required,
   children,
 }: {
   id: string;
@@ -1127,6 +1141,7 @@ function FieldWrap({
   hint: string;
   icon: React.ElementType;
   error?: string;
+  required?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -1135,7 +1150,14 @@ function FieldWrap({
         htmlFor={id}
         className="flex items-center justify-between mb-2.5 text-[11.5px] tracking-[0.06em]"
       >
-        <span className="text-fg-secondary font-semibold">{label}</span>
+        <span className="text-fg-secondary font-semibold">
+          {label}
+          {required && (
+            // Visible cue for sighted users; the required state is conveyed to AT
+            // via aria-required on the control itself, so hide the glyph from SR.
+            <span className="text-destructive ms-1" aria-hidden="true">*</span>
+          )}
+        </span>
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <Icon className="w-3 h-3" />
           <span className="text-[10px] tracking-[0.16em] uppercase">{hint}</span>
@@ -1155,6 +1177,8 @@ function FieldWrap({
       <AnimatePresence>
         {error && (
           <motion.div
+            id={`${id}-error`}
+            role="alert"
             initial={{ opacity: 0, y: -2, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -1180,6 +1204,7 @@ function Field({
   type = "text",
   ltr = false,
   autoComplete,
+  required,
 }: {
   id: string;
   label: string;
@@ -1192,9 +1217,10 @@ function Field({
   type?: string;
   ltr?: boolean;
   autoComplete?: string;
+  required?: boolean;
 }) {
   return (
-    <FieldWrap id={id} label={label} hint={hint} icon={icon} error={error}>
+    <FieldWrap id={id} label={label} hint={hint} icon={icon} error={error} required={required}>
       <input
         id={id}
         name={id}
@@ -1204,6 +1230,10 @@ function Field({
         placeholder={placeholder}
         dir={ltr ? "ltr" : "auto"}
         autoComplete={autoComplete}
+        required={required}
+        aria-required={required || undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
         className="block w-full bg-transparent text-foreground placeholder:text-fg-faint text-[15.5px] outline-none py-2.5"
         data-testid={`input-${id}`}
       />

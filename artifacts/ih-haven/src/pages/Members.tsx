@@ -246,7 +246,7 @@ export default function Members() {
                 type="button"
                 onClick={() => setRole(f.key)}
                 aria-pressed={active ? "true" : "false"}
-                className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border flex items-center gap-1.5 ${
+                className={`min-h-[44px] sm:min-h-0 px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border flex items-center justify-center gap-1.5 ${
                   active
                     ? "bg-primary/20 text-foreground border-primary/40"
                     : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
@@ -318,7 +318,7 @@ export default function Members() {
             onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page <= 1}
             aria-label={t({ ar: "الصفحة السابقة", en: "Previous page" })}
-            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           ><span aria-hidden="true">←</span></button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -331,7 +331,7 @@ export default function Members() {
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}
+                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}
                 >{p}</button>
             )}
           <button
@@ -339,7 +339,7 @@ export default function Members() {
             onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
-            className="px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+            className="inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-surface-2 border border-border-strong text-fg-secondary text-[13px] font-semibold hover:bg-white/[0.11] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
           ><span aria-hidden="true">→</span></button>
         </nav>
       )}

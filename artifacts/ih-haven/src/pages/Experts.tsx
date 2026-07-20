@@ -393,7 +393,7 @@ function FilterTag({
       // text; the underline is glued to the label via the inner relative span, so it
       // stays under the words instead of dropping to the padded button's floor. Same
       // look, comfortably tappable on a phone.
-      className={`relative inline-flex py-2.5 text-[14px] font-semibold transition-colors ${
+      className={`relative inline-flex justify-center py-2.5 max-sm:min-w-[44px] text-[14px] font-semibold transition-colors ${
         active ? "text-foreground" : "text-fg-secondary hover:text-foreground"
       }`}
     >

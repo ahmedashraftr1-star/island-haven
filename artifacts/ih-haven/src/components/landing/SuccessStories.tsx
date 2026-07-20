@@ -160,6 +160,7 @@ export function SuccessStories() {
         src={PHOTO}
         scrim="medium"
         sideScrim={false}
+        data-rail-theme="light"
         className="relative overflow-hidden border-t border-white/[0.06]"
         data-testid="stories-band"
       >
@@ -183,6 +184,7 @@ export function SuccessStories() {
         src={PHOTO}
         scrim="medium"
         sideScrim={false}
+        data-rail-theme="light"
         className="relative overflow-hidden border-t border-white/[0.06]"
         aria-label={t({ ar: "قصص النجاح", en: "Success stories" })}
         data-testid="stories-band"
@@ -262,6 +264,7 @@ export function SuccessStories() {
       src={PHOTO}
       scrim="medium"
       sideScrim={false}
+      data-rail-theme="light"
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
       data-testid="stories-band"

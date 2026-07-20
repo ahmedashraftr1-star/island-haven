@@ -552,7 +552,7 @@ function StepOne({
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
-              className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
+              className="w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
               aria-label={lang === "en" ? "Previous month" : "الشهر السابق"}
               data-testid="button-prev-month"
             >
@@ -565,7 +565,7 @@ function StepOne({
             </div>
             <button
               onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
-              className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
+              className="w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-foreground flex items-center justify-center transition"
               aria-label={lang === "en" ? "Next month" : "الشهر التالي"}
               data-testid="button-next-month"
             >
@@ -589,7 +589,7 @@ function StepOne({
                   onClick={() => !c.disabled && update("visitDate", c.iso)}
                   disabled={c.disabled}
                   data-testid={`day-${c.iso}`}
-                  className={`aspect-square rounded-xl text-[13px] font-medium transition relative ${
+                  className={`aspect-square max-sm:aspect-auto max-sm:min-h-[44px] rounded-xl text-[13px] font-medium transition relative ${
                     form.visitDate === c.iso
                       ? "bg-primary text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
                       : c.disabled

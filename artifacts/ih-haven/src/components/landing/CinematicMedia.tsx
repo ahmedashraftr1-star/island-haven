@@ -55,6 +55,10 @@ type CinematicMediaProps = {
   id?: string;
   "aria-label"?: string;
   "data-testid"?: string;
+  /** Marks the section as a BRIGHT backdrop the homepage rail floats over, so the
+   *  rail can raise an adaptive dark panel for contrast (see HomeTOC). Spread onto
+   *  the root via ...rest. */
+  "data-rail-theme"?: "light";
 };
 
 export function CinematicMedia({
@@ -95,8 +99,15 @@ export function CinematicMedia({
           srcSet={photoSrcSet(src)}
           sizes="100vw"
           alt={alt}
+          // Intrinsic ratio of the source frames (1350×1800) so the browser
+          // reserves the aspect box up front — no layout shift as it decodes.
+          width={1350}
+          height={1800}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
+          // Above-the-fold consumers (eager) also get high fetch priority so the
+          // backdrop isn't starved behind lazy assets.
+          {...(eager ? { fetchPriority: "high" as const } : {})}
           className={`absolute inset-0 w-full h-full object-cover saturate-[1.22] contrast-[1.1] brightness-[1.06] ${imgClassName}`}
         />
       </motion.div>

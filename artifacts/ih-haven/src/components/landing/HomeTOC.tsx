@@ -20,9 +20,8 @@ const ACTS: { id: string; label: { ar: string; en: string } }[] = [
  * HomeTOC — the homepage's chapter rail, rendered in the "Line Sidebar" style
  * (React Bits): each act shows a zero-padded numeral + a lit hairline marker,
  * and as the cursor nears an item its label slides in and colours toward gold
- * (a single rAF proximity lerp inside LineSidebar). The accent is the same gold
- * as the NarrativeThread (#DDBD7E) with a soft glow on the active act, so the
- * rail reads as a branch of that thread — one coherent gold system.
+ * (a single rAF proximity lerp inside LineSidebar). The accent is a calm gold
+ * (#DDBD7E) with a soft glow on the active act — one coherent gold system.
  *
  * It doubles as a scroll-spy + jump nav: a rAF-throttled scroll spy drives
  * the CONTROLLED activeIndex to the act you've scrolled into;
@@ -42,6 +41,11 @@ export function HomeTOC() {
   const reduce = useReducedMotion();
   const [activeIdx, setActiveIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  // True when a BRIGHT-photo section (data-rail-theme="light") is behind the rail,
+  // so we raise an adaptive dark panel — gold #DDBD7E measured only ~1.8:1 over
+  // those brightened frames at vertical-centre. Absent over dark sections, so the
+  // pristine floating hairline is unchanged there.
+  const [onLight, setOnLight] = useState(false);
   // Guard against the scroll-spy stomping the active item right after a click.
   const lockRef = useRef(0);
 
@@ -72,8 +76,25 @@ export function HomeTOC() {
     let raf = 0;
     const measure = () => {
       raf = 0;
-      if (Date.now() < lockRef.current) return;
       const mid = window.innerHeight * 0.5;
+
+      // Adaptive backdrop: is a bright-photo section straddling the rail's centre?
+      // (Re-queried each frame so lazily-mounted sections are picked up for free.)
+      let light = false;
+      const brights = document.querySelectorAll('[data-rail-theme="light"]');
+      for (let i = 0; i < brights.length; i++) {
+        const r = brights[i].getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) {
+          light = true;
+          break;
+        }
+      }
+      setOnLight((prev) => (prev === light ? prev : light));
+
+      // (Active-act highlight is briefly locked right after a click so the
+      //  scroll-spy doesn't fight the smooth-scroll — but the backdrop above
+      //  keeps updating regardless.)
+      if (Date.now() < lockRef.current) return;
       let current = 0;
       for (let i = 0; i < ACTS.length; i++) {
         const el = document.getElementById(ACTS[i].id);
@@ -125,8 +146,8 @@ export function HomeTOC() {
           : "opacity 500ms cubic-bezier(0.16,1,0.3,1), transform 500ms cubic-bezier(0.16,1,0.3,1)",
       }}
       className={`home-rail hidden xl:block fixed top-1/2 start-3 2xl:start-7 z-30 ${
-        revealed ? "pointer-events-auto" : "pointer-events-none"
-      }`}
+        onLight ? "home-rail--on-light" : ""
+      } ${revealed ? "pointer-events-auto" : "pointer-events-none"}`}
     >
       <LineSidebar
         // Remount on language change: a live AR⇄EN switch flips dir + relabels

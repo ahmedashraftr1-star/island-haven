@@ -139,7 +139,7 @@ export function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.label}
-                      className="w-10 h-10 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary hover:text-primary hover:border-primary/35 transition-colors"
+                      className="w-11 h-11 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary hover:text-primary hover:border-primary/35 transition-colors"
                     >
                       <Icon className="w-4 h-4" />
                     </a>
@@ -288,7 +288,7 @@ export function Footer() {
               onClick={scrollToTop}
               aria-label={t({ ar: "العودة إلى الأعلى", en: "Back to top" })}
               title={t({ ar: "العودة إلى الأعلى", en: "Back to top" })}
-              className="group inline-flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/35 hover:bg-primary/5 transition-all"
+              className="group inline-flex items-center justify-center w-11 h-11 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/35 hover:bg-primary/5 transition-all"
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform duration-300 motion-reduce:transition-none group-hover:-translate-y-0.5" />
             </button>
@@ -298,7 +298,7 @@ export function Footer() {
               href={`${import.meta.env.BASE_URL}admin`}
               aria-label={t({ ar: "لوحة الإدارة", en: "Admin panel" })}
               title={t({ ar: "لوحة الإدارة (Cmd/Ctrl + Shift + A)", en: "Admin panel (Cmd/Ctrl + Shift + A)" })}
-              className="group inline-flex items-center justify-center w-8 h-8 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
+              className="group inline-flex items-center justify-center w-11 h-11 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

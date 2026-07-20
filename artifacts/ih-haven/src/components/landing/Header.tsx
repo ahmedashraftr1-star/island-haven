@@ -26,6 +26,7 @@ import {
   Newspaper,
   Phone,
   LogIn,
+  ShieldCheck,
   type LucideProps,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -64,6 +65,7 @@ const ICONS: Record<string, ComponentType<LucideProps>> = {
   Heart,
   Newspaper,
   Phone,
+  ShieldCheck,
 };
 
 function isActive(loc: string, href?: string) {

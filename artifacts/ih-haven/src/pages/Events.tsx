@@ -134,7 +134,7 @@ export default function Events() {
             type="button"
             onClick={() => setFilter(f.key)}
             aria-pressed={filter === f.key ? "true" : "false"}
-            className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
+            className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors border ${
               filter === f.key
                 ? "bg-primary/20 text-foreground border-primary/40"
                 : "bg-surface-2 text-fg-secondary border-border-strong hover:text-foreground hover:bg-surface-2"
@@ -190,7 +190,7 @@ export default function Events() {
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}>{p}</button>
+                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}>{p}</button>
             )}
           <button type="button" onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }} disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}

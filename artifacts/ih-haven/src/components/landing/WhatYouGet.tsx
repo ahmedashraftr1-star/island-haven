@@ -81,6 +81,7 @@ export function WhatYouGet() {
       src={imageUrl("/photos/IMG_8314.webp")}
       scrim="medium"
       sideScrim={false}
+      data-rail-theme="light"
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "ما تحصل عليه", en: "What you get" })}
     >

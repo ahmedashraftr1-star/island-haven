@@ -101,6 +101,7 @@ export function ExpertsBand() {
       src={imageUrl("/photos/IMG_8313.webp")}
       scrim="medium"
       sideScrim={false}
+      data-rail-theme="light"
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
     >

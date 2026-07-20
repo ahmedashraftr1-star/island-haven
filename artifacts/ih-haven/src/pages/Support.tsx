@@ -12,9 +12,11 @@ export default function Support() {
   return (
     <div className="min-h-screen bg-background font-sans antialiased relative">
       <Header />
-      <main className="relative z-10 pt-16">
+      {/* Plain div, not <main> — the app shell (App.tsx) already provides the
+          single <main id="main-content"> landmark that this page renders inside. */}
+      <div className="relative z-10 pt-16">
         <Campaign />
-      </main>
+      </div>
       <Footer />
       <FloatingContact />
     </div>

@@ -207,6 +207,7 @@ export function GazaToGlobal() {
       src={imageUrl("/photos/IMG_8358.webp")}
       scrim="medium"
       sideScrim={false}
+      data-rail-theme="light"
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "من غزّة إلى العالم", en: "From Gaza to the world" })}
     >

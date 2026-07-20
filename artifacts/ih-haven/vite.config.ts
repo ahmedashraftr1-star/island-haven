@@ -47,6 +47,9 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Never ship source maps to the browser — they'd expose the original TS. This
+    // is Vite's default, but pinned explicitly so it can't regress into a leak.
+    sourcemap: false,
     rollupOptions: {
       output: {
         // Split rarely-changing vendor libs into their own long-cached chunks

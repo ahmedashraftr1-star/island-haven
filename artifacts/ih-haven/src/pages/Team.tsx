@@ -439,7 +439,7 @@ function TeamCard({ m, i }: { m: TeamMember; i: number }) {
                 <a
                   href={`mailto:${m.email}`}
                   aria-label={t({ ar: `راسل ${m.fullName}`, en: `Email ${m.fullName}` })}
-                  className="inline-flex items-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 t-caption text-fg-secondary hover:text-primary transition-colors max-sm:min-h-[44px] max-sm:min-w-[44px]"
                 >
                   <Mail className="w-3.5 h-3.5" />
                 </a>

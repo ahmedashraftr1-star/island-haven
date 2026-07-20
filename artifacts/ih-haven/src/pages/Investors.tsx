@@ -157,7 +157,7 @@ export default function Investors() {
             onClick={() => setInvestorView(false)}
             aria-pressed={!investorView ? "true" : "false"}
             data-testid="investor-view-dark"
-            className={`rounded-full px-3.5 py-1.5 transition-colors ${!investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
+            className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 rounded-full px-3.5 py-1.5 transition-colors ${!investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
           >
             {t({ ar: "داكن", en: "Dark" })}
           </button>
@@ -166,7 +166,7 @@ export default function Investors() {
             onClick={() => setInvestorView(true)}
             aria-pressed={investorView ? "true" : "false"}
             data-testid="investor-view-light"
-            className={`rounded-full px-3.5 py-1.5 transition-colors ${investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
+            className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 rounded-full px-3.5 py-1.5 transition-colors ${investorView ? "bg-primary/20 text-foreground" : "text-fg-secondary hover:text-foreground"}`}
           >
             {t({ ar: "عرض المستثمر", en: "Investor view" })}
           </button>

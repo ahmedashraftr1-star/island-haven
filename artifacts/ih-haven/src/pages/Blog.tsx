@@ -266,7 +266,7 @@ export default function Blog() {
                       aria-selected={isActive ? "true" : "false"}
                       data-testid={`blog-tab-${tab.key}`}
                       onClick={() => setActive(tab.key)}
-                      className={`rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors ${
+                      className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors ${
                         isActive
                           ? "border-primary/40 bg-primary/10 text-primary"
                           : "border-border-strong/70 text-fg-secondary hover:border-foreground/30 hover:text-foreground"

@@ -1104,6 +1104,41 @@ body::after {
   filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.6));
 }
 
+/* Adaptive backdrop — the static shadows above are a safety net; over the
+   genuinely bright frames (WhatYouGet / ExpertsBand / GazaToGlobal / NewsSlider /
+   SuccessStories, tagged data-rail-theme="light") gold still measured ~1.8:1, so
+   HomeTOC toggles `.home-rail--on-light` when one is behind the rail and a subtle
+   dark blurred panel fades in behind the items to guarantee AA. The panel is
+   ABSENT over dark sections, so the floating-hairline look there is unchanged. */
+.home-rail .line-sidebar__list {
+  position: relative;
+}
+.home-rail .line-sidebar__list::before {
+  content: "";
+  position: absolute;
+  inset: -0.75rem -1.25rem;
+  z-index: -1;
+  border-radius: 1rem;
+  background: rgba(6, 6, 10, 0);
+  opacity: 0;
+  transition: opacity 360ms ease, background 360ms ease, backdrop-filter 360ms ease;
+  pointer-events: none;
+}
+.home-rail--on-light .line-sidebar__list::before {
+  background: rgba(6, 6, 10, 0.55);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  opacity: 1;
+}
+/* Reduced-transparency: skip the blur, lean on a more solid fill for the same AA. */
+@media (prefers-reduced-transparency: reduce) {
+  .home-rail--on-light .line-sidebar__list::before {
+    background: rgba(6, 6, 10, 0.9);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 @media (max-width: 1535.98px) {
   .home-rail .line-sidebar__text { display: none; }
   .home-rail .line-sidebar__index { margin-inline: 0; }

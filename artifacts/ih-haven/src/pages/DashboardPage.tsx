@@ -251,14 +251,15 @@ export default function DashboardPage() {
           </Link>
         </aside>
 
-        {/* Main */}
-        <main className="min-w-0 flex-1 p-4 pb-24 sm:p-6 md:pb-6">
+        {/* Content pane — a div, not <main>: App.tsx already supplies the single
+            <main id="main-content"> landmark this dashboard renders inside. */}
+        <div className="min-w-0 flex-1 p-4 pb-24 sm:p-6 md:pb-6">
           {tab === "overview" && <Overview member={member} works={works} announcements={announcements} />}
           {tab === "portfolio" && <Portfolio works={works} />}
           {tab === "announcements" && <Announcements announcements={announcements} />}
           {tab === "schedule" && <Schedule />}
           {tab === "profile" && <ProfileData member={member} />}
-        </main>
+        </div>
       </div>
 
       {/* Mobile bottom tab bar */}

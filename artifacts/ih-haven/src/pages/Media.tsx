@@ -112,7 +112,7 @@ function CopyButton({
       type="button"
       onClick={onCopy}
       aria-live="polite"
-      className="inline-flex items-center gap-2 h-10 px-5 rounded-full border border-border-strong text-[13px] font-semibold text-fg-secondary hover:border-foreground/30 hover:text-foreground transition-colors"
+      className="inline-flex items-center gap-2 h-10 max-sm:h-11 px-5 rounded-full border border-border-strong text-[13px] font-semibold text-fg-secondary hover:border-foreground/30 hover:text-foreground transition-colors"
     >
       {copied ? (
         <Check className="w-4 h-4 text-sand-bright" />

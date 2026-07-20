@@ -241,7 +241,7 @@ export default function Jobs() {
                 type="button"
                 onClick={() => setActiveCategory(cat)}
                 aria-pressed={activeCategory === cat ? "true" : "false"}
-                className={`px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all ${
+                className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-2 text-muted-foreground hover:text-fg-secondary border border-border-strong"
