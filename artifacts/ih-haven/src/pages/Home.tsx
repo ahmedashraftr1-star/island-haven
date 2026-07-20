@@ -1,4 +1,5 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, Suspense } from "react";
+import { lazyWithRetry as lazy } from "@/lib/lazyWithRetry";
 // Above-the-fold: eager so the hero paints immediately.
 import { Header } from "@/components/landing/Header";
 import { ScrollProgress } from "@/components/landing/ScrollProgress";
@@ -7,7 +8,6 @@ import { NumbersBand } from "@/components/landing/NumbersBand";
 import { CredibilityBar } from "@/components/landing/CredibilityBar";
 import { FloatingContact } from "@/components/landing/FloatingContact";
 import { ActMarker } from "@/components/landing/ActMarker";
-import { NarrativeThread } from "@/components/landing/NarrativeThread";
 import { HomeTOC } from "@/components/landing/HomeTOC";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
@@ -75,12 +75,6 @@ export default function Home() {
       <Header />
       <HomeTOC />
       <div className="relative z-10">
-        {/* The narrative spine — a whisper-quiet gold thread that draws itself
-            down the page with scroll, stitching the 5 acts into one line. It's
-            absolutely positioned to span this whole column, sits at z-0 (below
-            the section content), is aria-hidden + pointer-events-none, and hides
-            below lg. Purely decorative. */}
-        <NarrativeThread />
         {/* Deliberate narrative in 5 acts (expert-panel IA). Act markers make the
             "chaptering" (التقسيم) legible; the order (الترتيب) front-loads the WORK,
             pairs each claim with a human voice, then climbs steadily to Apply:
