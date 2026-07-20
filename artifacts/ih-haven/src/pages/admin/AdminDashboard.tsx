@@ -21,6 +21,7 @@ import {
   Rocket,
   Lightbulb,
   Quote,
+  MousePointerClick,
   Handshake,
   UserSquare2,
   Layers,
@@ -36,6 +37,7 @@ import {
   ShieldCheck,
   Hash,
   ScrollText,
+  Trash2,
   Mail,
   Search,
   TrendingUp,
@@ -50,6 +52,7 @@ import AdminJobs from "./AdminJobs";
 import AdminInvestors from "./AdminInvestors";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminContent from "./AdminContent";
+import AdminCta from "./AdminCta";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
 import AdminTasks from "./AdminTasks";
@@ -79,6 +82,8 @@ import AdminTeamAccounts from "./AdminTeamAccounts";
 import AdminInbox from "./AdminInbox";
 import AdminTeamChannel from "./AdminTeamChannel";
 import AdminAudit from "./AdminAudit";
+import AdminTrash from "./AdminTrash";
+import { useConfirm } from "@/hooks/use-confirm";
 import AdminContact from "./AdminContact";
 import AdminBell from "./AdminBell";
 import AdminImpact from "./AdminImpact";
@@ -118,12 +123,14 @@ type Tab =
   | "daily"
   | "blog"
   | "content"
+  | "cta"
   | "analytics"
   | "push"
   | "inbox"
   | "channel"
   | "contact"
   | "audit"
+  | "trash"
   | "settings"
   | "staff";
 
@@ -162,12 +169,14 @@ const TAB_PERMISSION: Record<Tab, string> = {
   daily: "daily:view",
   blog: "blog:view",
   content: "content:view",
+  cta: "content:view",
   analytics: "analytics:view",
   push: "broadcast:send",
   inbox: "messages:send",
   channel: "messages:send",
   contact: "contact:view",
   audit: "audit:view",
+  trash: "audit:view",
   settings: "settings:view",
   staff: "staff:manage",
 };
@@ -206,6 +215,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "perks", label: "العروض والامتيازات", Icon: Gift, group: "incubation" },
   { id: "badges", label: "الشّارات", Icon: Award, group: "incubation" },
   { id: "content", label: "تحرير المحتوى", Icon: FileText, group: "content" },
+  { id: "cta", label: "أزرار الرئيسيّة", Icon: MousePointerClick, group: "content" },
   { id: "stories", label: "قصص النجاح", Icon: Quote, group: "content" },
   { id: "works", label: "الأعمال", Icon: Briefcase, group: "content" },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap, group: "content" },
@@ -222,11 +232,13 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "channel", label: "قناة الفريق", Icon: Hash, group: "comms" },
   { id: "analytics", label: "الإحصائيات", Icon: BarChart3, group: "system" },
   { id: "audit", label: "سجلّ التدقيق", Icon: ScrollText, group: "system" },
+  { id: "trash", label: "المحذوفات", Icon: Trash2, group: "system" },
   { id: "staff", label: "الفريق والصلاحيّات", Icon: ShieldCheck, group: "system" },
   { id: "settings", label: "الإعدادات", Icon: Settings, group: "system" },
 ];
 
 export default function AdminDashboard() {
+  const confirm = useConfirm();
   const [tab, setTab] = useState<Tab>("overview");
   const [settingsDirty, setSettingsDirty] = useState(false);
   const [openTaskId, setOpenTaskId] = useState<number | null>(null);
@@ -256,9 +268,15 @@ export default function AdminDashboard() {
     }
   }
 
-  function navigateTo(id: Tab): boolean {
+  async function navigateTo(id: Tab): Promise<boolean> {
     if (tab === "settings" && settingsDirty && id !== "settings") {
-      if (!window.confirm("لديك تغييرات غير محفوظة في الإعدادات. هل تريد المغادرة؟")) return false;
+      const ok = await confirm({
+        title: "تغييرات غير محفوظة",
+        message: "لديك تغييرات غير محفوظة في الإعدادات. هل تريد المغادرة دون حفظها؟",
+        confirmLabel: "المغادرة دون حفظ",
+        danger: true,
+      });
+      if (!ok) return false;
     }
     setTab(id);
     return true;
@@ -575,12 +593,14 @@ export default function AdminDashboard() {
           {tab === "daily" && <AdminDaily />}
           {tab === "blog" && <AdminBlog />}
           {tab === "content" && <AdminContent />}
+          {tab === "cta" && <AdminCta />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
           {tab === "inbox" && <AdminInbox />}
           {tab === "channel" && <AdminTeamChannel />}
           {tab === "contact" && <AdminContact />}
           {tab === "audit" && <AdminAudit />}
+          {tab === "trash" && <AdminTrash />}
           {tab === "staff" && <AdminTeamAccounts />}
           {tab === "settings" && <AdminSettings onDirtyChange={setSettingsDirty} />}
           </>
@@ -594,7 +614,7 @@ export default function AdminDashboard() {
         items={visibleTabs.map(
           (t): PaletteItem => ({ id: t.id, label: t.label, group: GROUP_LABELS[t.group], Icon: t.Icon }),
         )}
-        onSelect={(id) => navigateTo(id as Tab)}
+        onSelect={(id) => { void navigateTo(id as Tab); }}
       />
       {securityOpen && <AdminSecurity onClose={() => setSecurityOpen(false)} />}
     </div>

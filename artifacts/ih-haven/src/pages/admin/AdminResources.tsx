@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   RESOURCE_CATEGORY_LABELS,
   RESOURCE_VISIBILITY_LABELS,
@@ -39,6 +40,7 @@ const EMPTY: Omit<Row, "id"> = {
 };
 
 export default function AdminResources() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -55,7 +57,7 @@ export default function AdminResources() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا المورد؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا المورد؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/resources/${id}`, { method: "DELETE" });
     void reload();
   }

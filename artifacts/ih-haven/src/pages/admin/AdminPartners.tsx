@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { PARTNER_TIER_LABELS, type PartnerTier } from "@/lib/labels";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -27,6 +28,7 @@ const EMPTY: Row = {
 };
 
 export default function AdminPartners() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -43,7 +45,7 @@ export default function AdminPartners() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا الشريك؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا الشريك؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/partners/${id}`, { method: "DELETE" });
     void reload();
   }

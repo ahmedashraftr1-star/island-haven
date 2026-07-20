@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Users } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   COURSE_TYPE_LABELS,
   COURSE_STATUS_LABELS,
@@ -57,6 +58,7 @@ function toLocalInput(iso: string | null | undefined): string {
 }
 
 export default function AdminCourses() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -75,7 +77,7 @@ export default function AdminCourses() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("هل تريد حذف هذه الفعاليّة وكلّ تسجيلاتها؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "هل تريد حذف هذه الفعاليّة وكلّ تسجيلاتها؟", confirmLabel: "حذف", danger: true }))) return;
     try {
       await api(`/admin/courses/${id}`, { method: "DELETE" });
       void reload();

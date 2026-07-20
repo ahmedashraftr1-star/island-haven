@@ -17,6 +17,7 @@ import {
 import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useAuth } from "@/lib/auth";
 import {
   COURSE_TYPE_LABELS,
@@ -83,6 +84,7 @@ interface DetailResp {
 
 export default function CourseDetail() {
   const { lang, t } = useLanguage();
+  const confirm = useConfirm();
   const [, params] = useRoute("/courses/:id");
   const [, navigate] = useLocation();
   const id = params?.id;
@@ -150,15 +152,14 @@ export default function CourseDetail() {
 
   async function onCancel() {
     if (busy) return;
-    if (
-      !window.confirm(
-        t({
-          ar: "هل تريد إلغاء تسجيلك؟",
-          en: "Cancel your enrollment?",
-        }),
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: t({ ar: "إلغاء التسجيل", en: "Cancel enrollment" }),
+      message: t({ ar: "هل تريد إلغاء تسجيلك؟", en: "Cancel your enrollment?" }),
+      confirmLabel: t({ ar: "إلغاء التسجيل", en: "Cancel enrollment" }),
+      cancelLabel: t({ ar: "تراجع", en: "Back" }),
+      danger: true,
+    });
+    if (!ok) return;
     setBusy(true);
     try {
       await api(`/courses/${id}/enroll`, { method: "DELETE" });

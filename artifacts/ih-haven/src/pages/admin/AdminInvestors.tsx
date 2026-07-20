@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { Modal, Field, SaveBar } from "./adminShared";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -37,6 +38,7 @@ const EMPTY: Row = {
 };
 
 export default function AdminInvestors() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -79,7 +81,7 @@ export default function AdminInvestors() {
   }
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا المستثمر؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا المستثمر؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/investors/${id}`, { method: "DELETE" });
     void reload();
   }

@@ -1,7 +1,8 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, useReducedMotion, MotionConfig } from "framer-motion";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, Suspense } from "react";
+import { lazyWithRetry as lazy } from "@/lib/lazyWithRetry";
 import { usePageView } from "@/hooks/use-tracking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CustomCursor } from "@/components/landing/CustomCursor";
@@ -10,6 +11,7 @@ import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { RootErrorFallback } from "@/components/RootErrorFallback";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ConfirmProvider } from "@/hooks/use-confirm";
 import { AuthProvider } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 // Home is the landing/LCP page — keep it eager. Everything else is route-level
@@ -60,6 +62,7 @@ const Perks = lazy(() => import("@/pages/Perks"));
 const PerkDetail = lazy(() => import("@/pages/PerkDetail"));
 const NotificationSettings = lazy(() => import("@/pages/NotificationSettings"));
 const Numbers = lazy(() => import("@/pages/Numbers"));
+const Verify = lazy(() => import("@/pages/Verify"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
 const About = lazy(() => import("@/pages/About"));
 const Team = lazy(() => import("@/pages/Team"));
@@ -175,6 +178,13 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/perks": { title: { ar: "العروض والامتيازات", en: "Perks" } },
   "/settings": { title: { ar: "إعدادات الإشعارات", en: "Notification settings" } },
   "/numbers": { title: { ar: "مُجتمعنا بالأرقام", en: "Our community in numbers" } },
+  "/verify": {
+    title: { ar: "الشرف القابل للتحقّق", en: "Verifiable Honesty" },
+    description: {
+      ar: "كلّ رقمٍ نعرضه موقّعٌ تشفيريًّا ويتحقّق منه متصفّحك بنفسه. لا تثق بنا — تحقّق منّا.",
+      en: "Every number we show is cryptographically signed and verified by your own browser. Don't trust us — verify us.",
+    },
+  },
   "/stories": { title: { ar: "قصص النجاح", en: "Success stories" } },
   "/faq": { title: { ar: "الأسئلة الشائعة", en: "FAQ" } },
   "/process": { title: { ar: "عمليّة القبول", en: "Admissions process" } },
@@ -207,6 +217,22 @@ function setMetaDescription(content: string | undefined) {
   if (el && content) el.setAttribute("content", content);
 }
 
+// Same origin the sitemap/JSON-LD use. Kept here so every route can point its
+// canonical + og:url at its own URL instead of all of them canonicalizing to
+// the home page (this is a single-URL SPA, so the shell's static tags are root).
+const SITE_ORIGIN = "https://island-haven.replit.app";
+
+function setCanonicalUrl(path: string) {
+  const clean = path === "" || path === "/" ? "/" : path.replace(/\/+$/, "");
+  const url = `${SITE_ORIGIN}${clean}`;
+  document
+    .querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    ?.setAttribute("href", url);
+  document
+    .querySelector<HTMLMetaElement>('meta[property="og:url"]')
+    ?.setAttribute("content", url);
+}
+
 function RouteEffects() {
   const [loc] = useLocation();
   const { lang } = useLanguage();
@@ -222,6 +248,9 @@ function RouteEffects() {
     } else {
       document.title = SITE_NAME[lang];
     }
+    // Point canonical + og:url at THIS route (detail pages with their own
+    // usePageMeta run after and may refine it further).
+    setCanonicalUrl(loc);
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [loc, lang]);
   return null;
@@ -272,6 +301,7 @@ function Router() {
       <Route path="/perks/:id" component={PerkDetail} />
       <Route path="/settings/notifications" component={NotificationSettings} />
       <Route path="/numbers" component={Numbers} />
+      <Route path="/verify" component={Verify} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/about" component={About} />
       <Route path="/team" component={Team} />
@@ -355,6 +385,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
+          <ConfirmProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <RouteEffects />
             <main id="main-content" tabIndex={-1}>
@@ -368,6 +399,7 @@ function App() {
             <CustomCursor />
             <CommandPalette />
           </WouterRouter>
+          </ConfirmProvider>
           <Toaster />
         </TooltipProvider>
       </AuthProvider>

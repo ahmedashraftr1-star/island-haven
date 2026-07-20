@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Trash2, Eye, EyeOff, Star, ExternalLink } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 type WorkStatus = "visible" | "hidden" | "featured";
 
@@ -38,6 +39,7 @@ const STATUS_PILL: Record<WorkStatus, string> = {
 };
 
 export default function AdminWorks() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -76,7 +78,7 @@ export default function AdminWorks() {
   }
 
   async function onDelete(id: number, title: string) {
-    if (!window.confirm(`حذف العمل «${title}» نهائيًّا؟`)) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: `حذف العمل «${title}» نهائيًّا؟`, confirmLabel: "حذف", danger: true }))) return;
     try {
       await api(`/admin/works/${id}`, { method: "DELETE" });
       void reload();

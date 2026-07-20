@@ -6,6 +6,7 @@ import {
   formatArabicDateTime,
   type DailyType,
 } from "@/lib/labels";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Post {
   id: number;
@@ -41,6 +42,7 @@ function toLocalInput(iso: string | null | undefined): string {
 }
 
 export default function AdminDaily() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Post[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Post | "new" | null>(null);
@@ -59,7 +61,13 @@ export default function AdminDaily() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا المنشور؟")) return;
+    const ok = await confirm({
+      title: "نقل إلى المحذوفات",
+      message: "سيُنقل هذا المنشور إلى المحذوفات، ويمكنك استعادته لاحقًا من صفحة «المحذوفات».",
+      confirmLabel: "نقل إلى المحذوفات",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api(`/admin/daily/${id}`, { method: "DELETE" });
       void reload();

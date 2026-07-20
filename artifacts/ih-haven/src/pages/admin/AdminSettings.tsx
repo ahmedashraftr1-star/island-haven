@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { AlertTriangle, Database, Mail, X } from "lucide-react";
 
 interface Setting {
@@ -13,6 +14,7 @@ interface AdminSettingsProps {
 }
 
 export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
+  const confirm = useConfirm();
   const [items, setItems] = useState<Setting[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -133,7 +135,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
       setError("أدخل عدد أيّام صحيحًا");
       return;
     }
-    if (!window.confirm(`حذف كل سجلّات الزيارات الأقدم من ${n} يومًا؟ لا يمكن التراجع.`)) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: `حذف كل سجلّات الزيارات الأقدم من ${n} يومًا؟ لا يمكن التراجع.`, confirmLabel: "حذف", danger: true }))) return;
     try {
       const r = await api<{ deleted: number }>("/admin/analytics/page-views", {
         method: "DELETE",

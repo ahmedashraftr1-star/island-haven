@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { Inbox, Search, Mail, Check, Archive, Trash2, CornerUpLeft } from "lucide-react";
 import { api } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 // Admin inbox for public contact-form submissions — triage (new → read →
 // handled/archived), search, reply by email. Gated by contact:view/manage.
@@ -50,6 +51,7 @@ function fmt(iso: string): string {
 }
 
 export default function AdminContact() {
+  const confirm = useConfirm();
   const qc = useQueryClient();
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
@@ -178,7 +180,7 @@ export default function AdminContact() {
                     <Archive className="w-3.5 h-3.5" /> أرشفة
                   </button>
                 )}
-                <button type="button" onClick={() => { if (window.confirm("حذف هذه الرسالة نهائيًّا؟")) deleteMut.mutate(m.id); }} className="inline-flex items-center gap-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[12px] font-semibold h-8 px-3 transition-colors ms-auto">
+                <button type="button" onClick={async () => { if (await confirm({ title: "تأكيد الحذف", message: "حذف هذه الرسالة نهائيًّا؟", confirmLabel: "حذف", danger: true })) deleteMut.mutate(m.id); }} className="inline-flex items-center gap-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[12px] font-semibold h-8 px-3 transition-colors ms-auto">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>

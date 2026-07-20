@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send, Hash, SmilePlus, Pencil, Trash2, Check, X } from "lucide-react";
 import { api } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { RichText } from "./richText";
 
 // A single shared staff channel — owner ↔ staff ↔ staff. Grouped by author,
@@ -28,6 +29,7 @@ function initials(name: string): string {
 }
 
 export default function AdminTeamChannel() {
+  const confirm = useConfirm();
   const qc = useQueryClient();
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState<{ id: number; body: string } | null>(null);
@@ -149,7 +151,7 @@ export default function AdminTeamChannel() {
                     <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover/msg:opacity-100 focus-within:opacity-100 transition-opacity">
                       <button type="button" onClick={() => setPickerFor((p) => (p === m.id ? null : m.id))} aria-label="تفاعل" className="grid place-items-center w-7 h-7 rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06]"><SmilePlus className="w-3.5 h-3.5" /></button>
                       {mine && <button type="button" onClick={() => setEditing({ id: m.id, body: m.body })} aria-label="تعديل" className="grid place-items-center w-7 h-7 rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06]"><Pencil className="w-3.5 h-3.5" /></button>}
-                      {mine && <button type="button" onClick={() => { if (window.confirm("حذف الرسالة؟")) delMut.mutate(m.id); }} aria-label="حذف" className="grid place-items-center w-7 h-7 rounded-lg text-foreground/40 hover:text-rose-400 hover:bg-rose-500/10"><Trash2 className="w-3.5 h-3.5" /></button>}
+                      {mine && <button type="button" onClick={async () => { if (await confirm({ title: "تأكيد الحذف", message: "حذف الرسالة؟", confirmLabel: "حذف", danger: true })) delMut.mutate(m.id); }} aria-label="حذف" className="grid place-items-center w-7 h-7 rounded-lg text-foreground/40 hover:text-rose-400 hover:bg-rose-500/10"><Trash2 className="w-3.5 h-3.5" /></button>}
                     </div>
                   )}
                 </div>

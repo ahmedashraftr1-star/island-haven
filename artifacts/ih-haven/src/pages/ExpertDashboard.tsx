@@ -14,6 +14,7 @@ import {
 import { PageShell, GlassCard, EmptyState } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useAuth } from "@/lib/auth";
 import {
   formatArabicDateTime,
@@ -672,6 +673,7 @@ const inputCls =
 
 function OfficeHoursPanel() {
   const { lang, t } = useLanguage();
+  const confirm = useConfirm();
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
@@ -745,8 +747,14 @@ function OfficeHoursPanel() {
   }
 
   async function remove(id: number) {
-    if (!window.confirm(t({ ar: "حذف هذا الموعد؟", en: "Delete this slot?" })))
-      return;
+    const ok = await confirm({
+      title: t({ ar: "تأكيد الحذف", en: "Confirm deletion" }),
+      message: t({ ar: "حذف هذا الموعد؟", en: "Delete this slot?" }),
+      confirmLabel: t({ ar: "حذف", en: "Delete" }),
+      cancelLabel: t({ ar: "إلغاء", en: "Cancel" }),
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api(`/experts/me/slots/${id}`, { method: "DELETE" });
       await load();

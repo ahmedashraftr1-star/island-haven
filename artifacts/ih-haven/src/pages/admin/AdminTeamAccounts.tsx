@@ -3,6 +3,7 @@ import { useDialogA11y } from "./adminShared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserPlus, Shield, Trash2, KeyRound, Power, X, Check } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   ADMIN_SECTIONS,
   ADMIN_ROLES,
@@ -111,6 +112,7 @@ interface EditorState {
 }
 
 export default function AdminTeamAccounts() {
+  const confirm = useConfirm();
   const qc = useQueryClient();
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -229,7 +231,7 @@ export default function AdminTeamAccounts() {
                 <button type="button" title="تفعيل/تعطيل" onClick={() => toggleStatusMut.mutate(a)} className="grid place-items-center w-9 h-9 rounded-lg bg-foreground/[0.05] hover:bg-foreground/10 text-foreground/70 transition-colors">
                   <Power className="w-4 h-4" />
                 </button>
-                <button type="button" title="حذف" onClick={() => { if (window.confirm(`حذف حساب ${a.email}?`)) deleteMut.mutate(a.id); }} className="grid place-items-center w-9 h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors">
+                <button type="button" title="حذف" onClick={async () => { if (await confirm({ title: "تأكيد الحذف", message: `حذف حساب ${a.email}؟`, confirmLabel: "حذف", danger: true })) deleteMut.mutate(a.id); }} className="grid place-items-center w-9 h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

@@ -25,6 +25,7 @@ import { PageShell, GlassCard, BackLink } from "@/components/shell/PageShell";
 import { DetailError } from "@/components/shell/DetailError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { ROLE_LABELS, useAuth, type ExtraLink, type UserRole } from "@/lib/auth";
 import { splitTags, formatArabicDate } from "@/lib/labels";
 
@@ -110,6 +111,7 @@ export default function WorkDetail() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const confirm = useConfirm();
   const id = params?.id;
   const [data, setData] = useState<DetailResp | null>(null);
   // `error` stays the inline action message (e.g. delete); `errStatus` is the
@@ -384,15 +386,14 @@ export default function WorkDetail() {
 
   async function onDelete() {
     if (!id) return;
-    if (
-      !window.confirm(
-        t({
-          ar: "هل تريد حذف هذا العمل نهائيًا؟",
-          en: "Permanently delete this work?",
-        }),
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: t({ ar: "تأكيد الحذف", en: "Confirm deletion" }),
+      message: t({ ar: "هل تريد حذف هذا العمل نهائيًا؟", en: "Permanently delete this work?" }),
+      confirmLabel: t({ ar: "حذف", en: "Delete" }),
+      cancelLabel: t({ ar: "إلغاء", en: "Cancel" }),
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api(`/works/${id}`, { method: "DELETE" });
       navigate("/works");

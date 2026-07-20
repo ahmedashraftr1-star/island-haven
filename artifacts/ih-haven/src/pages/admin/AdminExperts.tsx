@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Pencil, Trash2, X, Star, CalendarCheck, Upload, ImageIcon, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
 import { api, ApiError, errorText } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Row {
   id: number;
@@ -39,6 +40,7 @@ function isNeverLoggedIn(r: Row): boolean {
 type Tab = "active" | "pending" | "hidden";
 
 export default function AdminExperts() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -61,7 +63,7 @@ export default function AdminExperts() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("إزالة هذا الخبير؟ سيُحوَّل حسابه إلى عضو عاديّ.")) return;
+    if (!(await confirm({ title: "تأكيد الإزالة", message: "إزالة هذا الخبير؟ سيُحوَّل حسابه إلى عضو عاديّ.", confirmLabel: "إزالة", danger: true }))) return;
     try {
       await api(`/admin/experts/${id}`, { method: "DELETE" });
       void reload();

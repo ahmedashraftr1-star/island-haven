@@ -15,6 +15,7 @@ import {
   LayoutGrid, List, Activity, Filter, Calendar, Tag, AtSign, ListChecks, User,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { RichText } from "./richText";
 
 type TaskStatus = "backlog" | "todo" | "in_progress" | "review" | "done" | "cancelled";
@@ -341,6 +342,7 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
   task: Task; teamMembers: TeamMember[];
   onClose: () => void; onUpdated: (t: Task) => void; onDeleted: (id: number) => void;
 }) {
+  const confirm = useConfirm();
   const panelRef = useDialogA11y(onClose);
   const titleId = useId();
   const [comments, setComments] = useState<Comment[]>([]);
@@ -394,7 +396,7 @@ function TaskDetailPanel({ task, teamMembers, onClose, onUpdated, onDeleted }: {
             <h3 id={titleId} className="text-[16px] font-bold text-foreground leading-snug">{task.title}</h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button type="button" onClick={() => { if (window.confirm("حذف هذه المهمة نهائيًا؟")) onDeleted(task.id); }} aria-label="حذف" className="p-2 rounded-lg text-foreground/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
+            <button type="button" onClick={async () => { if (await confirm({ title: "تأكيد الحذف", message: "حذف هذه المهمة نهائيًا؟", confirmLabel: "حذف", danger: true })) onDeleted(task.id); }} aria-label="حذف" className="p-2 rounded-lg text-foreground/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
             <button type="button" onClick={onClose} aria-label="إغلاق" className="p-2 rounded-lg text-foreground/50 hover:text-foreground hover:bg-muted transition-colors"><X className="w-4 h-4" /></button>
           </div>
         </div>

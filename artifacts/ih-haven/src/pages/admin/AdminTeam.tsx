@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { TEAM_ROLE_GROUP_LABELS, type TeamRoleGroup } from "@/lib/labels";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -35,6 +36,7 @@ const EMPTY: Row = {
 };
 
 export default function AdminTeam() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -51,7 +53,7 @@ export default function AdminTeam() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا العضو من الفريق؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا العضو من الفريق؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/team/${id}`, { method: "DELETE" });
     void reload();
   }

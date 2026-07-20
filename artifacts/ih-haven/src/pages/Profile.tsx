@@ -34,6 +34,7 @@ import { HavenMark } from "@/components/landing/HavenMark";
 import { useAuth, ROLE_LABELS } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
 import { api, ApiError, errorText } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import type { AuthUser } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import {
@@ -1771,6 +1772,7 @@ interface MySession {
 
 function MyMentorshipSessions() {
   const { lang, t } = useLanguage();
+  const confirm = useConfirm();
   const [rows, setRows] = useState<MySession[] | null>(null);
 
   useEffect(() => {
@@ -1790,7 +1792,14 @@ function MyMentorshipSessions() {
   };
 
   async function cancel(id: number) {
-    if (!window.confirm(t({ ar: "إلغاء طلب الجلسة؟", en: "Cancel this session request?" }))) return;
+    const ok = await confirm({
+      title: t({ ar: "إلغاء الطلب", en: "Cancel request" }),
+      message: t({ ar: "إلغاء طلب الجلسة؟", en: "Cancel this session request?" }),
+      confirmLabel: t({ ar: "إلغاء الطلب", en: "Cancel request" }),
+      cancelLabel: t({ ar: "تراجع", en: "Back" }),
+      danger: true,
+    });
+    if (!ok) return;
     await api(`/me/sessions/${id}`, { method: "DELETE" });
     setRows((rs) =>
       rs

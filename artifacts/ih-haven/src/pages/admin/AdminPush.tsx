@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Megaphone, Send, Smartphone, Bell, Mail, Users, Check } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 // Broadcast composer — send a site-wide announcement across up to three channels
 // (in-app · mobile push · email) to everyone or a single audience. In-app rows
@@ -35,6 +36,7 @@ interface SendResult {
 }
 
 export default function AdminPush() {
+  const confirm = useConfirm();
   const [form, setForm] = useState({ title: "", body: "", url: "" });
   const [audience, setAudience] = useState<Audience>("all");
   const [channels, setChannels] = useState({ inApp: true, push: false, email: false });
@@ -61,12 +63,12 @@ export default function AdminPush() {
       channels.push && "إشعار جوّال",
       channels.email && "بريد إلكترونيّ",
     ].filter(Boolean).join("، ");
-    if (
-      !window.confirm(
-        `إرسال هذا الإعلان إلى ${audienceCount} عضو (${AUDIENCE_LABELS[audience]}) عبر: ${chans}؟`,
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: "تأكيد الإرسال",
+      message: `إرسال هذا الإعلان إلى ${audienceCount} عضو (${AUDIENCE_LABELS[audience]}) عبر: ${chans}؟`,
+      confirmLabel: "إرسال",
+    });
+    if (!ok) return;
     setSending(true);
     setError(null);
     setResult(null);

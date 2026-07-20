@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   VENTURE_MILESTONE_TYPE_LABELS,
   type VentureMilestoneType,
@@ -36,6 +37,7 @@ function isoToLocal(iso: string): string {
 }
 
 export default function AdminMilestones() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [ventures, setVentures] = useState<VentureLite[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function AdminMilestones() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه المحطّة؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذه المحطّة؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/milestones/${id}`, { method: "DELETE" });
     void reload();
   }

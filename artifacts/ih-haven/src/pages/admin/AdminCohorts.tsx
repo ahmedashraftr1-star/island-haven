@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { COHORT_STATUS_LABELS, type CohortStatus } from "@/lib/labels";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -59,6 +60,7 @@ const EMPTY: Omit<Row, "id" | "programTitle" | "ventureCount"> = {
 };
 
 export default function AdminCohorts() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export default function AdminCohorts() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه الدّفعة؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذه الدّفعة؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/cohorts/${id}`, { method: "DELETE" });
     void reload();
   }
@@ -437,6 +439,7 @@ function CohortVenturesManager({
   cohort: Row;
   onClose: () => void;
 }) {
+  const confirm = useConfirm();
   const [memberships, setMemberships] = useState<
     Array<{ membership: Membership; venture: Venture }>
   >([]);
@@ -475,7 +478,7 @@ function CohortVenturesManager({
   }
 
   async function onRemove(ventureId: number) {
-    if (!window.confirm("إزالة هذا المشروع من الدّفعة؟")) return;
+    if (!(await confirm({ title: "تأكيد الإزالة", message: "إزالة هذا المشروع من الدّفعة؟", confirmLabel: "إزالة", danger: true }))) return;
     await api(`/admin/cohorts/${cohort.id}/ventures/${ventureId}`, {
       method: "DELETE",
     });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface CohortLite {
   id: number;
@@ -29,6 +30,7 @@ interface Rsvp {
 }
 
 export default function AdminCohortJourney() {
+  const confirm = useConfirm();
   const [cohorts, setCohorts] = useState<CohortLite[]>([]);
   const [cohortId, setCohortId] = useState<number | null>(null);
   const [weeks, setWeeks] = useState<Week[]>([]);
@@ -116,12 +118,12 @@ export default function AdminCohortJourney() {
   }
 
   async function delWeek(id: number) {
-    if (!window.confirm("حذف هذا الأسبوع؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا الأسبوع؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/cohort-weeks/${id}`, { method: "DELETE" });
     if (cohortId) void loadJourney(cohortId);
   }
   async function delUpdate(id: number) {
-    if (!window.confirm("حذف هذا التحديث؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا التحديث؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/cohort-updates/${id}`, { method: "DELETE" });
     if (cohortId) void loadJourney(cohortId);
   }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { SLOT_STATUS_LABELS, type SlotStatus } from "@/lib/labels";
 import { Modal, Field, SaveBar } from "./adminShared";
 
@@ -53,6 +54,7 @@ function toLocalDatetime(iso: string): string {
 }
 
 export default function AdminSlots() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [experts, setExperts] = useState<ExpertOption[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +75,7 @@ export default function AdminSlots() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا الموعد؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا الموعد؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/slots/${id}`, { method: "DELETE" });
     void reload();
   }

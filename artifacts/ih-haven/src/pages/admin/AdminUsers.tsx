@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Pencil, Trash2, X, ShieldOff, ShieldCheck } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 type UserRole = "freelancer" | "graduate" | "student" | "other";
 type Status = "active" | "banned";
@@ -35,6 +36,7 @@ const STATUS_LABEL: Record<Status, string> = {
 };
 
 export default function AdminUsers() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -64,7 +66,7 @@ export default function AdminUsers() {
   }, [role, status]);
 
   async function onDelete(id: number, name: string) {
-    if (!window.confirm(`حذف المستخدم «${name}» نهائيًّا؟ هذا يحذف أعماله وتسجيلاته أيضًا.`)) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: `حذف المستخدم «${name}» نهائيًّا؟ هذا يحذف أعماله وتسجيلاته أيضًا.`, confirmLabel: "حذف", danger: true }))) return;
     try {
       await api(`/admin/users/${id}`, { method: "DELETE" });
       void reload();

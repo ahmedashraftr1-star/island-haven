@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   PERK_CATEGORY_LABELS,
   type PerkCategory,
@@ -44,6 +45,7 @@ const STATUS_LABELS: Record<Status, string> = {
 };
 
 export default function AdminPerks() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -60,7 +62,7 @@ export default function AdminPerks() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا العرض؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا العرض؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/perks/${id}`, { method: "DELETE" });
     void reload();
   }

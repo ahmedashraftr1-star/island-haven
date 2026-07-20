@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { Modal, Field, SaveBar } from "./adminShared";
 
 const JOB_TYPE_LABELS: Record<string, string> = {
@@ -68,6 +69,7 @@ const EMPTY: Row = {
 };
 
 export default function AdminJobs() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -110,7 +112,7 @@ export default function AdminJobs() {
   }
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه الوظيفة؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذه الوظيفة؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/jobs/${id}`, { method: "DELETE" });
     void reload();
   }

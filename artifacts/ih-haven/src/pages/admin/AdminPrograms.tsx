@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Users, Inbox } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { Modal, Field, SaveBar } from "./adminShared";
 import {
   formatArabicDate,
@@ -60,6 +61,7 @@ function toLocalInput(iso: string | null | undefined): string {
 }
 
 export default function AdminPrograms() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -77,7 +79,7 @@ export default function AdminPrograms() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا البرنامج وكلّ طلباته؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا البرنامج وكلّ طلباته؟", confirmLabel: "حذف", danger: true }))) return;
     try {
       await api(`/admin/programs/${id}`, { method: "DELETE" });
       void reload();

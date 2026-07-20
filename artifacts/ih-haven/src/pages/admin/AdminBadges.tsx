@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Pencil, Trash2, Award, X, Search } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import { Modal, Field, SaveBar } from "./adminShared";
 
 interface Badge {
@@ -42,6 +43,7 @@ const COLORS: { value: string; swatch: string }[] = [
 ];
 
 export default function AdminBadges() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Badge[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Badge | "new" | null>(null);
@@ -58,7 +60,7 @@ export default function AdminBadges() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه الشّارة؟ سيُلغى منحها من كلّ المنتسبين.")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذه الشّارة؟ سيُلغى منحها من كلّ المنتسبين.", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/badges/${id}`, { method: "DELETE" });
     void reload();
   }

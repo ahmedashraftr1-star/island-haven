@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 import {
   OPPORTUNITY_TYPE_LABELS,
   OPPORTUNITY_LOCATION_LABELS,
@@ -54,6 +55,7 @@ const STATUS_LABELS: Record<Status, string> = {
 };
 
 export default function AdminOpportunities() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -73,7 +75,7 @@ export default function AdminOpportunities() {
   }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذه الفرصة؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذه الفرصة؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/opportunities/${id}`, { method: "DELETE" });
     void reload();
   }

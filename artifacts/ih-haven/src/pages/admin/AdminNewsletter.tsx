@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Trash2, Download } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Row {
   id: number;
@@ -19,6 +20,7 @@ function fmt(d: string) {
 }
 
 export default function AdminNewsletter() {
+  const confirm = useConfirm();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +35,7 @@ export default function AdminNewsletter() {
   useEffect(() => { void reload(); }, []);
 
   async function onDelete(id: number) {
-    if (!window.confirm("حذف هذا المشترك؟")) return;
+    if (!(await confirm({ title: "تأكيد الحذف", message: "حذف هذا المشترك؟", confirmLabel: "حذف", danger: true }))) return;
     await api(`/admin/newsletter/${id}`, { method: "DELETE" });
     void reload();
   }
