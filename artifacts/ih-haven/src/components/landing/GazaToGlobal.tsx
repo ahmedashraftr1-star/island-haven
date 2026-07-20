@@ -259,7 +259,7 @@ export function GazaToGlobal() {
                     <div
                       key={i}
                       data-testid={`reach-stat-${i}`}
-                      className="grid grid-cols-[5.25rem_1fr] items-baseline gap-x-4 sm:gap-x-6 border-b border-white/10 py-5 sm:py-6"
+                      className="grid grid-cols-[5.25rem_1fr] items-baseline gap-x-4 sm:gap-x-6 border-b border-white/10 py-3.5 sm:py-4"
                     >
                       {/* Figure — Western numerals always; dir=ltr so RTL never flips
                           digit/glyph order, right-aligned into a fixed-width column so
@@ -290,7 +290,7 @@ export function GazaToGlobal() {
         </Reveal>
 
         {/* ── Closing line + CTA — confident, plain, inviting ── */}
-        <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <Reveal className="mt-[clamp(1.75rem,3.5vw,2.75rem)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
             className="font-display text-white max-w-2xl"
             style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 700 }}

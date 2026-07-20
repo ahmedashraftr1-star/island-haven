@@ -256,11 +256,14 @@
   /* Tightened from clamp(4.5rem,8vw,8rem): up to 128px/side across 13 stacked
      sections produced ~3000px of pure air. This denser rhythm reads as
      confident (Linear/Stripe), not padded-out. */
-  --section-py: clamp(3.5rem, 5.5vw, 6.5rem);  /* Apple-calm rhythm — generous, consistent breathing between chapters (~56→104px) */
-  --section-py-compact: clamp(3rem, 4.5vw, 4.5rem);  /* utility bands */
+  /* Re-rhythm 2026-07-20: tightened again (owner: 16→~10 screens). A confident,
+     dense editorial cadence (Stripe/Linear/Vercel) — content untouched, only the
+     air between and inside chapters compressed. ~40→72px/side. */
+  --section-py: clamp(2.5rem, 4vw, 4.5rem);         /* main chapter rhythm */
+  --section-py-compact: clamp(1.75rem, 2.8vw, 3rem);/* utility bands */
   --container-max: 1280px;                          /* tightened from 1500 */
   --container-px: clamp(1.5rem, 5vw, 3rem);
-  --header-gap: clamp(2rem, 4vw, 3.5rem);           /* header → grid */
+  --header-gap: clamp(1.5rem, 3vw, 2.5rem);         /* header → grid */
 
   /* Card / chip geometry. */
   --card-radius: 1.5rem;             /* 24px */
@@ -793,6 +796,15 @@
 /* ── LAYOUT helpers — drive section rhythm from one place. ── */
 @utility section-y { padding-block: var(--section-py); }
 @utility section-y-compact { padding-block: var(--section-py-compact); }
+
+/* Horizontal carousel strip: scroll, but no visible scrollbar (prev/next + swipe
+   are the affordances). Content stays clipped to the row so the page never
+   scrolls sideways. */
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
 @utility container-ih {
   max-width: var(--container-max);
   margin-inline: auto;

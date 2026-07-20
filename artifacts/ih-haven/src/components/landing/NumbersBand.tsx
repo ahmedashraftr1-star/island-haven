@@ -105,7 +105,7 @@ export function NumbersBand() {
           the type is legible, and the vivid photograph fills the rest of the section
           instead of being hidden behind black. */}
       <div className="relative">
-        <Reveal className="container-ih relative py-[clamp(2.5rem,6vh,4.5rem)]">
+        <Reveal className="container-ih relative py-[clamp(1.75rem,4vh,3rem)]">
           <div className="plinth inline-block max-w-[40rem] rounded-2xl p-[clamp(1.5rem,3.2vw,2.5rem)]">
           <div className="mb-5 flex items-center gap-2.5">
             <span className="relative flex h-2 w-2">

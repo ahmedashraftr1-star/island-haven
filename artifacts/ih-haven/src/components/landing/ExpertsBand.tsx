@@ -167,7 +167,7 @@ export function ExpertsBand() {
              consistent heights + gaps. ── */}
         {isEmpty ? (
           <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
-            <div className="glass-panel flex flex-col items-start gap-6 p-8 sm:p-10">
+            <div className="glass-panel flex flex-col items-start gap-5 p-6 sm:p-8">
               <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/80">
                 {t({
                   ar: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
@@ -195,7 +195,7 @@ export function ExpertsBand() {
           </Reveal>
         ) : (
           <>
-            <div className="mt-[clamp(3rem,7vh,5rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+            <div className="mt-[clamp(1.75rem,3.5vh,2.75rem)] grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
               {experts.map((e, i) => {
                 if (!e) {
                   return (

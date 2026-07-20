@@ -191,7 +191,7 @@ export function SuccessStories() {
       >
         <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
         <div className="container-ih section-y relative">
-          <figure className="relative max-w-4xl glass-panel-lg p-[clamp(1.75rem,4.5vw,4rem)]">
+          <figure className="relative max-w-4xl glass-panel-lg p-[clamp(1.5rem,3vw,2.5rem)]">
             {quoteMark}
 
             <div className="relative">
@@ -218,7 +218,7 @@ export function SuccessStories() {
                 </span>
               </Reveal>
 
-              <Reveal as="p" delay={0.12} className="mt-9 sm:mt-12 max-w-2xl text-white/70">
+              <Reveal as="p" delay={0.12} className="mt-6 sm:mt-8 max-w-2xl text-white/70">
                 <span style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.4rem)", lineHeight: 1.6 }}>
                   {t({
                     ar: "في غزّة كفاءاتٌ تستحقّ مقعدًا في الاقتصاد الرقميّ العالميّ — ومهمّتنا أن نوصلها إليه. أوّل من يقدّم اليوم، يكتب أوّل القصص.",
@@ -230,7 +230,7 @@ export function SuccessStories() {
               <Reveal
                 as="div"
                 delay={0.18}
-                className="mt-10 sm:mt-12 flex flex-wrap items-center gap-x-6 gap-y-5 border-t border-white/10 pt-8"
+                className="mt-7 sm:mt-9 flex flex-wrap items-center gap-x-6 gap-y-5 border-t border-white/10 pt-6"
               >
                 <div className="flex items-center gap-4">
                   <Avatar name={t({ ar: "آ", en: "I" })} src={null} size={52} />
@@ -292,7 +292,7 @@ export function SuccessStories() {
             glass tile floating on the vivid photo, with a terracotta quote mark
             and a confident avatar/name/role attribution. This is the moment. */}
         <Reveal as="div" delay={0.06} className="mt-[clamp(2.5rem,6vh,4.5rem)] max-w-5xl">
-          <figure className="relative glass-panel-lg p-[clamp(1.75rem,4.5vw,4rem)]">
+          <figure className="relative glass-panel-lg p-[clamp(1.5rem,3vw,2.5rem)]">
             {quoteMark}
 
             <div className="relative">
@@ -315,7 +315,7 @@ export function SuccessStories() {
                 </p>
               )}
 
-              <figcaption className="mt-9 flex items-center gap-4 border-t border-white/10 pt-8 sm:mt-11 sm:pt-9">
+              <figcaption className="mt-6 flex items-center gap-4 border-t border-white/10 pt-6 sm:mt-8 sm:pt-7">
                 <Avatar name={lead.personName} src={lead.avatarUrl} size={60} />
                 <div className="min-w-0">
                   <div className="font-bold text-white text-[clamp(1.05rem,1.7vw,1.3rem)] leading-tight">
@@ -350,7 +350,7 @@ export function SuccessStories() {
             {rest.map((s, i) => (
               <figure
                 key={s.id}
-                className={`group grid items-center gap-x-8 gap-y-4 py-[clamp(1.5rem,3.5vh,2.5rem)] md:grid-cols-12 ${
+                className={`group grid items-center gap-x-8 gap-y-4 py-[clamp(1.1rem,2.4vh,1.6rem)] md:grid-cols-12 ${
                   i > 0 ? "border-t border-white/10" : ""
                 }`}
               >
