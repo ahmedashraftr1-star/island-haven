@@ -6,6 +6,7 @@ import { useDaily } from "@/hooks/use-public-data";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HScroll } from "./HScroll";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -136,7 +137,7 @@ export function NewsSlider() {
 
       <div className="container-ih section-y relative">
         {/* Header — calm eyebrow, one monumental white line, roomy sub. */}
-        <div className="mb-[clamp(2.5rem,5vw,4rem)] grid gap-8 lg:grid-cols-12 lg:items-end">
+        <div className="mb-[clamp(1.75rem,3.5vw,2.75rem)] grid gap-8 lg:grid-cols-12 lg:items-end">
           <Reveal as="div" className="lg:col-span-8">
             <div className="mb-5 flex items-center gap-3">
               <span aria-hidden className="h-px w-9 bg-primary/70" />
@@ -180,7 +181,7 @@ export function NewsSlider() {
         </div>
 
         {posts === null ? (
-          <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
+          <div className="grid gap-x-12 gap-y-6 lg:grid-cols-12">
             <div className="lg:col-span-5">
               <div className="glass-panel-lg overflow-hidden p-3">
                 <div className="aspect-[16/10] w-full rounded-[24px] bg-white/[0.04] skeleton-shimmer" />
@@ -212,199 +213,61 @@ export function NewsSlider() {
             <p className="text-[1.0625rem] text-white/70">{c.emptyText}</p>
           </div>
         ) : (
-          <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
-            {/* FEATURE — the currently-SELECTED story, large, inside a
-                glass-panel-lg. Selecting a row crossfades + scales a new item in
-                (framer-motion, reduced-motion → instant). NOT a link: the read
-                cue below is the only thing that navigates. */}
-            {selected && (
-              <Reveal as="div" className="lg:col-span-5">
-                <div className="glass-panel-lg overflow-hidden p-3">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={selected.id}
-                      initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.985 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={reduce ? { opacity: 1 } : { opacity: 0, scale: 1.008 }}
-                      transition={reduce ? { duration: 0 } : { duration: 0.42, ease: EASE_OUT_EXPO }}
-                    >
-                      <div className="overflow-hidden rounded-[24px] ring-1 ring-white/10">
-                        {selected.coverUrl ? (
-                          <img
-                            src={selected.coverUrl}
-                            srcSet={photoSrcSet(selected.coverUrl)}
-                            sizes="(max-width: 768px) 100vw, 720px"
-                            alt={selected.title}
-                            loading="lazy"
-                            decoding="async"
-                            className="aspect-[16/10] w-full object-cover"
-                          />
-                        ) : (
-                          (() => {
-                            const Icon = TYPE_ICON[selected.type] ?? Calendar;
-                            return (
-                              <div
-                                aria-hidden
-                                className="flex aspect-[16/10] w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-white/[0.05] to-white/[0.01]"
-                              >
-                                <Icon className="h-12 w-12 text-sand-bright/40" strokeWidth={1.5} />
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40 rtl:tracking-normal">
-                                  {typeLabels[selected.type]}
-                                </span>
-                              </div>
-                            );
-                          })()
-                        )}
+          <HScroll label={t({ ar: "مقالات دفتر آيلاند", en: "Island Journal posts" })} className="-mx-1 px-1">
+            {posts.map((p) => {
+              const Icon = TYPE_ICON[p.type] ?? Calendar;
+              return (
+                <Link
+                  key={p.id}
+                  href={`/events/${p.id}`}
+                  data-testid={`event-card-${p.id}`}
+                  aria-label={p.title}
+                  className="group relative flex w-[clamp(258px,78vw,318px)] shrink-0 snap-start flex-col overflow-hidden glass-panel spectral-edge transition-[transform,border-color] duration-200 hover:border-white/22 motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    {p.coverUrl ? (
+                      <img
+                        src={p.coverUrl}
+                        srcSet={photoSrcSet(p.coverUrl)}
+                        sizes="320px"
+                        alt={p.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] motion-safe:group-hover:scale-[1.05] motion-reduce:transition-none"
+                      />
+                    ) : (
+                      <div aria-hidden className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-white/[0.05] to-white/[0.01]">
+                        <Icon className="h-9 w-9 text-sand-bright/40" strokeWidth={1.5} />
                       </div>
-
-                      <div className="px-3 pb-3 pt-6">
-                        <div className="flex items-center gap-3">
-                          <span className="inline-flex items-center rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary rtl:tracking-normal">
-                            {typeLabels[selected.type]}
-                          </span>
-                          <span aria-hidden className="h-3 w-px bg-white/15" />
-                          <span className="font-mono text-[12px] tabular-nums text-white/55">
-                            {formatDate(selected.publishedAt, lang)}
-                          </span>
-                        </div>
-
-                        <h3
-                          className="mt-3 font-display font-bold text-white/90"
-                          style={{
-                            fontSize: "clamp(1.6rem,3vw,2.4rem)",
-                            lineHeight: 1.12,
-                            letterSpacing: "-0.02em",
-                          }}
-                        >
-                          {selected.title}
-                        </h3>
-
-                        {selected.body && (
-                          <p className="mt-3 max-w-[56ch] text-[15px] leading-relaxed text-white/65 lg:text-[1.0625rem]">
-                            {trimExcerpt(selected.body, 150)}
-                          </p>
-                        )}
-
-                        {/* Read cue — the ONLY navigation in the feature. */}
-                        <Link
-                          href={`/events/${selected.id}`}
-                          data-testid={`event-read-${selected.id}`}
-                          className="group mt-5 inline-flex items-center gap-1.5 rounded-full text-[14px] font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
-                        >
-                          {c.ctaCard}
-                          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
-                        </Link>
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </Reveal>
-            )}
-
-            {/* SELECTORS — the professional editorial column: each row is a
-                SELECTOR (button) that grows the item into the feature on click /
-                Enter / Space / focus, NOT a navigation. One glass-panel, ruled by
-                white/10 hairlines, COMPLETE precise details — tabular mono date ·
-                terracotta type tag · font-display title · one-line excerpt ·
-                ringed thumb · trailing arrow. The active row carries a terracotta
-                marker + lifted background. */}
-            <Reveal as="div" className="lg:col-span-7">
-              <ol className="glass-panel divide-y divide-white/10 px-5 sm:px-7">
-                {posts.map((p) => {
-                  const active = selected?.id === p.id;
-                  return (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedId(p.id)}
-                        onFocus={() => setSelectedId(p.id)}
-                        aria-pressed={active ? "true" : "false"}
-                        data-testid={`event-card-${p.id}`}
-                        className={`group relative -mx-3 flex w-[calc(100%+1.5rem)] items-center gap-4 rounded-2xl px-3 py-[clamp(1.15rem,2.6vh,1.6rem)] text-start transition-[background-color,transform] duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none sm:gap-6 ${
-                          active ? "bg-white/[0.06]" : "hover:bg-white/[0.045]"
-                        }`}
-                      >
-                        {/* Active marker — a terracotta bar on the inline-start edge. */}
-                        <span
-                          aria-hidden
-                          className={`absolute inset-y-3 start-0 w-[3px] rounded-full bg-primary transition-opacity duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none ${
-                            active ? "opacity-100" : "opacity-0"
-                          }`}
-                        />
-
-                        {/* Meta + title + one-line excerpt. */}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2.5">
-                            <span className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-primary rtl:tracking-normal">
-                              {typeLabels[p.type]}
-                            </span>
-                            <span aria-hidden className="h-3 w-px bg-white/15" />
-                            <span className="font-mono text-[11px] tabular-nums text-white/50">
-                              {formatDate(p.publishedAt, lang)}
-                            </span>
-                          </div>
-
-                          <h3
-                            className={`mt-2.5 font-display text-[1.0625rem] font-bold leading-[1.28] line-clamp-1 transition-colors duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none sm:text-[1.15rem] ${
-                              active ? "text-primary" : "text-white/90 group-hover:text-primary"
-                            }`}
-                          >
-                            {p.title}
-                          </h3>
-
-                          {p.body && (
-                            <p className="mt-1.5 text-[13.5px] leading-[1.55] text-white/60 line-clamp-1">
-                              {trimExcerpt(p.body, 96)}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Refined cover thumb — rounded, ringed in white/10. */}
-                        <div
-                          className={`h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-white/[0.04] ring-1 transition-[box-shadow] duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none sm:h-16 sm:w-20 ${
-                            active ? "ring-primary/60" : "ring-white/10"
-                          }`}
-                        >
-                          {p.coverUrl ? (
-                            <img
-                              src={p.coverUrl}
-                              srcSet={photoSrcSet(p.coverUrl)}
-                              sizes="(max-width: 768px) 100vw, 570px"
-                              alt={p.title}
-                              loading="lazy"
-                              decoding="async"
-                              className={`h-full w-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.06] motion-reduce:transition-none ${
-                                active ? "scale-[1.06]" : ""
-                              }`}
-                            />
-                          ) : (
-                            (() => {
-                              const Icon = TYPE_ICON[p.type] ?? Calendar;
-                              return (
-                                <div aria-hidden className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/[0.05] to-white/[0.01]">
-                                  <Icon className="h-5 w-5 text-sand-bright/40" strokeWidth={1.5} />
-                                </div>
-                              );
-                            })()
-                          )}
-                        </div>
-
-                        {/* Trailing arrow — slides on hover / when active. */}
-                        <ArrowLeft
-                          className={`hidden h-4 w-4 shrink-0 transition-[transform,color] duration-[400ms] ease-[cubic-bezier(.2,.7,.2,1)] rtl:rotate-180 motion-reduce:transition-none sm:block ${
-                            active
-                              ? "text-primary -translate-x-1 rtl:translate-x-1"
-                              : "text-white/35 group-hover:text-primary group-hover:-translate-x-1 rtl:group-hover:translate-x-1"
-                          }`}
-                          aria-hidden
-                        />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            </Reveal>
-          </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="flex items-center gap-2.5">
+                      <span className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-primary rtl:tracking-normal">
+                        {typeLabels[p.type]}
+                      </span>
+                      <span aria-hidden className="h-3 w-px bg-white/15" />
+                      <span className="font-mono text-[11px] tabular-nums text-white/50">
+                        {formatDate(p.publishedAt, lang)}
+                      </span>
+                    </div>
+                    <h3 className="mt-2.5 line-clamp-2 font-display text-[1.0625rem] font-bold leading-[1.28] text-white/90 transition-colors group-hover:text-primary sm:text-[1.15rem]">
+                      {p.title}
+                    </h3>
+                    {p.body && (
+                      <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.5] text-white/60">
+                        {trimExcerpt(p.body, 100)}
+                      </p>
+                    )}
+                    <span className="mt-auto inline-flex items-center gap-2 pt-3 text-[13px] font-bold text-white/85 transition-colors group-hover:text-primary">
+                      {t({ ar: "اقرأ", en: "Read" })}
+                      <ArrowLeft className="h-3.5 w-3.5 transition-transform rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </HScroll>
         )}
 
         {/* Mobile all-events CTA — the header CTA is desktop-only. */}
