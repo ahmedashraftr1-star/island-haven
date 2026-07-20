@@ -54,9 +54,21 @@ export interface CtaButtonConfig {
   closedBodyAr: string;
   closedBodyEn: string;
 }
+export const PROMO_VARIANTS = ["gold", "solid", "glass", "gradient"] as const;
+export type PromoVariant = (typeof PROMO_VARIANTS)[number];
+export interface PromoButtonConfig {
+  labelAr: string;
+  labelEn: string;
+  href: string;
+  visible: boolean;
+  variant: PromoVariant;
+  startAt: string | null;
+  endAt: string | null;
+}
 export interface CtaConfig {
   primary: CtaButtonConfig;
   guest: CtaButtonConfig;
+  promo: PromoButtonConfig;
 }
 
 // Frontend fallback == the server defaults == the site's current behaviour. Used
@@ -86,7 +98,29 @@ export const DEFAULT_CTA: CtaConfig = {
     closedBodyAr: "حجز مقاعد الضيوف مغلق مؤقّتًا. تابِعنا لمعرفة مواعيد إعادة الفتح.",
     closedBodyEn: "Guest seat booking is temporarily closed. Follow us for reopening dates.",
   },
+  promo: {
+    labelAr: "",
+    labelEn: "",
+    href: "",
+    visible: false,
+    variant: "gold",
+    startAt: null,
+    endAt: null,
+  },
 };
+
+// A promo button is live only when visible AND (now) is inside its optional
+// [startAt, endAt] window. Dates are plain ISO days; missing bound = open-ended.
+export function isPromoLive(p: PromoButtonConfig, now = new Date()): boolean {
+  if (!p.visible || !(p.labelAr || p.labelEn)) return false;
+  if (p.startAt && now < new Date(p.startAt)) return false;
+  if (p.endAt) {
+    const end = new Date(p.endAt);
+    end.setHours(23, 59, 59, 999); // inclusive end-of-day
+    if (now > end) return false;
+  }
+  return true;
+}
 
 export function useCta() {
   return useQuery({

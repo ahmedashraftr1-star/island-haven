@@ -25,9 +25,24 @@ export interface CtaButton {
   closedBodyAr: string;
   closedBodyEn: string;
 }
+// A third, OPTIONAL promotional button — fully owner-controlled from the panel
+// for events/offers: text, destination, a style variant, and an optional
+// start/end window (auto shows/hides). Off by default.
+export const PROMO_VARIANTS = ["gold", "solid", "glass", "gradient"] as const;
+export type PromoVariant = (typeof PROMO_VARIANTS)[number];
+export interface PromoButton {
+  labelAr: string;
+  labelEn: string;
+  href: string;
+  visible: boolean;
+  variant: PromoVariant;
+  startAt: string | null; // ISO date (inclusive) or null = no lower bound
+  endAt: string | null; // ISO date (inclusive) or null = no upper bound
+}
 export interface CtaConfig {
   primary: CtaButton;
   guest: CtaButton;
+  promo: PromoButton;
 }
 
 // Defaults MIRROR the current hardcoded Hero behaviour, so an untouched site is
@@ -57,6 +72,15 @@ export const DEFAULT_CTA: CtaConfig = {
     closedBodyAr: "حجز مقاعد الضيوف مغلق مؤقّتًا. تابِعنا لمعرفة مواعيد إعادة الفتح.",
     closedBodyEn: "Guest seat booking is temporarily closed. Follow us for reopening dates.",
   },
+  promo: {
+    labelAr: "",
+    labelEn: "",
+    href: "",
+    visible: false, // off until the owner turns it on for an event/offer
+    variant: "gold",
+    startAt: null,
+    endAt: null,
+  },
 };
 
 // Same URL/path safety rule the content editor uses: relative paths, mailto/tel,
@@ -84,15 +108,29 @@ const buttonSchema = z.object({
   closedBodyAr: z.string().max(4000),
   closedBodyEn: z.string().max(4000),
 });
-const ctaSchema = z.object({ primary: buttonSchema, guest: buttonSchema });
+const promoSchema = z.object({
+  labelAr: z.string().max(120),
+  labelEn: z.string().max(120),
+  href: z.string().max(500).refine(isSafeUrlOrPath, "رابط غير صالح"),
+  visible: z.boolean(),
+  variant: z.enum(PROMO_VARIANTS),
+  startAt: z.string().max(40).nullable(),
+  endAt: z.string().max(40).nullable(),
+});
+const ctaSchema = z.object({ primary: buttonSchema, guest: buttonSchema, promo: promoSchema });
 
 // Merge a stored (possibly partial / legacy) blob over the defaults so the shape
 // is always complete and safe, even if a field was added after a row was saved.
 function mergeCta(stored: unknown): CtaConfig {
-  const s = (stored ?? {}) as Partial<Record<keyof CtaConfig, Partial<CtaButton>>>;
+  const s = (stored ?? {}) as {
+    primary?: Partial<CtaButton>;
+    guest?: Partial<CtaButton>;
+    promo?: Partial<PromoButton>;
+  };
   return {
     primary: { ...DEFAULT_CTA.primary, ...(s.primary ?? {}) },
     guest: { ...DEFAULT_CTA.guest, ...(s.guest ?? {}) },
+    promo: { ...DEFAULT_CTA.promo, ...(s.promo ?? {}) },
   };
 }
 
@@ -149,7 +187,7 @@ router.put("/admin/cta", requireAdmin, async (req, res) => {
       actor: auditActor(req),
       action: "cta_updated",
       targetType: "cta",
-      newValue: `primary:${value.primary.visible ? "on" : "off"}/${value.primary.registrationOpen ? "open" : "closed"} · guest:${value.guest.visible ? "on" : "off"}/${value.guest.registrationOpen ? "open" : "closed"}`,
+      newValue: `primary:${value.primary.visible ? "on" : "off"}/${value.primary.registrationOpen ? "open" : "closed"} · guest:${value.guest.visible ? "on" : "off"}/${value.guest.registrationOpen ? "open" : "closed"} · promo:${value.promo.visible ? "on" : "off"}(${value.promo.variant})`,
     });
     res.json({ ok: true, cta: value });
   } catch (err) {

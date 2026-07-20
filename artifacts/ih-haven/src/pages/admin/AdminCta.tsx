@@ -18,9 +18,27 @@ interface CtaButton {
   closedBodyAr: string;
   closedBodyEn: string;
 }
+const PROMO_VARIANTS = ["gold", "solid", "glass", "gradient"] as const;
+type PromoVariant = (typeof PROMO_VARIANTS)[number];
+const PROMO_VARIANT_LABELS: Record<PromoVariant, string> = {
+  gold: "ذهبيّ",
+  solid: "تراكوتا صريح",
+  glass: "زجاجيّ",
+  gradient: "تدرّج",
+};
+interface PromoButton {
+  labelAr: string;
+  labelEn: string;
+  href: string;
+  visible: boolean;
+  variant: PromoVariant;
+  startAt: string | null;
+  endAt: string | null;
+}
 interface CtaConfig {
   primary: CtaButton;
   guest: CtaButton;
+  promo: PromoButton;
 }
 
 const BTN_META = [
@@ -139,6 +157,90 @@ function ButtonEditor({
   );
 }
 
+function PromoEditor({
+  value,
+  onChange,
+}: {
+  value: PromoButton;
+  onChange: (v: PromoButton) => void;
+}) {
+  const set = <K extends keyof PromoButton>(k: K, v: PromoButton[K]) => onChange({ ...value, [k]: v });
+  return (
+    <div className="space-y-4">
+      <ToggleRow
+        label="تفعيل الزرّ الترويجيّ"
+        hint="زرّ ثالث اختياريّ في الهيرو للعروض والمناسبات."
+        checked={value.visible}
+        onChange={(v) => set("visible", v)}
+      />
+      {value.visible && (
+        <>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="النصّ (عربي)">
+              <Input
+                value={value.labelAr}
+                onChange={(e) => set("labelAr", e.target.value)}
+                placeholder="مثلاً: يوم العرض ٢٠٢٦"
+              />
+            </Field>
+            <Field label="Label (English)">
+              <Input dir="ltr" value={value.labelEn} onChange={(e) => set("labelEn", e.target.value)} />
+            </Field>
+          </div>
+          <Field label="الوجهة (مسار أو رابط)">
+            <Input
+              dir="ltr"
+              value={value.href}
+              onChange={(e) => set("href", e.target.value)}
+              placeholder="/events"
+            />
+          </Field>
+          <Field label="النمط">
+            <div className="flex flex-wrap gap-2">
+              {PROMO_VARIANTS.map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => set("variant", v)}
+                  className={
+                    "h-10 px-4 rounded-full text-[13px] font-semibold border transition-colors " +
+                    (value.variant === v
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-foreground/60 hover:text-foreground")
+                  }
+                >
+                  {PROMO_VARIANT_LABELS[v]}
+                </button>
+              ))}
+            </div>
+          </Field>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="يبدأ في (اختياريّ)">
+              <Input
+                type="date"
+                dir="ltr"
+                value={value.startAt ?? ""}
+                onChange={(e) => set("startAt", e.target.value || null)}
+              />
+            </Field>
+            <Field label="ينتهي في (اختياريّ)">
+              <Input
+                type="date"
+                dir="ltr"
+                value={value.endAt ?? ""}
+                onChange={(e) => set("endAt", e.target.value || null)}
+              />
+            </Field>
+          </div>
+          <p className="text-[12px] text-foreground/50">
+            اترك التاريخين فارغين ليظهر الزرّ دائمًا ما دام مفعّلًا؛ أو حدّدهما ليظهر ويختفي تلقائيًّا ضمن المدّة.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AdminCta() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
@@ -180,6 +282,16 @@ export default function AdminCta() {
           <ButtonEditor value={cfg[m.key]} onChange={(v) => setBtn(m.key, v)} />
         </section>
       ))}
+
+      <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
+        <div>
+          <h2 className="text-[15px] font-bold text-foreground">الزرّ الترويجيّ (اختياريّ)</h2>
+          <p className="text-[12.5px] text-foreground/55 mt-0.5">
+            زرّ ثالث في الهيرو للعروض والمناسبات — نصّ ووجهة ونمط ونافذة تاريخ (يظهر/يختفي تلقائيًّا).
+          </p>
+        </div>
+        <PromoEditor value={cfg.promo} onChange={(v) => setCfg({ ...cfg, promo: v })} />
+      </section>
 
       {save.isError && (
         <div className="text-[13px] text-rose-400 font-medium">

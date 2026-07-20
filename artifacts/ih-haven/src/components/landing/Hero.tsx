@@ -6,7 +6,7 @@ import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
 import { SpecularSheen } from "@/components/ui/SpecularButton";
-import { useNumbers, useAttendanceSummary, useCta, DEFAULT_CTA, type CtaButtonConfig } from "@/hooks/use-public-data";
+import { useNumbers, useAttendanceSummary, useCta, DEFAULT_CTA, isPromoLive, type CtaButtonConfig, type PromoVariant } from "@/hooks/use-public-data";
 import { ParticleField } from "./ParticleField";
 import { CtaClosedModal } from "./CtaClosedModal";
 
@@ -150,6 +150,16 @@ function RotatingWord({
     </span>
   );
 }
+
+// Promo-button style variants — a small, tasteful, on-brand set the owner picks
+// from in the panel (no arbitrary colors). Shared base sits on the caller.
+const PROMO_STYLES: Record<PromoVariant, string> = {
+  gold: "bg-[#DDBD7E] text-[#1c1608] hover:bg-[#e7cd94] shadow-[0_18px_48px_-16px_rgba(221,189,126,0.6)]",
+  solid: "cta-fill text-white shadow-[0_18px_48px_-16px_hsl(354_82%_40%/0.55)]",
+  glass: "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15 hover:border-white/30",
+  gradient:
+    "text-white border border-white/15 bg-[linear-gradient(110deg,#C74326_0%,#DDBD7E_100%)] hover:brightness-110",
+};
 
 /** A hero CTA that links to its form when registration is OPEN, or opens the
  *  owner-editable closed-explanation modal when CLOSED — identical styling, but
@@ -493,6 +503,18 @@ export function Hero() {
                 </span>
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
               </CtaAction>
+            )}
+            {isPromoLive(cta.promo) && (
+              <a
+                href={cta.promo.href || undefined}
+                data-testid="cta-promo"
+                className={`group relative overflow-hidden inline-flex items-center justify-center gap-2.5 h-14 lg:h-[58px] px-7 rounded-full font-bold text-[14.5px] tracking-[-0.005em] transition-[transform,filter,background-color] duration-200 hover:-translate-y-0.5 active:translate-y-0 ${PROMO_STYLES[cta.promo.variant]}`}
+              >
+                <span className="relative z-10">
+                  {lang === "en" ? cta.promo.labelEn : cta.promo.labelAr}
+                </span>
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
+              </a>
             )}
           </motion.div>
         </motion.div>
