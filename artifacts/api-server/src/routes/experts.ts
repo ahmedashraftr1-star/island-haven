@@ -21,6 +21,7 @@ import {
   requireUser,
   type UserSession,
 } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { createResetToken } from "./auth";
 import { schedulePendingReminder } from "../lib/mentorReminderJob";
 import { logger } from "../lib/logger";
@@ -728,6 +729,7 @@ router.post("/admin/experts", requireAdmin, async (req, res) => {
           .returning();
         return { user, profile: row };
       });
+      void writeAudit({ actor: auditActor(req), action: "expert_created", targetType: "expert", targetId: created.profile.id, newValue: created.user.fullName });
       res.json({ expert: created.profile, userId: created.user.id });
     } catch (err) {
       if (isUniqueViolation(err)) {
@@ -846,6 +848,14 @@ router.patch("/admin/experts/:id", requireAdmin, async (req, res) => {
         logger.error({ emailErr }, "Failed to send mentor approval email");
       }
     }
+    void writeAudit({
+      actor: auditActor(req),
+      action: result.prevStatus !== result.row.status ? "expert_status_changed" : "expert_updated",
+      targetType: "expert",
+      targetId: id,
+      oldValue: result.prevStatus !== result.row.status ? result.prevStatus : null,
+      newValue: result.prevStatus !== result.row.status ? result.row.status : Object.keys(parsed.data).join(","),
+    });
     res.json({ expert: result.row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/experts/:id failed");
@@ -862,6 +872,12 @@ router.delete("/admin/experts/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    const [meta] = await db
+      .select({ fullName: usersTable.fullName })
+      .from(expertProfilesTable)
+      .innerJoin(usersTable, eq(usersTable.id, expertProfilesTable.userId))
+      .where(eq(expertProfilesTable.id, id))
+      .limit(1);
     await db.transaction(async (tx) => {
       const [row] = await tx
         .select({ userId: expertProfilesTable.userId })
@@ -878,6 +894,7 @@ router.delete("/admin/experts/:id", requireAdmin, async (req, res) => {
           .where(eq(usersTable.id, row.userId));
       }
     });
+    void writeAudit({ actor: auditActor(req), action: "expert_deleted", targetType: "expert", targetId: id, oldValue: meta?.fullName ?? "" });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/experts/:id failed");

@@ -17,6 +17,8 @@ import { requireAdmin, getAdmin } from "../lib/auth";
 import { toCsv, sendCsv } from "../lib/csv";
 import { z } from "zod";
 import { invalidateNumbersCache } from "./numbers";
+import { writeAudit, auditActor } from "../lib/audit";
+import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 
 const router: IRouter = Router();
 
@@ -196,6 +198,12 @@ router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "لا تغييرات" });
     return;
   }
+  // Snapshot the prior state so the audit trail records before → after.
+  const [before] = await db
+    .select({ status: applicationsTable.status })
+    .from(applicationsTable)
+    .where(eq(applicationsTable.id, id))
+    .limit(1);
   const [row] = await db
     .update(applicationsTable)
     .set(patch)
@@ -205,7 +213,85 @@ router.patch("/admin/applications/:id", requireAdmin, async (req, res) => {
     res.status(404).json({ error: "غير موجود" });
     return;
   }
+  const actor = auditActor(req);
+  if (patch.status !== undefined && before && before.status !== row.status) {
+    // Accept/reject/stage moves are the sensitive decisions — log old → new.
+    void writeAudit({
+      actor,
+      action: "application_status_changed",
+      targetType: "application",
+      targetId: id,
+      oldValue: before.status,
+      newValue: row.status,
+    });
+  } else {
+    void writeAudit({
+      actor,
+      action: "application_updated",
+      targetType: "application",
+      targetId: id,
+      newValue: Object.keys(patch).join(","),
+    });
+  }
   res.json({ application: row });
+});
+
+// Secure CV access — admin-only, streamed through this authenticated endpoint so
+// the private bucket is NEVER exposed to the public. The raw object is stored with
+// public:false; only an authenticated admin can pull it here, and every access is
+// audited. (The client links to this path, not the raw storage URL.)
+router.get("/admin/applications/:id/cv", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: "معرّف غير صحيح" });
+    return;
+  }
+  const [app] = await db
+    .select({ cvUrl: applicationsTable.cvUrl, fullName: applicationsTable.fullName })
+    .from(applicationsTable)
+    .where(eq(applicationsTable.id, id))
+    .limit(1);
+  if (!app) {
+    res.status(404).json({ error: "الطلب غير موجود" });
+    return;
+  }
+  if (!app.cvUrl) {
+    res.status(404).json({ error: "لا توجد سيرة ذاتيّة لهذا الطلب" });
+    return;
+  }
+  // cvUrl is "/api/storage/objects/user-uploads/<uuid>.pdf" → object path.
+  const m = app.cvUrl.match(/\/objects\/(.+)$/);
+  if (!m) {
+    res.status(404).json({ error: "مسار السيرة الذاتيّة غير صالح" });
+    return;
+  }
+  try {
+    const file = await new ObjectStorageService().getObjectEntityFile(`/objects/${m[1]}`);
+    void writeAudit({
+      actor: auditActor(req),
+      action: "application_cv_accessed",
+      targetType: "application",
+      targetId: id,
+      newValue: app.fullName,
+    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="cv-${id}.pdf"`);
+    res.setHeader("Cache-Control", "private, no-store");
+    file
+      .createReadStream()
+      .on("error", (err) => {
+        req.log?.error?.({ err, id }, "cv stream failed");
+        if (!res.headersSent) res.status(500).end();
+      })
+      .pipe(res);
+  } catch (err) {
+    if (err instanceof ObjectNotFoundError) {
+      res.status(404).json({ error: "ملف السيرة الذاتيّة غير موجود" });
+      return;
+    }
+    req.log?.error?.({ err, id }, "cv download failed");
+    if (!res.headersSent) res.status(500).json({ error: "تعذّر تحميل السيرة الذاتيّة" });
+  }
 });
 
 // ─── Applicant reviews (scoring) ─────────────────────────────────────────────
@@ -257,6 +343,13 @@ router.post("/admin/applications/:id/reviews", requireAdmin, async (req, res) =>
       target: [applicationReviewsTable.applicationId, applicationReviewsTable.reviewerId],
       set: { score: parsed.data.score, recommendation: parsed.data.recommendation, notes: parsed.data.notes ?? "", updatedAt: new Date() },
     });
+  void writeAudit({
+    actor: auditActor(req),
+    action: "application_reviewed",
+    targetType: "application",
+    targetId: id,
+    newValue: `score=${parsed.data.score} · ${parsed.data.recommendation}`,
+  });
   res.status(201).json({ ok: true });
 });
 
@@ -266,10 +359,25 @@ router.delete("/admin/applications/:id", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "معرّف غير صحيح" });
     return;
   }
+  // Capture who is being removed BEFORE the delete, for the audit trail.
+  const [victim] = await db
+    .select({ fullName: applicationsTable.fullName, email: applicationsTable.email })
+    .from(applicationsTable)
+    .where(eq(applicationsTable.id, id))
+    .limit(1);
   // No hard FK (acyclic schema convention) → remove the reviews explicitly.
   await db.delete(applicationReviewsTable).where(eq(applicationReviewsTable.applicationId, id));
   await db.delete(applicationsTable).where(eq(applicationsTable.id, id));
   invalidateNumbersCache();
+  if (victim) {
+    void writeAudit({
+      actor: auditActor(req),
+      action: "application_deleted",
+      targetType: "application",
+      targetId: id,
+      oldValue: `${victim.fullName} · ${victim.email}`,
+    });
+  }
   res.json({ ok: true });
 });
 

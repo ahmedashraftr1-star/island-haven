@@ -160,8 +160,22 @@ router.delete("/admin/users/:id", requireAdmin, async (req, res) => {
     return;
   }
   try {
+    const [victim] = await db
+      .select({ fullName: usersTable.fullName, email: usersTable.email, role: usersTable.role })
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
     await db.delete(usersTable).where(eq(usersTable.id, id));
     invalidateNumbersCache();
+    if (victim) {
+      void writeAudit({
+        actor: auditActor(req),
+        action: "user_deleted",
+        targetType: "user",
+        targetId: id,
+        oldValue: `${victim.fullName} · ${victim.email} · ${victim.role}`,
+      });
+    }
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err, id }, "DELETE /admin/users failed");
