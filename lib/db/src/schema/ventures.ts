@@ -59,6 +59,8 @@ export const venturesTable = pgTable(
     // Optional link to the founder's member account (admin-assigned). Lets a
     // member see the ventures they founded. Plain int (acyclic).
     userId: integer("user_id"),
+    // Soft-delete: non-null = trashed. Additive + nullable; excluded from all reads.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

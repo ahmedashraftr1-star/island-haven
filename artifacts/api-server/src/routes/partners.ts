@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { db, partnersTable, upsertPartnerSchema } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 import { cached } from "../lib/cache";
 
@@ -29,7 +30,7 @@ router.get("/partners", async (_req, res) => {
       const rows = await db
         .select()
         .from(partnersTable)
-        .where(eq(partnersTable.status, "visible"))
+        .where(and(eq(partnersTable.status, "visible"), isNull(partnersTable.deletedAt)))
         .orderBy(asc(partnersTable.sortOrder), desc(partnersTable.createdAt));
       return { partners: rows };
     });
@@ -45,6 +46,7 @@ router.get("/admin/partners", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(partnersTable)
+      .where(isNull(partnersTable.deletedAt))
       .orderBy(asc(partnersTable.sortOrder), desc(partnersTable.createdAt));
     res.json({ partners: rows });
   } catch (err) {
@@ -87,7 +89,7 @@ router.patch("/admin/partners/:id", requireAdmin, async (req, res) => {
     const [row] = await db
       .update(partnersTable)
       .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(partnersTable.id, id))
+      .where(and(eq(partnersTable.id, id), isNull(partnersTable.deletedAt)))
       .returning();
     if (!row) {
       res.status(404).json({ error: "غير موجود" });
@@ -107,7 +109,23 @@ router.delete("/admin/partners/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    await db.delete(partnersTable).where(eq(partnersTable.id, id));
+    // Soft-delete: move to Trash (restorable). NEVER hard-delete.
+    const [row] = await db
+      .update(partnersTable)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(partnersTable.id, id), isNull(partnersTable.deletedAt)))
+      .returning({ id: partnersTable.id, name: partnersTable.name });
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    void writeAudit({
+      actor: auditActor(req),
+      action: "partner_deleted",
+      targetType: "partner",
+      targetId: id,
+      oldValue: row.name ?? "",
+    });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/partners/:id failed");

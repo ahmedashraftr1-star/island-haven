@@ -45,6 +45,8 @@ export const blogPostsTable = pgTable(
       .default("draft"),
     // Nullable: a draft has never been published. Stamped when it first goes live.
     publishedAt: timestamp("published_at", { withTimezone: true }),
+    // Soft-delete: non-null = trashed. Additive + nullable; excluded from all reads.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

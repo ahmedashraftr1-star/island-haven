@@ -1,11 +1,12 @@
 import { Router, type IRouter } from "express";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import {
   db,
   jobListingsTable,
   upsertJobSchema,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -28,7 +29,7 @@ router.get("/jobs", async (_req, res) => {
     const rows = await db
       .select()
       .from(jobListingsTable)
-      .where(eq(jobListingsTable.status, "active"))
+      .where(and(eq(jobListingsTable.status, "active"), isNull(jobListingsTable.deletedAt)))
       .orderBy(
         desc(jobListingsTable.featured),
         asc(jobListingsTable.sortOrder),
@@ -46,6 +47,7 @@ router.get("/admin/jobs", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(jobListingsTable)
+      .where(isNull(jobListingsTable.deletedAt))
       .orderBy(
         desc(jobListingsTable.featured),
         asc(jobListingsTable.sortOrder),
@@ -83,7 +85,7 @@ router.patch("/admin/jobs/:id", requireAdmin, async (req, res) => {
     const [row] = await db
       .update(jobListingsTable)
       .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(jobListingsTable.id, id))
+      .where(and(eq(jobListingsTable.id, id), isNull(jobListingsTable.deletedAt)))
       .returning();
     if (!row) { res.status(404).json({ error: "غير موجود" }); return; }
     res.json({ job: row });
@@ -97,7 +99,20 @@ router.delete("/admin/jobs/:id", requireAdmin, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) { res.status(404).json({ error: "غير موجود" }); return; }
-    await db.delete(jobListingsTable).where(eq(jobListingsTable.id, id));
+    // Soft-delete: move to Trash (restorable). NEVER hard-delete.
+    const [row] = await db
+      .update(jobListingsTable)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(jobListingsTable.id, id), isNull(jobListingsTable.deletedAt)))
+      .returning({ id: jobListingsTable.id, title: jobListingsTable.title });
+    if (!row) { res.status(404).json({ error: "غير موجود" }); return; }
+    void writeAudit({
+      actor: auditActor(req),
+      action: "job_deleted",
+      targetType: "job",
+      targetId: id,
+      oldValue: row.title ?? "",
+    });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/jobs/:id failed");

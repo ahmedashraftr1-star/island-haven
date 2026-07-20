@@ -1,11 +1,12 @@
 import { Router, type IRouter } from "express";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import {
   db,
   teamMembersTable,
   upsertTeamMemberSchema,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -28,7 +29,7 @@ router.get("/team", async (_req, res) => {
     const rows = await db
       .select()
       .from(teamMembersTable)
-      .where(eq(teamMembersTable.status, "visible"))
+      .where(and(eq(teamMembersTable.status, "visible"), isNull(teamMembersTable.deletedAt)))
       .orderBy(
         desc(teamMembersTable.featured),
         asc(teamMembersTable.sortOrder),
@@ -46,6 +47,7 @@ router.get("/admin/team", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(teamMembersTable)
+      .where(isNull(teamMembersTable.deletedAt))
       .orderBy(
         desc(teamMembersTable.featured),
         asc(teamMembersTable.sortOrder),
@@ -92,7 +94,7 @@ router.patch("/admin/team/:id", requireAdmin, async (req, res) => {
     const [row] = await db
       .update(teamMembersTable)
       .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(teamMembersTable.id, id))
+      .where(and(eq(teamMembersTable.id, id), isNull(teamMembersTable.deletedAt)))
       .returning();
     if (!row) {
       res.status(404).json({ error: "غير موجود" });
@@ -112,7 +114,23 @@ router.delete("/admin/team/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    await db.delete(teamMembersTable).where(eq(teamMembersTable.id, id));
+    // Soft-delete: move to Trash (restorable). NEVER hard-delete — team feeds /verify.
+    const [row] = await db
+      .update(teamMembersTable)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(teamMembersTable.id, id), isNull(teamMembersTable.deletedAt)))
+      .returning({ id: teamMembersTable.id, fullName: teamMembersTable.fullName });
+    if (!row) {
+      res.status(404).json({ error: "غير موجود" });
+      return;
+    }
+    void writeAudit({
+      actor: auditActor(req),
+      action: "team_deleted",
+      targetType: "team",
+      targetId: id,
+      oldValue: row.fullName ?? "",
+    });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/team/:id failed");

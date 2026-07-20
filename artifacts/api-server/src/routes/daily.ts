@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 import {
   db,
   dailyPostsTable,
@@ -8,6 +8,7 @@ import {
   type DailyType,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -19,7 +20,10 @@ router.get("/daily", async (req, res) => {
     const type = String(req.query.type ?? "");
     const pageSize = Math.min(Math.max(parseInt(String(req.query.limit ?? "12"), 10) || 12, 1), 100);
     const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
-    const typeFilter = DAILY_TYPES.includes(type as DailyType) ? eq(dailyPostsTable.type, type as DailyType) : undefined;
+    const notDeleted = isNull(dailyPostsTable.deletedAt);
+    const typeFilter = DAILY_TYPES.includes(type as DailyType)
+      ? and(eq(dailyPostsTable.type, type as DailyType), notDeleted)
+      : notDeleted;
 
     const [{ total }] = await db.select({ total: count() }).from(dailyPostsTable).where(typeFilter);
 
@@ -55,7 +59,7 @@ router.get("/daily/:id", async (req, res) => {
       .from(dailyPostsTable)
       .where(eq(dailyPostsTable.id, id))
       .limit(1);
-    if (!row) {
+    if (!row || row.deletedAt) {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
@@ -73,6 +77,7 @@ router.get("/admin/daily", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(dailyPostsTable)
+      .where(isNull(dailyPostsTable.deletedAt))
       .orderBy(desc(dailyPostsTable.publishedAt));
     res.json({ posts: rows });
   } catch (err) {
@@ -105,6 +110,7 @@ router.post("/admin/daily", requireAdmin, async (req, res) => {
         publishedAt: d.publishedAt ? new Date(d.publishedAt) : new Date(),
       })
       .returning();
+    void writeAudit({ actor: auditActor(req), action: "daily_created", targetType: "daily", targetId: row.id, newValue: row.title });
     res.json({ post: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/daily failed");
@@ -146,6 +152,7 @@ router.patch("/admin/daily/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    void writeAudit({ actor: auditActor(req), action: "daily_updated", targetType: "daily", targetId: id, newValue: Object.keys(update).join(",") });
     res.json({ post: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/daily/:id failed");
@@ -160,7 +167,10 @@ router.delete("/admin/daily/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    await db.delete(dailyPostsTable).where(eq(dailyPostsTable.id, id));
+    const [before] = await db.select({ title: dailyPostsTable.title }).from(dailyPostsTable).where(eq(dailyPostsTable.id, id)).limit(1);
+    // SOFT delete — retained + hidden from reads, restorable from Trash.
+    await db.update(dailyPostsTable).set({ deletedAt: new Date() }).where(and(eq(dailyPostsTable.id, id), isNull(dailyPostsTable.deletedAt)));
+    void writeAudit({ actor: auditActor(req), action: "daily_deleted", targetType: "daily", targetId: id, oldValue: before?.title ?? "" });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/daily/:id failed");

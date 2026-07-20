@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db, worksTable, usersTable, dailyPostsTable } from "@workspace/db";
 import { logger } from "../lib/logger";
 
@@ -82,6 +82,7 @@ router.get("/gallery", async (_req, res) => {
         publishedAt: dailyPostsTable.publishedAt,
       })
       .from(dailyPostsTable)
+      .where(isNull(dailyPostsTable.deletedAt))
       .orderBy(desc(dailyPostsTable.publishedAt))
       .limit(60);
 

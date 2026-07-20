@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import {
   db,
   usersTable,
@@ -64,6 +64,7 @@ router.get("/search", async (req, res) => {
         .where(
           and(
             eq(venturesTable.status, "published"),
+            isNull(venturesTable.deletedAt),
             or(
               ilike(venturesTable.name, term),
               ilike(venturesTable.tagline, term),

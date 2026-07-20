@@ -46,6 +46,8 @@ export const successStoriesTable = pgTable(
     sortOrder: integer("sort_order").default(0).notNull(),
     submittedByUserId: integer("submitted_by_user_id"),
     rejectionNote: text("rejection_note"),
+    // Soft-delete: non-null = trashed. Additive + nullable; excluded from all reads.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

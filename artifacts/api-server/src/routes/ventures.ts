@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request } from "express";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, isNotNull } from "drizzle-orm";
 import {
   db,
   venturesTable,
@@ -7,6 +7,7 @@ import {
   upsertVentureSchema,
 } from "@workspace/db";
 import { requireAdmin, requireUser, type UserSession } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -31,7 +32,7 @@ router.get("/ventures", async (_req, res) => {
     const rows = await db
       .select()
       .from(venturesTable)
-      .where(eq(venturesTable.status, "published"))
+      .where(and(eq(venturesTable.status, "published"), isNull(venturesTable.deletedAt)))
       .orderBy(
         desc(venturesTable.featured),
         asc(venturesTable.sortOrder),
@@ -56,7 +57,7 @@ router.get("/ventures/:id", async (req, res) => {
       .from(venturesTable)
       .where(eq(venturesTable.id, id))
       .limit(1);
-    if (!row || row.status !== "published") {
+    if (!row || row.status !== "published" || row.deletedAt) {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
@@ -90,7 +91,7 @@ router.get("/me/ventures", requireUser, async (req, res) => {
     const rows = await db
       .select()
       .from(venturesTable)
-      .where(eq(venturesTable.userId, session.userId))
+      .where(and(eq(venturesTable.userId, session.userId), isNull(venturesTable.deletedAt)))
       .orderBy(desc(venturesTable.createdAt));
     res.json({ ventures: rows });
   } catch (err) {
@@ -106,6 +107,7 @@ router.get("/admin/ventures", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(venturesTable)
+      .where(isNull(venturesTable.deletedAt))
       .orderBy(
         desc(venturesTable.featured),
         asc(venturesTable.sortOrder),
@@ -130,6 +132,7 @@ router.post("/admin/ventures", requireAdmin, async (req, res) => {
       .insert(venturesTable)
       .values({ ...d, coverUrl: d.coverUrl ?? null, logoUrl: d.logoUrl ?? null })
       .returning();
+    void writeAudit({ actor: auditActor(req), action: "venture_created", targetType: "venture", targetId: row.id, newValue: row.name });
     res.json({ venture: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/ventures failed");
@@ -149,6 +152,11 @@ router.patch("/admin/ventures/:id", requireAdmin, async (req, res) => {
       badData(res, parsed.error);
       return;
     }
+    const [before] = await db
+      .select({ status: venturesTable.status })
+      .from(venturesTable)
+      .where(eq(venturesTable.id, id))
+      .limit(1);
     const [row] = await db
       .update(venturesTable)
       .set({ ...parsed.data, updatedAt: new Date() })
@@ -158,6 +166,14 @@ router.patch("/admin/ventures/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
+    void writeAudit({
+      actor: auditActor(req),
+      action: before && before.status !== row.status ? "venture_status_changed" : "venture_updated",
+      targetType: "venture",
+      targetId: id,
+      oldValue: before?.status ?? null,
+      newValue: before && before.status !== row.status ? row.status : Object.keys(parsed.data).join(","),
+    });
     res.json({ venture: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/ventures/:id failed");
@@ -172,7 +188,11 @@ router.delete("/admin/ventures/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    await db.delete(venturesTable).where(eq(venturesTable.id, id));
+    const [before] = await db.select({ name: venturesTable.name }).from(venturesTable).where(eq(venturesTable.id, id)).limit(1);
+    // SOFT delete — the row is retained + excluded from all reads, recoverable
+    // from the Trash. Never a hard DELETE.
+    await db.update(venturesTable).set({ deletedAt: new Date() }).where(and(eq(venturesTable.id, id), isNull(venturesTable.deletedAt)));
+    void writeAudit({ actor: auditActor(req), action: "venture_deleted", targetType: "venture", targetId: id, oldValue: before?.name ?? "" });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/ventures/:id failed");

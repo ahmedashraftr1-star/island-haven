@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import {
   db,
   ventureOutcomesTable,
@@ -32,7 +32,7 @@ router.get("/admin/impact/overview", requirePermission("impact:view"), async (_r
       })
       .from(applicationsTable);
     const [coh] = await db.select({ n: sql<number>`count(*)::int` }).from(cohortsTable);
-    const [ven] = await db.select({ n: sql<number>`count(*)::int` }).from(venturesTable);
+    const [ven] = await db.select({ n: sql<number>`count(*)::int` }).from(venturesTable).where(isNull(venturesTable.deletedAt));
 
     // Latest snapshot per venture (window by created_at desc).
     const latest = sql`
@@ -182,7 +182,7 @@ router.post("/admin/impact/ventures/:id/outcomes", requirePermission("impact:man
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) { res.status(400).json({ error: "معرّف غير صالح" }); return; }
-    const [venture] = await db.select({ id: venturesTable.id }).from(venturesTable).where(eq(venturesTable.id, id)).limit(1);
+    const [venture] = await db.select({ id: venturesTable.id }).from(venturesTable).where(and(eq(venturesTable.id, id), isNull(venturesTable.deletedAt))).limit(1);
     if (!venture) { res.status(404).json({ error: "المشروع غير موجود" }); return; }
     const parsed = insertVentureOutcomeSchema.safeParse(req.body);
     if (!parsed.success) { res.status(400).json({ error: parsed.error.issues[0]?.message ?? "بيانات غير صحيحة" }); return; }

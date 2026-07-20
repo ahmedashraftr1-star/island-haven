@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import {
   db,
   successStoriesTable,
@@ -39,7 +39,7 @@ router.get("/stories", async (_req, res) => {
     const rows = await db
       .select()
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.status, "published"))
+      .where(and(eq(successStoriesTable.status, "published"), isNull(successStoriesTable.deletedAt)))
       .orderBy(
         desc(successStoriesTable.featured),
         asc(successStoriesTable.sortOrder),
@@ -60,7 +60,7 @@ router.get("/me/story", requireUser, async (req, res) => {
     const [row] = await db
       .select()
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .limit(1);
     res.json({ story: row ?? null });
   } catch (err) {
@@ -76,7 +76,7 @@ router.post("/me/story", requireUser, async (req, res) => {
     const [existing] = await db
       .select({ id: successStoriesTable.id, status: successStoriesTable.status })
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     // Block if an active (non-deleted) story already exists
@@ -123,7 +123,7 @@ router.post("/me/story", requireUser, async (req, res) => {
           rejectionNote: null,
           updatedAt: new Date(),
         })
-        .where(eq(successStoriesTable.submittedByUserId, userId))
+        .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
         .returning();
       row = updated;
     } else {
@@ -174,7 +174,7 @@ router.patch("/me/story", requireUser, async (req, res) => {
     const [existing] = await db
       .select()
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     if (!existing) {
@@ -204,7 +204,7 @@ router.patch("/me/story", requireUser, async (req, res) => {
         ...(d.projectUrl !== undefined ? { projectUrl: d.projectUrl ?? null } : {}),
         updatedAt: new Date(),
       })
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .returning();
 
     res.json({ story: row });
@@ -220,7 +220,7 @@ router.post("/me/story/resubmit", requireUser, async (req, res) => {
     const [existing] = await db
       .select()
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     if (!existing) {
@@ -252,7 +252,7 @@ router.post("/me/story/resubmit", requireUser, async (req, res) => {
         ...(d.projectUrl !== undefined ? { projectUrl: d.projectUrl ?? null } : {}),
         updatedAt: new Date(),
       })
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .returning();
 
     res.json({ story: row });
@@ -278,7 +278,7 @@ router.delete("/me/story", requireUser, async (req, res) => {
     const [existing] = await db
       .select({ id: successStoriesTable.id, status: successStoriesTable.status })
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId))
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     if (!existing) {
@@ -291,9 +291,12 @@ router.delete("/me/story", requireUser, async (req, res) => {
       return;
     }
 
+    // Soft-delete (never hard-delete). The member's other reads filter
+    // deletedAt IS NULL, so they can immediately submit a fresh story.
     await db
-      .delete(successStoriesTable)
-      .where(eq(successStoriesTable.submittedByUserId, userId));
+      .update(successStoriesTable)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(successStoriesTable.submittedByUserId, userId), isNull(successStoriesTable.deletedAt)));
 
     res.json({ ok: true });
   } catch (err) {
@@ -309,6 +312,7 @@ router.get("/admin/stories", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(successStoriesTable)
+      .where(isNull(successStoriesTable.deletedAt))
       .orderBy(
         desc(successStoriesTable.featured),
         asc(successStoriesTable.sortOrder),
@@ -360,7 +364,7 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
         submittedByUserId: successStoriesTable.submittedByUserId,
       })
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.id, id))
+      .where(and(eq(successStoriesTable.id, id), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     const noteFromBody =
@@ -379,7 +383,7 @@ router.patch("/admin/stories/:id", requireAdmin, async (req, res) => {
             : {}),
         updatedAt: new Date(),
       })
-      .where(eq(successStoriesTable.id, id))
+      .where(and(eq(successStoriesTable.id, id), isNull(successStoriesTable.deletedAt)))
       .returning();
     if (!row) {
       res.status(404).json({ error: "غير موجود" });
@@ -448,7 +452,7 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
         status: successStoriesTable.status,
       })
       .from(successStoriesTable)
-      .where(eq(successStoriesTable.id, id))
+      .where(and(eq(successStoriesTable.id, id), isNull(successStoriesTable.deletedAt)))
       .limit(1);
 
     if (!existing) {
@@ -456,16 +460,21 @@ router.delete("/admin/stories/:id", requireAdmin, async (req, res) => {
       return;
     }
 
-    if (existing.submittedByUserId) {
-      // Member-submitted story: soft-delete so the member can resubmit
-      await db
-        .update(successStoriesTable)
-        .set({ status: "deleted", updatedAt: new Date() })
-        .where(eq(successStoriesTable.id, id));
-    } else {
-      // Admin-created story: hard delete (no member to notify or allow resubmit)
-      await db.delete(successStoriesTable).where(eq(successStoriesTable.id, id));
-    }
+    // Soft-delete into the Trash (restorable) — NEVER hard-delete, whether
+    // member- or admin-created. Restoring (deletedAt → null) brings the story
+    // back with its original status intact.
+    await db
+      .update(successStoriesTable)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(successStoriesTable.id, id), isNull(successStoriesTable.deletedAt)));
+
+    void writeAudit({
+      actor: auditActor(req),
+      action: "story_deleted",
+      targetType: "story",
+      targetId: id,
+      oldValue: existing.status,
+    });
 
     res.json({ ok: true });
 

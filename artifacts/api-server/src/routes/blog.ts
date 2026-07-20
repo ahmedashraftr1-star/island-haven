@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 import {
   db,
   blogPostsTable,
@@ -9,6 +9,7 @@ import {
   type BlogCategory,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -50,7 +51,7 @@ router.get("/blog", async (req, res) => {
     const pageSize = Math.min(Math.max(parseInt(String(req.query.limit ?? "12"), 10) || 12, 1), 100);
     const requestedPage = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
 
-    const filters = [eq(blogPostsTable.status, "published")];
+    const filters = [eq(blogPostsTable.status, "published"), isNull(blogPostsTable.deletedAt)];
     if (BLOG_CATEGORIES.includes(category as BlogCategory)) {
       filters.push(eq(blogPostsTable.category, category as BlogCategory));
     }
@@ -85,7 +86,7 @@ router.get("/blog/:slug", async (req, res) => {
     const [row] = await db
       .select()
       .from(blogPostsTable)
-      .where(and(eq(blogPostsTable.slug, slug), eq(blogPostsTable.status, "published")))
+      .where(and(eq(blogPostsTable.slug, slug), eq(blogPostsTable.status, "published"), isNull(blogPostsTable.deletedAt)))
       .limit(1);
     if (!row) {
       res.status(404).json({ error: "غير موجود" });
@@ -105,6 +106,7 @@ router.get("/admin/blog", requireAdmin, async (_req, res) => {
     const rows = await db
       .select()
       .from(blogPostsTable)
+      .where(isNull(blogPostsTable.deletedAt))
       .orderBy(desc(blogPostsTable.updatedAt));
     res.json({ posts: rows });
   } catch (err) {
@@ -145,6 +147,7 @@ router.post("/admin/blog", requireAdmin, async (req, res) => {
         publishedAt,
       })
       .returning();
+    void writeAudit({ actor: auditActor(req), action: "blog_created", targetType: "blog", targetId: row.id, newValue: row.title });
     res.json({ post: row });
   } catch (err) {
     logger.error({ err }, "POST /admin/blog failed");
@@ -192,6 +195,14 @@ router.patch("/admin/blog/:id", requireAdmin, async (req, res) => {
       .set(update)
       .where(eq(blogPostsTable.id, id))
       .returning();
+    void writeAudit({
+      actor: auditActor(req),
+      action: current.status !== row.status ? "blog_status_changed" : "blog_updated",
+      targetType: "blog",
+      targetId: id,
+      oldValue: current.status !== row.status ? current.status : row.title,
+      newValue: current.status !== row.status ? row.status : Object.keys(d).join(","),
+    });
     res.json({ post: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/blog/:id failed");
@@ -206,7 +217,10 @@ router.delete("/admin/blog/:id", requireAdmin, async (req, res) => {
       res.status(404).json({ error: "غير موجود" });
       return;
     }
-    await db.delete(blogPostsTable).where(eq(blogPostsTable.id, id));
+    const [before] = await db.select({ title: blogPostsTable.title }).from(blogPostsTable).where(eq(blogPostsTable.id, id)).limit(1);
+    // SOFT delete — retained + hidden from reads, restorable from Trash.
+    await db.update(blogPostsTable).set({ deletedAt: new Date() }).where(and(eq(blogPostsTable.id, id), isNull(blogPostsTable.deletedAt)));
+    void writeAudit({ actor: auditActor(req), action: "blog_deleted", targetType: "blog", targetId: id, oldValue: before?.title ?? "" });
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "DELETE /admin/blog/:id failed");
