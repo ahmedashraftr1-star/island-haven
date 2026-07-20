@@ -165,9 +165,9 @@ export function ApplyProcess() {
         scrim="heavy"
         sideScrim
         aria-label={t({ ar: "كيف تنضمّ", en: "How to join" })}
-        className="min-h-[62vh] flex items-center"
+        className="min-h-[40vh] flex items-center"
       >
-        <div className="container-ih w-full py-[clamp(5rem,14vh,9rem)]">
+        <div className="container-ih w-full py-[clamp(2.5rem,7vh,4.5rem)]">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 30 }}
             whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -176,7 +176,7 @@ export function ApplyProcess() {
             className="max-w-5xl"
           >
             {/* Eyebrow — hairline + tracked label. */}
-            <div className="flex items-center gap-3 mb-7">
+            <div className="flex items-center gap-3 mb-5">
               <span className="h-px w-10 bg-sand-bright/70" />
               <span className="text-[11px] tracking-[0.22em] uppercase text-sand-bright font-semibold rtl:tracking-normal">
                 {t({ ar: "كيف تنضمّ", en: "How to join" })}
@@ -244,73 +244,41 @@ export function ApplyProcess() {
             initial={reduce ? undefined : "hidden"}
             whileInView={reduce ? undefined : "show"}
             viewport={{ once: true, margin: "-8% 0px" }}
-            className="glass-panel-lg relative max-w-4xl p-[clamp(1.5rem,4.5vw,3.25rem)] divide-y divide-white/[0.08]"
+            className="glass-panel-lg relative p-[clamp(1.5rem,3.5vw,2.75rem)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-[clamp(1.5rem,3vw,2.5rem)] gap-y-9"
           >
-            {steps.map((s, i) => {
-              const last = i === steps.length - 1;
-              return (
-                <motion.li
-                  key={i}
-                  variants={reduce ? undefined : rise}
-                  className="relative grid grid-cols-[auto_1fr] items-start gap-x-[clamp(1.25rem,4vw,2.5rem)] py-[clamp(1.75rem,4vw,2.75rem)] first:pt-0 last:pb-0"
+            {steps.map((s, i) => (
+              <motion.li
+                key={i}
+                variants={reduce ? undefined : rise}
+                className="relative flex flex-col"
+              >
+                {/* Node: dot + quiet index, read left→right (RTL right→left) as one path. */}
+                <div className="flex items-center gap-3">
+                  <span className="relative z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary shadow-[0_0_0_5px_hsl(24_14%_5%/0.85)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
+                  </span>
+                  <span
+                    className="font-display font-black tabular-nums leading-none text-primary/85 select-none"
+                    style={{ fontSize: "clamp(1.5rem, 2.4vw, 2rem)", letterSpacing: "-0.03em" }}
+                    aria-hidden="true"
+                  >
+                    {idx(i)}
+                  </span>
+                </div>
+                <h3
+                  className="mt-4 font-display text-white"
+                  style={{ fontSize: "clamp(1.4rem, 2vw, 1.85rem)", lineHeight: 1.08, letterSpacing: "-0.03em", fontWeight: 800 }}
                 >
-                  {/* Node column — the dot on the spine, with the quiet index.
-                      Each non-final row carries the terracotta rail segment down
-                      to the next node, so the four segments read as ONE continuous
-                      spine that ends exactly on the last node. The rail draws in on
-                      scroll — double-gated on reduced motion (then simply present). */}
-                  <div className="relative flex flex-col items-center">
-                    {!last && (
-                      <motion.span
-                        aria-hidden
-                        className="pointer-events-none absolute top-[0.6rem] w-px origin-top bg-primary/60"
-                        style={{
-                          // From just under this dot down into the next row until it
-                          // meets the next dot: the two rows' stacked vertical
-                          // padding (this row's pb + next row's pt) = 2 × py.
-                          insetInlineStart: "calc(50% - 0.5px)",
-                          bottom: "calc(-2 * clamp(1.75rem, 4vw, 2.75rem))",
-                        }}
-                        initial={reduce ? false : { scaleY: 0 }}
-                        whileInView={reduce ? undefined : { scaleY: 1 }}
-                        viewport={{ once: true, margin: "-12% 0px" }}
-                        transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
-                      />
-                    )}
-                    <span className="relative z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary shadow-[0_0_0_5px_hsl(24_14%_5%/0.85)]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
-                    </span>
-                    <span
-                      className="mt-3 font-display font-black tabular-nums leading-none text-primary/85 select-none"
-                      style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", letterSpacing: "-0.03em" }}
-                      aria-hidden="true"
-                    >
-                      {idx(i)}
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 pt-0.5">
-                    <h3
-                      className="font-display text-white"
-                      style={{
-                        fontSize: "clamp(1.75rem, 3.6vw, 2.85rem)",
-                        lineHeight: 1.06,
-                        letterSpacing: "-0.03em",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {s.title}
-                    </h3>
-                    <p
-                      className="mt-4 sm:mt-5 max-w-2xl text-white/75"
-                      style={{ fontSize: "clamp(1.02rem, 1.5vw, 1.2rem)", lineHeight: 1.66 }}
-                    >
-                      {s.body}
-                    </p>
-                  </div>
-                </motion.li>
-              );
-            })}
+                  {s.title}
+                </h3>
+                <p
+                  className="mt-2.5 text-white/75"
+                  style={{ fontSize: "clamp(0.98rem, 1.15vw, 1.08rem)", lineHeight: 1.55 }}
+                >
+                  {s.body}
+                </p>
+              </motion.li>
+            ))}
           </motion.ol>
 
           {/* ── One prominent Apply CTA — calm, generous. ── */}

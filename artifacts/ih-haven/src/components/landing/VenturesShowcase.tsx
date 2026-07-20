@@ -81,7 +81,7 @@ export function VenturesShowcase() {
       <div aria-hidden className="absolute inset-0 glass-ambient pointer-events-none" />
       <div className="container-ih relative">
         <Reveal as="header" className="max-w-3xl">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-4">
             <span aria-hidden className="h-px w-9 bg-primary/70" />
             <span className="eyebrow">
               {t({ ar: "معرض المشاريع", en: "The portfolio" })}
@@ -101,7 +101,7 @@ export function VenturesShowcase() {
 
         {rows.length === 0 ? (
           <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
-            <div className="relative overflow-hidden rounded-[24px] ring-1 ring-white/10 h-[clamp(420px,58vh,640px)]">
+            <div className="relative overflow-hidden rounded-[24px] ring-1 ring-white/10 h-[clamp(300px,38vh,430px)]">
               <img
                 src={frameFor(1)}
                 srcSet={photoSrcSet(frameFor(1))}
@@ -136,7 +136,7 @@ export function VenturesShowcase() {
           <>
             {/* Uniform project list — every venture gets the same editorial card,
                 separated by generous whitespace (gallery rhythm), no dividers. */}
-            <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
+            <div className="mt-[clamp(1.5rem,3vw,2.25rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.25rem,2.5vw,1.75rem)]">
               {rows.map((v, i) => (
                 <Reveal as="div" key={v.id} index={i}>
                   <ShowcaseCard
@@ -146,6 +146,7 @@ export function VenturesShowcase() {
                     t={t}
                     testId={`showcase-venture-${v.id}`}
                     fallbackCover={frameFor(v.id)}
+                    compact
                   />
                 </Reveal>
               ))}

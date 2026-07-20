@@ -65,6 +65,12 @@ export interface ShowcaseCardProps {
   testId: string;
   /** Fallback cover when the venture has none (deterministic evergreen frame). */
   fallbackCover: string;
+  /**
+   * Compact (homepage) layout: a HORIZONTAL card — cover beside the copy on ≥sm,
+   * capped, tighter type — so four ventures read in ~half the vertical space. The
+   * default stacked poster is untouched (kept for the /ventures gallery).
+   */
+  compact?: boolean;
 }
 
 // Bilingual STATUS labels — the single source of truth for the poster's status
@@ -91,7 +97,7 @@ function stageLabel(stage: string | null | undefined, lang: Lang): string | null
   return map[stage] ?? stage;
 }
 
-export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover }: ShowcaseCardProps) {
+export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover, compact = false }: ShowcaseCardProps) {
   const v = venture;
   // GOLDEN RULE: in EN show ONLY the stored _en value; if it's empty, hide the
   // field — never fall back to Arabic (and never show English in AR).
@@ -108,6 +114,77 @@ export function ShowcaseCard({ venture, metrics, lang, t, testId, fallbackCover 
   // aria-label / img alt need a non-empty string; fall to the neutral brand word
   // when the active-locale name is empty (avoids leaking the other language).
   const label = name || t({ ar: "مشروع", en: "Venture" });
+
+  // ── Compact (homepage) — a horizontal poster: cover beside copy on ≥sm, capped,
+  //    tighter type. Same content, ~half the height. /ventures keeps the stacked one.
+  if (compact) {
+    return (
+      <Link
+        href={`/ventures/${v.id}`}
+        data-testid={testId}
+        aria-label={label}
+        className="group relative flex flex-col overflow-hidden glass-panel-lg spectral-edge transition-[transform,border-color,box-shadow] duration-[240ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] hover:border-white/22 hover:shadow-[0_50px_100px_-44px_hsl(0_0%_0%/0.85)] motion-safe:hover:-translate-y-1 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] sm:flex-row"
+      >
+        <SpotlightOverlay />
+        <span aria-hidden className="absolute inset-0 opacity-[0.55]" style={{ background: vid.gradient }} />
+        <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, hsl(0 0% 0% / 0.12) 0%, hsl(0 0% 0% / 0.34) 100%)" }} />
+        {/* Cover — top on mobile, a capped side panel (stretches to card height) on ≥sm */}
+        <div className="relative shrink-0 overflow-hidden aspect-[16/10] sm:aspect-auto sm:w-[38%] sm:min-h-[clamp(184px,20vw,236px)]">
+          <img
+            src={cover}
+            alt={label}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => { const img = e.currentTarget as HTMLImageElement; if (img.src !== fallbackCover) img.src = fallbackCover; }}
+            className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[280ms] ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none motion-safe:group-hover:scale-[1.04]"
+          />
+          <span aria-hidden className="absolute inset-0 opacity-[0.22] mix-blend-soft-light" style={{ background: vid.gradient }} />
+        </div>
+        {/* Copy */}
+        <div className="relative flex flex-1 flex-col p-[clamp(1.25rem,2.2vw,1.75rem)]">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {sector && (
+              <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal text-white/80">
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: vid.accent }} />
+                {sector}
+              </span>
+            )}
+            {status && (
+              <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.1em] rtl:tracking-normal text-white/85 ring-1" style={{ borderColor: "transparent", background: vid.soft, boxShadow: `inset 0 0 0 1px ${vid.accent}55` }}>
+                {status}
+              </span>
+            )}
+          </div>
+          {name && (
+            <h3 className="mt-3 font-display font-black text-white" style={{ fontSize: "clamp(1.4rem,2.1vw,1.95rem)", lineHeight: 1.02, letterSpacing: "-0.035em" }}>
+              {name}
+            </h3>
+          )}
+          {tagline && (
+            <p className="mt-2 font-display text-white/78 line-clamp-2" style={{ fontSize: "clamp(0.95rem,1.15vw,1.1rem)", lineHeight: 1.35 }}>
+              {tagline}
+            </p>
+          )}
+          {metrics.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {metrics.slice(0, 3).map((m, i) => (
+                <span key={i} className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full ring-1 ring-white/12 bg-white/[0.05] text-[11px] font-bold">
+                  <span className="font-display font-black tabular-nums text-sand-bright text-[13px] leading-none">{m.v}</span>
+                  <span className="text-white/62">{lang === "ar" ? m.ar : m.en}</span>
+                </span>
+              ))}
+            </div>
+          )}
+          <span className="mt-auto pt-4 inline-flex items-center gap-2.5 text-[13px] font-bold text-white transition-colors group-hover:text-primary">
+            <span className="tracking-[0.02em] underline-offset-[6px] group-hover:underline decoration-primary/60 decoration-1">
+              {t({ ar: "دراسة الحالة", en: "Case study" })}
+            </span>
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 motion-reduce:transition-none" />
+          </span>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link
