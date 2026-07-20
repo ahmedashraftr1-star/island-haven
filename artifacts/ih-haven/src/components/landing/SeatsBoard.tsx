@@ -194,7 +194,10 @@ function CheckInCard({
   useEffect(() => load(), [load]);
 
   const toggle = useCallback(async () => {
-    if (pending || !me || me.seat == null) return;
+    // A member can record attendance even WITHOUT a fixed seat — the backend
+    // snapshots seat=null and still tracks presence (matches the server, which
+    // lets a member check in before an admin assigns them a seat).
+    if (pending || !me) return;
     setPending(true);
     setError(false);
     const goingIn = !me.present;
@@ -240,17 +243,19 @@ function CheckInCard({
 
   return (
     <div className="mt-[clamp(1rem,2vw,1.5rem)] glass-panel p-[clamp(1rem,2vw,1.35rem)]">
-      {me && me.seat != null ? (
+      {me ? (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="text-[12px] font-medium uppercase tracking-[0.14em] text-white/55 rtl:tracking-normal">
-                {t({ ar: "مقعدك", en: "Your seat" })}
+                {me.seat != null ? t({ ar: "مقعدك", en: "Your seat" }) : t({ ar: "حضورك", en: "Your attendance" })}
               </span>
-              <span className="font-display font-black tabular-nums text-sand-bright text-[1.35rem] leading-none">
-                {t({ ar: "رقم ", en: "#" })}
-                {fmt(me.seat)}
-              </span>
+              {me.seat != null && (
+                <span className="font-display font-black tabular-nums text-sand-bright text-[1.35rem] leading-none">
+                  {t({ ar: "رقم ", en: "#" })}
+                  {fmt(me.seat)}
+                </span>
+              )}
             </div>
             {/* Live presence state — announced to assistive tech on change. */}
             <p aria-live="polite" className="mt-1.5 text-[13px] text-white/70">
@@ -273,6 +278,14 @@ function CheckInCard({
                 </span>
               )}
             </p>
+            {me.seat == null && (
+              <p className="mt-1 text-[12px] leading-relaxed text-white/45">
+                {t({
+                  ar: "لم يُخصَّص لك مقعد ثابت بعد — يمكنك تسجيل حضورك العامّ.",
+                  en: "No fixed seat assigned yet — you can still record your general attendance.",
+                })}
+              </p>
+            )}
           </div>
 
           <button
@@ -296,15 +309,7 @@ function CheckInCard({
                 : t({ ar: "سجّل حضورك", en: "Check in" })}
           </button>
         </div>
-      ) : (
-        // Logged in but no seat assigned — an honest, quiet line. No CTA.
-        <p className="text-[13.5px] leading-relaxed text-white/60">
-          {t({
-            ar: "لم يُخصَّص لك مقعد بعد — تواصل مع إدارة المساحة.",
-            en: "No seat has been assigned to you yet — please contact the space management.",
-          })}
-        </p>
-      )}
+      ) : null}
     </div>
   );
 }

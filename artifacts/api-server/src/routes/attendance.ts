@@ -9,6 +9,7 @@ import {
   TOTAL_SEATS,
 } from "@workspace/db";
 import { requireUser, requireAdmin, type UserSession } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 import { z } from "zod";
 
@@ -198,86 +199,112 @@ router.post("/attendance/check-out", requireUser, async (req, res) => {
 // The live room grid — any logged-in member may view. Occupant identity is
 // joined LIVE from usersTable (never duplicated, never invented).
 
-// GET /attendance/board
+// Build the live seat board: every seat 1..TOTAL_SEATS with its active occupant
+// (if any) and whether that occupant currently has an open session. Shared by the
+// member endpoint and the admin endpoint so both stay byte-identical.
+async function buildBoard() {
+  const rows = await db
+    .select({
+      seatNumber: seatAssignmentsTable.seatNumber,
+      occupantId: usersTable.id,
+      fullName: usersTable.fullName,
+      jobTitle: usersTable.jobTitle,
+      skills: usersTable.skills,
+      avatarUrl: usersTable.avatarUrl,
+      role: usersTable.role,
+      checkInAt: attendanceSessionsTable.checkInAt,
+    })
+    .from(seatAssignmentsTable)
+    .innerJoin(usersTable, eq(usersTable.id, seatAssignmentsTable.userId))
+    .leftJoin(
+      attendanceSessionsTable,
+      and(
+        eq(attendanceSessionsTable.userId, seatAssignmentsTable.userId),
+        isNull(attendanceSessionsTable.checkOutAt),
+      ),
+    )
+    .where(isNull(seatAssignmentsTable.releasedAt));
+
+  const bySeat = new Map<
+    number,
+    {
+      occupant: {
+        id: number;
+        fullName: string;
+        jobTitle: string;
+        skills: string;
+        avatarUrl: string | null;
+        role: string;
+      };
+      present: boolean;
+      since: string | null;
+    }
+  >();
+  for (const r of rows) {
+    bySeat.set(r.seatNumber, {
+      occupant: {
+        id: r.occupantId,
+        fullName: r.fullName,
+        jobTitle: r.jobTitle,
+        skills: r.skills,
+        avatarUrl: r.avatarUrl,
+        role: r.role,
+      },
+      present: !!r.checkInAt,
+      since: toIso(r.checkInAt),
+    });
+  }
+
+  const seats = Array.from({ length: TOTAL_SEATS }, (_, i) => {
+    const number = i + 1;
+    const entry = bySeat.get(number);
+    return {
+      number,
+      present: entry?.present ?? false,
+      since: entry?.since ?? null,
+      occupant: entry?.occupant ?? null,
+    };
+  });
+
+  const assignedCount = bySeat.size;
+  let presentCount = 0;
+  for (const s of seats) if (s.present) presentCount++;
+
+  return { totalSeats: TOTAL_SEATS, presentCount, assignedCount, seats };
+}
+
+// GET /attendance/board — for a signed-in member (their live floor view).
 router.get("/attendance/board", requireUser, async (_req, res) => {
   try {
-    // Active assignments joined to their live occupant, plus whether that
-    // occupant currently has an open session.
-    const rows = await db
-      .select({
-        seatNumber: seatAssignmentsTable.seatNumber,
-        occupantId: usersTable.id,
-        fullName: usersTable.fullName,
-        jobTitle: usersTable.jobTitle,
-        skills: usersTable.skills,
-        avatarUrl: usersTable.avatarUrl,
-        role: usersTable.role,
-        checkInAt: attendanceSessionsTable.checkInAt,
-      })
-      .from(seatAssignmentsTable)
-      .innerJoin(usersTable, eq(usersTable.id, seatAssignmentsTable.userId))
-      .leftJoin(
-        attendanceSessionsTable,
-        and(
-          eq(attendanceSessionsTable.userId, seatAssignmentsTable.userId),
-          isNull(attendanceSessionsTable.checkOutAt),
-        ),
-      )
-      .where(isNull(seatAssignmentsTable.releasedAt));
-
-    const bySeat = new Map<
-      number,
-      {
-        occupant: {
-          id: number;
-          fullName: string;
-          jobTitle: string;
-          skills: string;
-          avatarUrl: string | null;
-          role: string;
-        };
-        present: boolean;
-        since: string | null;
-      }
-    >();
-    for (const r of rows) {
-      bySeat.set(r.seatNumber, {
-        occupant: {
-          id: r.occupantId,
-          fullName: r.fullName,
-          jobTitle: r.jobTitle,
-          skills: r.skills,
-          avatarUrl: r.avatarUrl,
-          role: r.role,
-        },
-        present: !!r.checkInAt,
-        since: toIso(r.checkInAt),
-      });
-    }
-
-    const seats = Array.from({ length: TOTAL_SEATS }, (_, i) => {
-      const number = i + 1;
-      const entry = bySeat.get(number);
-      return {
-        number,
-        present: entry?.present ?? false,
-        since: entry?.since ?? null,
-        occupant: entry?.occupant ?? null,
-      };
-    });
-
-    const assignedCount = bySeat.size;
-    let presentCount = 0;
-    for (const s of seats) if (s.present) presentCount++;
-
-    res.json({
-      totalSeats: TOTAL_SEATS,
-      presentCount,
-      assignedCount,
-      seats,
-    });
+    res.json(await buildBoard());
   } catch (err) {
     logger.error({ err }, "GET /attendance/board failed");
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// Throttle repeated board-view audits: the admin panel polls the board every
+// ~30s, so we log at most one "viewed" entry per admin per window instead of
+// flooding the audit trail with thousands of identical rows.
+const BOARD_AUDIT_WINDOW_MS = 10 * 60 * 1000;
+const lastBoardAudit = new Map<string, number>();
+
+// GET /admin/attendance/board — same data, but authorised by requireAdmin so the
+// seat map loads in a pure admin session (no member cookie needed). Read-only,
+// admin-only, and access is audited (throttled). No data is exposed to non-admins.
+router.get("/admin/attendance/board", requireAdmin, async (req, res) => {
+  try {
+    const actor = auditActor(req);
+    const key = String(actor ?? "admin");
+    const now = Date.now();
+    const prev = lastBoardAudit.get(key) ?? 0;
+    if (now - prev > BOARD_AUDIT_WINDOW_MS) {
+      lastBoardAudit.set(key, now);
+      void writeAudit({ actor, action: "attendance_board_viewed", targetType: "attendance" });
+    }
+    res.json(await buildBoard());
+  } catch (err) {
+    logger.error({ err }, "GET /admin/attendance/board failed");
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

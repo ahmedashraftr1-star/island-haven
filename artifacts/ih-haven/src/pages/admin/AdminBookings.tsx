@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import SeatMap from "./SeatMap";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -119,9 +120,6 @@ export default function AdminBookings() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-bookings"] }),
   });
 
-  if (isLoading)
-    return <div className="text-center py-16 text-foreground/60 text-sm">جارِ التحميل...</div>;
-
   const list = data?.bookings ?? [];
   const filtered = list
     .filter((b) => filter === "all" || b.status === filter)
@@ -145,7 +143,24 @@ export default function AdminBookings() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
+      {/* The interactive seat map — same component as the الحضور والانصراف tab */}
+      <section aria-labelledby="ih-seatmap-heading">
+        <h2 id="ih-seatmap-heading" className="text-[16px] font-bold text-foreground mb-4">
+          مخطّط المقاعد
+        </h2>
+        <SeatMap />
+      </section>
+
+      {/* Guest visit bookings */}
+      <section aria-labelledby="ih-visits-heading" className="space-y-5">
+        <h2 id="ih-visits-heading" className="text-[16px] font-bold text-foreground">
+          حجوزات الزيارات
+        </h2>
+        {isLoading ? (
+          <div className="text-center py-16 text-foreground/60 text-sm">جارِ التحميل...</div>
+        ) : (
+          <>
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/55" />
@@ -339,6 +354,9 @@ export default function AdminBookings() {
           ))}
         </div>
       )}
+          </>
+        )}
+      </section>
     </div>
   );
 }
