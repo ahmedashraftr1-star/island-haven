@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { fetchLatest, fetchChain } from "@/lib/attest-fetch";
 
 /**
  * Shared public-data hooks — the ONE place the homepage (and anywhere else)
@@ -41,11 +42,87 @@ export function useNumbers() {
   });
 }
 
+// ─── Homepage CTA buttons (owner-controlled from the admin panel) ─────────────
+export interface CtaButtonConfig {
+  labelAr: string;
+  labelEn: string;
+  href: string;
+  visible: boolean;
+  registrationOpen: boolean;
+  closedTitleAr: string;
+  closedTitleEn: string;
+  closedBodyAr: string;
+  closedBodyEn: string;
+}
+export interface CtaConfig {
+  primary: CtaButtonConfig;
+  guest: CtaButtonConfig;
+}
+
+// Frontend fallback == the server defaults == the site's current behaviour. Used
+// until the query resolves and if the fetch ever fails, so the hero never blanks.
+export const DEFAULT_CTA: CtaConfig = {
+  primary: {
+    labelAr: "قدّم على الحاضنة",
+    labelEn: "Apply to Island Haven",
+    href: "/apply",
+    visible: true,
+    registrationOpen: true,
+    closedTitleAr: "التسجيل مغلق حاليًّا",
+    closedTitleEn: "Registration is currently closed",
+    closedBodyAr:
+      "سيُفتح التسجيل في الدورة القادمة. تابِعنا لمعرفة المواعيد الرسميّة، وتأكّد من استيفاء شروط الانتساب.",
+    closedBodyEn:
+      "Registration opens for the next cohort. Follow us for the official dates and make sure you meet the membership requirements.",
+  },
+  guest: {
+    labelAr: "احجز مقعدك",
+    labelEn: "Book your seat",
+    href: "/book",
+    visible: true,
+    registrationOpen: true,
+    closedTitleAr: "الحجز مغلق حاليًّا",
+    closedTitleEn: "Booking is currently closed",
+    closedBodyAr: "حجز مقاعد الضيوف مغلق مؤقّتًا. تابِعنا لمعرفة مواعيد إعادة الفتح.",
+    closedBodyEn: "Guest seat booking is temporarily closed. Follow us for reopening dates.",
+  },
+};
+
+export function useCta() {
+  return useQuery({
+    queryKey: ["site-cta"],
+    queryFn: () => api<{ cta: CtaConfig }>("/site/cta"),
+    ...PUBLIC,
+  });
+}
+
 export function useVentures<T = unknown>() {
   return useQuery({
     queryKey: ["ventures"],
     queryFn: () => api<{ ventures: T[] }>("/ventures"),
     ...PUBLIC,
+  });
+}
+
+// الشرف القابل للتحقّق — the latest signed attestation of the public numbers,
+// plus our published public key so the browser can verify it independently.
+// Short staleTime: the head can re-seal when the numbers change.
+export function useAttestationLatest() {
+  return useQuery({
+    queryKey: ["attestation", "latest"],
+    queryFn: () => fetchLatest(),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+  });
+}
+
+// The recent chain (newest first) for the tamper-evident timeline.
+export function useAttestationChain(limit = 50) {
+  return useQuery({
+    queryKey: ["attestation", "chain", limit],
+    queryFn: () => fetchChain(limit),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 }
 

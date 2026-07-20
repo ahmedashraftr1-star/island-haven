@@ -52,6 +52,9 @@ import adminMessagesRouter from "./adminMessages";
 import adminContactRouter from "./adminContact";
 import adminNotificationsRouter from "./adminNotifications";
 import impactRouter from "./impact";
+import attestationsRouter from "./attestations";
+import trashRouter from "./trash";
+import ctaRouter from "./cta";
 
 const router: IRouter = Router();
 
@@ -81,6 +84,7 @@ router.use(statsRouter);
 router.use(userUploadRouter);
 router.use(membersRouter);
 router.use(numbersRouter);
+router.use(attestationsRouter);
 router.use(galleryRouter);
 router.use(pushRouter);
 router.use(expertAvailabilityRouter);
@@ -113,5 +117,7 @@ router.use(adminMessagesRouter);
 router.use(adminContactRouter);
 router.use(adminNotificationsRouter);
 router.use(impactRouter);
+router.use(trashRouter);
+router.use(ctaRouter);
 
 export default router;

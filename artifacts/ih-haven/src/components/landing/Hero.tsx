@@ -1,13 +1,14 @@
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowDown } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
 import { SpecularSheen } from "@/components/ui/SpecularButton";
-import { useNumbers, useAttendanceSummary } from "@/hooks/use-public-data";
+import { useNumbers, useAttendanceSummary, useCta, DEFAULT_CTA, type CtaButtonConfig } from "@/hooks/use-public-data";
 import { ParticleField } from "./ParticleField";
+import { CtaClosedModal } from "./CtaClosedModal";
 
 const FALLBACK = {
   eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
@@ -150,8 +151,43 @@ function RotatingWord({
   );
 }
 
+/** A hero CTA that links to its form when registration is OPEN, or opens the
+ *  owner-editable closed-explanation modal when CLOSED — identical styling, but
+ *  correct semantics (a vs button). */
+function CtaAction({
+  open,
+  href,
+  onClosed,
+  testid,
+  className,
+  children,
+}: {
+  open: boolean;
+  href: string;
+  onClosed: () => void;
+  testid: string;
+  className: string;
+  children: ReactNode;
+}) {
+  if (open) {
+    return (
+      <a href={href} data-testid={testid} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button type="button" data-testid={testid} onClick={onClosed} className={className}>
+      {children}
+    </button>
+  );
+}
+
 export function Hero() {
   const { lang } = useLanguage();
+  const { data: ctaData } = useCta();
+  const cta = ctaData?.cta ?? DEFAULT_CTA;
+  const [ctaModal, setCtaModal] = useState<CtaButtonConfig | null>(null);
   const cms = useContentSection("hero", FALLBACK);
   const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
@@ -300,6 +336,8 @@ export function Hero() {
               scale: { duration: 7, ease: "linear" },
             }}
             className="absolute inset-0 w-full h-full object-cover saturate-[1.24] contrast-[1.12] brightness-[1.08]"
+            width={1350}
+            height={1800}
             loading={i === 0 ? "eager" : "lazy"}
             decoding="async"
             {...(i === 0 ? { fetchPriority: "high" as any } : {})}
@@ -425,25 +463,37 @@ export function Hero() {
             transition={{ delay: 0.82, duration: 0.5, ease: EASE_OUT_EXPO }}
             className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
-            <a
-              href={c.ctaPrimaryHref || "/apply"}
-              data-testid="cta-apply"
-              className="cta-fill group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
-            >
-              <SpecularSheen intensity={0.72} />
-              <span className="relative z-10">{c.ctaPrimary}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
-            </a>
-            <a
-              href={`${import.meta.env.BASE_URL}book`}
-              data-testid="cta-book"
-              className="group relative overflow-hidden spectral-edge inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
-            >
-              {/* The glass Book capsule carries the liquid-glass spectral rim (edge-only —
-                  no sheen here, so the two CTAs stay distinct and neither crowds). */}
-              <span className="relative z-10">{c.bookCtaLabel}</span>
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
-            </a>
+            {cta.primary.visible && (
+              <CtaAction
+                open={cta.primary.registrationOpen}
+                href={cta.primary.href || "/apply"}
+                onClosed={() => setCtaModal(cta.primary)}
+                testid="cta-apply"
+                className="cta-fill group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 lg:h-[60px] px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200 ease-out shadow-[0_24px_64px_-14px_hsl(354_82%_40%/0.62)]"
+              >
+                <SpecularSheen intensity={0.72} />
+                <span className="relative z-10">
+                  {lang === "en" ? cta.primary.labelEn : cta.primary.labelAr}
+                </span>
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
+              </CtaAction>
+            )}
+            {cta.guest.visible && (
+              <CtaAction
+                open={cta.guest.registrationOpen}
+                href={cta.guest.href || "/book"}
+                onClosed={() => setCtaModal(cta.guest)}
+                testid="cta-book"
+                className="group relative overflow-hidden spectral-edge inline-flex items-center justify-center gap-3 h-14 lg:h-[58px] px-7 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-[14px] tracking-[-0.005em] hover:bg-white/15 hover:border-white/30 active:bg-white/20 transition-colors duration-200"
+              >
+                {/* The glass Book capsule carries the liquid-glass spectral rim (edge-only —
+                    no sheen here, so the two CTAs stay distinct and neither crowds). */}
+                <span className="relative z-10">
+                  {lang === "en" ? cta.guest.labelEn : cta.guest.labelAr}
+                </span>
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 relative z-10" />
+              </CtaAction>
+            )}
           </motion.div>
         </motion.div>
       </div>
@@ -499,6 +549,8 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {ctaModal && <CtaClosedModal button={ctaModal} onClose={() => setCtaModal(null)} />}
     </section>
   );
 }
