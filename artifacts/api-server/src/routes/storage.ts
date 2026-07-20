@@ -1,6 +1,8 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 import type { File } from "@google-cloud/storage";
+import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 
 const router: IRouter = Router();
 
@@ -11,7 +13,7 @@ const SAFE_CONTENT_TYPES = new Set([
   "image/gif",
 ]);
 
-async function streamFile(file: File, res: import("express").Response) {
+async function streamFile(file: File, res: import("express").Response, isPrivate = false) {
   const [metadata] = await file.getMetadata();
   const rawType = (metadata.contentType as string) || "application/octet-stream";
   const safeType = SAFE_CONTENT_TYPES.has(rawType) ? rawType : "application/octet-stream";
@@ -20,7 +22,12 @@ async function streamFile(file: File, res: import("express").Response) {
   if (safeType === "application/octet-stream") {
     res.setHeader("Content-Disposition", "attachment");
   }
-  res.setHeader("Cache-Control", "public, max-age=2592000");
+  // Private attachments (CVs) must never sit in a shared cache; only the public
+  // image uploads get the long-lived cacheable header.
+  res.setHeader(
+    "Cache-Control",
+    isPrivate ? "private, no-store" : "public, max-age=2592000",
+  );
   if (metadata.size) res.setHeader("Content-Length", String(metadata.size));
   await new Promise<void>((resolve, reject) => {
     file
@@ -37,10 +44,40 @@ async function streamFile(file: File, res: import("express").Response) {
 const UPLOAD_PATH_RE =
   /^(?:uploads|user-uploads)\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.[a-zA-Z0-9]{2,8}$/;
 
-router.get("/storage/objects/{*splat}", async (req, res) => {
+// Attachments under `user-uploads/` are PRIVATE (CVs, applicant docs); images
+// under `uploads/` are public. The public regex above still matches both, so this
+// prefix decides who may read what.
+const PRIVATE_PREFIX_RE = /^user-uploads\//;
+
+function splatRest(req: Request): string {
+  const splat = (req.params as { splat?: string[] | string }).splat;
+  return Array.isArray(splat) ? splat.join("/") : splat ?? "";
+}
+
+// Gate private attachments behind requireAdmin (was previously reachable by
+// anyone holding the unguessable UUID URL — a real leak). Public image uploads
+// pass straight through. Every private read is audited.
+function gatePrivateAttachments(req: Request, res: Response, next: NextFunction): void {
+  const rest = splatRest(req);
+  if (!PRIVATE_PREFIX_RE.test(rest)) {
+    next();
+    return;
+  }
+  requireAdmin(req, res, () => {
+    void writeAudit({
+      actor: auditActor(req),
+      action: "private_attachment_accessed",
+      targetType: "attachment",
+      targetId: rest.slice(0, 80),
+      newValue: rest,
+    });
+    next();
+  });
+}
+
+router.get("/storage/objects/{*splat}", gatePrivateAttachments, async (req, res) => {
   try {
-    const splat = (req.params as { splat?: string[] | string }).splat;
-    const rest = Array.isArray(splat) ? splat.join("/") : splat ?? "";
+    const rest = splatRest(req);
     if (!UPLOAD_PATH_RE.test(rest)) {
       res.status(404).end();
       return;
@@ -48,7 +85,7 @@ router.get("/storage/objects/{*splat}", async (req, res) => {
     const objectPath = `/objects/${rest}`;
     const svc = new ObjectStorageService();
     const file = await svc.getObjectEntityFile(objectPath);
-    await streamFile(file, res);
+    await streamFile(file, res, PRIVATE_PREFIX_RE.test(rest));
   } catch (err) {
     if (err instanceof ObjectNotFoundError) {
       res.status(404).end();
