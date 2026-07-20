@@ -6,8 +6,18 @@ import { initQueues, closeQueues } from "./queues";
 import { startWorkers, stopWorkers } from "./queues/worker";
 import { startDailyDigestSchedule } from "./lib/dailyDigest";
 import { startMentorReminderJob } from "./lib/mentorReminderJob";
+import { publicKeyInfo } from "./lib/attest";
 
 ensureAuthConfigured();
+
+// Resolve the Ed25519 attestation signing key at boot. In production this THROWS
+// if IH_ATTEST_PRIVATE_KEY_HEX is unset — failing loudly here rather than booting
+// healthy and only 500-ing when the first /api/attestations/* request arrives.
+// In dev it resolves a stable SESSION_SECRET-derived key and never throws.
+{
+  const attestKey = publicKeyInfo();
+  logger.info({ keyId: attestKey.id }, "attestation signing key ready");
+}
 
 // Probe the shared rate-limit store (Redis) BEFORE importing the app, because
 // express-rate-limit binds its store when the limiters are created at app load.

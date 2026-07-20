@@ -12,6 +12,7 @@ import {
   getAdmin,
   setSessionCookie,
 } from "../lib/auth";
+import { issueCsrfCookie, clearCsrfCookie } from "../lib/csrf";
 import { randomBase32Secret, verifyTotp, otpauthUri } from "../lib/totp";
 
 const router: IRouter = Router();
@@ -91,6 +92,7 @@ router.post("/admin/login", async (req, res) => {
           .where(eq(adminUsersTable.id, row.id));
         const token = makeAdminToken(row.id, row.sessionEpoch);
         setSessionCookie(res, token);
+        issueCsrfCookie(res);
         res.json({ ok: true, token });
         return;
       }
@@ -100,6 +102,7 @@ router.post("/admin/login", async (req, res) => {
     if (checkAdminCredentials(identifier, password)) {
       const token = makeSessionToken();
       setSessionCookie(res, token);
+      issueCsrfCookie(res);
       res.json({ ok: true, token });
       return;
     }
@@ -112,6 +115,7 @@ router.post("/admin/login", async (req, res) => {
 
 router.post("/admin/logout", (_req, res) => {
   clearSessionCookie(res);
+  clearCsrfCookie(res);
   res.json({ ok: true });
 });
 

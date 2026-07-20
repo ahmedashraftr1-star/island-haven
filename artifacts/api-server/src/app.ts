@@ -8,6 +8,8 @@ import { rateLimit } from "express-rate-limit";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { codeFor } from "./lib/apiError";
+import { publicKeyInfo } from "./lib/attest";
+import { csrfProtect } from "./lib/csrf";
 import { compressJson, indexTwin, precompressedStatic } from "./lib/precompressed";
 import { rateLimitStore } from "./lib/rateLimitStore";
 import {
@@ -47,11 +49,20 @@ app.use(
         // Webfonts are self-hosted now, so Google's origins are no longer allowed
         // to serve us stylesheets or fonts — a smaller attack surface, not just a
         // faster one.
+        // `style-src` keeps 'unsafe-inline' deliberately: the React components use
+        // inline `style={}` extensively, and the SPA shell is served as a
+        // precompressed .br/.gz twin (see indexTwin), so a per-request style nonce
+        // can't be templated in without giving up precompression. script-src stays
+        // strict ('self', no inline) — the XSS-critical directive — and the only
+        // inline <script> in index.html is non-executable ld+json.
         "style-src": ["'self'", "'unsafe-inline'"],
         "font-src": ["'self'", "data:"],
         "img-src": ["'self'", "data:", "blob:", "https:"],
         "connect-src": ["'self'"],
         "frame-ancestors": ["'self'"],
+        // Restrict where forms can POST to — belt-and-suspenders against a form
+        // being repointed at an attacker origin via injected markup.
+        "form-action": ["'self'"],
         "object-src": ["'none'"],
         "base-uri": ["'self'"],
         "upgrade-insecure-requests": null,
@@ -283,6 +294,11 @@ app.use("/api", (_req, res, next) => {
   next();
 });
 
+// CSRF: double-submit token + Origin/Referer check on cookie-authed admin
+// mutations. Mounted before the router so it guards every /api/admin/* path.
+// Bearer-token + unauthenticated requests pass through (not CSRF-vulnerable).
+app.use("/api/admin", csrfProtect);
+
 app.use("/api", router);
 
 // Central API error handler — LAST in the chain. Catches anything a route
@@ -305,6 +321,14 @@ app.use("/api", (err: unknown, req: express.Request, res: express.Response, next
   });
 });
 
+// Public discovery of the Verifiable-Honesty signing key at a stable
+// /.well-known path (public material only; mirrors GET /api/attestations/pubkey).
+// Registered BEFORE the SPA fallback so it isn't swallowed by index.html.
+app.get("/.well-known/ih-pubkey", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json({ keys: [publicKeyInfo()] });
+});
+
 // ─── Production: serve the built SPA from the same origin ─────────────────────
 // The frontend fetches same-origin "/api", so serving it here lets ONE process
 // serve both the API and the site — the simplest VPS topology (no nginx needed).
@@ -316,6 +340,14 @@ if (
   const clientDir =
     process.env.CLIENT_DIR ??
     path.resolve(process.cwd(), "../ih-haven/dist/public");
+  // Defense-in-depth: a source map would expose the original TypeScript. The web
+  // build emits none (vite build.sourcemap:false), but hard-block any *.map
+  // request here so a future build can never leak one — and it 404s instead of
+  // falling through to the SPA shell.
+  app.use((req, res, next) => {
+    if (req.path.endsWith(".map")) return void res.status(404).end();
+    next();
+  });
   // Serve the build-time `.br`/`.gz` twins when the client accepts them. Must
   // come BEFORE express.static (it rewrites req.url to the compressed twin).
   app.use(precompressedStatic(clientDir));

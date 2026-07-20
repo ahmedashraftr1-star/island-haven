@@ -59,7 +59,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck + build on every push/PR, plus a 
 ## Health checks
 
 - `GET /api/healthz` — liveness (process up).
-- `GET /api/readyz` — readiness (returns 503 if the database is unreachable). Use this for load-balancer / deploy health checks.
+- `GET /api/readyz` — readiness (returns 503 if the database is unreachable **or** the Ed25519 attestation signing key is unavailable). Use this for load-balancer / deploy health checks.
 
 ## Environment variables (backend)
 
@@ -69,13 +69,14 @@ CI (`.github/workflows/ci.yml`) runs typecheck + build on every push/PR, plus a 
 | `ADMIN_USERNAME` | Admin login username (optional; if set, required at login) |
 | `ADMIN_PASSWORD` | Admin login password + session-signing fallback (required, ≥8 chars) |
 | `SESSION_SECRET` | HMAC secret for session cookies (preferred over reusing ADMIN_PASSWORD) |
+| `IH_ATTEST_PRIVATE_KEY_HEX` | Ed25519 32-byte hex seed signing the public "signed numbers" (`/verify`). **Required in production** — boot fails + `/readyz` 503s without it. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Never commit; only the public half is exposed. |
 | `FRONTEND_URL` | Used to build password-reset links |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Transactional email (falls back to logging if unset) |
 | `PORT` | API port (default 3001) |
 
 ## Before shipping to production
 
-- Set a strong `ADMIN_PASSWORD` and a random `SESSION_SECRET`.
+- Set a strong `ADMIN_PASSWORD`, a random `SESSION_SECRET`, and a fresh `IH_ATTEST_PRIVATE_KEY_HEX` (the server refuses to boot without the latter two).
 - Configure `RESEND_API_KEY` + a verified `EMAIL_FROM` domain for real emails.
 - Update `og:url` / `canonical` in `artifacts/ih-haven/index.html` to your domain.
 - Keep `.env` and the seed scripts out of version control if they hold real secrets.

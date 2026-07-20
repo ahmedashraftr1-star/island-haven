@@ -33,17 +33,32 @@ export function errorText(body: unknown): string | null {
   return null;
 }
 
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(
+    new RegExp("(?:^|;\\s*)" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)"),
+  );
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
 export async function api<T = unknown>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
+  // Double-submit CSRF: echo the JS-readable `ih_csrf` cookie in a header on
+  // state-changing requests. The server enforces it on cookie-authed admin
+  // mutations; it's harmless on public/GET calls. `...init` first, then headers
+  // last, so the merged Content-Type + CSRF + caller headers all survive.
+  const method = String(init.method ?? "GET").toUpperCase();
+  const csrf = method !== "GET" && method !== "HEAD" ? readCookie("ih_csrf") : null;
   const res = await fetch(`${BASE}${path}`, {
     credentials: "include",
+    ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(csrf ? { "X-CSRF-Token": csrf } : {}),
       ...(init.headers as Record<string, string> | undefined),
     },
-    ...init,
   });
   let data: unknown = null;
   const text = await res.text();
