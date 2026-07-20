@@ -28,7 +28,27 @@ type Application = {
   interviewAt: string | null;
   review: ReviewAgg;
   createdAt: string;
+  // Full applicant detail (already returned by the admin list; surfaced in the card).
+  motivation?: string | null;
+  previousWork?: string | null;
+  skills?: string | null;
+  specialization?: string | null;
+  yearsExperience?: number | null;
+  weeklyHours?: number | null;
+  isEmployed?: boolean | null;
+  linkedinUrl?: string | null;
+  portfolioUrl?: string | null;
+  cvUrl?: string | null;
 };
+
+function DetailCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/50 font-semibold mb-0.5">{label}</div>
+      <div className="text-[13.5px] text-foreground/85">{value}</div>
+    </div>
+  );
+}
 
 const STATUS_LABELS: Record<string, string> = {
   new: "جديد", reviewing: "قيد المراجعة", screening: "فرز", interview: "مقابلة",
@@ -262,6 +282,56 @@ export default function AdminApplications() {
                           {app.bio || "—"}
                         </p>
                       </div>
+
+                      {/* Full applicant detail */}
+                      {(app.specialization || app.skills || app.yearsExperience != null || app.weeklyHours != null || app.isEmployed != null) && (
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+                          {app.specialization && <DetailCell label="التخصّص" value={app.specialization} />}
+                          {app.skills && <DetailCell label="المهارات" value={app.skills} />}
+                          {app.yearsExperience != null && <DetailCell label="سنوات الخبرة" value={String(app.yearsExperience)} />}
+                          {app.weeklyHours != null && <DetailCell label="ساعات أسبوعيّة" value={String(app.weeklyHours)} />}
+                          {app.isEmployed != null && <DetailCell label="موظّف حاليًّا" value={app.isEmployed ? "نعم" : "لا"} />}
+                        </div>
+                      )}
+                      {app.motivation && (
+                        <div>
+                          <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">دافع الانضمام</div>
+                          <p className="text-[14px] text-foreground/85 whitespace-pre-wrap leading-relaxed">{app.motivation}</p>
+                        </div>
+                      )}
+                      {app.previousWork && (
+                        <div>
+                          <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">أعمال سابقة</div>
+                          <p className="text-[14px] text-foreground/85 whitespace-pre-wrap leading-relaxed">{app.previousWork}</p>
+                        </div>
+                      )}
+
+                      {/* Attachments + external links */}
+                      {(app.cvUrl || app.linkedinUrl || app.portfolioUrl) && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          {app.cvUrl && (
+                            <a
+                              href={`/api/admin/applications/${app.id}/cv`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-primary/90"
+                            >
+                              📄 تحميل السيرة الذاتيّة (PDF)
+                            </a>
+                          )}
+                          {app.linkedinUrl && (
+                            <a href={app.linkedinUrl} target="_blank" rel="noopener noreferrer" dir="ltr" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3.5 py-2 text-[13px] font-semibold text-foreground/80 transition-colors hover:text-foreground hover:border-foreground/30">
+                              LinkedIn ↗
+                            </a>
+                          )}
+                          {app.portfolioUrl && (
+                            <a href={app.portfolioUrl} target="_blank" rel="noopener noreferrer" dir="ltr" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3.5 py-2 text-[13px] font-semibold text-foreground/80 transition-colors hover:text-foreground hover:border-foreground/30">
+                              Portfolio ↗
+                            </a>
+                          )}
+                        </div>
+                      )}
+
                       <div>
                         <div className="text-[10px] tracking-[0.14em] uppercase text-foreground/60 font-semibold mb-1.5">
                           ملاحظات داخليّة

@@ -203,7 +203,7 @@ export default function AdminLogin() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 dir="ltr"
-                autoComplete="username"
+                autoComplete="off"
                 data-testid="input-username"
                 placeholder="you@islandhaven.org"
                 className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/40 outline-none transition-all"
@@ -247,7 +247,10 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 dir="ltr"
-                autoComplete="current-password"
+                // Admin hardening: suppress browser autofill / saved-credential
+                // offers on the admin passphrase (a shared/borrowed device must not
+                // auto-fill admin creds). Not a normal member login.
+                autoComplete="off"
                 data-testid="input-password"
                 placeholder="••••••••••••"
                 className="w-full h-12 rounded-xl px-4 text-[15px] font-mono tracking-wider text-white placeholder-white/40 outline-none transition-all"
