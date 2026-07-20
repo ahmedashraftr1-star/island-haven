@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { useInView, useReducedMotion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck } from "lucide-react";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
@@ -91,6 +91,7 @@ export function NumbersBand() {
       src={imageUrl("/photos/IMG_8308.webp")}
       scrim="medium"
       sideScrim={false}
+      data-rail-theme="light"
       className="relative overflow-hidden border-t border-white/[0.06]"
       aria-label={t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
     >
@@ -213,14 +214,26 @@ export function NumbersBand() {
                 </span>
               ))}
             </div>
-            <Link
-              href="/numbers"
-              data-testid="link-numbers-more"
-              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
-            >
-              {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Verifiable Honesty — a quiet gold sibling: every figure above is
+                  cryptographically signed and the visitor can verify it themselves. */}
+              <Link
+                href="/verify"
+                data-testid="link-verify"
+                className="group inline-flex items-center gap-2 rounded-full border border-sand/25 bg-sand/[0.06] px-4 py-2 text-[13.5px] font-semibold text-sand-bright transition-all duration-200 hover:border-sand/45 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
+              >
+                <BadgeCheck className="h-4 w-4" aria-hidden />
+                {t({ ar: "كلّ رقمٍ موقّع · تحقّق منّا", en: "Every number signed · verify us" })}
+              </Link>
+              <Link
+                href="/numbers"
+                data-testid="link-numbers-more"
+                className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
+              >
+                {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              </Link>
+            </div>
           </div>
         </Reveal>
       </div>

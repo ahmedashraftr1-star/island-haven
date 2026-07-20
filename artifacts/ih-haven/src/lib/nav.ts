@@ -57,6 +57,7 @@ export const NAV_STRUCTURE: NavEntry[] = [
         label: { ar: "عن آيلاند هيفن", en: "About Us" },
         items: [
           { icon: "Heart", title: { ar: "رؤيتنا وقصّتنا", en: "Our Vision" }, desc: { ar: "من نحن وكيف بدأت الفكرة", en: "Who we are & how it began" }, href: "/about" },
+          { icon: "ShieldCheck", title: { ar: "الشرف القابل للتحقّق", en: "Verifiable Honesty" }, desc: { ar: "تحقّق من كلّ رقمٍ بنفسك", en: "Verify every number yourself" }, href: "/verify", badge: "new" },
           { icon: "Users", title: { ar: "الفريق", en: "Our Team" }, desc: { ar: "الوجوه التي تقف خلف الحاضنة", en: "The people behind Island Haven" }, href: "/team" },
           { icon: "Heart", title: { ar: "انضمّ لفريقنا", en: "Join Our Team" }, desc: { ar: "وظائف آيلاند هيفن الدّاخليّة", en: "Island Haven's internal roles" }, href: "/careers", badge: "new" },
           { icon: "Newspaper", title: { ar: "الغرفة الإعلاميّة", en: "Media Kit" }, desc: { ar: "شعارات، صور، وملفّ صحفيّ", en: "Logos, photos & press kit" }, href: "/media" },
@@ -80,6 +81,7 @@ export const MOBILE_LINKS: { label: Bi; href: string }[] = [
   { label: { ar: "الفعاليّات", en: "Events" }, href: "/events" },
   { label: { ar: "المدوّنة", en: "Blog" }, href: "/blog" },
   { label: { ar: "رؤيتنا", en: "About" }, href: "/about" },
+  { label: { ar: "الشرف القابل للتحقّق", en: "Verifiable Honesty" }, href: "/verify" },
   { label: { ar: "الفريق", en: "Team" }, href: "/team" },
   { label: { ar: "المنتسبون", en: "Members" }, href: "/members" },
   { label: { ar: "فريلانسر دائم", en: "Freelancers" }, href: "/freelancers" },
@@ -117,6 +119,7 @@ export const FOOTER_COLUMNS: FooterCol[] = [
     title: { ar: "المؤسّسة", en: "Organization" },
     links: [
       { label: { ar: "رؤيتنا وقصّتنا", en: "Our Vision" }, href: "/about" },
+      { label: { ar: "الشرف القابل للتحقّق", en: "Verifiable Honesty" }, href: "/verify" },
       { label: { ar: "الفريق", en: "Team" }, href: "/team" },
       { label: { ar: "الغرفة الإعلاميّة", en: "Media Kit" }, href: "/media" },
       { label: { ar: "سياسة الخصوصيّة", en: "Privacy" }, href: "/privacy" },
