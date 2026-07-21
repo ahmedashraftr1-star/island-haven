@@ -70,7 +70,7 @@ export function Story() {
   ].filter((a) => a.title || a.body);
 
   return (
-    <section id="story" className="relative bg-surface-1 overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="story" className="relative bg-surface-1 overflow-hidden" style={{ paddingBlock: "clamp(2.75rem, 6vh, 4.5rem)" }}>
       <div className="container-ih relative">
         {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
         <header className="max-w-4xl">
@@ -111,11 +111,11 @@ export function Story() {
 
         {/* ── The three axes — calm editorial hairline rows. A large title, the work
              as prose, the discipline named quietly. Not a numbered ledger, not cards. ── */}
-        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
           {axes.map((a, i) => (
             <li key={i}>
               <Reveal delay={Math.min(i, 4) * 0.06}>
-                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,22rem)_1fr] items-baseline gap-x-[clamp(2rem,5vw,4rem)] gap-y-3 py-[clamp(1.75rem,3.5vw,3rem)] border-b border-border-strong/60">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,22rem)_1fr] items-baseline gap-x-[clamp(2rem,5vw,4rem)] gap-y-3 py-[clamp(1.25rem,2.5vw,1.85rem)] border-b border-border-strong/60">
                   <h3
                     className="font-display font-bold text-foreground"
                     style={{ fontSize: "clamp(1.5rem,2.8vw,2.4rem)", letterSpacing: "-0.028em", lineHeight: 1.12 }}
@@ -133,13 +133,13 @@ export function Story() {
       {/* ── The place itself — one full-bleed photograph, slow parallax, a calm line overlaid ── */}
       <motion.div
         ref={photoRef}
-        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(20rem,52vh,34rem)]">
+        <div className="relative h-[clamp(15rem,36vh,24rem)]">
           <motion.img
             src={imageUrl(c.image)}
             alt={t({ ar: "مساحة عمل آيلاند هيفن في غزّة", en: "The Island Haven workspace in Gaza" })}

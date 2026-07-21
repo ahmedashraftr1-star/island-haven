@@ -72,7 +72,7 @@ export function Support() {
   ];
 
   return (
-    <section id="support" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(6rem, 14vh, 11rem)" }}>
+    <section id="support" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(2.75rem, 6vh, 4.5rem)" }}>
       <div className="container-ih relative">
         {/* ── Monumental header — one quiet line, one crimson word, acres of space ── */}
         <header className="max-w-4xl">
@@ -115,7 +115,7 @@ export function Support() {
 
         {/* ── The donate ask — carried by ONE confident line + filled CTA, no card ── */}
         <Reveal delay={0.05}>
-          <div className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60 pt-[clamp(2.5rem,5vw,4rem)]">
+          <div className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60 pt-[clamp(1.75rem,3.5vw,2.75rem)]">
             <p
               className="font-display font-bold text-foreground max-w-3xl"
               style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.18, letterSpacing: "-0.028em" }}
@@ -147,7 +147,7 @@ export function Support() {
         </Reveal>
 
         {/* ── More ways to stand with us — calm editorial hairline rows, not cards ── */}
-        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
           {ways.map((w, i) => {
             const external = w.href?.startsWith("http");
             return (
@@ -158,7 +158,7 @@ export function Support() {
                     target={external ? "_blank" : undefined}
                     rel={external ? "noopener noreferrer" : undefined}
                     data-testid={w.testid}
-                    className="group grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr_auto] items-baseline gap-x-[clamp(2rem,4vw,3rem)] gap-y-2 py-[clamp(1.75rem,3.5vw,3rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+                    className="group grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr_auto] items-baseline gap-x-[clamp(2rem,4vw,3rem)] gap-y-2 py-[clamp(1.25rem,2.5vw,1.85rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
                   >
                     <span
                       className="font-display font-bold text-foreground group-hover:text-primary transition-colors"
@@ -186,13 +186,13 @@ export function Support() {
       {/* ── The brand belief — set large over one full-bleed photograph, slow parallax ── */}
       <motion.div
         ref={photoRef}
-        className="relative mt-[clamp(4.5rem,10vh,8rem)] w-full overflow-hidden"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(22rem,58vh,38rem)]">
+        <div className="relative h-[clamp(16rem,40vh,26rem)]">
           <motion.img
             src={imageUrl(c.image)}
             alt={t({ ar: "مجتمع آيلاند هيفن في غزّة", en: "The Island Haven community in Gaza" })}

@@ -49,7 +49,7 @@ export function About() {
   ];
 
   return (
-    <section id="about" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(3.5rem, 8vh, 6rem)" }}>
+    <section id="about" className="relative bg-background overflow-hidden" style={{ paddingBlock: "clamp(2.5rem, 5vh, 4rem)" }}>
       <div className="container-ih relative">
         {/* ── Hero split: monumental heading (start) ↔ hook + mini-stats (opposite) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-[clamp(3rem,6vw,8rem)] gap-y-12 items-start">
@@ -121,7 +121,7 @@ export function About() {
         </div>
 
         {/* ── The narrative — calm editorial prose, no boxes ── */}
-        <div className="mt-[clamp(3.5rem,7vw,6rem)] max-w-3xl space-y-7" style={{ fontSize: "clamp(1.05rem,1.5vw,1.2rem)", lineHeight: 1.85 }}>
+        <div className="mt-[clamp(2rem,4vw,3.25rem)] max-w-3xl space-y-7" style={{ fontSize: "clamp(1.05rem,1.5vw,1.2rem)", lineHeight: 1.85 }}>
           {narrative.map((p, i) => (
             <Reveal key={i} delay={i * 0.05} as="p">
               <span className="text-fg-secondary">{p}</span>
@@ -132,7 +132,7 @@ export function About() {
         {/* ── The bridge belief — set large, unboxed ── */}
         <Reveal delay={0.05}>
           <p
-            className="mt-[clamp(3rem,6vw,5rem)] font-display font-bold text-foreground max-w-3xl"
+            className="mt-[clamp(2rem,4vw,3rem)] font-display font-bold text-foreground max-w-3xl"
             style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.75rem)", lineHeight: 1.18, letterSpacing: "-0.028em" }}
           >
             {t({
@@ -144,7 +144,7 @@ export function About() {
 
         {/* ── The 3-year goal — quiet cerulean data row (cerulean = real numbers only) ── */}
         <Reveal delay={0.08}>
-          <div className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong pt-[clamp(2.25rem,4.5vw,3.5rem)]">
+          <div className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong pt-[clamp(1.5rem,3vw,2.25rem)]">
             <p className="t-caption text-fg-secondary mb-[clamp(1.75rem,3.5vw,2.75rem)]">
               {t({ ar: "هدفنا في ثلاث سنوات", en: "Our 3-year goal" })}
             </p>
@@ -174,13 +174,13 @@ export function About() {
       {/* ── The place itself — one full-bleed photograph, slow parallax, a calm line overlaid ── */}
       <motion.div
         ref={photoRef}
-        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(20rem,54vh,36rem)]">
+        <div className="relative h-[clamp(15rem,36vh,24rem)]">
           <motion.img
             src="/photos/IMG_8358.webp"
             alt={t({ ar: "من داخل مساحة آيلاند هيفن في غزّة", en: "Inside the Island Haven workspace in Gaza" })}
