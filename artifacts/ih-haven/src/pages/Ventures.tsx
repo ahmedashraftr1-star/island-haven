@@ -342,7 +342,7 @@ function VentureGallery({
       {/* Named section so the venture cards' h3 titles don't skip a level after the
           page h1 (WCAG 1.3.1). Visually redundant with the page title, so sr-only. */}
       <h2 className="sr-only">{t({ ar: "محفظة المشاريع", en: "Ventures portfolio" })}</h2>
-      <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
+      <div className="mt-[clamp(1.75rem,3.5vw,2.75rem)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.75rem,3.5vw,2.75rem)]">
         {ventures.map((v, i) => (
         <Reveal as="div" key={v.id} delay={reduce ? 0 : 0.05 * Math.min(i, 8)}>
           <ShowcaseCard
@@ -436,13 +436,13 @@ function EmptyPortfolio() {
 
       {/* The space, full-bleed — a real photograph carries the wait, one calm line */}
       <motion.div
-        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden rounded-[clamp(20px,2.5vw,32px)] ring-1 ring-white/10"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden rounded-[clamp(20px,2.5vw,32px)] ring-1 ring-white/10"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(20rem,52vh,34rem)]">
+        <div className="relative h-[clamp(15rem,36vh,24rem)]">
           <img
             src="/photos/IMG_8347.webp"
             alt={t({ ar: "منتسبون يبنون مشاريعهم في آيلاند هيفن بغزّة", en: "Members building their ventures at Island Haven in Gaza" })}
@@ -480,7 +480,7 @@ function ClosingCTA() {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
   return (
-    <section className="mt-[clamp(5rem,11vw,9rem)] border-t border-border-strong/60 pt-[clamp(3rem,6vw,5rem)]">
+    <section className="mt-[clamp(2.75rem,5.5vw,4.5rem)] border-t border-border-strong/60 pt-[clamp(3rem,6vw,5rem)]">
       <motion.h2
         className="font-display text-foreground max-w-[18ch]"
         style={{ fontSize: "clamp(2.2rem, 6vw, 4.25rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
@@ -555,7 +555,7 @@ function SkeletonVentures() {
           <div key={i} className="h-12 w-40 rounded-lg bg-surface-2 animate-pulse" />
         ))}
       </div>
-      <div className="mt-[clamp(3rem,6vw,5rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
+      <div className="mt-[clamp(1.75rem,3.5vw,2.75rem)] flex flex-col gap-[clamp(3rem,6vw,5.5rem)]">
         {[0, 1, 2].map((i) => (
           <div key={i} className="glass-panel-lg p-3">
             <div className="aspect-[16/9] rounded-[24px] bg-surface-2 animate-pulse" />

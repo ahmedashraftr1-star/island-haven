@@ -272,7 +272,7 @@ export default function Experts() {
             whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-8%" }}
             transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
-            className="mt-[clamp(3rem,6vw,5rem)] space-y-5"
+            className="mt-[clamp(1.75rem,3.5vw,2.75rem)] space-y-5"
           >
             <div className="relative max-w-md">
               <Search className="absolute start-0 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-faint" />
@@ -683,7 +683,7 @@ function MentorsEmptyState({ reduce }: { reduce: boolean }) {
       </motion.div>
 
       {/* The place and its people — one full-bleed photograph, a calm line overlaid. */}
-      <FullBleedPhoto reduce={reduce} className="mt-[clamp(4rem,9vh,7rem)]" />
+      <FullBleedPhoto reduce={reduce} className="mt-[clamp(2.5rem,5vh,4rem)]" />
     </section>
   );
 }
@@ -693,7 +693,7 @@ function MentorsEmptyState({ reduce }: { reduce: boolean }) {
 function BecomeMentorBand({ reduce }: { reduce: boolean }) {
   const { t } = useLanguage();
   return (
-    <section className="mt-[clamp(5rem,11vw,9rem)]">
+    <section className="mt-[clamp(2.75rem,5.5vw,4.5rem)]">
       <h2
         className="font-display text-foreground max-w-[16ch]"
         style={{ fontSize: "clamp(2.2rem, 6vw, 4.5rem)", lineHeight: 1.0, letterSpacing: "-0.04em", fontWeight: 700 }}
@@ -746,7 +746,7 @@ function BecomeMentorBand({ reduce }: { reduce: boolean }) {
         </Link>
       </motion.div>
 
-      <FullBleedPhoto reduce={reduce} className="mt-[clamp(4rem,9vh,7rem)]" />
+      <FullBleedPhoto reduce={reduce} className="mt-[clamp(2.5rem,5vh,4rem)]" />
     </section>
   );
 }
@@ -773,7 +773,7 @@ function FullBleedPhoto({ reduce, className = "" }: { reduce: boolean; className
       transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       className={`relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden ${className}`}
     >
-      <div className="relative h-[clamp(20rem,52vh,34rem)]">
+      <div className="relative h-[clamp(15rem,36vh,24rem)]">
         <motion.img
           src="/photos/IMG_8352.webp"
           alt={t({ ar: "مرشدون ومنتسبون في آيلاند هيفن بغزّة", en: "Mentors and members at Island Haven in Gaza" })}

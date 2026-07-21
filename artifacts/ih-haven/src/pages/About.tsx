@@ -73,7 +73,7 @@ function PullQuote({
   return (
     <section
       className="relative bg-background overflow-hidden"
-      style={{ paddingBlock: "clamp(4rem, 10vh, 8rem)" }}
+      style={{ paddingBlock: "clamp(2.5rem, 6vh, 4.5rem)" }}
       data-testid={testid}
     >
       <div className="container-ih relative">
@@ -158,7 +158,7 @@ function StatsBar() {
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-2 py-[clamp(2rem,4vw,3.25rem)] px-[clamp(1.25rem,3vw,2.75rem)]"
+                className="flex flex-col gap-2 py-[clamp(1.35rem,2.6vw,1.85rem)] px-[clamp(1.25rem,3vw,2.75rem)]"
                 data-testid={`about-stat-${i}`}
               >
                 <dt
@@ -247,11 +247,11 @@ function VisionMission() {
           ]}
         />
 
-        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
           {pillars.map((p, i) => (
             <li key={p.en}>
               <Reveal delay={Math.min(i, 4) * 0.06}>
-                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,14rem)_1fr] items-baseline gap-x-[clamp(2rem,5vw,4rem)] gap-y-4 py-[clamp(2.25rem,5vw,4rem)] border-b border-border-strong/60">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,14rem)_1fr] items-baseline gap-x-[clamp(2rem,5vw,4rem)] gap-y-4 py-[clamp(1.5rem,3vw,2.25rem)] border-b border-border-strong/60">
                   <h3
                     className="font-display font-bold text-foreground"
                     style={{ fontSize: "clamp(1.5rem,2.6vw,2.1rem)", letterSpacing: "-0.025em", lineHeight: 1.12 }}
@@ -348,7 +348,7 @@ function Values() {
           </motion.p>
         </header>
 
-        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
           {values.map((v, i) => (
             <li key={v.en}>
               <Reveal delay={Math.min(i, 6) * 0.06}>
@@ -521,7 +521,7 @@ function Backers() {
           </motion.p>
         </header>
 
-        <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+        <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
           {backers.map((b, i) => (
             <li key={b.en}>
               <Reveal delay={Math.min(i, 4) * 0.06}>
@@ -530,7 +530,7 @@ function Backers() {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-testid={`about-backer-${i}`}
-                  className="group grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr_auto] items-baseline gap-x-[clamp(2rem,4vw,3rem)] gap-y-2 py-[clamp(2rem,4vw,3.25rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+                  className="group grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr_auto] items-baseline gap-x-[clamp(2rem,4vw,3rem)] gap-y-2 py-[clamp(1.35rem,2.6vw,1.85rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
                 >
                   <div>
                     <span
@@ -609,13 +609,13 @@ function TeamTeaser() {
       {/* The people of the place — one full-bleed photograph, slow parallax, a calm line overlaid. */}
       <motion.div
         ref={photoRef}
-        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(20rem,52vh,34rem)]">
+        <div className="relative h-[clamp(16rem,38vh,26rem)]">
           <motion.img
             src="/photos/IMG_8352.webp"
             alt={t({ ar: "فريق ومجتمع آيلاند هيفن في غزّة", en: "The Island Haven team and community in Gaza" })}

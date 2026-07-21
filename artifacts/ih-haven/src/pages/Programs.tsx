@@ -196,7 +196,7 @@ export default function Programs() {
       <CohortPhoto />
 
       {/* ── API-driven programs — de-carded into editorial hairline rows ── */}
-      <section className="mt-[clamp(6rem,13vw,10rem)]">
+      <section className="mt-[clamp(3rem,6vw,4.5rem)]">
         <SectionHead
           lines={[
             t({ ar: "اختر", en: "Pick your" }),
@@ -316,7 +316,7 @@ function HowItWorks() {
 
       {/* The four steps — calm editorial hairline rows. A large name, the move as
           prose, separated by hairlines. Not a numbered ledger, not icon tiles. */}
-      <ul className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
+      <ul className="mt-[clamp(1.75rem,3.5vw,2.75rem)] border-t border-border-strong/60">
         {steps.map((s, i) => (
           <li key={i}>
             <motion.div
@@ -324,7 +324,7 @@ function HowItWorks() {
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.7, delay: i * 0.06, ease: EASE_OUT_EXPO }}
-              className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-2 border-b border-border-strong/60 py-[clamp(1.75rem,3.5vw,2.75rem)] will-change-transform"
+              className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-2 border-b border-border-strong/60 py-[clamp(1.25rem,2.5vw,1.75rem)] will-change-transform"
             >
               <h3
                 className="font-display font-bold text-foreground"
@@ -366,13 +366,13 @@ function HowItWorks() {
           with a slow parallax and a calm line overlaid. Shown, not described. */}
       <motion.div
         ref={ref}
-        className="relative mt-[clamp(4rem,9vh,7rem)] w-full overflow-hidden rounded-[24px]"
+        className="relative mt-[clamp(2.5rem,5vh,4rem)] w-full overflow-hidden rounded-[24px]"
         initial={reduce ? false : { opacity: 0 }}
         whileInView={reduce ? undefined : { opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 1, ease: EASE_OUT_EXPO }}
       >
-        <div className="relative h-[clamp(20rem,52vh,34rem)]">
+        <div className="relative h-[clamp(16rem,38vh,26rem)]">
           <motion.img
             style={{ y }}
             src="/photos/IMG_8347.webp"
@@ -458,7 +458,7 @@ function ValueLedger() {
   ];
 
   return (
-    <section className="mt-[clamp(6rem,13vw,10rem)]">
+    <section className="mt-[clamp(3rem,6vw,4.5rem)]">
       <SectionHead
         lines={[
           t({ ar: "حاضنةٌ كاملة،", en: "A full incubator," }),
@@ -470,7 +470,7 @@ function ValueLedger() {
         })}
       />
 
-      <ul className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
+      <ul className="mt-[clamp(1.75rem,3.5vw,2.75rem)] border-t border-border-strong/60">
         {items.map((it, i) => (
           <li key={i}>
             <motion.div
@@ -478,7 +478,7 @@ function ValueLedger() {
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.7, delay: i * 0.05, ease: EASE_OUT_EXPO }}
-              className="grid grid-cols-1 md:grid-cols-[minmax(0,20rem)_1fr_auto] items-baseline gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-2 border-b border-border-strong/60 py-[clamp(1.75rem,3.5vw,2.75rem)] will-change-transform"
+              className="grid grid-cols-1 md:grid-cols-[minmax(0,20rem)_1fr_auto] items-baseline gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-2 border-b border-border-strong/60 py-[clamp(1.25rem,2.5vw,1.75rem)] will-change-transform"
             >
               <h3
                 className="font-display font-bold text-foreground"
@@ -525,13 +525,13 @@ function CohortPhoto() {
   return (
     <motion.div
       ref={ref}
-      className="relative mt-[clamp(6rem,13vw,10rem)] w-full overflow-hidden rounded-[24px]"
+      className="relative mt-[clamp(3rem,6vw,4.5rem)] w-full overflow-hidden rounded-[24px]"
       initial={reduce ? false : { opacity: 0 }}
       whileInView={reduce ? undefined : { opacity: 1 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 1, ease: EASE_OUT_EXPO }}
     >
-      <div className="relative h-[clamp(20rem,52vh,34rem)]">
+      <div className="relative h-[clamp(16rem,38vh,26rem)]">
         <motion.img
           style={{ y }}
           src="/photos/IMG_8352.webp"
@@ -696,13 +696,13 @@ function ApplyBand() {
   return (
     <motion.div
       ref={ref}
-      className="relative mt-[clamp(6rem,13vw,10rem)] w-full overflow-hidden rounded-[24px]"
+      className="relative mt-[clamp(3rem,6vw,4.5rem)] w-full overflow-hidden rounded-[24px]"
       initial={reduce ? false : { opacity: 0 }}
       whileInView={reduce ? undefined : { opacity: 1 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 1, ease: EASE_OUT_EXPO }}
     >
-      <div className="relative min-h-[clamp(24rem,58vh,38rem)] flex items-end">
+      <div className="relative min-h-[clamp(18rem,42vh,28rem)] flex items-end">
         <motion.img
           style={{ y }}
           src="/photos/IMG_8341.webp"

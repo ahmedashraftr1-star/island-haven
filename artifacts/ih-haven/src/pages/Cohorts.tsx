@@ -246,11 +246,11 @@ function CohortModel() {
         </motion.p>
       </header>
 
-      <ul className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
+      <ul className="mt-[clamp(1.75rem,3.5vw,2.75rem)] border-t border-border-strong/60">
         {steps.map((s, i) => (
           <li key={s.title}>
             <Reveal delay={Math.min(i, 6) * 0.06}>
-              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-2 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60">
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-2 py-[clamp(1.25rem,2.5vw,1.75rem)] border-b border-border-strong/60">
                 <h3
                   className="font-display font-bold text-foreground"
                   style={{ fontSize: "clamp(1.4rem,2.8vw,2.1rem)", letterSpacing: "-0.025em", lineHeight: 1.1 }}
@@ -334,7 +334,7 @@ function FeaturedCohort({ c, liveCount }: { c: CohortRow; liveCount: number }) {
           {/* Full-bleed visual — real cover with parallax, or a curated house
               photograph when a cohort has no cover yet (never a gradient plate). */}
           <div className="relative overflow-hidden rounded-[clamp(1rem,2vw,1.5rem)] ring-1 ring-white/10">
-            <div className="relative h-[clamp(20rem,54vh,38rem)]">
+            <div className="relative h-[clamp(15rem,36vh,24rem)]">
               <motion.img
                 src={coverSrc}
                 alt={c.coverUrl ? c.name : ""}
@@ -455,7 +455,7 @@ function CohortRoster({
               <Link
                 href={`/cohorts/${c.slug}`}
                 data-testid={`cohort-card-${c.id}`}
-                className="group grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-3 py-[clamp(1.75rem,3.5vw,2.75rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
+                className="group grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-[clamp(1.5rem,3vw,3rem)] gap-y-3 py-[clamp(1.25rem,2.5vw,1.75rem)] border-b border-border-strong/60 transition-colors hover:border-border-strong"
               >
                 <div className="min-w-0">
                   <h3
@@ -620,7 +620,7 @@ function EmptyCohorts() {
       </header>
 
       {/* What a cohort will be — the model, taught while empty, as hairline rows. */}
-      <ul className="mt-[clamp(3.5rem,7vw,6rem)] border-t border-border-strong/60">
+      <ul className="mt-[clamp(2rem,4vw,3.25rem)] border-t border-border-strong/60">
         {steps.map((s, i) => (
           <li key={s.title}>
             <Reveal delay={Math.min(i, 6) * 0.06}>
@@ -649,7 +649,7 @@ function SkeletonCohorts() {
       {/* Model line + a few hairline rows */}
       <div>
         <div className="h-12 w-3/4 max-w-xl rounded-lg bg-surface-3 border border-border-strong animate-pulse" />
-        <div className="mt-[clamp(3rem,6vw,5rem)] border-t border-border-strong/60">
+        <div className="mt-[clamp(1.75rem,3.5vw,2.75rem)] border-t border-border-strong/60">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-24 w-full border-b border-border-strong/60 flex items-center">
               <div className="h-8 w-1/2 rounded bg-surface-3 animate-pulse" />
@@ -661,7 +661,7 @@ function SkeletonCohorts() {
       {/* Featured — tall full-bleed block at the real loaded height (not 16/9) */}
       <div>
         <div className="h-4 w-32 rounded bg-surface-3 animate-pulse mb-[clamp(1.25rem,2.5vw,2rem)]" />
-        <div className="h-[clamp(20rem,54vh,38rem)] w-full rounded-[clamp(1rem,2vw,1.5rem)] bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
+        <div className="h-[clamp(15rem,36vh,24rem)] w-full rounded-[clamp(1rem,2vw,1.5rem)] bg-surface-3 border border-border-strong shadow-soft animate-pulse" />
       </div>
 
       {/* Roster — hairline rows under a section line */}

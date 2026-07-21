@@ -251,7 +251,7 @@ export default function Investors() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="border-b border-border-strong/60 py-[clamp(1.75rem,3.5vw,2.75rem)] flex items-center gap-5"
+                  className="border-b border-border-strong/60 py-[clamp(1.25rem,2.5vw,1.75rem)] flex items-center gap-5"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-surface-2 animate-pulse shrink-0" />
                   <div className="flex-1 space-y-2.5">
@@ -314,7 +314,7 @@ export default function Investors() {
                                 rel: "noopener noreferrer",
                               }
                             : {})}
-                          className="group relative grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-start md:items-baseline gap-x-[clamp(1.25rem,3vw,2.5rem)] gap-y-3 border-b border-border-strong/60 py-[clamp(1.75rem,3.5vw,2.75rem)] transition-colors hover:border-border-strong"
+                          className="group relative grid grid-cols-[auto_1fr] md:grid-cols-[auto_minmax(0,1fr)_auto] items-start md:items-baseline gap-x-[clamp(1.25rem,3vw,2.5rem)] gap-y-3 border-b border-border-strong/60 py-[clamp(1.25rem,2.5vw,1.75rem)] transition-colors hover:border-border-strong"
                         >
                           {/* Type accent rail — a hairline of the type colour on the
                               leading edge, lit on hover (RTL-safe via start-0). */}
