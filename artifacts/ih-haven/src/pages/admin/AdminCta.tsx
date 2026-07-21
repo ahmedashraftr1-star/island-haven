@@ -17,6 +17,10 @@ interface CtaButton {
   closedTitleEn: string;
   closedBodyAr: string;
   closedBodyEn: string;
+  closedDatesAr: string;
+  closedDatesEn: string;
+  closedConditionsAr: string;
+  closedConditionsEn: string;
 }
 const PROMO_VARIANTS = ["gold", "solid", "glass", "gradient"] as const;
 type PromoVariant = (typeof PROMO_VARIANTS)[number];
@@ -76,21 +80,59 @@ function ToggleRow({
   );
 }
 
+// Ready-made label choices per button (owner picks one, or types a custom AR/EN).
+const LABEL_PRESETS: Record<"primary" | "guest", { ar: string; en: string }[]> = {
+  primary: [
+    { ar: "انضم للبرامج", en: "Join the programs" },
+    { ar: "انتسب الآن", en: "Join now" },
+    { ar: "انتسب للمساحة", en: "Join the space" },
+    { ar: "قدّم على الحاضنة", en: "Apply to Island Haven" },
+  ],
+  guest: [
+    { ar: "احجز مقعد الضيف", en: "Book a guest seat" },
+    { ar: "احجز مقعدك", en: "Book your seat" },
+  ],
+};
+
 function ButtonEditor({
   value,
   onChange,
+  presets,
 }: {
   value: CtaButton;
   onChange: (v: CtaButton) => void;
+  presets: { ar: string; en: string }[];
 }) {
   const set = <K extends keyof CtaButton>(k: K, v: CtaButton[K]) => onChange({ ...value, [k]: v });
   return (
     <div className="space-y-4">
+      <Field label="النصّ (اختر مسمّى جاهزًا أو خصّص أدناه)">
+        <div className="flex flex-wrap gap-2">
+          {presets.map((p) => {
+            const active = value.labelAr === p.ar && value.labelEn === p.en;
+            return (
+              <button
+                key={p.ar}
+                type="button"
+                onClick={() => onChange({ ...value, labelAr: p.ar, labelEn: p.en })}
+                className={
+                  "h-9 px-3.5 rounded-full text-[13px] font-semibold border transition-colors " +
+                  (active
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border text-foreground/60 hover:text-foreground")
+                }
+              >
+                {p.ar}
+              </button>
+            );
+          })}
+        </div>
+      </Field>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="النصّ (عربي)">
+        <Field label="مخصّص (عربي)">
           <Input value={value.labelAr} onChange={(e) => set("labelAr", e.target.value)} />
         </Field>
-        <Field label="Label (English)">
+        <Field label="Custom (English)">
           <Input dir="ltr" value={value.labelEn} onChange={(e) => set("labelEn", e.target.value)} />
         </Field>
       </div>
@@ -136,21 +178,57 @@ function ButtonEditor({
               />
             </Field>
           </div>
-          <Field label="النصّ — المواعيد الرسميّة والشروط (عربي)">
-            <Textarea
-              rows={4}
-              value={value.closedBodyAr}
-              onChange={(e) => set("closedBodyAr", e.target.value)}
-            />
-          </Field>
-          <Field label="Body — official dates & conditions (English)">
-            <Textarea
-              dir="ltr"
-              rows={4}
-              value={value.closedBodyEn}
-              onChange={(e) => set("closedBodyEn", e.target.value)}
-            />
-          </Field>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="النصّ التمهيديّ (عربي)">
+              <Textarea
+                rows={3}
+                value={value.closedBodyAr}
+                onChange={(e) => set("closedBodyAr", e.target.value)}
+              />
+            </Field>
+            <Field label="Intro line (English)">
+              <Textarea
+                dir="ltr"
+                rows={3}
+                value={value.closedBodyEn}
+                onChange={(e) => set("closedBodyEn", e.target.value)}
+              />
+            </Field>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="المواعيد الرسميّة (عربي)">
+              <Textarea
+                rows={2}
+                value={value.closedDatesAr}
+                onChange={(e) => set("closedDatesAr", e.target.value)}
+              />
+            </Field>
+            <Field label="Official dates (English)">
+              <Textarea
+                dir="ltr"
+                rows={2}
+                value={value.closedDatesEn}
+                onChange={(e) => set("closedDatesEn", e.target.value)}
+              />
+            </Field>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="شروط الانتساب (عربي)">
+              <Textarea
+                rows={2}
+                value={value.closedConditionsAr}
+                onChange={(e) => set("closedConditionsAr", e.target.value)}
+              />
+            </Field>
+            <Field label="Conditions (English)">
+              <Textarea
+                dir="ltr"
+                rows={2}
+                value={value.closedConditionsEn}
+                onChange={(e) => set("closedConditionsEn", e.target.value)}
+              />
+            </Field>
+          </div>
         </div>
       )}
     </div>
@@ -279,7 +357,11 @@ export default function AdminCta() {
             <h2 className="text-[15px] font-bold text-foreground">{m.title}</h2>
             <p className="text-[12.5px] text-foreground/55 mt-0.5">{m.desc}</p>
           </div>
-          <ButtonEditor value={cfg[m.key]} onChange={(v) => setBtn(m.key, v)} />
+          <ButtonEditor
+            value={cfg[m.key]}
+            onChange={(v) => setBtn(m.key, v)}
+            presets={LABEL_PRESETS[m.key]}
+          />
         </section>
       ))}
 

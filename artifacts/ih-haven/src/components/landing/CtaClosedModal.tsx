@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, CalendarDays, ListChecks } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import type { CtaButtonConfig } from "@/hooks/use-public-data";
@@ -20,6 +20,8 @@ export function CtaClosedModal({
   const isEn = lang === "en";
   const title = isEn ? button.closedTitleEn : button.closedTitleAr;
   const body = isEn ? button.closedBodyEn : button.closedBodyAr;
+  const dates = isEn ? button.closedDatesEn : button.closedDatesAr;
+  const conditions = isEn ? button.closedConditionsEn : button.closedConditionsAr;
 
   return (
     <div
@@ -49,7 +51,31 @@ export function CtaClosedModal({
         <p className="px-6 pt-3 pb-2 text-[14.5px] leading-relaxed text-white/80 whitespace-pre-wrap">
           {body}
         </p>
-        <div className="px-6 pb-6 pt-3">
+
+        {(dates.trim() || conditions.trim()) && (
+          <div className="px-6 pt-3 space-y-4">
+            {dates.trim() && (
+              <div className="rounded-2xl border border-[#DDBD7E]/25 bg-[#DDBD7E]/[0.06] p-4">
+                <div className="flex items-center gap-2 text-[12px] font-bold text-[#DDBD7E]">
+                  <CalendarDays className="h-3.5 w-3.5" aria-hidden />
+                  {isEn ? "Official registration dates" : "المواعيد الرسميّة للتسجيل"}
+                </div>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-white/80 whitespace-pre-wrap">{dates}</p>
+              </div>
+            )}
+            {conditions.trim() && (
+              <div className="rounded-2xl border border-white/12 bg-white/[0.04] p-4">
+                <div className="flex items-center gap-2 text-[12px] font-bold text-white/85">
+                  <ListChecks className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  {isEn ? "Membership conditions" : "شروط الانتساب"}
+                </div>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-white/75 whitespace-pre-wrap">{conditions}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="px-6 pb-6 pt-4">
           <button
             type="button"
             onClick={onClose}

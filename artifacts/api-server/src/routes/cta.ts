@@ -24,6 +24,12 @@ export interface CtaButton {
   closedTitleEn: string;
   closedBodyAr: string;
   closedBodyEn: string;
+  // Shown in the closed-registration notice: the official upcoming dates and the
+  // membership conditions, each editable from the panel.
+  closedDatesAr: string;
+  closedDatesEn: string;
+  closedConditionsAr: string;
+  closedConditionsEn: string;
 }
 // A third, OPTIONAL promotional button — fully owner-controlled from the panel
 // for events/offers: text, destination, a style variant, and an optional
@@ -60,6 +66,12 @@ export const DEFAULT_CTA: CtaConfig = {
       "سيُفتح التسجيل في الدورة القادمة. تابِعنا لمعرفة المواعيد الرسميّة، وتأكّد من استيفاء شروط الانتساب.",
     closedBodyEn:
       "Registration opens for the next cohort. Follow us for the official dates and make sure you meet the membership requirements.",
+    closedDatesAr: "دورة الخريف ٢٠٢٦: يفتح التسجيل ١ أيلول ويغلق ٣٠ أيلول.",
+    closedDatesEn: "Autumn 2026 cohort: registration opens Sep 1 and closes Sep 30.",
+    closedConditionsAr:
+      "أن تكون من غزّة · عمر ١٨+ · فكرة أو مشروع تقنيّ · التفرّغ لحضور جلسات الدفعة.",
+    closedConditionsEn:
+      "Based in Gaza · 18+ · a tech idea or venture · availability to attend the cohort sessions.",
   },
   guest: {
     labelAr: "احجز مقعدك",
@@ -71,6 +83,10 @@ export const DEFAULT_CTA: CtaConfig = {
     closedTitleEn: "Booking is currently closed",
     closedBodyAr: "حجز مقاعد الضيوف مغلق مؤقّتًا. تابِعنا لمعرفة مواعيد إعادة الفتح.",
     closedBodyEn: "Guest seat booking is temporarily closed. Follow us for reopening dates.",
+    closedDatesAr: "يُعاد فتح حجز مقاعد الضيوف مع بداية الفصل القادم.",
+    closedDatesEn: "Guest seat booking reopens at the start of the next term.",
+    closedConditionsAr: "زيارة تعريفيّة لمساحة العمل · بلا رسوم.",
+    closedConditionsEn: "An intro visit to the workspace · free of charge.",
   },
   promo: {
     labelAr: "",
@@ -107,6 +123,10 @@ const buttonSchema = z.object({
   closedTitleEn: z.string().max(200),
   closedBodyAr: z.string().max(4000),
   closedBodyEn: z.string().max(4000),
+  closedDatesAr: z.string().max(2000),
+  closedDatesEn: z.string().max(2000),
+  closedConditionsAr: z.string().max(2000),
+  closedConditionsEn: z.string().max(2000),
 });
 const promoSchema = z.object({
   labelAr: z.string().max(120),

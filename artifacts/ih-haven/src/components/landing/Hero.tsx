@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowLeft, ArrowDown } from "lucide-react";
+import { ArrowLeft, ArrowDown, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
@@ -466,12 +466,41 @@ export function Hero() {
             {c.subtitle}
           </motion.p>
 
+          {/* Signed live figures — placed RIGHT ABOVE the actions. Same /numbers
+              source that /verify signs; a gold "verify" chip links to the proof. */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.74, duration: 0.5, ease: EASE_OUT_EXPO }}
+            className="mt-7 lg:mt-8 flex max-w-[32rem] flex-wrap items-end gap-y-3 border-t border-white/[0.12] pt-5"
+          >
+            {stats.map((s, i) => (
+              <div
+                key={`hs-${s.l}-${i}`}
+                className={`flex flex-col justify-end px-4 lg:px-6 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
+              >
+                <div className="t-h2 !text-sand-bright tnum leading-none">
+                  <StatFigure target={s.n} display={s.v} active={entered} fmt={fmt} />
+                </div>
+                <div className="mt-1.5 text-[11px] font-medium tracking-wide text-white/65">{s.l}</div>
+              </div>
+            ))}
+            <a
+              href="/verify"
+              data-testid="hero-verify"
+              className="ms-auto inline-flex items-center gap-1.5 self-center rounded-full border border-[#DDBD7E]/35 bg-[#DDBD7E]/10 px-3 py-1.5 text-[10.5px] font-bold tracking-[0.03em] text-[#DDBD7E] transition-colors hover:bg-[#DDBD7E]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DDBD7E]/50"
+            >
+              <ShieldCheck className="h-3 w-3" aria-hidden />
+              {lang === "en" ? "Signed · verify" : "موقّع · تحقّق"}
+            </a>
+          </motion.div>
+
           {/* One primary action (Apply) + one quiet secondary (Book a seat). */}
           <motion.div
             initial={{ y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.82, duration: 0.5, ease: EASE_OUT_EXPO }}
-            className="mt-7 lg:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+            className="mt-6 lg:mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {cta.primary.visible && (
               <CtaAction
@@ -527,48 +556,19 @@ export function Hero() {
           half the figures on the photograph, where terracotta and white both die.
           Same padding and same measure as the headline above, so the numbers sit on
           its baseline grid rather than near it. */}
-      <div className="absolute bottom-0 start-0 z-10 w-full pb-7 lg:w-[54%] lg:pb-9 xl:w-[50%]">
+      {/* Quiet scroll cue at the foot of the hero (the figures now live above the
+          actions). A gentle synchronized bob + opacity breathe (motion-safe);
+          reduced-motion holds it still and fully visible. */}
+      <div className="absolute bottom-0 start-0 z-10 w-full pb-7 lg:pb-9">
         <div className="px-6 sm:px-10 lg:px-[clamp(2.5rem,4.5vw,5rem)]">
-          <div className="mx-auto flex w-full max-w-[34rem] items-end justify-between gap-6 border-t border-white/[0.12] pt-6">
-            <motion.div
-              className="flex items-stretch gap-0"
-              initial={reduce ? false : "hidden"}
-              animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { delayChildren: 1.0, staggerChildren: 0.08 } },
-              }}
-            >
-              {stats.map((s, i) => (
-                <motion.div
-                  key={`${s.l}-${i}`}
-                  variants={{
-                    hidden: { opacity: 0, y: 16 },
-                    visible: { opacity: 1, y: 0, transition: { duration: DURATION.lg, ease: EASE_OUT_EXPO } },
-                  }}
-                  className={`flex flex-col justify-end px-5 lg:px-7 ${i === 0 ? "ps-0" : "border-s border-white/[0.22]"}`}
-                >
-                  <div className="t-h2 !text-sand-bright tnum leading-none">
-                    <StatFigure target={s.n} display={s.v} active={entered} fmt={fmt} />
-                  </div>
-                  <div className="text-[11px] text-white/65 mt-2 font-medium tracking-wide">
-                    {s.l}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Quiet scroll cue — a gentle synchronized bob + opacity breathe
-                (motion-safe). Reduced-motion holds it still and fully visible. */}
-            <motion.div
-              animate={reduce ? undefined : { y: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-              className="hidden md:flex flex-col items-center gap-2 text-white/60 will-change-transform"
-            >
-              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">{c.scrollLabel}</span>
-              <ArrowDown className="w-4 h-4" />
-            </motion.div>
-          </div>
+          <motion.div
+            animate={reduce ? undefined : { y: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+            className="hidden w-fit flex-col items-center gap-2 text-white/60 will-change-transform md:flex"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">{c.scrollLabel}</span>
+            <ArrowDown className="h-4 w-4" />
+          </motion.div>
         </div>
       </div>
 

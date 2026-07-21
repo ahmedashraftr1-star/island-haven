@@ -53,6 +53,10 @@ export interface CtaButtonConfig {
   closedTitleEn: string;
   closedBodyAr: string;
   closedBodyEn: string;
+  closedDatesAr: string;
+  closedDatesEn: string;
+  closedConditionsAr: string;
+  closedConditionsEn: string;
 }
 export const PROMO_VARIANTS = ["gold", "solid", "glass", "gradient"] as const;
 export type PromoVariant = (typeof PROMO_VARIANTS)[number];
@@ -86,6 +90,12 @@ export const DEFAULT_CTA: CtaConfig = {
       "سيُفتح التسجيل في الدورة القادمة. تابِعنا لمعرفة المواعيد الرسميّة، وتأكّد من استيفاء شروط الانتساب.",
     closedBodyEn:
       "Registration opens for the next cohort. Follow us for the official dates and make sure you meet the membership requirements.",
+    closedDatesAr: "دورة الخريف ٢٠٢٦: يفتح التسجيل ١ أيلول ويغلق ٣٠ أيلول.",
+    closedDatesEn: "Autumn 2026 cohort: registration opens Sep 1 and closes Sep 30.",
+    closedConditionsAr:
+      "أن تكون من غزّة · عمر ١٨+ · فكرة أو مشروع تقنيّ · التفرّغ لحضور جلسات الدفعة.",
+    closedConditionsEn:
+      "Based in Gaza · 18+ · a tech idea or venture · availability to attend the cohort sessions.",
   },
   guest: {
     labelAr: "احجز مقعدك",
@@ -97,6 +107,10 @@ export const DEFAULT_CTA: CtaConfig = {
     closedTitleEn: "Booking is currently closed",
     closedBodyAr: "حجز مقاعد الضيوف مغلق مؤقّتًا. تابِعنا لمعرفة مواعيد إعادة الفتح.",
     closedBodyEn: "Guest seat booking is temporarily closed. Follow us for reopening dates.",
+    closedDatesAr: "يُعاد فتح حجز مقاعد الضيوف مع بداية الفصل القادم.",
+    closedDatesEn: "Guest seat booking reopens at the start of the next term.",
+    closedConditionsAr: "زيارة تعريفيّة لمساحة العمل · بلا رسوم.",
+    closedConditionsEn: "An intro visit to the workspace · free of charge.",
   },
   promo: {
     labelAr: "",
