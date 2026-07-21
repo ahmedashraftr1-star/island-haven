@@ -130,6 +130,25 @@ export function useCta() {
   });
 }
 
+// ─── Page visibility (owner hides/shows whole pages from the panel) ───────────
+export function usePageVisibility() {
+  const q = useQuery({
+    queryKey: ["site-pages"],
+    queryFn: () => api<{ hidden: string[] }>("/site/pages"),
+    ...PUBLIC,
+  });
+  const hidden = q.data?.hidden ?? [];
+  return {
+    hidden,
+    // Until the first response lands we treat nothing as hidden, so a visible page
+    // never flashes an "unavailable" screen while loading.
+    loaded: !q.isLoading,
+    // Prefix match so hiding "/experts" also hides "/experts/:id".
+    isHidden: (path: string) =>
+      hidden.some((h) => path === h || path.startsWith(h + "/")),
+  };
+}
+
 export function useVentures<T = unknown>() {
   return useQuery({
     queryKey: ["ventures"],

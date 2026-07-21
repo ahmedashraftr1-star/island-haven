@@ -37,10 +37,10 @@ import { LiveNewsDot } from "@/components/landing/LiveNewsDot";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   NAV_STRUCTURE,
-  MOBILE_LINKS,
   type MegaCategory,
   type NavBadge,
 } from "@/lib/nav";
+import { useVisibleNav } from "@/hooks/use-visible-nav";
 
 const FALLBACK = {
   logo: "/logo.png",
@@ -219,6 +219,7 @@ function MegaPanel({
 
 export function Header() {
   const { lang, t } = useLanguage();
+  const { nav, mobile } = useVisibleNav();
   const reduce = useReducedMotion();
   const cms = useContentSection("header", FALLBACK);
   const c = {
@@ -245,7 +246,7 @@ export function Header() {
   const navKey = (entry: (typeof NAV_STRUCTURE)[number]) =>
     entry.mega ? `mega:${entry.label.en}` : entry.href!;
   const activeNavKey =
-    NAV_STRUCTURE.find((e) => !e.mega && isActive(loc, e.href))?.href ?? null;
+    nav.find((e) => !e.mega && isActive(loc, e.href))?.href ?? null;
   const pillKey = hoveredNav ?? activeNavKey;
   const navPill = (
     <motion.span
@@ -392,7 +393,7 @@ export function Header() {
           className="hidden xl:flex flex-1 items-center justify-center gap-1 mx-2 min-w-0"
           onMouseLeave={() => setHoveredNav(null)}
         >
-          {NAV_STRUCTURE.map((entry) => {
+          {nav.map((entry) => {
             const key = navKey(entry);
             const highlighted = pillKey === key;
             if (entry.mega) {
@@ -527,7 +528,7 @@ export function Header() {
             onMouseLeave={scheduleClose}
           >
             <MegaPanel
-              categories={NAV_STRUCTURE.find((e) => e.mega)!.mega!}
+              categories={nav.find((e) => e.mega)?.mega ?? []}
               loc={loc}
               onNavigate={() => setMegaOpen(false)}
             />
@@ -556,7 +557,7 @@ export function Header() {
               className="relative z-[1] flex-1 overflow-y-auto container-ih flex flex-col justify-center py-4"
             >
               <ul className="flex flex-col">
-                {MOBILE_LINKS.map((link, i) => {
+                {mobile.map((link, i) => {
                   const active = isActive(loc, link.href);
                   return (
                     <motion.li
@@ -603,7 +604,7 @@ export function Header() {
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.4,
-                delay: reduce ? 0 : 0.12 + MOBILE_LINKS.length * 0.05,
+                delay: reduce ? 0 : 0.12 + mobile.length * 0.05,
                 ease: [0.16, 1, 0.3, 1],
               }}
               className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10"

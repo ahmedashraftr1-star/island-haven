@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePageVisibility } from "@/hooks/use-public-data";
 import { I18N } from "@/lib/i18n";
 import { FOOTER_COLUMNS } from "@/lib/nav";
 
@@ -38,6 +39,12 @@ const CONTACT_FALLBACK = {
 
 export function Footer() {
   const { lang, t } = useLanguage();
+  const { isHidden } = usePageVisibility();
+  // Drop owner-hidden pages from the footer nav (empty columns fall away too).
+  const cols = FOOTER_COLUMNS.map((col) => ({
+    ...col,
+    links: col.links.filter((l) => !l.href || !isHidden(l.href)),
+  })).filter((col) => col.links.length > 0);
   const reduce = useReducedMotion();
 
   const cms = useContentSection("footer", FOOTER_FALLBACK);
@@ -192,14 +199,14 @@ export function Footer() {
           </div>
 
           {/* Three shared FOOTER_COLUMNS */}
-          {FOOTER_COLUMNS.map((col, ci) => (
+          {cols.map((col, ci) => (
             <nav
               key={ci}
               aria-label={t(col.title)}
               className={
                 "col-span-1 " +
                 (ci === 0 ? "lg:col-span-3 " : "lg:col-span-2 ") +
-                (ci === FOOTER_COLUMNS.length - 1 ? "lg:col-start-11" : "")
+                (ci === cols.length - 1 ? "lg:col-start-11" : "")
               }
             >
               <div className="font-mono text-[11px] uppercase tracking-[0.22em] rtl:tracking-normal text-sand mb-5">

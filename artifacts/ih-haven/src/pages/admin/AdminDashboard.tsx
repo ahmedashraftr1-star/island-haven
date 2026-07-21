@@ -22,6 +22,7 @@ import {
   Lightbulb,
   Quote,
   MousePointerClick,
+  Files,
   Handshake,
   UserSquare2,
   Layers,
@@ -53,6 +54,7 @@ import AdminInvestors from "./AdminInvestors";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminContent from "./AdminContent";
 import AdminCta from "./AdminCta";
+import AdminPages from "./AdminPages";
 import AdminAnalytics from "./AdminAnalytics";
 import AdminOverview from "./AdminOverview";
 import AdminTasks from "./AdminTasks";
@@ -124,6 +126,7 @@ type Tab =
   | "blog"
   | "content"
   | "cta"
+  | "pages"
   | "analytics"
   | "push"
   | "inbox"
@@ -170,6 +173,7 @@ const TAB_PERMISSION: Record<Tab, string> = {
   blog: "blog:view",
   content: "content:view",
   cta: "content:view",
+  pages: "content:view",
   analytics: "analytics:view",
   push: "broadcast:send",
   inbox: "messages:send",
@@ -216,6 +220,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "badges", label: "الشّارات", Icon: Award, group: "incubation" },
   { id: "content", label: "تحرير المحتوى", Icon: FileText, group: "content" },
   { id: "cta", label: "أزرار الرئيسيّة", Icon: MousePointerClick, group: "content" },
+  { id: "pages", label: "إدارة الصفحات", Icon: Files, group: "content" },
   { id: "stories", label: "قصص النجاح", Icon: Quote, group: "content" },
   { id: "works", label: "الأعمال", Icon: Briefcase, group: "content" },
   { id: "courses", label: "الكورسات والورشات", Icon: GraduationCap, group: "content" },
@@ -594,6 +599,7 @@ export default function AdminDashboard() {
           {tab === "blog" && <AdminBlog />}
           {tab === "content" && <AdminContent />}
           {tab === "cta" && <AdminCta />}
+          {tab === "pages" && <AdminPages />}
           {tab === "analytics" && <AdminAnalytics />}
           {tab === "push" && <AdminPush />}
           {tab === "inbox" && <AdminInbox />}

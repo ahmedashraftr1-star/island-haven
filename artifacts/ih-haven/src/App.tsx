@@ -1,4 +1,6 @@
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { usePageVisibility } from "@/hooks/use-public-data";
+import PageUnavailable from "@/components/PageUnavailable";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, useReducedMotion, MotionConfig } from "framer-motion";
 import { useEffect, Suspense } from "react";
@@ -265,6 +267,17 @@ function RouteFallback() {
 }
 
 function Router() {
+  const [loc] = useLocation();
+  const { isHidden, loaded } = usePageVisibility();
+  // Owner-hidden pages resolve to a calm "unavailable" screen (never the 404).
+  // While visibility loads, `loaded` is false so a visible page never flashes it.
+  if (loaded && isHidden(loc)) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <PageUnavailable />
+      </Suspense>
+    );
+  }
   return (
     <Suspense fallback={<RouteFallback />}>
       <Switch>

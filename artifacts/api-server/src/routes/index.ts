@@ -55,6 +55,7 @@ import impactRouter from "./impact";
 import attestationsRouter from "./attestations";
 import trashRouter from "./trash";
 import ctaRouter from "./cta";
+import pagesRouter from "./pages";
 
 const router: IRouter = Router();
 
@@ -119,5 +120,6 @@ router.use(adminNotificationsRouter);
 router.use(impactRouter);
 router.use(trashRouter);
 router.use(ctaRouter);
+router.use(pagesRouter);
 
 export default router;
