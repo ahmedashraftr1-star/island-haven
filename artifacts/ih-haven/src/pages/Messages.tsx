@@ -150,7 +150,7 @@ export default function Messages() {
             <button
               type="button"
               onClick={() => setShowNew(true)}
-              className="inline-flex items-center gap-1.5 px-3 h-9 rounded-full bg-primary text-white text-[12.5px] font-semibold hover:-translate-y-px transition-transform"
+              className="inline-flex items-center gap-1.5 px-3 h-9 rounded-full bg-primary-cta text-white text-[12.5px] font-semibold hover:-translate-y-px transition-transform"
               data-testid="button-new-message"
             >
               <Plus className="w-3.5 h-3.5" /> {t({ ar: "رسالة جديدة", en: "New message" })}
@@ -400,7 +400,7 @@ function Thread({
                 <div
                   className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-[1.7] whitespace-pre-wrap break-words ${
                     mine
-                      ? "bg-primary text-white rounded-bl-md"
+                      ? "bg-primary-cta text-white rounded-bl-md"
                       : "bg-surface-2 text-foreground border border-border-strong rounded-br-md"
                   }`}
                 >
@@ -443,7 +443,7 @@ function Thread({
           type="submit"
           disabled={sending || !draft.trim()}
           aria-label={t({ ar: "إرسال", en: "Send" })}
-          className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-primary text-white disabled:opacity-40 hover:-translate-y-px transition-transform shrink-0"
+          className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-primary-cta text-white disabled:opacity-40 hover:-translate-y-px transition-transform shrink-0"
           data-testid="button-send"
         >
           <Send className="w-4 h-4 -scale-x-100" />

@@ -134,7 +134,7 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={submitting || !email.trim()}
-              className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              className="w-full h-12 rounded-xl bg-primary-cta text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
               {submitting
                 ? t({ ar: "جارٍ الإرسال…", en: "Sending…" })

@@ -254,7 +254,7 @@ export default function CohortDetail() {
           {c.demoDayAt && (
             <Link
               href={`/cohorts/${c.slug}/demo-day`}
-              className="inline-flex items-center gap-2 mt-6 me-3 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
+              className="inline-flex items-center gap-2 mt-6 me-3 px-5 py-3 rounded-2xl bg-primary-cta text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
             >
               <Sparkles className="w-4 h-4" />
               {t({ ar: "صفحة يوم العرض", en: "Demo Day page" })}

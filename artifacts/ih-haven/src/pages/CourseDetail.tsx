@@ -344,7 +344,7 @@ export default function CourseDetail() {
                 </div>
                 <Link
                   href={`/login?next=/courses/${id}`}
-                  className="block text-center w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
+                  className="block text-center w-full py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                   data-testid="button-login-to-enroll"
                 >
                   {t({ ar: "تسجيل الدخول للحجز", en: "Sign in to reserve" })}
@@ -400,7 +400,7 @@ export default function CourseDetail() {
                 <button
                   onClick={onEnroll}
                   disabled={busy}
-                  className="w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50"
                   data-testid="button-enroll"
                 >
                   {busy ? "…" : t({ ar: "احجز مقعدي", en: "Reserve my seat" })}

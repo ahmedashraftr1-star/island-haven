@@ -145,7 +145,7 @@ export function Footer() {
                       href={s.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={s.label}
+                      aria-label={t({ ar: `تابِعنا على ${s.label}`, en: `Follow us on ${s.label}` })}
                       className="w-11 h-11 rounded-full bg-surface-2 border border-border-strong flex items-center justify-center text-fg-secondary hover:text-primary hover:border-primary/35 transition-colors"
                     >
                       <Icon className="w-4 h-4" />

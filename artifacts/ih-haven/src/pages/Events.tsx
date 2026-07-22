@@ -190,7 +190,7 @@ export default function Events() {
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}>{p}</button>
+                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary-cta text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}>{p}</button>
             )}
           <button type="button" onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }} disabled={page >= totalPages}
             aria-label={t({ ar: "الصفحة التالية", en: "Next page" })}
@@ -234,7 +234,7 @@ function EventCard({
           )}
           <div className="p-5 sm:p-6">
             <div className="flex items-center gap-2.5 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
+              <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/10 text-primary-bright border border-primary/30">
                 {lang === "ar"
                   ? DAILY_TYPE_LABELS[post.type]
                   : DAILY_TYPE_LABELS_EN[post.type]}
@@ -243,9 +243,9 @@ function EventCard({
                 {formatDate(post.publishedAt, lang)}
               </span>
             </div>
-            <h3 className="text-foreground font-bold text-[18px] leading-snug mb-2 line-clamp-2">
+            <h2 className="text-foreground font-bold text-[18px] leading-snug mb-2 line-clamp-2">
               {post.title}
-            </h3>
+            </h2>
             {post.body && (
               <p className="text-muted-foreground text-[13.5px] leading-[1.85] line-clamp-2">
                 {post.body}
@@ -325,7 +325,7 @@ export function EventDetail() {
         )}
         <div className="p-6 sm:p-10">
           <div className="flex items-center gap-2.5 mb-4">
-            <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/15 text-primary border border-primary/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10.5px] tracking-[0.18em] uppercase font-bold bg-primary/10 text-primary-bright border border-primary/30">
               {lang === "ar"
                 ? DAILY_TYPE_LABELS[post.type]
                 : DAILY_TYPE_LABELS_EN[post.type]}

@@ -141,7 +141,7 @@ export default function Works() {
         {user ? (
           <Link
             href="/works/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white font-bold text-[12.5px] hover:shadow-[0_14px_30px_-10px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-cta text-white font-bold text-[12.5px] hover:shadow-[0_14px_30px_-10px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
             data-testid="button-add-work"
           >
             <Plus className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function Works() {
             aria-pressed={sort === o.key ? "true" : "false"}
             className={`px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               sort === o.key
-                ? "bg-primary/15 text-primary border-primary/35"
+                ? "bg-primary/15 text-primary-bright border-primary/35"
                 : "bg-surface-2 text-muted-foreground border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid={`sort-${o.key}`}
@@ -184,7 +184,7 @@ export default function Works() {
             aria-pressed={followingFeed ? "true" : "false"}
             className={`ms-1 px-3.5 py-1 rounded-full text-[12px] font-semibold transition-colors border ${
               followingFeed
-                ? "bg-primary text-white border-primary"
+                ? "bg-primary-cta text-white border-primary"
                 : "bg-surface-2 text-muted-foreground border-border-strong hover:text-foreground hover:bg-surface-2"
             }`}
             data-testid="toggle-following-feed"
@@ -272,7 +272,7 @@ export default function Works() {
                   aria-current={p === page ? "page" : undefined}
                   className={`w-9 h-9 rounded-xl text-[13px] font-semibold transition-all ${
                     p === page
-                      ? "bg-primary text-white shadow-[0_4px_14px_-3px_rgba(220,38,55,0.5)]"
+                      ? "bg-primary-cta text-white shadow-[0_4px_14px_-3px_rgba(220,38,55,0.5)]"
                       : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"
                   }`}
                 >
@@ -322,9 +322,9 @@ function WorkCard({ row }: { row: WorkRow }) {
           </div>
         )}
         <div className="p-5 flex-1 flex flex-col">
-          <h3 className="text-foreground font-bold text-[16.5px] leading-snug mb-1.5 line-clamp-2">
+          <h2 className="text-foreground font-bold text-[16.5px] leading-snug mb-1.5 line-clamp-2">
             {row.work.title}
-          </h3>
+          </h2>
           {row.work.summary && (
             <p className="text-muted-foreground text-[13px] leading-[1.7] line-clamp-2 mb-3">
               {row.work.summary}

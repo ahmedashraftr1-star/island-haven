@@ -204,7 +204,7 @@ export default function PerkDetail() {
             href={p.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-white font-bold text-[15px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[15px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
             data-testid="link-claim"
           >
             <Gift className="w-4 h-4" />

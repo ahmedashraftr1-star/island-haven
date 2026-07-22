@@ -213,7 +213,7 @@ export function AdminAttendanceHr() {
               <button
                 key={f}
                 onClick={() => setLeaveFilter(f)}
-                className={`rounded-md px-3 py-1 text-[12px] font-semibold transition-colors ${leaveFilter === f ? "bg-primary text-primary-foreground" : "text-fg-secondary hover:text-foreground"}`}
+                className={`rounded-md px-3 py-1 text-[12px] font-semibold transition-colors ${leaveFilter === f ? "bg-primary-cta text-primary-foreground" : "text-fg-secondary hover:text-foreground"}`}
               >
                 {f === "pending" ? "قيد المراجعة" : "الكلّ"}
               </button>

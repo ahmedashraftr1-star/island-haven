@@ -488,7 +488,7 @@ export default function WorkEditor() {
             <button
               type="submit"
               disabled={submitting || uploading !== null}
-              className="flex-1 min-w-[180px] py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-45"
+              className="flex-1 min-w-[180px] py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-45"
               data-testid="button-save-work"
             >
               {submitting

@@ -232,7 +232,7 @@ export default function OpportunityDetail() {
             href={applyHref}
             target={o.applyUrl ? "_blank" : undefined}
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-white font-bold text-[15px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[15px] hover:-translate-y-px hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] transition-all"
             data-testid="link-apply"
           >
             {t({ ar: "قدّم الآن", en: "Apply now" })}

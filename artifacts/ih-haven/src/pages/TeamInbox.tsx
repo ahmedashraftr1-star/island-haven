@@ -92,7 +92,7 @@ export default function TeamInbox() {
               const mine = m.senderKind === "member";
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${mine ? "bg-primary text-primary-foreground" : "bg-white/[0.07] text-foreground"}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${mine ? "bg-primary-cta text-primary-foreground" : "bg-white/[0.07] text-foreground"}`}>
                     {!mine && <div className="text-[10.5px] font-semibold opacity-70 mb-0.5">{m.senderName}</div>}
                     <div className="text-[13.5px] leading-relaxed whitespace-pre-wrap break-words">{m.body}</div>
                     <div className={`text-[10px] mt-1 ${mine ? "text-white/60" : "text-foreground/45"}`}>{clock(m.createdAt)}</div>
@@ -122,7 +122,7 @@ export default function TeamInbox() {
             type="submit"
             disabled={!draft.trim() || sendMut.isPending}
             data-testid="team-thread-send"
-            className="grid place-items-center w-11 h-11 rounded-xl bg-primary text-primary-foreground disabled:opacity-50 transition-opacity"
+            className="grid place-items-center w-11 h-11 rounded-xl bg-primary-cta text-primary-foreground disabled:opacity-50 transition-opacity"
           >
             <Send className="w-4 h-4" />
           </button>

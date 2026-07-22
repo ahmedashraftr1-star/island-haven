@@ -188,7 +188,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={submitting || !newPassword || !confirm}
-              className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              className="w-full h-12 rounded-xl bg-primary-cta text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             >
               {submitting
                 ? t({ ar: "جارٍ الحفظ…", en: "Saving…" })

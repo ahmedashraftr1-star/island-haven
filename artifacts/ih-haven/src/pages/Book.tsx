@@ -591,7 +591,7 @@ function StepOne({
                   data-testid={`day-${c.iso}`}
                   className={`aspect-square max-sm:aspect-auto max-sm:min-h-[44px] rounded-xl text-[13px] font-medium transition relative ${
                     form.visitDate === c.iso
-                      ? "bg-primary text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
+                      ? "bg-primary-cta text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
                       : c.disabled
                         ? "text-fg-faint/45 cursor-not-allowed"
                         : "bg-white/[0.05] border border-white/[0.08] text-foreground hover:bg-white/[0.1] hover:border-white/20"
@@ -705,7 +705,7 @@ function StepTwo({
                 data-testid={`att-${n}`}
                 className={`w-11 h-11 rounded-full text-[13.5px] font-semibold transition ${
                   active
-                    ? "bg-primary text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
+                    ? "bg-primary-cta text-primary-foreground shadow-[0_8px_22px_-6px_hsl(12_70%_52%/0.55)]"
                     : "bg-white/[0.05] border border-white/10 text-fg-secondary hover:bg-white/[0.1] hover:border-white/20"
                 }`}
               >

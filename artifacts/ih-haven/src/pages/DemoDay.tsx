@@ -428,7 +428,7 @@ function RsvpForm({ slug }: { slug: string }) {
             <button
               type="submit"
               disabled={submitting}
-              className="sm:col-span-2 h-12 rounded-full bg-primary text-white font-bold text-[14px] disabled:opacity-50 hover:-translate-y-px transition-transform"
+              className="sm:col-span-2 h-12 rounded-full bg-primary-cta text-white font-bold text-[14px] disabled:opacity-50 hover:-translate-y-px transition-transform"
             >
               {submitting
                 ? t({ ar: "جارِ الإرسال…", en: "Submitting…" })

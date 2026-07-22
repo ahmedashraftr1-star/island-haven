@@ -236,7 +236,7 @@ export default function Blog() {
                       minutes={readMinutes(resolve(featured.body, featured.bodyEn))}
                       date={fmtDate(featured.publishedAt, lang)}
                     />
-                    <span className="mt-1 inline-flex items-center gap-2 t-caption font-semibold uppercase tracking-[0.16em] rtl:tracking-normal text-primary">
+                    <span className="mt-1 inline-flex items-center gap-2 t-caption font-semibold uppercase tracking-[0.16em] rtl:tracking-normal text-primary-bright">
                       {t({ ar: "اقرأ المقال", en: "Read the story" })}
                       <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                     </span>

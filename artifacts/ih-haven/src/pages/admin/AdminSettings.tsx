@@ -238,7 +238,7 @@ export default function AdminSettings({ onDirtyChange }: AdminSettingsProps) {
                 type="button"
                 onClick={saveAdminEmail}
                 disabled={adminEmailBusy || adminEmailDraft.trim() === adminEmail}
-                className="h-10 px-5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
+                className="h-10 px-5 rounded-xl bg-primary-cta text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
               >
                 {adminEmailBusy ? "جارِ الحفظ…" : "حفظ"}
               </button>

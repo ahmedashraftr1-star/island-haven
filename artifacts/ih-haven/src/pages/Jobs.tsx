@@ -123,7 +123,7 @@ function JobCard({ job, index }: { job: Job; index: number }) {
                   href={job.applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary-bright hover:text-primary/80 transition-colors"
                 >
                   قدّم الآن <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
                 </a>
@@ -188,7 +188,7 @@ export default function Jobs() {
       subtitle={t(jp.subtitle)}
       heroAside={
         <div className="rounded-[18px] border border-border-strong bg-surface-2/40 p-7 sm:p-8">
-          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary-bright rtl:tracking-normal">
             {t({ ar: "وظائف مفتوحة", en: "Open positions" })}
           </div>
           <div className="mt-4 flex items-baseline gap-3">
@@ -243,13 +243,13 @@ export default function Jobs() {
                 aria-pressed={activeCategory === cat ? "true" : "false"}
                 className={`inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-1.5 rounded-full text-[12.5px] font-medium transition-all ${
                   activeCategory === cat
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    ? "bg-primary-cta text-white shadow-lg shadow-primary/20"
                     : "bg-surface-2 text-muted-foreground hover:text-fg-secondary border border-border-strong"
                 }`}
               >
                 {CAT_LABELS[cat] ? t(CAT_LABELS[cat]) : cat}
                 {cat !== "all" && (
-                  <span className="mr-1.5 opacity-60">
+                  <span className="mr-1.5 opacity-90">
                     ({catCounts[cat] ?? 0})
                   </span>
                 )}
@@ -305,7 +305,7 @@ export default function Jobs() {
             href="https://wa.me/972567536815"
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[13px] font-semibold hover:bg-primary/20 transition-colors"
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary-bright text-[13px] font-semibold hover:bg-primary/20 transition-colors"
           >
             تواصل معنا
           </a>
@@ -318,7 +318,7 @@ export default function Jobs() {
           </p>
           <Link
             href="/apply"
-            className="text-[13px] text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+            className="text-[13px] text-primary-bright hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
           >
             انضم للحاضنة ←
           </Link>

@@ -730,6 +730,9 @@ export default function About() {
         }`}
         style={{ insetInlineStart: "clamp(0.75rem, 2.5vw, 2.25rem)" }}
         aria-hidden={showRail ? undefined : true}
+        // Also `inert` when hidden so its links leave the tab order (a keyboard
+        // user can't focus the invisible rail) — fixes axe aria-hidden-focus.
+        inert={showRail ? undefined : true}
       >
         <LineSidebar
           ariaLabel={t({ ar: "فهرس الصفحة", en: "Page sections" })}

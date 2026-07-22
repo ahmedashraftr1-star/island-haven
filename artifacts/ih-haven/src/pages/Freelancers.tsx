@@ -122,12 +122,12 @@ export default function Freelancers() {
                 onClick={() => setActiveCat(tab.key)}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 h-9 text-[13px] font-medium transition-colors ${
                   active
-                    ? "bg-primary border-primary text-white"
+                    ? "bg-primary-cta border-primary text-white"
                     : "border-border-strong text-fg-secondary hover:border-primary/50 hover:text-foreground"
                 }`}
               >
                 {tab.label}
-                <span className={`tnum text-[11px] ${active ? "text-white/70" : "text-fg-faint"}`}>{nf(tab.count)}</span>
+                <span className={`tnum text-[11px] ${active ? "text-white/90" : "text-fg-faint"}`}>{nf(tab.count)}</span>
               </button>
             );
           })}
@@ -174,7 +174,7 @@ export default function Freelancers() {
       </section>
 
       {/* ── Hire widget ── */}
-      <section className="mt-[clamp(4.5rem,9vw,8rem)] rounded-[22px] border border-border-strong bg-surface-1 px-6 py-[clamp(3rem,7vw,5rem)] text-center">
+      <section className="mt-[clamp(4.5rem,9vw,8rem)] rounded-[24px] border border-border-strong bg-surface-1 px-6 py-[clamp(3rem,7vw,5rem)] text-center">
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 18 }}
           whileInView={reduce ? undefined : { opacity: 1, y: 0 }}

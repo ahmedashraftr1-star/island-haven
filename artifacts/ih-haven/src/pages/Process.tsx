@@ -229,7 +229,7 @@ export default function Process() {
           </p>
           <Link
             href="/apply"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-white font-semibold text-[15px] hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary-cta text-white font-semibold text-[15px] hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
           >
             {t({ ar: "قدّم طلب الانتساب", en: "Submit your application" })}
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" />

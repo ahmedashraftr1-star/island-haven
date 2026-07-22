@@ -138,6 +138,10 @@ export function HomeTOC() {
     <div
       data-testid="home-toc"
       aria-hidden={revealed ? undefined : true}
+      // When hidden the rail is aria-hidden AND pointer-events-none — `inert` also
+      // pulls its links out of the keyboard tab order so a keyboard user can't land
+      // focus on an invisible control (fixes axe aria-hidden-focus).
+      inert={revealed ? undefined : true}
       style={{
         transform: `translateY(-50%) translateX(${revealed ? "0px" : hiddenShift})`,
         opacity: revealed ? 1 : 0,

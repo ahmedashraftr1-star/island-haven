@@ -225,7 +225,7 @@ export default function Register() {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="group relative w-full overflow-hidden rounded-2xl py-3.5 bg-primary text-white font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
+          className="group relative w-full overflow-hidden rounded-2xl py-3.5 bg-primary-cta text-white font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
           data-testid="button-register"
         >
           <span className="relative z-10 inline-flex items-center justify-center gap-2.5">

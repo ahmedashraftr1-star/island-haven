@@ -184,12 +184,12 @@ export default function Contact() {
           <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-primary rtl:tracking-normal">
             {t({ ar: "موقعنا", en: "Our location" })}
           </span>
-          <h3
+          <h2
             className="font-display font-bold text-foreground mt-3 leading-tight"
             style={{ fontSize: "clamp(1.6rem,3.4vw,2.4rem)", letterSpacing: "-0.02em" }}
           >
             {t({ ar: "غزّة، فلسطين", en: "Gaza, Palestine" })}
-          </h3>
+          </h2>
           <p className="font-mono text-[12px] text-fg-faint tracking-[0.06em] mt-2" dir="ltr">
             31°30′N&nbsp;&nbsp;34°28′E
           </p>

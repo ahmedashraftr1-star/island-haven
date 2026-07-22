@@ -147,18 +147,18 @@
   --primary-pressed: 12 78% 32%;      /* deep pressed red */
   --primary-foreground: 0 0% 100%;
   --primary-soft: 12 45% 15%;         /* icon tiles / soft red wash */
-  --primary-bright: 13 74% 57%;       /* brighter red — gradient END */
+  --primary-bright: 13 76% 60%;       /* brighter red — gradient END + AA-safe small terracotta labels/badges on dark & tinted cards (clears 4.5:1) */
 
   --secondary: 26 7% 13%;
   --secondary-foreground: 35 30% 95%;
 
   /* ── FOREGROUND STAIRCASE — warm grays, confident/legible on near-black. ── */
   --fg-secondary: 30 8% 65%;         /* BODY copy — warm gray (≈#a9a39b) */
-  --fg-faint: 30 6% 42%;             /* disabled */
+  --fg-faint: 30 7% 52%;             /* faint meta / disabled — lifted to clear WCAG AA (4.5:1) on the near-black canvas & cards at small sizes */
 
   /* Soft dark surface + readable muted text. */
   --muted: 26 7% 12%;
-  --muted-foreground: 30 7% 57%;     /* captions / meta — warm, clears AA */
+  --muted-foreground: 30 8% 61%;     /* captions / meta — warm; lifted to clear AA (4.5:1) at small sizes on lighter cards */
 
   --accent: 26 7% 13%;
   --accent-foreground: 35 30% 95%;

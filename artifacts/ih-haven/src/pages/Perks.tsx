@@ -109,7 +109,7 @@ export default function Perks() {
             aria-pressed={filter === key ? "true" : "false"}
             className={`px-4 h-9 rounded-full text-[13px] font-semibold transition-colors border ${
               filter === key
-                ? "bg-primary text-white border-primary"
+                ? "bg-primary-cta text-white border-primary"
                 : "bg-surface-2 text-fg-secondary border-border-strong hover:border-border-strong"
             }`}
           >
@@ -226,7 +226,7 @@ export default function Perks() {
                       href={p.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all"
+                      className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary-cta text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all"
                       data-testid={`perk-claim-${p.id}`}
                     >
                       <Gift className="w-3.5 h-3.5" />

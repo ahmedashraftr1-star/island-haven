@@ -91,7 +91,7 @@ export default function AdminTrash() {
             className={
               "inline-flex items-center gap-2 rounded-full px-4 min-h-[40px] text-[13px] font-semibold transition-colors border " +
               (active === e.entity
-                ? "bg-primary text-white border-primary"
+                ? "bg-primary-cta text-white border-primary"
                 : "bg-card text-foreground/70 border-border hover:text-foreground")
             }
           >

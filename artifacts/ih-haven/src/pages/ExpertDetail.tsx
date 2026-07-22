@@ -458,7 +458,7 @@ export default function ExpertDetail() {
                   </p>
                   <Link
                     href={`/login?next=/experts/${id}`}
-                    className="block text-center w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
+                    className="block text-center w-full py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                   >
                     {t({ ar: "تسجيل الدخول للحجز", en: "Sign in to book" })}
                   </Link>
@@ -534,7 +534,7 @@ export default function ExpertDetail() {
                   <button
                     type="submit"
                     disabled={busy}
-                    className="w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
                     data-testid="button-request-session"
                   >
                     <Sparkles className="w-4 h-4" />
@@ -796,7 +796,7 @@ function OfficeHoursPicker({
                     type="button"
                     onClick={book}
                     disabled={busy}
-                    className="w-full py-3 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-2xl bg-primary-cta text-white font-bold text-[14px] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
                     {busy ? "…" : t({ ar: "تأكيد الحجز", en: "Confirm booking" })}

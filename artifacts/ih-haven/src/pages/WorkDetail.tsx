@@ -609,7 +609,7 @@ export default function WorkDetail() {
                 href={data.work.link}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-7 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-bold text-[13px] hover:shadow-[0_14px_30px_-10px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
+                className="mt-7 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-cta text-white font-bold text-[13px] hover:shadow-[0_14px_30px_-10px_rgba(220,38,55,0.55)] hover:-translate-y-px transition-all"
                 data-testid="link-external-work"
                 dir="ltr"
               >
@@ -649,7 +649,7 @@ export default function WorkDetail() {
                   <button
                     type="submit"
                     disabled={posting || !commentText.trim()}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-bold text-[13px] disabled:opacity-50 hover:-translate-y-px transition-all"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-cta text-white font-bold text-[13px] disabled:opacity-50 hover:-translate-y-px transition-all"
                     data-testid="button-submit-comment"
                   >
                     {posting ? (
@@ -895,7 +895,7 @@ export default function WorkDetail() {
                             <button
                               type="submit"
                               disabled={replyPosting || !replyText.trim()}
-                              className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+                              className="h-10 px-3 rounded-xl bg-primary-cta text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
                               data-testid={`reply-submit-${c.id}`}
                             >
                               {replyPosting ? (
@@ -1107,7 +1107,7 @@ function CommentEditForm({
         <button
           type="submit"
           disabled={busy || !value.trim()}
-          className="h-10 px-3 rounded-xl bg-primary text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
+          className="h-10 px-3 rounded-xl bg-primary-cta text-white font-bold text-[12px] disabled:opacity-50 inline-flex items-center gap-1"
           data-testid="edit-comment-submit"
         >
           {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}

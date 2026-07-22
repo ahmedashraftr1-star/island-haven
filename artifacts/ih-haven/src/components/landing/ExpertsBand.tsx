@@ -148,12 +148,9 @@ export function ExpertsBand() {
               {intro}
             </p>
             {!isEmpty && rows && available > 0 && (
-              <p
-                className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary"
-                aria-label={`${availableLabel} ${t({ ar: "متاحون للحجز الآن", en: "available to book now" })}`}
-              >
+              <p className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary">
                 <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
-                <span className="tnum" aria-hidden>
+                <span className="tnum">
                   {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
                 </span>
               </p>

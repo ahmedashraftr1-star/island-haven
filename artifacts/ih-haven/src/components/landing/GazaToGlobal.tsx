@@ -370,7 +370,7 @@ function ReachVisual({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-auto overflow-visible"
-        role="img"
+        role="group"
         aria-label={t({
           ar: "خريطة العالم تُظهر وصول المواهب من غزّة إلى مناطق حول العالم",
           en: "A world map showing talent reaching from Gaza out to regions around the world",

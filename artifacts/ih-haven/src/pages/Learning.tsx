@@ -221,7 +221,7 @@ function LearningInner() {
           action={
             <Link
               href="/courses"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-semibold text-[13.5px] hover:-translate-y-px transition-transform"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-cta text-white font-semibold text-[13.5px] hover:-translate-y-px transition-transform"
             >
               <GraduationCap className="w-4 h-4" />
               {t({ ar: "استعرض البرنامج التَّدريبيّ", en: "Browse the training program" })}
@@ -356,7 +356,7 @@ function ProgressCard({
         ) : (
           <Link
             href={`/certificate/${item.courseId}`}
-            className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all mr-auto"
+            className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-primary-cta text-white text-[12.5px] font-bold hover:-translate-y-px hover:shadow-[0_14px_30px_-12px_rgba(220,38,55,0.55)] transition-all mr-auto"
             data-testid={`learn-certificate-${item.courseId}`}
           >
             <Award className="w-4 h-4" /> {t({ ar: "شهادة الإكمال", en: "Completion certificate" })}

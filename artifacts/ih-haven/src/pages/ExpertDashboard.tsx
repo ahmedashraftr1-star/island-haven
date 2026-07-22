@@ -159,7 +159,7 @@ export default function ExpertDashboard() {
           action={
             <Link
               href="/experts"
-              className="inline-block px-5 py-2.5 rounded-full bg-primary text-white text-[13px] font-semibold"
+              className="inline-block px-5 py-2.5 rounded-full bg-primary-cta text-white text-[13px] font-semibold"
             >
               {t({ ar: "تصفّح الخبراء", en: "Browse experts" })}
             </Link>
@@ -187,7 +187,7 @@ export default function ExpertDashboard() {
             <button
               type="button"
               onClick={reload}
-              className="inline-block px-5 py-2.5 rounded-full bg-primary text-white text-[13px] font-semibold"
+              className="inline-block px-5 py-2.5 rounded-full bg-primary-cta text-white text-[13px] font-semibold"
             >
               {t({ ar: "إعادة المحاولة", en: "Try again" })}
             </button>
@@ -600,7 +600,7 @@ function ProfilePanel({
         <button
           onClick={save}
           disabled={busy}
-          className="w-full py-3.5 rounded-2xl bg-primary text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-2xl bg-primary-cta text-white font-bold text-[14px] enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
           data-testid="button-save-expert-profile"
         >
           <Save className="w-4 h-4" />
@@ -845,7 +845,7 @@ function OfficeHoursPanel() {
           <button
             type="submit"
             disabled={submitting}
-            className="sm:col-span-2 inline-flex items-center justify-center gap-2 h-11 rounded-full bg-primary text-white font-semibold text-[13.5px] disabled:opacity-50 hover:-translate-y-px transition-transform"
+            className="sm:col-span-2 inline-flex items-center justify-center gap-2 h-11 rounded-full bg-primary-cta text-white font-semibold text-[13.5px] disabled:opacity-50 hover:-translate-y-px transition-transform"
           >
             <Plus className="w-4 h-4" />
             {submitting

@@ -107,7 +107,7 @@ export default function Onboarding() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full h-12 rounded-xl bg-primary text-white font-bold text-[14px] flex items-center justify-center gap-2"
+                  className="w-full h-12 rounded-xl bg-primary-cta text-white font-bold text-[14px] flex items-center justify-center gap-2"
                 >
                   {t({ ar: "ابدأ الآن", en: "Get started" })}
                   <ChevronLeft className="w-4 h-4" aria-hidden="true" />
@@ -159,7 +159,7 @@ export default function Onboarding() {
                   <button type="button" onClick={() => setStep(0)} className="flex-1 h-12 rounded-xl bg-white/[0.07] border border-white/15 text-white/60 text-[13px] font-semibold flex items-center justify-center gap-1.5">
                     <ChevronRight className="w-4 h-4" aria-hidden="true" /> {t({ ar: "السابق", en: "Back" })}
                   </button>
-                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-12 rounded-xl bg-primary text-white font-bold text-[14px] flex items-center justify-center gap-2">
+                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-12 rounded-xl bg-primary-cta text-white font-bold text-[14px] flex items-center justify-center gap-2">
                     {t({ ar: "التالي", en: "Next" })} <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>

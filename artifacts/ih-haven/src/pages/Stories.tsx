@@ -181,7 +181,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               </p>
             )}
 
-            <div className="flex items-center gap-1.5 text-primary text-[12px] font-semibold group-hover:gap-2.5 transition-all">
+            <div className="flex items-center gap-1.5 text-primary-bright text-[12px] font-semibold group-hover:gap-2.5 transition-all">
               {lang === "en" ? "Read the full story" : "اقرأ القصة كاملة"} <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </div>
           </div>
@@ -279,7 +279,7 @@ export default function Stories() {
           <p className="text-fg-secondary text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
           <Link
             href="/apply"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary-cta text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
             قدّم على الحاضنة ←
           </Link>

@@ -151,7 +151,7 @@ export default function Press() {
               en: "“Organizing an event of this scale under these conditions is a direct and immense challenge — minds that rise above the rubble and build a digital future for Gaza.”",
             })}
           </p>
-          <div className="text-primary font-bold text-[14px]">
+          <div className="text-primary-bright font-bold text-[14px]">
             {t({ ar: "مهنّد جندية", en: "Muhannad Jundiyya" })}
           </div>
           <div className="text-fg-secondary text-[12.5px]">
@@ -252,7 +252,7 @@ export default function Press() {
         </p>
         <a
           href={`mailto:${PRESS_EMAIL}`}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary-cta text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
         >
           <Mail className="w-4 h-4" />
           {PRESS_EMAIL}

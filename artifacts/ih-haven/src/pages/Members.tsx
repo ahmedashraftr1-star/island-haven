@@ -331,7 +331,7 @@ export default function Members() {
               : <button key={p} type="button" onClick={() => { setPage(p as number); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   aria-label={t({ ar: `الصفحة ${p}`, en: `Page ${p}` })}
                   aria-current={p === page ? "page" : undefined}
-                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}
+                  className={`w-9 h-9 max-sm:w-11 max-sm:h-11 rounded-xl text-[13px] font-semibold transition-all ${p === page ? "bg-primary-cta text-white" : "bg-surface-2 border border-border-strong text-fg-secondary hover:bg-white/[0.11]"}`}
                 >{p}</button>
             )}
           <button

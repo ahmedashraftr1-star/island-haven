@@ -268,7 +268,7 @@ export default function Alumni() {
           </p>
           <Link
             href="/apply"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary-cta text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
             {t({ ar: "قدّم الآن", en: "Apply now" })}
             <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
