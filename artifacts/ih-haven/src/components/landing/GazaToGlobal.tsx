@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
@@ -298,14 +299,12 @@ export function GazaToGlobal() {
             {t({ ar: "موهبتك من غزّة — ", en: "Your talent is from Gaza — " })}
             <span className="text-primary">{t({ ar: "وأثرها للعالم كلّه.", en: "its impact is for the whole world." })}</span>
           </p>
-          <Link
-            href="/apply"
-            data-testid="gaza-to-global-apply"
-            className="cta-fill group inline-flex items-center justify-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 shrink-0"
-          >
-            {t({ ar: "ابدأ رحلتك للعالم", en: "Start your journey out" })}
-            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-          </Link>
+          <Btn asChild variant="primary" size="md" className="group shrink-0">
+            <Link href="/apply" data-testid="gaza-to-global-apply">
+              {t({ ar: "ابدأ رحلتك للعالم", en: "Start your journey out" })}
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+            </Link>
+          </Btn>
         </Reveal>
       </div>
     </CinematicMedia>

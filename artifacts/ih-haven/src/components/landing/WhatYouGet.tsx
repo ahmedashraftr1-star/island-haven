@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { imageUrl } from "@/hooks/use-content";
 import { useAttendanceSummary } from "@/hooks/use-public-data";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
@@ -120,13 +121,12 @@ export function WhatYouGet() {
                 en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
               })}
             </p>
-            <Link
-              href="/programs"
-              className="group mt-6 inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
-            >
-              {t({ ar: "اعرف أكثر", en: "Learn more" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-            </Link>
+            <Btn asChild variant="ghost" className="group mt-6 hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none">
+              <Link href="/programs">
+                {t({ ar: "اعرف أكثر", en: "Learn more" })}
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              </Link>
+            </Btn>
           </Reveal>
         </div>
 

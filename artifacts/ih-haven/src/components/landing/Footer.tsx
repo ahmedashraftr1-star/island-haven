@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { usePageVisibility } from "@/hooks/use-public-data";
 import { I18N } from "@/lib/i18n";
 import { FOOTER_COLUMNS } from "@/lib/nav";
@@ -111,14 +112,12 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-4 lg:flex lg:justify-end">
-            <Link
-              href="/apply"
-              data-testid="footer-apply"
-              className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_24px_64px_-16px_hsl(7_84%_40%/0.5)]"
-            >
-              {t({ ar: "سجّل طلبك", en: "Apply now" })}
-              <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
+            <Btn asChild variant="primary" size="lg" className="group px-9 shadow-[0_24px_64px_-16px_hsl(7_84%_40%/0.5)]">
+              <Link href="/apply" data-testid="footer-apply">
+                {t({ ar: "سجّل طلبك", en: "Apply now" })}
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              </Link>
+            </Btn>
           </div>
         </section>
 

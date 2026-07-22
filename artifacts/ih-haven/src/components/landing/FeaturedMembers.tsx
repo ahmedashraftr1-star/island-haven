@@ -3,6 +3,7 @@ import { useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useMembers } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
@@ -62,13 +63,12 @@ export function FeaturedMembers() {
       <div className="container-ih section-y relative">
         <Reveal>
           <div className="mb-[clamp(2.25rem,4vw,3.25rem)] flex items-end justify-between gap-6">
-            <Link
-              href="/members"
-              className="group inline-flex items-center gap-1.5 rounded-md pb-1.5 text-[13px] font-semibold text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
-            >
-              {t({ ar: "عرض الكلّ", en: "View all" })}
-              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-            </Link>
+            <Btn asChild variant="ghost" size="sm" className="group gap-1.5 text-white/70 hover:text-white">
+              <Link href="/members">
+                {t({ ar: "عرض الكلّ", en: "View all" })}
+                <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+              </Link>
+            </Btn>
             <div className="text-end">
               <span className="mb-6 flex items-center justify-end gap-3">
                 <span aria-hidden className="h-px w-9 bg-primary/70" />

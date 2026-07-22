@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
@@ -129,16 +130,17 @@ export function Support() {
               })}
             </p>
             <div className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-6 gap-y-4">
-              <a
-                href={c.donateHref || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="support-donate"
-                className="cta-fill group inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[14px] shadow-soft transition-transform duration-200 hover:-translate-y-0.5"
-              >
-                {lang === "en" ? "Donate now" : c.donateCta}
-                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-              </a>
+              <Btn asChild variant="primary" size="lg" className="group px-9 shadow-soft">
+                <a
+                  href={c.donateHref || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="support-donate"
+                >
+                  {lang === "en" ? "Donate now" : c.donateCta}
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+                </a>
+              </Btn>
               {c.donateNote && (
                 <span className="tnum t-caption text-fg-secondary">{c.donateNote}</span>
               )}

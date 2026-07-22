@@ -6,6 +6,7 @@ import { useDaily } from "@/hooks/use-public-data";
 import { DAILY_TYPE_LABELS, DAILY_TYPE_LABELS_EN, formatDate, type DailyType } from "@/lib/labels";
 import { useContentSection, imageUrl, photoSrcSet } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { HScroll } from "./HScroll";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
@@ -272,13 +273,12 @@ export function NewsSlider() {
 
         {/* Mobile all-events CTA — the header CTA is desktop-only. */}
         <div className="mt-[clamp(2.5rem,5vh,3.5rem)] flex justify-center lg:hidden">
-          <Link
-            href="/events"
-            className="group inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white ring-1 ring-inset ring-white/15 transition-all duration-200 hover:bg-white/[0.06] hover:ring-primary/40 motion-reduce:transition-none"
-          >
-            {c.ctaAll}
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-          </Link>
+          <Btn asChild variant="secondary" size="md" className="group">
+            <Link href="/events">
+              {c.ctaAll}
+              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+            </Link>
+          </Btn>
         </div>
       </div>
     </CinematicMedia>

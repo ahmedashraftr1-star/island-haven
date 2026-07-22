@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { useStories } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
@@ -238,14 +239,12 @@ export function SuccessStories() {
                     {t({ ar: "فريق آيلاند هيفن — قناعتنا التأسيسيّة", en: "The Island Haven team — our founding belief" })}
                   </span>
                 </div>
-                <Link
-                  href="/apply"
-                  data-testid="stories-empty-apply"
-                  className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608]"
-                >
-                  {t({ ar: "اكتب أوّل قصّة", en: "Write the first story" })}
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-                </Link>
+                <Btn asChild variant="primary" size="md" className="group">
+                  <Link href="/apply" data-testid="stories-empty-apply">
+                    {t({ ar: "اكتب أوّل قصّة", en: "Write the first story" })}
+                    <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  </Link>
+                </Btn>
               </Reveal>
             </div>
           </figure>

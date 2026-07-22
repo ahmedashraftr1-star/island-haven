@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { splitTags } from "@/lib/labels";
 import { useExperts } from "@/hooks/use-public-data";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
@@ -172,21 +173,18 @@ export function ExpertsBand() {
                 })}
               </p>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Link
-                  href="/become-mentor?ref=home-experts-empty"
-                  data-testid="experts-empty-become-mentor"
-                  className="cta-fill group inline-flex h-12 items-center gap-2.5 rounded-full px-7 text-[14px] font-bold transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                >
-                  {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
-                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-                </Link>
-                <Link
-                  href="/experts#how-it-works"
-                  className="group inline-flex items-center gap-2 rounded-md text-[14px] font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
-                >
-                  {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
-                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-                </Link>
+                <Btn asChild variant="primary" size="md" className="group">
+                  <Link href="/become-mentor?ref=home-experts-empty" data-testid="experts-empty-become-mentor">
+                    {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
+                    <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  </Link>
+                </Btn>
+                <Btn asChild variant="ghost" className="group hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none">
+                  <Link href="/experts#how-it-works">
+                    {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
+                    <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                  </Link>
+                </Btn>
               </div>
             </div>
           </Reveal>
@@ -291,14 +289,16 @@ export function ExpertsBand() {
               <p className="text-white/80" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
                 {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
               </p>
-              <Link
-                href="/experts"
-                className="group inline-flex items-center gap-2 rounded-md font-semibold text-primary transition-all duration-200 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
-                style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}
+              <Btn
+                asChild
+                variant="ghost"
+                className="group hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none"
               >
-                {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
-                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-              </Link>
+                <Link href="/experts" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
+                  {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                </Link>
+              </Btn>
             </Reveal>
           </>
         )}

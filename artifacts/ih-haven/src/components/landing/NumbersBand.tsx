@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { imageUrl } from "@/hooks/use-content";
@@ -225,14 +226,12 @@ export function NumbersBand() {
                 <BadgeCheck className="h-4 w-4" aria-hidden />
                 {t({ ar: "كلّ رقمٍ موقّع · تحقّق منّا", en: "Every number signed · verify us" })}
               </Link>
-              <Link
-                href="/numbers"
-                data-testid="link-numbers-more"
-                className="group inline-flex items-center gap-2 rounded-full border border-white/[0.12] px-4 py-2 text-[14px] font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] motion-reduce:transition-none"
-              >
-                {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
-                <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
-              </Link>
+              <Btn asChild variant="secondary" size="md" className="group">
+                <Link href="/numbers" data-testid="link-numbers-more">
+                  {t({ ar: "كلّ الأرقام والإنجازات", en: "All numbers & milestones" })}
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
+                </Link>
+              </Btn>
             </div>
           </div>
         </Reveal>
