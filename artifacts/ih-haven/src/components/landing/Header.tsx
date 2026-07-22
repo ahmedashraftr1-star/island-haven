@@ -40,6 +40,7 @@ import { LiveNewsDot } from "@/components/landing/LiveNewsDot";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   NAV_STRUCTURE,
+  APPLY_CTA,
   type MegaCategory,
   type NavBadge,
 } from "@/lib/nav";
@@ -49,7 +50,7 @@ const FALLBACK = {
   logo: "/logo.png",
   brand: "Island Haven",
   tagline: "آيلاند هيفن · غزّة",
-  ctaLabel: "انتسب الآن",
+  ctaLabel: APPLY_CTA.ar,
   ctaHref: "/apply",
   bookCtaLabel: "احجز مقعدك",
   menuLabel: "القائمة",
@@ -242,7 +243,12 @@ export function Header() {
   const c = {
     ...cms,
     tagline: lang === "en" ? "Gaza · Palestine" : cms.tagline,
-    ctaLabel: lang === "en" ? "Apply Now" : cms.ctaLabel,
+    // The apply LABEL is code-owned so it stays the ONE canonical string across
+    // header, mobile menu, drawer, footer and palette (APPLY_CTA) — a stale CMS
+    // override must not reintroduce drift. The compact header keeps a short
+    // English label by design (same pattern as "Book a Seat"). The DESTINATION
+    // (ctaHref) still comes from the CMS via ...cms — destinations are untouched.
+    ctaLabel: lang === "en" ? "Apply" : APPLY_CTA.ar,
     bookCtaLabel: lang === "en" ? "Book a Seat" : "احجز مقعدك",
     menuLabel: lang === "en" ? "Menu" : cms.menuLabel,
   };
@@ -670,8 +676,8 @@ export function Header() {
               className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10 space-y-3"
             >
               {/* Full-width primary + secondary CTAs stack — never squeezed onto
-                  one crowded row (which wrapped "انتسب الآن" onto two lines on
-                  narrow phones). Login + language sit on their own compact row. */}
+                  one crowded row (a longer apply label would wrap onto two lines
+                  on narrow phones). Login + language sit on their own compact row. */}
               <Btn asChild variant="primary" size="lg" className="w-full whitespace-nowrap">
                 <Link href={c.ctaHref || "/apply"} onClick={() => setOpen(false)}>
                   <span>{c.ctaLabel}</span>

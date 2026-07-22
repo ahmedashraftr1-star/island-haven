@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { api } from "@/lib/api";
-import { NAV_STRUCTURE, MOBILE_LINKS, type Bi } from "@/lib/nav";
+import { NAV_STRUCTURE, MOBILE_LINKS, APPLY_CTA, type Bi } from "@/lib/nav";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /* ── Remote search result shapes (mirrors GET /search + the Search page). ── */
@@ -115,7 +115,7 @@ function buildQuickLinks(t: (bi: Bi) => string): PaletteGroup[] {
   const actionRows: PaletteRow[] = [
     {
       id: "action:/apply",
-      title: t({ ar: "سجّل طلبك", en: "Apply" }),
+      title: t(APPLY_CTA),
       subtitle: t({ ar: "انضمّ إلى الدفعة القادمة", en: "Join the next cohort" }),
       href: "/apply",
       icon: Send,

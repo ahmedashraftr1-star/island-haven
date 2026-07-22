@@ -6,6 +6,7 @@ import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { api } from "@/lib/api";
+import { APPLY_CTA } from "@/lib/nav";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
   formatDate,
@@ -779,7 +780,7 @@ function ApplyBand() {
           >
             <Btn asChild variant="primary" size="md" className="group">
               <Link href="/apply?ref=programs-band" data-testid="programs-band-apply">
-                {t({ ar: "انتسب الآن", en: "Apply now" })}
+                {t(APPLY_CTA)}
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
             </Btn>
@@ -849,7 +850,7 @@ function ProgramRowItem({ p, i, reduce }: { p: ProgramRow; i: number; reduce: bo
               <img
                 src={p.coverUrl}
                 alt={title}
-                loading="lazy"
+                loading="lazy" decoding="async"
                 className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
               />
             </div>

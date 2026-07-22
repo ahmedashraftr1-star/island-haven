@@ -8,6 +8,7 @@ import { useCohorts } from "@/hooks/use-public-data";
 import { imageUrl } from "@/hooks/use-content";
 import { formatDate, type CohortStatus } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { APPLY_CTA } from "@/lib/nav";
 import { CinematicMedia } from "./CinematicMedia";
 
 /**
@@ -292,7 +293,7 @@ export function ApplyProcess() {
           >
             <Btn asChild variant="primary" size="lg" className="group px-9 hover:shadow-[0_20px_48px_-16px_hsl(354_82%_30%_/_0.55)]">
               <Link href="/apply" data-testid="apply-process-cta">
-                {t({ ar: "قدّم طلبك الآن", en: "Apply now" })}
+                {t(APPLY_CTA)}
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
             </Btn>

@@ -16,7 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { usePageVisibility } from "@/hooks/use-public-data";
 import { I18N } from "@/lib/i18n";
-import { FOOTER_COLUMNS } from "@/lib/nav";
+import { FOOTER_COLUMNS, APPLY_CTA } from "@/lib/nav";
 
 const FOOTER_FALLBACK = {
   logo: "/logo.png",
@@ -114,7 +114,7 @@ export function Footer() {
           <div className="lg:col-span-4 lg:flex lg:justify-end">
             <Btn asChild variant="primary" size="lg" className="group px-9 shadow-[0_24px_64px_-16px_hsl(7_84%_40%/0.5)]">
               <Link href="/apply" data-testid="footer-apply">
-                {t({ ar: "سجّل طلبك", en: "Apply now" })}
+                {t(APPLY_CTA)}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
             </Btn>

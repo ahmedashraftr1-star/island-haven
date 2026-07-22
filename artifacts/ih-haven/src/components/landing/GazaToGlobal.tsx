@@ -7,6 +7,7 @@ import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { imageUrl } from "@/hooks/use-content";
+import { APPLY_CTA } from "@/lib/nav";
 
 /**
  * GazaToGlobal — "من غزّة إلى العالم / From Gaza to the World", the homepage's
@@ -301,7 +302,7 @@ export function GazaToGlobal() {
           </p>
           <Btn asChild variant="primary" size="md" className="group shrink-0">
             <Link href="/apply" data-testid="gaza-to-global-apply">
-              {t({ ar: "ابدأ رحلتك للعالم", en: "Start your journey out" })}
+              {t(APPLY_CTA)}
               <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
             </Link>
           </Btn>

@@ -8,6 +8,13 @@
 export type Bi = { ar: string; en: string };
 export type NavBadge = "new" | "soon";
 
+// ── Canonical "apply to the incubator" CTA label ──────────────────────────────
+// ONE source for the generic apply call-to-action so the header, mobile menu,
+// drawer, footer and command palette never drift apart. Contextual CTAs that
+// carry functional meaning (cohort-specific, venture submission, freelancer
+// track, the address-reveal & matching hooks, empty states) keep their own copy.
+export const APPLY_CTA: Bi = { ar: "قدّم على الحاضنة", en: "Apply to the incubator" };
+
 export interface MegaItem {
   icon: string; // lucide-react icon name
   title: Bi;
@@ -101,7 +108,7 @@ export const FOOTER_COLUMNS: FooterCol[] = [
       { label: { ar: "مسارات الاحتضان", en: "Programs" }, href: "/programs" },
       { label: { ar: "مشاريعنا", en: "Ventures" }, href: "/ventures" },
       { label: { ar: "مرشدونا", en: "Experts" }, href: "/experts" },
-      { label: { ar: "سجّل طلبك", en: "Apply" }, href: "/apply", accent: true },
+      { label: APPLY_CTA, href: "/apply", accent: true },
       { label: { ar: "احجز مقعدك", en: "Book a seat" }, href: "/book" },
     ],
   },
