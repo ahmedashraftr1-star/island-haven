@@ -12,6 +12,7 @@ import { Support } from "@/components/landing/Support";
 import { Footer } from "@/components/landing/Footer";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { useCountUp } from "@/hooks/use-count-up";
 
@@ -594,14 +595,12 @@ function TeamTeaser() {
             })}
           </motion.p>
           <Reveal delay={0.08} className="mt-[clamp(2rem,4vw,3rem)]">
-            <Link
-              href="/team"
-              data-testid="about-team-link"
-              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-            >
+            <Btn asChild variant="primary" size="md" className="group">
+              <Link href="/team" data-testid="about-team-link">
               {t({ ar: "تعرّف على الفريق", en: "Meet the team" })}
               <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
+              </Link>
+            </Btn>
           </Reveal>
         </header>
       </div>

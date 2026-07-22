@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { api, ApiError } from "@/lib/api";
 
 export default function ForgotPassword() {
@@ -131,15 +132,17 @@ export default function ForgotPassword() {
               placeholder="name@example.com"
             />
 
-            <button
+            <Btn
               type="submit"
+              variant="primary"
+              size="md"
               disabled={submitting || !email.trim()}
-              className="w-full h-12 rounded-xl bg-primary-cta text-white font-bold text-[14px] tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting
                 ? t({ ar: "جارٍ الإرسال…", en: "Sending…" })
                 : t({ ar: "إرسال رابط الاستعادة", en: "Send recovery link" })}
-            </button>
+            </Btn>
           </motion.form>
         )}
       </AnimatePresence>

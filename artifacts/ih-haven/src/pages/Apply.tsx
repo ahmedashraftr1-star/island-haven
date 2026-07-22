@@ -27,6 +27,7 @@ import { HavenMark } from "@/components/landing/HavenMark";
 import BorderGlow from "@/components/ui/BorderGlow";
 import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type CategoryId = "freelancer" | "graduate" | "student" | "other";
@@ -880,10 +881,12 @@ export default function Apply() {
 
                 {/* Submit */}
                 <div className="pt-1">
-                  <button
+                  <Btn
                     type="submit"
+                    variant="primary"
+                    size="lg"
                     disabled={submitting}
-                    className="cta-fill group relative w-full overflow-hidden rounded-2xl h-14 font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
+                    className="group relative w-full overflow-hidden enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
                     data-testid="button-submit"
                   >
                     <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
@@ -908,7 +911,7 @@ export default function Apply() {
                           "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
                       }}
                     />
-                  </button>
+                  </Btn>
                   <p className="text-[11.5px] text-center text-muted-foreground mt-3.5 leading-relaxed">
                     {c.consentLine}
                   </p>

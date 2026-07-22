@@ -6,6 +6,7 @@ import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 
 // Where to land after login: honor an in-app ?next= path, but only a same-site
 // absolute path ("/…", not "//host") so it can't be used as an open redirect.
@@ -138,10 +139,12 @@ export default function Login() {
           )}
         </AnimatePresence>
 
-        <button
+        <Btn
           type="submit"
+          variant="primary"
+          size="md"
           disabled={!canSubmit}
-          className="group relative w-full overflow-hidden rounded-2xl h-12 py-3.5 bg-primary-cta text-white font-bold text-[15px] tracking-wide transition-all duration-300 enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
+          className="group relative w-full overflow-hidden enabled:hover:shadow-[0_18px_40px_-12px_rgba(220,38,55,0.55)] enabled:hover:-translate-y-px disabled:opacity-45 disabled:cursor-not-allowed"
           data-testid="button-login"
         >
           <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
@@ -165,7 +168,7 @@ export default function Login() {
                 "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
             }}
           />
-        </button>
+        </Btn>
       </form>
     </AuthShell>
   );

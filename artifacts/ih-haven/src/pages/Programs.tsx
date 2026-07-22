@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { api } from "@/lib/api";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import {
@@ -188,12 +189,11 @@ export default function Programs() {
                   ))}
             </div>
           )}
-          <Link
-            href="/apply"
-            className="cta-fill mt-5 block w-full rounded-lg py-2.5 text-center text-[14px] font-semibold"
-          >
-            {t({ ar: "سجّل مشروعك الآن", en: "Register your venture" })}
-          </Link>
+          <Btn asChild variant="primary" size="md" className="mt-5 w-full">
+            <Link href="/apply">
+              {t({ ar: "سجّل مشروعك الآن", en: "Register your venture" })}
+            </Link>
+          </Btn>
         </div>
       }
     >
@@ -360,14 +360,12 @@ function HowItWorks() {
         transition={{ duration: 0.8, delay: 0.1, ease: EASE_OUT_EXPO }}
         className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-7 gap-y-3"
       >
-        <Link
-          href="/apply?ref=programs-how"
-          data-testid="how-apply"
-          className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-        >
-          {t({ ar: "ابدأ بالتقديم", en: "Start your application" })}
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-        </Link>
+        <Btn asChild variant="primary" size="md" className="group">
+          <Link href="/apply?ref=programs-how" data-testid="how-apply">
+            {t({ ar: "ابدأ بالتقديم", en: "Start your application" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        </Btn>
         <Link
           href="/book"
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
@@ -674,14 +672,12 @@ function ProgramsEmptyState() {
         transition={{ duration: 0.8, delay: 0.1, ease: EASE_OUT_EXPO }}
         className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-7 gap-y-3"
       >
-        <Link
-          href="/apply?ref=programs-empty"
-          data-testid="programs-empty-apply"
-          className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-        >
-          {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
-          <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-        </Link>
+        <Btn asChild variant="primary" size="md" className="group">
+          <Link href="/apply?ref=programs-empty" data-testid="programs-empty-apply">
+            {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+          </Link>
+        </Btn>
         <Link
           href="/book"
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
@@ -781,14 +777,12 @@ function ApplyBand() {
             transition={{ duration: 0.8, delay: 0.5, ease: EASE_OUT_EXPO }}
             className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-7 gap-y-3"
           >
-            <Link
-              href="/apply?ref=programs-band"
-              data-testid="programs-band-apply"
-              className="cta-fill group inline-flex items-center gap-2.5 h-12 px-7 rounded-full font-bold text-[14px] transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              {t({ ar: "انتسب الآن", en: "Apply now" })}
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
-            </Link>
+            <Btn asChild variant="primary" size="md" className="group">
+              <Link href="/apply?ref=programs-band" data-testid="programs-band-apply">
+                {t({ ar: "انتسب الآن", en: "Apply now" })}
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
+              </Link>
+            </Btn>
             <Link
               href="/become-mentor?ref=programs-band"
               className="group inline-flex items-center gap-2 text-[14px] font-semibold text-white/85 hover:text-white transition-colors"

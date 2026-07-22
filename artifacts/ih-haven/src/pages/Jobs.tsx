@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { I18N } from "@/lib/i18n";
 import {
   Briefcase,
@@ -301,14 +302,16 @@ export default function Jobs() {
             <h3 className="text-[15px] font-bold text-foreground mb-1">هل لديك وظيفة تودّ نشرها؟</h3>
             <p className="text-[13px] text-muted-foreground">شركاء آيلاند يمكنهم نشر فرصهم مجاناً لمجتمع الحاضنة.</p>
           </div>
-          <a
-            href="https://wa.me/972567536815"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary-bright text-[13px] font-semibold hover:bg-primary/20 transition-colors"
+          <Btn
+            asChild
+            variant="secondary"
+            size="sm"
+            className="shrink-0 bg-primary/10 border-primary/20 text-primary-bright backdrop-blur-none hover:bg-primary/20"
           >
-            تواصل معنا
-          </a>
+            <a href="https://wa.me/972567536815" target="_blank" rel="noopener noreferrer">
+              تواصل معنا
+            </a>
+          </Btn>
         </div>
 
         {/* Become a member */}

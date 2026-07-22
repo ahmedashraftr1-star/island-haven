@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft, Search, X } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage, type Lang } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { expertiseLabel } from "@/lib/expertiseTags";
 import { useExperts, useTeam } from "@/hooks/use-public-data";
 import { splitTags } from "@/lib/labels";
@@ -217,13 +218,14 @@ export default function Experts() {
               ))}
             </div>
           </div>
-          <a
-            href="#experts-grid"
-            className="cta-fill mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[14px] font-semibold"
-            aria-label={t({ ar: "احجز جلسة إرشاد مجّانيّة", en: "Book a free mentoring session" })}
-          >
-            {t({ ar: "احجز جلسة مجّانًا", en: "Book a free session" })}
-          </a>
+          <Btn asChild variant="primary" size="md" className="mt-5 w-full">
+            <a
+              href="#experts-grid"
+              aria-label={t({ ar: "احجز جلسة إرشاد مجّانيّة", en: "Book a free mentoring session" })}
+            >
+              {t({ ar: "احجز جلسة مجّانًا", en: "Book a free session" })}
+            </a>
+          </Btn>
         </div>
       }
     >

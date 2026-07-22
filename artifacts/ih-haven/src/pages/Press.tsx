@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 
 // A self-contained press / media kit page. Everything here is drawn from
 // confirmed, public facts so it's safe to put in front of journalists and an
@@ -250,13 +251,12 @@ export default function Press() {
             en: "Our team is ready to provide information, interviews, and high-resolution images.",
           })}
         </p>
-        <a
-          href={`mailto:${PRESS_EMAIL}`}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary-cta text-white font-bold text-[14px] hover:-translate-y-px transition-transform"
-        >
-          <Mail className="w-4 h-4" />
-          {PRESS_EMAIL}
-        </a>
+        <Btn asChild variant="primary" size="md">
+          <a href={`mailto:${PRESS_EMAIL}`}>
+            <Mail className="w-4 h-4" />
+            {PRESS_EMAIL}
+          </a>
+        </Btn>
       </GlassCard>
     </PageShell>
   );

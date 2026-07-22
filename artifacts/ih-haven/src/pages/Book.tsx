@@ -34,6 +34,7 @@ import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 type Step = 0 | 1 | 2 | 3;
@@ -369,14 +370,16 @@ export default function Book() {
                   {lang === "en" ? "Back" : "السابق"}
                 </button>
                 {step < 3 ? (
-                  <button
+                  <Btn
+                    variant="primary"
+                    size="md"
                     onClick={() => goStep(Math.min(3, step + 1) as Step)}
                     disabled={
                       (step === 0 && !canStep1) ||
                       (step === 1 && !canStep2) ||
                       (step === 2 && !canStep3)
                     }
-                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
+                    className="disabled:opacity-40 disabled:cursor-not-allowed"
                     data-testid="button-next"
                   >
                     {step === 2
@@ -385,17 +388,19 @@ export default function Book() {
                         : lang === "en" ? "Skip" : "تخطّ"
                       : lang === "en" ? "Next" : "التالي"}
                     <ChevronLeft className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
-                  </button>
+                  </Btn>
                 ) : (
-                  <button
+                  <Btn
+                    variant="primary"
+                    size="md"
                     onClick={submit}
                     disabled={!canSubmit || submitting}
-                    className="cta-fill h-12 px-7 rounded-full text-[13.5px] font-semibold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
+                    className="disabled:opacity-40 disabled:cursor-not-allowed"
                     data-testid="button-submit"
                   >
                     {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
                     <CheckCircle2 className="w-4 h-4" />
-                  </button>
+                  </Btn>
                 )}
               </div>
             </Panel>
@@ -965,12 +970,14 @@ function ExpertProfileModal({
               {lang === "en" ? "Deselect expert" : "إلغاء اختيار الخبير"}
             </button>
           ) : (
-            <button
+            <Btn
+              variant="primary"
+              size="md"
               onClick={() => { onPick(); onClose(); }}
-              className="cta-fill w-full py-2.5 rounded-2xl text-[13.5px] font-semibold transition shadow-[0_6px_18px_-6px_hsl(12_70%_52%/0.45)]"
+              className="w-full shadow-[0_6px_18px_-6px_hsl(12_70%_52%/0.45)]"
             >
               {lang === "en" ? "Pick this expert" : "اختَر هذا الخبير"}
-            </button>
+            </Btn>
           )}
         </div>
       </motion.div>

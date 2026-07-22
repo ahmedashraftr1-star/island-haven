@@ -17,6 +17,7 @@ import {
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Btn } from "@/components/ui/Btn";
 import { useAttestationLatest, useAttestationChain } from "@/hooks/use-public-data";
 import {
   verifyAttestation,
@@ -123,18 +124,20 @@ export default function Verify() {
           <div className="mt-2 text-[13.5px] text-muted-foreground">
             {t({ ar: "قد يكون اتّصالك أو خادمنا متوقّفًا لحظيًّا — أعد المحاولة.", en: "Your connection or our server may be momentarily down — try again." })}
           </div>
-          <button
+          <Btn
             type="button"
+            variant="primary"
+            size="md"
             onClick={() => void refetch()}
             disabled={isFetching}
             data-testid="verify-retry"
-            className="cta-fill mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full font-bold text-[14px] transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-wait focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            className="mt-5 disabled:cursor-wait"
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} aria-hidden />
             {isFetching
               ? t({ ar: "…إعادة المحاولة", en: "Retrying…" })
               : t({ ar: "أعد المحاولة", en: "Try again" })}
-          </button>
+          </Btn>
         </GlassCard>
       )}
 
