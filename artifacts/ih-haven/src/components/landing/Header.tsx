@@ -5,7 +5,9 @@ import {
   useState,
   type ComponentType,
 } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "wouter";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import {
   Menu,
   X,
@@ -90,7 +92,7 @@ function Badge({ badge }: { badge: NavBadge }) {
     <span
       className={`inline-flex items-center h-[18px] px-1.5 rounded-full font-mono text-[9px] font-semibold uppercase tracking-[0.12em] leading-none ${
         isNew
-          ? "bg-primary-soft text-primary border border-primary/30"
+          ? "bg-primary-soft text-primary-bright border border-primary/30"
           : "chip-sand"
       }`}
     >
@@ -105,21 +107,38 @@ function MegaPanel({
   categories,
   loc,
   onNavigate,
+  id,
+  ariaLabel,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   categories: MegaCategory[];
   loc: string;
   onNavigate: () => void;
+  id?: string;
+  ariaLabel?: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }) {
   const { t } = useLanguage();
   const reduce = useReducedMotion();
 
   return (
+    // The semantic container (id + role) IS this real, sized panel — not a
+    // collapsed 0-height wrapper. It's an absolute dropdown (overlays the hero, no
+    // CLS), lifted above it with z-50, and caps its height on short viewports so it
+    // scrolls instead of clipping. Entry/exit ≤180ms, reduced-motion respected.
     <motion.div
+      id={id}
+      role="region"
+      aria-label={ariaLabel}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
-      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-      className="absolute inset-x-0 top-full pt-3"
+      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+      className="hidden xl:block absolute inset-x-0 top-full pt-3 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto"
     >
       <div className="container-ih">
         <div className="surface-3 ring-edge rounded-[24px] border border-border-strong overflow-hidden">
@@ -238,7 +257,13 @@ export function Header() {
   const closeTimer = useRef<number | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
   const menuToggleRef = useRef<HTMLButtonElement | null>(null);
-  const mobilePanelRef = useRef<HTMLDivElement | null>(null);
+  // The mobile overlay is a real full-screen MODAL: useDialogA11y gives it a focus
+  // trap, Escape-to-close, focus-in-on-open, focus-restore-to-the-toggle on close,
+  // and a body-scroll lock — engaged only while `open`. It is portalled to <body>
+  // (below) so it escapes the <header>'s transform, which was making its
+  // `fixed inset-0` size to the 52px bar instead of the viewport.
+  const closeMobile = useCallback(() => setOpen(false), []);
+  const mobilePanelRef = useDialogA11y(closeMobile, open);
 
   // The sliding pill (PillNav): it rests on the current-page tab and glides to
   // whichever tab the pointer/focus is on. A shared layoutId lets framer-motion
@@ -279,32 +304,8 @@ export function Header() {
     setMegaOpen(false);
   }, [loc]);
 
-  // Lock body scroll while the full-screen mobile overlay is open.
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  // Focus handoff for the mobile menu. It's a disclosure (the z-40 bar with the
-  // search/close/lang controls stays interactive above the z-30 overlay), not a
-  // modal — so instead of trapping focus we move it into the first menu link on
-  // open and return it to the toggle on close. Escape already closes both menus.
-  useEffect(() => {
-    if (!open) return;
-    const raf = requestAnimationFrame(() => {
-      mobilePanelRef.current
-        ?.querySelector<HTMLElement>('a[href],button:not([disabled])')
-        ?.focus();
-    });
-    return () => {
-      cancelAnimationFrame(raf);
-      menuToggleRef.current?.focus();
-    };
-  }, [open]);
+  // (Body-scroll lock + focus trap/handoff for the mobile overlay are handled by
+  // useDialogA11y above — no bespoke effects needed here.)
 
   const cancelClose = useCallback(() => {
     if (closeTimer.current != null) {
@@ -409,13 +410,19 @@ export function Header() {
                 >
                   <button
                     type="button"
-                    onClick={() => setMegaOpen((v) => !v)}
+                    id="mega-explore-trigger"
+                    // Click OPENS reliably. Previously it toggled, which fought the
+                    // hover-open (mouseenter set it open, the same click flipped it
+                    // shut) so it read as "never opens". Hover keeps opening; Escape,
+                    // click-outside, pointer-leave, or selecting a link all close it.
+                    onClick={() => setMegaOpen(true)}
                     onFocus={() => {
                       openMega();
                       setHoveredNav(key);
                     }}
                     aria-expanded={megaOpen}
                     aria-haspopup="true"
+                    aria-controls="mega-explore-panel"
                     className={`relative inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors duration-200 ${
                       highlighted || megaOpen ? "text-white" : "text-white/85 hover:text-white"
                     }`}
@@ -522,40 +529,68 @@ export function Header() {
       {/* ── Desktop mega-menu panel ── */}
       <AnimatePresence>
         {megaOpen && (
-          <div
-            className="hidden xl:block"
+          <MegaPanel
+            id="mega-explore-panel"
+            ariaLabel={t({ ar: "قائمة الاستكشاف", en: "Explore menu" })}
             onMouseEnter={openMega}
             onMouseLeave={scheduleClose}
-          >
-            <MegaPanel
-              categories={nav.find((e) => e.mega)?.mega ?? []}
-              loc={loc}
-              onNavigate={() => setMegaOpen(false)}
-            />
-          </div>
+            categories={nav.find((e) => e.mega)?.mega ?? []}
+            loc={loc}
+            onNavigate={() => setMegaOpen(false)}
+          />
         )}
       </AnimatePresence>
 
-      {/* ── Full-screen mobile overlay ── */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-nav-panel"
-            ref={mobilePanelRef}
-            initial={reduce ? { opacity: 0 } : { y: "100%" }}
-            animate={reduce ? { opacity: 1 } : { y: 0 }}
-            exit={reduce ? { opacity: 0 } : { y: "100%" }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="xl:hidden fixed inset-0 top-0 z-30 bg-[#0a0a0a] flex flex-col"
-          >
-            <div aria-hidden className="absolute inset-0 brand-aura" />
-            {/* Spacer matching the bar so big rows clear the logo/X. */}
-            <div className="h-[72px] shrink-0" />
+      {/* ── Full-screen mobile overlay — a real modal, PORTALLED to <body> ──
+          so it escapes the <header>'s transform (which was sizing its
+          `fixed inset-0` to the 52px bar). z-[60] sits above the z-40 bar, so it
+          carries its OWN top bar with logo + close button. */}
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              id="mobile-nav-panel"
+              ref={mobilePanelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={t({ ar: "قائمة التنقّل", en: "Navigation menu" })}
+              initial={reduce ? { opacity: 0 } : { y: "100%" }}
+              animate={reduce ? { opacity: 1 } : { y: 0 }}
+              exit={reduce ? { opacity: 0 } : { y: "100%" }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="xl:hidden fixed inset-0 z-[60] bg-[#0a0a0a] flex flex-col"
+            >
+              <div aria-hidden className="absolute inset-0 brand-aura" />
+              {/* Own top bar (logo + close) — the header bar is behind this modal. */}
+              <div className="relative z-[1] container-ih flex items-center justify-between h-[72px] shrink-0">
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5"
+                >
+                  <span className="w-10 h-10 rounded-xl bg-[#0a0a0a] border border-white/10 flex items-center justify-center p-1.5">
+                    <img src={imageUrl(c.logo)} alt="" decoding="async" className="w-full h-full object-contain" />
+                  </span>
+                  <span className="font-bold text-[15px] tracking-tight text-white">{c.brand}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label={t({ ar: "إغلاق القائمة", en: "Close menu" })}
+                  className="w-11 h-11 rounded-full flex items-center justify-center border border-white/20 bg-white/10 backdrop-blur-md text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
             <nav
               aria-label={t({ ar: "قائمة الجوّال", en: "Mobile menu" })}
-              className="relative z-[1] flex-1 overflow-y-auto container-ih flex flex-col justify-center py-4"
+              className="relative z-[1] flex-1 overflow-y-auto"
             >
+              {/* min-h-full centres the list when it fits, but lets it grow and
+                  scroll when it doesn't — plain `justify-center` on the scroll
+                  container clipped the top rows out of reach on short screens. */}
+              <div className="min-h-full container-ih flex flex-col justify-center py-4">
               <ul className="flex flex-col">
                 {mobile.map((link, i) => {
                   const active = isActive(loc, link.href);
@@ -596,6 +631,7 @@ export function Header() {
                   );
                 })}
               </ul>
+              </div>
             </nav>
 
             {/* Bottom strip: language + Book + Apply */}
@@ -637,8 +673,10 @@ export function Header() {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </header>
   );
 }
