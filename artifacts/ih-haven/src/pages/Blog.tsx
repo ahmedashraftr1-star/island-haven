@@ -203,7 +203,7 @@ export default function Blog() {
                       <img
                         src={imageUrl(featured.coverUrl)}
                         alt={resolve(featured.title, featured.titleEn)}
-                        loading="eager"
+                        loading="eager" decoding="async"
                         className="absolute inset-0 h-full w-full object-cover saturate-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.04]"
                       />
                     )}
@@ -294,7 +294,7 @@ export default function Blog() {
                             <img
                               src={imageUrl(post.coverUrl)}
                               alt={resolve(post.title, post.titleEn)}
-                              loading="lazy"
+                              loading="lazy" decoding="async"
                               className="absolute inset-0 h-full w-full object-cover saturate-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.05]"
                             />
                           )}
@@ -443,12 +443,12 @@ export function BlogDetail() {
         </div>
 
         {post.coverUrl && (
-          <div className="mt-8 overflow-hidden rounded-[clamp(1.25rem,2.5vw,1.75rem)]">
+          <div className="mt-8 aspect-[16/9] overflow-hidden rounded-[clamp(1.25rem,2.5vw,1.75rem)]">
             <img
               src={imageUrl(post.coverUrl)}
               alt={title}
-              loading="eager"
-              className="w-full object-cover saturate-[1.03]"
+              loading="eager" decoding="async"
+              className="h-full w-full object-cover saturate-[1.03]"
             />
           </div>
         )}

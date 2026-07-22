@@ -10,12 +10,17 @@ import { useNumbers, useAttendanceSummary, useCta, DEFAULT_CTA, isPromoLive, typ
 import { ParticleField } from "./ParticleField";
 import { CtaClosedModal } from "./CtaClosedModal";
 
+// These text fallbacks MIRROR the live CMS "hero" content verbatim. That is not
+// incidental: the Arabic hero renders this object on first paint and then merges
+// the CMS values in after /content resolves — so any divergence (esp. a subtitle
+// that wraps to a different number of lines) reflows the vertically-centred
+// column and shows up as a large CLS spike. Keeping them identical = zero shift.
 const FALLBACK = {
-  eyebrow: "Business Incubator · حاضنة أعمال في غزّة",
+  eyebrow: "حاضنة الأعمال والمجتمع التقني الرائد في قطاع غزة",
   title1: "نَحضن أحلامك،",
   title2: "في قلب غزّة.",
   subtitle:
-    "حاضنة أعمال غزّاويّة. نأخذ فكرتك من الورقة إلى المنتج، ومن المنتج إلى السّوق — بإرشاد، برامج احتضان، وشبكة من الخبراء والشركاء.",
+    "حاضنة أعمال ومجتمع تقني تأسّست من قلب قطاع غزة. نجسر الفجوة بين المواهب الغزية والعالم — بمساحات عمل احترافية، تدريب مكثّف، أرصدة سحابية، وحلول استقبال المدفوعات الدولية.",
   ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
   bookCtaLabel: "احجز مقعدك",
