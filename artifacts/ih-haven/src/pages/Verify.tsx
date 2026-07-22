@@ -12,6 +12,7 @@ import {
   Loader2,
   ChevronDown,
   Cpu,
+  RefreshCw,
 } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { Reveal } from "@/components/landing/Reveal";
@@ -47,7 +48,7 @@ const NUMBER_LABELS: Array<{ key: string; ar: string; en: string }> = [
 
 export default function Verify() {
   const { lang, t } = useLanguage();
-  const { data: latest, isLoading, isError } = useAttestationLatest();
+  const { data: latest, isLoading, isError, isFetching, refetch } = useAttestationLatest();
   const { data: chain } = useAttestationChain(50);
 
   const [result, setResult] = useState<VerifyResult | null>(null);
@@ -120,8 +121,20 @@ export default function Verify() {
             {t({ ar: "تعذّر تحميل الختم الآن.", en: "Couldn't load the attestation right now." })}
           </div>
           <div className="mt-2 text-[13.5px] text-muted-foreground">
-            {t({ ar: "حاول تحديث الصفحة بعد قليل.", en: "Try refreshing in a moment." })}
+            {t({ ar: "قد يكون اتّصالك أو خادمنا متوقّفًا لحظيًّا — أعد المحاولة.", en: "Your connection or our server may be momentarily down — try again." })}
           </div>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            data-testid="verify-retry"
+            className="cta-fill mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full font-bold text-[14px] transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-wait focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} aria-hidden />
+            {isFetching
+              ? t({ ar: "…إعادة المحاولة", en: "Retrying…" })
+              : t({ ar: "أعد المحاولة", en: "Try again" })}
+          </button>
         </GlassCard>
       )}
 
@@ -611,7 +624,7 @@ function ChainTimeline({
                     {fmtTime(a.payload.issuedAt)}
                   </span>
                 </div>
-                <div dir="ltr" className="mt-1 truncate text-left font-mono text-[11.5px] text-muted-foreground/80">
+                <div dir="ltr" className="mt-1 truncate text-left font-mono text-[11.5px] text-muted-foreground">
                   {a.hash.slice(0, 24)}…
                 </div>
               </div>
