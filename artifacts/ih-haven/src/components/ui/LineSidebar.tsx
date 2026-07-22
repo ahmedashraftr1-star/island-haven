@@ -44,6 +44,10 @@ export interface LineSidebarProps {
   /** Formats the leading numeral. Default = 1-based, zero-padded, Latin ("01").
    *  Pass a locale-aware formatter (e.g. Arabic-Indic "٠١") for bilingual rails. */
   formatIndex?: (index: number) => string;
+  /** Optional in-page anchor per item (e.g. "#act-1"). When given, each chapter
+   *  renders as a real <a href> (native link semantics + keyboard) instead of a
+   *  role=button; the click is still intercepted for the smooth-scroll handler. */
+  hrefs?: (string | undefined)[];
   onItemClick?: (index: number, label: string) => void;
   /** Accessible name for the <nav> landmark (the rail is real in-page navigation). */
   ariaLabel?: string;
@@ -70,6 +74,7 @@ const LineSidebar = ({
   defaultActive = null,
   activeIndex: controlledActive,
   formatIndex = (i) => String(i + 1).padStart(2, "0"),
+  hrefs,
   onItemClick,
   ariaLabel,
   className = "",
@@ -153,17 +158,8 @@ const LineSidebar = ({
     [onItemClick, controlledActive],
   );
 
-  // Each chapter is a real in-page jump, so it must be keyboard-operable (the items
-  // carry role="button" + tabIndex): activate on Enter/Space like a native control.
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLLIElement>, index: number, label: string) => {
-      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-        e.preventDefault();
-        handleClick(index, label);
-      }
-    },
-    [handleClick],
-  );
+  // Each chapter renders as a real <a href> / <button>, so keyboard activation
+  // (Enter, and Space on the button) is native — no bespoke key handler needed.
 
   // Honour prefers-reduced-motion — the rAF lerp above then snaps instead of easing.
   useEffect(() => {
@@ -223,34 +219,59 @@ const LineSidebar = ({
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
-        {items.map((label, index) => (
-          <li
-            // Key by POSITION, not label — the acts are a fixed, ordered set and
-            // only their text changes (e.g. a live language switch). Keying by
-            // label would remount every <li> on a switch, dropping the inline
-            // --effect (active item loses its accent, proximity stalls until a
-            // pointer move / reload). Keying by index reuses the same elements,
-            // so --effect and itemRefs survive the re-render.
-            key={index}
-            ref={(el) => {
-              itemRefs.current[index] = el;
-            }}
-            className="line-sidebar__item"
-            role="button"
-            tabIndex={0}
-            aria-current={activeIndex === index ? "true" : undefined}
-            onClick={() => handleClick(index, label)}
-            onKeyDown={(e) => handleKeyDown(e, index, label)}
-          >
-            {showMarker && <span className="line-sidebar__marker" aria-hidden="true" />}
-            <span className="line-sidebar__label">
-              {showIndex && (
-                <span className="line-sidebar__index">{formatIndex(index)}</span>
+        {items.map((label, index) => {
+          const href = hrefs?.[index];
+          const isActive = activeIndex === index;
+          return (
+            <li
+              // Key by POSITION, not label — the acts are a fixed, ordered set and
+              // only their text changes (e.g. a live language switch). Keying by
+              // label would remount every <li> on a switch, dropping the inline
+              // --effect (active item loses its accent, proximity stalls until a
+              // pointer move / reload). Keying by index reuses the same elements,
+              // so --effect and itemRefs survive the re-render.
+              key={index}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
+              className="line-sidebar__item"
+              aria-current={isActive ? "true" : undefined}
+            >
+              {showMarker && <span className="line-sidebar__marker" aria-hidden="true" />}
+              <span className="line-sidebar__label" aria-hidden="true">
+                {showIndex && (
+                  <span className="line-sidebar__index">{formatIndex(index)}</span>
+                )}
+                <span className="line-sidebar__text">{label}</span>
+              </span>
+              {/* A real, keyboard-operable control stretched over the whole row: an
+                  <a href="#section"> when an anchor is supplied (native link + focus),
+                  else a <button>. Its aria-label carries the chapter name (the visual
+                  text is aria-hidden to avoid a double read). The smooth-scroll is
+                  intercepted so the scroll-spy lock still governs the jump. */}
+              {href ? (
+                <a
+                  href={href}
+                  className="line-sidebar__hit"
+                  aria-label={label}
+                  aria-current={isActive ? "true" : undefined}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleClick(index, label);
+                  }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="line-sidebar__hit"
+                  aria-label={label}
+                  aria-current={isActive ? "true" : undefined}
+                  onClick={() => handleClick(index, label)}
+                />
               )}
-              <span className="line-sidebar__text">{label}</span>
-            </span>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

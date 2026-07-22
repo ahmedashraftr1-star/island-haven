@@ -1151,7 +1151,34 @@ body::after {
   }
 }
 
+/* The active chapter always shows its label + reads bolder, so you can see where
+   you are in the page at a glance (matches the confident feel of the Explore menu). */
+.home-rail .line-sidebar__item[aria-current="true"] .line-sidebar__label {
+  font-weight: 600;
+}
+
+/* 1280–1535px: the centred full-bleed layout has no outer-margin room for a full
+   permanent label column, so the rail stays compact (numerals + markers) at REST
+   but reveals each chapter's full name on hover/focus — and keeps the ACTIVE
+   chapter's name pinned — so these viewports still get real labels on interaction
+   (previously the text was display:none, i.e. no labels at all below 2xl). */
 @media (max-width: 1535.98px) {
-  .home-rail .line-sidebar__text { display: none; }
+  .home-rail .line-sidebar__text {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease;
+  }
+  .home-rail .line-sidebar__item:hover .line-sidebar__text,
+  .home-rail .line-sidebar__item:focus-within .line-sidebar__text,
+  .home-rail .line-sidebar__item[aria-current="true"] .line-sidebar__text {
+    max-width: 14rem;
+    opacity: 1;
+    margin-inline-start: 0.5ch;
+  }
   .home-rail .line-sidebar__index { margin-inline: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-rail .line-sidebar__text { transition: none; }
 }

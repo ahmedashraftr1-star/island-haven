@@ -160,13 +160,14 @@ export function HomeTOC() {
         // The seed inside LineSidebar keeps the active item gold instantly on remount.
         key={lang}
         items={items}
+        hrefs={ACTS.map((a) => `#${a.id}`)}
         activeIndex={activeIdx}
         defaultActive={0}
         onItemClick={go}
         formatIndex={formatIndex}
         ariaLabel={t({ ar: "فهرس الصفحة", en: "Page index" })}
         accentColor="#DDBD7E"
-        textColor="rgba(240,234,225,0.42)"
+        textColor="rgba(240,234,225,0.62)"
         markerColor="rgba(255,255,255,0.20)"
         proximityRadius={100}
         maxShift={26}

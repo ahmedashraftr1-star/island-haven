@@ -36,15 +36,28 @@
   cursor: pointer;
 }
 
-/* Keyboard focus — the items are role="button" in-page jumps, so make focus visible. */
-.line-sidebar__item:focus-visible {
-  outline: none;
+/* Each chapter is a REAL control (an <a href="#section"> or <button>) stretched
+   over the whole row — native link semantics, keyboard, and focus. It sits above
+   the decorative marker/label and carries the accessible name. */
+.line-sidebar__hit {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
 }
-.line-sidebar__item:focus-visible .line-sidebar__label {
-  color: var(--accent-color);
+/* Keyboard focus lands on the hit-area; mirror the brand ring + light the label. */
+.line-sidebar__hit:focus-visible {
   outline: 2px solid var(--accent-color);
-  outline-offset: 5px;
-  border-radius: 3px;
+  outline-offset: 4px;
+}
+.line-sidebar__item:focus-within .line-sidebar__label {
+  color: var(--accent-color);
 }
 
 /* Widen the pointer target so items react a touch before the cursor arrives */
