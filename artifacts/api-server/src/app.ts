@@ -1,4 +1,6 @@
 import path from "node:path";
+import fs from "node:fs";
+import zlib from "node:zlib";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -11,7 +13,8 @@ import { logger } from "./lib/logger";
 import { codeFor } from "./lib/apiError";
 import { publicKeyInfo } from "./lib/attest";
 import { csrfProtect } from "./lib/csrf";
-import { compressJson, indexTwin, precompressedStatic } from "./lib/precompressed";
+import { compressJson, precompressedStatic } from "./lib/precompressed";
+import { injectRouteMeta } from "./lib/seoMeta";
 import { rateLimitStore } from "./lib/rateLimitStore";
 import {
   metricsMiddleware,
@@ -385,24 +388,37 @@ if (
       },
     }),
   );
-  // SPA fallback: any non-API GET returns index.html so the client router runs.
-  // The route has no file extension, so precompressedStatic can't see it — serve
-  // the `.br`/`.gz` twin here instead of shipping the shell raw on every load.
+  // The raw shell, read once, so the SPA fallback can rewrite its <title>/og/etc.
+  // per request path (for JS-less crawlers). Falls back to sendFile if unreadable.
+  let rawIndexHtml = "";
+  try {
+    rawIndexHtml = fs.readFileSync(path.join(clientDir, "index.html"), "utf8");
+  } catch {
+    /* handled below */
+  }
+
+  // SPA fallback: any non-API GET returns index.html so the client router runs —
+  // but with per-route meta injected (title/description/og/twitter/canonical), so
+  // a shared link previews as its real page instead of the generic home card. The
+  // shell is tiny; we inject + gzip on the fly (it's `no-cache` anyway). The client
+  // then sets the identical values once JS runs.
   app.use((req, res, next) => {
     if (req.method !== "GET" || req.path.startsWith("/api") || req.path === "/metrics")
       return next();
-    const twin = indexTwin(clientDir, String(req.headers["accept-encoding"] ?? ""));
-    if (twin) {
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Content-Encoding", twin.enc);
-      res.setHeader("Vary", "Accept-Encoding");
-      // The shell must never be cached hard — it points at the hashed assets.
-      res.setHeader("Cache-Control", "no-cache");
-      return void res.sendFile(twin.file, (err) => (err ? next() : undefined));
+    if (!rawIndexHtml) {
+      return void res.sendFile(path.join(clientDir, "index.html"), (err) =>
+        err ? next() : undefined,
+      );
     }
-    res.sendFile(path.join(clientDir, "index.html"), (err) =>
-      err ? next() : undefined,
-    );
+    const html = injectRouteMeta(rawIndexHtml, req.path);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Vary", "Accept-Encoding");
+    if (/\bgzip\b/.test(String(req.headers["accept-encoding"] ?? ""))) {
+      res.setHeader("Content-Encoding", "gzip");
+      return void res.end(zlib.gzipSync(html));
+    }
+    res.end(html);
   });
 }
 
