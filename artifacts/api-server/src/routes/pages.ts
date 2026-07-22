@@ -72,6 +72,71 @@ async function readHidden(): Promise<string[]> {
     .filter((k) => MANAGED_KEYS.has(k) && !PROTECTED_KEYS.has(k));
 }
 
+// ─── Dynamic sitemap.xml — respects the owner's hidden pages ──────────────────
+// The curated, indexable URL set (path → crawl hints). Kept here, next to the
+// page registry, so the sitemap and the visibility panel can never drift apart.
+// At request time we drop any page the owner has hidden (prefix-matched, so
+// hiding "/blog" also drops "/blog/:slug"), so a hidden page is never advertised
+// to crawlers. Non-managed content routes (e.g. /numbers) can't be hidden and
+// are always listed.
+interface SitemapEntry {
+  path: string;
+  changefreq: string;
+  priority: string;
+}
+const SITEMAP_ENTRIES: SitemapEntry[] = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/about", changefreq: "monthly", priority: "0.8" },
+  { path: "/team", changefreq: "monthly", priority: "0.8" },
+  { path: "/cohorts", changefreq: "weekly", priority: "0.9" },
+  { path: "/resources", changefreq: "weekly", priority: "0.8" },
+  { path: "/programs", changefreq: "weekly", priority: "0.9" },
+  { path: "/experts", changefreq: "weekly", priority: "0.9" },
+  { path: "/ventures", changefreq: "weekly", priority: "0.9" },
+  { path: "/members", changefreq: "weekly", priority: "0.8" },
+  { path: "/numbers", changefreq: "weekly", priority: "0.7" },
+  { path: "/courses", changefreq: "weekly", priority: "0.8" },
+  { path: "/events", changefreq: "weekly", priority: "0.7" },
+  { path: "/works", changefreq: "weekly", priority: "0.7" },
+  { path: "/gallery", changefreq: "monthly", priority: "0.6" },
+  { path: "/press", changefreq: "monthly", priority: "0.6" },
+  { path: "/apply", changefreq: "monthly", priority: "0.9" },
+  { path: "/book", changefreq: "monthly", priority: "0.7" },
+  { path: "/careers", changefreq: "monthly", priority: "0.7" },
+  { path: "/freelancers", changefreq: "weekly", priority: "0.8" },
+  { path: "/investors", changefreq: "monthly", priority: "0.8" },
+  { path: "/partners", changefreq: "monthly", priority: "0.7" },
+  { path: "/blog", changefreq: "weekly", priority: "0.8" },
+  { path: "/contact", changefreq: "yearly", priority: "0.6" },
+  { path: "/media", changefreq: "monthly", priority: "0.5" },
+  { path: "/verify", changefreq: "weekly", priority: "0.7" },
+  { path: "/stories", changefreq: "weekly", priority: "0.7" },
+  { path: "/jobs", changefreq: "weekly", priority: "0.8" },
+  { path: "/alumni", changefreq: "monthly", priority: "0.6" },
+  { path: "/learning", changefreq: "weekly", priority: "0.7" },
+  { path: "/leaderboard", changefreq: "weekly", priority: "0.6" },
+  { path: "/process", changefreq: "monthly", priority: "0.7" },
+  { path: "/faq", changefreq: "monthly", priority: "0.6" },
+];
+
+function xmlEscape(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** Build the sitemap XML for `origin` (no trailing slash), omitting hidden pages. */
+export async function buildSitemapXml(origin: string): Promise<string> {
+  const hidden = await readHidden();
+  const isHidden = (p: string) =>
+    hidden.some((h) => p === h || p.startsWith(h + "/"));
+  const rows = SITEMAP_ENTRIES.filter((e) => !isHidden(e.path))
+    .map(
+      (e) =>
+        `  <url>\n    <loc>${xmlEscape(origin + e.path)}</loc>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${rows}\n</urlset>\n`;
+}
+
 // GET /site/pages — public: which pages the site should treat as hidden.
 router.get("/site/pages", async (_req, res) => {
   try {

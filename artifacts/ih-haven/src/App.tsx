@@ -235,6 +235,40 @@ function setCanonicalUrl(path: string) {
     ?.setAttribute("content", url);
 }
 
+// Per-route BreadcrumbList JSON-LD — Home › <section>. Complements the static
+// Organization + WebSite graph in index.html so search engines can render a
+// breadcrumb trail for internal pages. Removed on the homepage (no trail). Detail
+// pages (/experts/:id) show their section crumb; their own title is managed by
+// usePageMeta. The <script> is replaced on every navigation.
+function setBreadcrumbJsonLd(path: string, lang: "ar" | "en") {
+  const id = "breadcrumb-jsonld";
+  document.getElementById(id)?.remove();
+  const clean = path.replace(/\/+$/, "");
+  if (clean === "" || clean === "/") return;
+  const seg = clean.split("/").filter(Boolean);
+  const topPath = `/${seg[0]}`;
+  const meta = ROUTE_META[topPath];
+  const crumbs: Array<{ name: string; url: string }> = [
+    { name: lang === "ar" ? "الرئيسيّة" : "Home", url: `${SITE_ORIGIN}/` },
+  ];
+  if (meta) crumbs.push({ name: meta.title[lang], url: `${SITE_ORIGIN}${topPath}` });
+  const json = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.url,
+    })),
+  };
+  const s = document.createElement("script");
+  s.type = "application/ld+json";
+  s.id = id;
+  s.textContent = JSON.stringify(json);
+  document.head.appendChild(s);
+}
+
 function RouteEffects() {
   const [loc] = useLocation();
   const { lang } = useLanguage();
@@ -253,6 +287,7 @@ function RouteEffects() {
     // Point canonical + og:url at THIS route (detail pages with their own
     // usePageMeta run after and may refine it further).
     setCanonicalUrl(loc);
+    setBreadcrumbJsonLd(loc, lang);
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [loc, lang]);
   return null;

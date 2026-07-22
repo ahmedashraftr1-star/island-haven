@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import { rateLimit } from "express-rate-limit";
 import router from "./routes";
+import { buildSitemapXml } from "./routes/pages";
 import { logger } from "./lib/logger";
 import { codeFor } from "./lib/apiError";
 import { publicKeyInfo } from "./lib/attest";
@@ -347,6 +348,23 @@ if (
   app.use((req, res, next) => {
     if (req.path.endsWith(".map")) return void res.status(404).end();
     next();
+  });
+  // Dynamic sitemap — MUST come before express.static so it wins over the
+  // build-time `public/sitemap.xml` fallback. Regenerated per request so it
+  // always reflects the owner's current hidden-page choices (a hidden page is
+  // never advertised to crawlers). Origin is canonical (SITE_ORIGIN override).
+  app.get("/sitemap.xml", async (_req, res) => {
+    try {
+      const origin = (
+        process.env.SITE_ORIGIN ?? "https://island-haven.replit.app"
+      ).replace(/\/$/, "");
+      res.setHeader("Content-Type", "application/xml; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(await buildSitemapXml(origin));
+    } catch (err) {
+      logger.error({ err }, "GET /sitemap.xml failed");
+      res.status(500).end();
+    }
   });
   // Serve the build-time `.br`/`.gz` twins when the client accepts them. Must
   // come BEFORE express.static (it rewrites req.url to the compressed twin).
