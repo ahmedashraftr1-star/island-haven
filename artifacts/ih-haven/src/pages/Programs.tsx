@@ -156,21 +156,36 @@ export default function Programs() {
               {t({ ar: "مسارات احتضان مفتوحة", en: "active incubation tracks" })}
             </span>
           </div>
-          {rows && rows.length > 0 && (
-            <div className="mt-6 border-t border-border-strong pt-4">
-              {rows.slice(0, 5).map((p, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2.5 py-2 border-b border-border-strong/60 last:border-0"
-                >
-                  <span className="font-mono text-[11px] text-sand tnum shrink-0">
-                    {num(i + 1, lang).padStart(2, lang === "ar" ? "٠" : "0")}
-                  </span>
-                  <span className="text-[13px] text-fg-secondary line-clamp-1">
-                    {lang === "en" ? p.titleEn || p.title : p.title}
-                  </span>
-                </div>
-              ))}
+          {/* Preview of the open tracks. This region is async (loads with `rows`),
+              so we RESERVE its height during load — a min-height at the 5-row cap
+              plus a matching skeleton — so the aside never grows and shifts the
+              hero divider below it (was the page's dominant CLS source). */}
+          {(rows === null || rows.length > 0) && (
+            <div className="mt-6 border-t border-border-strong pt-4 min-h-[11.5rem]">
+              {rows === null
+                ? [0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      aria-hidden
+                      className="flex items-center gap-2.5 py-2 border-b border-border-strong/60 last:border-0"
+                    >
+                      <div className="h-3 w-4 rounded bg-surface-3 animate-pulse shrink-0" />
+                      <div className="h-3 flex-1 max-w-[9rem] rounded bg-surface-3 animate-pulse" />
+                    </div>
+                  ))
+                : rows.slice(0, 5).map((p, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2.5 py-2 border-b border-border-strong/60 last:border-0"
+                    >
+                      <span className="font-mono text-[11px] text-sand tnum shrink-0">
+                        {num(i + 1, lang).padStart(2, lang === "ar" ? "٠" : "0")}
+                      </span>
+                      <span className="text-[13px] text-fg-secondary line-clamp-1">
+                        {lang === "en" ? p.titleEn || p.title : p.title}
+                      </span>
+                    </div>
+                  ))}
             </div>
           )}
           <Link
