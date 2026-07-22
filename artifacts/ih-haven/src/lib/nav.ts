@@ -102,7 +102,7 @@ export const FOOTER_COLUMNS: FooterCol[] = [
       { label: { ar: "مشاريعنا", en: "Ventures" }, href: "/ventures" },
       { label: { ar: "مرشدونا", en: "Experts" }, href: "/experts" },
       { label: { ar: "سجّل طلبك", en: "Apply" }, href: "/apply", accent: true },
-      { label: { ar: "احجز مقعدًا", en: "Book a seat" }, href: "/book" },
+      { label: { ar: "احجز مقعدك", en: "Book a seat" }, href: "/book" },
     ],
   },
   {

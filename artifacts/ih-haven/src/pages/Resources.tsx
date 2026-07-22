@@ -686,7 +686,7 @@ function ResourcesEmpty({ gated, reduce }: { gated: boolean; reduce: boolean }) 
           data-testid="resources-empty-book"
           className="group inline-flex items-center gap-2 text-[14px] font-semibold text-foreground/85 hover:text-foreground transition-colors"
         >
-          {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
+          {t({ ar: "احجز مقعدك", en: "Book a seat" })}
           <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
         </Link>
       </motion.div>

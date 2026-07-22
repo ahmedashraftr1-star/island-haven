@@ -8,6 +8,7 @@ import {
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "wouter";
 import { useDialogA11y } from "@/hooks/use-dialog-a11y";
+import { Btn } from "@/components/ui/Btn";
 import {
   Menu,
   X,
@@ -50,7 +51,7 @@ const FALLBACK = {
   tagline: "آيلاند هيفن · غزّة",
   ctaLabel: "انتسب الآن",
   ctaHref: "/apply",
-  bookCtaLabel: "احجز مقعد",
+  bookCtaLabel: "احجز مقعدك",
   menuLabel: "القائمة",
 };
 
@@ -245,7 +246,7 @@ export function Header() {
     ...cms,
     tagline: lang === "en" ? "Gaza · Palestine" : cms.tagline,
     ctaLabel: lang === "en" ? "Apply Now" : cms.ctaLabel,
-    bookCtaLabel: lang === "en" ? "Book a Seat" : cms.bookCtaLabel,
+    bookCtaLabel: lang === "en" ? "Book a Seat" : "احجز مقعدك",
     menuLabel: lang === "en" ? "Menu" : cms.menuLabel,
   };
 
@@ -476,26 +477,25 @@ export function Header() {
           </button>
           <LiveNewsDot />
           <LangToggle tone="onDark" />
-          <Link
-            href="/login"
-            className="hidden xl:inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-[12.5px] font-medium text-white/70 transition-colors duration-200 hover:text-white hover:bg-white/[0.06]"
-          >
-            <LogIn className="w-3.5 h-3.5 rtl:-scale-x-100" aria-hidden />
-            {t({ ar: "دخول الأعضاء", en: "Member Login" })}
-          </Link>
-          <Link
-            href="/book"
-            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-[12.5px] font-semibold transition-all duration-300 hover:scale-[1.03] bg-white/10 backdrop-blur-md border border-white/15 text-white hover:bg-white/15"
-          >
-            {c.bookCtaLabel}
-          </Link>
-          <Link
-            href={c.ctaHref || "/apply"}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-full text-[12.5px] font-semibold transition-all duration-300 shadow-soft hover:scale-[1.03] cta-fill"
-          >
-            <span>{c.ctaLabel}</span>
-            <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-          </Link>
+          {/* The three header actions share ONE box — Btn size sm (h-9 · px-4 · pill)
+              with a single variant each: login=ghost, book=secondary, apply=primary.
+              (Ghost's compact-link compound is overridden back to h-9 px-4 so all
+              three read as the same 36px pill.) The hero CTA stays excluded. */}
+          <Btn asChild variant="ghost" size="sm" className="hidden xl:inline-flex h-9 px-4 text-white/70 text-[12.5px]">
+            <Link href="/login">
+              <LogIn className="w-3.5 h-3.5 rtl:-scale-x-100" aria-hidden />
+              {t({ ar: "دخول الأعضاء", en: "Member Login" })}
+            </Link>
+          </Btn>
+          <Btn asChild variant="secondary" size="sm" className="text-[12.5px]">
+            <Link href="/book">{c.bookCtaLabel}</Link>
+          </Btn>
+          <Btn asChild variant="primary" size="sm" className="text-[12.5px] shadow-soft">
+            <Link href={c.ctaHref || "/apply"}>
+              <span>{c.ctaLabel}</span>
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+            </Link>
+          </Btn>
         </div>
 
         {/* ── Mobile actions ── */}

@@ -485,7 +485,7 @@ export default function Contact() {
                 href="/book"
                 className="text-foreground underline decoration-border-strong underline-offset-[6px] hover:decoration-foreground/50 transition-colors"
               >
-                {t({ ar: "احجز مقعدًا", en: "book a seat" })}
+                {t({ ar: "احجز مقعدك", en: "book a seat" })}
               </Link>
               {t({ ar: " مباشرةً.", en: " directly." })}
             </p>

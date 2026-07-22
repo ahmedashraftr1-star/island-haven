@@ -98,7 +98,7 @@ export default function NotFound() {
               href="/book"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md text-white font-semibold text-[13.5px] hover:bg-white/[0.1] transition-colors"
             >
-              {t({ ar: "احجز مقعدًا", en: "Book a seat" })}
+              {t({ ar: "احجز مقعدك", en: "Book a seat" })}
             </Link>
           </div>
         </motion.div>

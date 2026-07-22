@@ -123,7 +123,7 @@ function buildQuickLinks(t: (bi: Bi) => string): PaletteGroup[] {
     },
     {
       id: "action:/book",
-      title: t({ ar: "احجز مقعدًا", en: "Book a seat" }),
+      title: t({ ar: "احجز مقعدك", en: "Book a seat" }),
       subtitle: t({ ar: "احجز جلسة أو مقعدًا في فعالية", en: "Reserve a session or event seat" }),
       href: "/book",
       icon: CalendarCheck,
