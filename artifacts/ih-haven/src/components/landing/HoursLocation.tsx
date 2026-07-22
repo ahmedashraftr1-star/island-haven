@@ -120,7 +120,7 @@ export function HoursLocation() {
               <img
                 src={imageUrl(c.photo)}
                 alt={t({ ar: "مساحة آيلاند هيفن في غزّة", en: "The Island Haven space in Gaza" })}
-                loading="lazy"
+                loading="lazy" decoding="async"
                 className="w-full aspect-[4/3] object-cover object-center"
               />
               {/* Small local scrim ONLY behind the caption so it stays legible. */}

@@ -363,7 +363,7 @@ export default function Media() {
                   src={LOGO_URL}
                   alt={t({ ar: "شعار آيلاند هيفن", en: "Island Haven logo" })}
                   className="w-2/3 h-2/3 object-contain"
-                  loading="lazy"
+                  loading="lazy" decoding="async"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                     const fb = e.currentTarget.nextElementSibling as HTMLElement | null;

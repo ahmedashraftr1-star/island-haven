@@ -446,7 +446,7 @@ function EmptyPortfolio() {
           <img
             src="/photos/IMG_8347.webp"
             alt={t({ ar: "منتسبون يبنون مشاريعهم في آيلاند هيفن بغزّة", en: "Members building their ventures at Island Haven in Gaza" })}
-            loading="lazy"
+            loading="lazy" decoding="async"
             className="absolute inset-0 h-full w-full object-cover object-center saturate-[1.04]"
           />
           <div

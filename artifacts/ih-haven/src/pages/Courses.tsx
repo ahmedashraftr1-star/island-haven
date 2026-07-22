@@ -253,7 +253,7 @@ function CourseCard({ c, reduce }: { c: CourseRow; reduce: boolean }) {
                 src={c.coverUrl}
                 alt={c.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
-                loading="lazy"
+                loading="lazy" decoding="async"
               />
             </div>
           ) : (

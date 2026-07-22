@@ -1169,7 +1169,7 @@ function StepExpert({
                         src={e.avatarUrl}
                         alt={e.fullName}
                         className="w-12 h-12 rounded-2xl object-cover border border-white/12 shrink-0"
-                        loading="lazy"
+                        loading="lazy" decoding="async"
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-2xl bg-primary-soft border border-primary/20 flex items-center justify-center text-lg font-bold text-primary shrink-0">

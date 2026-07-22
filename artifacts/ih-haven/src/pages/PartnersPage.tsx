@@ -310,7 +310,7 @@ export default function PartnersPage() {
                         <img
                           src={(c as { logoUrl?: string | null }).logoUrl as string}
                           alt={c.name}
-                          loading="lazy"
+                          loading="lazy" decoding="async"
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -363,7 +363,7 @@ export default function PartnersPage() {
                       <img
                         src={(c as { logoUrl?: string | null }).logoUrl as string}
                         alt={c.name}
-                        loading="lazy"
+                        loading="lazy" decoding="async"
                         className="h-full w-full object-cover"
                       />
                     ) : (

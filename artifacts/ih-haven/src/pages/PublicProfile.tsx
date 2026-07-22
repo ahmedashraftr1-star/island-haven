@@ -373,7 +373,7 @@ export default function PublicProfile() {
                       src={w.coverUrl}
                       alt={w.title}
                       className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
-                      loading="lazy"
+                      loading="lazy" decoding="async"
                     />
                   </div>
                 ) : (

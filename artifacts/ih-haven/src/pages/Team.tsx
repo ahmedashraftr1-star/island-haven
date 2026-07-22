@@ -379,7 +379,7 @@ function TeamCard({ m, i }: { m: TeamMember; i: number }) {
             <img
               src={m.avatarUrl}
               alt={m.fullName}
-              loading="lazy"
+              loading="lazy" decoding="async"
               className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.05]"
             />
           ) : (

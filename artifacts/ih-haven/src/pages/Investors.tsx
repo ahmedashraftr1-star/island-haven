@@ -330,7 +330,7 @@ export default function Investors() {
                               <img
                                 src={inv.logoUrl}
                                 alt={inv.name}
-                                loading="lazy"
+                                loading="lazy" decoding="async"
                                 className="w-[clamp(2.75rem,5vw,3.5rem)] h-[clamp(2.75rem,5vw,3.5rem)] rounded-2xl object-cover border border-border-strong"
                               />
                             ) : (

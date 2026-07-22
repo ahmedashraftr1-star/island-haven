@@ -545,7 +545,7 @@ function WorkCard({ w }: { w: Work }) {
     >
       <div className="relative aspect-video w-full overflow-hidden bg-white/[0.03]">
         {w.coverUrl ? (
-          <img src={w.coverUrl} alt={w.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] motion-reduce:transition-none group-hover:scale-[1.05]" />
+          <img src={w.coverUrl} alt={w.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-[1200ms] motion-reduce:transition-none group-hover:scale-[1.05]" />
         ) : (
           <div className="grid h-full w-full place-items-center bg-gradient-to-br from-white/[0.04] to-transparent">
             <Briefcase className="h-8 w-8 text-fg-faint" />

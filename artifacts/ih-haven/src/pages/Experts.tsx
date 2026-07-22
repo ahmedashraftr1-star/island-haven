@@ -546,7 +546,7 @@ function ExpertCard({ e, i, reduce }: { e: ExpertCard; i: number; reduce: boolea
               <img
                 src={e.avatarUrl}
                 alt={e.fullName}
-                loading="lazy"
+                loading="lazy" decoding="async"
                 className="h-full w-full object-cover saturate-[1.03] transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none group-hover:scale-[1.05]"
               />
             ) : (
