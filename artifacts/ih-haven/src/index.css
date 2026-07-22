@@ -403,7 +403,9 @@
     right: 1rem;
     z-index: 9999;
     padding: 0.75rem 1.25rem;
-    background: hsl(var(--primary));
+    /* AA fill behind the white label (raw --primary L52 is only 4.03:1 on white;
+       --primary-cta L44 is the ≥4.5:1 token used site-wide for white-on-red). */
+    background: hsl(var(--primary-cta));
     color: hsl(var(--primary-foreground));
     font-weight: 700;
     font-size: 14px;
