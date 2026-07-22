@@ -373,6 +373,7 @@ export function Header() {
               <img
                 src={imageUrl(c.logo)}
                 alt=""
+                aria-hidden="true"
                 decoding="async"
                 className="w-full h-full object-contain"
               />
@@ -569,7 +570,7 @@ export function Header() {
                   className="flex items-center gap-2.5"
                 >
                   <span className="w-10 h-10 rounded-xl bg-[#0a0a0a] border border-white/10 flex items-center justify-center p-1.5">
-                    <img src={imageUrl(c.logo)} alt="" decoding="async" className="w-full h-full object-contain" />
+                    <img src={imageUrl(c.logo)} alt="" aria-hidden="true" decoding="async" className="w-full h-full object-contain" />
                   </span>
                   <span className="font-bold text-[15px] tracking-tight text-white">{c.brand}</span>
                 </Link>
@@ -643,33 +644,30 @@ export function Header() {
                 delay: reduce ? 0 : 0.12 + mobile.length * 0.05,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10"
+              className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10 space-y-3"
             >
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="mb-3 inline-flex items-center gap-2 text-[13.5px] font-medium text-white/70 transition-colors hover:text-white"
-              >
-                <LogIn className="w-4 h-4 rtl:-scale-x-100" aria-hidden />
-                {t({ ar: "دخول الأعضاء", en: "Member Login" })}
-              </Link>
-              <div className="flex items-center gap-3">
-                <LangToggle tone="onDark" />
-                <Link
-                  href="/book"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] rounded-full bg-white/10 border border-white/15 text-white text-[14px] font-semibold"
-                >
-                  {c.bookCtaLabel}
-                </Link>
-                <Link
-                  href={c.ctaHref || "/apply"}
-                  onClick={() => setOpen(false)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] rounded-full cta-fill text-[14px] font-semibold"
-                >
+              {/* Full-width primary + secondary CTAs stack — never squeezed onto
+                  one crowded row (which wrapped "انتسب الآن" onto two lines on
+                  narrow phones). Login + language sit on their own compact row. */}
+              <Btn asChild variant="primary" size="lg" className="w-full whitespace-nowrap">
+                <Link href={c.ctaHref || "/apply"} onClick={() => setOpen(false)}>
                   <span>{c.ctaLabel}</span>
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                 </Link>
+              </Btn>
+              <Btn asChild variant="secondary" size="lg" className="w-full whitespace-nowrap">
+                <Link href="/book" onClick={() => setOpen(false)}>{c.bookCtaLabel}</Link>
+              </Btn>
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex items-center gap-2 text-[13.5px] font-medium text-white/70 transition-colors hover:text-white"
+                >
+                  <LogIn className="w-4 h-4 rtl:-scale-x-100" aria-hidden />
+                  {t({ ar: "دخول الأعضاء", en: "Member Login" })}
+                </Link>
+                <LangToggle tone="onDark" />
               </div>
             </motion.div>
           </motion.div>

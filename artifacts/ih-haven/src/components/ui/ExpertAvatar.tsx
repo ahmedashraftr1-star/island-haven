@@ -7,10 +7,33 @@ import { cn } from "@/lib/utils";
  * name words, skipping single-letter honorifics ("م.", "أ.", "د."). Derived from
  * the name the API returns, never stored — so it holds for any mentor/member.
  */
+// Honorific titles to skip when picking initials, so "المحامي طارق سالم" reads
+// "طس" (the person), not "اط" (the title). Compared after stripping dots/commas
+// and lowercasing, covering both Arabic and English prefixes.
+const HONORIFICS = new Set([
+  "المحامي", "المحامية", "الدكتور", "الدكتورة", "دكتور", "دكتورة", "المهندس",
+  "المهندسة", "مهندس", "مهندسة", "الأستاذ", "الأستاذة", "أستاذ", "أستاذة",
+  "الشيخ", "الحاج", "الحاجة", "السيد", "السيدة", "الآنسة", "الكابتن", "الرائد",
+  "د", "دة", "م", "أ", "أ.د", "أست",
+  "dr", "mr", "mrs", "ms", "miss", "mx", "eng", "engineer", "prof", "professor",
+  "sheikh", "sir", "madam", "capt", "captain", "adv", "advocate",
+]);
+
+function isHonorific(word: string): boolean {
+  const clean = word.replace(/[.،،]/g, "").toLowerCase();
+  return clean.length === 0 || HONORIFICS.has(clean);
+}
+
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
-  const words = parts.filter((w) => w.replace(/\./g, "").length > 1);
-  return (words.length ? words : parts)
+  // Drop honorific titles + single-letter tokens, then take the first two real
+  // name words. Fall back to any length>1 words, then the raw parts, so a name
+  // that is ALL titles/initials still yields something.
+  const named = parts.filter(
+    (w) => !isHonorific(w) && w.replace(/\./g, "").length > 1,
+  );
+  const withLen = parts.filter((w) => w.replace(/\./g, "").length > 1);
+  return (named.length ? named : withLen.length ? withLen : parts)
     .slice(0, 2)
     .map((w) => w.charAt(0))
     .join("");

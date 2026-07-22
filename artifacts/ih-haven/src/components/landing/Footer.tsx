@@ -129,7 +129,7 @@ export function Footer() {
           {/* Brand column */}
           <div className="col-span-2 lg:col-span-5">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src={imageUrl(c.logo)} alt="" width={32} height={32} loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
+              <img src={imageUrl(c.logo)} alt="" aria-hidden="true" width={32} height={32} loading="lazy" decoding="async" className="w-8 h-8 object-contain" />
               <div className="text-xl font-bold text-foreground">{c.brand}</div>
             </div>
             <p className="t-body text-[14px] mb-7 max-w-md whitespace-pre-line">{c.aboutBody}</p>
