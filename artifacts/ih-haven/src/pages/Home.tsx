@@ -9,6 +9,7 @@ import { CredibilityBar } from "@/components/landing/CredibilityBar";
 import { FloatingContact } from "@/components/landing/FloatingContact";
 import { ActMarker } from "@/components/landing/ActMarker";
 import { HomeTOC } from "@/components/landing/HomeTOC";
+import { DeferSection } from "@/components/landing/DeferSection";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 
 // Below-the-fold: code-split (scroll-revealed, so a null fallback is invisible).
@@ -89,48 +90,66 @@ export default function Home() {
         {/* One boundary PER ACT, not one for all four: each act reveals as its own
             chunks arrive, so act 1 is interactive without waiting on act 4's JS,
             and a slow/failed chunk is isolated to its own act instead of blanking
-            every section below the fold. */}
+            every section below the fold.
+
+            Each act is ALSO wrapped in DeferSection: it mounts only as it nears
+            the viewport, so its chunk + framer-motion springs stay OUT of the
+            initial load path (the page's main-thread/TBT cost). The `act-N` id
+            lives on the DeferSection wrapper (a stable, reserved-height anchor) so
+            HomeTOC's scroll-spy and jump-to-act keep working before the act mounts.
+            Reserved min-heights are sized just under each act's real height
+            (mobile / lg, measured) so content only grows → zero layout shift. */}
         {/* ── Act 1 · The Work — the projects, then a founder's voice ── */}
-        <SectionErrorBoundary>
-          <Suspense fallback={null}>
-            <ActMarker idx={1} id="act-1" ar="العمل" en="The Work" />
-            <VenturesShowcase />
-            <SuccessStories />
-          </Suspense>
-        </SectionErrorBoundary>
+        <DeferSection id="act-1" reserve="min-h-[3200px] lg:min-h-[2000px]">
+          <SectionErrorBoundary>
+            <Suspense fallback={null}>
+              <ActMarker idx={1} ar="العمل" en="The Work" />
+              <VenturesShowcase />
+              <SuccessStories />
+            </Suspense>
+          </SectionErrorBoundary>
+        </DeferSection>
         {/* ── Act 2 · What You Get — the offer, then the mentors who deliver it ── */}
-        <SectionErrorBoundary>
-          <Suspense fallback={null}>
-            <ActMarker idx={2} id="act-2" ar="ما تحصل عليه" en="What you get" />
-            <WhatYouGet />
-            <ExpertsBand />
-          </Suspense>
-        </SectionErrorBoundary>
+        <DeferSection id="act-2" reserve="min-h-[3500px] lg:min-h-[2050px]">
+          <SectionErrorBoundary>
+            <Suspense fallback={null}>
+              <ActMarker idx={2} ar="ما تحصل عليه" en="What you get" />
+              <WhatYouGet />
+              <ExpertsBand />
+            </Suspense>
+          </SectionErrorBoundary>
+        </DeferSection>
         {/* ── Act 3 · The Place & The People — the room, the faces, the reach ── */}
-        <SectionErrorBoundary>
-          <Suspense fallback={null}>
-            <ActMarker idx={3} id="act-3" ar="المكان والناس" en="The place & the people" />
-            <SeatsBoard />
-            <FeaturedMembers />
-            <GazaToGlobal />
-          </Suspense>
-        </SectionErrorBoundary>
+        <DeferSection id="act-3" reserve="min-h-[2750px] lg:min-h-[2150px]">
+          <SectionErrorBoundary>
+            <Suspense fallback={null}>
+              <ActMarker idx={3} ar="المكان والناس" en="The place & the people" />
+              <SeatsBoard />
+              <FeaturedMembers />
+              <GazaToGlobal />
+            </Suspense>
+          </SectionErrorBoundary>
+        </DeferSection>
         {/* ── Act 4 · Join — the living pulse, the path, the door ── */}
+        <DeferSection id="act-4" reserve="min-h-[2900px] lg:min-h-[2400px]">
+          <SectionErrorBoundary>
+            <Suspense fallback={null}>
+              <ActMarker idx={4} ar="انضمّ إلينا" en="Join us" />
+              <NewsSlider />
+              <ApplyProcess />
+              <FinalCTA />
+            </Suspense>
+          </SectionErrorBoundary>
+        </DeferSection>
+      </div>
+      <DeferSection reserve="min-h-[1500px] lg:min-h-[950px]">
         <SectionErrorBoundary>
           <Suspense fallback={null}>
-            <ActMarker idx={4} id="act-4" ar="انضمّ إلينا" en="Join us" />
-            <NewsSlider />
-            <ApplyProcess />
-            <FinalCTA />
+            <Footer />
+            <AdminShortcut />
           </Suspense>
         </SectionErrorBoundary>
-      </div>
-      <SectionErrorBoundary>
-        <Suspense fallback={null}>
-          <Footer />
-          <AdminShortcut />
-        </Suspense>
-      </SectionErrorBoundary>
+      </DeferSection>
       <FloatingContact />
     </div>
   );
