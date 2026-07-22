@@ -77,12 +77,6 @@ function isActive(loc: string, href?: string) {
   return loc === href || loc.startsWith(href + "/");
 }
 
-// Localise an index into Eastern-Arabic numerals when in Arabic, padded to 2.
-function navIndex(i: number, ar: boolean) {
-  const padded = String(i + 1).padStart(2, "0");
-  return ar ? padded.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : padded;
-}
-
 function Badge({ badge }: { badge: NavBadge }) {
   const { t } = useLanguage();
   const isNew = badge === "new";
@@ -162,13 +156,16 @@ function MegaPanel({
                         <Link
                           href={item.href}
                           onClick={onNavigate}
+                          aria-current={active ? "page" : undefined}
                           className={`group/item flex items-start gap-3.5 rounded-2xl p-2.5 -mx-1 transition-colors duration-200 hover-elevate ${
-                            active ? "bg-white/[0.04]" : ""
+                            active ? "bg-primary/[0.1] ring-1 ring-inset ring-primary/25" : ""
                           }`}
                         >
                           <span
                             aria-hidden
-                            className="relative z-[1] mt-0.5 w-10 h-10 rounded-xl bg-primary-soft text-primary flex items-center justify-center shrink-0 transition-transform duration-200 group-hover/item:scale-105"
+                            className={`relative z-[1] mt-0.5 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover/item:scale-105 ${
+                              active ? "bg-primary text-white" : "bg-primary-soft text-primary"
+                            }`}
                           >
                             <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
                           </span>
@@ -177,8 +174,8 @@ function MegaPanel({
                               <span
                                 className={`t-h3 text-[15px] leading-tight transition-colors ${
                                   active
-                                    ? "text-primary"
-                                    : "text-foreground group-hover/item:text-primary"
+                                    ? "text-primary-bright"
+                                    : "text-foreground group-hover/item:text-primary-bright"
                                 }`}
                               >
                                 {t(item.title)}
@@ -239,7 +236,7 @@ function MegaPanel({
 
 export function Header() {
   const { lang, t } = useLanguage();
-  const { nav, mobile } = useVisibleNav();
+  const { nav } = useVisibleNav();
   const reduce = useReducedMotion();
   const cms = useContentSection("header", FALLBACK);
   const c = {
@@ -591,47 +588,73 @@ export function Header() {
               {/* min-h-full centres the list when it fits, but lets it grow and
                   scroll when it doesn't — plain `justify-center` on the scroll
                   container clipped the top rows out of reach on short screens. */}
-              <div className="min-h-full container-ih flex flex-col justify-center py-4">
-              <ul className="flex flex-col">
-                {mobile.map((link, i) => {
-                  const active = isActive(loc, link.href);
-                  return (
-                    <motion.li
-                      key={link.href}
-                      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.4,
-                        delay: reduce ? 0 : 0.12 + i * 0.05,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="group/row flex items-baseline gap-4 py-3 border-b border-white/10"
-                      >
-                        <span className="font-mono text-[13px] font-semibold text-primary tabular-nums shrink-0 w-9">
-                          {navIndex(i, lang === "ar")}.
-                        </span>
-                        <span
-                          className={`t-display text-[clamp(2rem,9vw,3rem)] leading-[1.02] flex-1 transition-colors ${
-                            active
-                              ? "text-primary"
-                              : "text-foreground group-hover/row:text-primary"
-                          }`}
-                        >
-                          {t(link.label)}
-                        </span>
-                        <ArrowUpRight
-                          aria-hidden
-                          className="w-6 h-6 self-center text-fg-faint shrink-0 transition-all duration-200 group-hover/row:text-primary group-hover/row:-translate-y-0.5 rtl:-scale-x-100"
-                        />
-                      </Link>
-                    </motion.li>
-                  );
-                })}
-              </ul>
+              {/* Grouped like the desktop mega (For Founders / Network / About) —
+                  each item an icon-tile + title + one-line description + NEW badge,
+                  the active page highlighted (aria-current). Rows stagger in on open
+                  and collapse to an instant render under reduced-motion. */}
+              <div className="container-ih py-5 space-y-7">
+                {(nav.find((e) => e.mega)?.mega ?? []).map((cat, ci) => (
+                  <section key={cat.label.en}>
+                    <div className="eyebrow eyebrow-sand font-mono mb-3 px-1.5">
+                      {t(cat.label)}
+                    </div>
+                    <ul className="space-y-1.5">
+                      {cat.items.map((item, ii) => {
+                        const Icon = ICONS[item.icon] ?? Sparkles;
+                        const active = isActive(loc, item.href);
+                        return (
+                          <motion.li
+                            key={item.href}
+                            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                              duration: 0.38,
+                              delay: reduce ? 0 : 0.08 + ci * 0.06 + ii * 0.035,
+                              ease: [0.16, 1, 0.3, 1],
+                            }}
+                          >
+                            <Link
+                              href={item.href}
+                              onClick={() => setOpen(false)}
+                              aria-current={active ? "page" : undefined}
+                              className={`group/mi flex items-center gap-3.5 rounded-2xl p-2.5 min-h-[56px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                                active
+                                  ? "bg-primary/[0.12] ring-1 ring-inset ring-primary/25"
+                                  : "hover:bg-white/[0.05] active:bg-white/[0.08]"
+                              }`}
+                            >
+                              <span
+                                aria-hidden
+                                className={`grid place-items-center w-11 h-11 rounded-xl shrink-0 transition-colors duration-200 ${
+                                  active
+                                    ? "bg-primary text-white"
+                                    : "bg-primary-soft text-primary group-hover/mi:scale-105 motion-reduce:group-hover/mi:scale-100"
+                                }`}
+                              >
+                                <Icon className="w-[19px] h-[19px]" strokeWidth={2} />
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className={`text-[15.5px] font-semibold leading-tight transition-colors ${
+                                      active ? "text-primary-bright" : "text-foreground group-hover/mi:text-primary-bright"
+                                    }`}
+                                  >
+                                    {t(item.title)}
+                                  </span>
+                                  {item.badge && <Badge badge={item.badge} />}
+                                </span>
+                                <span className="block text-[12.5px] text-fg-secondary mt-0.5 truncate">
+                                  {t(item.desc)}
+                                </span>
+                              </span>
+                            </Link>
+                          </motion.li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                ))}
               </div>
             </nav>
 
@@ -641,7 +664,7 @@ export function Header() {
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.4,
-                delay: reduce ? 0 : 0.12 + mobile.length * 0.05,
+                delay: reduce ? 0 : 0.5,
                 ease: [0.16, 1, 0.3, 1],
               }}
               className="relative z-[1] container-ih pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/10 space-y-3"

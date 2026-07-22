@@ -388,14 +388,24 @@ if (
       },
     }),
   );
-  // The raw shell, read once, so the SPA fallback can rewrite its <title>/og/etc.
-  // per request path (for JS-less crawlers). Falls back to sendFile if unreadable.
-  let rawIndexHtml = "";
-  try {
-    rawIndexHtml = fs.readFileSync(path.join(clientDir, "index.html"), "utf8");
-  } catch {
-    /* handled below */
-  }
+  // The raw shell — cached, but re-read whenever it changes on disk (mtime), so a
+  // rebuilt client (new asset hashes) is picked up WITHOUT a server restart. One
+  // cheap statSync per HTML navigation; the file is only re-read when it changes.
+  const indexFile = path.join(clientDir, "index.html");
+  let cachedShell = "";
+  let cachedMtime = -1;
+  const readShell = (): string => {
+    try {
+      const mtime = fs.statSync(indexFile).mtimeMs;
+      if (mtime !== cachedMtime) {
+        cachedShell = fs.readFileSync(indexFile, "utf8");
+        cachedMtime = mtime;
+      }
+      return cachedShell;
+    } catch {
+      return "";
+    }
+  };
 
   // SPA fallback: any non-API GET returns index.html so the client router runs —
   // but with per-route meta injected (title/description/og/twitter/canonical), so
@@ -405,12 +415,11 @@ if (
   app.use((req, res, next) => {
     if (req.method !== "GET" || req.path.startsWith("/api") || req.path === "/metrics")
       return next();
-    if (!rawIndexHtml) {
-      return void res.sendFile(path.join(clientDir, "index.html"), (err) =>
-        err ? next() : undefined,
-      );
+    const shell = readShell();
+    if (!shell) {
+      return void res.sendFile(indexFile, (err) => (err ? next() : undefined));
     }
-    const html = injectRouteMeta(rawIndexHtml, req.path);
+    const html = injectRouteMeta(shell, req.path);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Vary", "Accept-Encoding");
