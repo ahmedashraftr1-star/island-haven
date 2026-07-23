@@ -35,6 +35,7 @@ import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
 import { SeatMap } from "@/components/booking/SeatMap";
 import { Reveal } from "@/components/landing/Reveal";
+import { useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -58,19 +59,19 @@ interface ExpertOption {
 }
 
 const TIME_SLOTS = [
-  { id: "morning", label: "صباحًا", labelEn: "Morning", time: "٩ – ١٢", timeEn: "9 – 12", Icon: Sunrise },
-  { id: "midday", label: "ظهرًا", labelEn: "Midday", time: "١٢ – ٣", timeEn: "12 – 3", Icon: Sun },
-  { id: "afternoon", label: "بعد الظهر", labelEn: "Afternoon", time: "٣ – ٥", timeEn: "3 – 5", Icon: Sunset },
-  { id: "fullday", label: "اليوم الكامل", labelEn: "Full Day", time: "٩ – ٥", timeEn: "9 – 5", Icon: Sparkles },
+  { id: "morning", labelKey: "slot0Label", labelEnKey: "slot0LabelEn", timeKey: "slot0Time", timeEnKey: "slot0TimeEn", Icon: Sunrise },
+  { id: "midday", labelKey: "slot1Label", labelEnKey: "slot1LabelEn", timeKey: "slot1Time", timeEnKey: "slot1TimeEn", Icon: Sun },
+  { id: "afternoon", labelKey: "slot2Label", labelEnKey: "slot2LabelEn", timeKey: "slot2Time", timeEnKey: "slot2TimeEn", Icon: Sunset },
+  { id: "fullday", labelKey: "slot3Label", labelEnKey: "slot3LabelEn", timeKey: "slot3Time", timeEnKey: "slot3TimeEn", Icon: Sparkles },
 ] as const;
 
 const PURPOSES = [
-  { id: "work", label: "عمل مستقلّ", labelEn: "Freelance work", Icon: Briefcase },
-  { id: "study", label: "دراسة", labelEn: "Study", Icon: GraduationCap },
-  { id: "meeting", label: "اجتماع", labelEn: "Meeting", Icon: Users },
-  { id: "event", label: "فعّاليّة", labelEn: "Event", Icon: PartyPopper },
-  { id: "tour", label: "زيارة استكشافيّة", labelEn: "Exploratory visit", Icon: Eye },
-  { id: "other", label: "غير ذلك", labelEn: "Other", Icon: MoreHorizontal },
+  { id: "work", labelKey: "purpose0Label", labelEnKey: "purpose0LabelEn", Icon: Briefcase },
+  { id: "study", labelKey: "purpose1Label", labelEnKey: "purpose1LabelEn", Icon: GraduationCap },
+  { id: "meeting", labelKey: "purpose2Label", labelEnKey: "purpose2LabelEn", Icon: Users },
+  { id: "event", labelKey: "purpose3Label", labelEnKey: "purpose3LabelEn", Icon: PartyPopper },
+  { id: "tour", labelKey: "purpose4Label", labelEnKey: "purpose4LabelEn", Icon: Eye },
+  { id: "other", labelKey: "purpose5Label", labelEnKey: "purpose5LabelEn", Icon: MoreHorizontal },
 ] as const;
 
 // Asia/Gaza working week: Saturday(6) - Thursday(4); Friday(5) closed.
@@ -103,11 +104,188 @@ function arabicMonth(d: Date) {
   });
 }
 
-const WEEKDAY_LABELS = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"];
-const WEEKDAY_LABELS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAY_KEYS = ["weekday0","weekday1","weekday2","weekday3","weekday4","weekday5","weekday6"] as const;
+
+const PAGE_BOOK_FALLBACK = {
+  bk0: "فشل الإرسال",
+  bk0En: "Submission failed",
+  bk1: "فشل الإرسال، حاول مجدّدًا",
+  bk1En: "Submission failed, please try again",
+  bk2: "اختر مقعدك",
+  bk2En: "Choose your seat",
+  bk3: "(اختياريّ)",
+  bk3En: "(optional)",
+  bk4: "اختر التاريخ والفترة أوّلًا لعرض المقاعد المتاحة على خريطة القاعة.",
+  bk4En: "Pick a date and slot first to see live seat availability on the hall map.",
+  bk5: "العودة",
+  bk5En: "Back",
+  bk6: "احجز مقعدك · مجّانًا",
+  bk6En: "Book a seat · Free",
+  bk7: "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه إن شئت. لا تسجيل دخول، ولا رسوم، ولا تعقيد — أربع خطوات فقط، ومجّانًا تمامًا.",
+  bk7En: "Pick a day, a time slot, and — if you like — an expert to meet. No login, no fees, no hassle. Just four steps, completely free.",
+  bk8: "السابق",
+  bk8En: "Back",
+  bk9: "التالي",
+  bk9En: "Next",
+  bk10: "تخطّ",
+  bk10En: "Skip",
+  bk11: "جارٍ الإرسال...",
+  bk11En: "Sending...",
+  bk12: "أكِّد الحجز",
+  bk12En: "Confirm booking",
+  bk13: "اختر يومك وفترتك",
+  bk13En: "Pick your day & time slot",
+  bk14: "مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة",
+  bk14En: "Open Sat–Thu · Closed Friday · Gaza time",
+  bk15: "مختار",
+  bk15En: "Selected",
+  bk16: "غير متاح",
+  bk16En: "Unavailable",
+  bk17: "اختر الفترة",
+  bk17En: "Pick a time slot",
+  bk18: "ما الهدف من زيارتك؟",
+  bk18En: "What's the purpose of your visit?",
+  bk19: "اختياراتك تساعدنا نُجهّز لك المساحة الأنسب",
+  bk19En: "Your choice helps us prepare the best space for you",
+  bk20: "عدد الأشخاص",
+  bk20En: "Number of people",
+  bk21: "ملاحظات إضافيّة",
+  bk21En: "Additional notes",
+  bk22: "اللغات: ",
+  bk22En: "Languages: ",
+  bk23: "الموقع",
+  bk23En: "Website",
+  bk24: "لا يستقبل جلسات حاليًا",
+  bk24En: "Not accepting sessions right now",
+  bk25: "إلغاء اختيار الخبير",
+  bk25En: "Deselect expert",
+  bk26: "اختَر هذا الخبير",
+  bk26En: "Pick this expert",
+  bk27: "هل تودّ لقاء خبير؟",
+  bk27En: "Meet an expert?",
+  bk28: "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك",
+  bk28En: "Optional — pick an expert you'd like to connect with during your visit",
+  bk29: "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة.",
+  bk29En: "No experts available right now. You can skip this step.",
+  bk30: "الملف",
+  bk30En: "profile",
+  bk31: "لا موعد هذا اليوم",
+  bk31En: "No slot this day",
+  bk32: "المواعيد المتاحة لهذا اليوم",
+  bk32En: "Available slots for this day",
+  bk33: "— اختياريّ",
+  bk33En: "— optional",
+  bk34: "لا توجد مواعيد محدّدة لهذا اليوم — يمكنك الحجز دون تحديد موعد.",
+  bk34En: "No specific slots listed for this date — you can still book without a slot.",
+  bk35: "عن بُعد",
+  bk35En: "Online",
+  bk36: "حضوريّ",
+  bk36En: "On-site",
+  bk37: "بياناتك",
+  bk37En: "Your info",
+  bk38: "نتواصل معك على واتساب لتأكيد الحجز",
+  bk38En: "We'll reach you on WhatsApp to confirm your booking",
+  bk39: "الاسم الكامل",
+  bk39En: "Full name",
+  bk40: "رقم الواتساب",
+  bk40En: "WhatsApp number",
+  bk41: "البريد الإلكترونيّ",
+  bk41En: "Email address",
+  bk42: "بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث.",
+  bk42En: "By submitting you agree that we may contact you on the selected channel solely for booking confirmation. We will never share your data with third parties.",
+  bk43: "الملخّص",
+  bk43En: "Summary",
+  bk44: "ملخّص حجزك",
+  bk44En: "Your booking",
+  bk45: "التاريخ",
+  bk45En: "Date",
+  bk46: "الفترة",
+  bk46En: "Time slot",
+  bk47: "المقعد",
+  bk47En: "Seat",
+  bk48: "أيّ مقعد متاح",
+  bk48En: "Any available",
+  bk49: "الهدف",
+  bk49En: "Purpose",
+  bk50: "الأشخاص",
+  bk50En: "Attendees",
+  bk51: "الخبير",
+  bk51En: "Expert",
+  bk52: "لم يُختَر",
+  bk52En: "None selected",
+  bk53: "وقت الجلسة",
+  bk53En: "Session time",
+  bk54: "باسم",
+  bk54En: "Name",
+  bk55: "قهوة وشاي وإنترنت سريع · على حسابنا دائمًا.",
+  bk55En: "Coffee, tea & fast Wi-Fi · always on us.",
+  bk56: "تمّ الحجز بنجاح",
+  bk56En: "Booking confirmed",
+  bk57: "مرشدك",
+  bk57En: "Your mentor",
+  bk58: "رقم الحجز",
+  bk58En: "Booking ref.",
+  bk59: "العودة للرئيسيّة",
+  bk59En: "Back to home",
+  bk60: "حجز آخر",
+  bk60En: "New booking",
+  bk61: "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة...",
+  bk61En: "E.g. I need a seat near the window, or I'll need a display port...",
+  bk62: "مثلًا: لانا الشريف",
+  bk62En: "E.g. Lana Al-Sharif",
+  slot0Label: "صباحًا",
+  slot0LabelEn: "Morning",
+  slot0Time: "٩ – ١٢",
+  slot0TimeEn: "9 – 12",
+  slot1Label: "ظهرًا",
+  slot1LabelEn: "Midday",
+  slot1Time: "١٢ – ٣",
+  slot1TimeEn: "12 – 3",
+  slot2Label: "بعد الظهر",
+  slot2LabelEn: "Afternoon",
+  slot2Time: "٣ – ٥",
+  slot2TimeEn: "3 – 5",
+  slot3Label: "اليوم الكامل",
+  slot3LabelEn: "Full Day",
+  slot3Time: "٩ – ٥",
+  slot3TimeEn: "9 – 5",
+  purpose0Label: "عمل مستقلّ",
+  purpose0LabelEn: "Freelance work",
+  purpose1Label: "دراسة",
+  purpose1LabelEn: "Study",
+  purpose2Label: "اجتماع",
+  purpose2LabelEn: "Meeting",
+  purpose3Label: "فعّاليّة",
+  purpose3LabelEn: "Event",
+  purpose4Label: "زيارة استكشافيّة",
+  purpose4LabelEn: "Exploratory visit",
+  purpose5Label: "غير ذلك",
+  purpose5LabelEn: "Other",
+  weekday0: "أحد",
+  weekday0En: "Sun",
+  weekday1: "اثن",
+  weekday1En: "Mon",
+  weekday2: "ثلا",
+  weekday2En: "Tue",
+  weekday3: "أرب",
+  weekday3En: "Wed",
+  weekday4: "خمي",
+  weekday4En: "Thu",
+  weekday5: "جمع",
+  weekday5En: "Fri",
+  weekday6: "سبت",
+  weekday6En: "Sat",
+  headlineLine1: "تعالَ إلى",
+  headlineLine1En: "Come to",
+  headlineLine2: "آيلاند هيفن —",
+  headlineLine2En: "Island Haven —",
+  headlineAccent: "مقعدك ينتظرك.",
+  headlineAccentEn: "your seat awaits.",
+};
 
 export default function Book() {
   const { lang, t } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const reduce = useReducedMotion();
   const [step, setStep] = useState<Step>(0);
   // Track navigation direction so step transitions read as a deliberate
@@ -243,12 +421,12 @@ export default function Book() {
           error?: string;
           issues?: Array<{ path: string; message: string }>;
         };
-        setError(e.message || t({ ar: "فشل الإرسال", en: "Submission failed" }));
+        setError(e.message || t({ ar: c.bk0, en: c.bk0En }));
         const m: Record<string, string> = {};
         for (const i of d.issues || []) m[i.path] = i.message;
         setIssues(m);
       } else {
-        setError(t({ ar: "فشل الإرسال، حاول مجدّدًا", en: "Submission failed, please try again" }));
+        setError(t({ ar: c.bk1, en: c.bk1En }));
       }
     } finally {
       setSubmitting(false);
@@ -260,8 +438,8 @@ export default function Book() {
 
   const headlineLines =
     lang === "en"
-      ? ["Come to", "Island Haven —", <span key="a" className="text-primary">your seat awaits.</span>]
-      : ["تعالَ إلى", "آيلاند هيفن —", <span key="a" className="text-primary">مقعدك ينتظرك.</span>];
+      ? [c.headlineLine1En, c.headlineLine2En, <span key="a" className="text-primary">{c.headlineAccentEn}</span>]
+      : [c.headlineLine1, c.headlineLine2, <span key="a" className="text-primary">{c.headlineAccent}</span>];
 
   return (
     <div
@@ -294,7 +472,7 @@ export default function Book() {
           href="/"
           className="text-[12.5px] text-fg-secondary hover:text-foreground inline-flex items-center gap-1.5 transition"
         >
-          {lang === "en" ? "Back" : "العودة"} <ArrowLeft className={`w-3.5 h-3.5 ${lang === "en" ? "" : "rotate-180"}`} />
+          {lang === "en" ? c.bk5En : c.bk5} <ArrowLeft className={`w-3.5 h-3.5 ${lang === "en" ? "" : "rotate-180"}`} />
         </Link>
       </header>
 
@@ -309,7 +487,7 @@ export default function Book() {
           >
             <span aria-hidden className="h-px w-9 bg-primary/50" />
             <span className="eyebrow text-primary">
-              {lang === "en" ? "Book a seat · Free" : "احجز مقعدك · مجّانًا"}
+              {lang === "en" ? c.bk6En : c.bk6}
             </span>
           </motion.div>
           <h1
@@ -340,9 +518,7 @@ export default function Book() {
             className="mt-[clamp(1.75rem,3.5vw,2.5rem)] max-w-2xl text-fg-secondary"
             style={{ fontSize: "clamp(1.05rem, 1.8vw, 1.4rem)", lineHeight: 1.6 }}
           >
-            {lang === "en"
-              ? "Pick a day, a time slot, and — if you like — an expert to meet. No login, no fees, no hassle. Just four steps, completely free."
-              : "اختَر يومًا وفترة، وخبيرًا تودّ لقاءه إن شئت. لا تسجيل دخول، ولا رسوم، ولا تعقيد — أربع خطوات فقط، ومجّانًا تمامًا."}
+            {lang === "en" ? c.bk7En : c.bk7}
           </motion.p>
           <motion.div
             aria-hidden
@@ -404,7 +580,7 @@ export default function Book() {
                   data-testid="button-back"
                 >
                   <ChevronRight className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
-                  {lang === "en" ? "Back" : "السابق"}
+                  {lang === "en" ? c.bk8En : c.bk8}
                 </button>
                 {step < 3 ? (
                   <Btn
@@ -421,9 +597,9 @@ export default function Book() {
                   >
                     {step === 2
                       ? form.expertId
-                        ? lang === "en" ? "Next" : "التالي"
-                        : lang === "en" ? "Skip" : "تخطّ"
-                      : lang === "en" ? "Next" : "التالي"}
+                        ? lang === "en" ? c.bk9En : c.bk9
+                        : lang === "en" ? c.bk10En : c.bk10
+                      : lang === "en" ? c.bk9En : c.bk9}
                     <ChevronLeft className={`w-4 h-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   </Btn>
                 ) : (
@@ -435,7 +611,7 @@ export default function Book() {
                     className="disabled:opacity-40 disabled:cursor-not-allowed"
                     data-testid="button-submit"
                   >
-                    {submitting ? (lang === "en" ? "Sending..." : "جارٍ الإرسال...") : (lang === "en" ? "Confirm booking" : "أكِّد الحجز")}
+                    {submitting ? (lang === "en" ? c.bk11En : c.bk11) : (lang === "en" ? c.bk12En : c.bk12)}
                     <CheckCircle2 className="w-4 h-4" />
                   </Btn>
                 )}
@@ -587,11 +763,12 @@ function StepOne({
   blockedSeats: number[];
 }) {
   const { lang, t } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   return (
     <StepShell
       navDir={navDir}
-      title={lang === "en" ? "Pick your day & time slot" : "اختر يومك وفترتك"}
-      hint={lang === "en" ? "Open Sat–Thu · Closed Friday · Gaza time" : "مفتوحون السبت – الخميس · مغلقون يوم الجمعة · توقيت غزّة"}
+      title={lang === "en" ? c.bk13En : c.bk13}
+      hint={lang === "en" ? c.bk14En : c.bk14}
     >
       <div className="grid md:grid-cols-2 gap-7">
         {/* Calendar */}
@@ -620,11 +797,11 @@ function StepOne({
             </button>
           </div>
           <div className="grid grid-cols-7 gap-1.5 text-[10px] text-muted-foreground font-semibold mb-2">
-            {(lang === "en" ? WEEKDAY_LABELS_EN : WEEKDAY_LABELS).map((w) => (
-              <div key={w} className="text-center">
+            {WEEKDAY_KEYS.map((wk) => { const w = lang === "en" ? c[`${wk}En`] : c[wk]; return (
+              <div key={wk} className="text-center">
                 {w}
               </div>
-            ))}
+            ); })}
           </div>
           <div className="grid grid-cols-7 gap-1.5">
             {monthGrid.map((c, i) =>
@@ -651,10 +828,10 @@ function StepOne({
           </div>
           <div className="mt-4 flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary" /> {lang === "en" ? "Selected" : "مختار"}
+              <span className="w-2 h-2 rounded-full bg-primary" /> {lang === "en" ? c.bk15En : c.bk15}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-border-strong" /> {lang === "en" ? "Unavailable" : "غير متاح"}
+              <span className="w-2 h-2 rounded-full bg-border-strong" /> {lang === "en" ? c.bk16En : c.bk16}
             </span>
           </div>
         </div>
@@ -663,7 +840,7 @@ function StepOne({
         <div>
           <div className="flex items-center gap-2 mb-4 text-[12.5px] text-fg-secondary">
             <Clock className="w-3.5 h-3.5" />
-            <span>{lang === "en" ? "Pick a time slot" : "اختر الفترة"}</span>
+            <span>{lang === "en" ? c.bk17En : c.bk17}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {TIME_SLOTS.map((s) => {
@@ -680,9 +857,9 @@ function StepOne({
                   }`}
                 >
                   <s.Icon className={`w-[18px] h-[18px] mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={2} />
-                  <div className="text-[13.5px] font-semibold text-foreground">{lang === "en" ? s.labelEn : s.label}</div>
+                  <div className="text-[13.5px] font-semibold text-foreground">{lang === "en" ? c[s.labelEnKey] : c[s.labelKey]}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5 font-mono">
-                    {lang === "en" ? s.timeEn : s.time}
+                    {lang === "en" ? c[s.timeEnKey] : c[s.timeKey]}
                   </div>
                   {active && (
                     <CheckCircle2 className="absolute top-3 left-3 w-4 h-4 text-primary" />
@@ -698,15 +875,12 @@ function StepOne({
           occupancy shown is the REAL taken count for that date + slot. ── */}
       <div className="mt-8 border-t border-white/10 pt-7">
         <div className="mb-3 flex items-center gap-2 text-[13.5px] font-semibold text-foreground">
-          <span>{t({ ar: "اختر مقعدك", en: "Choose your seat" })}</span>
-          <span className="text-[12px] font-normal text-fg-faint">{t({ ar: "(اختياريّ)", en: "(optional)" })}</span>
+          <span>{t({ ar: c.bk2, en: c.bk2En })}</span>
+          <span className="text-[12px] font-normal text-fg-faint">{t({ ar: c.bk3, en: c.bk3En })}</span>
         </div>
         {!form.visitDate || !form.timeSlot ? (
           <p className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-[12.5px] text-fg-secondary">
-            {t({
-              ar: "اختر التاريخ والفترة أوّلًا لعرض المقاعد المتاحة على خريطة القاعة.",
-              en: "Pick a date and slot first to see live seat availability on the hall map.",
-            })}
+            {t({ ar: c.bk4, en: c.bk4En })}
           </p>
         ) : (
           <SeatMap
@@ -731,14 +905,15 @@ function StepTwo({
   navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   return (
     <StepShell
       navDir={navDir}
-      title={lang === "en" ? "What's the purpose of your visit?" : "ما الهدف من زيارتك؟"}
-      hint={lang === "en" ? "Your choice helps us prepare the best space for you" : "اختياراتك تساعدنا نُجهّز لك المساحة الأنسب"}
+      title={lang === "en" ? c.bk18En : c.bk18}
+      hint={lang === "en" ? c.bk19En : c.bk19}
     >
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {PURPOSES.map(({ id, label, labelEn, Icon }) => {
+        {PURPOSES.map(({ id, labelKey, labelEnKey, Icon }) => {
           const active = form.purpose === id;
           return (
             <button
@@ -755,7 +930,7 @@ function StepTwo({
                 className={`w-5 h-5 mb-2.5 ${active ? "text-primary" : "text-muted-foreground"}`}
                 strokeWidth={2}
               />
-              <div className="text-[13px] font-semibold text-foreground">{lang === "en" ? labelEn : label}</div>
+              <div className="text-[13px] font-semibold text-foreground">{lang === "en" ? c[labelEnKey] : c[labelKey]}</div>
             </button>
           );
         })}
@@ -764,7 +939,7 @@ function StepTwo({
       <div className="mt-8">
         <div className="flex items-center gap-2 mb-3 text-[12.5px] text-fg-secondary">
           <Users className="w-3.5 h-3.5" />
-          <span>{lang === "en" ? "Number of people" : "عدد الأشخاص"}</span>
+          <span>{lang === "en" ? c.bk20En : c.bk20}</span>
         </div>
         <div className="flex items-center gap-2.5">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
@@ -793,14 +968,14 @@ function StepTwo({
           className="block text-[12.5px] text-fg-secondary mb-2 flex items-center gap-2"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          {lang === "en" ? "Additional notes" : "ملاحظات إضافيّة"} <span className="text-muted-foreground">{lang === "en" ? "(optional)" : "(اختياريّ)"}</span>
+          {lang === "en" ? c.bk21En : c.bk21} <span className="text-muted-foreground">{lang === "en" ? c.bk3En : c.bk3}</span>
         </label>
         <textarea
           id="notes"
           rows={3}
           value={form.notes}
           onChange={(e) => update("notes", e.target.value)}
-          placeholder={lang === "en" ? "E.g. I need a seat near the window, or I'll need a display port..." : "مثلًا: أحتاج مقعدًا قرب النافذة، أو سأحتاج إلى منفذ شاشة..."}
+          placeholder={lang === "en" ? c.bk61En : c.bk61}
           maxLength={1000}
           data-testid="textarea-notes"
           className="w-full px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 text-foreground text-[13.5px] placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-primary/50 transition resize-none"
@@ -866,6 +1041,7 @@ function ExpertProfileModal({
   lang: string;
 }) {
   const reduce = useReducedMotion();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const initials = expert.fullName.trim().charAt(0) || "؟";
   const tags = splitExpertiseTags(expert.expertise);
 
@@ -978,7 +1154,7 @@ function ExpertProfileModal({
             <div className="flex items-center gap-2 text-[12px] text-fg-secondary">
               <MessageSquare className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
               <span>
-                {lang === "en" ? "Languages: " : "اللغات: "}
+                {lang === "en" ? c.bk22En : c.bk22}
                 <span className="text-foreground">{expert.languages}</span>
               </span>
             </div>
@@ -1015,7 +1191,7 @@ function ExpertProfileModal({
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-primary/30 text-fg-secondary hover:text-foreground text-[12px] transition"
                 >
                   <Globe className="w-3.5 h-3.5" />
-                  {lang === "en" ? "Website" : "الموقع"}
+                  {lang === "en" ? c.bk23En : c.bk23}
                   <ExternalLink className="w-3 h-3 opacity-50" />
                 </a>
               )}
@@ -1026,14 +1202,14 @@ function ExpertProfileModal({
         <div className="px-5 pb-5 pt-1 border-t border-white/10">
           {!expert.acceptingSessions ? (
             <p className="text-center text-[12.5px] text-muted-foreground py-2">
-              {lang === "en" ? "Not accepting sessions right now" : "لا يستقبل جلسات حاليًا"}
+              {lang === "en" ? c.bk24En : c.bk24}
             </p>
           ) : isSelected ? (
             <button
               onClick={() => { onPick(); onClose(); }}
               className="w-full py-2.5 rounded-2xl bg-white/[0.05] border border-white/10 text-fg-secondary hover:bg-white/[0.1] hover:border-primary/30 text-[13.5px] font-medium transition"
             >
-              {lang === "en" ? "Deselect expert" : "إلغاء اختيار الخبير"}
+              {lang === "en" ? c.bk25En : c.bk25}
             </button>
           ) : (
             <Btn
@@ -1042,7 +1218,7 @@ function ExpertProfileModal({
               onClick={() => { onPick(); onClose(); }}
               className="w-full shadow-[0_6px_18px_-6px_hsl(12_70%_52%/0.45)]"
             >
-              {lang === "en" ? "Pick this expert" : "اختَر هذا الخبير"}
+              {lang === "en" ? c.bk26En : c.bk26}
             </Btn>
           )}
         </div>
@@ -1067,6 +1243,7 @@ function StepExpert({
   navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const reduce = useReducedMotion();
   const [availableIds, setAvailableIds] = useState<Map<number, number> | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
@@ -1144,8 +1321,8 @@ function StepExpert({
     <>
     <StepShell
       navDir={navDir}
-      title={lang === "en" ? "Meet an expert?" : "هل تودّ لقاء خبير؟"}
-      hint={lang === "en" ? "Optional — pick an expert you'd like to connect with during your visit" : "اختياريّ — اختَر خبيرًا تودّ التواصل معه خلال زيارتك"}
+      title={lang === "en" ? c.bk27En : c.bk27}
+      hint={lang === "en" ? c.bk28En : c.bk28}
     >
       <AnimatePresence mode="wait">
         {experts === null ? (
@@ -1165,7 +1342,7 @@ function StepExpert({
             transition={{ duration: 0.2 }}
             className="text-muted-foreground text-[13px]"
           >
-            {lang === "en" ? "No experts available right now. You can skip this step." : "لا يوجد خبراء متاحون الآن. يمكنك تخطّي هذه الخطوة."}
+            {lang === "en" ? c.bk29En : c.bk29}
           </motion.p>
         ) : (
           <>
@@ -1227,7 +1404,7 @@ function StepExpert({
                   )}
                   <span className="absolute bottom-2 end-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-muted-foreground text-[9.5px] font-medium leading-none pointer-events-none">
                     <Info className="w-2.5 h-2.5 shrink-0" />
-                    {lang === "en" ? "profile" : "الملف"}
+                    {lang === "en" ? c.bk30En : c.bk30}
                   </span>
                   <div className="flex items-center gap-3">
                     {e.avatarUrl ? (
@@ -1253,11 +1430,11 @@ function StepExpert({
                       )}
                       {!e.acceptingSessions ? (
                         <div className="text-[10.5px] text-muted-foreground mt-0.5">
-                          {lang === "en" ? "Unavailable" : "غير متاح"}
+                          {lang === "en" ? c.bk16En : c.bk16}
                         </div>
                       ) : !availabilityLoading && hasSlot === false ? (
                         <div className="text-[10.5px] text-muted-foreground mt-0.5">
-                          {lang === "en" ? "No slot this day" : "لا موعد هذا اليوم"}
+                          {lang === "en" ? c.bk31En : c.bk31}
                         </div>
                       ) : null}
                     </div>
@@ -1272,9 +1449,9 @@ function StepExpert({
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="text-[12px] text-fg-secondary font-medium">
-                  {lang === "en" ? "Available slots for this day" : "المواعيد المتاحة لهذا اليوم"}
+                  {lang === "en" ? c.bk32En : c.bk32}
                   <span className="text-muted-foreground ms-1">
-                    {lang === "en" ? "— optional" : "— اختياريّ"}
+                    {lang === "en" ? c.bk33En : c.bk33}
                   </span>
                 </span>
               </div>
@@ -1289,9 +1466,7 @@ function StepExpert({
 
               {!slotsLoading && daySlots.length === 0 && (
                 <p className="text-[12px] text-muted-foreground italic">
-                  {lang === "en"
-                    ? "No specific slots listed for this date — you can still book without a slot."
-                    : "لا توجد مواعيد محدّدة لهذا اليوم — يمكنك الحجز دون تحديد موعد."}
+                  {lang === "en" ? c.bk34En : c.bk34}
                 </p>
               )}
 
@@ -1303,8 +1478,8 @@ function StepExpert({
                     const end = formatSlotTime(slot.endAt, lang);
                     const modeLabel =
                       slot.mode === "online"
-                        ? lang === "en" ? "Online" : "عن بُعد"
-                        : lang === "en" ? "On-site" : "حضوريّ";
+                        ? lang === "en" ? c.bk35En : c.bk35
+                        : lang === "en" ? c.bk36En : c.bk36;
                     return (
                       <button
                         key={slot.id}
@@ -1361,27 +1536,28 @@ function StepThree({
   navDir?: 1 | -1;
 }) {
   const { lang } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   return (
     <StepShell
       navDir={navDir}
-      title={lang === "en" ? "Your info" : "بياناتك"}
-      hint={lang === "en" ? "We'll reach you on WhatsApp to confirm your booking" : "نتواصل معك على واتساب لتأكيد الحجز"}
+      title={lang === "en" ? c.bk37En : c.bk37}
+      hint={lang === "en" ? c.bk38En : c.bk38}
     >
       <div className="space-y-5">
         <Field
           id="fullName"
-          label={lang === "en" ? "Full name" : "الاسم الكامل"}
+          label={lang === "en" ? c.bk39En : c.bk39}
           icon={UserIcon}
           value={form.fullName}
           onChange={(v) => update("fullName", v)}
           error={issues.fullName}
-          placeholder={lang === "en" ? "E.g. Lana Al-Sharif" : "مثلًا: لانا الشريف"}
+          placeholder={lang === "en" ? c.bk62En : c.bk62}
           autoFocus
         />
         <div className="grid md:grid-cols-2 gap-5">
           <Field
             id="phone"
-            label={lang === "en" ? "WhatsApp number" : "رقم الواتساب"}
+            label={lang === "en" ? c.bk40En : c.bk40}
             icon={Phone}
             value={form.phone}
             onChange={(v) => update("phone", v)}
@@ -1391,7 +1567,7 @@ function StepThree({
           />
           <Field
             id="email"
-            label={lang === "en" ? "Email address" : "البريد الإلكترونيّ"}
+            label={lang === "en" ? c.bk41En : c.bk41}
             optional
             icon={Mail}
             value={form.email}
@@ -1402,9 +1578,7 @@ function StepThree({
           />
         </div>
         <div className="text-[11.5px] text-muted-foreground leading-[1.85]">
-          {lang === "en"
-            ? "By submitting you agree that we may contact you on the selected channel solely for booking confirmation. We will never share your data with third parties."
-            : "بإرسال الحجز فأنت توافق على أن نتواصل معك على القناة المُختارة لأغراض تأكيد الزيارة فقط. لن نشارك بياناتك مع أيّ طرف ثالث."}
+          {lang === "en" ? c.bk42En : c.bk42}
         </div>
       </div>
     </StepShell>
@@ -1435,6 +1609,7 @@ function Field({
   autoFocus?: boolean;
 }) {
   const { t } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (autoFocus) ref.current?.focus();
@@ -1447,7 +1622,7 @@ function Field({
       >
         <Icon className="w-3.5 h-3.5" />
         {label}
-        {optional && <span className="text-muted-foreground">{t({ ar: "(اختياريّ)", en: "(optional)" })}</span>}
+        {optional && <span className="text-muted-foreground">{t({ ar: c.bk3, en: c.bk3En })}</span>}
       </label>
       <input
         ref={ref}
@@ -1488,6 +1663,7 @@ function SummaryCard({
   selectedSlot?: AvailableSlot | null;
 }) {
   const { lang } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const purposeLabel = PURPOSES.find((p) => p.id === form.purpose);
   const dateObj = form.visitDate
@@ -1505,8 +1681,8 @@ function SummaryCard({
         const end = formatSlotTime(selectedSlot.endAt, lang);
         const modeLabel =
           selectedSlot.mode === "online"
-            ? lang === "en" ? "Online" : "عن بُعد"
-            : lang === "en" ? "On-site" : "حضوريّ";
+            ? lang === "en" ? c.bk35En : c.bk35
+            : lang === "en" ? c.bk36En : c.bk36;
         return `${start} – ${end} · ${modeLabel}`;
       })()
     : null;
@@ -1517,72 +1693,70 @@ function SummaryCard({
         <div>
           <div className="pb-4 mb-2 border-b border-white/10">
             <div className="eyebrow eyebrow-sand mb-2">
-              {lang === "en" ? "Summary" : "الملخّص"}
+              {lang === "en" ? c.bk43En : c.bk43}
             </div>
             <div className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.1rem, 2vw, 1.3rem)", letterSpacing: "-0.02em" }}>
-              {lang === "en" ? "Your booking" : "ملخّص حجزك"}
+              {lang === "en" ? c.bk44En : c.bk44}
             </div>
           </div>
 
           <SummaryRow
             icon={CalendarIcon}
-            label={lang === "en" ? "Date" : "التاريخ"}
+            label={lang === "en" ? c.bk45En : c.bk45}
             value={dateDisplay}
             placeholder={!dateObj}
           />
           <SummaryRow
             icon={Clock}
-            label={lang === "en" ? "Time slot" : "الفترة"}
+            label={lang === "en" ? c.bk46En : c.bk46}
             value={
               slotLabel
                 ? lang === "en"
-                  ? `${slotLabel.labelEn} · ${slotLabel.timeEn}`
-                  : `${slotLabel.label} · ${slotLabel.time}`
+                  ? `${c[slotLabel.labelEnKey]} · ${c[slotLabel.timeEnKey]}`
+                  : `${c[slotLabel.labelKey]} · ${c[slotLabel.timeKey]}`
                 : "—"
             }
             placeholder={!slotLabel}
           />
           <SummaryRow
             icon={Armchair}
-            label={lang === "en" ? "Seat" : "المقعد"}
+            label={lang === "en" ? c.bk47En : c.bk47}
             value={
               form.seat
                 ? lang === "en"
                   ? `#${form.seat}`
                   : `رقم ${form.seat.toLocaleString("ar-EG-u-nu-arab")}`
-                : lang === "en"
-                  ? "Any available"
-                  : "أيّ مقعد متاح"
+                : lang === "en" ? c.bk48En : c.bk48
             }
             placeholder={!form.seat}
           />
           <SummaryRow
             icon={Briefcase}
-            label={lang === "en" ? "Purpose" : "الهدف"}
-            value={(lang === "en" ? purposeLabel?.labelEn : purposeLabel?.label) || "—"}
+            label={lang === "en" ? c.bk49En : c.bk49}
+            value={(purposeLabel ? (lang === "en" ? c[purposeLabel.labelEnKey] : c[purposeLabel.labelKey]) : undefined) || "—"}
             placeholder={!purposeLabel}
           />
           <SummaryRow
             icon={Users}
-            label={lang === "en" ? "Attendees" : "الأشخاص"}
+            label={lang === "en" ? c.bk50En : c.bk50}
             value={lang === "en" ? String(form.attendees) : form.attendees.toLocaleString("ar-EG-u-nu-arab")}
           />
           <SummaryRow
             icon={UserIcon}
-            label={lang === "en" ? "Expert" : "الخبير"}
-            value={expertName || (lang === "en" ? "None selected" : "لم يُختَر")}
+            label={lang === "en" ? c.bk51En : c.bk51}
+            value={expertName || (lang === "en" ? c.bk52En : c.bk52)}
             placeholder={!form.expertId}
           />
           {expertSlotDisplay && (
             <SummaryRow
               icon={Clock}
-              label={lang === "en" ? "Session time" : "وقت الجلسة"}
+              label={lang === "en" ? c.bk53En : c.bk53}
               value={expertSlotDisplay}
             />
           )}
           <SummaryRow
             icon={UserIcon}
-            label={lang === "en" ? "Name" : "باسم"}
+            label={lang === "en" ? c.bk54En : c.bk54}
             value={form.fullName || "—"}
             placeholder={!form.fullName}
           />
@@ -1590,7 +1764,7 @@ function SummaryCard({
           <div className="mt-6 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2.5 text-[12px] text-fg-secondary leading-[1.7]">
               <Coffee className="w-3.5 h-3.5 shrink-0 text-primary" />
-              <span>{lang === "en" ? "Coffee, tea & fast Wi-Fi · always on us." : "قهوة وشاي وإنترنت سريع · على حسابنا دائمًا."}</span>
+              <span>{lang === "en" ? c.bk55En : c.bk55}</span>
             </div>
           </div>
         </div>
@@ -1639,6 +1813,7 @@ function SuccessScreen({
   expert: ExpertOption | null;
 }) {
   const { lang } = useLanguage();
+  const c = useContentSection("pageBook", PAGE_BOOK_FALLBACK);
   const reduce = useReducedMotion();
   const slotLabel = TIME_SLOTS.find((s) => s.id === form.timeSlot);
   const dateObj = new Date(form.visitDate + "T00:00:00");
@@ -1671,7 +1846,7 @@ function SuccessScreen({
               <CheckCircle2 className="w-10 h-10 text-primary" strokeWidth={2.2} />
             </motion.div>
             <div className="text-[12px] text-fg-secondary font-medium mb-4">
-              {lang === "en" ? "Booking confirmed" : "تمّ الحجز بنجاح"}
+              {lang === "en" ? c.bk56En : c.bk56}
             </div>
             <h1
               className="font-display font-bold text-foreground mb-4"
@@ -1689,7 +1864,7 @@ function SuccessScreen({
                   See you on{" "}
                   <span className="text-foreground font-semibold">{dateDisplay}</span>
                   {slotLabel && (
-                    <> · <span className="text-foreground font-semibold">{slotLabel.labelEn}</span></>
+                    <> · <span className="text-foreground font-semibold">{c[slotLabel.labelEnKey]}</span></>
                   )}
                   .<br />
                   We'll send you a WhatsApp confirmation shortly.
@@ -1699,7 +1874,7 @@ function SuccessScreen({
                   نراك يوم{" "}
                   <span className="text-foreground font-semibold">{dateDisplay}</span>
                   {slotLabel && (
-                    <> · <span className="text-foreground font-semibold">{slotLabel.label}</span></>
+                    <> · <span className="text-foreground font-semibold">{c[slotLabel.labelKey]}</span></>
                   )}
                   .<br />
                   سنرسل لك رسالة تأكيد على واتساب قريبًا.
@@ -1724,7 +1899,7 @@ function SuccessScreen({
                 </div>
                 <div className={`flex-1 min-w-0 ${lang === "en" ? "text-left" : "text-right"}`}>
                   <p className="text-[10.5px] text-muted-foreground mb-0.5">
-                    {lang === "en" ? "Your mentor" : "مرشدك"}
+                    {lang === "en" ? c.bk57En : c.bk57}
                   </p>
                   <p className="text-[14px] font-semibold text-foreground truncate">
                     {expert.fullName}
@@ -1738,7 +1913,7 @@ function SuccessScreen({
               </div>
             )}
             <div className="inline-flex items-center gap-2 px-4 h-9 rounded-full bg-white/[0.05] border border-white/10 text-[12px] text-fg-secondary mb-7">
-              <span className="text-muted-foreground">{lang === "en" ? "Booking ref." : "رقم الحجز"}</span>
+              <span className="text-muted-foreground">{lang === "en" ? c.bk58En : c.bk58}</span>
               <span className="font-mono font-bold text-sand-bright tracking-wider tnum">
                 #{ref}
               </span>
@@ -1749,7 +1924,7 @@ function SuccessScreen({
                 className="cta-fill h-11 px-6 rounded-full text-[13px] font-semibold hover:brightness-110 transition flex items-center gap-2"
                 data-testid="link-home-success"
               >
-                {lang === "en" ? "Back to home" : "العودة للرئيسيّة"}
+                {lang === "en" ? c.bk59En : c.bk59}
                 <ArrowLeft className={`w-4 h-4 ${lang === "en" ? "" : "rotate-180"}`} />
               </Link>
               <Link
@@ -1758,7 +1933,7 @@ function SuccessScreen({
                 data-testid="link-new-booking"
                 onClick={() => window.location.reload()}
               >
-                {lang === "en" ? "New booking" : "حجز آخر"}
+                {lang === "en" ? c.bk60En : c.bk60}
               </Link>
             </div>
           </div>
