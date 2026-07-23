@@ -29,9 +29,11 @@ import {
   Sun,
   Sunset,
   Sparkles,
+  Armchair,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { HavenMark } from "@/components/landing/HavenMark";
+import { SeatMap } from "@/components/booking/SeatMap";
 import { Reveal } from "@/components/landing/Reveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
@@ -136,12 +138,38 @@ export default function Book() {
     purpose: "" as "" | (typeof PURPOSES)[number]["id"],
     attendees: 1,
     notes: "",
+    seat: null as number | null,
     expertId: null as number | null,
     slotId: null as number | null,
     fullName: "",
     phone: "",
     email: "",
   });
+  // Live occupancy for the seat map: per date+slot taken counts from the same
+  // public endpoint the calendar uses. Drives which seats read as "reserved"
+  // (a real count, never a fabricated per-seat claim).
+  const [availability, setAvailability] = useState<
+    Array<{ visitDate: string; timeSlot: string; attendees: number }>
+  >([]);
+  useEffect(() => {
+    let alive = true;
+    api<{ slots: Array<{ visitDate: string; timeSlot: string; attendees: number }> }>(
+      "/bookings/availability",
+    )
+      .then((r) => alive && setAvailability(r.slots ?? []))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const reservedCount = useMemo(() => {
+    if (!form.visitDate || !form.timeSlot) return 0;
+    return (
+      availability.find(
+        (a) => a.visitDate === form.visitDate && a.timeSlot === form.timeSlot,
+      )?.attendees ?? 0
+    );
+  }, [availability, form.visitDate, form.timeSlot]);
 
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
@@ -196,9 +224,16 @@ export default function Book() {
     setError(null);
     setIssues({});
     try {
+      // Carry the preferred seat in `notes` (the schema stores it) — the raw
+      // `seat` key is stripped server-side, so nothing else changes.
+      const seatNote =
+        form.seat != null
+          ? t({ ar: `المقعد المفضّل: ${form.seat}`, en: `Preferred seat: ${form.seat}` })
+          : "";
+      const notes = [form.notes?.trim(), seatNote].filter(Boolean).join(" · ");
       const r = await api<{ ok: true; id: number }>("/bookings", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, notes }),
       });
       setDone({ id: r.id });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -334,6 +369,7 @@ export default function Book() {
                     monthCursor={monthCursor}
                     setMonthCursor={setMonthCursor}
                     monthGrid={monthGrid}
+                    reservedCount={reservedCount}
                   />
                 )}
                 {step === 1 && (
@@ -528,10 +564,12 @@ function StepOne({
   setMonthCursor,
   monthGrid,
   navDir,
+  reservedCount,
 }: {
   form: ReturnType<typeof useState<any>>[0] & {
     visitDate: string;
     timeSlot: string;
+    seat: number | null;
   };
   update: (k: any, v: any) => void;
   monthCursor: Date;
@@ -543,8 +581,9 @@ function StepOne({
     label: string;
   }>;
   navDir?: 1 | -1;
+  reservedCount: number;
 }) {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   return (
     <StepShell
       navDir={navDir}
@@ -650,6 +689,29 @@ function StepOne({
             })}
           </div>
         </div>
+      </div>
+
+      {/* ── Seat map — pick a preferred seat once a day + slot are chosen, so the
+          occupancy shown is the REAL taken count for that date + slot. ── */}
+      <div className="mt-8 border-t border-white/10 pt-7">
+        <div className="mb-3 flex items-center gap-2 text-[13.5px] font-semibold text-foreground">
+          <span>{t({ ar: "اختر مقعدك", en: "Choose your seat" })}</span>
+          <span className="text-[12px] font-normal text-fg-faint">{t({ ar: "(اختياريّ)", en: "(optional)" })}</span>
+        </div>
+        {!form.visitDate || !form.timeSlot ? (
+          <p className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-[12.5px] text-fg-secondary">
+            {t({
+              ar: "اختر التاريخ والفترة أوّلًا لعرض المقاعد المتاحة على خريطة القاعة.",
+              en: "Pick a date and slot first to see live seat availability on the hall map.",
+            })}
+          </p>
+        ) : (
+          <SeatMap
+            reservedCount={reservedCount}
+            selected={form.seat}
+            onSelect={(n) => update("seat", n === form.seat ? null : n)}
+          />
+        )}
       </div>
     </StepShell>
   );
@@ -1415,6 +1477,7 @@ function SummaryCard({
     purpose: string;
     attendees: number;
     fullName: string;
+    seat: number | null;
     expertId: number | null;
   };
   expertName?: string;
@@ -1474,6 +1537,20 @@ function SummaryCard({
                 : "—"
             }
             placeholder={!slotLabel}
+          />
+          <SummaryRow
+            icon={Armchair}
+            label={lang === "en" ? "Seat" : "المقعد"}
+            value={
+              form.seat
+                ? lang === "en"
+                  ? `#${form.seat}`
+                  : `رقم ${form.seat.toLocaleString("ar-EG-u-nu-arab")}`
+                : lang === "en"
+                  ? "Any available"
+                  : "أيّ مقعد متاح"
+            }
+            placeholder={!form.seat}
           />
           <SummaryRow
             icon={Briefcase}
