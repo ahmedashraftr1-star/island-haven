@@ -2,11 +2,12 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTra
 import { ArrowLeft, ArrowDown, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
-import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet, photoSrcSetAvif, useContentSection } from "@/hooks/use-content";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountUp } from "@/hooks/use-count-up";
 import { SpecularSheen } from "@/components/ui/SpecularButton";
-import { useNumbers, useAttendanceSummary, useCta, DEFAULT_CTA, isPromoLive, type CtaButtonConfig, type PromoVariant } from "@/hooks/use-public-data";
+import { useRosterStats, useCta, DEFAULT_CTA, isPromoLive, type CtaButtonConfig, type PromoVariant } from "@/hooks/use-public-data";
+import { TOTAL_SEATS } from "@/components/booking/hall-plan";
 import { ParticleField } from "./ParticleField";
 import { CtaClosedModal } from "./CtaClosedModal";
 
@@ -220,23 +221,17 @@ export function Hero() {
   // the Apple "figures settle last" rhythm. Reduced-motion still shows real
   // values instantly (useCountUp snaps regardless of this flag).
   const [entered, setEntered] = useState(false);
-  // Live community figures — same shared /numbers query NumbersBand reads (ONE
-  // cached request, deduped by React Query), so the hero can never contradict the
-  // "real numbers from our database" section below. Null until it resolves, so the
-  // count-up + honest empty fallbacks keep working exactly as before.
-  const { data: numbersData } = useNumbers();
-  const live = numbersData?.numbers
-    ? { members: numbersData.numbers.members, seatsHosted: numbersData.numbers.seatsHosted }
-    : null;
-  // Seat figure = the space's fixed CAPACITY (same live-summary `totalSeats` the
-  // SeatsBoard leads with: "50 seats"), NOT the taken count — so the hero can
-  // never be read as "6 total seats" and never contradicts the board two
-  // sections down. Falls back to the known real capacity when the summary is
-  // still loading. This is the single source both the hero and board share.
-  const { data: summaryData } = useAttendanceSummary();
-  // `|| 50` (not `??`) so a degraded `{ totalSeats: 0 }` response never renders a
-  // misleading "٠ مقعد" — the space has 50 real seats; 0 only means "unknown".
-  const totalSeats = summaryData?.totalSeats || 50;
+  // The public "community" figure is the REAL talent-roster COUNT (61) — the ONE
+  // cached source (deduped by React Query) shared with NumbersBand + /membership +
+  // /impact, so the hero can never contradict the "real numbers" section below.
+  // It is NOT /numbers.members (users) and NOT /verify's signed 44. Null until it
+  // resolves, so the count-up + honest empty fallback keep working as before.
+  const { data: rosterStats } = useRosterStats();
+  // Seat figure = the hall's fixed CAPACITY, read from the ONE hall-plan the
+  // SeatsBoard and /book map also use (38 seats) — NOT the taken count, and NOT a
+  // live figure that could drift from the board two sections down. One honest
+  // seat number across the site.
+  const totalSeats = TOTAL_SEATS;
 
   const stills = useMemo(
     () =>
@@ -306,7 +301,7 @@ export function Hero() {
   // animate toward an invented figure.
   const stats: { n: number | null; v: string; l: string }[] = [
     { n: totalSeats, v: fmt(totalSeats), l: c.stat1Label },
-    { n: live ? live.members : null, v: live ? fmt(live.members) : (c.stat2Value || "—"), l: c.stat2Label },
+    { n: rosterStats ? rosterStats.total : null, v: rosterStats ? fmt(rosterStats.total) : (c.stat2Value || "—"), l: c.stat2Label },
     { n: null, v: c.stat3Value, l: c.stat3Label },
   ].filter((s) => s.v || s.l);
 
@@ -333,30 +328,35 @@ export function Hero() {
         className="absolute inset-0 will-change-transform"
       >
         {mountedStills.map((src, i) => (
-          <motion.img
-            key={`${src}-${i}`}
-            src={src}
-            // Full-bleed: the browser picks the 640/960/1350 variant by viewport
-            // × DPR instead of always pulling the 1350w original.
-            srcSet={photoSrcSet(src)}
-            sizes="100vw"
-            alt=""
-            initial={false}
-            animate={{
-              opacity: i === stillIdx ? 1 : 0,
-              scale: i === stillIdx ? (reduce ? 1 : 1.08) : 1,
-            }}
-            transition={{
-              opacity: { duration: 1.6, ease: [0.16, 1, 0.3, 1] },
-              scale: { duration: 7, ease: "linear" },
-            }}
-            className="absolute inset-0 w-full h-full object-cover saturate-[1.24] contrast-[1.12] brightness-[1.08]"
-            width={1350}
-            height={1800}
-            loading={i === 0 ? "eager" : "lazy"}
-            decoding="async"
-            {...(i === 0 ? { fetchPriority: "high" as any } : {})}
-          />
+          // AVIF (≈35% lighter) first, then the <img>'s WebP srcset. The browser
+          // picks the 640/960/1350 variant by viewport × DPR, never the 1350w
+          // original. The first still is the LCP element (eager + high priority).
+          <picture key={`${src}-${i}`}>
+            {photoSrcSetAvif(src) && (
+              <source type="image/avif" srcSet={photoSrcSetAvif(src)} sizes="100vw" />
+            )}
+            <motion.img
+              src={src}
+              srcSet={photoSrcSet(src)}
+              sizes="100vw"
+              alt=""
+              initial={false}
+              animate={{
+                opacity: i === stillIdx ? 1 : 0,
+                scale: i === stillIdx ? (reduce ? 1 : 1.08) : 1,
+              }}
+              transition={{
+                opacity: { duration: 1.6, ease: [0.16, 1, 0.3, 1] },
+                scale: { duration: 7, ease: "linear" },
+              }}
+              className="absolute inset-0 w-full h-full object-cover saturate-[1.24] contrast-[1.12] brightness-[1.08]"
+              width={1350}
+              height={1800}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+              {...(i === 0 ? { fetchPriority: "high" as any } : {})}
+            />
+          </picture>
         ))}
       </motion.div>
       </motion.div>

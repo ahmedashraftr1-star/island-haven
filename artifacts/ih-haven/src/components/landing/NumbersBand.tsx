@@ -7,7 +7,7 @@ import { Btn } from "@/components/ui/Btn";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
 import { imageUrl } from "@/hooks/use-content";
-import { useNumbers } from "@/hooks/use-public-data";
+import { useNumbers, useRosterStats } from "@/hooks/use-public-data";
 
 function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -61,6 +61,10 @@ export function NumbersBand() {
   // rather than inventing a figure. Every rendered number is real or nothing.
   const { data } = useNumbers();
   const n = data?.numbers ?? null;
+  // The community figure is the REAL talent-roster COUNT (61), the one public
+  // number shared with the hero + /membership + /impact — not /numbers.members
+  // (users) and not /verify's signed 44. One honest source, everywhere.
+  const { data: roster } = useRosterStats();
 
   const lead = {
     value: n?.enrollments ?? 0,
@@ -72,7 +76,7 @@ export function NumbersBand() {
     }),
   };
   const rest = [
-    { key: "members", value: n?.members ?? 0, label: t({ ar: "منتسب في المجتمع", en: "Community members" }), en: "Members", context: t({ ar: "بُنيَت تحت القصف.", en: "Built under bombardment." }) },
+    { key: "members", value: roster?.total ?? 0, label: t({ ar: "منتسب في المجتمع", en: "Community members" }), en: "Members", context: t({ ar: "بُنيَت تحت القصف.", en: "Built under bombardment." }) },
     { key: "works", value: n?.works ?? 0, label: t({ ar: "عمل منشور في المعرض", en: "Works in the showcase" }), en: "Works", context: t({ ar: "من عملٍ حقيقيّ لعميلٍ يدفع.", en: "Real work, paying clients." }) },
     { key: "events", value: n?.events ?? 0, label: t({ ar: "فعاليّة وورشة", en: "Events & workshops" }), en: "Events", context: t({ ar: "تعلّمٌ لا يتوقّف.", en: "Learning that never stops." }) },
   ];

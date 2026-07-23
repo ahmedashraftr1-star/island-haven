@@ -44,9 +44,12 @@
     <!-- The hero still is now responsive, so the preload MUST offer the same
          candidates — otherwise the browser preloads the 1350w original while the
          <img> picks the 960w, and we pay for both. -->
-    <link rel="preload" as="image" href="%BASE_URL%photos/IMG_8341.webp"
-          imagesrcset="%BASE_URL%photos/IMG_8341-640.webp 640w, %BASE_URL%photos/IMG_8341-960.webp 960w, %BASE_URL%photos/IMG_8341.webp 1350w"
-          imagesizes="100vw" type="image/webp" fetchpriority="high" />
+    <!-- AVIF preload (type-gated): AVIF-capable browsers (~95%) preload the exact
+         format the hero <picture> renders; the rest ignore this and fetch the WebP
+         fallback from the <img> srcset. One preload only — never a double-fetch. -->
+    <link rel="preload" as="image" href="%BASE_URL%photos/IMG_8341.avif"
+          imagesrcset="%BASE_URL%photos/IMG_8341-640.avif 640w, %BASE_URL%photos/IMG_8341-960.avif 960w, %BASE_URL%photos/IMG_8341.avif 1350w"
+          imagesizes="100vw" type="image/avif" fetchpriority="high" />
     <!-- Fonts are SELF-HOSTED (src/fonts.css, bundled into the app stylesheet).
          The old setup cost every visitor two extra origins before a single glyph
          byte moved: a RENDER-BLOCKING stylesheet from fonts.googleapis.com, then

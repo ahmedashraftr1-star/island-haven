@@ -1,6 +1,6 @@
 import { useRef, type ReactNode, type ElementType } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { photoSrcSet } from "@/hooks/use-content";
+import { photoSrcSet, photoSrcSetAvif } from "@/hooks/use-content";
 
 /**
  * CinematicMedia — the homepage's shared "hero-power" backdrop, factored out of
@@ -89,27 +89,32 @@ export function CinematicMedia({
   return (
     <Tag ref={ref} className={`relative w-full overflow-hidden bg-[#060608] text-white ${className}`} {...rest}>
       <motion.div style={{ y: photoY, scale: photoScale }} aria-hidden className="absolute inset-0 will-change-transform">
-        <img
-          src={src}
-          // Every consumer of this component paints the photo full-bleed, so the
-          // browser can pick the 640/960/1350 variant by viewport × DPR instead of
-          // always pulling the 1350×1800 original (a phone was fetching a 149KB
-          // still to paint it 390px wide). Non-bundled images (CMS uploads, remote
-          // URLs) get no srcSet and fall back to plain `src`.
-          srcSet={photoSrcSet(src)}
-          sizes="100vw"
-          alt={alt}
-          // Intrinsic ratio of the source frames (1350×1800) so the browser
-          // reserves the aspect box up front — no layout shift as it decodes.
-          width={1350}
-          height={1800}
-          loading={eager ? "eager" : "lazy"}
-          decoding="async"
-          // Above-the-fold consumers (eager) also get high fetch priority so the
-          // backdrop isn't starved behind lazy assets.
-          {...(eager ? { fetchPriority: "high" as const } : {})}
-          className={`absolute inset-0 w-full h-full object-cover saturate-[1.22] contrast-[1.1] brightness-[1.06] ${imgClassName}`}
-        />
+        {/* <picture>: AVIF first (≈35% lighter), then the <img>'s WebP srcset,
+            then the plain src. Every consumer paints the photo full-bleed, so the
+            browser picks the 640/960/1350 variant by viewport × DPR instead of
+            always pulling the 1350×1800 original. Non-bundled images (CMS uploads,
+            remote URLs) get no srcSet and fall back to the plain `src`. */}
+        <picture>
+          {photoSrcSetAvif(src) && (
+            <source type="image/avif" srcSet={photoSrcSetAvif(src)} sizes="100vw" />
+          )}
+          <img
+            src={src}
+            srcSet={photoSrcSet(src)}
+            sizes="100vw"
+            alt={alt}
+            // Intrinsic ratio of the source frames (1350×1800) so the browser
+            // reserves the aspect box up front — no layout shift as it decodes.
+            width={1350}
+            height={1800}
+            loading={eager ? "eager" : "lazy"}
+            decoding="async"
+            // Above-the-fold consumers (eager) also get high fetch priority so the
+            // backdrop isn't starved behind lazy assets.
+            {...(eager ? { fetchPriority: "high" as const } : {})}
+            className={`absolute inset-0 w-full h-full object-cover saturate-[1.22] contrast-[1.1] brightness-[1.06] ${imgClassName}`}
+          />
+        </picture>
       </motion.div>
 
       <div aria-hidden className="absolute inset-0" style={{ background: VERTICAL[scrim] }} />

@@ -42,6 +42,25 @@ export function useNumbers() {
   });
 }
 
+// ─── Talent-community stats — the ONE public "our community" number ───────────
+// `total` is a real COUNT(*) of roster_members (61). This is the single source
+// for the community figure shown across the site (hero, NumbersBand, /membership,
+// /impact) so they never disagree. It is DISTINCT from /verify's signed
+// `members=44` (active non-expert users — an internal metric that stays frozen).
+export interface RosterStats {
+  total: number;
+  types: { student: number; graduate: number; freelancer: number };
+  genders: { male: number; female: number };
+  topSkills: { skill: string; c: number }[];
+}
+export function useRosterStats() {
+  return useQuery({
+    queryKey: ["roster-stats"],
+    queryFn: () => api<RosterStats>("/roster/stats"),
+    ...PUBLIC,
+  });
+}
+
 // ─── Homepage CTA buttons (owner-controlled from the admin panel) ─────────────
 export interface CtaButtonConfig {
   labelAr: string;

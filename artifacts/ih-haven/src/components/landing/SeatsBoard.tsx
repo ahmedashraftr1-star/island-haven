@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -9,17 +8,20 @@ import { Btn } from "@/components/ui/Btn";
 import { imageUrl } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
-import { EASE_OUT_EXPO } from "@/lib/motion";
+import { SeatMapPreview } from "@/components/booking/SeatMapPreview";
+import { TOTAL_SEATS } from "@/components/booking/hall-plan";
 import { useNumbers, useAttendanceSummary, type PublicNumbers } from "@/hooks/use-public-data";
 
 /**
  * SeatsBoard — Island Haven's homepage signature: a precise, professional
- * "50 SEATS" live availability board.
+ * "38 SEATS" live availability board.
  *
- * The incubator has exactly 50 seats. This section renders a monumental 10×5 grid
- * of seat glyphs floating on a vivid Gaza photograph (the shared CinematicMedia
- * backdrop + the site's dark-glass material). Occupied seats are filled terracotta;
- * available seats are a faint glass outline that gently brightens on hover.
+ * The hall has exactly 38 bookable seats. This section renders the REAL floor
+ * plan (`SeatMapPreview`, sharing the exact geometry the /book map books against)
+ * floating on a vivid Gaza photograph (the shared CinematicMedia backdrop + the
+ * site's dark-glass material). Taken seats are filled terracotta; available seats
+ * are a faint glass outline. It is the ONE seat picture on the site — the visitor
+ * previews the same hall shape they will book, so nothing can contradict it.
  *
  * HONESTY: the occupied count is derived ONLY from REAL figures. The primary
  * source is the PUBLIC `/attendance/summary` endpoint — `assignedCount` drives the
@@ -27,21 +29,20 @@ import { useNumbers, useAttendanceSummary, type PublicNumbers } from "@/hooks/us
  * names, ever — privacy). If that endpoint fails OR reports zero assigned seats, we
  * gracefully fall back to the modest real `/numbers`-based occupancy so the board is
  * never blank. Nothing is invented: the caption says exactly what is true —
- * "50 seats · {assigned} taken · {present} present now · {free} free · no fake number".
+ * "38 seats · {assigned} taken · {present} present now · {free} free · no fake number".
  *
  * SELF CHECK-IN: a logged-in member (via useAuth) additionally sees a tasteful
  * check-in card driven by the MEMBER `/attendance/me` endpoint — toggling
  * check-in/check-out against their own assigned seat. Logged-out visitors see only
  * the public board (no login prompt). Per-seat tooltips stay status+number only.
  *
- * Motion is GPU-only (transform + opacity) and fully reduced-motion safe: the seat
- * stagger and hover brighten both collapse to static under reduced motion. No eval,
- * no innerHTML, no external libs.
+ * The floor plan is a static SVG (GPU-cheap, no per-seat animation); the member
+ * check-in card below stays fully reduced-motion safe. No eval, no innerHTML, no
+ * external libs.
  */
 
-const TOTAL_SEATS = 50;
-const COLS = 10;
-const ROWS = TOTAL_SEATS / COLS; // 5
+// TOTAL_SEATS (38) is imported from the shared hall-plan — the SAME source the
+// floor-plan preview and the /book map use, so the board can never disagree.
 
 // Fallback mirrors the modest real numbers used elsewhere on the site (LivePulse).
 const FALLBACK_SEATS_HOSTED = 6;
@@ -62,94 +63,6 @@ interface AttendanceMe {
 
 function clampCount(v: unknown): number {
   return Math.max(0, Math.min(TOTAL_SEATS, Math.trunc(Number(v) || 0)));
-}
-
-function Seat({
-  taken,
-  index,
-  reduce,
-  seatNo,
-  statusLabel,
-  tipLabel,
-}: {
-  taken: boolean;
-  index: number;
-  reduce: boolean;
-  /** 1-based seat number shown to people (index + 1). */
-  seatNo: string;
-  /** Localised status word: "مشغول" / "متاح". */
-  statusLabel: string;
-  /** Full accessible label, e.g. "Seat 12 · taken". */
-  tipLabel: string;
-}) {
-  // A gentle diagonal stagger so the board "fills in" wave-by-wave, not all at once.
-  const col = index % COLS;
-  const row = Math.floor(index / COLS);
-  const delay = reduce ? 0 : (row + col) * 0.028;
-
-  // Keep the tooltip inside the panel: the top row flips below the seat, and the
-  // outermost columns anchor to their edge instead of centering (avoids clipping).
-  const flipBelow = row === 0;
-  const nearStart = col === 0;
-  const nearEnd = col === COLS - 1;
-  const vPos = flipBelow
-    ? "top-[calc(100%+8px)] group-hover/seat:translate-y-0 group-focus-within/seat:translate-y-0"
-    : "bottom-[calc(100%+8px)] group-hover/seat:translate-y-0 group-focus-within/seat:translate-y-0";
-  const vRest = flipBelow ? "-translate-y-1" : "translate-y-1";
-  const hPos = nearStart
-    ? "start-0"
-    : nearEnd
-      ? "end-0"
-      : "left-1/2 -translate-x-1/2";
-
-  return (
-    <motion.span
-      initial={reduce ? false : { opacity: 0, scale: 0.6 }}
-      whileInView={reduce ? undefined : { opacity: 1, scale: 1 }}
-      viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.5, delay, ease: EASE_OUT_EXPO }}
-      className="group/seat relative block aspect-square"
-    >
-      {/* The seat glyph itself — a focusable button so hover AND keyboard focus
-          both surface the honest status tooltip. No occupant identity is ever
-          shown; only status + seat number, since there is no real seat-map data. */}
-      <button
-        type="button"
-        tabIndex={0}
-        aria-label={tipLabel}
-        className={
-          "block h-full w-full rounded-[7px] transition-[background-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent group-hover/seat:scale-[1.06] " +
-          (taken
-            ? // Occupied — filled terracotta with a soft lit glow.
-              "bg-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.55),0_6px_16px_-6px_hsl(var(--primary)/0.75)] group-hover/seat:shadow-[0_0_0_1px_hsl(var(--primary)/0.7),0_8px_22px_-6px_hsl(var(--primary)/0.9)]"
-            : // Available — faint glass outline that gently brightens on hover.
-              "bg-white/[0.04] ring-1 ring-inset ring-white/20 group-hover/seat:bg-white/[0.12] group-hover/seat:ring-white/45 group-hover/seat:shadow-[0_0_16px_-4px_hsl(0_0%_100%/0.4)]")
-        }
-      />
-
-      {/* Honest tooltip — status + seat number ONLY. Appears on hover of the tile
-          and on keyboard focus of the button (group-focus-within). GPU-only.
-          Position adapts by row/col so it never clips outside the board. */}
-      <span
-        role="tooltip"
-        aria-hidden
-        className={
-          "pointer-events-none absolute z-20 flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-white/15 bg-[#0b0a0c]/95 px-2.5 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-[0_16px_36px_-12px_hsl(0_0%_0%/0.85)] backdrop-blur-md transition-[opacity,transform] duration-200 group-hover/seat:opacity-100 group-focus-within/seat:opacity-100 " +
-          `${vPos} ${vRest} ${hPos}`
-        }
-      >
-        <span
-          aria-hidden
-          className={
-            "h-2 w-2 shrink-0 rounded-[3px] " +
-            (taken ? "bg-primary" : "bg-white/25 ring-1 ring-inset ring-white/40")
-          }
-        />
-        <span className="tabular-nums text-white/60">#{seatNo}</span>
-        <span className={taken ? "text-primary" : "text-white/90"}>{statusLabel}</span>
-      </span>
-    </motion.span>
-  );
 }
 
 /**
@@ -318,7 +231,6 @@ function CheckInCard({
 export function SeatsBoard() {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
-  const reduce = !!useReducedMotion();
   const locale = lang === "ar" ? "ar-EG" : "en-US";
 
   // Two honest, PUBLIC sources — now read through the ONE shared, cached queries
@@ -358,10 +270,6 @@ export function SeatsBoard() {
   // reads as "nobody's here" and undersells the space. When zero (or unknown) we
   // simply omit the segment; taken/free still tell the honest availability story.
   const showPresent = present != null && present > 0;
-  const seats = useMemo(
-    () => Array.from({ length: TOTAL_SEATS }, (_, i) => i < taken),
-    [taken],
-  );
 
   const fmt = (v: number) => v.toLocaleString(locale);
 
@@ -369,7 +277,7 @@ export function SeatsBoard() {
     <CinematicMedia
       id="seats-board"
       data-testid="seats-board"
-      aria-label={t({ ar: "٥٠ مقعد — لوحة التوفّر الحيّة", en: "50 seats — live availability board" })}
+      aria-label={t({ ar: "خريطة القاعة — التوفّر الحيّ", en: "Hall floor plan — live availability" })}
       src={imageUrl("/photos/IMG_8300.webp")}
       scrim="medium"
       sideScrim
@@ -413,12 +321,12 @@ export function SeatsBoard() {
               <p className="mt-6 max-w-md text-white/75 text-[1.0625rem] leading-[1.7]">
                 {hasRealData
                   ? t({
-                      ar: "حاضنة كاملة، خمسون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
-                      en: "A full incubator — fifty real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
+                      ar: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
+                      en: "A full hall — thirty-eight real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
                     })
                   : t({
-                      ar: "حاضنة كاملة، خمسون مقعدًا حقيقيًّا في قلب غزّة. احجز مكانك وابدأ رحلتك معنا.",
-                      en: "A full incubator — fifty real seats in the heart of Gaza. Reserve your place and start your journey with us.",
+                      ar: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. احجز مكانك وابدأ رحلتك معنا.",
+                      en: "A full hall — thirty-eight real seats in the heart of Gaza. Reserve your place and start your journey with us.",
                     })}
               </p>
             </Reveal>
@@ -494,49 +402,35 @@ export function SeatsBoard() {
                 </span>
               </div>
 
-              {/* The precise 10×5 seat grid. Group as a labelled region; each seat
-                  is an individually focusable control with its own honest status. */}
-              <div
-                role="group"
-                aria-label={t({
-                  ar: `${fmt(TOTAL_SEATS)} مقعد، ${fmt(taken)} مشغول${showPresent ? ` و${fmt(present!)} حاضر الآن` : ""} و${fmt(free)} متاح الآن`,
-                  en: `${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken${showPresent ? `, ${fmt(present!)} present now` : ""} and ${fmt(free)} available now`,
-                })}
-                className="grid gap-[clamp(0.4rem,1vw,0.65rem)]"
-                style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
-              >
-                {seats.map((isTaken, i) => {
-                  const seatNo = fmt(i + 1);
-                  const statusLabel = isTaken
-                    ? t({ ar: "مشغول", en: "taken" })
-                    : t({ ar: "متاح", en: "available" });
-                  const tipLabel = t({
-                    ar: `مقعد ${seatNo} · ${statusLabel}`,
-                    en: `Seat ${seatNo} · ${statusLabel}`,
-                  });
-                  return (
-                    <Seat
-                      key={i}
-                      taken={isTaken}
-                      index={i}
-                      reduce={reduce}
-                      seatNo={seatNo}
-                      statusLabel={statusLabel}
-                      tipLabel={tipLabel}
-                    />
-                  );
-                })}
+              {/* The REAL hall floor plan — a read-only preview of the exact
+                  38-seat map /book reserves against (shared geometry, never drifts).
+                  Static SVG, non-interactive; it announces the honest taken/free
+                  counts via its own role="img" label. The fixed aspect-ratio box
+                  reserves its height, so the count loading in shifts no layout. */}
+              <SeatMapPreview
+                takenCount={taken}
+                className="w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]"
+              />
+
+              {/* Color key — what the two seat states mean. */}
+              <div aria-hidden className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-white/70">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-[3px] bg-white/[0.06] ring-1 ring-inset ring-white/30" />
+                  {t({ ar: "متاح", en: "Available" })}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-[3px] bg-primary ring-1 ring-inset ring-primary/60" />
+                  {t({ ar: "مشغول", en: "Taken" })}
+                </span>
               </div>
 
-              {/* Footer meta — capacity + rows note, kept quiet */}
+              {/* Footer meta — hall capacity, kept quiet */}
               <div className="mt-[clamp(1.25rem,2.5vw,1.75rem)] flex items-center justify-between border-t border-white/10 pt-4 text-[12px] text-white/55">
                 <span>
-                  {t({ ar: "سعة الحاضنة", en: "Incubator capacity" })}
+                  {t({ ar: "سعة القاعة", en: "Hall capacity" })}
                 </span>
                 <span className="tabular-nums">
-                  {fmt(ROWS)}
-                  <span className="mx-1 text-white/35">×</span>
-                  {fmt(COLS)}
+                  {fmt(TOTAL_SEATS)} {t({ ar: "مقعدًا", en: "seats" })}
                 </span>
               </div>
 

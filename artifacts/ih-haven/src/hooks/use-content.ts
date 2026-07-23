@@ -61,3 +61,19 @@ export function photoSrcSet(resolvedUrl: string): string | undefined {
     `${stem}-960.webp 960w, ${stem}.webp 1350w`
   );
 }
+
+/**
+ * AVIF `srcset` for the SAME bundled `/photos/*` stills (an `.avif` sits beside
+ * every `.webp`, ~35% smaller). Fed to a `<source type="image/avif">` inside a
+ * `<picture>`; browsers that support AVIF take it, the rest fall back to the
+ * `<img>`'s WebP srcset. Returns undefined for non-bundled images.
+ */
+export function photoSrcSetAvif(resolvedUrl: string): string | undefined {
+  const m = /^(.*\/photos\/[A-Za-z0-9_]+)\.webp$/.exec(resolvedUrl);
+  if (!m) return undefined;
+  const stem = m[1];
+  return (
+    `${stem}-160.avif 160w, ${stem}-320.avif 320w, ${stem}-640.avif 640w, ` +
+    `${stem}-960.avif 960w, ${stem}.avif 1350w`
+  );
+}

@@ -210,6 +210,26 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
         return { kind: "full" as const, scope: "day" as const, used: dayUsed, cap: DAY_CAPACITY };
       }
 
+      // Seat lock: if a seat was chosen, refuse it if already taken for this
+      // date+slot. This is the friendly fast path; the partial UNIQUE index
+      // (bookings_seat_unique) is the AUTHORITATIVE guard that makes two
+      // concurrent bookers of the same seat impossible — the loser's INSERT
+      // raises 23505, caught below as a 409.
+      if (data.seat != null) {
+        const [taken] = await tx
+          .select({ id: bookingsTable.id })
+          .from(bookingsTable)
+          .where(
+            and(
+              eq(bookingsTable.visitDate, data.visitDate),
+              eq(bookingsTable.timeSlot, data.timeSlot),
+              eq(bookingsTable.seat, data.seat),
+              sql`${bookingsTable.status} <> 'cancelled'`,
+            ),
+          );
+        if (taken) return { kind: "seatTaken" as const, seat: data.seat };
+      }
+
       const [row] = await tx
         .insert(bookingsTable)
         .values({
@@ -223,6 +243,7 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
           notes: data.notes,
           expertId: data.expertId ?? null,
           slotId: data.slotId ?? null,
+          seat: data.seat ?? null,
         })
         .returning({ id: bookingsTable.id });
 
@@ -245,6 +266,10 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
       res.status(409).json({ ok: false, error: "هذا الموعد حُجِز للتوّ — اختَر موعدًا آخر." });
       return;
     }
+    if (result.kind === "seatTaken") {
+      res.status(409).json({ ok: false, error: "المقعد محجوز — اختَر مقعدًا آخر.", seat: result.seat });
+      return;
+    }
     if (result.kind === "full") {
       res.status(409).json({
         ok: false,
@@ -260,6 +285,20 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
     invalidateNumbersCache();
     res.json({ ok: true, id: result.id });
   } catch (err) {
+    // Concurrency: the partial UNIQUE index rejects a second bookmaker of the
+    // same seat (23505); SERIALIZABLE may instead surface the write-skew as a
+    // serialization failure (40001). Either way it's a CONFLICT, never a 500.
+    const code =
+      (err as { code?: string })?.code ??
+      (err as { cause?: { code?: string } })?.cause?.code;
+    if (code === "23505") {
+      res.status(409).json({ ok: false, error: "المقعد محجوز — اختَر مقعدًا آخر." });
+      return;
+    }
+    if (code === "40001") {
+      res.status(409).json({ ok: false, error: "حُجِز للتوّ — حاول مرّة أخرى." });
+      return;
+    }
     logger.error({ err }, "Failed to create booking");
     res.status(500).json({
       ok: false,
@@ -289,13 +328,32 @@ router.get("/bookings/availability", async (_req, res) => {
         ),
       )
       .groupBy(bookingsTable.visitDate, bookingsTable.timeSlot);
+
+    // Real per-seat reservations (seat number only — no personal data) so the
+    // seat map shows GENUINE taken seats, not a count-based estimate.
+    const takenSeats = await db
+      .select({
+        visitDate: bookingsTable.visitDate,
+        timeSlot: bookingsTable.timeSlot,
+        seat: bookingsTable.seat,
+      })
+      .from(bookingsTable)
+      .where(
+        and(
+          gte(bookingsTable.visitDate, today),
+          sql`${bookingsTable.status} <> 'cancelled'`,
+          sql`${bookingsTable.seat} IS NOT NULL`,
+        ),
+      );
+
     res.json({
       slots: rows,
+      takenSeats,
       capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY },
     });
   } catch (err) {
     logger.error({ err }, "Failed to load availability");
-    res.status(500).json({ slots: [], capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY } });
+    res.status(500).json({ slots: [], takenSeats: [], capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY } });
   }
 });
 

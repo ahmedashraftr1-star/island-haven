@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRosterStats } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
@@ -19,6 +20,12 @@ import { EASE_OUT_EXPO } from "@/lib/motion";
 export function About() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
+  // Community figure = the real talent-roster COUNT (61), the ONE public source
+  // the hero, NumbersBand and /membership all read — so /about never states a
+  // different number. Falls back to the current real count until the query lands.
+  const { data: rosterStats } = useRosterStats();
+  const memberCount = rosterStats?.total ?? 61;
+  const membersStat = memberCount.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   const photoRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: photoRef,
@@ -101,7 +108,7 @@ export function About() {
               <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border-strong bg-border-strong">
                 {[
                   { n: lang === "en" ? "2024" : "٢٠٢٤", ar: "تأسّسنا", en: "EST" },
-                  { n: lang === "en" ? "57+" : "٥٧+", ar: "منتسب", en: "MEMBERS" },
+                  { n: membersStat, ar: "منتسب", en: "MEMBERS" },
                   { n: lang === "en" ? "100%" : "١٠٠٪", ar: "مجّانًا", en: "FREE" },
                 ].map((stat) => (
                   <div key={stat.en} className="bg-surface-1 px-4 py-5 text-center">

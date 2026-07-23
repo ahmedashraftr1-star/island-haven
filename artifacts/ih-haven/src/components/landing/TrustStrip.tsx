@@ -1,6 +1,6 @@
 import { ShieldCheck, Gift, Users, Globe2, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useNumbers } from "@/hooks/use-public-data";
+import { useRosterStats } from "@/hooks/use-public-data";
 
 type Item = { icon: LucideIcon; value: string; label: string };
 
@@ -18,11 +18,13 @@ const toArabicDigits = (s: string) => s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧�
  */
 export function TrustStrip({ className = "" }: { className?: string }) {
   const { t, lang } = useLanguage();
-  // Real member count from the ONE shared, cached /numbers query. Undefined until
-  // it resolves and null on error — either way the member item below stays hidden
-  // rather than showing a fabricated figure (honesty rule).
-  const { data } = useNumbers();
-  const members = data?.numbers?.members ?? null;
+  // The ONE public community figure — the real talent-roster COUNT (61), the same
+  // cached /roster/stats source the hero + NumbersBand + /membership read, so this
+  // strip can never contradict them. Undefined until it resolves and null on error
+  // — either way the member item below stays hidden rather than showing a
+  // fabricated figure (honesty rule).
+  const { data } = useRosterStats();
+  const members = data?.total ?? null;
 
   const membersValue =
     members != null && members > 0

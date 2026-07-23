@@ -145,31 +145,28 @@ export default function Book() {
     phone: "",
     email: "",
   });
-  // Live occupancy for the seat map: per date+slot taken counts from the same
-  // public endpoint the calendar uses. Drives which seats read as "reserved"
-  // (a real count, never a fabricated per-seat claim).
-  const [availability, setAvailability] = useState<
-    Array<{ visitDate: string; timeSlot: string; attendees: number }>
+  // REAL per-seat reservations from the availability endpoint. The seat map shows
+  // genuinely taken seats (not a count estimate); the DB enforces uniqueness.
+  const [takenSeats, setTakenSeats] = useState<
+    Array<{ visitDate: string; timeSlot: string; seat: number }>
   >([]);
   useEffect(() => {
     let alive = true;
-    api<{ slots: Array<{ visitDate: string; timeSlot: string; attendees: number }> }>(
+    api<{ takenSeats: Array<{ visitDate: string; timeSlot: string; seat: number }> }>(
       "/bookings/availability",
     )
-      .then((r) => alive && setAvailability(r.slots ?? []))
+      .then((r) => alive && setTakenSeats(r.takenSeats ?? []))
       .catch(() => {});
     return () => {
       alive = false;
     };
   }, []);
-  const reservedCount = useMemo(() => {
-    if (!form.visitDate || !form.timeSlot) return 0;
-    return (
-      availability.find(
-        (a) => a.visitDate === form.visitDate && a.timeSlot === form.timeSlot,
-      )?.attendees ?? 0
-    );
-  }, [availability, form.visitDate, form.timeSlot]);
+  const takenSeatsForSlot = useMemo(() => {
+    if (!form.visitDate || !form.timeSlot) return [];
+    return takenSeats
+      .filter((s) => s.visitDate === form.visitDate && s.timeSlot === form.timeSlot)
+      .map((s) => s.seat);
+  }, [takenSeats, form.visitDate, form.timeSlot]);
 
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
@@ -224,16 +221,11 @@ export default function Book() {
     setError(null);
     setIssues({});
     try {
-      // Carry the preferred seat in `notes` (the schema stores it) — the raw
-      // `seat` key is stripped server-side, so nothing else changes.
-      const seatNote =
-        form.seat != null
-          ? t({ ar: `المقعد المفضّل: ${form.seat}`, en: `Preferred seat: ${form.seat}` })
-          : "";
-      const notes = [form.notes?.trim(), seatNote].filter(Boolean).join(" · ");
+      // `seat` is now a real, DB-enforced column — send it as a field. A taken
+      // seat comes back as 409 «المقعد محجوز» (shown via the error path below).
       const r = await api<{ ok: true; id: number }>("/bookings", {
         method: "POST",
-        body: JSON.stringify({ ...form, notes }),
+        body: JSON.stringify(form),
       });
       setDone({ id: r.id });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -369,7 +361,7 @@ export default function Book() {
                     monthCursor={monthCursor}
                     setMonthCursor={setMonthCursor}
                     monthGrid={monthGrid}
-                    reservedCount={reservedCount}
+                    takenSeats={takenSeatsForSlot}
                   />
                 )}
                 {step === 1 && (
@@ -564,7 +556,7 @@ function StepOne({
   setMonthCursor,
   monthGrid,
   navDir,
-  reservedCount,
+  takenSeats,
 }: {
   form: ReturnType<typeof useState<any>>[0] & {
     visitDate: string;
@@ -581,7 +573,7 @@ function StepOne({
     label: string;
   }>;
   navDir?: 1 | -1;
-  reservedCount: number;
+  takenSeats: number[];
 }) {
   const { lang, t } = useLanguage();
   return (
@@ -707,7 +699,7 @@ function StepOne({
           </p>
         ) : (
           <SeatMap
-            reservedCount={reservedCount}
+            takenSeats={takenSeats}
             selected={form.seat}
             onSelect={(n) => update("seat", n === form.seat ? null : n)}
           />

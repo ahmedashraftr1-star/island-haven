@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { imageUrl } from "@/hooks/use-content";
-import { useAttendanceSummary } from "@/hooks/use-public-data";
+import { TOTAL_SEATS } from "@/components/booking/hall-plan";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
@@ -21,14 +21,12 @@ import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
  */
 export function WhatYouGet() {
   const { t, lang } = useLanguage();
-  // Seats figure = the space's fixed real CAPACITY (the same 50 the SeatsBoard
-  // shows), sourced from the live attendance summary when available and falling
-  // back to the known constant. Deliberately CAPACITY, not live availability, so
-  // it can never contradict the SeatsBoard's "N free" on the same page. Rendered
-  // through the locale numeral formatter (Western in EN, Arabic-Indic in AR).
-  const { data: summaryData } = useAttendanceSummary();
-  // `|| 50` (not `??`) so a degraded `{ totalSeats: 0 }` never renders "٠".
-  const totalSeats = summaryData?.totalSeats || 50;
+  // Seats figure = the hall's fixed CAPACITY, read from the ONE shared hall-plan
+  // (38 seats) that the SeatsBoard floor plan and the /book map also use.
+  // Deliberately CAPACITY, not live availability, so it can never contradict the
+  // SeatsBoard's "N free" on the same page. Rendered through the locale numeral
+  // formatter (Western in EN, Arabic-Indic in AR).
+  const totalSeats = TOTAL_SEATS;
   const fmtNum = (v: number) => v.toLocaleString(lang === "ar" ? "ar-EG" : "en-US");
   // Two-digit editorial row index — Arabic-Indic in AR (matching ActMarker /
   // ApplyProcess), Western in EN. No stray Western digit in the Arabic page.

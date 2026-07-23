@@ -76,7 +76,7 @@ export default function Impact() {
               <div className="w-40 shrink-0 text-[12.5px] text-fg-secondary truncate sm:w-56">{sk.skill}</div>
               <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.05]">
                 <div
-                  className="absolute inset-y-0 start-0 rounded-full bg-gradient-to-r from-primary/70 to-[#DDBD7E]/80"
+                  className="absolute inset-y-0 start-0 rounded-full bg-gradient-to-r from-primary/70 to-sand-bright/80"
                   style={{ width: `${Math.max(6, (sk.c / maxSkill) * 100)}%` }}
                 />
               </div>
@@ -89,7 +89,7 @@ export default function Impact() {
       {/* Verify + CTA */}
       <div className="mt-[clamp(3rem,7vw,5rem)] flex flex-col items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="inline-flex items-center gap-2 text-[13.5px] text-fg-secondary">
-          <ShieldCheck className="h-4 w-4 text-[#DDBD7E]" aria-hidden />
+          <ShieldCheck className="h-4 w-4 text-sand-bright" aria-hidden />
           {t({ ar: "أرقامنا العلنيّة موقّعة تشفيريًّا — تحقّق منها بنفسك.", en: "Our public numbers are cryptographically signed — verify them yourself." })}
         </p>
         <div className="flex gap-3">

@@ -7,7 +7,9 @@ import {
   integer,
   date,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { expertProfilesTable } from "./experts";
 import { expertAvailabilitySlotsTable } from "./expertAvailability";
@@ -28,6 +30,10 @@ export const bookingsTable = pgTable("bookings", {
   slotId: integer("slot_id").references(() => expertAvailabilitySlotsTable.id, {
     onDelete: "set null",
   }),
+  // Optional chosen seat (1–38). A partial UNIQUE index (visit_date, time_slot,
+  // seat) WHERE seat IS NOT NULL AND status <> 'cancelled' is the DB-level lock
+  // that makes concurrent double-booking of a seat impossible.
+  seat: integer("seat"),
   status: varchar("status", { length: 16 }).notNull().default("pending"),
   adminNotes: text("admin_notes").default(""),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -39,6 +45,15 @@ export const bookingsTable = pgTable("bookings", {
   // serves both (the second via the leading column) so the hot write path
   // never seq-scans the bookings table.
   slotIdx: index("bookings_visit_slot_idx").on(t.visitDate, t.timeSlot),
+  // The DB-level double-booking lock: at most one LIVE booking per
+  // (visit_date, time_slot, seat). Partial — it ignores rows with no chosen seat
+  // and cancelled bookings, so those never block a fresh reservation. Declared
+  // here (matching the deployed index name) so `drizzle-kit push` reproduces the
+  // lock on every environment; without it a fresh push would create the `seat`
+  // column but not the guarantee, and concurrent requests could double-book.
+  seatUnique: uniqueIndex("bookings_seat_unique")
+    .on(t.visitDate, t.timeSlot, t.seat)
+    .where(sql`seat IS NOT NULL AND status <> 'cancelled'`),
 }));
 
 // Reject any HTML brackets / control chars to keep stored data clean
@@ -98,6 +113,8 @@ export const insertBookingSchema = z.object({
   notes: safeText(0, 1000, "").default(""),
   expertId: z.number().int().positive().optional().nullable(),
   slotId: z.number().int().positive().optional().nullable(),
+  // Chosen seat (1–38 physical seats). Optional — booking without a seat is fine.
+  seat: z.coerce.number().int().min(1).max(38).optional().nullable(),
 });
 
 export type Booking = typeof bookingsTable.$inferSelect;

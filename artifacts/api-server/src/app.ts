@@ -249,7 +249,7 @@ app.use("/api", (_req, _res, next) => {
 // header is present, or a shared cache could serve one member's personalized
 // response (including contact info) to another visitor.
 const PUBLIC_CACHE_RE =
-  /^\/api\/(content|numbers|stats|gallery|partners|team|programs|cohorts|resources|jobs|investors|opportunities|perks|stories|daily|ventures|courses|experts|members|search)(\/|$)/;
+  /^\/api\/(content|numbers|stats|gallery|partners|team|programs|cohorts|resources|jobs|investors|opportunities|perks|stories|daily|ventures|courses|experts|members|search|roster)(\/|$)/;
 const PUBLIC_CACHE_MAX_AGE = Number(process.env.PUBLIC_CACHE_MAX_AGE ?? 60);
 app.use((req, res, next) => {
   if (

@@ -1,7 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
+import crypto from "node:crypto";
 import type { RequestHandler } from "express";
+
+// A WEAK ETag from the UNCOMPRESSED bytes — same shape as Express's default
+// (hex-length + sha1/base64). Weak = encoding-agnostic, so the identity, gzip and
+// brotli variants of one response share a validator and a client's If-None-Match
+// still revalidates after compression. (Express only sets its ETag on res.send,
+// which the compressed path below bypasses via res.end — hence we set our own.)
+function weakEtag(buf: Buffer): string {
+  const hash = crypto.createHash("sha1").update(buf).digest("base64").slice(0, 27);
+  return `W/"${buf.length.toString(16)}-${hash}"`;
+}
 
 /**
  * Serve build-time pre-compressed twins (`.br` / `.gz`) for static assets.
@@ -78,9 +89,21 @@ export function compressJson(minBytes = 1024): RequestHandler {
 
       const done = (err: Error | null, out: Buffer) => {
         if (err || res.headersSent) return void originalJson(body);
+        // Preserve a validator across compression (Express's own ETag is lost on
+        // res.end). Weak ETag from the uncompressed body → shared by every encoding.
+        const tag = weakEtag(buf);
+        res.setHeader("ETag", tag);
+        res.setHeader("Vary", "Accept-Encoding");
+        // Conditional GET: revalidate cheaply instead of resending the payload.
+        const inm = req.headers["if-none-match"];
+        if (inm && inm === tag) {
+          res.removeHeader("Content-Type");
+          res.removeHeader("Content-Length");
+          res.statusCode = 304;
+          return void res.end();
+        }
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.setHeader("Content-Encoding", enc);
-        res.setHeader("Vary", "Accept-Encoding");
         res.setHeader("Content-Length", String(out.length));
         res.end(out);
       };

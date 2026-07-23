@@ -1,108 +1,31 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { GROUPS, ALL_SEATS, SEAT_IDS, DECOR, toArDigits, TOTAL_SEATS as TOTAL } from "./hall-plan";
 
 /**
  * SeatMap — an interactive plan of the Island Haven hall for /book.
  *
- * The floor (tables, side rooms, the lounge couch) is drawn in one SVG; the 38
- * seats are real <button>s positioned over it, so each is fully keyboard- and
+ * The hall geometry lives in `./hall-plan` (the ONE source of truth, shared with
+ * the read-only homepage `SeatMapPreview` so the two can never drift). The floor
+ * (tables, side rooms, the lounge couch) is drawn in one SVG; the 38 seats are
+ * real <button>s positioned over it, so each is fully keyboard- and
  * screen-reader-native (SVG role="button" can't match a real button's support).
  * A parallel <ul> of seats renders on narrow phones (and is the natural
  * screen-reader path) so the plan degrades to a list without losing anything.
  *
- * Occupancy is honest: `reservedCount` is the REAL taken count for the chosen
- * date+slot (from /bookings/availability, the same figure the homepage board
- * uses); we mark that many seats along a fixed fill order so the picture is
- * stable per count, never a fabricated per-seat claim. The chosen seat is a
+ * Occupancy is honest: `takenSeats` are the REAL reserved seat numbers for the
+ * chosen date+slot (from /bookings/availability, the same figure the homepage
+ * board uses) — never a fabricated per-seat claim. The chosen seat is a
  * preference carried with the booking — no schema change, no seq/hash impact.
  */
 
-const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-const toArDigits = (n: number) => String(n).replace(/\d/g, (d) => AR_DIGITS[+d]);
-
-export interface SeatGroup {
-  key: string;
-  label: { ar: string; en: string };
-  /** table rectangles (in the 0..100 × 0..76 plan space) */
-  tables: { x: number; y: number; w: number; h: number; rx?: number }[];
-  seats: { id: number; x: number; y: number }[];
-}
-
-// A 4-seat pod: a table centred at (cx,cy) with two seats above and two below.
-function pod(ids: [number, number, number, number], cx: number, cy: number) {
-  const tables = [{ x: cx - 8, y: cy - 4.5, w: 16, h: 9, rx: 2 }];
-  const seats = [
-    { id: ids[0], x: cx - 5.5, y: cy - 9 },
-    { id: ids[1], x: cx + 5.5, y: cy - 9 },
-    { id: ids[2], x: cx - 5.5, y: cy + 9 },
-    { id: ids[3], x: cx + 5.5, y: cy + 9 },
-  ];
-  return { tables, seats };
-}
-
-// ── The hall (plan space 0..100 wide × 0..104 tall) ─────────────────────────
-// Top band: the window row (1–8), the meeting table (9–12) and the quiet corner
-// (13–14). Two clean pod rows below carry 15–38. The owner's floor diagram is
-// the source of truth for exact placement — this mirrors its groups.
-const GROUPS: SeatGroup[] = [
-  {
-    key: "row",
-    label: { ar: "صفّ النوافذ", en: "Window row" },
-    tables: [{ x: 9, y: 10, w: 32, h: 8, rx: 2 }],
-    seats: [
-      { id: 1, x: 13, y: 5.5 }, { id: 2, x: 22, y: 5.5 }, { id: 3, x: 31, y: 5.5 }, { id: 4, x: 40, y: 5.5 },
-      { id: 5, x: 13, y: 22 }, { id: 6, x: 22, y: 22 }, { id: 7, x: 31, y: 22 }, { id: 8, x: 40, y: 22 },
-    ],
-  },
-  {
-    key: "meeting",
-    label: { ar: "طاولة الاجتماع", en: "Meeting table" },
-    tables: [{ x: 60, y: 9, w: 22, h: 10, rx: 5 }],
-    seats: [
-      { id: 9, x: 65, y: 5.5 }, { id: 10, x: 77, y: 5.5 },
-      { id: 11, x: 65, y: 22 }, { id: 12, x: 77, y: 22 },
-    ],
-  },
-  {
-    key: "lounge",
-    label: { ar: "الركن الهادئ", en: "Quiet corner" },
-    tables: [{ x: 49, y: 9, w: 4, h: 10, rx: 2 }],
-    seats: [{ id: 13, x: 51, y: 5.5 }, { id: 14, x: 51, y: 22 }],
-  },
-  { key: "p1", label: { ar: "بود ١", en: "Pod 1" }, ...pod([15, 16, 17, 18], 20, 46) },
-  { key: "p2", label: { ar: "بود ٢", en: "Pod 2" }, ...pod([19, 20, 21, 22], 50, 46) },
-  { key: "p3", label: { ar: "بود ٣", en: "Pod 3" }, ...pod([23, 24, 25, 26], 80, 46) },
-  { key: "p4", label: { ar: "بود ٤", en: "Pod 4" }, ...pod([27, 28, 29, 30], 20, 76) },
-  { key: "p5", label: { ar: "بود ٥", en: "Pod 5" }, ...pod([31, 32, 33, 34], 50, 76) },
-  { key: "p6", label: { ar: "بود ٦", en: "Pod 6" }, ...pod([35, 36, 37, 38], 80, 76) },
-];
-
-const ALL_SEATS = GROUPS.flatMap((g) => g.seats.map((s) => ({ ...s, group: g.key })));
-const SEAT_IDS = ALL_SEATS.map((s) => s.id).sort((a, b) => a - b);
-const TOTAL = ALL_SEATS.length; // 38
-
-// A fixed, scattered fill order so a given occupancy count always shades the
-// SAME seats (stable, not random) yet looks organic rather than "1..N".
-const FILL_ORDER = [
-  20, 3, 24, 11, 33, 7, 16, 28, 1, 36, 9, 22, 30, 5, 14, 25, 38, 18, 2, 31,
-  12, 27, 6, 34, 19, 10, 23, 37, 4, 15, 29, 8, 21, 35, 13, 26, 32, 17,
-];
-
-// Side rooms + the lounge couch — decorative context, never interactive.
-const DECOR = {
-  rooms: [
-    { x: 1, y: 36, w: 7, h: 46, label: { ar: "غرفة", en: "Room" } },
-    { x: 92, y: 36, w: 7, h: 46, label: { ar: "غرفة", en: "Room" } },
-  ],
-  couch: { x: 40, y: 94, w: 20, h: 6, label: { ar: "استراحة", en: "Lounge" } },
-};
-
 export function SeatMap({
-  reservedCount,
+  takenSeats,
   selected,
   onSelect,
 }: {
-  reservedCount: number;
+  /** REAL reserved seat numbers for the chosen date+slot (from the API). */
+  takenSeats: number[];
   selected: number | null;
   onSelect: (seat: number) => void;
 }) {
@@ -110,10 +33,7 @@ export function SeatMap({
   const [focusId, setFocusId] = useState<number>(() => selected ?? SEAT_IDS[0]);
   const btnRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  const reserved = useMemo(() => {
-    const n = Math.max(0, Math.min(TOTAL, Math.round(reservedCount)));
-    return new Set(FILL_ORDER.slice(0, n));
-  }, [reservedCount]);
+  const reserved = useMemo(() => new Set(takenSeats), [takenSeats]);
 
   const seatLabel = useCallback(
     (id: number, state: "available" | "reserved" | "selected") => {
