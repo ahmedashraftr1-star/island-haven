@@ -61,6 +61,20 @@ export function useRosterStats() {
   });
 }
 
+// ─── Seat status — admin-blocked seats (disabled/maintenance/reserved) ────────
+// A tiny PUBLIC read so the homepage preview + /book agree on which physical
+// seats are out of the booking pool. Seat number + state only, no personal data.
+export interface SeatStatus {
+  blocked: { seat: number; state: "disabled" | "maintenance" | "reserved" }[];
+}
+export function useSeatStatus() {
+  return useQuery({
+    queryKey: ["seat-status"],
+    queryFn: () => api<SeatStatus>("/seat-status"),
+    ...PUBLIC,
+  });
+}
+
 // ─── Homepage CTA buttons (owner-controlled from the admin panel) ─────────────
 export interface CtaButtonConfig {
   labelAr: string;

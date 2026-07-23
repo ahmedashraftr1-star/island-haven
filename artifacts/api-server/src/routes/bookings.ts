@@ -5,8 +5,8 @@ import {
   type Response,
   type NextFunction,
 } from "express";
-import { desc, eq, sql, gte, and } from "drizzle-orm";
-import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable, expertAvailabilitySlotsTable } from "@workspace/db";
+import { desc, eq, sql, gte, and, asc } from "drizzle-orm";
+import { bookingsTable, db, insertBookingSchema, expertProfilesTable, usersTable, expertAvailabilitySlotsTable, seatOverridesTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
@@ -216,6 +216,13 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
       // concurrent bookers of the same seat impossible — the loser's INSERT
       // raises 23505, caught below as a 409.
       if (data.seat != null) {
+        // Admin-blocked seat (disabled / maintenance / reserved) — never bookable.
+        const [blocked] = await tx
+          .select({ state: seatOverridesTable.state })
+          .from(seatOverridesTable)
+          .where(eq(seatOverridesTable.seatNumber, data.seat));
+        if (blocked) return { kind: "seatBlocked" as const, seat: data.seat };
+
         const [taken] = await tx
           .select({ id: bookingsTable.id })
           .from(bookingsTable)
@@ -268,6 +275,10 @@ router.post("/bookings", rateLimitBookings, async (req, res) => {
     }
     if (result.kind === "seatTaken") {
       res.status(409).json({ ok: false, error: "المقعد محجوز — اختَر مقعدًا آخر.", seat: result.seat });
+      return;
+    }
+    if (result.kind === "seatBlocked") {
+      res.status(409).json({ ok: false, error: "هذا المقعد غير متاح للحجز حاليًّا — اختَر مقعدًا آخر.", seat: result.seat });
       return;
     }
     if (result.kind === "full") {
@@ -346,14 +357,22 @@ router.get("/bookings/availability", async (_req, res) => {
         ),
       );
 
+    // Admin-blocked seats (disabled / maintenance / reserved) — global, so the
+    // seat map on /book renders them unbookable regardless of date/slot.
+    const blockedSeats = await db
+      .select({ seat: seatOverridesTable.seatNumber, state: seatOverridesTable.state })
+      .from(seatOverridesTable)
+      .orderBy(asc(seatOverridesTable.seatNumber));
+
     res.json({
       slots: rows,
       takenSeats,
+      blockedSeats,
       capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY },
     });
   } catch (err) {
     logger.error({ err }, "Failed to load availability");
-    res.status(500).json({ slots: [], takenSeats: [], capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY } });
+    res.status(500).json({ slots: [], takenSeats: [], blockedSeats: [], capacity: { perSlot: SLOT_CAPACITY, perDay: DAY_CAPACITY } });
   }
 });
 

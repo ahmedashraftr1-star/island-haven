@@ -11,6 +11,7 @@ import {
   partnersTable,
   investorsTable,
   jobListingsTable,
+  rosterMembersTable,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { writeAudit, auditActor } from "../lib/audit";
@@ -40,6 +41,7 @@ const ENTITIES: Record<string, TrashEntity> = {
   partners: { table: partnersTable, id: partnersTable.id, name: partnersTable.name, deletedAt: partnersTable.deletedAt, label: { ar: "الشركاء", en: "Partners" }, audit: "partner" },
   investors: { table: investorsTable, id: investorsTable.id, name: investorsTable.name, deletedAt: investorsTable.deletedAt, label: { ar: "المستثمرون", en: "Investors" }, audit: "investor" },
   jobs: { table: jobListingsTable, id: jobListingsTable.id, name: jobListingsTable.title, deletedAt: jobListingsTable.deletedAt, label: { ar: "الوظائف", en: "Jobs" }, audit: "job" },
+  roster: { table: rosterMembersTable, id: rosterMembersTable.id, name: rosterMembersTable.fullName, deletedAt: rosterMembersTable.deletedAt, label: { ar: "سجل المواهب", en: "Talent roster" }, audit: "roster" },
 };
 
 // GET /admin/trash — soft-deleted counts per entity (drives the Trash page tabs).

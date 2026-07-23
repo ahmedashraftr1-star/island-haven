@@ -35,6 +35,8 @@ import {
   Gift,
   Armchair,
   ClipboardCheck,
+  Contact,
+  Grid3x3,
   ShieldCheck,
   Hash,
   ScrollText,
@@ -46,6 +48,8 @@ import {
 import AdminLogin from "./AdminLogin";
 import AdminApplications from "./AdminApplications";
 import AdminBookings from "./AdminBookings";
+import AdminMembers from "./AdminMembers";
+import AdminSeats from "./AdminSeats";
 import AdminAttendance from "./AdminAttendance";
 import AdminAttendanceHr from "./AdminAttendanceHr";
 // Previously-orphaned: fully built + backend-wired, but never reachable in the nav.
@@ -100,6 +104,8 @@ type Tab =
   | "bookings"
   | "attendance"
   | "attendance-hr"
+  | "roster"
+  | "seats"
   | "applications"
   | "users"
   | "experts"
@@ -145,6 +151,11 @@ const TAB_PERMISSION: Record<Tab, string> = {
   tasks: "tasks:view",
   impact: "impact:view",
   bookings: "bookings:view",
+  // roster + seats are super-admin-only (their backend segments are unmapped in
+  // the RBAC gate → fail-closed to super). These sentinel permissions are held by
+  // no staff role, so only a super-admin sees the tabs — matching the backend.
+  roster: "roster:manage",
+  seats: "seats:manage",
   attendance: "attendance:view",
   "attendance-hr": "attendance:view",
   applications: "applications:view",
@@ -203,7 +214,9 @@ const TABS: { id: Tab; label: string; Icon: typeof Inbox; group: Group }[] = [
   { id: "tasks", label: "المهام والتواصل", Icon: ListChecks, group: "main" },
   { id: "applications", label: "الطلبات", Icon: Inbox, group: "people" },
   { id: "users", label: "المستخدمون", Icon: Users, group: "people" },
+  { id: "roster", label: "سجل المواهب", Icon: Contact, group: "people" },
   { id: "bookings", label: "حجوزات المقاعد", Icon: CalendarCheck, group: "people" },
+  { id: "seats", label: "خريطة المقاعد", Icon: Grid3x3, group: "people" },
   { id: "attendance", label: "الحضور والانصراف", Icon: Armchair, group: "people" },
   { id: "attendance-hr", label: "الحضور والإجازات", Icon: ClipboardCheck, group: "people" },
   { id: "experts", label: "الخبراء", Icon: Sparkles, group: "incubation" },
@@ -570,7 +583,9 @@ export default function AdminDashboard() {
           {tab === "overview" && <AdminOverview onJump={(t) => setTab(t as Tab)} />}
           {tab === "impact" && <AdminImpact />}
           {tab === "tasks" && <AdminTasks openTaskId={openTaskId} onOpenConsumed={() => setOpenTaskId(null)} />}
+          {tab === "roster" && <AdminMembers />}
           {tab === "bookings" && <AdminBookings />}
+          {tab === "seats" && <AdminSeats />}
           {tab === "attendance" && <AdminAttendance />}
           {tab === "attendance-hr" && <AdminAttendanceHr />}
           {tab === "jobs" && <AdminJobs />}

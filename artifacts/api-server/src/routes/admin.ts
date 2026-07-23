@@ -14,6 +14,7 @@ import {
 } from "../lib/auth";
 import { issueCsrfCookie, clearCsrfCookie } from "../lib/csrf";
 import { randomBase32Secret, verifyTotp, otpauthUri } from "../lib/totp";
+import { encryptSecret, decryptSecret } from "../lib/secretbox";
 
 const router: IRouter = Router();
 
@@ -73,7 +74,7 @@ router.post("/admin/login", async (req, res) => {
         const loginPatch: { lastLoginAt: Date; totpLastCounter?: number } = { lastLoginAt: new Date() };
         if (row.totpEnabled) {
           const code = String(req.body?.code ?? "").trim();
-          const matched = code && row.totpSecret ? verifyTotp(row.totpSecret, code) : -1;
+          const matched = code && row.totpSecret ? verifyTotp(decryptSecret(row.totpSecret), code) : -1;
           // Reject invalid codes AND any code at/below the last accepted step
           // (replay of a captured-but-still-valid code).
           if (matched < 0 || matched <= row.totpLastCounter) {
@@ -176,7 +177,9 @@ router.post("/admin/me/2fa/setup", requireAdmin, async (req, res) => {
     return;
   }
   const secret = randomBase32Secret();
-  await db.update(adminUsersTable).set({ totpSecret: secret }).where(eq(adminUsersTable.id, me.id));
+  // Store ENCRYPTED at rest; the plaintext secret is returned once here for the
+  // authenticator QR/manual entry and never persisted in the clear.
+  await db.update(adminUsersTable).set({ totpSecret: encryptSecret(secret) }).where(eq(adminUsersTable.id, me.id));
   res.json({ secret, otpauthUri: otpauthUri(secret, me.email) });
 });
 
@@ -196,7 +199,7 @@ router.post("/admin/me/2fa/enable", requireAdmin, async (req, res) => {
     res.status(400).json({ error: "ابدأ الإعداد أوّلًا" });
     return;
   }
-  const matched = verifyTotp(row.secret, code);
+  const matched = verifyTotp(decryptSecret(row.secret), code);
   if (matched < 0) {
     res.status(400).json({ error: "رمز التحقّق غير صحيح" });
     return;
@@ -220,7 +223,7 @@ router.post("/admin/me/2fa/disable", requireAdmin, async (req, res) => {
     .limit(1);
   // Require a valid current code to turn 2FA off (can't disable someone's 2FA
   // just from a hijacked session without their device).
-  if (row?.enabled && (!row.secret || verifyTotp(row.secret, code) < 0)) {
+  if (row?.enabled && (!row.secret || verifyTotp(decryptSecret(row.secret), code) < 0)) {
     res.status(400).json({ error: "رمز التحقّق غير صحيح" });
     return;
   }

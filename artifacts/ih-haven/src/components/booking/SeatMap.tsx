@@ -19,13 +19,18 @@ import { GROUPS, ALL_SEATS, SEAT_IDS, DECOR, toArDigits, TOTAL_SEATS as TOTAL } 
  * preference carried with the booking — no schema change, no seq/hash impact.
  */
 
+type SeatState = "available" | "reserved" | "selected" | "blocked";
+
 export function SeatMap({
   takenSeats,
+  blockedSeats,
   selected,
   onSelect,
 }: {
   /** REAL reserved seat numbers for the chosen date+slot (from the API). */
   takenSeats: number[];
+  /** Admin-blocked seats (disabled / maintenance / reserved) — never bookable. */
+  blockedSeats?: number[];
   selected: number | null;
   onSelect: (seat: number) => void;
 }) {
@@ -34,23 +39,26 @@ export function SeatMap({
   const btnRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   const reserved = useMemo(() => new Set(takenSeats), [takenSeats]);
+  const blocked = useMemo(() => new Set(blockedSeats ?? []), [blockedSeats]);
 
   const seatLabel = useCallback(
-    (id: number, state: "available" | "reserved" | "selected") => {
+    (id: number, state: SeatState) => {
       const num = lang === "ar" ? toArDigits(id) : String(id);
       const stateWord =
         state === "selected"
           ? { ar: "مختار", en: "selected" }
-          : state === "reserved"
-            ? { ar: "محجوز", en: "reserved" }
-            : { ar: "متاح", en: "available" };
+          : state === "blocked"
+            ? { ar: "غير متاح", en: "unavailable" }
+            : state === "reserved"
+              ? { ar: "محجوز", en: "reserved" }
+              : { ar: "متاح", en: "available" };
       return lang === "ar" ? `مقعد ${num} — ${stateWord.ar}` : `Seat ${num} — ${stateWord.en}`;
     },
     [lang],
   );
 
-  const stateOf = (id: number): "available" | "reserved" | "selected" =>
-    selected === id ? "selected" : reserved.has(id) ? "reserved" : "available";
+  const stateOf = (id: number): SeatState =>
+    selected === id ? "selected" : blocked.has(id) ? "blocked" : reserved.has(id) ? "reserved" : "available";
 
   const moveFocus = useCallback(
     (from: number, delta: number) => {
@@ -74,12 +82,14 @@ export function SeatMap({
   };
 
   const pick = (id: number) => {
-    if (reserved.has(id)) return;
+    if (reserved.has(id) || blocked.has(id)) return;
     onSelect(id);
     setFocusId(id);
   };
 
-  const freeCount = TOTAL - reserved.size;
+  // Free = total minus reserved minus blocked (blocked seats aren't part of the pool).
+  const takenOrBlocked = useMemo(() => new Set([...reserved, ...blocked]), [reserved, blocked]);
+  const freeCount = TOTAL - takenOrBlocked.size;
 
   return (
     <div>
@@ -88,6 +98,7 @@ export function SeatMap({
         <Legend swatch="bg-white/[0.06] ring-1 ring-inset ring-white/25" label={t({ ar: "متاح", en: "Available" })} />
         <Legend swatch="bg-[#DDBD7E] ring-1 ring-inset ring-[#DDBD7E]" label={t({ ar: "مختار", en: "Selected" })} />
         <Legend swatch="bg-primary/25 ring-1 ring-inset ring-primary/40" label={t({ ar: "محجوز", en: "Reserved" })} />
+        {blocked.size > 0 && <Legend swatch="bg-white/[0.03] ring-1 ring-inset ring-white/15" label={t({ ar: "غير متاح", en: "Unavailable" })} />}
         <span className="ms-auto font-mono tabular-nums text-fg-faint">
           {t({ ar: `${toArDigits(freeCount)} من ${toArDigits(TOTAL)} متاح`, en: `${freeCount} of ${TOTAL} free` })}
         </span>
@@ -126,6 +137,7 @@ export function SeatMap({
         {ALL_SEATS.map((s) => {
           const st = stateOf(s.id);
           const isReserved = st === "reserved";
+          const isBlocked = st === "blocked";
           const isSelected = st === "selected";
           return (
             <button
@@ -138,16 +150,18 @@ export function SeatMap({
               tabIndex={focusId === s.id ? 0 : -1}
               aria-label={seatLabel(s.id, st)}
               aria-pressed={isSelected}
-              aria-disabled={isReserved || undefined}
+              aria-disabled={isReserved || isBlocked || undefined}
               data-seat={s.id}
               className={[
                 "absolute grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-md font-mono tabular-nums transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DDBD7E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b0f]",
                 "h-[5.5%] min-h-[26px] w-[5.5%] min-w-[26px] text-[10px]",
                 isSelected
                   ? "bg-[#DDBD7E] font-bold text-[#1a1206] shadow-[0_2px_10px_-2px_rgba(221,189,126,0.7)]"
-                  : isReserved
-                    ? "cursor-not-allowed bg-primary/20 text-white/40 ring-1 ring-inset ring-primary/40"
-                    : "bg-white/[0.06] text-white/80 ring-1 ring-inset ring-white/25 hover:bg-white/[0.14] hover:ring-white/50 motion-safe:hover:scale-110",
+                  : isBlocked
+                    ? "cursor-not-allowed bg-white/[0.03] text-white/25 ring-1 ring-inset ring-white/15 line-through"
+                    : isReserved
+                      ? "cursor-not-allowed bg-primary/20 text-white/40 ring-1 ring-inset ring-primary/40"
+                      : "bg-white/[0.06] text-white/80 ring-1 ring-inset ring-white/25 hover:bg-white/[0.14] hover:ring-white/50 motion-safe:hover:scale-110",
               ].join(" ")}
               style={{ left: `${s.x}%`, top: `${s.y}%` }}
             >
@@ -164,6 +178,7 @@ export function SeatMap({
           {SEAT_IDS.map((id) => {
             const st = stateOf(id);
             const isReserved = st === "reserved";
+            const isBlocked = st === "blocked";
             const isSelected = st === "selected";
             return (
               <li key={id}>
@@ -172,14 +187,16 @@ export function SeatMap({
                   onClick={() => pick(id)}
                   aria-label={seatLabel(id, st)}
                   aria-pressed={isSelected}
-                  aria-disabled={isReserved || undefined}
+                  aria-disabled={isReserved || isBlocked || undefined}
                   className={[
                     "flex h-11 w-full items-center justify-center rounded-lg font-mono tabular-nums text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DDBD7E]",
                     isSelected
                       ? "bg-[#DDBD7E] font-bold text-[#1a1206]"
-                      : isReserved
-                        ? "cursor-not-allowed bg-primary/15 text-white/35 ring-1 ring-inset ring-primary/30"
-                        : "bg-white/[0.06] text-white/85 ring-1 ring-inset ring-white/20 active:bg-white/15",
+                      : isBlocked
+                        ? "cursor-not-allowed bg-white/[0.03] text-white/25 ring-1 ring-inset ring-white/15 line-through"
+                        : isReserved
+                          ? "cursor-not-allowed bg-primary/15 text-white/35 ring-1 ring-inset ring-primary/30"
+                          : "bg-white/[0.06] text-white/85 ring-1 ring-inset ring-white/20 active:bg-white/15",
                   ].join(" ")}
                 >
                   {lang === "ar" ? toArDigits(id) : id}

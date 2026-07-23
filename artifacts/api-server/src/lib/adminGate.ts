@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { resolveAdmin, type ResolvedAdmin } from "./auth";
+import { resolveAdmin, maybeSlideAdminCookie, type ResolvedAdmin } from "./auth";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Centralized RBAC gate for EVERY /admin/* route — one source of truth, so a new
@@ -101,6 +101,8 @@ export function adminGate(req: Request, res: Response, next: NextFunction): void
         return;
       }
       (req as Request & { admin?: ResolvedAdmin }).admin = admin;
+      // Sliding idle-timeout: keep an actively-used cookie session rolling.
+      maybeSlideAdminCookie(req, res, admin);
       if (AUTHN_ONLY.has(segment) || admin.isSuper) {
         next();
         return;

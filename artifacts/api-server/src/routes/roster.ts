@@ -1,16 +1,58 @@
 import { Router, type IRouter } from "express";
 import { and, asc, count, eq, ilike, isNull, or, sql } from "drizzle-orm";
+import { z } from "zod";
 import {
   db,
   rosterMembersTable,
   ROSTER_PUBLIC_COLUMNS,
   ROSTER_TYPES,
+  ROSTER_GENDERS,
+  ROSTER_STATUSES,
   type RosterType,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
+import { writeAudit, auditActor } from "../lib/audit";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
+
+// ── Admin write validation ────────────────────────────────────────────────────
+// Zod-validated + length-capped. Editable columns ONLY; id/createdAt/deletedAt are
+// never client-settable. `trimS` keeps stored data clean; birthYear/seat are
+// nullable ints. The PUBLIC read is still column-restricted at the DB level, so
+// even a sensitive field edited here can never leak to /api/roster.
+const trimS = (max: number) => z.string().trim().max(max);
+const rosterWritable = {
+  fullName: trimS(200).min(1),
+  fullNameEn: trimS(200),
+  type: z.enum(ROSTER_TYPES),
+  gender: z.enum(ROSTER_GENDERS),
+  skill: trimS(200),
+  field: trimS(120),
+  linkedinUrl: trimS(500),
+  linkedinPublic: z.boolean(),
+  phone: trimS(40),
+  birthYear: z.coerce.number().int().min(1940).max(2020).nullable(),
+  notes: trimS(4000),
+  cvUrl: trimS(1000),
+  internetUser: trimS(120),
+  days: trimS(120),
+  period: trimS(40),
+  seat: z.coerce.number().int().min(1).max(50).nullable(),
+  sortOrder: z.coerce.number().int().min(0).max(100000),
+  status: z.enum(ROSTER_STATUSES),
+};
+// Create: name/type/gender required; everything else optional (DB defaults fill in).
+const createSchema = z.object(rosterWritable).partial().required({
+  fullName: true,
+  type: true,
+  gender: true,
+});
+// Update: every field optional (partial edit).
+const updateSchema = z.object(rosterWritable).partial();
+// Which edited fields are SENSITIVE — their NAMES may appear in the audit trail
+// (attributability of what changed) but their VALUES are never logged.
+const SENSITIVE_FIELDS = new Set(["phone", "birthYear", "notes", "cvUrl", "internetUser"]);
 // The roster is small (~61), so the DEFAULT returns everything in one call
 // (returned count == total). `?limit` (clamped) + `?page` remain available for
 // future scale, but a plain GET /api/roster never truncates the community.
@@ -137,8 +179,10 @@ router.get("/admin/roster", requireAdmin, async (_req, res) => {
   }
 });
 
-// GET /api/admin/stats — richer breakdown for the admin dashboard.
-router.get("/admin/stats", requireAdmin, async (_req, res) => {
+// GET /api/admin/roster/stats — richer breakdown for the admin dashboard.
+// (Also mounted at the legacy /admin/stats path so the existing caller keeps
+// working; /admin/roster/stats is the canonical, unambiguous name.)
+const adminStatsHandler = async (_req: unknown, res: import("express").Response) => {
   try {
     const bySkill = await db
       .select({ skill: rosterMembersTable.skill, c: count() })
@@ -167,28 +211,98 @@ router.get("/admin/stats", requireAdmin, async (_req, res) => {
       .where(and(liveWhere(), sql`${rosterMembersTable.linkedinUrl} <> ''`));
     res.json({ total, byType, byGender, bySkill, withLinkedin });
   } catch (err) {
-    logger.error({ err }, "GET /admin/stats failed");
+    logger.error({ err }, "GET /admin/roster/stats failed");
+    res.status(500).json({ error: "failed" });
+  }
+};
+router.get("/admin/roster/stats", requireAdmin, adminStatsHandler);
+router.get("/admin/stats", requireAdmin, adminStatsHandler); // legacy alias
+
+// POST /api/admin/roster — CREATE a member. Admin only. All columns settable; the
+// PUBLIC read stays column-restricted, so sensitive fields entered here can never
+// leak to /api/roster. Audited (name + type only — never sensitive values).
+router.post("/admin/roster", requireAdmin, async (req, res) => {
+  const parsed = createSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    return void res.status(400).json({ error: "قيمة غير صالحة", issues: parsed.error.flatten().fieldErrors });
+  }
+  try {
+    const [row] = await db
+      .insert(rosterMembersTable)
+      .values(parsed.data as typeof rosterMembersTable.$inferInsert)
+      .returning();
+    void writeAudit({
+      actor: auditActor(req),
+      action: "roster_created",
+      targetType: "roster",
+      targetId: row.id,
+      newValue: `${row.fullName} · ${row.type}`,
+    });
+    res.status(201).json({ member: row });
+  } catch (err) {
+    logger.error({ err }, "POST /admin/roster failed");
     res.status(500).json({ error: "failed" });
   }
 });
 
-// PATCH /api/admin/roster/:id — edit a member (incl. flipping linkedin_public to
-// surface a verified LinkedIn on the public page). Admin only.
+// PATCH /api/admin/roster/:id — edit ANY editable field of a member (incl. the
+// sensitive block and the linkedin_public toggle). Admin only. Audited by field
+// NAME only — sensitive values (phone/birth/notes/cv/internetUser) are never logged.
 router.patch("/admin/roster/:id", requireAdmin, async (req, res) => {
+  const id = parseInt(String(req.params.id), 10);
+  if (!Number.isFinite(id)) return void res.status(400).json({ error: "bad id" });
+  const parsed = updateSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    return void res.status(400).json({ error: "قيمة غير صالحة", issues: parsed.error.flatten().fieldErrors });
+  }
+  const fields = Object.keys(parsed.data);
+  if (fields.length === 0) return void res.status(400).json({ error: "nothing to update" });
   try {
-    const id = parseInt(String(req.params.id), 10);
-    if (!Number.isFinite(id)) return void res.status(400).json({ error: "bad id" });
-    const b = (req.body ?? {}) as Record<string, unknown>;
-    const patch: Record<string, unknown> = { updatedAt: new Date() };
-    if (typeof b.linkedinPublic === "boolean") patch.linkedinPublic = b.linkedinPublic;
-    if (typeof b.skill === "string") patch.skill = b.skill.slice(0, 200);
-    if (typeof b.field === "string") patch.field = b.field.slice(0, 120);
-    if (b.status === "visible" || b.status === "hidden") patch.status = b.status;
-    if (Object.keys(patch).length === 1) return void res.status(400).json({ error: "nothing to update" });
-    await db.update(rosterMembersTable).set(patch).where(eq(rosterMembersTable.id, id));
-    res.json({ ok: true });
+    const [row] = await db
+      .update(rosterMembersTable)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(and(eq(rosterMembersTable.id, id), isNull(rosterMembersTable.deletedAt)))
+      .returning();
+    if (!row) return void res.status(404).json({ error: "not found" });
+    // Log which fields changed (names only). Sensitive field NAMES may appear
+    // (attributability) but their VALUES never do.
+    void writeAudit({
+      actor: auditActor(req),
+      action: "roster_updated",
+      targetType: "roster",
+      targetId: id,
+      newValue: fields.join(","),
+      oldValue: fields.some((f) => SENSITIVE_FIELDS.has(f)) ? "(incl. sensitive fields — values not logged)" : undefined,
+    });
+    res.json({ member: row });
   } catch (err) {
     logger.error({ err }, "PATCH /admin/roster failed");
+    res.status(500).json({ error: "failed" });
+  }
+});
+
+// DELETE /api/admin/roster/:id — SOFT-delete (sets deleted_at). The row disappears
+// from every read; it is restorable from the Trash (سلّة المحذوفات). Audited.
+router.delete("/admin/roster/:id", requireAdmin, async (req, res) => {
+  const id = parseInt(String(req.params.id), 10);
+  if (!Number.isFinite(id)) return void res.status(400).json({ error: "bad id" });
+  try {
+    const [row] = await db
+      .update(rosterMembersTable)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(and(eq(rosterMembersTable.id, id), isNull(rosterMembersTable.deletedAt)))
+      .returning({ id: rosterMembersTable.id, fullName: rosterMembersTable.fullName });
+    if (!row) return void res.status(404).json({ error: "not found" });
+    void writeAudit({
+      actor: auditActor(req),
+      action: "roster_deleted",
+      targetType: "roster",
+      targetId: id,
+      oldValue: row.fullName, // name only — attributability, no sensitive data
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /admin/roster failed");
     res.status(500).json({ error: "failed" });
   }
 });

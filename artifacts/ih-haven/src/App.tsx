@@ -79,8 +79,6 @@ const Resources = lazy(() => import("@/pages/Resources"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const Saved = lazy(() => import("@/pages/Saved"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
-const AdminMembers = lazy(() => import("@/pages/admin/AdminMembers"));
-const AdminStats = lazy(() => import("@/pages/admin/AdminStats"));
 const Stories = lazy(() => import("@/pages/Stories"));
 const Faq = lazy(() => import("@/pages/Faq"));
 const Process = lazy(() => import("@/pages/Process"));
@@ -416,8 +414,6 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/notifications" component={NotificationSettings} />
       <Route path="/u/:id" component={PublicProfile} />
-      <Route path="/admin/members" component={AdminMembers} />
-      <Route path="/admin/stats" component={AdminStats} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
       </Switch>

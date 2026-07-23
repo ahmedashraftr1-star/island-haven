@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -10,7 +10,7 @@ import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
 import { SeatMapPreview } from "@/components/booking/SeatMapPreview";
 import { TOTAL_SEATS } from "@/components/booking/hall-plan";
-import { useNumbers, useAttendanceSummary, type PublicNumbers } from "@/hooks/use-public-data";
+import { useNumbers, useAttendanceSummary, useSeatStatus, type PublicNumbers } from "@/hooks/use-public-data";
 
 /**
  * SeatsBoard — Island Haven's homepage signature: a precise, professional
@@ -244,6 +244,11 @@ export function SeatsBoard() {
   const { data: summaryData, refetch: refetchSummary } = useAttendanceSummary();
   const summary = summaryData ?? null;
 
+  // Admin-blocked seats (disabled/maintenance/reserved) — the SAME public source
+  // /book reads, so the preview here can never disagree with the booking map.
+  const { data: seatStatus } = useSeatStatus();
+  const blockedSeats = useMemo(() => (seatStatus?.blocked ?? []).map((b) => b.seat), [seatStatus]);
+
   // When BOTH public sources are unavailable (a total API failure, not just an
   // empty DB), the occupancy shown is the graceful fallback constant — NOT a
   // real figure. In that state the board stays visible, but we must NOT assert
@@ -409,6 +414,7 @@ export function SeatsBoard() {
                   reserves its height, so the count loading in shifts no layout. */}
               <SeatMapPreview
                 takenCount={taken}
+                blockedSeats={blockedSeats}
                 className="w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]"
               />
 

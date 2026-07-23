@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { adminGate } from "../lib/adminGate";
+import { adminMutationAudit } from "../lib/adminAudit";
 import healthRouter from "./health";
 import adminRouter from "./admin";
 import adminTeamRouter from "./adminTeam";
@@ -20,6 +21,7 @@ import statsRouter from "./stats";
 import userUploadRouter from "./userUpload";
 import membersRouter from "./members";
 import rosterRouter from "./roster";
+import seatOverridesRouter from "./seatOverrides";
 import numbersRouter from "./numbers";
 import galleryRouter from "./gallery";
 import pushRouter from "./push";
@@ -65,6 +67,11 @@ const router: IRouter = Router();
 // pass straight through. Per-route requireAdmin/requirePermission still apply as
 // defense-in-depth and reuse the admin this gate already resolved.
 router.use(adminGate);
+// Comprehensive audit safety-net: logs EVERY successful admin write mutation
+// (who/what/when — method + path + actor, never the body) so no admin change can
+// go unrecorded. Runs after adminGate (actor is resolved) and alongside the richer
+// per-entity audits some routes emit. Reads are not logged.
+router.use(adminMutationAudit);
 
 router.use(healthRouter);
 router.use(adminRouter);
@@ -86,6 +93,7 @@ router.use(statsRouter);
 router.use(userUploadRouter);
 router.use(membersRouter);
 router.use(rosterRouter);
+router.use(seatOverridesRouter);
 router.use(numbersRouter);
 router.use(attestationsRouter);
 router.use(galleryRouter);

@@ -19,21 +19,35 @@ import { GROUPS, ALL_SEATS, SEAT_IDS, DECOR, TOTAL_SEATS, toArDigits } from "./h
  */
 export function SeatMapPreview({
   takenCount,
+  blockedSeats,
   className,
 }: {
   /** REAL count of taken seats from the live board (clamped to capacity). */
   takenCount: number;
+  /** Admin-blocked seats (disabled/maintenance/reserved) — shown distinct + out
+   *  of the pool, so the preview matches /book. */
+  blockedSeats?: number[];
   className?: string;
 }) {
   const { t, lang } = useLanguage();
 
-  const taken = Math.max(0, Math.min(TOTAL_SEATS, Math.trunc(takenCount) || 0));
-  const free = TOTAL_SEATS - taken;
+  const blocked = useMemo(() => new Set(blockedSeats ?? []), [blockedSeats]);
+  const blockedCount = blocked.size;
+  // Taken is clamped to the seats NOT already blocked (blocked leave the pool).
+  const taken = Math.max(0, Math.min(TOTAL_SEATS - blockedCount, Math.trunc(takenCount) || 0));
+  const free = TOTAL_SEATS - taken - blockedCount;
   const fmt = (n: number) => (lang === "ar" ? toArDigits(n) : String(n));
 
-  // Fill the first `taken` seats (in seat order) as taken — a stable per-count
-  // picture, not a claim about which specific seats are occupied.
-  const takenSet = useMemo(() => new Set(SEAT_IDS.slice(0, taken)), [taken]);
+  // Fill the first `taken` seats (skipping blocked ones, in seat order) as taken —
+  // a stable per-count picture, not a claim about which specific seats are occupied.
+  const takenSet = useMemo(() => {
+    const s = new Set<number>();
+    for (const id of SEAT_IDS) {
+      if (s.size >= taken) break;
+      if (!blocked.has(id)) s.add(id);
+    }
+    return s;
+  }, [taken, blocked]);
 
   return (
     <div
@@ -41,8 +55,8 @@ export function SeatMapPreview({
       style={{ aspectRatio: "100 / 104" }}
       role="img"
       aria-label={t({
-        ar: `مخطّط القاعة: ${fmt(TOTAL_SEATS)} مقعدًا، ${fmt(taken)} مشغول و${fmt(free)} متاح`,
-        en: `Hall floor plan: ${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken and ${fmt(free)} available`,
+        ar: `مخطّط القاعة: ${fmt(TOTAL_SEATS)} مقعدًا، ${fmt(taken)} مشغول و${fmt(free)} متاح${blockedCount ? ` و${fmt(blockedCount)} غير متاح` : ""}`,
+        en: `Hall floor plan: ${fmt(TOTAL_SEATS)} seats, ${fmt(taken)} taken and ${fmt(free)} available${blockedCount ? `, ${fmt(blockedCount)} unavailable` : ""}`,
       })}
     >
       <svg
@@ -80,9 +94,12 @@ export function SeatMapPreview({
             />
           )),
         )}
-        {/* Seats — taken (terracotta) or available (glass). Centred on each point. */}
+        {/* Seats — blocked (faint, out of pool) · taken (terracotta) · available (glass). */}
         {ALL_SEATS.map((s) => {
-          const isTaken = takenSet.has(s.id);
+          const isBlocked = blocked.has(s.id);
+          const isTaken = !isBlocked && takenSet.has(s.id);
+          const fill = isBlocked ? "hsl(0 0% 100% / 0.02)" : isTaken ? "hsl(var(--primary) / 0.9)" : "hsl(0 0% 100% / 0.05)";
+          const stroke = isBlocked ? "hsl(0 0% 100% / 0.12)" : isTaken ? "hsl(var(--primary))" : "hsl(0 0% 100% / 0.28)";
           return (
             <rect
               key={s.id}
@@ -91,9 +108,10 @@ export function SeatMapPreview({
               width="5.5"
               height="5.3"
               rx="1.2"
-              fill={isTaken ? "hsl(var(--primary) / 0.9)" : "hsl(0 0% 100% / 0.05)"}
-              stroke={isTaken ? "hsl(var(--primary))" : "hsl(0 0% 100% / 0.28)"}
+              fill={fill}
+              stroke={stroke}
               strokeWidth="0.3"
+              strokeDasharray={isBlocked ? "1 1" : undefined}
             />
           );
         })}

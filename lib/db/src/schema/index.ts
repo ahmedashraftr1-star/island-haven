@@ -52,3 +52,4 @@ export * from "./impact";
 export * from "./applicationReviews";
 export * from "./attestations";
 export * from "./rosterMembers";
+export * from "./seatOverrides";

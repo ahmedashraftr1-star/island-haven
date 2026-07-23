@@ -171,7 +171,7 @@ export function AdminAttendanceHr() {
 
       {/* ── Day report ── */}
       <section className="rounded-2xl border border-border-strong/60 bg-surface-2 p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[13px] font-bold text-foreground/70">
             <CalendarDays className="h-4 w-4 text-primary" /> تقرير اليوم
           </div>
@@ -182,11 +182,17 @@ export function AdminAttendanceHr() {
             className="rounded-lg border border-border-strong/60 bg-background px-3 py-1.5 text-[13px] text-foreground"
           />
         </div>
+        {/* Honesty: this tracks the attendance of registered ACCOUNTS (staff +
+            member logins), which is a different population from the public talent
+            community (see the «سجل المواهب» tab for that real 61-person count). */}
+        <p className="mb-4 text-[12px] text-foreground/50">
+          يتتبّع حضور الحسابات المسجَّلة (موظّفون وأعضاء) — وهو غير مجتمع المواهب العامّ الظاهر في تبويب «سجل المواهب».
+        </p>
 
         {report && (
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat icon={<Briefcase className="h-4 w-4" />} label="موظّفون حاضرون" value={`${report.totals.staff.present}/${report.totals.staff.total}`} />
-            <Stat icon={<Users className="h-4 w-4" />} label="منتسبون حاضرون" value={`${report.totals.members.present}/${report.totals.members.total}`} />
+            <Stat icon={<Users className="h-4 w-4" />} label="أعضاء حاضرون" value={`${report.totals.members.present}/${report.totals.members.total}`} />
             <Stat icon={<UserX className="h-4 w-4" />} label="غياب" value={String(report.totals.staff.absent + report.totals.members.absent)} tone="danger" />
             <Stat icon={<CalendarDays className="h-4 w-4" />} label="إجازات" value={String(report.totals.staff.leave + report.totals.members.leave)} tone="info" />
           </div>
@@ -197,7 +203,7 @@ export function AdminAttendanceHr() {
         ) : (
           <div className="space-y-6">
             <RosterTable title="الموظّفون" icon={<Briefcase className="h-4 w-4" />} rows={report?.staff ?? []} onMark={(actorId, status) => markMut.mutate({ actorKind: "staff", actorId, status })} pending={markMut.isPending} />
-            <RosterTable title="المنتسبون" icon={<Users className="h-4 w-4" />} rows={report?.members ?? []} onMark={(actorId, status) => markMut.mutate({ actorKind: "member", actorId, status })} pending={markMut.isPending} />
+            <RosterTable title="الأعضاء (حسابات نشطة)" icon={<Users className="h-4 w-4" />} rows={report?.members ?? []} onMark={(actorId, status) => markMut.mutate({ actorKind: "member", actorId, status })} pending={markMut.isPending} />
           </div>
         )}
       </section>

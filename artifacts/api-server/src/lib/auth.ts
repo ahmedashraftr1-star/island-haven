@@ -18,7 +18,19 @@ import {
 
 const ADMIN_COOKIE = "ih_admin";
 const USER_COOKIE = "ih_user";
-const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
+const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days (user sessions)
+
+// Admin IDLE timeout: an admin session that goes untouched for this long expires.
+// It is SLIDING — each authenticated admin request that is more than a quarter of
+// the way through the window re-issues a fresh cookie (see maybeSlideAdminCookie),
+// so an actively-used session never logs out mid-work, but an abandoned one does.
+// Cookie-based (browser) sessions only; Bearer clients manage their own tokens.
+// Default 8h; override with ADMIN_SESSION_IDLE_MS.
+const ADMIN_IDLE_TTL_MS = Math.max(
+  5 * 60_000, // never below 5 min (safety floor)
+  Number(process.env.ADMIN_SESSION_IDLE_MS) || 1000 * 60 * 60 * 8,
+);
+const ADMIN_SLIDE_AFTER_MS = ADMIN_IDLE_TTL_MS * 0.25;
 
 let warnedDevSecret = false;
 
@@ -83,7 +95,7 @@ function timingSafeEqualStr(a: string, b: string): boolean {
 // ─── Admin sessions ─────────────────────────────────────────────────────────
 
 export function makeSessionToken(): string {
-  const expiresAt = Date.now() + SESSION_TTL_MS;
+  const expiresAt = Date.now() + ADMIN_IDLE_TTL_MS;
   const payload = `admin.${expiresAt}`;
   return `${payload}.${sign(payload)}`;
 }
@@ -111,7 +123,7 @@ export interface ParsedAdmin {
 }
 
 export function makeAdminToken(adminId: number, epoch: number): string {
-  const expiresAt = Date.now() + SESSION_TTL_MS;
+  const expiresAt = Date.now() + ADMIN_IDLE_TTL_MS;
   const payload = `admin.${adminId}.${epoch}.${expiresAt}`;
   return `${payload}.${sign(payload)}`;
 }
@@ -160,13 +172,39 @@ export function setSessionCookie(res: Response, token: string): void {
     httpOnly: true,
     sameSite: "lax",
     secure: cookieSecure(),
-    maxAge: SESSION_TTL_MS,
+    maxAge: ADMIN_IDLE_TTL_MS,
     path: "/",
   });
 }
 
 export function clearSessionCookie(res: Response): void {
   res.clearCookie(ADMIN_COOKIE, { path: "/" });
+}
+
+/**
+ * Sliding idle-timeout: on an authenticated admin request whose COOKIE token is
+ * more than a quarter through its idle window, re-issue a fresh cookie so an
+ * active session keeps rolling. Best-effort — any parse issue simply skips the
+ * slide (never breaks the request). Bearer-authenticated requests are ignored
+ * (those clients hold their own token). `res` headers must not be sent yet.
+ */
+export function maybeSlideAdminCookie(req: Request, res: Response, admin: ResolvedAdmin): void {
+  try {
+    const cookieToken = req.cookies?.[ADMIN_COOKIE];
+    if (!cookieToken || typeof cookieToken !== "string") return; // bearer / none
+    const parts = cookieToken.split(".");
+    const expStr = parts.length === 3 ? parts[1] : parts.length === 5 ? parts[3] : null;
+    const exp = Number(expStr);
+    if (!Number.isFinite(exp)) return;
+    const age = Date.now() - (exp - ADMIN_IDLE_TTL_MS);
+    // Skip if too fresh, or implausible (a legacy longer-TTL token mid-migration).
+    if (age < ADMIN_SLIDE_AFTER_MS || age > ADMIN_IDLE_TTL_MS) return;
+    const epoch = parts.length === 5 ? Number(parts[2]) : 0;
+    const fresh = admin.id === 0 ? makeSessionToken() : makeAdminToken(admin.id, epoch);
+    setSessionCookie(res, fresh);
+  } catch {
+    /* never let a slide failure break an authenticated request */
+  }
 }
 
 // ─── User sessions ──────────────────────────────────────────────────────────

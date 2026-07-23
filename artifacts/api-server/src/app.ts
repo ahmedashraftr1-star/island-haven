@@ -130,6 +130,24 @@ const generalLimiter = rateLimit({
   },
 });
 
+// Strict limiter on admin WRITE mutations (POST/PUT/PATCH/DELETE under /api/admin).
+// Reads (GET/HEAD) are exempt — dashboards poll frequently. This is a per-IP
+// anti-abuse cap layered ON TOP of session + CSRF, catching a compromised session
+// hammering mutations. Generous for a real admin (200 writes / 5 min); tune via env.
+const adminWriteLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_ADMIN_WRITE_WINDOW_MS ?? 5 * 60 * 1000),
+  max: Number(process.env.RATE_LIMIT_ADMIN_WRITE_MAX ?? 200),
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "طلبات كثيرة، أعد المحاولة بعد قليل" },
+  store: rateLimitStore("rl:adminwrite:"),
+  skip: (req) => req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS",
+  handler: (_req, res, _next, options) => {
+    rateLimitEvents.inc({ limiter: "adminwrite", result: "blocked" });
+    res.status(options.statusCode).json(options.message);
+  },
+});
+
 app.use(
   pinoHttp({
     logger,
@@ -297,6 +315,10 @@ app.use("/api", (_req, res, next) => {
   };
   next();
 });
+
+// Per-IP anti-abuse cap on admin write mutations (reads exempt). Layered on top
+// of session + CSRF below.
+app.use("/api/admin", adminWriteLimiter);
 
 // CSRF: double-submit token + Origin/Referer check on cookie-authed admin
 // mutations. Mounted before the router so it guards every /api/admin/* path.

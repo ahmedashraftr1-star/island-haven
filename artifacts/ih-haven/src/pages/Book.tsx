@@ -150,12 +150,20 @@ export default function Book() {
   const [takenSeats, setTakenSeats] = useState<
     Array<{ visitDate: string; timeSlot: string; seat: number }>
   >([]);
+  // Admin-blocked seats (disabled / maintenance / reserved) — never bookable, on
+  // every date. Rendered distinct + non-selectable on the map (same source the
+  // homepage preview reads, so both surfaces agree).
+  const [blockedSeats, setBlockedSeats] = useState<number[]>([]);
   useEffect(() => {
     let alive = true;
-    api<{ takenSeats: Array<{ visitDate: string; timeSlot: string; seat: number }> }>(
+    api<{ takenSeats: Array<{ visitDate: string; timeSlot: string; seat: number }>; blockedSeats?: Array<{ seat: number }> }>(
       "/bookings/availability",
     )
-      .then((r) => alive && setTakenSeats(r.takenSeats ?? []))
+      .then((r) => {
+        if (!alive) return;
+        setTakenSeats(r.takenSeats ?? []);
+        setBlockedSeats((r.blockedSeats ?? []).map((b) => b.seat));
+      })
       .catch(() => {});
     return () => {
       alive = false;
@@ -362,6 +370,7 @@ export default function Book() {
                     setMonthCursor={setMonthCursor}
                     monthGrid={monthGrid}
                     takenSeats={takenSeatsForSlot}
+                    blockedSeats={blockedSeats}
                   />
                 )}
                 {step === 1 && (
@@ -557,6 +566,7 @@ function StepOne({
   monthGrid,
   navDir,
   takenSeats,
+  blockedSeats,
 }: {
   form: ReturnType<typeof useState<any>>[0] & {
     visitDate: string;
@@ -574,6 +584,7 @@ function StepOne({
   }>;
   navDir?: 1 | -1;
   takenSeats: number[];
+  blockedSeats: number[];
 }) {
   const { lang, t } = useLanguage();
   return (
@@ -700,6 +711,7 @@ function StepOne({
         ) : (
           <SeatMap
             takenSeats={takenSeats}
+            blockedSeats={blockedSeats}
             selected={form.seat}
             onSelect={(n) => update("seat", n === form.seat ? null : n)}
           />

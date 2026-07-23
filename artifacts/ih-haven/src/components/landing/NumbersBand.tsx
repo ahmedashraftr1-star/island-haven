@@ -6,8 +6,19 @@ import { useLanguage, type Lang } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { useNumbers, useRosterStats } from "@/hooks/use-public-data";
+
+// CMS fallback MIRRORS the live "numbersBand" content verbatim (Arabic). Editing
+// the section in /admin now drives this copy; English keeps its literal. Defaults
+// here match the server schema, so an un-edited site renders exactly as before.
+const NB_FALLBACK = {
+  eyebrow: "الحاضنة بالأرقام",
+  titleA: "ليست شعارات — ",
+  titleAccent: "أرقامٌ حقيقيّة.",
+  titleB: "",
+  sub: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
+};
 
 function CountUp({ value, lang }: { value: number; lang: Lang }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -65,6 +76,9 @@ export function NumbersBand() {
   // number shared with the hero + /membership + /impact — not /numbers.members
   // (users) and not /verify's signed 44. One honest source, everywhere.
   const { data: roster } = useRosterStats();
+  // Owner-editable copy (Arabic) from the admin CMS; English keeps its literal.
+  const cms = useContentSection("numbersBand", NB_FALLBACK);
+  const ar = lang === "ar";
 
   const lead = {
     value: n?.enrollments ?? 0,
@@ -118,7 +132,7 @@ export function NumbersBand() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
             <span className="eyebrow">
-              {t({ ar: "الحاضنة بالأرقام", en: "By the numbers" })}
+              {ar ? cms.eyebrow : "By the numbers"}
             </span>
             <span className="eyebrow">
               {t({ ar: "· مباشر", en: "· LIVE" })}
@@ -128,14 +142,14 @@ export function NumbersBand() {
             className="font-display text-white"
             style={{ fontSize: "clamp(1.9rem, 3.4vw, 3rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.03em" }}
           >
-            {t({ ar: "ليست شعارات — ", en: "Not slogans — " })}
-            <span className="text-primary">{t({ ar: "أرقامٌ حقيقيّة.", en: "real numbers." })}</span>
+            {ar ? cms.titleA : "Not slogans — "}
+            <span className="text-primary">{ar ? cms.titleAccent : "real numbers."}</span>
+            {ar && cms.titleB ? <> {cms.titleB}</> : null}
           </h2>
           <p className="mt-5 max-w-2xl text-[1.0625rem] leading-[1.7] text-white/80">
-            {t({
-              ar: "كلّ رقم هنا يأتي مباشرةً من قاعدة بياناتنا، ويتحدّث تلقائيًّا مع كلّ منتسبٍ جديد، كلّ عمل، وكلّ مقعد محجوز.",
-              en: "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat.",
-            })}
+            {ar
+              ? cms.sub
+              : "Every figure here comes straight from our database and updates automatically with each new member, each work, and each booked seat."}
           </p>
           </div>
         </Reveal>
