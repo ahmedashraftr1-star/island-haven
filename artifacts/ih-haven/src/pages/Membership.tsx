@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Users } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentSection } from "@/hooks/use-content";
 import { api } from "@/lib/api";
 
 // PUBLIC shape only — mirrors /api/roster (no sensitive fields ever arrive here).
@@ -14,11 +15,41 @@ interface RosterMember {
   skill: string;
   field: string;
 }
-const TYPE_LABEL = {
-  student: { ar: "طالب", en: "Student" },
-  graduate: { ar: "خريج", en: "Graduate" },
-  freelancer: { ar: "مستقلّ", en: "Freelancer" },
-} as const;
+// Bilingual page chrome — the editable CMS fallback ("pageMembership" section).
+const CMS = {
+  eyebrow: "مجتمع المواهب · TALENT",
+  eyebrowEn: "Talent Community · مجتمع",
+  title: "مواهب",
+  titleEn: "The talent",
+  highlight: "غزّة",
+  highlightEn: "of Gaza",
+  subtitle:
+    "طلابٌ وخرّيجون ومستقلّون من آيلاند هيفن — مطوّرون، مصمّمون، ومحلّلو بيانات يبنون من قلب غزّة نحو العالم.",
+  subtitleEn:
+    "Students, graduates and freelancers of Island Haven — developers, designers and data analysts building from the heart of Gaza to the world.",
+  statLabel: "موهبة في المجتمع",
+  statLabelEn: "talents in the community",
+  typeStudent: "طالب",
+  typeStudentEn: "Student",
+  typeGraduate: "خريج",
+  typeGraduateEn: "Graduate",
+  typeFreelancer: "مستقلّ",
+  typeFreelancerEn: "Freelancer",
+  chipAll: "الكل",
+  chipAllEn: "All",
+  chipStudent: "الطلاب",
+  chipStudentEn: "Students",
+  chipGraduate: "الخرّيجون",
+  chipGraduateEn: "Graduates",
+  chipFreelancer: "المستقلّون",
+  chipFreelancerEn: "Freelancers",
+  searchPlaceholder: "ابحث…",
+  searchPlaceholderEn: "Search…",
+  error: "تعذّر تحميل المجتمع.",
+  errorEn: "Couldn't load the community.",
+  empty: "لا نتائج مطابقة.",
+  emptyEn: "No matching talents.",
+};
 
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 const toAr = (s: string | number) => String(s).replace(/\d/g, (d) => AR_DIGITS[+d]);
@@ -31,6 +62,13 @@ function initials(name: string): string {
 
 export default function Membership() {
   const { t, lang } = useLanguage();
+  const c = useContentSection("pageMembership", CMS);
+  // Role labels (hero stat breakdown + card badges) — sourced from the CMS.
+  const TYPE_LABEL: Record<RosterMember["type"], { ar: string; en: string }> = {
+    student: { ar: c.typeStudent, en: c.typeStudentEn },
+    graduate: { ar: c.typeGraduate, en: c.typeGraduateEn },
+    freelancer: { ar: c.typeFreelancer, en: c.typeFreelancerEn },
+  };
   const [all, setAll] = useState<RosterMember[] | null>(null);
   const [error, setError] = useState(false);
   const [filter, setFilter] = useState<"all" | RosterMember["type"]>("all");
@@ -78,22 +116,19 @@ export default function Membership() {
   const n = (x: number) => (lang === "ar" ? toAr(x) : String(x));
 
   const chips: { key: "all" | RosterMember["type"]; label: { ar: string; en: string }; count: number }[] = [
-    { key: "all", label: { ar: "الكل", en: "All" }, count: counts.total },
-    { key: "student", label: { ar: "الطلاب", en: "Students" }, count: counts.student },
-    { key: "graduate", label: { ar: "الخرّيجون", en: "Graduates" }, count: counts.graduate },
-    { key: "freelancer", label: { ar: "المستقلّون", en: "Freelancers" }, count: counts.freelancer },
+    { key: "all", label: { ar: c.chipAll, en: c.chipAllEn }, count: counts.total },
+    { key: "student", label: { ar: c.chipStudent, en: c.chipStudentEn }, count: counts.student },
+    { key: "graduate", label: { ar: c.chipGraduate, en: c.chipGraduateEn }, count: counts.graduate },
+    { key: "freelancer", label: { ar: c.chipFreelancer, en: c.chipFreelancerEn }, count: counts.freelancer },
   ];
 
   return (
     <PageShell
       active="membership"
-      eyebrow={t({ ar: "مجتمع المواهب · TALENT", en: "Talent Community · مجتمع" })}
-      title={t({ ar: "مواهب", en: "The talent" })}
-      highlight={t({ ar: "غزّة", en: "of Gaza" })}
-      subtitle={t({
-        ar: "طلابٌ وخرّيجون ومستقلّون من آيلاند هيفن — مطوّرون، مصمّمون، ومحلّلو بيانات يبنون من قلب غزّة نحو العالم.",
-        en: "Students, graduates and freelancers of Island Haven — developers, designers and data analysts building from the heart of Gaza to the world.",
-      })}
+      eyebrow={t({ ar: c.eyebrow, en: c.eyebrowEn })}
+      title={t({ ar: c.title, en: c.titleEn })}
+      highlight={t({ ar: c.highlight, en: c.highlightEn })}
+      subtitle={t({ ar: c.subtitle, en: c.subtitleEn })}
       heroAside={
         <GlassCard className="p-6 sm:p-7">
           <div className="flex items-center gap-3">
@@ -101,7 +136,7 @@ export default function Membership() {
               {all ? n(counts.total) : "—"}
             </span>
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-muted-foreground rtl:tracking-normal leading-relaxed max-w-[8rem]">
-              {t({ ar: "موهبة في المجتمع", en: "talents in the community" })}
+              {t({ ar: c.statLabel, en: c.statLabelEn })}
             </span>
           </div>
           <div className="mt-5 border-t border-border-strong pt-4 grid grid-cols-3 gap-3 min-h-[3.5rem]">
@@ -147,7 +182,7 @@ export default function Membership() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             aria-label={t({ ar: "ابحث بالاسم أو المهارة", en: "Search by name or skill" })}
-            placeholder={t({ ar: "ابحث…", en: "Search…" })}
+            placeholder={t({ ar: c.searchPlaceholder, en: c.searchPlaceholderEn })}
             className="w-full rounded-full border border-white/10 bg-white/[0.04] ps-9 pe-4 py-2 text-[13.5px] text-foreground placeholder:text-fg-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
           />
         </div>
@@ -156,7 +191,7 @@ export default function Membership() {
       {/* Grid */}
       {error ? (
         <p className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-[14px] text-rose-300">
-          {t({ ar: "تعذّر تحميل المجتمع.", en: "Couldn't load the community." })}
+          {t({ ar: c.error, en: c.errorEn })}
         </p>
       ) : all === null ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 min-h-[60vh]" aria-hidden>
@@ -166,7 +201,7 @@ export default function Membership() {
         </div>
       ) : visible.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border-strong/70 px-6 py-[clamp(3rem,7vw,5rem)] text-center text-fg-secondary">
-          {t({ ar: "لا نتائج مطابقة.", en: "No matching talents." })}
+          {t({ ar: c.empty, en: c.emptyEn })}
         </p>
       ) : (
         <>

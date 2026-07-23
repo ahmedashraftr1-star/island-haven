@@ -5,8 +5,36 @@ import { Btn } from "@/components/ui/Btn";
 import { useStories } from "@/hooks/use-public-data";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
-import { imageUrl, photoSrcSet } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
 import { credit } from "@/lib/credit";
+
+// Section-chrome copy (eyebrow, headline, evergreen belief, empty state, labels)
+// — editable in the bilingual CMS. Member quotes / names / roles stay on the API.
+// Bilingual → `foo`/`fooEn`.
+const FALLBACK = {
+  eyebrow: "أصوات أعضائنا",
+  eyebrowEn: "Voices of our members",
+  title: "أصواتٌ من ",
+  titleEn: "Voices from ",
+  titleAccent: "الميدان.",
+  titleAccentEn: "the ground.",
+  beliefLead: "الموهبة لا تحدّها ",
+  beliefLeadEn: "Talent is not bound by ",
+  beliefAccent: "الجغرافيا",
+  beliefAccentEn: "geography",
+  beliefTail: ".",
+  beliefTailEn: ".",
+  emptyBody: "في غزّة كفاءاتٌ تستحقّ مقعدًا في الاقتصاد الرقميّ العالميّ — ومهمّتنا أن نوصلها إليه. أوّل من يقدّم اليوم، يكتب أوّل القصص.",
+  emptyBodyEn: "Gaza holds talent that deserves a seat in the global digital economy — our mission is to get it there. Whoever applies today writes the first story.",
+  emptyAvatar: "آ",
+  emptyAvatarEn: "I",
+  emptyAttribution: "فريق آيلاند هيفن — قناعتنا التأسيسيّة",
+  emptyAttributionEn: "The Island Haven team — our founding belief",
+  emptyCta: "اكتب أوّل قصّة",
+  emptyCtaEn: "Write the first story",
+  originalLabel: "",
+  originalLabelEn: "Original · Arabic",
+};
 
 interface Story {
   id: number;
@@ -106,6 +134,7 @@ interface StoryView {
 
 export function SuccessStories() {
   const { lang, t } = useLanguage();
+  const c = useContentSection("successStories", FALLBACK);
   const { data, isLoading, isError } = useStories<Story>();
   const en = lang === "en";
   // Loading → null (skeleton branch). Error → [] so the evergreen fallback
@@ -132,7 +161,7 @@ export function SuccessStories() {
     <div className="mb-6 flex items-center gap-3">
       <span aria-hidden className="h-px w-9 bg-primary/70" />
       <span className="eyebrow">
-        {t({ ar: "أصوات أعضائنا", en: "Voices of our members" })}
+        {t({ ar: c.eyebrow, en: c.eyebrowEn })}
       </span>
     </div>
   );
@@ -207,24 +236,15 @@ export function SuccessStories() {
                     fontWeight: 900,
                   }}
                 >
-                  {lang === "ar" ? (
-                    <>
-                      الموهبة لا تحدّها <span className="text-primary">الجغرافيا</span>.
-                    </>
-                  ) : (
-                    <>
-                      Talent is not bound by <span className="text-primary">geography</span>.
-                    </>
-                  )}
+                  {t({ ar: c.beliefLead, en: c.beliefLeadEn })}
+                  <span className="text-primary">{t({ ar: c.beliefAccent, en: c.beliefAccentEn })}</span>
+                  {t({ ar: c.beliefTail, en: c.beliefTailEn })}
                 </span>
               </Reveal>
 
               <Reveal as="p" delay={0.12} className="mt-6 sm:mt-8 max-w-2xl text-white/70">
                 <span style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.4rem)", lineHeight: 1.6 }}>
-                  {t({
-                    ar: "في غزّة كفاءاتٌ تستحقّ مقعدًا في الاقتصاد الرقميّ العالميّ — ومهمّتنا أن نوصلها إليه. أوّل من يقدّم اليوم، يكتب أوّل القصص.",
-                    en: "Gaza holds talent that deserves a seat in the global digital economy — our mission is to get it there. Whoever applies today writes the first story.",
-                  })}
+                  {t({ ar: c.emptyBody, en: c.emptyBodyEn })}
                 </span>
               </Reveal>
 
@@ -234,14 +254,14 @@ export function SuccessStories() {
                 className="mt-7 sm:mt-9 flex flex-wrap items-center gap-x-6 gap-y-5 border-t border-white/10 pt-6"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar name={t({ ar: "آ", en: "I" })} src={null} size={52} />
+                  <Avatar name={t({ ar: c.emptyAvatar, en: c.emptyAvatarEn })} src={null} size={52} />
                   <span className="text-[13px] uppercase tracking-[0.16em] text-white/70 rtl:tracking-normal">
-                    {t({ ar: "فريق آيلاند هيفن — قناعتنا التأسيسيّة", en: "The Island Haven team — our founding belief" })}
+                    {t({ ar: c.emptyAttribution, en: c.emptyAttributionEn })}
                   </span>
                 </div>
                 <Btn asChild variant="primary" size="md" className="group">
                   <Link href="/apply" data-testid="stories-empty-apply">
-                    {t({ ar: "اكتب أوّل قصّة", en: "Write the first story" })}
+                    {t({ ar: c.emptyCta, en: c.emptyCtaEn })}
                     <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
                   </Link>
                 </Btn>
@@ -282,8 +302,8 @@ export function SuccessStories() {
               letterSpacing: "-0.04em",
             }}
           >
-            {t({ ar: "أصواتٌ من ", en: "Voices from " })}
-            <span className="text-primary">{t({ ar: "الميدان.", en: "the ground." })}</span>
+            {t({ ar: c.title, en: c.titleEn })}
+            <span className="text-primary">{t({ ar: c.titleAccent, en: c.titleAccentEn })}</span>
           </h2>
         </Reveal>
 
@@ -310,7 +330,7 @@ export function SuccessStories() {
 
               {lang === "en" && (
                 <p className="mt-5 text-[11px] uppercase tracking-[0.2em] text-white/60">
-                  {t({ ar: "", en: "Original · Arabic" })}
+                  {t({ ar: c.originalLabel, en: c.originalLabelEn })}
                 </p>
               )}
 
@@ -385,7 +405,7 @@ export function SuccessStories() {
                     </div>
                     {lang === "en" && (
                       <div className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/35">
-                        {t({ ar: "", en: "Original · Arabic" })}
+                        {t({ ar: c.originalLabel, en: c.originalLabelEn })}
                       </div>
                     )}
                   </div>

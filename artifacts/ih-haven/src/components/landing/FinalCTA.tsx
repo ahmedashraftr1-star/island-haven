@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
 import { TrustStrip } from "./TrustStrip";
@@ -33,8 +33,29 @@ const DARK_TOKENS = {
   "--sand-bright": "205 96% 70%",
 } as React.CSSProperties;
 
+// AR is the CMS-overridable source of truth (useContentSection); English keeps its
+// literal via …En keys. Defaults below are byte-verbatim copies of the previous
+// hardcoded copy. TrustStrip is wired to its OWN "trustStrip" section separately.
+const FALLBACK = {
+  eyebrow: "خطوتك الأخيرة",
+  eyebrowEn: "Your last step",
+  headlineA: "طريقك للعالم يبدأ ",
+  headlineAEn: "Your path to the world starts ",
+  headlineAccent: "بمقعد في غزّة.",
+  headlineAccentEn: "with a seat in Gaza.",
+  sub: "حاضنة كاملة — مجّانًا. قدّم اليوم، أو احجز مقعدك في المساحة وتعرّف علينا عن قرب.",
+  subEn: "A full incubator — free. Apply today, or book a seat in the space and get to know us up close.",
+  applyCta: "قدّم على الحاضنة",
+  applyCtaEn: "Apply to the incubator",
+  bookCta: "احجز مقعدك",
+  bookCtaEn: "Book a seat",
+  whatsappLabel: "تحدّث معنا واتساب",
+  whatsappLabelEn: "Chat on WhatsApp",
+};
+
 export function FinalCTA() {
   const { t } = useLanguage();
+  const c = useContentSection("finalCta", FALLBACK);
 
   return (
     <CinematicMedia
@@ -67,7 +88,7 @@ export function FinalCTA() {
           <Reveal as="div" index={0} className="mb-6 flex items-center gap-3">
             <span className="h-px w-9 bg-primary" />
             <span className="text-[11px] tracking-[0.22em] uppercase text-primary font-bold rtl:tracking-normal">
-              {t({ ar: "خطوتك الأخيرة", en: "Your last step" })}
+              {t({ ar: c.eyebrow, en: c.eyebrowEn })}
             </span>
           </Reveal>
 
@@ -83,9 +104,9 @@ export function FinalCTA() {
                 letterSpacing: "-0.05em",
               }}
             >
-              {t({ ar: "طريقك للعالم يبدأ ", en: "Your path to the world starts " })}
+              {t({ ar: c.headlineA, en: c.headlineAEn })}
               <span className="text-primary">
-                {t({ ar: "بمقعد في غزّة.", en: "with a seat in Gaza." })}
+                {t({ ar: c.headlineAccent, en: c.headlineAccentEn })}
               </span>
             </h2>
           </Reveal>
@@ -94,8 +115,8 @@ export function FinalCTA() {
           <Reveal as="div" index={2}>
             <p className="mt-7 max-w-xl text-[1.0625rem] lg:text-lg leading-[1.7] text-white/85">
               {t({
-                ar: "حاضنة كاملة — مجّانًا. قدّم اليوم، أو احجز مقعدك في المساحة وتعرّف علينا عن قرب.",
-                en: "A full incubator — free. Apply today, or book a seat in the space and get to know us up close.",
+                ar: c.sub,
+                en: c.subEn,
               })}
             </p>
           </Reveal>
@@ -110,7 +131,7 @@ export function FinalCTA() {
                 className="cta-fill group relative overflow-hidden inline-flex items-center justify-center gap-3 h-14 px-9 rounded-full font-bold text-[15.5px] tracking-[-0.005em] transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]"
               >
                 <SpecularSheen intensity={0.72} />
-                {t({ ar: "قدّم على الحاضنة", en: "Apply to the incubator" })}
+                {t({ ar: c.applyCta, en: c.applyCtaEn })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
 
@@ -119,7 +140,7 @@ export function FinalCTA() {
                 data-testid="final-cta-book"
                 className="group relative overflow-hidden spectral-edge inline-flex items-center justify-center gap-3 h-14 px-7 rounded-full text-white/90 font-semibold text-[14px] tracking-[-0.005em] bg-white/[0.04] border border-white/20 backdrop-blur-sm transition-[transform,color,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:text-white hover:bg-white/[0.08] hover:border-white/35 active:translate-y-0"
               >
-                {t({ ar: "احجز مقعدك", en: "Book a seat" })}
+                {t({ ar: c.bookCta, en: c.bookCtaEn })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
               </Link>
 
@@ -132,7 +153,7 @@ export function FinalCTA() {
               >
                 <MessageCircle className="h-4 w-4 text-sand-bright transition-colors group-hover:text-white" />
                 <span className="underline-offset-[6px] group-hover:underline">
-                  {t({ ar: "تحدّث معنا واتساب", en: "Chat on WhatsApp" })}
+                  {t({ ar: c.whatsappLabel, en: c.whatsappLabelEn })}
                 </span>
               </a>
             </div>

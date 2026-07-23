@@ -1,5 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Reveal } from "@/components/landing/Reveal";
+import { useContentSection } from "@/hooks/use-content";
 
 /**
  * CredibilityBar — a slim DARK proof band directly under the hero, holding the
@@ -8,11 +9,37 @@ import { Reveal } from "@/components/landing/Reveal";
  * our REAL backers (NasToNas + Gaza Sky Geeks), then hairline-divided wordmarks
  * of the tools/credits we unlock — labelled honestly, no invented logos.
  */
+
+// AR is the CMS-overridable source of truth (useContentSection); English keeps its
+// literal via …En keys. The REAL backer names + the tool/credit wordmarks are
+// displayed copy too, so they move here as well. Defaults below are byte-verbatim
+// copies of the previous hardcoded copy — an un-edited site renders as before.
+const FALLBACK = {
+  founded: "تأسّست ٢٠٢٤",
+  foundedEn: "Founded 2024",
+  free100: "١٠٠٪ مجّانًا",
+  free100En: "100% free",
+  backedBy: "بدعم من",
+  backedByEn: "Backed by",
+  backer1: "NasToNas",
+  and: " و ",
+  andEn: " & ",
+  backer2: "Gaza Sky Geeks",
+  toolsLabel: "أدوات نفتحها لك",
+  toolsLabelEn: "Tools we unlock",
+  tool0: "Replit",
+  tool1: "AWS Activate",
+  tool2: "Google for Startups",
+  tool3: "Payoneer",
+  tool4: "Freelancer",
+};
+
 export function CredibilityBar() {
   const { t } = useLanguage();
+  const c = useContentSection("credibilityBar", FALLBACK);
 
   // Tools & credits we help members UNLOCK — honest text wordmarks, not "partners".
-  const tools = ["Replit", "AWS Activate", "Google for Startups", "Payoneer", "Freelancer"];
+  const tools = [c.tool0, c.tool1, c.tool2, c.tool3, c.tool4];
 
   return (
     <section
@@ -35,14 +62,14 @@ export function CredibilityBar() {
             className="font-display shrink-0"
             style={{ fontSize: "clamp(1rem, 1.6vw, 1.3rem)", lineHeight: 1.3, letterSpacing: "-0.02em", fontWeight: 600 }}
           >
-            <span className="text-white/45 font-medium">{t({ ar: "تأسّست ٢٠٢٤", en: "Founded 2024" })}</span>
+            <span className="text-white/45 font-medium">{t({ ar: c.founded, en: c.foundedEn })}</span>
             <span className="mx-2.5 text-white/20">·</span>
-            <span className="text-sand-bright">{t({ ar: "١٠٠٪ مجّانًا", en: "100% free" })}</span>
+            <span className="text-sand-bright">{t({ ar: c.free100, en: c.free100En })}</span>
             <span className="mx-2.5 text-white/20">·</span>
-            <span className="text-white/55 font-medium">{t({ ar: "بدعم من", en: "Backed by" })} </span>
-            <span className="text-white font-bold not-italic">NasToNas</span>
-            <span className="text-white/45">{t({ ar: " و ", en: " & " })}</span>
-            <span className="text-white font-bold not-italic">Gaza Sky Geeks</span>
+            <span className="text-white/55 font-medium">{t({ ar: c.backedBy, en: c.backedByEn })} </span>
+            <span className="text-white font-bold not-italic">{c.backer1}</span>
+            <span className="text-white/45">{t({ ar: c.and, en: c.andEn })}</span>
+            <span className="text-white font-bold not-italic">{c.backer2}</span>
           </p>
 
           {/* Tools & credits we UNLOCK — honest wordmarks, hairline-divided. */}
@@ -50,7 +77,7 @@ export function CredibilityBar() {
             <span className="me-3 hidden items-center gap-2.5 sm:inline-flex">
               <span aria-hidden className="h-px w-6 bg-primary/70" />
               <span className="eyebrow eyebrow-sand">
-                {t({ ar: "أدوات نفتحها لك", en: "Tools we unlock" })}
+                {t({ ar: c.toolsLabel, en: c.toolsLabelEn })}
               </span>
             </span>
             {tools.map((name, i) => (

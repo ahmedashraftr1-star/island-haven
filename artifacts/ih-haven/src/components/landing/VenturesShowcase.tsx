@@ -57,12 +57,37 @@ function resolveMetrics(v: Venture, cms: Record<string, string>): Metric[] {
  * metadata badges + case-study cue), stacked with generous whitespace. Real
  * /ventures data, never-empty evergreen fallback. The signature "معرض المشاريع".
  */
+// Section-chrome copy (eyebrow, headline, description, empty state, CTAs) — the
+// evergreen frame text, editable in the bilingual CMS. Data (ventures) stays on
+// the API. Bilingual → `foo`/`fooEn`.
+const FALLBACK = {
+  eyebrow: "معرض المشاريع",
+  eyebrowEn: "The portfolio",
+  titleLead: "مشاريع وُلدت في ",
+  titleLeadEn: "Ventures built at ",
+  titleAccent: "آيلاند.",
+  titleAccentEn: "Island Haven.",
+  sub: "من فكرة على ورقة، إلى يوم عرضٍ أمام الدّاعمين، إلى منتجٍ يخدم النّاس — هذه المحفظة تنمو داخل مساحتنا في غزّة.",
+  subEn: "From an idea on paper, to a Demo Day in front of our backers, to a product serving people — this portfolio is growing inside our space in Gaza.",
+  emptyKicker: "الدفعة الأولى",
+  emptyKickerEn: "Cohort 01",
+  emptyTitle: "أوّل دفعة تَبني الآن.",
+  emptyTitleEn: "The first cohort is building now.",
+  emptyBody: "هنا، قريبًا، تظهر أسماء المشاريع التي وُلدت في آيلاند — ومقعدك في الصفحة التالية.",
+  emptyBodyEn: "This is where the names of ventures born at Island Haven will live — and your seat is on the next page.",
+  emptyCta: "قدّم للدفعة الأولى",
+  emptyCtaEn: "Apply to the first cohort",
+  allCta: "كلّ المشاريع",
+  allCtaEn: "All ventures",
+};
+
 export function VenturesShowcase() {
   const { t, lang } = useLanguage();
   useReducedMotion();
   // Confirmed metrics only — the owner adds real per-venture figures in this CMS
   // section (value = JSON array of {v,ar,en}, keyed by venture id or name).
   const metricsCms = useContentSection("venture_metrics", {} as Record<string, string>);
+  const c = useContentSection("venturesShowcase", FALLBACK);
   const { data, isLoading, isError } = useVentures<Venture>();
 
   // Featured-first sort + top-4 slice, memoized off the cached query data.
@@ -85,18 +110,15 @@ export function VenturesShowcase() {
           <div className="flex items-center gap-3 mb-4">
             <span aria-hidden className="h-px w-9 bg-primary/70" />
             <span className="eyebrow">
-              {t({ ar: "معرض المشاريع", en: "The portfolio" })}
+              {t({ ar: c.eyebrow, en: c.eyebrowEn })}
             </span>
           </div>
           <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", lineHeight: 0.98, letterSpacing: "-0.045em" }}>
-            {t({ ar: "مشاريع وُلدت في ", en: "Ventures built at " })}
-            <span className="text-primary">{t({ ar: "آيلاند.", en: "Island Haven." })}</span>
+            {t({ ar: c.titleLead, en: c.titleLeadEn })}
+            <span className="text-primary">{t({ ar: c.titleAccent, en: c.titleAccentEn })}</span>
           </h2>
           <p className="t-body-lg mt-6 max-w-2xl">
-            {t({
-              ar: "من فكرة على ورقة، إلى يوم عرضٍ أمام الدّاعمين، إلى منتجٍ يخدم النّاس — هذه المحفظة تنمو داخل مساحتنا في غزّة.",
-              en: "From an idea on paper, to a Demo Day in front of our backers, to a product serving people — this portfolio is growing inside our space in Gaza.",
-            })}
+            {t({ ar: c.sub, en: c.subEn })}
           </p>
         </Reveal>
 
@@ -115,20 +137,17 @@ export function VenturesShowcase() {
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/55 to-[#070707]/15" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-9 lg:p-12 max-w-3xl">
                 <div className="text-[12px] font-bold uppercase tracking-[0.14em] rtl:tracking-normal text-primary mb-4">
-                  {t({ ar: "الدفعة الأولى", en: "Cohort 01" })}
+                  {t({ ar: c.emptyKicker, en: c.emptyKickerEn })}
                 </div>
                 <h3 className="font-display font-black text-white" style={{ fontSize: "clamp(2rem, 4.6vw, 4rem)", lineHeight: 0.98, letterSpacing: "-0.04em" }}>
-                  {t({ ar: "أوّل دفعة تَبني الآن.", en: "The first cohort is building now." })}
+                  {t({ ar: c.emptyTitle, en: c.emptyTitleEn })}
                 </h3>
                 <p className="mt-4 max-w-xl text-white/72 leading-relaxed" style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}>
-                  {t({
-                    ar: "هنا، قريبًا، تظهر أسماء المشاريع التي وُلدت في آيلاند — ومقعدك في الصفحة التالية.",
-                    en: "This is where the names of ventures born at Island Haven will live — and your seat is on the next page.",
-                  })}
+                  {t({ ar: c.emptyBody, en: c.emptyBodyEn })}
                 </p>
                 <Btn asChild variant="primary" size="md" className="group mt-7">
                   <Link href="/apply" data-testid="showcase-apply">
-                    {t({ ar: "قدّم للدفعة الأولى", en: "Apply to the first cohort" })}
+                    {t({ ar: c.emptyCta, en: c.emptyCtaEn })}
                     <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                   </Link>
                 </Btn>
@@ -158,7 +177,7 @@ export function VenturesShowcase() {
             <Reveal className="mt-[clamp(2.5rem,5vw,4rem)]">
               <Btn asChild variant="primary" size="md" className="group">
                 <Link href="/ventures" data-testid="showcase-all">
-                  {t({ ar: "كلّ المشاريع", en: "All ventures" })}
+                  {t({ ar: c.allCta, en: c.allCtaEn })}
                   <ArrowLeft className="w-4 h-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                 </Link>
               </Btn>

@@ -18,23 +18,44 @@ import { CtaClosedModal } from "./CtaClosedModal";
 // column and shows up as a large CLS spike. Keeping them identical = zero shift.
 const FALLBACK = {
   eyebrow: "حاضنة الأعمال والمجتمع التقني الرائد في قطاع غزة",
+  eyebrowEn: "Gaza's leading tech incubator & startup community",
   title1: "نَحضن أحلامك،",
   title2: "في قلب غزّة.",
+  // Monumental headline pieces (prefix · rotating object-word · suffix) — the
+  // exact literals the <h1> renders. rotatingWords is comma-joined; the
+  // component .split(",")s it back into the cycling words array.
+  titlePrefix: "نَحضن",
+  titlePrefixEn: "We grow Gaza's",
+  rotatingWords: "مشاريعك,أحلامك,مستقبلك,طاقاتك",
+  rotatingWordsEn: "ventures,dreams,futures,talent",
+  titleSuffix: "في قلب غزّة.",
+  titleSuffixEn: "for the world.",
   subtitle:
     "حاضنة أعمال ومجتمع تقني تأسّست من قلب قطاع غزة. نجسر الفجوة بين المواهب الغزية والعالم — بمساحات عمل احترافية، تدريب مكثّف، أرصدة سحابية، وحلول استقبال المدفوعات الدولية.",
+  subtitleEn:
+    "Gaza's business incubator. We take your idea from paper to product, and from product to market — through mentorship, incubation programs, and a global network of experts and partners.",
   ctaPrimary: "قدّم على الحاضنة",
   ctaPrimaryHref: "/apply",
   bookCtaLabel: "احجز مقعدك",
   scrollLabel: "Scroll",
+  scrollLabelEn: "Scroll",
+  // The gold chip beside the stats that links to the /verify proof.
+  verifyChip: "موقّع · تحقّق",
+  verifyChipEn: "Signed · verify",
   // Live-numeric stats have NO fabricated fallback — the real /numbers value
   // fills them in (counting up); until then only the label shows. Never a
   // hardcoded/inflated figure. stat3 (100% free) is an always-true constant.
   stat1Value: "",
   stat1Label: "مقعد",
+  stat1LabelEn: "seats",
   stat2Value: "",
+  stat2ValueEn: "",
   stat2Label: "منتسب",
+  stat2LabelEn: "members",
   stat3Value: "١٠٠٪",
+  stat3ValueEn: "100%",
   stat3Label: "مجّانيّ",
+  stat3LabelEn: "free",
   image1: "/photos/IMG_8341.webp",
   image2: "/photos/IMG_8347.webp",
   image3: "/photos/IMG_8358.webp",
@@ -205,6 +226,10 @@ export function Hero() {
   const cta = ctaData?.cta ?? DEFAULT_CTA;
   const [ctaModal, setCtaModal] = useState<CtaButtonConfig | null>(null);
   const cms = useContentSection("hero", FALLBACK);
+  // All user-facing COPY now resolves from the CMS "hero" section for BOTH
+  // languages — Arabic via the bare keys, English via the `*En` keys. `c`
+  // survives only to feed the hero STILLS: the English image1 differs from the
+  // Arabic one, and images are out of scope here (kept byte-identical).
   const c = lang === "en" ? EN_FALLBACK : cms;
   const reduce = useReducedMotion();
   // Monumental headline (prefix · rotating object-word · suffix) — the crimson
@@ -212,8 +237,8 @@ export function Hero() {
   // heartbeat of the hero. Big, bold, alive.
   const headline =
     lang === "en"
-      ? { prefix: "We grow Gaza's", words: ["ventures", "dreams", "futures", "talent"], suffix: "for the world." }
-      : { prefix: "نَحضن", words: ["مشاريعك", "أحلامك", "مستقبلك", "طاقاتك"], suffix: "في قلب غزّة." };
+      ? { prefix: cms.titlePrefixEn, words: cms.rotatingWordsEn.split(","), suffix: cms.titleSuffixEn }
+      : { prefix: cms.titlePrefix, words: cms.rotatingWords.split(","), suffix: cms.titleSuffix };
   const ref = useRef<HTMLElement>(null);
   const [stillIdx, setStillIdx] = useState(0);
   // Flips true one frame after mount — gates the stats count-up so it begins
@@ -300,9 +325,9 @@ export function Hero() {
   // verbatim — so the pre-fetch fallbacks and the non-numeric "100% free" never
   // animate toward an invented figure.
   const stats: { n: number | null; v: string; l: string }[] = [
-    { n: totalSeats, v: fmt(totalSeats), l: c.stat1Label },
-    { n: rosterStats ? rosterStats.total : null, v: rosterStats ? fmt(rosterStats.total) : (c.stat2Value || "—"), l: c.stat2Label },
-    { n: null, v: c.stat3Value, l: c.stat3Label },
+    { n: totalSeats, v: fmt(totalSeats), l: lang === "en" ? cms.stat1LabelEn : cms.stat1Label },
+    { n: rosterStats ? rosterStats.total : null, v: rosterStats ? fmt(rosterStats.total) : ((lang === "en" ? cms.stat2ValueEn : cms.stat2Value) || "—"), l: lang === "en" ? cms.stat2LabelEn : cms.stat2Label },
+    { n: null, v: lang === "en" ? cms.stat3ValueEn : cms.stat3Value, l: lang === "en" ? cms.stat3LabelEn : cms.stat3Label },
   ].filter((s) => s.v || s.l);
 
   return (
@@ -438,7 +463,7 @@ export function Hero() {
             >
               <span className="h-[2px] w-12 bg-primary" />
               <span className="text-[11px] tracking-[0.2em] uppercase text-white/85 font-semibold ltr:tracking-[0.2em] rtl:tracking-normal">
-                {c.eyebrow}
+                {lang === "en" ? cms.eyebrowEn : cms.eyebrow}
               </span>
             </motion.div>
 
@@ -468,7 +493,7 @@ export function Hero() {
             transition={{ delay: 0.7, duration: 0.5, ease: EASE_OUT_EXPO }}
             className="mt-5 lg:mt-7 max-w-[30rem] text-[1.0625rem] lg:text-[1.125rem] text-white/75 font-normal leading-[1.75] whitespace-pre-line"
           >
-            {c.subtitle}
+            {lang === "en" ? cms.subtitleEn : cms.subtitle}
           </motion.p>
 
           {/* Signed live figures — placed RIGHT ABOVE the actions. Same /numbers
@@ -496,7 +521,7 @@ export function Hero() {
               className="ms-auto inline-flex items-center gap-1.5 self-center rounded-full border border-[#DDBD7E]/35 bg-[#DDBD7E]/10 px-3 py-1.5 text-[10.5px] font-bold tracking-[0.03em] text-[#DDBD7E] transition-colors hover:bg-[#DDBD7E]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DDBD7E]/50"
             >
               <ShieldCheck className="h-3 w-3" aria-hidden />
-              {lang === "en" ? "Signed · verify" : "موقّع · تحقّق"}
+              {lang === "en" ? cms.verifyChipEn : cms.verifyChip}
             </a>
           </motion.div>
 
@@ -571,7 +596,7 @@ export function Hero() {
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
             className="hidden w-fit flex-col items-center gap-2 text-white/60 will-change-transform md:flex"
           >
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">{c.scrollLabel}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">{lang === "en" ? cms.scrollLabelEn : cms.scrollLabel}</span>
             <ArrowDown className="h-4 w-4" />
           </motion.div>
         </div>

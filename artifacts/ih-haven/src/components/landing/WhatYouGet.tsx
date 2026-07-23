@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { TOTAL_SEATS } from "@/components/booking/hall-plan";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "./Reveal";
@@ -19,8 +19,44 @@ import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
  * whitespace, a refined terracotta hover. Terracotta is the sole accent.
  * All data / i18n / routes / testids kept.
  */
+
+// AR is the CMS-overridable source of truth (useContentSection); English keeps
+// its literal via the parallel …En keys. Defaults below are byte-verbatim copies
+// of the previous hardcoded copy, so an un-edited site renders exactly as before.
+const FALLBACK = {
+  eyebrow: "ما تحصل عليه · غزّة",
+  eyebrowEn: "What you get · Gaza",
+  headlineA: "حاضنة كاملة. ",
+  headlineAEn: "A full incubator. ",
+  headlineAccent: "مجّانًا.",
+  headlineAccentEn: "Free.",
+  sub: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
+  subEn: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
+  learnMore: "اعرف أكثر",
+  learnMoreEn: "Learn more",
+  seatsLabel: "مقعدًا في المساحة",
+  seatsLabelEn: "seats in the space",
+  item0Title: "مساحة عمل مجّانيّة",
+  item0TitleEn: "A free workspace",
+  item0Body: "مقعد ثابت في مساحة هادئة، بإنترنت موثوق وكهرباء — احجزه متى احتجت.",
+  item0BodyEn: "A reliable seat in a calm space with stable internet and power — book it whenever you need.",
+  item1Title: "إرشاد من خبراء",
+  item1TitleEn: "Expert mentorship",
+  item1Body: "جلسات فرديّة مع مرشدين وروّاد أعمال ومتخصّصين — هندسةً وتصميمًا وأعمالًا.",
+  item1BodyEn: "1:1 sessions with mentors, founders and specialists — engineering, design and business.",
+  item2Title: "برامج ودفعات + Demo Day",
+  item2TitleEn: "Programs, cohorts & Demo Day",
+  item2Body: "مسارات احتضان وتسريع منظّمة، تُختم بيوم عرضٍ أمام شبكة من الدّاعمين.",
+  item2BodyEn: "Structured incubation & acceleration tracks that culminate in a Demo Day to our network.",
+  item3Title: "شبكة ومجتمع",
+  item3TitleEn: "A network & community",
+  item3Body: "مجتمع من المستقلّين والخرّيجين والمؤسّسين — تعاون، أعمال، وفرص.",
+  item3BodyEn: "A community of freelancers, graduates and founders — collaboration, work and opportunity.",
+};
+
 export function WhatYouGet() {
   const { t, lang } = useLanguage();
+  const c = useContentSection("whatYouGet", FALLBACK);
   // Seats figure = the hall's fixed CAPACITY, read from the ONE shared hall-plan
   // (38 seats) that the SeatsBoard floor plan and the /book map also use.
   // Deliberately CAPACITY, not live availability, so it can never contradict the
@@ -39,35 +75,35 @@ export function WhatYouGet() {
   const gives = [
     {
       showSeats: true,
-      title: t({ ar: "مساحة عمل مجّانيّة", en: "A free workspace" }),
+      title: t({ ar: c.item0Title, en: c.item0TitleEn }),
       body: t({
-        ar: "مقعد ثابت في مساحة هادئة، بإنترنت موثوق وكهرباء — احجزه متى احتجت.",
-        en: "A reliable seat in a calm space with stable internet and power — book it whenever you need.",
+        ar: c.item0Body,
+        en: c.item0BodyEn,
       }),
       href: "/book",
     },
     {
-      title: t({ ar: "إرشاد من خبراء", en: "Expert mentorship" }),
+      title: t({ ar: c.item1Title, en: c.item1TitleEn }),
       body: t({
-        ar: "جلسات فرديّة مع مرشدين وروّاد أعمال ومتخصّصين — هندسةً وتصميمًا وأعمالًا.",
-        en: "1:1 sessions with mentors, founders and specialists — engineering, design and business.",
+        ar: c.item1Body,
+        en: c.item1BodyEn,
       }),
       href: "/experts",
     },
     {
-      title: t({ ar: "برامج ودفعات + Demo Day", en: "Programs, cohorts & Demo Day" }),
+      title: t({ ar: c.item2Title, en: c.item2TitleEn }),
       body: t({
-        ar: "مسارات احتضان وتسريع منظّمة، تُختم بيوم عرضٍ أمام شبكة من الدّاعمين.",
-        en: "Structured incubation & acceleration tracks that culminate in a Demo Day to our network.",
+        ar: c.item2Body,
+        en: c.item2BodyEn,
       }),
       href: "/programs",
     },
     {
       accent: true,
-      title: t({ ar: "شبكة ومجتمع", en: "A network & community" }),
+      title: t({ ar: c.item3Title, en: c.item3TitleEn }),
       body: t({
-        ar: "مجتمع من المستقلّين والخرّيجين والمؤسّسين — تعاون، أعمال، وفرص.",
-        en: "A community of freelancers, graduates and founders — collaboration, work and opportunity.",
+        ar: c.item3Body,
+        en: c.item3BodyEn,
       }),
       href: "/members",
     },
@@ -95,7 +131,7 @@ export function WhatYouGet() {
             <div className="mb-5 flex items-center gap-3">
               <span aria-hidden className="h-px w-9 bg-primary/70" />
               <span className="eyebrow">
-                {t({ ar: "ما تحصل عليه · غزّة", en: "What you get · Gaza" })}
+                {t({ ar: c.eyebrow, en: c.eyebrowEn })}
               </span>
             </div>
             <h2
@@ -107,21 +143,21 @@ export function WhatYouGet() {
                 letterSpacing: "-0.04em",
               }}
             >
-              {t({ ar: "حاضنة كاملة. ", en: "A full incubator. " })}
-              <span className="text-primary">{t({ ar: "مجّانًا.", en: "Free." })}</span>
+              {t({ ar: c.headlineA, en: c.headlineAEn })}
+              <span className="text-primary">{t({ ar: c.headlineAccent, en: c.headlineAccentEn })}</span>
             </h2>
           </Reveal>
 
           <Reveal className="lg:col-span-5" distance={22} delay={0.08}>
             <p className="max-w-xl text-[1.0625rem] leading-[1.7] text-white/80 lg:text-[1.2rem]">
               {t({
-                ar: "مساحة، إرشاد، برامج، وشبكة — كلّ ما يحتاجه صانعٌ ليبدأ ويَنمو، من قلب غزّة.",
-                en: "Space, mentorship, programs and a network — everything a maker needs to start and grow, from the heart of Gaza.",
+                ar: c.sub,
+                en: c.subEn,
               })}
             </p>
             <Btn asChild variant="ghost" className="group mt-6 hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none">
               <Link href="/programs">
-                {t({ ar: "اعرف أكثر", en: "Learn more" })}
+                {t({ ar: c.learnMore, en: c.learnMoreEn })}
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
               </Link>
             </Btn>
@@ -184,7 +220,7 @@ export function WhatYouGet() {
                 {g.showSeats && (
                   <div className="mt-3.5 inline-flex items-baseline gap-2">
                     <span className="font-mono text-xl font-bold tabular-nums text-primary">{fmtNum(totalSeats)}</span>
-                    <span className="text-[13px] text-white/65">{t({ ar: "مقعدًا في المساحة", en: "seats in the space" })}</span>
+                    <span className="text-[13px] text-white/65">{t({ ar: c.seatsLabel, en: c.seatsLabelEn })}</span>
                   </div>
                 )}
               </div>

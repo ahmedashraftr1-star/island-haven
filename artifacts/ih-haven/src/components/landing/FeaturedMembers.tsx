@@ -7,8 +7,26 @@ import { Btn } from "@/components/ui/Btn";
 import { splitTags } from "@/lib/labels";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
 import { Reveal } from "@/components/landing/Reveal";
-import { imageUrl, photoSrcSet } from "@/hooks/use-content";
+import { imageUrl, photoSrcSet, useContentSection } from "@/hooks/use-content";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
+
+// Section-chrome copy (view-all, eyebrow, headline, per-card profile label) —
+// editable in the bilingual CMS. Member cards / names / skills stay on the API.
+// Bilingual → `foo`/`fooEn`.
+const FALLBACK = {
+  viewAll: "عرض الكلّ",
+  viewAllEn: "View all",
+  eyebrow: "المجتمع",
+  eyebrowEn: "Community",
+  eyebrowAccent: "غزّة",
+  eyebrowAccentEn: "Gaza",
+  title: "مواهب ",
+  titleEn: "Talent that ",
+  titleAccent: "تصنع الفارق",
+  titleAccentEn: "makes a difference",
+  viewProfile: "عرض الملفّ",
+  viewProfileEn: "View profile",
+};
 
 interface FMember {
   id: number;
@@ -28,6 +46,7 @@ interface FMember {
 export function FeaturedMembers() {
   const { t, lang } = useLanguage();
   useReducedMotion();
+  const c = useContentSection("featuredMembers", FALLBACK);
   const { data } = useMembers<FMember>();
   const en = lang === "en";
   // Top-5 slice; undefined until resolved. On loading / error / empty the
@@ -65,7 +84,7 @@ export function FeaturedMembers() {
           <div className="mb-[clamp(2.25rem,4vw,3.25rem)] flex items-end justify-between gap-6">
             <Btn asChild variant="ghost" size="sm" className="group gap-1.5 text-white/70 hover:text-white">
               <Link href="/members">
-                {t({ ar: "عرض الكلّ", en: "View all" })}
+                {t({ ar: c.viewAll, en: c.viewAllEn })}
                 <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
               </Link>
             </Btn>
@@ -73,17 +92,17 @@ export function FeaturedMembers() {
               <span className="mb-6 flex items-center justify-end gap-3">
                 <span aria-hidden className="h-px w-9 bg-primary/70" />
                 <span className="eyebrow">
-                  {t({ ar: "المجتمع", en: "Community" })}
+                  {t({ ar: c.eyebrow, en: c.eyebrowEn })}
                   <span className="text-white/45"> · </span>
-                  <span className="text-primary">{t({ ar: "غزّة", en: "Gaza" })}</span>
+                  <span className="text-primary">{t({ ar: c.eyebrowAccent, en: c.eyebrowAccentEn })}</span>
                 </span>
               </span>
               <h2
                 className="font-display text-white"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, letterSpacing: "-0.05em", lineHeight: 0.98 }}
               >
-                {t({ ar: "مواهب ", en: "Talent that " })}
-                <span className="text-primary">{t({ ar: "تصنع الفارق", en: "makes a difference" })}</span>
+                {t({ ar: c.title, en: c.titleEn })}
+                <span className="text-primary">{t({ ar: c.titleAccent, en: c.titleAccentEn })}</span>
               </h2>
             </div>
           </div>
@@ -149,7 +168,7 @@ export function FeaturedMembers() {
                     )}
 
                     <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-[13px] font-semibold text-primary">
-                      {t({ ar: "عرض الملفّ", en: "View profile" })}
+                      {t({ ar: c.viewProfile, en: c.viewProfileEn })}
                       <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" />
                     </span>
                   </Link>

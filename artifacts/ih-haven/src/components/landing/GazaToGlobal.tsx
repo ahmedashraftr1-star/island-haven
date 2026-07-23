@@ -6,8 +6,85 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { APPLY_CTA } from "@/lib/nav";
+
+/* CMS fallback — MIRRORS the copy this section renders, verbatim. Editing the
+   "gazaToGlobal" section in /admin now drives every string below; the defaults
+   here match the old inline literals exactly, so an un-edited site renders
+   byte-for-byte as before. Bilingual strings carry an Arabic key + an `…En`
+   English key; the hard-coded stat figures ("190+", "100%", "$25K", "40+") are
+   display strings and move too. SVG geometry, aria-labels, and routes are NOT
+   here — only visible human copy. */
+const CMS = {
+  // Header — thesis
+  eyebrow: "وصولٌ بلا حدود",
+  eyebrowEn: "Reach without borders",
+  headlineLead: "من غزّة ",
+  headlineLeadEn: "From Gaza ",
+  headlineAccent: "إلى العالم.",
+  headlineAccentEn: "to the world.",
+  description:
+    "الموهبة لا تحدّها الجغرافيا. نفتح الباب من قلب غزّة إلى سوقٍ عالميّ، بمدفوعاتٍ تَعبر الحدود وشبكةٍ تمتدّ عبر القارّات.",
+  descriptionEn:
+    "Talent isn't bounded by geography. From the heart of Gaza we open the door to a global market — with payments that cross borders and a network that spans continents.",
+  // Reach stats — ledger heading + four figures with bilingual label + sub
+  statsLabel: "الوصول بالأرقام",
+  statsLabelEn: "Reach in numbers",
+  stat0Value: "190+",
+  stat0Label: "دولة حول العالم",
+  stat0LabelEn: "countries reached",
+  stat0Sub: "سوق عمل عالميّ عبر الحدود",
+  stat0SubEn: "Global work marketplace",
+  stat1Value: "100%",
+  stat1Label: "مدفوعات Payoneer إلى غزّة",
+  stat1LabelEn: "Payoneer payouts to Gaza",
+  stat1Sub: "تحويلات دوليّة تصل غزّة",
+  stat1SubEn: "International payments in",
+  stat2Value: "$25K",
+  stat2Label: "رصيد خدمات سحابيّة",
+  stat2LabelEn: "cloud credits",
+  stat2Sub: "أدوات وبنية جاهزة",
+  stat2SubEn: "Tooling & infrastructure",
+  stat3Value: "40+",
+  stat3Label: "مُرشدون وشركاء",
+  stat3LabelEn: "mentors & partners",
+  stat3Sub: "شبكة عالميّة",
+  stat3SubEn: "Global network",
+  // Closing line + CTA lead
+  closingLead: "موهبتك من غزّة — ",
+  closingLeadEn: "Your talent is from Gaza — ",
+  closingAccent: "وأثرها للعالم كلّه.",
+  closingAccentEn: "its impact is for the whole world.",
+  // Reach map — origin + resting legend
+  originLabel: "غزّة",
+  originLabelEn: "Gaza",
+  legendOrigin: "نقطة الانطلاق: غزّة",
+  legendOriginEn: "Origin: Gaza",
+  legendHint: "مرّر أو انتقل بين الوجهات",
+  legendHintEn: "Hover or tab through the destinations",
+  // Reach map — per-destination region + honest reach narrative
+  region0: "أوروبا",
+  region0En: "Europe",
+  reach0: "أعضاؤنا يعملون مع عملاء وشركاء هنا.",
+  reach0En: "Our members work with clients & partners here.",
+  region1: "أمريكا الشماليّة",
+  region1En: "North America",
+  reach1: "مشاريع تُسلَّم عبر الأطلسي من قلب غزّة.",
+  reach1En: "Projects delivered across the Atlantic from Gaza.",
+  region2: "الخليج",
+  region2En: "The Gulf",
+  reach2: "شراكات ومهمّات مع فرقٍ في المنطقة.",
+  reach2En: "Partnerships & engagements with teams in the region.",
+  region3: "آسيا",
+  region3En: "Asia",
+  reach3: "عملٌ عن بُعد يصل أسواقًا في القارّة.",
+  reach3En: "Remote work reaching markets across the continent.",
+  region4: "إفريقيا",
+  region4En: "Africa",
+  reach4: "تعاونٌ يمتدّ جنوبًا عبر الحدود.",
+  reach4En: "Collaboration reaching south, across borders.",
+};
 
 /**
  * GazaToGlobal — "من غزّة إلى العالم / From Gaza to the World", the homepage's
@@ -172,6 +249,8 @@ export function GazaToGlobal() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   const ar = lang === "ar";
+  // Owner-editable copy from the admin CMS; falls back to the literals above.
+  const c = useContentSection("gazaToGlobal", CMS);
 
   // Reach stats — straight from the real value props the incubator hands over.
   // FIGURES stay Western/Latin numerals regardless of site language (owner ask);
@@ -179,25 +258,25 @@ export function GazaToGlobal() {
   // None invented beyond the vetted marketplace value props — only reformatted.
   const stats = [
     {
-      value: "190+",
-      label: t({ ar: "دولة حول العالم", en: "countries reached" }),
-      sub: t({ ar: "سوق عمل عالميّ عبر الحدود", en: "Global work marketplace" }),
+      value: c.stat0Value,
+      label: t({ ar: c.stat0Label, en: c.stat0LabelEn }),
+      sub: t({ ar: c.stat0Sub, en: c.stat0SubEn }),
     },
     {
-      value: "100%",
+      value: c.stat1Value,
       // "Payoneer" is a brand name — it stays Latin in both locales.
-      label: t({ ar: "مدفوعات Payoneer إلى غزّة", en: "Payoneer payouts to Gaza" }),
-      sub: t({ ar: "تحويلات دوليّة تصل غزّة", en: "International payments in" }),
+      label: t({ ar: c.stat1Label, en: c.stat1LabelEn }),
+      sub: t({ ar: c.stat1Sub, en: c.stat1SubEn }),
     },
     {
-      value: "$25K",
-      label: t({ ar: "رصيد خدمات سحابيّة", en: "cloud credits" }),
-      sub: t({ ar: "أدوات وبنية جاهزة", en: "Tooling & infrastructure" }),
+      value: c.stat2Value,
+      label: t({ ar: c.stat2Label, en: c.stat2LabelEn }),
+      sub: t({ ar: c.stat2Sub, en: c.stat2SubEn }),
     },
     {
-      value: "40+",
-      label: t({ ar: "مُرشدون وشركاء", en: "mentors & partners" }),
-      sub: t({ ar: "شبكة عالميّة", en: "Global network" }),
+      value: c.stat3Value,
+      label: t({ ar: c.stat3Label, en: c.stat3LabelEn }),
+      sub: t({ ar: c.stat3Sub, en: c.stat3SubEn }),
     },
   ];
 
@@ -221,19 +300,19 @@ export function GazaToGlobal() {
         <Reveal as="header" className="max-w-3xl">
           <span className="mb-5 flex items-center gap-2.5">
             <span aria-hidden className="h-px w-9 bg-primary/70" />
-            <span className="eyebrow">{t({ ar: "وصولٌ بلا حدود", en: "Reach without borders" })}</span>
+            <span className="eyebrow">{t({ ar: c.eyebrow, en: c.eyebrowEn })}</span>
           </span>
           <h2
             className="font-display text-white"
             style={{ fontSize: "clamp(2.4rem, 5vw, 4.5rem)", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.05em" }}
           >
-            {t({ ar: "من غزّة ", en: "From Gaza " })}
-            <span className="text-primary">{t({ ar: "إلى العالم.", en: "to the world." })}</span>
+            {t({ ar: c.headlineLead, en: c.headlineLeadEn })}
+            <span className="text-primary">{t({ ar: c.headlineAccent, en: c.headlineAccentEn })}</span>
           </h2>
           <p className="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-white/70">
             {t({
-              ar: "الموهبة لا تحدّها الجغرافيا. نفتح الباب من قلب غزّة إلى سوقٍ عالميّ، بمدفوعاتٍ تَعبر الحدود وشبكةٍ تمتدّ عبر القارّات.",
-              en: "Talent isn't bounded by geography. From the heart of Gaza we open the door to a global market — with payments that cross borders and a network that spans continents.",
+              ar: c.description,
+              en: c.descriptionEn,
             })}
           </p>
         </Reveal>
@@ -254,7 +333,7 @@ export function GazaToGlobal() {
                   Hairline separators, even rhythm — reads as one clean data block. */}
               <div className="lg:col-span-5">
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sand-bright/80 ltr:tracking-[0.16em] rtl:tracking-normal">
-                  {t({ ar: "الوصول بالأرقام", en: "Reach in numbers" })}
+                  {t({ ar: c.statsLabel, en: c.statsLabelEn })}
                 </p>
                 <div className="border-t border-white/10">
                   {stats.map((s, i) => (
@@ -297,8 +376,8 @@ export function GazaToGlobal() {
             className="font-display text-white max-w-2xl"
             style={{ fontSize: "clamp(1.3rem, 2.6vw, 2rem)", lineHeight: 1.18, letterSpacing: "-0.015em", fontWeight: 700 }}
           >
-            {t({ ar: "موهبتك من غزّة — ", en: "Your talent is from Gaza — " })}
-            <span className="text-primary">{t({ ar: "وأثرها للعالم كلّه.", en: "its impact is for the whole world." })}</span>
+            {t({ ar: c.closingLead, en: c.closingLeadEn })}
+            <span className="text-primary">{t({ ar: c.closingAccent, en: c.closingAccentEn })}</span>
           </p>
           <Btn asChild variant="primary" size="md" className="group shrink-0">
             <Link href="/apply" data-testid="gaza-to-global-apply">
@@ -343,6 +422,18 @@ function ReachVisual({
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const active = PLACED.find((r) => r.id === activeId) ?? null;
+
+  // Owner-editable copy from the admin CMS. Geometry (and the node aria-labels)
+  // keep their untouched module-level source; only the VISIBLE region + reach
+  // narrative in the caption below is CMS-driven, keyed to each node by id.
+  const c = useContentSection("gazaToGlobal", CMS);
+  const regionCopy: Record<string, { region: { ar: string; en: string }; reach: { ar: string; en: string } }> = {
+    eu: { region: { ar: c.region0, en: c.region0En }, reach: { ar: c.reach0, en: c.reach0En } },
+    us: { region: { ar: c.region1, en: c.region1En }, reach: { ar: c.reach1, en: c.reach1En } },
+    gulf: { region: { ar: c.region2, en: c.region2En }, reach: { ar: c.reach2, en: c.reach2En } },
+    asia: { region: { ar: c.region3, en: c.region3En }, reach: { ar: c.reach3, en: c.reach3En } },
+    africa: { region: { ar: c.region4, en: c.region4En }, reach: { ar: c.reach4, en: c.reach4En } },
+  };
 
   // Draw config — short-circuited to "already drawn / shown" under reduced-motion.
   const drawArc = reduce
@@ -537,7 +628,7 @@ function ReachVisual({
             fill="hsl(var(--primary))"
             fontWeight="700"
           >
-            {t({ ar: "غزّة", en: "Gaza" })}
+            {t({ ar: c.originLabel, en: c.originLabelEn })}
           </text>
         </g>
       </svg>
@@ -550,18 +641,18 @@ function ReachVisual({
           <div className="flex items-start gap-2.5 text-[12.5px]">
             <span aria-hidden className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
             <span className="text-white/85">
-              <span className="font-bold text-white">{t(active.region)}</span>
+              <span className="font-bold text-white">{t(regionCopy[active.id].region)}</span>
               <span className="text-white/30"> — </span>
-              <span className="text-white/70">{t(active.reach)}</span>
+              <span className="text-white/70">{t(regionCopy[active.id].reach)}</span>
             </span>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2.5 text-[12.5px] text-white/55">
             <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-primary" />
-            <span className="font-semibold text-white/80">{t({ ar: "نقطة الانطلاق: غزّة", en: "Origin: Gaza" })}</span>
+            <span className="font-semibold text-white/80">{t({ ar: c.legendOrigin, en: c.legendOriginEn })}</span>
             <span className="text-white/25">·</span>
             <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-sand-bright" />
-            <span>{t({ ar: "مرّر أو انتقل بين الوجهات", en: "Hover or tab through the destinations" })}</span>
+            <span>{t({ ar: c.legendHint, en: c.legendHintEn })}</span>
           </div>
         )}
       </div>

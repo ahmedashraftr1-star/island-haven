@@ -4,6 +4,7 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { PageShell, GlassCard } from "@/components/shell/PageShell";
 import { Btn } from "@/components/ui/Btn";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentSection } from "@/hooks/use-content";
 import { api } from "@/lib/api";
 
 interface Stats {
@@ -16,8 +17,39 @@ interface Stats {
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 const toAr = (s: string | number) => String(s).replace(/\d/g, (d) => AR_DIGITS[+d]);
 
+// Bilingual page chrome — the editable CMS fallback ("pageImpact" section).
+const CMS = {
+  eyebrow: "أثرنا · IMPACT",
+  eyebrowEn: "Our Impact · أثرنا",
+  title: "أثرٌ",
+  titleEn: "Impact you",
+  highlight: "يُقاس",
+  highlightEn: "can measure",
+  subtitle:
+    "لا نقول «آلاف» بلا دليل. هذه أرقام مجتمعنا الحقيقيّة، من قاعدة بياناتنا مباشرةً — مواهب غزّة التي نأخذ بيدها نحو الاقتصاد الرقميّ.",
+  subtitleEn:
+    "We don't claim 'thousands' without proof. These are our community's real numbers, straight from our database — the Gaza talent we're guiding into the digital economy.",
+  stat1Label: "موهبة مُحتضَنة",
+  stat1LabelEn: "talents incubated",
+  stat2Label: "خرّيج جاهز للسوق",
+  stat2LabelEn: "market-ready graduates",
+  stat3Label: "مستقلّ يعمل عالميًّا",
+  stat3LabelEn: "freelancers working globally",
+  stat4Label: "من النساء",
+  stat4LabelEn: "are women",
+  skillsTitle: "أبرز المهارات",
+  skillsTitleEn: "Top skills",
+  verifyNote: "أرقامنا العلنيّة موقّعة تشفيريًّا — تحقّق منها بنفسك.",
+  verifyNoteEn: "Our public numbers are cryptographically signed — verify them yourself.",
+  verifyCta: "تحقّق",
+  verifyCtaEn: "Verify",
+  meetCta: "قابِل المواهب",
+  meetCtaEn: "Meet the talent",
+};
+
 export default function Impact() {
   const { t, lang } = useLanguage();
+  const c = useContentSection("pageImpact", CMS);
   const [stats, setStats] = useState<Stats | null>(null);
   const n = (x: number) => (lang === "ar" ? toAr(x) : String(x));
 
@@ -36,22 +68,19 @@ export default function Impact() {
   const maxSkill = stats?.topSkills[0]?.c ?? 1;
 
   const bigStats: { value: string; label: { ar: string; en: string } }[] = [
-    { value: stats ? n(stats.total) : "—", label: { ar: "موهبة مُحتضَنة", en: "talents incubated" } },
-    { value: stats ? n(stats.types.graduate) : "—", label: { ar: "خرّيج جاهز للسوق", en: "market-ready graduates" } },
-    { value: stats ? n(stats.types.freelancer) : "—", label: { ar: "مستقلّ يعمل عالميًّا", en: "freelancers working globally" } },
-    { value: stats ? `${n(womenPct)}٪` : "—", label: { ar: "من النساء", en: "are women" } },
+    { value: stats ? n(stats.total) : "—", label: { ar: c.stat1Label, en: c.stat1LabelEn } },
+    { value: stats ? n(stats.types.graduate) : "—", label: { ar: c.stat2Label, en: c.stat2LabelEn } },
+    { value: stats ? n(stats.types.freelancer) : "—", label: { ar: c.stat3Label, en: c.stat3LabelEn } },
+    { value: stats ? `${n(womenPct)}٪` : "—", label: { ar: c.stat4Label, en: c.stat4LabelEn } },
   ];
 
   return (
     <PageShell
       active="impact"
-      eyebrow={t({ ar: "أثرنا · IMPACT", en: "Our Impact · أثرنا" })}
-      title={t({ ar: "أثرٌ", en: "Impact you" })}
-      highlight={t({ ar: "يُقاس", en: "can measure" })}
-      subtitle={t({
-        ar: "لا نقول «آلاف» بلا دليل. هذه أرقام مجتمعنا الحقيقيّة، من قاعدة بياناتنا مباشرةً — مواهب غزّة التي نأخذ بيدها نحو الاقتصاد الرقميّ.",
-        en: "We don't claim 'thousands' without proof. These are our community's real numbers, straight from our database — the Gaza talent we're guiding into the digital economy.",
-      })}
+      eyebrow={t({ ar: c.eyebrow, en: c.eyebrowEn })}
+      title={t({ ar: c.title, en: c.titleEn })}
+      highlight={t({ ar: c.highlight, en: c.highlightEn })}
+      subtitle={t({ ar: c.subtitle, en: c.subtitleEn })}
     >
       {/* Big honest stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -68,7 +97,7 @@ export default function Impact() {
       {/* Top skills */}
       <section className="mt-[clamp(3rem,7vw,5rem)]" aria-labelledby="impact-skills">
         <h2 id="impact-skills" className="font-display font-bold text-foreground" style={{ fontSize: "clamp(1.4rem,3vw,2.1rem)", letterSpacing: "-0.02em" }}>
-          {t({ ar: "أبرز المهارات", en: "Top skills" })}
+          {t({ ar: c.skillsTitle, en: c.skillsTitleEn })}
         </h2>
         <div className="mt-6 space-y-3 min-h-[16rem]">
           {(stats?.topSkills ?? []).map((sk) => (
@@ -90,12 +119,12 @@ export default function Impact() {
       <div className="mt-[clamp(3rem,7vw,5rem)] flex flex-col items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="inline-flex items-center gap-2 text-[13.5px] text-fg-secondary">
           <ShieldCheck className="h-4 w-4 text-sand-bright" aria-hidden />
-          {t({ ar: "أرقامنا العلنيّة موقّعة تشفيريًّا — تحقّق منها بنفسك.", en: "Our public numbers are cryptographically signed — verify them yourself." })}
+          {t({ ar: c.verifyNote, en: c.verifyNoteEn })}
         </p>
         <div className="flex gap-3">
-          <Btn asChild variant="secondary" size="md"><Link href="/verify">{t({ ar: "تحقّق", en: "Verify" })}</Link></Btn>
+          <Btn asChild variant="secondary" size="md"><Link href="/verify">{t({ ar: c.verifyCta, en: c.verifyCtaEn })}</Link></Btn>
           <Btn asChild variant="primary" size="md">
-            <Link href="/membership">{t({ ar: "قابِل المواهب", en: "Meet the talent" })}<ArrowLeft className="h-4 w-4 rtl:rotate-180" /></Link>
+            <Link href="/membership">{t({ ar: c.meetCta, en: c.meetCtaEn })}<ArrowLeft className="h-4 w-4 rtl:rotate-180" /></Link>
           </Btn>
         </div>
       </div>

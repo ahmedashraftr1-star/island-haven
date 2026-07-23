@@ -5,7 +5,7 @@ import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { useCohorts } from "@/hooks/use-public-data";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { formatDate, type CohortStatus } from "@/lib/labels";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { APPLY_CTA } from "@/lib/nav";
@@ -37,6 +37,48 @@ interface CohortRow {
   status: CohortStatus;
 }
 
+// CMS fallback MIRRORS the live "applyProcess" content verbatim. Editing the
+// section in /admin now drives this copy; defaults here match the server schema,
+// so an un-edited site renders exactly as before. Bilingual → foo / fooEn.
+const FALLBACK = {
+  eyebrow: "كيف تنضمّ",
+  eyebrowEn: "How to join",
+  titleA: "من طلبٍ واحد،",
+  titleAEn: "From one application,",
+  titleB: "إلى يوم العرض.",
+  titleBEn: "to Demo Day.",
+  sub: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
+  subEn: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
+  step0Title: "تقدّم بطلبك",
+  step0TitleEn: "Apply",
+  step0Body: "نموذج واحد، ١٥–٣٠ دقيقة. أخبرنا مَن أنت وماذا تبني — والصراحة تُقوّي طلبك.",
+  step0BodyEn: "One form, 15–30 minutes. Tell us who you are and what you're building — candor strengthens your case.",
+  step1Title: "المراجعة والمقابلة",
+  step1TitleEn: "Review & interview",
+  step1Body: "يقرأ الفريق كلّ طلب، ثمّ مقابلة قصيرة. نردّ خلال أيّام — قُبِلت أو لم تُقبَل، بتغذية راجعة واضحة.",
+  step1BodyEn: "The team reads every application, then a short interview. We respond within days — accepted or not, with clear feedback.",
+  step2Title: "الانضمام إلى دفعة",
+  step2TitleEn: "Onboard into a cohort",
+  step2Body: "تنضمّ إلى دفعة من المؤسّسين والمستقلّين — مساحة، إرشاد، ورشات، وخارطة طريق واضحة لمشروعك.",
+  step2BodyEn: "You join a cohort of founders and freelancers — space, mentorship, workshops and a clear roadmap for your project.",
+  step3Title: "يوم العرض",
+  step3TitleEn: "Demo Day",
+  step3Body: "تختم الرحلة بعرض مشروعك أمام شبكتنا من الداعمين والمرشدين والفرص — هنا يبدأ ما بعد آيلاند.",
+  step3BodyEn: "Close the journey by presenting to our network of supporters, mentors and opportunities — where life after Island Haven begins.",
+  cohortOpen: "التقديم مفتوح الآن",
+  cohortOpenEn: "Applications open now",
+  cohortNext: "الدفعة القادمة",
+  cohortNextEn: "Next cohort",
+  cohortStarts: "تبدأ",
+  cohortStartsEn: "starts",
+  cohortRolling: "التقديم مفتوح على مدار العام — والدفعة القادمة قريبًا.",
+  cohortRollingEn: "Rolling admissions, all year round — the next cohort is coming soon.",
+  ctaProcess: "تفاصيل عمليّة القبول",
+  ctaProcessEn: "See the full process",
+  ctaCohorts: "استعرض الدفعات",
+  ctaCohortsEn: "Browse cohorts",
+};
+
 const rise: Variants = {
   // y-only hidden (no opacity) so content is never stuck hidden if the scroll
   // reveal fails to fire; the rise still animates as enhancement when it does.
@@ -61,6 +103,7 @@ export function ApplyProcess() {
   const { t, lang } = useLanguage();
   const reduce = useReducedMotion();
   const { data } = useCohorts<CohortRow>();
+  const c = useContentSection("applyProcess", FALLBACK);
 
   // The one real data point: prefer an open cohort, else the next announced one
   // with a start date. Undefined data (loading / error) → null → the section
@@ -84,32 +127,20 @@ export function ApplyProcess() {
   // Four truthful steps. No medallions, no icons, no meta chips — the words carry it.
   const steps: { title: string; body: string }[] = [
     {
-      title: t({ ar: "تقدّم بطلبك", en: "Apply" }),
-      body: t({
-        ar: "نموذج واحد، ١٥–٣٠ دقيقة. أخبرنا مَن أنت وماذا تبني — والصراحة تُقوّي طلبك.",
-        en: "One form, 15–30 minutes. Tell us who you are and what you're building — candor strengthens your case.",
-      }),
+      title: t({ ar: c.step0Title, en: c.step0TitleEn }),
+      body: t({ ar: c.step0Body, en: c.step0BodyEn }),
     },
     {
-      title: t({ ar: "المراجعة والمقابلة", en: "Review & interview" }),
-      body: t({
-        ar: "يقرأ الفريق كلّ طلب، ثمّ مقابلة قصيرة. نردّ خلال أيّام — قُبِلت أو لم تُقبَل، بتغذية راجعة واضحة.",
-        en: "The team reads every application, then a short interview. We respond within days — accepted or not, with clear feedback.",
-      }),
+      title: t({ ar: c.step1Title, en: c.step1TitleEn }),
+      body: t({ ar: c.step1Body, en: c.step1BodyEn }),
     },
     {
-      title: t({ ar: "الانضمام إلى دفعة", en: "Onboard into a cohort" }),
-      body: t({
-        ar: "تنضمّ إلى دفعة من المؤسّسين والمستقلّين — مساحة، إرشاد، ورشات، وخارطة طريق واضحة لمشروعك.",
-        en: "You join a cohort of founders and freelancers — space, mentorship, workshops and a clear roadmap for your project.",
-      }),
+      title: t({ ar: c.step2Title, en: c.step2TitleEn }),
+      body: t({ ar: c.step2Body, en: c.step2BodyEn }),
     },
     {
-      title: t({ ar: "يوم العرض", en: "Demo Day" }),
-      body: t({
-        ar: "تختم الرحلة بعرض مشروعك أمام شبكتنا من الداعمين والمرشدين والفرص — هنا يبدأ ما بعد آيلاند.",
-        en: "Close the journey by presenting to our network of supporters, mentors and opportunities — where life after Island Haven begins.",
-      }),
+      title: t({ ar: c.step3Title, en: c.step3TitleEn }),
+      body: t({ ar: c.step3Body, en: c.step3BodyEn }),
     },
   ];
 
@@ -126,8 +157,8 @@ export function ApplyProcess() {
       <CalendarDays className="w-3.5 h-3.5 text-sand-bright" strokeWidth={2} />
       <span>
         {cohort.status === "open"
-          ? t({ ar: "التقديم مفتوح الآن", en: "Applications open now" })
-          : t({ ar: "الدفعة القادمة", en: "Next cohort" })}
+          ? t({ ar: c.cohortOpen, en: c.cohortOpenEn })
+          : t({ ar: c.cohortNext, en: c.cohortNextEn })}
         {cohortName && (
           <>
             {" · "}
@@ -137,7 +168,7 @@ export function ApplyProcess() {
         {cohort.startsAt && (
           <>
             {" — "}
-            {t({ ar: "تبدأ", en: "starts" })} {formatDate(cohort.startsAt, lang)}
+            {t({ ar: c.cohortStarts, en: c.cohortStartsEn })} {formatDate(cohort.startsAt, lang)}
           </>
         )}
       </span>
@@ -146,10 +177,7 @@ export function ApplyProcess() {
     <>
       <Clock className="w-3.5 h-3.5 text-sand-bright" strokeWidth={2} />
       <span>
-        {t({
-          ar: "التقديم مفتوح على مدار العام — والدفعة القادمة قريبًا.",
-          en: "Rolling admissions, all year round — the next cohort is coming soon.",
-        })}
+        {t({ ar: c.cohortRolling, en: c.cohortRollingEn })}
       </span>
     </>
   );
@@ -181,7 +209,7 @@ export function ApplyProcess() {
             <div className="flex items-center gap-3 mb-5">
               <span className="h-px w-10 bg-sand-bright/70" />
               <span className="text-[11px] tracking-[0.22em] uppercase text-sand-bright font-semibold rtl:tracking-normal">
-                {t({ ar: "كيف تنضمّ", en: "How to join" })}
+                {t({ ar: c.eyebrow, en: c.eyebrowEn })}
               </span>
             </div>
 
@@ -194,10 +222,10 @@ export function ApplyProcess() {
                 letterSpacing: "-0.05em",
               }}
             >
-              {t({ ar: "من طلبٍ واحد،", en: "From one application," })}
+              {t({ ar: c.titleA, en: c.titleAEn })}
               <br />
               <span className="text-primary">
-                {t({ ar: "إلى يوم العرض.", en: "to Demo Day." })}
+                {t({ ar: c.titleB, en: c.titleBEn })}
               </span>
             </h2>
 
@@ -209,10 +237,7 @@ export function ApplyProcess() {
               className="mt-8 sm:mt-10 max-w-2xl text-white/75"
               style={{ fontSize: "clamp(1.1rem, 1.9vw, 1.45rem)", lineHeight: 1.6 }}
             >
-              {t({
-                ar: "أربع خطوات واضحة، بلا رسوم وبلا غموض — هكذا تنتقل من فكرة إلى دفعة تُطلِق مشروعك.",
-                en: "Four clear steps — no fees, no fog. This is how you go from an idea to a cohort that launches your project.",
-              })}
+              {t({ ar: c.sub, en: c.subEn })}
             </motion.p>
 
             {/* Next-cohort / rolling-intake line — the one real data point, quiet. */}
@@ -301,13 +326,13 @@ export function ApplyProcess() {
               href="/process"
               className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] rounded-sm"
             >
-              {t({ ar: "تفاصيل عمليّة القبول", en: "See the full process" })}
+              {t({ ar: c.ctaProcess, en: c.ctaProcessEn })}
             </Link>
             <Link
               href="/cohorts"
               className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white transition-colors underline-offset-8 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#060608] rounded-sm"
             >
-              {t({ ar: "استعرض الدفعات", en: "Browse cohorts" })}
+              {t({ ar: c.ctaCohorts, en: c.ctaCohortsEn })}
             </Link>
           </motion.div>
         </div>

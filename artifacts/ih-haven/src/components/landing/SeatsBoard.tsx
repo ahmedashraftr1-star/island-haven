@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "./CinematicMedia";
 import { SeatMapPreview } from "@/components/booking/SeatMapPreview";
@@ -46,6 +46,47 @@ import { useNumbers, useAttendanceSummary, useSeatStatus, type PublicNumbers } f
 
 // Fallback mirrors the modest real numbers used elsewhere on the site (LivePulse).
 const FALLBACK_SEATS_HOSTED = 6;
+
+// CMS fallback MIRRORS the live "seatsBoard" copy verbatim. Editing the section in
+// /admin now drives this text; defaults here match the server schema, so an un-edited
+// site renders exactly as before. Numbers (TOTAL_SEATS, taken/free/present) stay live
+// from the hooks — only the words are editable. Bilingual → foo / fooEn.
+const FALLBACK = {
+  eyebrow: "توفّر المقاعد",
+  eyebrowEn: "Seat availability",
+  place: "غزّة",
+  placeEn: "Gaza",
+  headlineSeats: "مقعد — ",
+  headlineSeatsEn: "seats — ",
+  headlineAccent: "مكانك محفوظ.",
+  headlineAccentEn: "your place is waiting.",
+  descLive: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
+  descLiveEn: "A full hall — thirty-eight real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
+  descFallback: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. احجز مكانك وابدأ رحلتك معنا.",
+  descFallbackEn: "A full hall — thirty-eight real seats in the heart of Gaza. Reserve your place and start your journey with us.",
+  legendTaken: "مشغول",
+  legendTakenEn: "taken",
+  legendPresent: "حاضر الآن",
+  legendPresentEn: "present now",
+  legendFree: "متاح الآن",
+  legendFreeEn: "free now",
+  captionSeats: "مقعد",
+  captionSeatsEn: "seats",
+  captionFree: "متاح",
+  captionFreeEn: "free",
+  noFake: "لا رقم مُختلَق",
+  noFakeEn: "no fake number",
+  keyAvailable: "متاح",
+  keyAvailableEn: "Available",
+  keyTaken: "مشغول",
+  keyTakenEn: "Taken",
+  footerCapacity: "سعة القاعة",
+  footerCapacityEn: "Hall capacity",
+  footerSeats: "مقعدًا",
+  footerSeatsEn: "seats",
+  bookCta: "احجز مقعدك",
+  bookCtaEn: "Book your seat",
+};
 
 /** Derive the count of taken seats from REAL data, clamped to real capacity. */
 function takenFromNumbers(n: Pick<PublicNumbers, "seatsHosted" | "bookings"> | null): number {
@@ -231,6 +272,7 @@ function CheckInCard({
 export function SeatsBoard() {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
+  const c = useContentSection("seatsBoard", FALLBACK);
   const locale = lang === "ar" ? "ar-EG" : "en-US";
 
   // Two honest, PUBLIC sources — now read through the ONE shared, cached queries
@@ -298,9 +340,9 @@ export function SeatsBoard() {
             <Reveal as="div" className="mb-6 flex items-center gap-3">
               <span aria-hidden className="h-px w-9 bg-primary/70" />
               <span className="eyebrow">
-                {t({ ar: "توفّر المقاعد", en: "Seat availability" })}
+                {t({ ar: c.eyebrow, en: c.eyebrowEn })}
                 <span className="text-white/45"> · </span>
-                <span className="text-primary">{t({ ar: "غزّة", en: "Gaza" })}</span>
+                <span className="text-primary">{t({ ar: c.place, en: c.placeEn })}</span>
               </span>
             </Reveal>
 
@@ -315,9 +357,9 @@ export function SeatsBoard() {
                 }}
               >
                 <span className="text-sand-bright tabular-nums">{fmt(TOTAL_SEATS)}</span>{" "}
-                {t({ ar: "مقعد — ", en: "seats — " })}
+                {t({ ar: c.headlineSeats, en: c.headlineSeatsEn })}
                 <span className="text-primary">
-                  {t({ ar: "مكانك محفوظ.", en: "your place is waiting." })}
+                  {t({ ar: c.headlineAccent, en: c.headlineAccentEn })}
                 </span>
               </h2>
             </Reveal>
@@ -325,14 +367,8 @@ export function SeatsBoard() {
             <Reveal as="div" delay={0.1}>
               <p className="mt-6 max-w-md text-white/75 text-[1.0625rem] leading-[1.7]">
                 {hasRealData
-                  ? t({
-                      ar: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. هذا ما هو متاح الآن — من قاعدة بياناتنا مباشرةً، لا رقم مُختلَق.",
-                      en: "A full hall — thirty-eight real seats in the heart of Gaza. This is what's open right now, straight from our database. No invented numbers.",
-                    })
-                  : t({
-                      ar: "قاعة كاملة، ثمانيةٌ وثلاثون مقعدًا حقيقيًّا في قلب غزّة. احجز مكانك وابدأ رحلتك معنا.",
-                      en: "A full hall — thirty-eight real seats in the heart of Gaza. Reserve your place and start your journey with us.",
-                    })}
+                  ? t({ ar: c.descLive, en: c.descLiveEn })
+                  : t({ ar: c.descFallback, en: c.descFallbackEn })}
               </p>
             </Reveal>
 
@@ -343,7 +379,7 @@ export function SeatsBoard() {
                   <span aria-hidden className="h-3 w-3 rounded-[4px] bg-primary" />
                   <span className="text-white/85">
                     <span className="font-display font-bold text-white tabular-nums">{fmt(taken)}</span>{" "}
-                    {t({ ar: "مشغول", en: "taken" })}
+                    {t({ ar: c.legendTaken, en: c.legendTakenEn })}
                   </span>
                 </span>
                 {showPresent && (
@@ -351,7 +387,7 @@ export function SeatsBoard() {
                     <span aria-hidden className="h-3 w-3 rounded-full bg-primary ring-1 ring-inset ring-primary/60" />
                     <span className="text-white/85">
                       <span className="font-display font-bold text-primary tabular-nums">{fmt(present!)}</span>{" "}
-                      {t({ ar: "حاضر الآن", en: "present now" })}
+                      {t({ ar: c.legendPresent, en: c.legendPresentEn })}
                     </span>
                   </span>
                 )}
@@ -359,7 +395,7 @@ export function SeatsBoard() {
                   <span aria-hidden className="h-3 w-3 rounded-[4px] bg-white/[0.06] ring-1 ring-inset ring-white/30" />
                   <span className="text-white/85">
                     <span className="font-display font-bold text-white tabular-nums">{fmt(free)}</span>{" "}
-                    {t({ ar: "متاح الآن", en: "free now" })}
+                    {t({ ar: c.legendFree, en: c.legendFreeEn })}
                   </span>
                 </span>
               </div>
@@ -369,7 +405,7 @@ export function SeatsBoard() {
               <div className="mt-10">
                 <Btn asChild variant="primary" size="lg" className="group px-9 shadow-[0_28px_72px_-14px_hsl(354_82%_40%/0.6)]">
                   <Link href="/book" data-testid="seats-board-book">
-                    {t({ ar: "احجز مقعدك", en: "Book your seat" })}
+                    {t({ ar: c.bookCta, en: c.bookCtaEn })}
                     <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform duration-300 group-hover:-translate-x-1 rtl:group-hover:translate-x-1" />
                   </Link>
                 </Btn>
@@ -386,22 +422,22 @@ export function SeatsBoard() {
                   {fmt(TOTAL_SEATS)}
                 </span>
                 <span className="text-white/80 text-[13.5px] font-medium">
-                  {t({ ar: "مقعد", en: "seats" })}
+                  {t({ ar: c.captionSeats, en: c.captionSeatsEn })}
                   <span className="text-white/40"> · </span>
-                  <span className="tabular-nums text-white">{fmt(taken)}</span> {t({ ar: "مشغول", en: "taken" })}
+                  <span className="tabular-nums text-white">{fmt(taken)}</span> {t({ ar: c.legendTaken, en: c.legendTakenEn })}
                   {showPresent && (
                     <>
                       <span className="text-white/40"> · </span>
                       <span className="tabular-nums text-primary">{fmt(present!)}</span>{" "}
-                      <span className="text-primary/90">{t({ ar: "حاضر الآن", en: "present now" })}</span>
+                      <span className="text-primary/90">{t({ ar: c.legendPresent, en: c.legendPresentEn })}</span>
                     </>
                   )}
                   <span className="text-white/40"> · </span>
-                  <span className="tabular-nums text-white">{fmt(free)}</span> {t({ ar: "متاح", en: "free" })}
+                  <span className="tabular-nums text-white">{fmt(free)}</span> {t({ ar: c.captionFree, en: c.captionFreeEn })}
                   {hasRealData && (
                     <>
                       <span className="text-white/40"> · </span>
-                      <span className="text-white/55">{t({ ar: "لا رقم مُختلَق", en: "no fake number" })}</span>
+                      <span className="text-white/55">{t({ ar: c.noFake, en: c.noFakeEn })}</span>
                     </>
                   )}
                 </span>
@@ -422,21 +458,21 @@ export function SeatsBoard() {
               <div aria-hidden className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-white/70">
                 <span className="inline-flex items-center gap-2">
                   <span className="h-3 w-3 rounded-[3px] bg-white/[0.06] ring-1 ring-inset ring-white/30" />
-                  {t({ ar: "متاح", en: "Available" })}
+                  {t({ ar: c.keyAvailable, en: c.keyAvailableEn })}
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <span className="h-3 w-3 rounded-[3px] bg-primary ring-1 ring-inset ring-primary/60" />
-                  {t({ ar: "مشغول", en: "Taken" })}
+                  {t({ ar: c.keyTaken, en: c.keyTakenEn })}
                 </span>
               </div>
 
               {/* Footer meta — hall capacity, kept quiet */}
               <div className="mt-[clamp(1.25rem,2.5vw,1.75rem)] flex items-center justify-between border-t border-white/10 pt-4 text-[12px] text-white/55">
                 <span>
-                  {t({ ar: "سعة القاعة", en: "Hall capacity" })}
+                  {t({ ar: c.footerCapacity, en: c.footerCapacityEn })}
                 </span>
                 <span className="tabular-nums">
-                  {fmt(TOTAL_SEATS)} {t({ ar: "مقعدًا", en: "seats" })}
+                  {fmt(TOTAL_SEATS)} {t({ ar: c.footerSeats, en: c.footerSeatsEn })}
                 </span>
               </div>
 

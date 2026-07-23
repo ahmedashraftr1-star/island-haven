@@ -8,7 +8,7 @@ import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { credit } from "@/lib/credit";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { I18N } from "@/lib/i18n";
+import { useContentSection } from "@/hooks/use-content";
 
 interface Story {
   id: number;
@@ -23,6 +23,34 @@ interface Story {
   status: string;
   sortOrder: number;
 }
+
+// Bilingual page chrome — the editable CMS fallback ("pageStories" section).
+const CMS = {
+  eyebrow: "إلهام حقيقيّ · إثبات لا يُجادَل · تأثير يتجاوز الحدود",
+  eyebrowEn: "Real Inspiration · Undeniable Proof · Impact Beyond Borders",
+  title: "قصص",
+  titleEn: "Success",
+  highlight: "النجاح",
+  highlightEn: "Stories",
+  subtitle:
+    "قصص حقيقيّة من داخل آيلاند — مشاريع بدأت بفكرة جريئة، ومواهب أبت أن تستسلم للظروف، وإرادات أثبتت أنّ الموهبة الغزيّة لا سقف لها.",
+  subtitleEn:
+    "Real stories from inside Island Haven — projects that started with a bold idea, talents that refused to yield to circumstances, and wills that proved Gazan talent has no ceiling.",
+  empty: "لا قصص منشورة بعد.",
+  emptyEn: "No stories published yet.",
+  featuredBadge: "مميّز",
+  featuredBadgeEn: "Featured",
+  readMore: "اقرأ القصة كاملة",
+  readMoreEn: "Read the full story",
+  featuredStories: "قصص مميّزة",
+  featuredStoriesEn: "Featured Stories",
+  allStories: "كل القصص",
+  allStoriesEn: "All Stories",
+  ctaQuestion: "هل تريد أن تكون القصّة التالية؟",
+  ctaQuestionEn: "Want to be the next story?",
+  ctaButton: "قدّم على الحاضنة ←",
+  ctaButtonEn: "Apply to the incubator →",
+};
 
 function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
   const { t } = useLanguage();
@@ -118,7 +146,8 @@ function StoryModal({ story, onClose }: { story: Story; onClose: () => void }) {
 }
 
 function StoryCard({ story, featured, index }: { story: Story; featured: boolean; index: number }) {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
+  const c = useContentSection("pageStories", CMS);
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -152,7 +181,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#15171F]" />
               {story.featured && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 backdrop-blur text-[11px] font-bold text-foreground">
-                  <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {lang === "en" ? "Featured" : "مميّز"}
+                  <Star className="w-3 h-3 fill-current" aria-hidden="true" /> {t({ ar: c.featuredBadge, en: c.featuredBadgeEn })}
                 </div>
               )}
             </div>
@@ -182,7 +211,7 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
             )}
 
             <div className="flex items-center gap-1.5 text-primary-bright text-[12px] font-semibold group-hover:gap-2.5 transition-all">
-              {lang === "en" ? "Read the full story" : "اقرأ القصة كاملة"} <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+              {t({ ar: c.readMore, en: c.readMoreEn })} <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </div>
           </div>
         </GlassCard>
@@ -193,8 +222,8 @@ function StoryCard({ story, featured, index }: { story: Story; featured: boolean
 }
 
 export default function Stories() {
-  const { lang, t } = useLanguage();
-  const p = I18N.pages.stories;
+  const { t } = useLanguage();
+  const c = useContentSection("pageStories", CMS);
   const { data, isLoading } = useQuery({
     queryKey: ["stories"],
     queryFn: () => api<{ stories: Story[] }>("/stories"),
@@ -205,10 +234,10 @@ export default function Stories() {
 
   return (
     <PageShell
-      eyebrow={t(p.eyebrow)}
-      title={t(p.title)}
-      highlight={t(p.highlight)}
-      subtitle={t(p.subtitle)}
+      eyebrow={t({ ar: c.eyebrow, en: c.eyebrowEn })}
+      title={t({ ar: c.title, en: c.titleEn })}
+      highlight={t({ ar: c.highlight, en: c.highlightEn })}
+      subtitle={t({ ar: c.subtitle, en: c.subtitleEn })}
     >
       <div className="space-y-12">
         {isLoading && (
@@ -222,7 +251,7 @@ export default function Stories() {
         {!isLoading && stories.length === 0 && (
           <div className="text-center py-24">
             <Quote className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
-            <p className="text-fg-secondary text-[15px] font-semibold">{lang === "en" ? "No stories published yet." : "لا قصص منشورة بعد."}</p>
+            <p className="text-fg-secondary text-[15px] font-semibold">{t({ ar: c.empty, en: c.emptyEn })}</p>
           </div>
         )}
 
@@ -233,7 +262,7 @@ export default function Stories() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
-                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{lang === "en" ? "Featured Stories" : "قصص مميّزة"}</span>
+                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{t({ ar: c.featuredStories, en: c.featuredStoriesEn })}</span>
                 </div>
                 {/* The lead card is double-width — but only when that still TILES.
                     It occupies 2 of the 3 columns, so the block fills exactly
@@ -261,7 +290,7 @@ export default function Stories() {
               {stories.some(s => s.featured) && (
                 <div className="flex items-center gap-3 mb-5">
                   <div className="h-px flex-1 bg-surface-2" />
-                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{lang === "en" ? "All Stories" : "كل القصص"}</span>
+                  <span className="text-[13px] font-semibold text-muted-foreground tracking-widest uppercase">{t({ ar: c.allStories, en: c.allStoriesEn })}</span>
                   <div className="h-px flex-1 bg-surface-2" />
                 </div>
               )}
@@ -276,12 +305,12 @@ export default function Stories() {
 
         {/* CTA */}
         <div className="text-center py-8">
-          <p className="text-fg-secondary text-[14px] mb-4">هل تريد أن تكون القصّة التالية؟</p>
+          <p className="text-fg-secondary text-[14px] mb-4">{t({ ar: c.ctaQuestion, en: c.ctaQuestionEn })}</p>
           <Link
             href="/apply"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary-cta text-white font-semibold text-[14px] hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
-            قدّم على الحاضنة ←
+            {t({ ar: c.ctaButton, en: c.ctaButtonEn })}
           </Link>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Btn } from "@/components/ui/Btn";
 import { Reveal } from "@/components/landing/Reveal";
 import { CinematicMedia } from "@/components/landing/CinematicMedia";
-import { imageUrl } from "@/hooks/use-content";
+import { imageUrl, useContentSection } from "@/hooks/use-content";
 import { ExpertAvatar } from "@/components/ui/ExpertAvatar";
 import { SpotlightOverlay } from "@/components/ui/SpotlightCard";
 
@@ -48,8 +48,45 @@ interface ExpertView {
   acceptingSessions: boolean;
 }
 
+// Section-chrome copy (eyebrow, headline, intro, empty state, pills, CTAs) —
+// editable in the bilingual CMS. Expert cards / names / availability count stay
+// on the API. Bilingual → `foo`/`fooEn`.
+const FALLBACK = {
+  eyebrow: "الخبراء والمرشدون",
+  eyebrowEn: "Experts & mentors",
+  title: "خبراءٌ يأخذون بيدك نحو ",
+  titleEn: "Experts who take your hand toward ",
+  titleAccent: "الأثر.",
+  titleAccentEn: "impact.",
+  titleEmpty: "المرشدون يتجمّعون. ",
+  titleEmptyEn: "The mentors are gathering. ",
+  titleEmptyAccent: "كن منهم.",
+  titleEmptyAccentEn: "Be one.",
+  intro: "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ.",
+  introEn: "Book a free one-to-one session, and turn your idea into a venture that can scale.",
+  introEmpty: "مؤسّسون وبُناةٌ ومتخصّصون من حول العالم يجلسون مع جيلٍ غزّيّ شابّ، واحدًا لواحد. جلسة واحدة قد تفتح بابًا أغلقته الحرب.",
+  introEmptyEn: "Founders, builders and specialists worldwide sit with a young Gazan generation, one to one. A single session can open a door the war had closed.",
+  availableSuffix: "متاحون للحجز الآن",
+  availableSuffixEn: "available to book now",
+  emptyBody: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
+  emptyBodyEn: "The roster is forming. If you're a founder or specialist willing to give an hour of your time, be one of the first mentors.",
+  emptyCta: "سجّل كمرشد",
+  emptyCtaEn: "Become a mentor",
+  emptyCta2: "كيف يعمل الإرشاد",
+  emptyCta2En: "How mentorship works",
+  bookLabel: "متاح للحجز",
+  bookLabelEn: "Available to book",
+  busyLabel: "قائمة الانتظار",
+  busyLabelEn: "Waitlist",
+  outroLine: "كلّ الخبراء، في مكانٍ واحد.",
+  outroLineEn: "Every expert, in one place.",
+  allCta: "تصفّح كل الخبراء",
+  allCtaEn: "Browse all experts",
+};
+
 export function ExpertsBand() {
   const { t, lang } = useLanguage();
+  const c = useContentSection("expertsBand", FALLBACK);
   const { data, isLoading, isError } = useExperts<ExpertCard>();
   const en = lang === "en";
   // Loading → null (skeleton grid). Error → [] so the evergreen empty state
@@ -82,17 +119,11 @@ export function ExpertsBand() {
   const availableLabel = lang === "en" ? available.toString() : available.toLocaleString("ar-EG");
 
   const intro = isEmpty
-    ? t({
-        ar: "مؤسّسون وبُناةٌ ومتخصّصون من حول العالم يجلسون مع جيلٍ غزّيّ شابّ، واحدًا لواحد. جلسة واحدة قد تفتح بابًا أغلقته الحرب.",
-        en: "Founders, builders and specialists worldwide sit with a young Gazan generation, one to one. A single session can open a door the war had closed.",
-      })
-    : t({
-        ar: "احجز جلسة إرشاد فرديّة مَجّانًا، وحوّل فكرتك إلى مشروع قابل للنموّ.",
-        en: "Book a free one-to-one session, and turn your idea into a venture that can scale.",
-      });
+    ? t({ ar: c.introEmpty, en: c.introEmptyEn })
+    : t({ ar: c.intro, en: c.introEn });
 
-  const bookLabel = t({ ar: "متاح للحجز", en: "Available to book" });
-  const busyLabel = t({ ar: "قائمة الانتظار", en: "Waitlist" });
+  const bookLabel = t({ ar: c.bookLabel, en: c.bookLabelEn });
+  const busyLabel = t({ ar: c.busyLabel, en: c.busyLabelEn });
 
   return (
     <CinematicMedia
@@ -118,7 +149,7 @@ export function ExpertsBand() {
             <div className="mb-5 flex items-center gap-3">
               <span aria-hidden className="h-px w-9 bg-primary/70" />
               <span className="eyebrow">
-                {t({ ar: "الخبراء والمرشدون", en: "Experts & mentors" })}
+                {t({ ar: c.eyebrow, en: c.eyebrowEn })}
               </span>
             </div>
             <h2
@@ -132,13 +163,13 @@ export function ExpertsBand() {
             >
               {isEmpty ? (
                 <>
-                  {t({ ar: "المرشدون يتجمّعون. ", en: "The mentors are gathering. " })}
-                  <span className="text-primary">{t({ ar: "كن منهم.", en: "Be one." })}</span>
+                  {t({ ar: c.titleEmpty, en: c.titleEmptyEn })}
+                  <span className="text-primary">{t({ ar: c.titleEmptyAccent, en: c.titleEmptyAccentEn })}</span>
                 </>
               ) : (
                 <>
-                  {t({ ar: "خبراءٌ يأخذون بيدك نحو ", en: "Experts who take your hand toward " })}
-                  <span className="text-primary">{t({ ar: "الأثر.", en: "impact." })}</span>
+                  {t({ ar: c.title, en: c.titleEn })}
+                  <span className="text-primary">{t({ ar: c.titleAccent, en: c.titleAccentEn })}</span>
                 </>
               )}
             </h2>
@@ -152,7 +183,7 @@ export function ExpertsBand() {
               <p className="mt-6 inline-flex items-center gap-2.5 text-[14px] font-semibold text-primary">
                 <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-primary motion-safe:animate-pulse" />
                 <span className="tnum">
-                  {availableLabel} {t({ ar: "متاحون للحجز الآن", en: "available to book now" })}
+                  {availableLabel} {t({ ar: c.availableSuffix, en: c.availableSuffixEn })}
                 </span>
               </p>
             )}
@@ -167,21 +198,18 @@ export function ExpertsBand() {
           <Reveal className="mt-[clamp(3rem,7vh,5rem)]" duration={0.7}>
             <div className="glass-panel flex flex-col items-start gap-5 p-6 sm:p-8">
               <p className="max-w-2xl text-[1.0625rem] leading-[1.7] text-white/80">
-                {t({
-                  ar: "الروستر يتشكّل الآن. إن كنت مؤسّسًا أو متخصّصًا وتودّ أن تمنح ساعةً من وقتك، فكن أوّل المرشدين.",
-                  en: "The roster is forming. If you're a founder or specialist willing to give an hour of your time, be one of the first mentors.",
-                })}
+                {t({ ar: c.emptyBody, en: c.emptyBodyEn })}
               </p>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Btn asChild variant="primary" size="md" className="group">
                   <Link href="/become-mentor?ref=home-experts-empty" data-testid="experts-empty-become-mentor">
-                    {t({ ar: "سجّل كمرشد", en: "Become a mentor" })}
+                    {t({ ar: c.emptyCta, en: c.emptyCtaEn })}
                     <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
                   </Link>
                 </Btn>
                 <Btn asChild variant="ghost" className="group hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none">
                   <Link href="/experts#how-it-works">
-                    {t({ ar: "كيف يعمل الإرشاد", en: "How mentorship works" })}
+                    {t({ ar: c.emptyCta2, en: c.emptyCta2En })}
                     <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
                   </Link>
                 </Btn>
@@ -287,7 +315,7 @@ export function ExpertsBand() {
             {/* Terminal CTA — a calm confident line, no icon tile. */}
             <Reveal className="mt-[clamp(2.5rem,5vw,4rem)] flex flex-wrap items-center gap-x-4 gap-y-3" delay={0.1} duration={0.7}>
               <p className="text-white/80" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
-                {t({ ar: "كلّ الخبراء، في مكانٍ واحد.", en: "Every expert, in one place." })}
+                {t({ ar: c.outroLine, en: c.outroLineEn })}
               </p>
               <Btn
                 asChild
@@ -295,7 +323,7 @@ export function ExpertsBand() {
                 className="group hover:gap-3 text-primary-bright hover:text-primary motion-reduce:transition-none"
               >
                 <Link href="/experts" style={{ fontSize: "clamp(1rem,1.6vw,1.2rem)" }}>
-                  {t({ ar: "تصفّح كل الخبراء", en: "Browse all experts" })}
+                  {t({ ar: c.allCta, en: c.allCtaEn })}
                   <ArrowLeft className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1" aria-hidden />
                 </Link>
               </Btn>
