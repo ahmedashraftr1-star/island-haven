@@ -44,6 +44,9 @@ const EventDetail = lazy(() =>
   import("@/pages/Events").then((m) => ({ default: m.EventDetail })),
 );
 const Members = lazy(() => import("@/pages/Members"));
+const Membership = lazy(() => import("@/pages/Membership"));
+const Impact = lazy(() => import("@/pages/Impact"));
+const Hackathon = lazy(() => import("@/pages/Hackathon"));
 const Search = lazy(() => import("@/pages/Search"));
 const Experts = lazy(() => import("@/pages/Experts"));
 const ExpertDetail = lazy(() => import("@/pages/ExpertDetail"));
@@ -76,6 +79,8 @@ const Resources = lazy(() => import("@/pages/Resources"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const Saved = lazy(() => import("@/pages/Saved"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminMembers = lazy(() => import("@/pages/admin/AdminMembers"));
+const AdminStats = lazy(() => import("@/pages/admin/AdminStats"));
 const Stories = lazy(() => import("@/pages/Stories"));
 const Faq = lazy(() => import("@/pages/Faq"));
 const Process = lazy(() => import("@/pages/Process"));
@@ -153,6 +158,27 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/register": { title: { ar: "حساب جديد", en: "Create account" } },
   "/profile": { title: { ar: "ملفّي", en: "My profile" } },
   "/members": { title: { ar: "منتسبو المساحة", en: "Members" } },
+  "/membership": {
+    title: { ar: "مجتمع المواهب", en: "Talent Community" },
+    description: {
+      ar: "طلابٌ وخرّيجون ومستقلّون من آيلاند هيفن — مطوّرون ومصمّمون ومحلّلو بيانات من غزّة.",
+      en: "Students, graduates and freelancers of Island Haven — developers, designers and data analysts from Gaza.",
+    },
+  },
+  "/impact": {
+    title: { ar: "أثرنا", en: "Our Impact" },
+    description: {
+      ar: "أثر آيلاند هيفن بالأرقام — مواهب غزّة التي نحتضنها ونؤهّلها نحو الاقتصاد الرقميّ.",
+      en: "Island Haven's impact in numbers — the Gaza talent we incubate toward the digital economy.",
+    },
+  },
+  "/hackathon": {
+    title: { ar: "الهاكاثون", en: "Hackathon" },
+    description: {
+      ar: "هاكاثون آيلاند هيفن — حيث تُبنى الأفكار في أيّام، وتلتقي مواهب غزّة لتصنع الأثر.",
+      en: "The Island Haven hackathon — where ideas are built in days and Gaza's talent gathers to make an impact.",
+    },
+  },
   "/experts": {
     title: { ar: "مرشدو آيلاند", en: "Mentors" },
     description: {
@@ -329,6 +355,9 @@ function Router() {
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/profile" component={Profile} />
       <Route path="/members" component={Members} />
+      <Route path="/membership" component={Membership} />
+      <Route path="/impact" component={Impact} />
+      <Route path="/hackathon" component={Hackathon} />
       <Route path="/search" component={Search} />
       <Route path="/experts" component={Experts} />
       <Route path="/experts/:id" component={ExpertDetail} />
@@ -387,6 +416,8 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/notifications" component={NotificationSettings} />
       <Route path="/u/:id" component={PublicProfile} />
+      <Route path="/admin/members" component={AdminMembers} />
+      <Route path="/admin/stats" component={AdminStats} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
       </Switch>
